@@ -1587,29 +1587,14 @@ class Client(tanjun.Client):
         ----------
         accepts
             Bitfield of the interaction types this client should execute.
+
+        Raises
+        ------
+        RuntimeError
+            If called while the client is running.
         """
-        if self._server and self._loop:
-            interaction_accepts = [
-                (
-                    InteractionAcceptsEnum.AUTOCOMPLETE,
-                    hikari.AutocompleteInteraction,
-                    self.on_autocomplete_interaction_request,
-                ),
-                (InteractionAcceptsEnum.COMMANDS, hikari.CommandInteraction, self.on_command_interaction_request),
-            ]
-            assert set(interaction_accepts) == set(InteractionAcceptsEnum)
-            added = accepts & ~self._interaction_accepts
-            removed = self._interaction_accepts & ~accepts
-
-            for flag, interaction_type, callback in interaction_accepts:
-                if flag & added:
-                    self._server.set_listener(interaction_type, callback)  # type: ignore
-
-                elif flag & removed:
-                    _try_deregister_listener(self._server, interaction_type, callback)
-
-        elif self._loop and self._events and accepts and not self._interaction_accepts:
-            self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
+        if self._loop:
+            raise RuntimeError("Cannot change this config while the client is running")
 
         self._interaction_accepts = accepts
         return self
@@ -1621,9 +1606,20 @@ class Client(tanjun.Client):
         ----------
         accepts
             The type of messages commands should be executed based on.
+
+        Raises
+        ------
+        RuntimeError
+            If called while the client is running.
+        ValueError
+            If `accepts` is set to anything other than [tanjun.clients.MessageAcceptsEnum.NONE][]
+            when the client doesn't have a linked event manager.
         """
         if accepts.get_event_type() and not self._events:
             raise ValueError("Cannot set accepts level on a client with no event manager")
+
+        if self._loop:
+            raise RuntimeError("Cannot change this config while the client is running")
 
         self._message_accepts = accepts
         return self
@@ -2261,7 +2257,17 @@ class Client(tanjun.Client):
 
         await asyncio.gather(*(component.open() for component in self._components.copy().values()))
 
-        if register_listeners and self._events:
+        if register_listeners and self._server:
+            if self._interaction_accepts & InteractionAcceptsEnum.COMMANDS:
+                self._server.set_listener(hikari.CommandInteraction, self.on_command_interaction_request)
+
+            if self._interaction_accepts & InteractionAcceptsEnum.AUTOCOMPLETE:
+                self._server.set_listener(hikari.AutocompleteInteraction, self.on_autocomplete_interaction_request)
+
+            if self._events and (event_type := self._message_accepts.get_event_type()):
+                self._events.subscribe(event_type, self.on_message_create_event)
+
+        elif register_listeners and self._events:
             if event_type := self._message_accepts.get_event_type():
                 self._events.subscribe(event_type, self.on_message_create_event)
 
@@ -2271,13 +2277,6 @@ class Client(tanjun.Client):
             for event_type_, listeners in self._listeners.items():
                 for listener in listeners.values():
                     self._events.subscribe(event_type_, listener.__call__)
-
-        if register_listeners and self._server:
-            if self._interaction_accepts & InteractionAcceptsEnum.COMMANDS:
-                self._server.set_listener(hikari.CommandInteraction, self.on_command_interaction_request)
-
-            if self._interaction_accepts & InteractionAcceptsEnum.AUTOCOMPLETE:
-                self._server.set_listener(hikari.AutocompleteInteraction, self.on_autocomplete_interaction_request)
 
         self._add_task(self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED)))
 
