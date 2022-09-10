@@ -401,12 +401,6 @@ class InteractionAcceptsEnum(enum.IntFlag):
     """Execute all the interaction types Tanjun supports."""
 
 
-_INTERACTION_ACCEPTS_TO_TYPES = {
-    InteractionAcceptsEnum.AUTOCOMPLETE: hikari.AutocompleteInteraction,
-    InteractionAcceptsEnum.COMMANDS: hikari.CommandInteraction,
-}
-
-
 class MessageAcceptsEnum(str, enum.Enum):
     """The possible configurations for which events [tanjun.Client][] should execute commands based on."""
 
@@ -1595,15 +1589,24 @@ class Client(tanjun.Client):
             Bitfield of the interaction types this client should execute.
         """
         if self._server and self._loop:
+            interaction_accepts = [
+                (
+                    InteractionAcceptsEnum.AUTOCOMPLETE,
+                    hikari.AutocompleteInteraction,
+                    self.on_autocomplete_interaction_request,
+                ),
+                (InteractionAcceptsEnum.COMMANDS, hikari.CommandInteraction, self.on_command_interaction_request),
+            ]
+            assert set(interaction_accepts) == set(InteractionAcceptsEnum)
             added = accepts & ~self._interaction_accepts
             removed = self._interaction_accepts & ~accepts
-            for flag in InteractionAcceptsEnum:
-                interaction_type = _INTERACTION_ACCEPTS_TO_TYPES[flag]
+
+            for flag, interaction_type, callback in interaction_accepts:
                 if flag & added:
-                    self._server.set_listener(interaction_type, None)
+                    self._server.set_listener(interaction_type, callback)  # type: ignore
 
                 elif flag & removed:
-                    self._server.set_listener(interaction_type, None)
+                    _try_deregister_listener(self._server, interaction_type, callback)
 
         elif self._loop and self._events and accepts and not self._interaction_accepts:
             self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
