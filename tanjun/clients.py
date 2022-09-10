@@ -2839,7 +2839,7 @@ class Client(tanjun.Client):
             The event to execute commands based on.
         """
         if event.interaction.type is hikari.InteractionType.APPLICATION_COMMAND:
-            if self._interaction_accepts & InteractionAcceptsEnum.AUTOCOMPLETE:
+            if self._interaction_accepts & InteractionAcceptsEnum.COMMANDS:
                 assert isinstance(event.interaction, hikari.CommandInteraction)
                 return await self.on_gateway_command_create(event.interaction)
 
