@@ -437,6 +437,7 @@ _ACCEPTS_EVENT_TYPE_MAPPING: dict[MessageAcceptsEnum, typing.Optional[type[hikar
     MessageAcceptsEnum.GUILD_ONLY: hikari.GuildMessageCreateEvent,
     MessageAcceptsEnum.NONE: None,
 }
+assert _ACCEPTS_EVENT_TYPE_MAPPING.keys() == set(MessageAcceptsEnum)
 
 
 def _check_human(ctx: tanjun.Context, /) -> bool:
