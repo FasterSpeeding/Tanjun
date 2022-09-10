@@ -20,7 +20,7 @@ or [tutorials and articles](https://patchwork.systems/programming/hikari-discord
 
 * An alternative implementation of command signature parsing for slash commands (which relies more
   on documentation parsing) can be found at <https://github.com/thesadru/tanchi>.
-* A Redis based implementation of the async cache dependency can be found in
+* Redis based implementations of the async cache dependency can be found in
   [hikari-sake](https://github.com/FasterSpeeding/Sake) \>=v1.0.1a1 (exposed by
   [sake.redis.ResourceClient.add_to_tanjun][]).
 
