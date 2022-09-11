@@ -64,10 +64,100 @@ async def on_closed(session: alluka.Injected[aiohttp.ClientSession]) -> None:
 bit.add_client_callback(tanjun.ClientCallbackNames.CLOSED, on_closed)
 ```
 
-## Loading resources
+## Managing bot functionality
 
+[tanjun.components.Components][] exist as a way to manage and grouping bot
+functionality, storing functionality event listeners, commands, scheduled
+callbacks and client callbacks.
 
-### Hot reloading
+```py
+component = tanjun.Component()
+
+@component.with_command
+@tanjun.as_slash_command("name", "description")
+async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
+    ...
+
+@component.with_command
+@tanjun.as_message_command("name")
+async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
+    ...
+
+@component.with_command
+@tanjun.as_slash_command()
+async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
+    ...
+
+@tanjun.with_listener
+async def event_listener(event: hikari.Event) -> None:
+    ...
+```
+
+The relevant `with_` functions on a component allow functionality such as commands,
+event listeners and schedles to be loaded into a component through a deocrator call
+and the reevant `add_` functions allow adding functonality through chained calls.
+
+```py
+@tanjun.as_message_command("name")
+async def command(ctx: tanjun.abc.MessageContext) -> None:
+    raise NotImplemented
+
+component = tanjun.Component().load_from_scope()
+```
+
+Alternatively, functionality which is represented by a dedicated object can be
+implicitly loaded from a module's global scope using
+[load_from_scope][tanjun.components.Component.load_from_scope] rather than
+explicitly calling a `with_` or `add_` method.
+
+<!-- ### Component lifetimes
+
+[with_on_open][tanjun.components.Component.with_on_open] [with_on_close][tanjun.components.Component.with_on_open] -->
+
+### Loading modules
+
+Components are usually used to represent the functionality in a single Python
+module and, while [add_component][tanjun.abc.Client.add_component] can be used
+to directly add a component to a client, you can declare "loaders" and "unloaders"
+for a module to ease the flow
+
+```py
+component = tanjun.Component().load_from_scope()
+
+@tanjun.as_loader
+def load(client: tanjun.Client) -> None:
+    client.add_component(component)
+
+@tanjun.as_unloader
+def unload(client) -> None:
+    client.remove_component(component)
+```
+
+either by declaring a custom loader and unloader
+
+```py
+component = tanjun.Component().load_from_scope()
+
+loader = component.make_loader()
+```
+
+or by using [make_loader][tanjun.components.Component.make_loader] to generate
+a loader and unloader for the component.
+
+```py
+(
+    tanjun.Client.from_gateway_bot(bot)
+    .load_directory("./bot/components", namespace="bot.components")
+    .load_module("bot.owner")
+)
+```
+
+These modules with loaders can then be loaded into a client by calling
+[load_directory][tanjun.clients.Client.load_directory] to load from all the
+modules in a directory or [load_module][tanjun.clients.Client.load_module] to
+load a specific module.
+
+<!-- ### Hot reloading -->
 
 ## Declaring commands
 
@@ -75,21 +165,31 @@ bit.add_client_callback(tanjun.ClientCallbackNames.CLOSED, on_closed)
 
 #### Arguments
 
+#### Groups
+
 ### Message commands
 
 #### Arguments
 
+#### Groups
+
 ### Context menus
+
+Context menus represent and, unlike slash and message commands, do not have
+configurable arguments nor groups.
 
 ### Slash command autocomplete
 
 ### Annotation based command declaration
 
+### Wrapped commands
+
 ## Dependency injection
 
 Tanjun supports type based dependency injection as a type-safe approach for
 handling global state for most of the callbacks it takes (e.g. command
-callbacks, checks, hook callbacks, schedule callbacks) through Alluka.
+callbacks, checks, hook callbacks, event listeners, schedule callbacks) through
+Alluka.
 
 ```py
 (

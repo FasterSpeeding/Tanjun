@@ -59,5 +59,6 @@ plugins:
             - https://hikari-py.github.io/hikari/objects.inv
             - https://alluka.cursed.solutions/objects.inv
             - https://sake.cursed.solutions/objects.inv
-      watch:
-        - tanjun
+
+watch:
+  - tanjun
