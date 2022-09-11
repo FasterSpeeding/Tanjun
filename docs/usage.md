@@ -93,9 +93,10 @@ async def event_listener(event: hikari.Event) -> None:
     ...
 ```
 
-The relevant `with_` functions on a component allow functionality such as commands,
-event listeners and schedles to be loaded into a component through a deocrator call
-and the reevant `add_` functions allow adding functonality through chained calls.
+The `with_` functions on [Component][tanjun.components.Component] allow
+functionality such as commands, event listeners and schedles to be loaded into
+a component through a deocrator call and the relevant `add_` functions allow
+adding functionality through chained calls.
 
 ```py
 @tanjun.as_message_command("name")
@@ -108,7 +109,7 @@ component = tanjun.Component().load_from_scope()
 Alternatively, functionality which is represented by a dedicated object can be
 implicitly loaded from a module's global scope using
 [load_from_scope][tanjun.components.Component.load_from_scope] rather than
-explicitly calling a `with_` or `add_` method.
+explicitly calling `with_` and `add_` methods.
 
 <!-- ### Component lifetimes
 
