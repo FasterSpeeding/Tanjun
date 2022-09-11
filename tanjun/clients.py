@@ -1763,7 +1763,7 @@ class Client(tanjun.Client):
     async def check(self, ctx: tanjun.Context, /) -> bool:
         return await _internal.gather_checks(ctx, self._checks)
 
-    def add_component(self: _ClientT, component: tanjun.Component, /, *, add_injector: bool = False) -> _ClientT:
+    def add_component(self: _ClientT, component: tanjun.Component, /) -> _ClientT:
         """Add a component to this client.
 
         Parameters
@@ -1786,9 +1786,6 @@ class Client(tanjun.Client):
 
         component.bind_client(self)
         self._components[component.name] = component
-
-        if add_injector:
-            self.set_type_dependency(type(component), lambda: component)
 
         if self._loop:
             self._add_task(self._loop.create_task(component.open()))

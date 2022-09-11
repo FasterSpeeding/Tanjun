@@ -893,10 +893,6 @@ class TestClient:
         ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_component_when_add_injector(self):
-        ...
-
-    @pytest.mark.skip(reason="TODO")
     def test_add_component_when_is_alive(self):
         ...
 
