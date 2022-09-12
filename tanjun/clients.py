@@ -51,6 +51,7 @@ import importlib.util as importlib_util
 import inspect
 import itertools
 import logging
+import operator
 import pathlib
 import typing
 import warnings
@@ -464,33 +465,28 @@ async def on_parser_error(ctx: tanjun.Context, error: errors.ParserError) -> Non
     await ctx.respond(error.message)
 
 
-def _cmp_command(builder: typing.Optional[hikari.api.CommandBuilder], command: hikari.PartialCommand) -> bool:
-    if not builder or builder.id is not hikari.UNDEFINED and builder.id != command.id or builder.type != command.type:
+def _cmp_command(built: typing.Optional[hikari.api.CommandBuilder], cmd: hikari.PartialCommand) -> bool:
+    if not built or built.id is not hikari.UNDEFINED and built.id != cmd.id or built.type != cmd.type:
         return False
 
-    builder_dm_enabled = True if builder.is_dm_enabled is hikari.UNDEFINED else builder.is_dm_enabled
-    default_perms = builder.default_member_permissions or hikari.Permissions.NONE
-    builder_default_perms = command.default_member_permissions or hikari.Permissions.NONE
+    dm_enabled = True if built.is_dm_enabled is hikari.UNDEFINED else built.is_dm_enabled
+    default_perms = built.default_member_permissions or hikari.Permissions.NONE
+    builder_default_perms = cmd.default_member_permissions or hikari.Permissions.NONE
 
-    if builder_dm_enabled is not command.is_dm_enabled or default_perms != builder_default_perms:
+    if dm_enabled is not cmd.is_dm_enabled or default_perms != builder_default_perms:
         return False
 
-    if isinstance(command, hikari.SlashCommand):
-        assert isinstance(builder, hikari.api.SlashCommandBuilder)
-        if (
-            builder.description != command.description
-            or builder.description_localizations != command.description_localizations
-        ):
+    if isinstance(cmd, hikari.SlashCommand):
+        assert isinstance(built, hikari.api.SlashCommandBuilder)
+        if built.description != cmd.description or built.description_localizations != cmd.description_localizations:
             return False
 
-        command_options = command.options or ()
-        if len(builder.options) != len(command_options):
-            return False
+        opts = cmd.options or ()
 
-        return all(builder_option == option for builder_option, option in zip(builder.options, command_options))
+        return len(built.options) == len(opts) and all(itertools.starmap(operator.eAq, zip(built.options, opts)))
 
     # name doesn't need to be checked as `builder` will be `None` if that didn't match.
-    return builder.name_localizations == command.name_localizations
+    return built.name_localizations == cmd.name_localizations
 
 
 class _StartDeclarer:
