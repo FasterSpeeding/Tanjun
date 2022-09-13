@@ -66,7 +66,7 @@ bit.add_client_callback(tanjun.ClientCallbackNames.CLOSED, on_closed)
 
 ## Managing bot functionality
 
-[tanjun.components.Components][] exist as a way to manage and grouping bot
+[tanjun.components.Component][] exist as a way to manage and grouping bot
 functionality, storing functionality event listeners, commands, scheduled
 callbacks and client callbacks.
 
@@ -154,8 +154,8 @@ a loader and unloader for the component.
 ```
 
 These modules with loaders can then be loaded into a client by calling
-[load_directory][tanjun.clients.Client.load_directory] to load from all the
-modules in a directory or [load_module][tanjun.clients.Client.load_module] to
+[load_directory][tanjun.abc.Client.load_directory] to load from all the
+modules in a directory or [load_module][tanjun.abc.Client.load_module] to
 load a specific module.
 
 <!-- ### Hot reloading -->
@@ -251,6 +251,7 @@ The following type dependencies are available in specific contexts:
 * [tanjun.abc.SlashCommand][]: slash command execution (excluding any checks)
 TODO: this needs a consistency fix before being documented -->
 * [tanjun.abc.Component][]: Command execution (excluding client checks)
+<!-- * [hikari.events.base_events.Event][] TODO: implement this-->
 
 Both [tanjun.clients.Client.from_gateway_bot][] and [tanjun.clients.Client.from_rest_bot][]
 register type dependencies for the relevant [hikari traits][hikari.traits]
@@ -264,4 +265,17 @@ initialising [tanjun.clients.Client][] without a from method by calling
 
 ### Checks
 
+Checks are simple to understand, they are simply functions which run before command execution to decide
+whether a command or group of commands match a context.
+
 ### Limiters
+
+There's two builtin ways to limit the usage of commands and these follow similar
+rules around configuration. 
+
+#### The concurrency limiter
+
+Th
+
+#### Cooldowns
+
