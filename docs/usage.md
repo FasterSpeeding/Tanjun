@@ -271,11 +271,10 @@ whether a command or group of commands match a context.
 ### Limiters
 
 There's two builtin ways to limit the usage of commands and these follow similar
-rules around configuration. 
+rules around configuration.
 
 #### The concurrency limiter
 
 Th
 
 #### Cooldowns
-
