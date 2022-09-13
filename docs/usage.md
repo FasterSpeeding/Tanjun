@@ -149,13 +149,13 @@ a loader and unloader for the component.
 (
     tanjun.Client.from_gateway_bot(bot)
     .load_directory("./bot/components", namespace="bot.components")
-    .load_module("bot.owner")
+    .load_modules("bot.owner")
 )
 ```
 
 These modules with loaders can then be loaded into a client by calling
 [load_directory][tanjun.abc.Client.load_directory] to load from all the
-modules in a directory or [load_module][tanjun.abc.Client.load_module] to
+modules in a directory or [load_modules][tanjun.abc.Client.load_modules] to
 load a specific module.
 
 <!-- ### Hot reloading -->
@@ -270,11 +270,94 @@ whether a command or group of commands match a context.
 
 ### Limiters
 
-There's two builtin ways to limit the usage of commands and these follow similar
-rules around configuration.
+There are two standard ways to limit the usage of commands and these follow
+similar approaches for configuration:
 
-#### The concurrency limiter
+#### Concurrency limiter
 
-Th
+Concurrency limiters allow you to limit how many calls can be made to a group
+of commands concurrently.
+
+```py
+client = tanjun.Client.from_gateway_bot(bot)
+(
+    tanjun.InMemoryConcurrencyLimiter()
+    .set_bucket("main_commands", tanjun.BucketResource.USER, 2)
+    .disable_bucket("plugin.meta")
+    .add_to_client(client)
+)
+```
+
+Here [InMemoryConcurrencyLimiter][tanjun.dependencies.InMemoryConcurrencyLimiter]
+will manage the concurrency limits for all the commands in this bot instance with
+[Limiter.set_bucket][tanjun.dependencies.InMemoryConcurrencyLimiter.set_bucket]
+being called to limit the bucket `"main_commands"` to at most 2 concurrent executions per user,
+[Limiter.disable_bucket][tanjun.dependencies.InMemoryConcurrencyLimiter.disable_bucket]
+being called to ensure that the bucket `"plugin.meta"` has no concurrency limit
+as unconfigured buckets will default to the configuration for the `"default"` bucket, and
+[Limiter.add_to_client][tanjun.dependencies.InMemoryConcurrencyLimiter.add_to_client]
+being used to set this limiter for a client (note that clients can only have 1
+linked limiter).
+
+```py
+@tanjun.with_concurrency_limit("main_commands", follow_wrapped=True)
+@tanjun.with_annotated_args(follow_wrapped=True)
+@tanjun.as_message_command("name")
+@tanjun.as_slash_command("name", "description")
+@tanjun.as_user_menu("name")
+async def user_command(
+    ctx: tanjun.abc.Context,
+    user: Annotated[annotations.User, "A user"],
+) -> None:
+    raise NotImplementedError
+```
+
+And here we use [with_concurrency_limit][tanjun.dependencies.with_concurrency_limit]
+to mark these commands as using the `"main_commands"` concurrency limit bucket;
+buckets share their limits for a resource across all the commands under it for,
+for more information on the resources concurrency can be limited by see
+[BucketResource][tanjun.dependencies.BucketResource].
 
 #### Cooldowns
+
+Cooldowns limit how often a group of commands can be called.
+
+```py
+client = tanjun.Client.from_gateway_bot(bot)
+(
+    tanjun.InMemoryCooldownManager()
+    .set_bucket("main_commands", tanjun.BucketResource.USER, 5, 60)
+    .disable_bucket("plugin.meta")
+    .add_to_client(client)
+)
+```
+
+Here [InMemoryCooldownManager][tanjun.dependencies.InMemoryCooldownManager]
+will manage the cooldowns for all the commands in this bot instance with
+[Manager.set_bucket][tanjun.dependencies.InMemoryCooldownManager.set_bucket]
+being called to limit the bucket `"main_commands"` to 5 calls every 60 seconds per user,
+[Manager.disable_bucket][tanjun.dependencies.InMemoryCooldownManager.disable_bucket]
+being called to ensure that the bucket `"plugin.meta"` has no cooldowns as
+unconfigured buckets will default to the configuration for the `"default"` bucket, and
+[Manager.add_to_client][tanjun.dependencies.InMemoryCooldownManager.add_to_client]
+being used to set this cooldown manager for a client (note that clients can
+only have 1 linked cooldown manager).
+
+```py
+@tanjun.with_cooldown("main_commands", follow_wrapped=True)
+@tanjun.with_annotated_args(follow_wrapped=True)
+@tanjun.as_message_command("name")
+@tanjun.as_slash_command("name", "description")
+@tanjun.as_user_menu("name")
+async def user_command(
+    ctx: tanjun.abc.Context,
+    user: Annotated[annotations.User, "A user"],
+) -> None:
+    raise NotImplementedError
+```
+
+And here we use [with_cooldown][tanjun.dependencies.with_cooldown]
+to mark these commands as using the `"main_commands"` cooldown bucket;
+buckets share their cooldowns for a resource across all the commands under it,
+for more information on the resources cooldowns can be set for
+[BucketResource][tanjun.dependencies.BucketResource].
