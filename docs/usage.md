@@ -219,7 +219,7 @@ implementation for `Foo` or `Bar` has been set using `set_type_dependency`.
 
 A more detailed guide on how this works and the full feature set (e.g. optional
 dependencies) can be found [https://alluka.cursed.solutions/usage/](here).
-[alluka.abc.Client][] is exposed at [tanjun.abc.Client.injector][].
+[alluka.abc.Client][] is exposed at [Client.injector][tanjun.abc.Client.injector].
 
 ### Standard and special cased injected types.
 
@@ -253,11 +253,13 @@ TODO: this needs a consistency fix before being documented -->
 * [tanjun.abc.Component][]: Command execution (excluding client checks)
 <!-- * [hikari.events.base_events.Event][] TODO: implement this-->
 
-Both [tanjun.clients.Client.from_gateway_bot][] and [tanjun.clients.Client.from_rest_bot][]
-register type dependencies for the relevant [hikari traits][hikari.traits]
-which the bot is compatible with. You can get this behaviour after directly
-initialising [tanjun.clients.Client][] without a from method by calling
-[tanjun.clients.Client.set_hikari_trait_injectors][] with the relevant bot object.
+Both [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] and
+[Client.from_rest_bot][tanjun.clients.Client.from_rest_bot] register type
+dependencies for the relevant [hikari traits][hikari.traits] which the bot is
+compatible with. You can get this behaviour after directly initialising
+[tanjun.clients.Client][tanjun.Client] without a from method by calling
+[Client.set_hikari_trait_injectors][tanjun.clients.Client.set_hikari_trait_injectors]
+with the relevant bot object.
 
 ## Advanced command flow management
 
@@ -268,12 +270,7 @@ initialising [tanjun.clients.Client][] without a from method by calling
 Checks are simple to understand, they are simply functions which run before command execution to decide
 whether a command or group of commands match a context.
 
-### Limiters
-
-There are two standard ways to limit the usage of commands and these follow
-similar approaches for configuration:
-
-#### Concurrency limiter
+### Concurrency limiter
 
 Concurrency limiters allow you to limit how many calls can be made to a group
 of commands concurrently.
@@ -318,7 +315,7 @@ buckets share their limits for a resource across all the commands under it for,
 for more information on the resources concurrency can be limited by see
 [BucketResource][tanjun.dependencies.BucketResource].
 
-#### Cooldowns
+### Cooldowns
 
 Cooldowns limit how often a group of commands can be called.
 
