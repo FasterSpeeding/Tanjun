@@ -1,5 +1,7 @@
 # Usage
 
+This guide is not a conclusive list of the features in Tanjun.
+
 ## Starting with Hikari
 
 Tanjun supports both REST server based application command execution and gateway
