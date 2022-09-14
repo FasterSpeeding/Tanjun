@@ -219,7 +219,7 @@ async def ding_command(ctx: tanjun.abc.SlashContext) -> None:
 Slash commands can be stored in groups where the above example will be shown in
 the command menu as `"ding dong"` and `"ding ding"`. Unlike message command
 groups, slash command groups cannot be directly called as commands. To see more
-information on how slash command groups can be configured see 
+information on how slash command groups can be configured see
 [slash_command_group][tanjun.commands.slash.slash_command_group].
 
 ### Message commands
@@ -287,10 +287,10 @@ It's worth noting that since decorators are executed from the bottom upwards
 positional arguments will follow the same order.
 
 Arguments and options have multiple parsing approaches, by default they just
-parse 1 value but "multi" (can be applied to both) indicates that multiple 
+parse 1 value but "multi" (can be applied to both) indicates that multiple
 values should be allowed/parsed with these being passed as a list of values
 or greedy (argument only) indicating that an argument should parse the rest
-of the positional data as 1 big string which includes spaces. 
+of the positional data as 1 big string which includes spaces.
 
 The most helpful configuration for options and arguments is converters, these
 are at one or more callbacks which may be called to try and convert the value
