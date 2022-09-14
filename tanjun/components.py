@@ -102,18 +102,18 @@ def _with_command(
     /,
     *,
     copy: bool = False,
+    follow_wrapped: bool = False,
 ) -> _WithCommandReturnSig[_CommandT]:
-    if maybe_command:
-        maybe_command = maybe_command.copy() if copy else maybe_command
-        add_command(maybe_command)
-        return maybe_command
-
     def decorator(command: _CommandT, /) -> _CommandT:
         command = command.copy() if copy else command
         add_command(command)
+        if follow_wrapped:
+            for wrapped in _internal.collect_wrapped(command):
+                add_command(typing.cast(_CommandT, wrapped))
+
         return command
 
-    return decorator
+    return decorator(maybe_command) if maybe_command else decorator
 
 
 def _filter_scope(scope: collections.Mapping[str, typing.Any]) -> collections.Iterator[typing.Any]:
@@ -805,11 +805,13 @@ class Component(tanjun.Component):
         ...
 
     @typing.overload
-    def with_command(self, /, *, copy: bool = False) -> collections.Callable[[_CommandT], _CommandT]:
+    def with_command(
+        self, /, *, copy: bool = False, follow_wrapped: bool = False
+    ) -> collections.Callable[[_CommandT], _CommandT]:
         ...
 
     def with_command(
-        self, command: typing.Optional[_CommandT] = None, /, *, copy: bool = False
+        self, command: typing.Optional[_CommandT] = None, /, *, copy: bool = False, follow_wrapped: bool = False
     ) -> _WithCommandReturnSig[_CommandT]:
         """Add a command to this component through a decorator call.
 
@@ -840,13 +842,16 @@ class Component(tanjun.Component):
             The command to add to this component.
         copy
             Whether to copy the command before adding it to this component.
+        follow_wrapped
+            Whether to also add any commands `command` wraps in a decorator
+            call chain.
 
         Returns
         -------
         tanjun.abc.ExecutableCommand
             The added command.
         """
-        return _with_command(self.add_command, command, copy=copy)
+        return _with_command(self.add_command, command, copy=copy, follow_wrapped=follow_wrapped)
 
     def add_menu_command(self: _ComponentT, command: tanjun.MenuCommand[typing.Any, typing.Any], /) -> _ComponentT:
         # <<inherited docstring from tanjun.abc.Component>>.
