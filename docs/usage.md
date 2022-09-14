@@ -51,7 +51,8 @@ that the bot is started before Tanjun.
 
 While Hikari's bots provides systems for stating and stopping sub-components,
 these aren't cross compatible nor Tanjun friendly and Tanjun's client callbacks
-provide a DI and cross-compatible alternative for these.
+provide a cross-compatible alternative for these which support dependency
+injection.
 
 ```py
 client = tanjun.Client.from_gateway_bot(bot)
@@ -103,7 +104,7 @@ adding functionality through chained calls.
 ```py
 @tanjun.as_message_command("name")
 async def command(ctx: tanjun.abc.MessageContext) -> None:
-    raise NotImplemented
+    ...
 
 component = tanjun.Component().load_from_scope()
 ```
@@ -164,7 +165,22 @@ load a specific module.
 
 ## Declaring commands
 
+Commands need to be contained within a component to be loaded into a client
+and may either be loaded using
+[Component.add_command][tanjun.components.Component.add_command][]/
+[Component.with_command][tanjun.components.Component.with_command]
+(where add is chainable and with is a decorator callback) or implicitly
+using [Component.load_from_scope][tanjun.components.Component.load_from_scope].
+
+All command callbacks must be asynchronous and can use dependency injection.
+
 ### Slash commands
+
+```py
+@tanjun.as_slash_command("name", "description")
+async def slash_command(ctx: tanjun.abc.Context) -> None:
+    ...
+```
 
 #### Arguments
 
@@ -178,14 +194,82 @@ load a specific module.
 
 ### Context menus
 
+```py
+@component.with_command
+@tanjun.as_message_menu("name")
+async def message_menu_command(ctx: tanjun.abc.MenuContext, message: hikari.message) -> None:
+    ...
+
+@component.with_command
+@tanjun.as_user_menu("name")
+async def user_menu_command(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None:
+    ...
+```
+
 Context menus represent and, unlike slash and message commands, do not have
-configurable arguments nor groups.
+configurable arguments nor groups. These are created pretty easily as shown
+above; for more information on configuring menu commands see
+[tanjun.as_message_menu][tanjun.commands.menu.as_message_menu].
 
 ### Slash command autocomplete
+
+Autocomplete is a slash command exclusive feature which allows for processing
+partial input for string arguments and returning dynamic choices.
+
+Unlike application commands, autocomplete can't defer and must return within 3
+seconds. These callbacks must be asynchronous and support dependency injection.
+
+```py
+@component.with_command
+@tanjun.with_str_slash_option("opt1", "description")
+@tanjun.with_str_slash_option("opt2", "description", default=None)
+@tanjun.as_slash_command
+async def slash_command(
+    ctx: tanjun.abc.SlashContext,
+    opt1: str,
+    opt2: str | None,
+) -> None:
+    ...
+
+
+@slash_command.with_str_autocomplete("opt1")
+async def opt1_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
+    await ctx.set_choices()
+
+
+async def opt2_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
+    await ctx.set_choices()
+
+
+slash_command.set_str_autocomplete("opt2", opt2_autocomplete)
+```
 
 ### Annotation based command declaration
 
 ### Wrapped commands
+
+When creating multiple command types in a decorator call chain, standard
+decorators which can be applied to multiple command types often have a
+`follow_wrapped` argument which will apply them to all the compatible
+commands in a chain if [True][] is passed for it.
+
+When using `follow_wrapped` the relevant decorator must be above any
+`as_{}_command` decorator calls in the chain.
+
+```py
+@tanjun.with_annotated_args(follow_wrapped=True)
+@tanjun.with_guild_check(follow_wrapped=True)
+@tanjun.as_slash_command("name", "description")
+@tanjun.as_message_command("name")
+async def command(ctx: tanjun.abc.Context) -> None:
+    ...
+```
+
+It's worth noting that, while the previous command examples have typed `ctx` as
+a context type that's specific to the command type,
+[abc.Context][tanjun.abc.Context] is the base for all these (except the
+autocomplete context) and may be used as the type for `ctx` when a callback
+supports multiple command types.
 
 ## Dependency injection
 
@@ -211,7 +295,7 @@ async def command(
     foo_impl: alluka.Injected[Foo],
     bar_impl: Bar = alluka.inject(type=Bar),
 ) -> None:
-    raise NotImplementedError
+    ...
 ```
 
 And here we declare a command callback as taking the declared implementations
@@ -277,7 +361,7 @@ execution to decide whether a command or group of commands match a context.
 @tanjun.as_message_command("name")
 @tanjun.as_slash_command("name", "description", default_member_permissions=hikari.Permissions.BAN_MEMBERS)
 async def command(ctx: tanjun.abc.Context) -> None:
-    raise NotImplementedError
+    ...
 ```
 
 There's a collection of standard checks in [tanjun.checks][] which are all
@@ -306,7 +390,7 @@ async def db_check(ctx: tanjun.abc.Context, db: alluka.Injected[Db]) -> None:
 @tanjun.as_message_command("name")
 @tanjun.as_slash_command("name", "description")
 async def owner_only_command(ctxL tanjun.abc.Context):
-    raise NotImplementedError
+    ...
 ```
 
 Checks (both custom and standard) can be added to clients, components and
@@ -340,15 +424,15 @@ are contained within [Hooks][tanjun.hooks.Hooks] objects which may be added
 to a command, client or component using `set_hooks` where hooks on a client,
 component or command group will be callde for every child command.
 
-There are several different kinds of hooks which all support DI and may be
-synchronous or asynchronous:
+There are several different kinds of hooks which all support dependency
+injection and may be synchronous or asynchronous:
 
 ```py
 hooks = tanjun.AnyHooks()
 
 @hooks.with_pre_execution  # hooks.add_pre_execution
 async def pre_execution_hook(ctx: tanjun.abc.Context) -> None:
-    raise NotImplementedError
+    ...
 ```
 
 Pre-execution are called before the execution of a command (so after command
@@ -357,7 +441,7 @@ matching has finished and all the checks have passed).
 ```py
 @hooks.with_pre_execution  # hooks.add_pre_execution
 async def pre_execution_hook(ctx: tanjun.abc.Context) -> None:
-    raise NotImplementedError
+    ...
 ```
 
 Post-executon hooks are called after a command has finished executing,
@@ -366,7 +450,7 @@ regardless of whether it passed or failed.
 ```py
 @hooks.with_on_success  # hooks.add_success_hook
 async def success_hook(ctx: tanjun.abc.Context) -> None:
-    raise NotImplementedError
+    ...
 ```
 
 Success hooks are called after a command has finished executing, if it
@@ -427,7 +511,7 @@ async def user_command(
     ctx: tanjun.abc.Context,
     user: Annotated[annotations.User, "A user"],
 ) -> None:
-    raise NotImplementedError
+    ...
 ```
 
 And here we use [with_concurrency_limit][tanjun.dependencies.with_concurrency_limit]
@@ -471,7 +555,7 @@ async def user_command(
     ctx: tanjun.abc.Context,
     user: Annotated[annotations.User, "A user"],
 ) -> None:
-    raise NotImplementedError
+    ...
 ```
 
 And here we use [with_cooldown][tanjun.dependencies.with_cooldown]
