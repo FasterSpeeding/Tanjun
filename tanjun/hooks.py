@@ -81,6 +81,18 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._post_execution_callbacks: list[tanjun.HookSig] = []
         self._success_callbacks: list[tanjun.HookSig] = []
 
+    @typing.overload
+    def add_to_command(self: Hooks[tanjun.MessageContext], /) -> None:
+        ...
+
+    @typing.overload
+    def add_to_command(self: Hooks[tanjun.MessageContext], /) -> None:
+        ...
+
+    @typing.overload
+    def add_to_command(self: Hooks[tanjun.MessageContext], /) -> None:
+        ...
+
     def add_to_command(self, command: _CommandT, /) -> _CommandT:
         """Add this hook object to a command.
 
