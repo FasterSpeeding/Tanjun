@@ -333,7 +333,7 @@ search.
 
 ### Execution hooks
 
-Command hooks are callbacks which are called around command execution, these 
+Command hooks are callbacks which are called around command execution, these
 are contained within [Hooks][tanjun.hooks.Hooks] objects which may be added
 to a command, client or component using `set_hooks` where hooks on a client,
 component or command group will be callde for every child command.
