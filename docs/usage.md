@@ -310,7 +310,9 @@ async def owner_only_command(ctxL tanjun.abc.Context):
 Checks (both custom and standard) can be added to clients, components and
 commands using either the chainable `add_check` method or the decorator
 style `with_check` method with the standard checks providing `with_...`
-decorators which can be applied to commands to add the check.
+decorators which can be applied to commands to add the check and checks
+on a client, component or command group will be used for every child
+command.
 
 ```py
 def check(ctx: tanjun.abc.Context) -> bool:
@@ -331,7 +333,61 @@ search.
 
 ### Execution hooks
 
+Command hooks are callbacks which are called around command execution, these 
+are contained within [Hooks][tanjun.hooks.Hooks] objects which may be added
+to a command, client or component using `set_hooks` where hooks on a client,
+component or command group will be callde for every child command.
 
+There are several different kinds of hooks which all support DI and may be
+synchronous or asynchronous:
+
+```py
+hooks = tanjun.AnyHooks()
+
+@hooks.with_pre_execution  # hooks.add_pre_execution
+async def pre_execution_hook(ctx: tanjun.abc.Context) -> None:
+    raise NotImplementedError
+```
+
+Pre-execution are called before the execution of a command (so after command
+matching has finished and all the checks have passed).
+
+```py
+@hooks.with_pre_execution  # hooks.add_pre_execution
+async def pre_execution_hook(ctx: tanjun.abc.Context) -> None:
+    raise NotImplementedError
+```
+
+Post-executon hooks are called after a command has finished executing,
+regardless of whether it passed or failed.
+
+```py
+@hooks.with_on_success  # hooks.add_success_hook
+async def success_hook(ctx: tanjun.abc.Context) -> None:
+    raise NotImplementedError
+```
+
+Success hooks are called after a command has finished executing, if it
+succeeded (didn't raise any errors).
+
+```py
+@hooks.with_on_error  # hooks.add_on_error
+async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> bool | None:
+    ...
+```
+
+Error hooks are called when command's execution is ended early by an error raise
+which isn't a [ParserError][tanjun.errors.ParserError],
+[CommandError][tanjun.errors.CommandError] or
+[HaltExecution][tanjun.errors.HaltExecution] (as these are special cased).
+
+```py
+@hooks.add_on_parser_error  # hooks.add_on_parser_error
+async def parser_error_hook(ctx: tanjun.abc.Context, error: tanjun.ParserError)
+```
+
+Parser error hooks are called when the argument parsing of a message command
+failed.
 
 ### Concurrency limiter
 
