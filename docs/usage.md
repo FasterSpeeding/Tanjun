@@ -81,16 +81,6 @@ component = tanjun.Component()
 async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
     ...
 
-@component.with_command
-@tanjun.as_message_command("name")
-async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
-    ...
-
-@component.with_command
-@tanjun.as_slash_command()
-async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
-    ...
-
 @tanjun.with_listener
 async def event_listener(event: hikari.Event) -> None:
     ...
@@ -167,7 +157,7 @@ load a specific module.
 
 Commands need to be contained within a component to be loaded into a client
 and may either be loaded using
-[Component.add_command][tanjun.components.Component.add_command][]/
+[Component.add_command][tanjun.components.Component.add_command]/
 [Component.with_command][tanjun.components.Component.with_command]
 (where add is chainable and with is a decorator callback) or implicitly
 using [Component.load_from_scope][tanjun.components.Component.load_from_scope].
@@ -177,20 +167,135 @@ All command callbacks must be asynchronous and can use dependency injection.
 ### Slash commands
 
 ```py
+@tanjun.with_str_slash_option("option", "description")
 @tanjun.as_slash_command("name", "description")
-async def slash_command(ctx: tanjun.abc.Context) -> None:
+async def slash_command(
+    ctx: tanjun.abc.SlashContext
+) -> None:
     ...
 ```
 
-#### Arguments
+Slash commands represent the commands you see when you start typing in the
+message box with "/" on Discord and have both names (which follow the
+restraints shown in  <https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales>)
+and descriptions (which can be up to 100 characters long).
 
-#### Groups
+There are several different kinds of slash command arguments which all require
+an argument name and description (which follow the sme restraints as
+the command name and description) along with type specific configuration and
+can be configured using the following or their `add_{type}_option` equivalent
+chainable methods on [SlashCommand][tanjun.commands.slash.SlashCommand]:
+
+* [with_attachment_slash_option][tanjun.commands.slash.with_attachment_slash_option]
+* [with_str_slash_option][tanjun.commands.slash.with_str_slash_option]
+* [with_int_slash_option][tanjun.commands.slash.with_int_slash_option]
+* [with_float_slash_option][tanjun.commands.slash.with_float_slash_option]
+* [with_bool_slash_option][tanjun.commands.slash.with_bool_slash_option]
+* [with_user_slash_option][tanjun.commands.slash.with_user_slash_option]
+* [with_member_slash_option][tanjun.commands.slash.with_member_slash_option]
+* [with_channel_slash_option][tanjun.commands.slash.with_channel_slash_option]
+* [with_role_slash_option][tanjun.commands.slash.with_role_slash_option]
+* [with_mentionable_slash_option][tanjun.commands.slash.with_mentionable_slash_option]
+
+Most notably, specifically string arguments support converters in a similar
+fashion to message command arguments.
+
+```py
+ding_group = tanjun.as_message_command_group("ding", "ding group")
+
+
+@ding_group.with_command
+@tanjun.as_slash_command("dong", "dong command")
+async def dong_command(ctx: tanjun.abc.SlashContext) -> None:
+    ...
+
+
+@ding_group.with_command
+@tanjun.as_slash_command("ding", "ding command")
+async def ding_command(ctx: tanjun.abc.SlashContext) -> None:
+    ...
+```
+
+Slash commands can be stored in groups where the above example will be shown in
+the command menu as `"ding dong"` and `"ding ding"`. Unlike message command
+groups, slash command groups cannot be directly called as commands. To see more
+information on how slash command groups can be configured see 
+[slash_command_group][tanjun.commands.slash.slash_command_group].
 
 ### Message commands
 
-#### Arguments
+```py
+tanjun.Client.from_gateway_bot(gateway_bot).add_prefix("!")
 
-#### Groups
+...
+
+@tanjun.with_option("reason", "--reason", "-r", default=None)  # This can be triggered as --reason or -r
+@tanjun.with_multi_option("users", "--user", "-u", default=None)  # This can be triggered as --user or -u
+@tanjun.with_greedy_argument("content")
+@tanjun.with_argument("days", converters=int)
+@tanjun.as_message_command("meow command", "description")
+async def message_command(
+    ctx: tanjun.abc.MessageContext
+) -> None
+    ...
+```
+
+Message commands are executed based on chat messages where any prefixes added
+to the client will be used to match for executable message commands (the above
+example would match messages starting with `"!meow command"`) and without any
+set prefixes message commands just won't execute. Since these are executed
+based on messages they can only be executed when linkde to a gateway bot and
+require the MESSAGE_CONTENT intent to be declared.
+
+To allow for executing a command by mentioning the bot before the command name
+(e.g. `@BotGirl meow command`) you can pass `mention_prefix=True` to either
+[Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] or
+[Client.\_\_init\_\_][tanjun.clients.Client.__init__] while creating the bot.
+
+```py
+# prefixes=["!"]
+
+@tanjun.as_message_command_group("groupy")
+async def groupy_command(ctx: tanjun.abc.MessageContext)
+    ...
+
+
+@groupy_command.with_command
+@tanjun.as_message_command("tour")
+async def tour_command(ctx: tanjun.abc.MessageContext):
+    ...
+
+
+@groupy_command.with_command
+@tanjun.as_message_command("sus drink")
+async def sus_drink_command(ctx: tanjun.abc.MessageContext):
+    ...
+```
+
+Message command groups are a collection of message commands under a shared name
+and (unlike slash commands) can also be directly executed as a command. The above
+example would have the following commands: `"!groupy"`, `!"groupy tour"` and
+`"groupy sus drink"`
+
+#### Argument parsing
+
+Message command argument parsing always handles string arguments and to declare
+parsed arguments you can use one of the `with_option` or `with_argument` methods
+in [tanjun.parsing][]; while options are optional arguments which are passed
+based on a flag name (e.g. `"--key"`), arguments are passed positonally.
+It's worth noting that since decorators are executed from the bottom upwards
+positional arguments will follow the same order.
+
+Arguments and options have multiple parsing approaches, by default they just
+parse 1 value but "multi" (can be applied to both) indicates that multiple 
+values should be allowed/parsed with these being passed as a list of values
+or greedy (argument only) indicating that an argument should parse the rest
+of the positional data as 1 big string which includes spaces. 
+
+The most helpful configuration for options and arguments is converters, these
+are at one or more callbacks which may be called to try and convert the value
+where the result of first which passes (doesn't raise a [ValueError][] will be
+used); other configuration can be seen in [tanjun.parsing][].
 
 ### Context menus
 
@@ -206,7 +311,8 @@ async def user_menu_command(ctx: tanjun.abc.MenuContext, user: hikari.User) -> N
     ...
 ```
 
-Context menus represent and, unlike slash and message commands, do not have
+Context menus represent the application commands shown when you click on a user
+or message in Discord and, unlike slash and message commands, do not have
 configurable arguments nor groups. These are created pretty easily as shown
 above; for more information on configuring menu commands see
 [tanjun.as_message_menu][tanjun.commands.menu.as_message_menu].
