@@ -282,7 +282,35 @@ There's a collection of standard checks in [tanjun.checks][] which are all
 exported top level and work with all the command types, the only
 configuration most users will care about for these is `error_message` argument
 which lets you adjust the response these gives when they fail but the
-permission checks also need a required permission t be passed positionally.
+permission checks also need a required permission to be passed positionally.
+
+```py
+component = (
+    tanjun.Component()
+    .add_check(tanjun.GuildCheck())
+    .add_check(tanjun.AuthorPermissionCheck(hikari.Permissions.BAN_MEMBER))
+    .add_check(tanjun.OwnPermissionCheck(hikari.Permissions.BAN_MEMBER))
+)
+
+@component.with_check
+async def db_check(ctx: tanjun.abc.Context, db: alluka.Injected[Db]) -> None:
+    if (await db..get_user(ctx.author.id)).banned:
+        raise tanjun.CommandError("You are banned from using this bot")
+
+    raise False
+
+
+@tanjun.with_owner_check(follow_wrapped=True)
+@tanjun.as_message_command("name")
+@tanjun.as_slash_command("name", "description")
+async def owner_only_command(ctxL tanjun.abc.Context):
+    raise NotImplementedError
+```
+
+Checks (both custom and standard) can be added to clients, components and
+commands using either the chainable `add_check` method or the decorator
+style `with_check` method with the standard checks providing `with_...`
+decorators which can be applied to commands to add the check.
 
 ```py
 def check(ctx: tanjun.abc.Context) -> bool:
@@ -292,12 +320,11 @@ def check(ctx: tanjun.abc.Context) -> bool:
     return True
 ```
 
-A custom check can be implemented by making a signature either the signature
-`(tanjun.abc.Context, ...) -> Coroutine[Any, Any, bool]` or
-`(tanjun.abc.Context, ...) -> bool` where
-[dependency injection][dependency-injection] is supported, returning
+A custom check can be implemented by making a function with either the signature
+`def (tanjun.abc.Context, ...) -> bool` or `async def (tanjun.abc.Context, ...) -> bool`
+where [dependency injection][dependency-injection] is supported, returning
 `True` indicates that the check passed and returning `False` indicates that the
-check failed and the client should continue looking fot a matching command. You
+check failed and the client should continue looking for a matching command. You
 will most likely want to raise [CommandError][tanjun.errors.CommandError] to
 end command execution with a response rather than carrying on with the command
 search.
