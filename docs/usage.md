@@ -263,12 +263,48 @@ with the relevant bot object.
 
 ## Advanced command flow management
 
-### Execution hooks
-
 ### Checks
 
-Checks are simple to understand, they are simply functions which run before command execution to decide
-whether a command or group of commands match a context.
+Checks are simple to understand, they are functions which run before command
+execution to decide whether a command or group of commands match a context.
+
+```py
+@tanjun.with_guild_check(follow_wrapped=True)
+@tanjun.with_author_permission_check(hikari.Permissions.BAN_MEMBERS)
+@tanjun.with_own_permission_check(hikari.Permissions.BAN_MEMBERS, follow_wrapped=True)
+@tanjun.as_message_command("name")
+@tanjun.as_slash_command("name", "description", default_member_permissions=hikari.Permissions.BAN_MEMBERS)
+async def command(ctx: tanjun.abc.Context) -> None:
+    raise NotImplementedError
+```
+
+There's a collection of standard checks in [tanjun.checks][] which are all
+exported top level and work with all the command types, the only
+configuration most users will care about for these is `error_message` argument
+which lets you adjust the response these gives when they fail but the
+permission checks also need a required permission t be passed positionally.
+
+```py
+def check(ctx: tanjun.abc.Context) -> bool:
+    if ctx.author.discriminator % 2:
+        raise tanjun.CommandError("You are not one of the chosen ones")
+
+    return True
+```
+
+A custom check can be implemented by making a signature either the signature
+`(tanjun.abc.Context, ...) -> Coroutine[Any, Any, bool]` or
+`(tanjun.abc.Context, ...) -> bool` where
+[dependency injection][dependency-injection] is supported, returning
+`True` indicates that the check passed and returning `False` indicates that the
+check failed and the client should continue looking fot a matching command. You
+will most likely want to raise [CommandError][tanjun.errors.CommandError] to
+end command execution with a response rather than carrying on with the command
+search.
+
+### Execution hooks
+
+
 
 ### Concurrency limiter
 
@@ -358,3 +394,5 @@ to mark these commands as using the `"main_commands"` cooldown bucket;
 buckets share their cooldowns for a resource across all the commands under it,
 for more information on the resources cooldowns can be set for
 [BucketResource][tanjun.dependencies.BucketResource].
+
+<!-- # TODO: some day, document buildings commands using the flient interface -->
