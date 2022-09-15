@@ -493,6 +493,54 @@ class TestMessageCommandGroup:
         ):
             command_group.add_command(mock.Mock(names={"aaa", "dsaasd"}))
 
+    def test_as_sub_command(self):
+        async def mock_callback(ctx: tanjun.abc.MessageContext) -> None:
+            raise NotImplementedError
+
+        command_group = tanjun.MessageCommandGroup(mock.Mock(), "meow")
+
+        result = command_group.as_sub_command("neco")(mock_callback)
+
+        assert result.names == ["neco"]
+        assert result._arg_names is not None
+
+    def test_as_sub_command_with_optional_args(self):
+        async def mock_callback(ctx: tanjun.abc.MessageContext) -> None:
+            raise NotImplementedError
+
+        command_group = tanjun.MessageCommandGroup(mock.Mock(), "meow")
+
+        result = command_group.as_sub_command("neco", "nyan", validate_arg_keys=False)(mock_callback)
+
+        assert result.names == ["neco", "nyan"]
+        assert result._arg_names is None
+
+    def test_as_sub_command_group(self):
+        async def mock_callback(ctx: tanjun.abc.MessageContext) -> None:
+            raise NotImplementedError
+
+        command_group = tanjun.MessageCommandGroup(mock.Mock(), "meow")
+
+        result = command_group.as_sub_command_group("n")(mock_callback)
+
+        assert result.names == ["n"]
+        assert result.is_strict is False
+        assert result._arg_names is not None
+
+    def test_as_sub_command_group_with_optional_args(self):
+        async def mock_callback(ctx: tanjun.abc.MessageContext) -> None:
+            raise NotImplementedError
+
+        command_group = tanjun.MessageCommandGroup(mock.Mock(), "meow")
+
+        result = command_group.as_sub_command_group("now", "viet", "namm", strict=True, validate_arg_keys=False)(
+            mock_callback
+        )
+
+        assert result.names == ["now", "viet", "namm"]
+        assert result.is_strict is True
+        assert result._arg_names is None
+
     def test_remove_command(self):
         mock_command = mock.Mock()
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "a", "b").add_command(mock_command)

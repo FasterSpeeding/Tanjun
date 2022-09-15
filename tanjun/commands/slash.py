@@ -118,6 +118,10 @@ def slash_command_group(
         Unlike message command groups, slash command groups cannot
         be callable functions themselves.
 
+    !!! warning
+        `default_member_permissions`, "dm_enabled" and `is_global` are
+        ignored for command groups within other slash command groups.
+
     !!! note
         Under the standard implementation, `is_global` is used to determine whether
         the command should be bulk set by [tanjun.Client.declare_global_commandsadd_command
@@ -230,7 +234,8 @@ def as_slash_command(
         or when `declare_global_commands` is True
 
     !!! warning
-        `is_global` is ignored for commands within slash command groups.
+        `default_member_permissions`, "dm_enabled" and `is_global` are
+        ignored for commands within slash command groups.
 
     !!! note
         If you want your first response to be ephemeral while using
@@ -1003,6 +1008,10 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             whether the command should be bulk set by [tanjun.Client.declare_global_commands][]
             or when `declare_global_commands` is True
 
+        !!! warning
+            `default_member_permissions`, "dm_enabled" and `is_global` are
+            ignored for commands groups within another slash command groups.
+
         Parameters
         ----------
         name
@@ -1127,6 +1136,124 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         command.set_parent(self)
         self._commands[command.name] = command
         return self
+
+    def as_sub_command(
+        self,
+        name: str,
+        description: str,
+        /,
+        *,
+        always_defer: bool = False,
+        default_to_ephemeral: typing.Optional[bool] = None,
+        sort_options: bool = True,
+        validate_arg_keys: bool = True,
+    ) -> collections.Callable[[_CommandCallbackSigT], SlashCommand[_CommandCallbackSigT]]:
+        r"""Build a [tanjun.SlashCommand][] in this command group by decorating a function.
+
+        !!! note
+            If you want your first response to be ephemeral while using
+            `always_defer`, you must set `default_to_ephemeral` to `True`.
+
+        Parameters
+        ----------
+        name
+            The command's name.
+
+            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+        description
+            The command's description.
+            This should be inclusively between 1-100 characters in length.
+        always_defer
+            Whether the contexts this command is executed with should always be deferred
+            before being passed to the command's callback.
+        default_to_ephemeral
+            Whether this command's responses should default to ephemeral unless flags
+            are set to override this.
+
+            If this is left as [None][] then the default set on the parent command(s),
+            component or client will be in effect.
+        sort_options
+            Whether this command should sort its set options based on whether
+            they're required.
+
+            If this is [True][] then the options are re-sorted to meet the requirement
+            from Discord that required command options be listed before optional
+            ones.
+        validate_arg_keys
+            Whether to validate that option keys match the command callback's signature.
+
+        Returns
+        -------
+        collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
+            The decorator callback used to make a sub-command.
+
+            This can either wrap a raw command callback or another callable command instance
+            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][] [tanjun.SlashCommand][]).
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+
+            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name has uppercase characters.
+            * If the description is over 100 characters long.
+        """
+        return lambda callback: self.with_command(
+            as_slash_command(
+                name,
+                description,
+                always_defer=always_defer,
+                default_to_ephemeral=default_to_ephemeral,
+                sort_options=sort_options,
+                validate_arg_keys=validate_arg_keys,
+            )(callback)
+        )
+
+    def make_sub_group(
+        self,
+        name: str,
+        description: str,
+        /,
+        *,
+        default_to_ephemeral: typing.Optional[bool] = None,
+    ) -> SlashCommandGroup:
+        r"""Create a sub-command group in this group.
+
+        !!! note
+            Unlike message command groups, slash command groups cannot
+            be callable functions themselves.
+
+        Parameters
+        ----------
+        name
+            The name of the command group.
+
+            This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
+        description
+            The description of the command group.
+        default_to_ephemeral
+            Whether this command's responses should default to ephemeral unless flags
+            are set to override this.
+
+            If this is left as [None][] then the default set on the parent command(s),
+            component or client will be in effect.
+
+        Returns
+        -------
+        SlashCommandGroup
+            The created sub-command group.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+
+            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name has uppercase characters.
+            * If the description is over 100 characters long.
+        """
+        return self.with_command(slash_command_group(name, description, default_to_ephemeral=default_to_ephemeral))
 
     def remove_command(self: _SlashCommandGroupT, command: tanjun.BaseSlashCommand, /) -> _SlashCommandGroupT:
         """Remove a command from this group.
@@ -1288,7 +1415,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             or when `declare_global_commands` is True
 
         !!! warning
-            `is_global` is ignored for commands within slash command groups.
+            `default_member_permissions`, "dm_enabled" and `is_global` are
+            ignored for commands within slash command groups.
 
         !!! note
             If you want your first response to be ephemeral while using

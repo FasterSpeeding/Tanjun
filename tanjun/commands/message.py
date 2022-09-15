@@ -57,6 +57,7 @@ if typing.TYPE_CHECKING:
     _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
 
 _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
+_OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.CommandCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
@@ -507,6 +508,71 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         command.set_parent(self)
         self._commands.append(command)
         return self
+
+    def as_sub_command(self, name: str, /, *names: str, validate_arg_keys: bool = True) -> _ResultProto:
+        """Build a message command in this group from a decorated callback.
+
+        Parameters
+        ----------
+        name
+            The command name.
+        *names
+            Variable positional arguments of other names for the command.
+        validate_arg_keys
+            Whether to validate that option keys match the command callback's signature.
+
+        Returns
+        -------
+        collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
+            The decorator callback used to make a sub-command.
+
+            This can either wrap a raw command callback or another callable command instance
+            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]).
+        """
+
+        def decorator(
+            callback: typing.Union[_OtherCallbackSigT, _CommandT[_OtherCallbackSigT]], /
+        ) -> MessageCommand[_OtherCallbackSigT]:
+            return self.with_command(as_message_command(name, *names, validate_arg_keys=validate_arg_keys)(callback))
+
+        return decorator
+
+    def as_sub_command_group(
+        self, name: str, /, *names: str, strict: bool = False, validate_arg_keys: bool = True
+    ) -> _GroupResultProto:
+        """Build a message command group in this group from a decorated callback.
+
+        Parameters
+        ----------
+        name
+            The command name.
+        *names
+            Variable positional arguments of other names for the command.
+        strict
+            Whether this command group should only allow commands without spaces in their names.
+
+            This allows for a more optimised command search pattern to be used and
+            enforces that command names are unique to a single command within the group.
+        validate_arg_keys
+            Whether to validate that option keys match the command callback's signature.
+
+        Returns
+        -------
+        collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
+            The decorator callback used to make a sub-command group.
+
+            This can either wrap a raw command callback or another callable command instance
+            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]).
+        """
+
+        def decorator(
+            callback: typing.Union[_OtherCallbackSigT, _CommandT[_OtherCallbackSigT]], /
+        ) -> MessageCommandGroup[_OtherCallbackSigT]:
+            return self.with_command(
+                as_message_command_group(name, *names, strict=strict, validate_arg_keys=validate_arg_keys)(callback)
+            )
+
+        return decorator
 
     def remove_command(
         self: _MessageCommandGroupT, command: tanjun.MessageCommand[typing.Any], /
