@@ -611,13 +611,53 @@ class TestComponent:
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
         )()
-        mock_command = mock.Mock()
+        mock_command = mock.Mock(wrapped_command=mock.Mock(tanjun.abc.ExecutableCommand))
 
         result = component.with_command(mock_command)
 
         assert result is mock_command
         add_command.assert_called_once_with(mock_command)
         mock_command.copy.assert_not_called()
+        mock_command.wrapped_command.copy.assert_not_called()
+
+    def test_with_command_when_follow_wrapped(self):
+        add_command = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
+        )()
+        mock_command = mock.Mock(wrapped_command=None)
+
+        result = component.with_command(follow_wrapped=True)(mock_command)
+
+        assert result is mock_command
+        add_command.assert_called_once_with(mock_command)
+        mock_command.copy.assert_not_called()
+
+    def test_with_command_when_wrapping_and_follow_wrapped(self):
+        add_command = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
+        )()
+        mock_command = mock.Mock(
+            wrapped_command=mock.Mock(
+                tanjun.abc.ExecutableCommand,
+                wrapped_command=mock.Mock(tanjun.abc.ExecutableCommand, wrapped_command=None),
+            )
+        )
+
+        result = component.with_command(follow_wrapped=True)(mock_command)
+
+        assert result is mock_command
+        add_command.assert_has_calls(
+            [
+                mock.call(mock_command),
+                mock.call(mock_command.wrapped_command),
+                mock.call(mock_command.wrapped_command.wrapped_command),
+            ]
+        )
+        mock_command.copy.assert_not_called()
+        mock_command.wrapped_command.copy.assert_not_called()
+        mock_command.wrapped_command.wrapped_command.copy.assert_not_called()
 
     def test_with_command_when_copy(self):
         add_command = mock.Mock()
@@ -628,9 +668,30 @@ class TestComponent:
 
         result = component.with_command(copy=True)(mock_command)
 
-        assert result is mock_command.copy.return_value
+        assert result is mock_command
         add_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
+
+    def test_with_command_when_wrapping_and_follow_wrapped_and_copy(self):
+        add_command = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
+        )()
+        mock_command = mock.Mock()
+        mock_command.copy.return_value.wrapped_command = mock.Mock(tanjun.abc.ExecutableCommand)
+        mock_command.copy.return_value.wrapped_command.copy.return_value.wrapped_command = None
+
+        result = component.with_command(copy=True, follow_wrapped=True)(mock_command)
+
+        assert result is mock_command
+        add_command.assert_has_calls(
+            [
+                mock.call(mock_command.copy.return_value),
+                mock.call(mock_command.copy.return_value.wrapped_command.copy.return_value),
+            ]
+        )
+        mock_command.copy.assert_called_once_with()
+        mock_command.copy.return_value.wrapped_command.copy.assert_called_once_with()
 
     def test_add_menu_command(self):
         mock_command = mock.Mock(type=hikari.CommandType.USER)
@@ -710,7 +771,7 @@ class TestComponent:
 
         result = component.with_menu_command(copy=True)(mock_command)
 
-        assert result is mock_command.copy.return_value
+        assert result is mock_command
         add_menu_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
@@ -795,7 +856,7 @@ class TestComponent:
 
         result = component.with_slash_command(copy=True)(mock_command)
 
-        assert result is mock_command.copy.return_value
+        assert result is mock_command
         add_slash_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
@@ -927,7 +988,7 @@ class TestComponent:
 
         result = component.with_message_command(copy=True)(mock_command)
 
-        assert result is mock_command.copy.return_value
+        assert result is mock_command
         add_message_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
