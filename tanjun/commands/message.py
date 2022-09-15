@@ -524,7 +524,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         Returns
         -------
         collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
-            The decorator callback used to make a [tanjun.MessageCommand][].
+            The decorator callback used to make a sub-command.
 
             This can either wrap a raw command callback or another callable command instance
             (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]).
@@ -559,7 +559,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         Returns
         -------
         collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
-            The decorator callback used to make a [tanjun.MessageCommandGroup][].
+            The decorator callback used to make a sub-command group.
 
             This can either wrap a raw command callback or another callable command instance
             (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]).

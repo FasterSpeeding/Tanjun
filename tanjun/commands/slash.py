@@ -1185,7 +1185,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         Returns
         -------
         collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
-            The decorator callback used to make a [tanjun.SlashCommand][].
+            The decorator callback used to make a sub-command.
 
             This can either wrap a raw command callback or another callable command instance
             (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][] [tanjun.SlashCommand][]).
@@ -1218,7 +1218,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         *,
         default_to_ephemeral: typing.Optional[bool] = None,
     ) -> SlashCommandGroup:
-        r"""Create a sub command group in this group.
+        r"""Create a sub-command group in this group.
 
         !!! note
             Unlike message command groups, slash command groups cannot
@@ -1242,7 +1242,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         Returns
         -------
         SlashCommandGroup
-            The sub command group.
+            The created sub-command group.
 
         Raises
         ------
