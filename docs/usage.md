@@ -352,6 +352,46 @@ slash_command.set_str_autocomplete("opt2", opt2_autocomplete)
 
 ### Annotation based command declaration
 
+Previously you've seen how to declare manually declare command options per
+command type, now its time to go higher.
+
+```py
+from typing import Annotated
+
+import tanjun
+from tanjun.annotations import Bool, Ranged, Str, User
+
+
+@tanjun.with_annotated_args(follow_wrapped=true)
+@tanjun.as_slash_command("name", "description")
+@tanjun.as_message_command("name")
+async def command(
+    ctx: tanjun.abc.Context,
+    name: Annotated[Str, "description"],
+    age: Annotated[Ranged[13, 130], "an int option with a min, max or 13, 130"],
+    video: Annotated[Converted[get_video], "a string option which is converted with get_video"],
+    user: Annotated[User, "an optional user option which defaults to None"] = None,
+    enabled: Annotated[Bool, "an optional bool option which defaults to True"] = True,
+) -> None:
+    ...
+```
+
+[tanjun.with_annotated_args][tanjun.annotations.with_annotated_args] provides
+a simple way to declare the arguments for both message and slash commands.
+While this feature is cross-compatible there is one key difference, slash
+commands specifically require that a description for the option be passed as a
+separate string field to [typing.Annotated][] and message commands juts ignore
+this description.
+
+The special generic types it offers like [Ranged][tanjun.annotations.Ranged] and
+[Converted][tanjun.annotations.Converted] use [typing.Annotated][] to complete
+that generic call and can also be passed as arguments to Annotated like
+`Annotated[Int, Ranged(13, 130)]` and `Annotated[Str, Converted(get_video)]`.
+
+This example doesn't demonstrate every future of this and more information on
+how arguments can be configured through annotations can be seen in
+[tanjun.annotations][tanjun.annotations].
+
 ### Wrapped commands
 
 When creating multiple command types in a decorator call chain, standard
