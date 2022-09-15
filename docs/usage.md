@@ -187,15 +187,15 @@ can be configured using the following or their `add_{type}_option` equivalent
 chainable methods on [SlashCommand][tanjun.commands.slash.SlashCommand]:
 
 * [with_attachment_slash_option][tanjun.commands.slash.with_attachment_slash_option]
-* [with_str_slash_option][tanjun.commands.slash.with_str_slash_option]
-* [with_int_slash_option][tanjun.commands.slash.with_int_slash_option]
-* [with_float_slash_option][tanjun.commands.slash.with_float_slash_option]
 * [with_bool_slash_option][tanjun.commands.slash.with_bool_slash_option]
-* [with_user_slash_option][tanjun.commands.slash.with_user_slash_option]
-* [with_member_slash_option][tanjun.commands.slash.with_member_slash_option]
 * [with_channel_slash_option][tanjun.commands.slash.with_channel_slash_option]
-* [with_role_slash_option][tanjun.commands.slash.with_role_slash_option]
+* [with_float_slash_option][tanjun.commands.slash.with_float_slash_option]
+* [with_int_slash_option][tanjun.commands.slash.with_int_slash_option]
+* [with_member_slash_option][tanjun.commands.slash.with_member_slash_option]
 * [with_mentionable_slash_option][tanjun.commands.slash.with_mentionable_slash_option]
+* [with_role_slash_option][tanjun.commands.slash.with_role_slash_option]
+* [with_str_slash_option][tanjun.commands.slash.with_str_slash_option]
+* [with_user_slash_option][tanjun.commands.slash.with_user_slash_option]
 
 Most notably, specifically string arguments support converters in a similar
 fashion to message command arguments.
