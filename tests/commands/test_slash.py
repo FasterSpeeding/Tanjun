@@ -863,6 +863,69 @@ class TestSlashCommandGroup:
         with pytest.raises(ValueError, match="Cannot add a slash command group to a nested slash command group"):
             command_group.add_command(mock.Mock(tanjun.abc.SlashCommandGroup))
 
+    def test_as_sub_command(self):
+        async def mock_callback(ctx: tanjun.abc.SlashContext) -> None:
+            raise NotImplementedError
+
+        command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
+
+        result = command_group.as_sub_command("nameth", "meowed")(mock_callback)
+
+        assert isinstance(result, tanjun.SlashCommand)
+        assert result.name == "nameth"
+        assert result.description == "meowed"
+        assert result._always_defer is False
+        assert result.defaults_to_ephemeral is None
+        assert result._builder._sort_options is True
+        assert result._arg_names is not None
+        assert result in command_group.commands
+
+    def test_as_sub_command_with_optional_args(self):
+        async def mock_callback(ctx: tanjun.abc.SlashContext) -> None:
+            raise NotImplementedError
+
+        command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
+
+        result = command_group.as_sub_command(
+            "nameth",
+            "meowed",
+            always_defer=True,
+            default_to_ephemeral=True,
+            sort_options=False,
+            validate_arg_keys=False,
+        )(mock_callback)
+
+        assert isinstance(result, tanjun.SlashCommand)
+        assert result.name == "nameth"
+        assert result.description == "meowed"
+        assert result._always_defer is True
+        assert result.defaults_to_ephemeral is True
+        assert result._builder._sort_options is False
+        assert result._arg_names is None
+        assert result in command_group.commands
+
+    def test_make_sub_group(self):
+        command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
+
+        result = command_group.make_sub_group("cats", "for life")
+
+        assert isinstance(result, tanjun.SlashCommandGroup)
+        assert result.name == "cats"
+        assert result.description == "for life"
+        assert result.defaults_to_ephemeral is None
+        assert result in command_group.commands
+
+    def test_make_sub_group_with_optional_args(self):
+        command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
+
+        result = command_group.make_sub_group("lovely", "cats", default_to_ephemeral=True)
+
+        assert isinstance(result, tanjun.SlashCommandGroup)
+        assert result.name == "lovely"
+        assert result.description == "cats"
+        assert result.defaults_to_ephemeral is True
+        assert result in command_group.commands
+
     def test_remove_command(self):
         mock_sub_command = mock.Mock(tanjun.abc.SlashCommand)
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").set_parent(mock.Mock()).add_command(mock_sub_command)
