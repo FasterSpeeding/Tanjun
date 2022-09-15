@@ -197,8 +197,9 @@ chainable methods on [SlashCommand][tanjun.commands.slash.SlashCommand]:
 * [with_str_slash_option][tanjun.commands.slash.with_str_slash_option]
 * [with_user_slash_option][tanjun.commands.slash.with_user_slash_option]
 
-Most notably, specifically string arguments support converters in a similar
-fashion to message command arguments.
+Most notably, specifically string arguments support converters (and the
+standard converters found in [tanjun.conversion][]) in a similar fashion to
+message command arguments.
 
 ```py
 ding_group = tanjun.as_message_command_group("ding", "ding group")
@@ -295,7 +296,8 @@ of the positional data as 1 big string which includes spaces.
 The most helpful configuration for options and arguments is converters, these
 are at one or more callbacks which may be called to try and convert the value
 where the result of first which passes (doesn't raise a [ValueError][] will be
-used); other configuration can be seen in [tanjun.parsing][].
+used); other configuration can be seen in [tanjun.parsing][] and standard
+converters can be found in [tanjun.conversion][].
 
 ### Context menus
 
