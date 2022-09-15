@@ -533,11 +533,11 @@ class TestMessageCommandGroup:
 
         command_group = tanjun.MessageCommandGroup(mock.Mock(), "meow")
 
-        result = command_group.as_sub_command_group("now", "viet", "nam", strict=True, validate_arg_keys=False)(
+        result = command_group.as_sub_command_group("now", "viet", "namm", strict=True, validate_arg_keys=False)(
             mock_callback
         )
 
-        assert result.names == ["now", "viet", "nam"]
+        assert result.names == ["now", "viet", "namm"]
         assert result.is_strict is True
         assert result._arg_names is None
 
