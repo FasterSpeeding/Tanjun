@@ -1137,7 +1137,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         self._commands[command.name] = command
         return self
 
-    def as_slash_command(
+    def as_sub_command(
         self,
         name: str,
         description: str,
@@ -1209,6 +1209,51 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
                 validate_arg_keys=validate_arg_keys,
             )(callback)
         )
+
+    def make_sub_group(
+        self,
+        name: str,
+        description: str,
+        /,
+        *,
+        default_to_ephemeral: typing.Optional[bool] = None,
+    ) -> SlashCommandGroup:
+        r"""Create a sub command group in this group.
+
+        !!! note
+            Unlike message command groups, slash command groups cannot
+            be callable functions themselves.
+
+        Parameters
+        ----------
+        name
+            The name of the command group.
+
+            This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
+        description
+            The description of the command group.
+        default_to_ephemeral
+            Whether this command's responses should default to ephemeral unless flags
+            are set to override this.
+
+            If this is left as [None][] then the default set on the parent command(s),
+            component or client will be in effect.
+
+        Returns
+        -------
+        SlashCommandGroup
+            The sub command group.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+
+            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name has uppercase characters.
+            * If the description is over 100 characters long.
+        """
+        return self.with_command(slash_command_group(name, description, default_to_ephemeral=default_to_ephemeral))
 
     def remove_command(self: _SlashCommandGroupT, command: tanjun.BaseSlashCommand, /) -> _SlashCommandGroupT:
         """Remove a command from this group.
