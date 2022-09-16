@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [SlashCommandGroup.as_sub_command][tanjun.commands.slash.SlashCommandGroup.as_sub_command] and
   [SlashCommandGroup.make_sub_group][tanjun.commands.slash.SlashCommandGroup.make_sub_group]
   shorthand methods for creating sub-command and sub-command-groups directly on groups.
+- [Client.set_interaction_accepts][tanjun.clients.Client.set_interaction_accepts] for configuring
+  which interaction types a client should listen for and execute.
+
+### Changed
+- [Client.set_message_accepts][tanjun.clients.Client.set_message_accepts] now
+  raises a [RuntimeError][] if called while the client is running to ensure
+  consistent behaviour.
 
 ### Removed
 - The broken `add_injector` argument from [tanjun.clients.Client.add_component][].
