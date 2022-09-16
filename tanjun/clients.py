@@ -35,6 +35,7 @@ from __future__ import annotations
 __all__: list[str] = [
     "Client",
     "ClientCallbackNames",
+    "InteractionAcceptsEnum",
     "MessageAcceptsEnum",
     "PrefixGetterSig",
     "as_loader",
@@ -381,6 +382,25 @@ ClientCallbackNames = tanjun.ClientCallbackNames
 """Alias of [tanjun.abc.ClientCallbackNames][]."""
 
 
+class InteractionAcceptsEnum(enum.IntFlag):
+    """The possible configurations for which interaction this client should execute."""
+
+    NONE = 0
+    """Set the client to execute no interactions."""
+
+    AUTOCOMPLETE = enum.auto()
+    """Execute autocomplete interactions."""
+
+    COMMANDS = enum.auto()
+    """Execute command interactions.
+
+    This includes slash command and context menu calls.
+    """
+
+    ALL = AUTOCOMPLETE | COMMANDS
+    """Execute all the interaction types Tanjun supports."""
+
+
 class MessageAcceptsEnum(str, enum.Enum):
     """The possible configurations for which events [tanjun.Client][] should execute commands based on."""
 
@@ -417,6 +437,7 @@ _ACCEPTS_EVENT_TYPE_MAPPING: dict[MessageAcceptsEnum, typing.Optional[type[hikar
     MessageAcceptsEnum.GUILD_ONLY: hikari.GuildMessageCreateEvent,
     MessageAcceptsEnum.NONE: None,
 }
+assert _ACCEPTS_EVENT_TYPE_MAPPING.keys() == set(MessageAcceptsEnum)
 
 
 def _check_human(ctx: tanjun.Context, /) -> bool:
@@ -507,7 +528,6 @@ class Client(tanjun.Client):
     """
 
     __slots__ = (
-        "_accepts",
         "_auto_defer_after",
         "_cache",
         "_cached_application_id",
@@ -520,6 +540,7 @@ class Client(tanjun.Client):
         "_events",
         "_grab_mention_prefix",
         "_hooks",
+        "_interaction_accepts",
         "_menu_hooks",
         "_menu_not_found",
         "_slash_hooks",
@@ -532,6 +553,7 @@ class Client(tanjun.Client):
         "_make_menu_context",
         "_make_message_context",
         "_make_slash_context",
+        "_message_accepts",
         "_message_hooks",
         "_metadata",
         "_modules",
@@ -679,7 +701,6 @@ class Client(tanjun.Client):
                 "automatic command dispatch will be unavailable."
             )
 
-        self._accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
         self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
@@ -692,6 +713,7 @@ class Client(tanjun.Client):
         self._events = events
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
+        self._interaction_accepts = InteractionAcceptsEnum.ALL
         self._menu_hooks: typing.Optional[tanjun.MenuHooks] = None
         self._menu_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun.SlashHooks] = None
@@ -708,6 +730,7 @@ class Client(tanjun.Client):
         self._make_menu_context: _MenuContextMakerProto = context.MenuContext
         self._make_message_context: _MessageContextMakerProto = context.MessageContext
         self._make_slash_context: _SlashContextMakerProto = context.SlashContext
+        self._message_accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
         self._message_hooks: typing.Optional[tanjun.MessageHooks] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._modules: dict[str, types.ModuleType] = {}
@@ -1033,9 +1056,14 @@ class Client(tanjun.Client):
         return self._dms_enabled_for_app_cmds
 
     @property
+    def interaction_accepts(self) -> InteractionAcceptsEnum:
+        """The types of interactions this client is executing."""
+        return self._interaction_accepts
+
+    @property
     def message_accepts(self) -> MessageAcceptsEnum:
         """Type of message create events this command client accepts for execution."""
-        return self._accepts
+        return self._message_accepts
 
     @property
     def injector(self) -> alluka.abc.Client:
@@ -1553,6 +1581,25 @@ class Client(tanjun.Client):
         self._slash_not_found = message
         return self
 
+    def set_interaction_accepts(self: _ClientT, accepts: InteractionAcceptsEnum, /) -> _ClientT:
+        """Set the kind of interactions this client should execute.
+
+        Parameters
+        ----------
+        accepts
+            Bitfield of the interaction types this client should execute.
+
+        Raises
+        ------
+        RuntimeError
+            If called while the client is running.
+        """
+        if self._loop:
+            raise RuntimeError("Cannot change this config while the client is running")
+
+        self._interaction_accepts = accepts
+        return self
+
     def set_message_accepts(self: _ClientT, accepts: MessageAcceptsEnum, /) -> _ClientT:
         """Set the kind of messages commands should be executed based on.
 
@@ -1560,11 +1607,22 @@ class Client(tanjun.Client):
         ----------
         accepts
             The type of messages commands should be executed based on.
+
+        Raises
+        ------
+        RuntimeError
+            If called while the client is running.
+        ValueError
+            If `accepts` is set to anything other than [tanjun.clients.MessageAcceptsEnum.NONE][]
+            when the client doesn't have a linked event manager.
         """
         if accepts.get_event_type() and not self._events:
             raise ValueError("Cannot set accepts level on a client with no event manager")
 
-        self._accepts = accepts
+        if self._loop:
+            raise RuntimeError("Cannot change this config while the client is running")
+
+        self._message_accepts = accepts
         return self
 
     def set_autocomplete_ctx_maker(
@@ -2118,18 +2176,6 @@ class Client(tanjun.Client):
 
         return None
 
-    def _try_unsubscribe(
-        self,
-        event_manager: hikari.api.EventManager,
-        event_type: type[hikari.Event],
-        callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]],
-    ) -> None:
-        try:
-            event_manager.unsubscribe(event_type, callback)
-        except (ValueError, LookupError):
-            # TODO: add logging here
-            pass
-
     async def close(self, *, deregister_listeners: bool = True) -> None:
         """Close the client.
 
@@ -2153,18 +2199,20 @@ class Client(tanjun.Client):
         self._is_closing = True
         await self.dispatch_client_callback(ClientCallbackNames.CLOSING)
         if deregister_listeners and self._events:
-            if event_type := self._accepts.get_event_type():
-                self._try_unsubscribe(self._events, event_type, self.on_message_create_event)
+            if event_type := self._message_accepts.get_event_type():
+                _try_unsubscribe(self._events, event_type, self.on_message_create_event)
 
-            self._try_unsubscribe(self._events, hikari.InteractionCreateEvent, self.on_interaction_create_event)
+            _try_unsubscribe(self._events, hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
             for event_type_, listeners in self._listeners.items():
                 for listener in listeners.values():
-                    self._try_unsubscribe(self._events, event_type_, listener.__call__)
+                    _try_unsubscribe(self._events, event_type_, listener.__call__)
 
         if deregister_listeners and self._server:
-            self._server.set_listener(hikari.CommandInteraction, None)
-            self._server.set_listener(hikari.AutocompleteInteraction, None)
+            _try_deregister_listener(self._server, hikari.CommandInteraction, self.on_command_interaction_request)
+            _try_deregister_listener(
+                self._server, hikari.AutocompleteInteraction, self.on_autocomplete_interaction_request
+            )
 
         await asyncio.gather(*(component.close() for component in self._components.copy().values()))
 
@@ -2210,19 +2258,26 @@ class Client(tanjun.Client):
 
         await asyncio.gather(*(component.open() for component in self._components.copy().values()))
 
-        if register_listeners and self._events:
-            if event_type := self._accepts.get_event_type():
+        if register_listeners and self._server:
+            if self._interaction_accepts & InteractionAcceptsEnum.COMMANDS:
+                self._server.set_listener(hikari.CommandInteraction, self.on_command_interaction_request)
+
+            if self._interaction_accepts & InteractionAcceptsEnum.AUTOCOMPLETE:
+                self._server.set_listener(hikari.AutocompleteInteraction, self.on_autocomplete_interaction_request)
+
+            if self._events and (event_type := self._message_accepts.get_event_type()):
                 self._events.subscribe(event_type, self.on_message_create_event)
 
-            self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
+        elif register_listeners and self._events:
+            if event_type := self._message_accepts.get_event_type():
+                self._events.subscribe(event_type, self.on_message_create_event)
+
+            if self._interaction_accepts:
+                self._events.subscribe(hikari.InteractionCreateEvent, self.on_interaction_create_event)
 
             for event_type_, listeners in self._listeners.items():
                 for listener in listeners.values():
                     self._events.subscribe(event_type_, listener.__call__)
-
-        if register_listeners and self._server:
-            self._server.set_listener(hikari.CommandInteraction, self.on_command_interaction_request)
-            self._server.set_listener(hikari.AutocompleteInteraction, self.on_autocomplete_interaction_request)
 
         self._add_task(self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED)))
 
@@ -2785,12 +2840,14 @@ class Client(tanjun.Client):
             The event to execute commands based on.
         """
         if event.interaction.type is hikari.InteractionType.APPLICATION_COMMAND:
-            assert isinstance(event.interaction, hikari.CommandInteraction)
-            return await self.on_gateway_command_create(event.interaction)
+            if self._interaction_accepts & InteractionAcceptsEnum.COMMANDS:
+                assert isinstance(event.interaction, hikari.CommandInteraction)
+                return await self.on_gateway_command_create(event.interaction)
 
-        if event.interaction.type is hikari.InteractionType.AUTOCOMPLETE:
-            assert isinstance(event.interaction, hikari.AutocompleteInteraction)
-            return await self.on_gateway_autocomplete_create(event.interaction)
+        elif event.interaction.type is hikari.InteractionType.AUTOCOMPLETE:
+            if self._interaction_accepts & InteractionAcceptsEnum.AUTOCOMPLETE:
+                assert isinstance(event.interaction, hikari.AutocompleteInteraction)
+                return await self.on_gateway_autocomplete_create(event.interaction)
 
     async def on_autocomplete_interaction_request(
         self, interaction: hikari.AutocompleteInteraction, /
@@ -2986,3 +3043,26 @@ class _WrapLoadError:
             and not isinstance(exc, (errors.ModuleMissingLoaders, errors.ModuleMissingUnloaders))
         ):
             raise self._error(*self._args, **self._kwargs) from exc  # noqa: R102
+
+
+def _try_deregister_listener(
+    interaction_server: hikari.api.InteractionServer,
+    interaction_type: typing.Any,
+    callback: collections.Callable[
+        ..., collections.Coroutine[typing.Any, typing.Any, hikari.api.InteractionResponseBuilder]
+    ],
+) -> None:
+    if interaction_server.get_listener(interaction_type) is callback:
+        interaction_server.set_listener(interaction_type, None)
+
+
+def _try_unsubscribe(
+    event_manager: hikari.api.EventManager,
+    event_type: type[hikari.Event],
+    callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]],
+) -> None:
+    try:
+        event_manager.unsubscribe(event_type, callback)
+    except (ValueError, LookupError):
+        # TODO: add logging here
+        pass

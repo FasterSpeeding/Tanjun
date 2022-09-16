@@ -375,6 +375,11 @@ class TestClient:
         open_.assert_called_once_with()
         close_.assert_called_once_with()
 
+    def test_interaction_accepts_property(self) -> None:
+        client = tanjun.Client(mock.Mock()).set_interaction_accepts(tanjun.InteractionAcceptsEnum.COMMANDS)
+
+        assert client.interaction_accepts is tanjun.InteractionAcceptsEnum.COMMANDS
+
     def test_message_accepts_property(self) -> None:
         client = tanjun.Client(mock.Mock(), events=mock.Mock()).set_message_accepts(tanjun.MessageAcceptsEnum.DM_ONLY)
 
@@ -727,6 +732,22 @@ class TestClient:
         assert result is client
         mock_set_menu_not_found.assert_called_once_with(mock_message)
         mock_set_slash_not_found.assert_called_once_with(mock_message)
+
+    @pytest.mark.asyncio()
+    async def test_set_interaction_accepts_when_running(self):
+        client = tanjun.Client(mock.AsyncMock())
+        await client.open()
+
+        with pytest.raises(RuntimeError, match="Cannot change this config while the client is running"):
+            client.set_interaction_accepts(tanjun.InteractionAcceptsEnum.NONE)
+
+    @pytest.mark.asyncio()
+    async def test_set_message_accepts_when_running(self):
+        client = tanjun.Client(mock.AsyncMock(), events=mock.Mock())
+        await client.open()
+
+        with pytest.raises(RuntimeError, match="Cannot change this config while the client is running"):
+            client.set_message_accepts(tanjun.MessageAcceptsEnum.NONE)
 
     def test_set_metadata(self):
         client = tanjun.Client(mock.Mock())
@@ -5254,6 +5275,23 @@ class TestClient:
         command_dispatch_client.on_gateway_command_create.assert_awaited_once_with(mock_event.interaction)
         command_dispatch_client.on_gateway_autocomplete_create.assert_not_called()
 
+    @pytest.mark.parametrize("allow", [tanjun.InteractionAcceptsEnum.NONE, tanjun.InteractionAcceptsEnum.AUTOCOMPLETE])
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_for_command_interaction_when_commands_disabled(
+        self, command_dispatch_client: tanjun.Client, allow: tanjun.InteractionAcceptsEnum
+    ):
+        command_dispatch_client.set_interaction_accepts(allow)
+        mock_event = mock.Mock(
+            interaction=mock.Mock(hikari.CommandInteraction, type=hikari.InteractionType.APPLICATION_COMMAND)
+        )
+        command_dispatch_client.on_gateway_autocomplete_create = mock.AsyncMock()
+        command_dispatch_client.on_gateway_command_create = mock.AsyncMock()
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        command_dispatch_client.on_gateway_command_create.assert_not_called()
+        command_dispatch_client.on_gateway_autocomplete_create.assert_not_called()
+
     @pytest.mark.asyncio()
     async def test_on_interaction_create_event_for_autocomplete_interaction(
         self, command_dispatch_client: tanjun.Client
@@ -5268,6 +5306,23 @@ class TestClient:
 
         command_dispatch_client.on_gateway_command_create.assert_not_called()
         command_dispatch_client.on_gateway_autocomplete_create.assert_awaited_once_with(mock_event.interaction)
+
+    @pytest.mark.parametrize("allow", [tanjun.InteractionAcceptsEnum.NONE, tanjun.InteractionAcceptsEnum.COMMANDS])
+    @pytest.mark.asyncio()
+    async def test_on_interaction_create_event_for_autocomplete_interaction_when_autocomplete_disabled(
+        self, command_dispatch_client: tanjun.Client, allow: tanjun.InteractionAcceptsEnum
+    ):
+        command_dispatch_client.set_interaction_accepts(allow)
+        mock_event = mock.Mock(
+            interaction=mock.Mock(hikari.AutocompleteInteraction, type=hikari.InteractionType.AUTOCOMPLETE)
+        )
+        command_dispatch_client.on_gateway_autocomplete_create = mock.AsyncMock()
+        command_dispatch_client.on_gateway_command_create = mock.AsyncMock()
+
+        await command_dispatch_client.on_interaction_create_event(mock_event)
+
+        command_dispatch_client.on_gateway_command_create.assert_not_called()
+        command_dispatch_client.on_gateway_autocomplete_create.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_on_interaction_create_event_for_unknown_interaction_type(

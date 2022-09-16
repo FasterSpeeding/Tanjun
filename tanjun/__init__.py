@@ -115,6 +115,7 @@ __all__: list[str] = [
     "HotReloader",
     "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
+    "InteractionAcceptsEnum",
     "LazyConstant",
     "MenuCommand",
     "MessageAcceptsEnum",
@@ -242,6 +243,7 @@ from .checks import with_own_permission_check
 from .checks import with_owner_check
 from .checks import with_sfw_check
 from .clients import Client
+from .clients import InteractionAcceptsEnum
 from .clients import MessageAcceptsEnum
 from .clients import as_loader
 from .clients import as_unloader
