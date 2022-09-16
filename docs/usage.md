@@ -220,7 +220,7 @@ async def ding_command(ctx: tanjun.abc.SlashContext) -> None:
 Slash commands can be stored in groups where the above example will be shown in
 the command menu as `"ding dong"` and `"ding ding ding"`. Unlike message command
 groups, slash command groups cannot be directly called as commands and can only
-be nested up once. To see more information on how slash command groups can be
+be nested once. To see more information on how slash command groups can be
 configured see [slash_command_group][tanjun.commands.slash.slash_command_group].
 
 ### Message commands
