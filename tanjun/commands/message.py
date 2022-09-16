@@ -537,7 +537,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
         return decorator
 
-    def as_sub_command_group(
+    def as_sub_group(
         self, name: str, /, *names: str, strict: bool = False, validate_arg_keys: bool = True
     ) -> _GroupResultProto:
         """Build a message command group in this group from a decorated callback.
