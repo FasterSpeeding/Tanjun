@@ -4,9 +4,9 @@ This guide is not a conclusive list of the features in Tanjun.
 
 ## Starting with Hikari
 
-Tanjun supports both REST server based application command execution and gateway
-based message and application command execution, and to run Tanjun you'll want
-to link it to a Hikari bot.
+Tanjun supports both REST server-based application command execution and
+gateway-based message and application command execution, and to run Tanjun
+you'll want to link it to a Hikari bot.
 
 ```py
 bot = hikari.impl.GatewayBot("TOKEN")
@@ -22,13 +22,12 @@ bot.run()
 Here a Tanjun client is linked to a gateway bot instance to enable both
 message and application command execution.
 
-There's no need to directly start or stop the Tanjun client as the gateway
-bot's lifetime events will manage this by default.
+There's no need to directly start or stop the Tanjun client it'll be managed by
+lifetime events by default.
 
-`declare_global_commands=True` instructs the client to declare the slash
-commands and context menus for the bot its linked to on startup and
-`mention_prefix=True` allows the bot's message commands to be triggered
-by starting the command call with `@bot`.
+`declare_global_commands=True` instructs the client to declare the bot's slash
+commands and context menus on startup and `mention_prefix=True` allows the
+bot's message commands to be triggered by starting a command call with `@bot`.
 
 ```py
 async def main():
@@ -44,15 +43,15 @@ And here a Tanjun client is linked to a rest server bot instance to enable
 application command execution.
 
 Since Hikari's RESTBot doesn't have lifetime events, we have to startup and
-close Tanjun's client around the rest bot ourselves, with it being important
-that the bot is started before Tanjun.
+close Tanjun's client around the rest bot ourselves. The bot should always be
+started before Tanjun.
 
 ### Client lifetime management
 
-While Hikari's bots provides systems for stating and stopping sub-components,
-these aren't cross compatible nor Tanjun friendly and Tanjun's client callbacks
-provide a cross-compatible alternative for these which support dependency
-injection.
+While Hikari's bots provide systems for stating and stopping sub-components,
+these aren't cross-compatible nor Tanjun friendly and Tanjun's client callbacks
+provide a cross-compatible alternative for these (which also supports dependency
+injection).
 
 ```py
 client = tanjun.Client.from_gateway_bot(bot)
@@ -69,9 +68,9 @@ bit.add_client_callback(tanjun.ClientCallbackNames.CLOSED, on_closed)
 
 ## Managing bot functionality
 
-[tanjun.components.Component][] exist as a way to manage and grouping bot
-functionality, storing functionality event listeners, commands, scheduled
-callbacks and client callbacks.
+[tanjun.components.Component][] exists as a way to manage and group bot
+functionality, storing functionality such as event listeners, commands,
+scheduled callbacks, and client callbacks.
 
 ```py
 component = tanjun.Component()
@@ -86,10 +85,10 @@ async def event_listener(event: hikari.Event) -> None:
     ...
 ```
 
-The `with_` functions on [Component][tanjun.components.Component] allow
-functionality such as commands, event listeners and schedles to be loaded into
-a component through a deocrator call and the relevant `add_` functions allow
-adding functionality through chained calls.
+The `with_` methods on [Component][tanjun.components.Component] allow
+loading functionality like commands, event listeners, and schedules into a
+component through a decorator call; the relevant `add_` functions allow adding
+functionality through chained calls.
 
 ```py
 @tanjun.as_message_command("name")
@@ -101,8 +100,8 @@ component = tanjun.Component().load_from_scope()
 
 Alternatively, functionality which is represented by a dedicated object can be
 implicitly loaded from a module's global scope using
-[load_from_scope][tanjun.components.Component.load_from_scope] rather than
-explicitly calling `with_` and `add_` methods.
+[Component.load_from_scope][tanjun.components.Component.load_from_scope]
+rather than directly calling `with_` and `add_` methods.
 
 <!-- ### Component lifetimes
 
@@ -110,10 +109,10 @@ explicitly calling `with_` and `add_` methods.
 
 ### Loading modules
 
-Components are usually used to represent the functionality in a single Python
-module and, while [add_component][tanjun.abc.Client.add_component] can be used
-to directly add a component to a client, you can declare "loaders" and "unloaders"
-for a module to ease the flow
+Components are used to represent the functionality in a Python module.
+While [add_component][tanjun.abc.Client.add_component] can be used to directly
+add a component to a client, you can also declare "loaders" and "unloaders" for
+a module to more ergonomically load this functionality into a client.
 
 ```py
 component = tanjun.Component().load_from_scope()
@@ -127,7 +126,7 @@ def unload(client) -> None:
     client.remove_component(component)
 ```
 
-either by declaring a custom loader and unloader
+You can either declare one or more custom loaders and unloaders as shown above
 
 ```py
 component = tanjun.Component().load_from_scope()
@@ -135,8 +134,8 @@ component = tanjun.Component().load_from_scope()
 loader = component.make_loader()
 ```
 
-or by using [make_loader][tanjun.components.Component.make_loader] to generate
-a loader and unloader for the component.
+or use [make_loader][tanjun.components.Component.make_loader] to generate a
+loader and unloader for the component.
 
 ```py
 (
@@ -146,17 +145,17 @@ a loader and unloader for the component.
 )
 ```
 
-These modules with loaders can then be loaded into a client by calling
+Modules with loaders can then be loaded into a client by calling
 [load_directory][tanjun.abc.Client.load_directory] to load from all the
 modules in a directory or [load_modules][tanjun.abc.Client.load_modules] to
-load a specific module.
+load specific modules.
 
 <!-- ### Hot reloading -->
 
 ## Declaring commands
 
 Commands need to be contained within a component to be loaded into a client
-and may either be loaded using
+and may be added to a component either directly using
 [Component.add_command][tanjun.components.Component.add_command]/
 [Component.with_command][tanjun.components.Component.with_command]
 (where add is chainable and with is a decorator callback) or implicitly
@@ -177,14 +176,15 @@ async def slash_command(
 
 Slash commands represent the commands you see when you start typing in the
 message box with "/" on Discord and have both names (which follow the
-restraints shown in  <https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales>)
+restraints shown in <https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales>)
 and descriptions (which can be up to 100 characters long).
 
 There are several different kinds of slash command arguments which all require
-an argument name and description (which follow the sme restraints as
-the command name and description) along with type specific configuration and
-can be configured using the following or their `add_{type}_option` equivalent
-chainable methods on [SlashCommand][tanjun.commands.slash.SlashCommand]:
+an argument name and description (both of which have the same constraints as
+the relevant slash command fields) along with type-specific configuration.
+These can be configured using the following decorator functions and their
+`add_{type}_option` equivalent chainable methods on
+[SlashCommand][tanjun.commands.slash.SlashCommand]:
 
 * [with_attachment_slash_option][tanjun.commands.slash.with_attachment_slash_option]
 * [with_bool_slash_option][tanjun.commands.slash.with_bool_slash_option]
@@ -197,9 +197,9 @@ chainable methods on [SlashCommand][tanjun.commands.slash.SlashCommand]:
 * [with_str_slash_option][tanjun.commands.slash.with_str_slash_option]
 * [with_user_slash_option][tanjun.commands.slash.with_user_slash_option]
 
-Most notably, specifically string arguments support converters (and the
-standard converters found in [tanjun.conversion][]) in a similar fashion to
-message command arguments.
+Most notably, only string arguments support converters (and the standard
+converters found in [tanjun.conversion][]) similarly to message command
+arguments.
 
 ```py
 ding_group = tanjun.slash_command_group("ding", "ding group")
@@ -218,10 +218,10 @@ async def ding_command(ctx: tanjun.abc.SlashContext) -> None:
 ```
 
 Slash commands can be stored in groups where the above example will be shown in
-the command menu as `"ding dong"` and `"ding ding ding"`. Unlike message command
+the command menu as `"/ding dong"` and `"/ding ding ding"`. Unlike message command
 groups, slash command groups cannot be directly called as commands and can only
-be nested once. To see more information on how slash command groups can be
-configured see [slash_command_group][tanjun.commands.slash.slash_command_group].
+be nested once. For more information on how slash command groups are configured
+see [slash_command_group][tanjun.commands.slash.slash_command_group].
 
 ### Message commands
 
@@ -241,16 +241,15 @@ async def message_command(
     ...
 ```
 
-Message commands are executed based on chat messages where any prefixes added
-to the client will be used to match for executable message commands (the above
-example would match messages starting with `"!meow command"`) and without any
-set prefixes message commands just won't execute. Since these are executed
-based on messages they can only be executed when linkde to a gateway bot and
-require the MESSAGE_CONTENT intent to be declared.
+Message commands are triggered based on chat messages where the client's
+prefixes and command names are used to match executable message commands
+(the above example would match messages starting with `"!meow command"`).
+These will only be executed when linked to a gateway bot with the
+`MESSAGE_CONTENT` intent declared and when at least 1 prefix is set.
 
-To allow for executing a command by mentioning the bot before the command name
-(e.g. `@BotGirl meow command`) you can pass `mention_prefix=True` to either
-[Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] or
+To allow users to trigger a command by mentioning the bot before the command
+name (e.g. `@BotGirl meow command`) you can pass `mention_prefix=True` to
+either [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] or
 [Client.\_\_init\_\_][tanjun.clients.Client.__init__] while creating the bot.
 
 ```py
@@ -279,8 +278,8 @@ async def de_france_command(ctx:tanjun.abc.MessageContext):
 Message command groups are a collection of message commands under a shared name
 and (unlike slash commands) can also be directly executed as a command. The above
 example would have the following commands: `"!groupy"`, `!"groupy tour"`,
-`"groupy tour de france"` and `"groupy sus drink"`. To see more information on
-how message command groups can be configured see
+`"!groupy tour de france"` and `"!groupy sus drink"`. For more information
+on how message command groups are configured see
 [as_message_command_group][tanjun.commands.message.as_message_command_group].
 
 
@@ -288,22 +287,22 @@ how message command groups can be configured see
 
 Message command argument parsing always handles string arguments and to declare
 parsed arguments you can use one of the `with_option` or `with_argument` methods
-in [tanjun.parsing][]; while options are optional arguments which are passed
-based on a flag name (e.g. `"--key"`), arguments are passed positonally.
+in [tanjun.parsing][]; while options are optional arguments that are passed
+based on a flag name (e.g. `"--key"`), arguments are passed positionally.
 It's worth noting that since decorators are executed from the bottom upwards
 positional arguments will follow the same order.
 
-Arguments and options have multiple parsing approaches, by default they just
-parse 1 value but "multi" (can be applied to both) indicates that multiple
-values should be allowed/parsed with these being passed as a list of values
-or greedy (argument only) indicating that an argument should parse the rest
-of the positional data as 1 big string which includes spaces.
+Arguments and options have multiple parsing approaches: Arguments only parse
+one value by default; "multi" (can be applied to both) arguments parse multiple
+values separately (passed to the function as a list of values); "greedy"
+(argument only) arguments parse the remaining positional values as one big
+string (including spacing).
 
-The most helpful configuration for options and arguments is converters, these
-are at one or more callbacks which may be called to try and convert the value
-where the result of first which passes (doesn't raise a [ValueError][] will be
-used); other configuration can be seen in [tanjun.parsing][] and standard
-converters can be found in [tanjun.conversion][].
+The most helpful configuration for options and arguments is converters: these
+are callbacks which will be called to try convert an argument's raw value; the
+first callback to pass (not raise a [ValueError][]) is used as the value. For
+more configuration see [tanjun.parsing][] and for the standard converters see
+[tanjun.conversion][].
 
 ### Context menus
 
@@ -321,17 +320,17 @@ async def user_menu_command(ctx: tanjun.abc.MenuContext, user: hikari.User) -> N
 
 Context menus represent the application commands shown when you click on a user
 or message in Discord and, unlike slash and message commands, do not have
-configurable arguments nor groups. These are created pretty easily as shown
-above; for more information on configuring menu commands see
-[tanjun.as_message_menu][tanjun.commands.menu.as_message_menu].
+configurable arguments nor groups. For more information on configuring menu
+commands see [tanjun.as_message_menu][tanjun.commands.menu.as_message_menu].
 
 ### Slash command autocomplete
 
-Autocomplete is a slash command exclusive feature which allows for processing
-partial input for string arguments and returning dynamic choices.
+Autocomplete is a slash command exclusive feature that allows a bot to
+dynamically return choice suggestions to a user as they type a string option.
 
-Unlike application commands, autocomplete can't defer and must return within 3
-seconds. These callbacks must be asynchronous and support dependency injection.
+Unlike application commands, autocomplete must give a response within 3 seconds
+as these do not support deferrals. Autocomplete callbacks must be asynchronous
+and support dependency injection.
 
 ```py
 @component.with_command
@@ -360,8 +359,8 @@ slash_command.set_str_autocomplete("opt2", opt2_autocomplete)
 
 ### Annotation based command declaration
 
-Previously you've seen how to declare manually declare command options per
-command type, now its time to go higher.
+Previously you've seen how to manually declare command options per command
+type, now it's time to go higher.
 
 ```py
 from typing import Annotated
@@ -386,19 +385,20 @@ async def command(
 
 [tanjun.with_annotated_args][tanjun.annotations.with_annotated_args] provides
 a simple way to declare the arguments for both message and slash commands.
-While this feature is cross-compatible there is one key difference, slash
-commands specifically require that a description for the option be passed as a
-separate string field to [typing.Annotated][] and message commands juts ignore
-this description.
+While this feature is cross-compatible, there is one key difference: a
+description must be included for options when annotating for a slash command,
+which is done by passing a string value to [typing.Annotated][] (as shown
+above).
 
-The special generic types it offers like [Ranged][tanjun.annotations.Ranged] and
-[Converted][tanjun.annotations.Converted] use [typing.Annotated][] to complete
-that generic call and can also be passed as arguments to Annotated like
-`Annotated[Int, Ranged(13, 130)]` and `Annotated[Str, Converted(get_video)]`.
+The special generic types offered in [tanjun.annotations] like
+[Ranged][tanjun.annotations.Ranged] and [Converted][tanjun.annotations.Converted]
+return a [typing.Annotated][] instance from their generic calls and can also be
+passed as arguments to Annotated like `Annotated[Int, Ranged(13, 130)]` and
+`Annotated[Str, Converted(get_video)]`.
 
 This example doesn't demonstrate every future of this and more information on
-how arguments can be configured through annotations can be seen in
-[tanjun.annotations][tanjun.annotations].
+how arguments are configured through annotations can be seen in
+[tanjun.annotations][].
 
 ### Wrapped commands
 
@@ -407,8 +407,8 @@ decorators which can be applied to multiple command types often have a
 `follow_wrapped` argument which will apply them to all the compatible
 commands in a chain if [True][] is passed for it.
 
-When using `follow_wrapped` the relevant decorator must be above any
-`as_{}_command` decorator calls in the chain.
+When using `follow_wrapped` the relevant decorator will be applied to all the
+compatible `as_{}_command` decorator calls below it in the chain.
 
 ```py
 @tanjun.with_annotated_args(follow_wrapped=True)
@@ -419,21 +419,21 @@ async def command(ctx: tanjun.abc.Context) -> None:
     ...
 ```
 
-It's worth noting that, while the previous command examples have typed `ctx` as
-a context type that's specific to the command type,
-[abc.Context][tanjun.abc.Context] is the base for all these (except the
-autocomplete context) and may be used as the type for `ctx` when a callback
-supports multiple command types.
+While the previous command examples have typed `ctx` as a context type that's
+specific to the command type, it's worth noting that
+[abc.Context][tanjun.abc.Context] is a shared base for every command context type
+and may be used as the type for `ctx` when a callback supports multiple command
+types.
 
 ## Dependency injection
 
-Tanjun supports type based dependency injection as a type-safe approach for
+Tanjun supports type-based dependency injection as a type-safe approach for
 handling global state for most of the callbacks it takes (e.g. command
 callbacks, checks, hook callbacks, event listeners, schedule callbacks) through
-Alluka.
+[Alluka][alluka].
 
 ```py
-(
+client = (
     tanjun.Client.from_gateway_bot(bot)
     .set_type_dependency(Foo, Foo())
     .set_type_dependency(Bar, Bar())
@@ -495,7 +495,7 @@ TODO: this needs a consistency fix before being documented -->
 
 Both [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] and
 [Client.from_rest_bot][tanjun.clients.Client.from_rest_bot] register type
-dependencies for the relevant [hikari traits][hikari.traits] which the bot is
+dependencies for the relevant [hikari traits][hikari.traits] that the bot is
 compatible with. You can get this behaviour after directly initialising
 [tanjun.clients.Client][tanjun.Client] without a from method by calling
 [Client.set_hikari_trait_injectors][tanjun.clients.Client.set_hikari_trait_injectors]
@@ -505,8 +505,8 @@ with the relevant bot object.
 
 ### Checks
 
-Checks are simple to understand, they are functions which run before command
-execution to decide whether a command or group of commands match a context.
+Checks are functions that run before command execution to decide whether a
+command or group of commands matches a context and should be called with it.
 
 ```py
 @tanjun.with_guild_check(follow_wrapped=True)
@@ -518,11 +518,11 @@ async def command(ctx: tanjun.abc.Context) -> None:
     ...
 ```
 
-There's a collection of standard checks in [tanjun.checks][] which are all
-exported top level and work with all the command types, the only
-configuration most users will care about for these is `error_message` argument
-which lets you adjust the response these gives when they fail but the
-permission checks also need a required permission to be passed positionally.
+There's a collection of standard checks in [tanjun.checks][] that are all
+exported top-level and work with all the command types. The only optional
+configuration most users will care about for the standard checks is the
+`error_message` argument which lets you adjust the response messages these
+send when they fail.
 
 ```py
 component = (
@@ -547,12 +547,12 @@ async def owner_only_command(ctxL tanjun.abc.Context):
     ...
 ```
 
-Checks (both custom and standard) can be added to clients, components and
+Checks (both custom and standard) can be added to clients, components, and
 commands using either the chainable `add_check` method or the decorator
-style `with_check` method with the standard checks providing `with_...`
-decorators which can be applied to commands to add the check and checks
-on a client, component or command group will be used for every child
-command.
+style `with_check` method. The standard checks also provide `with_...`
+decorators which can be used to add the check to a command during a decorator
+chain. Checks on a client, component, or command group will be used for every
+child command.
 
 ```py
 def check(ctx: tanjun.abc.Context) -> bool:
@@ -562,21 +562,20 @@ def check(ctx: tanjun.abc.Context) -> bool:
     return True
 ```
 
-A custom check can be implemented by making a function with either the signature
+Custom checks can be made by making a function with either the signature
 `def (tanjun.abc.Context, ...) -> bool` or `async def (tanjun.abc.Context, ...) -> bool`
-where [dependency injection][dependency-injection] is supported, returning
-`True` indicates that the check passed and returning `False` indicates that the
-check failed and the client should continue looking for a matching command. You
-will most likely want to raise [CommandError][tanjun.errors.CommandError] to
-end command execution with a response rather than carrying on with the command
-search.
+(where [dependency injection][dependency-injection] is supported).  Returning
+[True][] indicates that the check passed, and returning [False][] indicates that
+the client should continue looking for a matching command as the check failed.
+You will probably want to raise [CommandError][tanjun.errors.CommandError] to
+end command execution with a response rather than returning [False][].
 
 ### Execution hooks
 
-Command hooks are callbacks which are called around command execution, these
+Command hooks are callbacks that are called around command execution, these
 are contained within [Hooks][tanjun.hooks.Hooks] objects which may be added
-to a command, client or component using `set_hooks` where hooks on a client,
-component or command group will be callde for every child command.
+to a command, client, or component using `set_hooks` where hooks on a client,
+component or command group will be called for every child command.
 
 There are several different kinds of hooks which all support dependency
 injection and may be synchronous or asynchronous:
@@ -589,8 +588,8 @@ async def pre_execution_hook(ctx: tanjun.abc.Context) -> None:
     ...
 ```
 
-Pre-execution are called before the execution of a command (so after command
-matching has finished and all the checks have passed).
+Pre-execution hooks are called before the execution of a command but after
+command matching has finished and all the relevant checks have passed.
 
 ```py
 @hooks.with_pre_execution  # hooks.add_pre_execution
@@ -598,7 +597,7 @@ async def pre_execution_hook(ctx: tanjun.abc.Context) -> None:
     ...
 ```
 
-Post-executon hooks are called after a command has finished executing,
+Post-execution hooks are called after a command has finished executing,
 regardless of whether it passed or failed.
 
 ```py
@@ -607,8 +606,8 @@ async def success_hook(ctx: tanjun.abc.Context) -> None:
     ...
 ```
 
-Success hooks are called after a command has finished executing, if it
-succeeded (didn't raise any errors).
+Success hooks are called after a command has finished executing successfully
+(without raising any errors).
 
 ```py
 @hooks.with_on_error  # hooks.add_on_error
@@ -617,17 +616,24 @@ async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> bool | None:
 ```
 
 Error hooks are called when command's execution is ended early by an error raise
-which isn't a [ParserError][tanjun.errors.ParserError],
+that isn't a [ParserError][tanjun.errors.ParserError],
 [CommandError][tanjun.errors.CommandError] or
-[HaltExecution][tanjun.errors.HaltExecution] (as these are special cased).
+[HaltExecution][tanjun.errors.HaltExecution] (as these are special-cased).
+
+The return value of an error hook is used with other error hook return values
+to workout whether the error should be re-raised: [True][] acts as a vote
+towards suppressing the error, [False][] acts as a vote towards re-raising the
+error and [None][] acts as no vote. In the case of a tie the error will be
+re-raised.
 
 ```py
 @hooks.add_on_parser_error  # hooks.add_on_parser_error
-async def parser_error_hook(ctx: tanjun.abc.Context, error: tanjun.ParserError)
+async def parser_error_hook(ctx: tanjun.abc.Context, error: tanjun.ParserError) -> None:
+    ...
 ```
 
 Parser error hooks are called when the argument parsing of a message command
-failed.
+failed. Parser errors are never re-raised.
 
 ### Concurrency limiter
 
@@ -670,8 +676,8 @@ async def user_command(
 
 And here we use [with_concurrency_limit][tanjun.dependencies.with_concurrency_limit]
 to mark these commands as using the `"main_commands"` concurrency limit bucket;
-buckets share their limits for a resource across all the commands under it for,
-for more information on the resources concurrency can be limited by see
+buckets share their limits for a resource across all the commands under it. For
+more information on the resources concurrency can be limited by see
 [BucketResource][tanjun.dependencies.BucketResource].
 
 ### Cooldowns
@@ -691,7 +697,7 @@ client = tanjun.Client.from_gateway_bot(bot)
 Here [InMemoryCooldownManager][tanjun.dependencies.InMemoryCooldownManager]
 will manage the cooldowns for all the commands in this bot instance with
 [Manager.set_bucket][tanjun.dependencies.InMemoryCooldownManager.set_bucket]
-being called to limit the bucket `"main_commands"` to 5 calls every 60 seconds per user,
+being called to limit the bucket `"main_commands"` to 5 calls per user every 60 seconds,
 [Manager.disable_bucket][tanjun.dependencies.InMemoryCooldownManager.disable_bucket]
 being called to ensure that the bucket `"plugin.meta"` has no cooldowns as
 unconfigured buckets will default to the configuration for the `"default"` bucket, and
@@ -714,8 +720,8 @@ async def user_command(
 
 And here we use [with_cooldown][tanjun.dependencies.with_cooldown]
 to mark these commands as using the `"main_commands"` cooldown bucket;
-buckets share their cooldowns for a resource across all the commands under it,
-for more information on the resources cooldowns can be set for
+buckets share their cooldowns for a resource across all the commands under it.
+For more information on the resources cooldowns can be set for see
 [BucketResource][tanjun.dependencies.BucketResource].
 
 <!-- # TODO: some day, document buildings commands using the flient interface -->
