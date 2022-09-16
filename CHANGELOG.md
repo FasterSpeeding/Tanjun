@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `follow_wrapped` parameter to `Component.with_command`.
 - [MessageCommandGroup.as_sub_command][tanjun.commands.message.MessageCommandGroup.as_sub_command],
-  [MessageCommandGroup.as_sub_command_group][tanjun.commands.message.MessageCommandGroup.as_sub_command_group],
+  [MessageCommandGroup.as_sub_group][tanjun.commands.message.MessageCommandGroup.as_sub_group],
   [SlashCommandGroup.as_sub_command][tanjun.commands.slash.SlashCommandGroup.as_sub_command] and
   [SlashCommandGroup.make_sub_group][tanjun.commands.slash.SlashCommandGroup.make_sub_group]
   shorthand methods for creating sub-command and sub-command-groups directly on groups.
