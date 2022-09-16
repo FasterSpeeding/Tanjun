@@ -202,26 +202,26 @@ standard converters found in [tanjun.conversion][]) in a similar fashion to
 message command arguments.
 
 ```py
-ding_group = tanjun.as_message_command_group("ding", "ding group")
+ding_group = tanjun.slash_command_group("ding", "ding group")
 
 
-@ding_group.with_command
-@tanjun.as_slash_command("dong", "dong command")
+@ding_group.as_sub_command("dong", "dong command")
 async def dong_command(ctx: tanjun.abc.SlashContext) -> None:
     ...
 
 
-@ding_group.with_command
-@tanjun.as_slash_command("ding", "ding command")
+ding_ding_group = ding.make_sub_group("ding", "ding ding group")
+
+@ding_ding_group.as_sub_command("ding", "ding ding ding command")
 async def ding_command(ctx: tanjun.abc.SlashContext) -> None:
     ...
 ```
 
 Slash commands can be stored in groups where the above example will be shown in
-the command menu as `"ding dong"` and `"ding ding"`. Unlike message command
-groups, slash command groups cannot be directly called as commands. To see more
-information on how slash command groups can be configured see
-[slash_command_group][tanjun.commands.slash.slash_command_group].
+the command menu as `"ding dong"` and `"ding ding ding"`. Unlike message command
+groups, slash command groups cannot be directly called as commands and can only
+be nested up once. To see more information on how slash command groups can be
+configured see [slash_command_group][tanjun.commands.slash.slash_command_group].
 
 ### Message commands
 
@@ -257,26 +257,32 @@ To allow for executing a command by mentioning the bot before the command name
 # prefixes=["!"]
 
 @tanjun.as_message_command_group("groupy")
-async def groupy_command(ctx: tanjun.abc.MessageContext)
+async def groupy_group(ctx: tanjun.abc.MessageContext)
     ...
 
 
-@groupy_command.with_command
-@tanjun.as_message_command("tour")
-async def tour_command(ctx: tanjun.abc.MessageContext):
-    ...
-
-
-@groupy_command.with_command
-@tanjun.as_message_command("sus drink")
+@groupy_group.as_sub_command("sus drink")
 async def sus_drink_command(ctx: tanjun.abc.MessageContext):
+    ...
+
+
+@groupy_group.as_sub_group("tour")
+async def tour_group(ctx: tanjun.abc.MessageContext):
+    ...
+
+
+@tour_group.as_sub_command("de france")
+async def de_france_command(ctx:tanjun.abc.MessageContext):
     ...
 ```
 
 Message command groups are a collection of message commands under a shared name
 and (unlike slash commands) can also be directly executed as a command. The above
-example would have the following commands: `"!groupy"`, `!"groupy tour"` and
-`"groupy sus drink"`
+example would have the following commands: `"!groupy"`, `!"groupy tour"`,
+`"groupy tour de france"` and `"groupy sus drink"`. To see more information on
+how message command groups can be configured see
+[as_message_command_group][tanjun.commands.message.as_message_command_group].
+
 
 #### Argument parsing
 
