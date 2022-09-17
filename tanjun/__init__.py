@@ -100,8 +100,6 @@ from __future__ import annotations as _
 
 __all__: list[str] = [
     "AnyHooks",
-    "BasicLocaliser",
-    "BasicLocalizer",
     "BucketResource",
     "Client",
     "ClientCallbackNames",
