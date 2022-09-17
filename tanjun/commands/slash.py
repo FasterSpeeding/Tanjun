@@ -953,10 +953,6 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         return self._descriptions.localised_values.copy()
 
     @property
-    def description_localizations(self) -> collections.Mapping[str, str]:
-        return self.description_localisations
-
-    @property
     def is_dm_enabled(self) -> typing.Optional[bool]:
         # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._is_dm_enabled
@@ -974,10 +970,6 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     @property
     def name_localisations(self) -> collections.Mapping[str, str]:
         return self._names.localised_values.copy()
-
-    @property
-    def name_localizations(self) -> collections.Mapping[str, str]:
-        return self.name_localisations
 
     @property
     def parent(self) -> typing.Optional[tanjun.SlashCommandGroup]:
