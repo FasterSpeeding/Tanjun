@@ -457,7 +457,7 @@ you can defer the first response using
 [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer]; the client will
 even automatically defer by default if you haven't created an initial response
 within a couple of seconds. [Context.respond][tanjun.abc.Context.respond] is
-aware of deferrals so you likely won't need to think about automatic deferral;
+aware of deferrals so you likely won't need to think about automatic deferral,
 unless you're using
 [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response].
 
