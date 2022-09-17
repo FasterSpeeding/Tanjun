@@ -6,9 +6,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.3a1] - 2022-09-17
+### Added
+- `follow_wrapped` parameter to `Component.with_command`.
+- [MessageCommandGroup.as_sub_command][tanjun.commands.message.MessageCommandGroup.as_sub_command],
+  [MessageCommandGroup.as_sub_group][tanjun.commands.message.MessageCommandGroup.as_sub_group],
+  [SlashCommandGroup.as_sub_command][tanjun.commands.slash.SlashCommandGroup.as_sub_command] and
+  [SlashCommandGroup.make_sub_group][tanjun.commands.slash.SlashCommandGroup.make_sub_group]
+  shorthand methods for creating sub-command and sub-command-groups directly on groups.
+- [Client.set_interaction_accepts][tanjun.clients.Client.set_interaction_accepts] for configuring
+  which interaction types a client should listen for and execute.
+
+### Changed
+- [Client.set_message_accepts][tanjun.clients.Client.set_message_accepts] now
+  raises a [RuntimeError][] if called while the client is running to ensure
+  consistent behaviour.
+
+### Removed
+- The broken `add_injector` argument from [tanjun.clients.Client.add_component][].
+
 ## [2.6.2a1] - 2022-09-05
 ### Added
-- [tanjun.abc.CLient.load_directory][] and [tanjun.abc.Client.load_directory_async][] for loading all
+- [tanjun.abc.Client.load_directory][] and [tanjun.abc.Client.load_directory_async][] for loading all
   the modules in a directory.
 - `path` properties to [tanjun.errors.FailedModuleLoad][] and [tanjun.errors.FailedModuleUnload][]
   to indicate which module failed to load/unload.
@@ -655,7 +674,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
 2.6.2a1
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.2a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.3a1...HEAD
+[2.6.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.2a1...v2.6.3a1
 [2.6.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.1a1...v2.6.2a1
 [2.6.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.4a1...v2.6.1a1
 [2.5.4a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.3a1...v2.5.4a1
