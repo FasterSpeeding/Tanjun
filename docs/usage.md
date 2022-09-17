@@ -323,105 +323,6 @@ or message in Discord and, unlike slash and message commands, do not have
 configurable arguments nor groups. For more information on configuring menu
 commands see [tanjun.as_message_menu][tanjun.commands.menu.as_message_menu].
 
-## Responding to commands
-
-```py
-@tanjun.with_annotated_args(follow_wrapped=True)
-@tanjun.as_slash_command("name", "description")
-@tanjun.as_message_command("name")
-@tanjun.as_user_menu("name")
-async def command(
-    ctx: tanjun.abc.Context,
-    user: typing.Annotated[tanjun.annotations.User | None, "The user to target"] = None
-) -> None:
-    user = user or ctx.author
-    message = await ctx.respond(
-        "message content",
-        attachments=[hikari.File("./its/a/mystery.jpeg")],
-        embeds=[hikari.Embed(title=str(author)).set_thumbnail(author.display_avatar_url)],
-        ensure_result=True,
-    )
-```
-
-[Context.respond][tanjun.abc.Context.respond] is used to respond to a command
-call, this has a similar signature to Hikari's message respond method but will
-only be guaranteed to return a [hikari.messages.Message][] object when
-`ensure_result=True` is passed.
-
-### Ephemeral responses
-
-```py
-# All this command's responses will be ephemeral.
-@component.with_command
-@tanjun.as_slash_command("name", "description", ephemeral_default=True)
-async def command_1(ctx: tanjun.abc.SlashContext) -> None:
-    await ctx.respond("hello friend")
-
-
-@component.with_command
-@tanjun.as_user_menu("name", "description")
-async def command_2(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None:
-    await ctx.create_initial_response("Starting the thing", ephemeral=True)  # private response
-    await ctx.respond("meow")  # public response
-    await ctx.create_followup("finished the thing", ephemeral=True)  # private response
-```
-
-Ephemeral responses are a slash command and context menus exclusive response
-feature that marks it as private (so that only the command author can see it)
-and temporary. A response can be marked as ephemeral by either passing
-`ephemeral=True` to
-[AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response]
-(when initially responding to the slash command) or
-[AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup]
-(for followup responses).
-Alternatively, an ephemeral default can either be set on a client level
-([Client.set_ephemeral_default][tanjun.clients.Client.set_ephemeral_default]),
-component level ([Component.set_ephemeral_default][tanjun.components.Component.set_ephemeral_default]),
-or for a specific command (by passing `default_to_ephemeral=True` while
-creating a command) to have any relevant child application command responses
-default to ephemeral (including calls to [tanjun.abc.Context.respond][]).
-
-## Slash command autocomplete
-
-Autocomplete is a slash command exclusive feature that allows a bot to
-dynamically return choice suggestions to a user as they type a string option.
-
-Autocomplete callbacks must be asynchronous and support dependency injection.
-
-```py
-@component.with_command
-@tanjun.with_str_slash_option("opt1", "description")
-@tanjun.with_str_slash_option("opt2", "description", default=None)
-@tanjun.as_slash_command
-async def slash_command(
-    ctx: tanjun.abc.SlashContext,
-    opt1: str,
-    opt2: str | None,
-) -> None:
-    ...
-
-
-@slash_command.with_str_autocomplete("opt1")
-async def opt1_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
-    await ctx.set_choices((("name", "value"), ("other_name", "other_value")), other_other_name="other_other_value")
-
-
-@slash_command.with_str_autocomplete("opt2")
-async def opt2_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
-    await ctx.set_choices({"name": "value", "other_name": "other_value"})
-
-
-slash_command.set_str_autocomplete("opt2", opt2_autocomplete)
-```
-
-To set the results for an autocomplete interaction call
-[AutocompleteContext.set_choices][tanjun.abc.AutocompleteContext.set_choices]:
-this takes the same arguments as [dict][] and up to 25 choices (where both name
-and value have a limit of up to 100 characters).
-
-Unlike application commands, autocomplete must give a response within 3 seconds
-as these do not support deferrals.
-
 ### Annotation based command declaration
 
 Previously you've seen how to manually declare command options per command
@@ -489,6 +390,128 @@ specific to the command type, it's worth noting that
 [abc.Context][tanjun.abc.Context] is a shared base for every command context type
 and may be used as the type for `ctx` when a callback supports multiple command
 types.
+
+## Responding to commands
+
+```py
+@tanjun.with_annotated_args(follow_wrapped=True)
+@tanjun.as_slash_command("name", "description")
+@tanjun.as_message_command("name")
+@tanjun.as_user_menu("name")
+async def command(
+    ctx: tanjun.abc.Context,
+    user: typing.Annotated[tanjun.annotations.User | None, "The user to target"] = None
+) -> None:
+    user = user or ctx.author
+    message = await ctx.respond(
+        "message content",
+        attachments=[hikari.File("./its/a/mystery.jpeg")],
+        embeds=[hikari.Embed(title=str(author)).set_thumbnail(author.display_avatar_url)],
+        ensure_result=True,
+    )
+```
+
+[Context.respond][tanjun.abc.Context.respond] is used to respond to a command
+call, this has a similar signature to Hikari's message respond method but will
+only be guaranteed to return a [hikari.messages.Message][] object when
+`ensure_result=True` is passed.
+
+### Ephemeral responses
+
+```py
+# All this command's responses will be ephemeral.
+@component.with_command
+@tanjun.as_slash_command("name", "description", ephemeral_default=True)
+async def command_1(ctx: tanjun.abc.SlashContext) -> None:
+    await ctx.respond("hello friend")
+
+
+@component.with_command
+@tanjun.as_user_menu("name", "description")
+async def command_2(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None:
+    await ctx.create_initial_response("Starting the thing", ephemeral=True)  # private response
+    await ctx.respond("meow")  # public response
+    await ctx.create_followup("finished the thing", ephemeral=True)  # private response
+```
+
+Ephemeral responses are a slash command and context menus exclusive response
+feature that marks it as private (so that only the command author can see it)
+and temporary. A response can be marked as ephemeral by either passing
+`ephemeral=True` to
+[AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response]
+(when initially responding to the slash command) or
+[AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup]
+(for followup responses).
+Alternatively, an ephemeral default can either be set on a client level
+([Client.set_ephemeral_default][tanjun.clients.Client.set_ephemeral_default]),
+component level ([Component.set_ephemeral_default][tanjun.components.Component.set_ephemeral_default]),
+or for a specific command (by passing `default_to_ephemeral=True` while
+creating a command) to have any relevant child application command responses
+default to ephemeral (including calls to [tanjun.abc.Context.respond][]).
+
+### Deferrals
+
+Slash commands and context menus traditionally need to give an initial response
+within 3 seconds. If you don't have a response message ready within 3 seconds,
+you can defer the first response
+using [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer]; the
+client will even automatically defer by default if you haven't created an
+initial response within a couple of seconds.
+[Context.respond][tanjun.abc.Context.respond] is aware of deferrals so you
+likely don't need to think about automatic deferra; unless you're using
+[AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response].
+
+A deferral should be finished by edited in the initial response using
+[AppCommandContext.edit_initial_response][tanjun.abc.AppCommandContext.edit_initial_response]
+and if you want a deferred response to be ephemeral you'll have to either
+pass `ephemeral=True` while deferring or have the ephemeral default set to
+[True][].
+
+Automatic deferral can be configured using
+[Client.set_auto_defer_after][tanjun.clients.Client.set_auto_defer_after],
+and commands can even be configured to always defer when they start executing
+by passing `always_defer=True` while creating the command.
+
+## Slash command autocomplete
+
+Autocomplete is a slash command exclusive feature that allows a bot to
+dynamically return choice suggestions to a user as they type a string option.
+
+Autocomplete callbacks must be asynchronous and support dependency injection.
+
+```py
+@component.with_command
+@tanjun.with_str_slash_option("opt1", "description")
+@tanjun.with_str_slash_option("opt2", "description", default=None)
+@tanjun.as_slash_command
+async def slash_command(
+    ctx: tanjun.abc.SlashContext,
+    opt1: str,
+    opt2: str | None,
+) -> None:
+    ...
+
+
+@slash_command.with_str_autocomplete("opt1")
+async def opt1_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
+    await ctx.set_choices((("name", "value"), ("other_name", "other_value")), other_other_name="other_other_value")
+
+
+@slash_command.with_str_autocomplete("opt2")
+async def opt2_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
+    await ctx.set_choices({"name": "value", "other_name": "other_value"})
+
+
+slash_command.set_str_autocomplete("opt2", opt2_autocomplete)
+```
+
+To set the results for an autocomplete interaction call
+[AutocompleteContext.set_choices][tanjun.abc.AutocompleteContext.set_choices]:
+this takes the same arguments as [dict][] and up to 25 choices (where both name
+and value have a limit of up to 100 characters).
+
+Unlike application commands, autocomplete must give a response within 3 seconds
+as these do not support deferrals.
 
 ## Dependency injection
 
