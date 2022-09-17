@@ -434,20 +434,20 @@ async def command_2(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None:
     await ctx.create_followup("finished the thing", ephemeral=True)  # private response
 ```
 
-Ephemeral responses are a slash command and context menus exclusive response
-feature that marks it as private (so that only the command author can see it)
-and temporary. A response can be marked as ephemeral by either passing
-`ephemeral=True` to
-[AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response]
+Ephemeral responses are a slash command and context menus exclusive feature which
+marks a response as private (so that only the command author can see it) and
+temporary. A response can be marked as ephemeral by either passing `ephemeral=True`
+to [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response]
 (when initially responding to the slash command) or
 [AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup]
 (for followup responses).
 Alternatively, an ephemeral default can either be set on a client level
-([Client.set_ephemeral_default][tanjun.clients.Client.set_ephemeral_default]),
-component level ([Component.set_ephemeral_default][tanjun.components.Component.set_ephemeral_default]),
+(using [Client.set_ephemeral_default][tanjun.clients.Client.set_ephemeral_default]),
+component level
+(using [Component.set_ephemeral_default][tanjun.components.Component.set_ephemeral_default]),
 or for a specific command (by passing `default_to_ephemeral=True` while
-creating a command) to have any relevant child application command responses
-default to ephemeral (including calls to [tanjun.abc.Context.respond][]).
+creating a command) to have any relevant application command responses default
+to ephemeral (including calls to [tanjun.abc.Context.respond][]).
 
 ### Deferrals
 
@@ -461,11 +461,11 @@ initial response within a couple of seconds.
 likely won't need to think about automatic deferral; unless you're using
 [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response].
 
-A deferral should be finished by editing in the initial response using
-[AppCommandContext.edit_initial_response][tanjun.abc.AppCommandContext.edit_initial_response],
-and if you want a deferred response to be ephemeral you'll have to either
-pass `ephemeral=True` while deferring or have the ephemeral default set to
-[True][].
+A deferral should be finished by editing in the initial response using either
+[AppCommandContext.edit_initial_response][tanjun.abc.AppCommandContext.edit_initial_response]
+or [Context.respond][tanjun.abc.Context.respond] and if you want a deferred
+response to be ephemeral you'll have to either pass `ephemeral=True` while
+deferring or have the ephemeral default set to [True][].
 
 Automatic deferral can be configured using
 [Client.set_auto_defer_after][tanjun.clients.Client.set_auto_defer_after],
