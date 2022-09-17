@@ -483,7 +483,7 @@ def _cmp_command(built: typing.Optional[hikari.api.CommandBuilder], cmd: hikari.
 
         opts = cmd.options or ()
 
-        return len(built.options) == len(opts) and all(itertools.starmap(operator.eAq, zip(built.options, opts)))
+        return len(built.options) == len(opts) and all(itertools.starmap(operator.eq, zip(built.options, opts)))
 
     # name doesn't need to be checked as `builder` will be `None` if that didn't match.
     return built.name_localizations == cmd.name_localizations
