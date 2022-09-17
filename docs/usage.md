@@ -462,8 +462,8 @@ unless you're using
 [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response].
 
 A deferral should be finished by editing in the initial response using either
-[AppCommandContext.edit_initial_response][tanjun.abc.AppCommandContext.edit_initial_response]
-or [Context.respond][tanjun.abc.Context.respond] and if you want a deferred
+[Context.edit_initial_response][tanjun.abc.Context.edit_initial_response] or
+[Context.respond][tanjun.abc.Context.respond] and if you want a deferred
 response to be ephemeral you'll have to either pass `ephemeral=True` while
 deferring or have the ephemeral default set to [True][].
 
