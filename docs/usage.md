@@ -455,7 +455,8 @@ async def command(
 And here we declare a command callback as taking the client set values for
 `Foo` and `Bar` as keyword arguments using two different approaches.
 Since both arguments don't provide a default, these commands will fail if no
-value for `Foo` or `Bar` has been set using `Client.set_type_dependency`.
+value for `Foo` or `Bar` has been set using
+[Client.set_type_dependency][tanjun.abc.Client.set_type_dependency].
 
 A more detailed guide on how this works and the full feature set (e.g. optional
 dependencies) can be found [https://alluka.cursed.solutions/usage/](here).
