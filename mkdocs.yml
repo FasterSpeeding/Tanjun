@@ -41,7 +41,6 @@ markdown_extensions:
 plugins:
   - autorefs
   - search
-  - autorefs
   - mkdocstrings:
       default_handler: python
       handlers:
