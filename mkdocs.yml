@@ -39,8 +39,8 @@ markdown_extensions:
       permalink: "#"
 
 plugins:
-  - search
   - autorefs
+  - search
   - mkdocstrings:
       default_handler: python
       handlers:
