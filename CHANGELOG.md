@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.6.3a1] - 2022-09-??
+## [2.6.3a1] - 2022-09-17
 ### Added
 - `follow_wrapped` parameter to `Component.with_command`.
 - [MessageCommandGroup.as_sub_command][tanjun.commands.message.MessageCommandGroup.as_sub_command],
