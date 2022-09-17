@@ -394,13 +394,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#slash-command-autocomplete" class="md-nav__link">
-    Slash command autocomplete
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#annotation-based-command-declaration" class="md-nav__link">
     Annotation based command declaration
   </a>
@@ -416,6 +409,40 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responding-to-commands" class="md-nav__link">
+    Responding to commands
+  </a>
+  
+    <nav class="md-nav" aria-label="Responding to commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ephemeral-responses" class="md-nav__link">
+    Ephemeral responses
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deferrals" class="md-nav__link">
+    Deferrals
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#slash-command-autocomplete" class="md-nav__link">
+    Slash command autocomplete
+  </a>
   
 </li>
       
@@ -855,13 +882,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#slash-command-autocomplete" class="md-nav__link">
-    Slash command autocomplete
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#annotation-based-command-declaration" class="md-nav__link">
     Annotation based command declaration
   </a>
@@ -877,6 +897,40 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responding-to-commands" class="md-nav__link">
+    Responding to commands
+  </a>
+  
+    <nav class="md-nav" aria-label="Responding to commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ephemeral-responses" class="md-nav__link">
+    Ephemeral responses
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deferrals" class="md-nav__link">
+    Deferrals
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#slash-command-autocomplete" class="md-nav__link">
+    Slash command autocomplete
+  </a>
   
 </li>
       
@@ -1004,7 +1058,7 @@ injection).</p>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">on_closed</span><span class="p">(</span><span class="n">session</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">Injected</span><span class="p">[</span><span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<span class="n">bit</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSED</span><span class="p">,</span> <span class="n">on_closed</span><span class="p">)</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSED</span><span class="p">,</span> <span class="n">on_closed</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="managing-bot-functionality">Managing bot functionality<a class="headerlink" href="#managing-bot-functionality" title="Permanent link">#</a></h2>
 <p><a class="autorefs autorefs-internal" href="../reference/components/#tanjun.components.Component">tanjun.components.Component</a> exists as a way to manage and group bot
@@ -1216,35 +1270,6 @@ more configuration see <a class="autorefs autorefs-internal" href="../reference/
 or message in Discord and, unlike slash and message commands, do not have
 configurable arguments nor groups. For more information on configuring menu
 commands see <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.menu.as_message_menu">tanjun.as_message_menu</a>.</p>
-<h3 id="slash-command-autocomplete">Slash command autocomplete<a class="headerlink" href="#slash-command-autocomplete" title="Permanent link">#</a></h3>
-<p>Autocomplete is a slash command exclusive feature that allows a bot to
-dynamically return choice suggestions to a user as they type a string option.</p>
-<p>Unlike application commands, autocomplete must give a response within 3 seconds
-as these do not support deferrals. Autocomplete callbacks must be asynchronous
-and support dependency injection.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;opt1&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;opt2&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">slash_command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-    <span class="n">opt1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">opt2</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
-
-
-<span class="nd">@slash_command</span><span class="o">.</span><span class="n">with_str_autocomplete</span><span class="p">(</span><span class="s2">&quot;opt1&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">opt1_autocomplete</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_choices</span><span class="p">()</span>
-
-
-<span class="k">async</span> <span class="k">def</span> <span class="nf">opt2_autocomplete</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_choices</span><span class="p">()</span>
-
-
-<span class="n">slash_command</span><span class="o">.</span><span class="n">set_str_autocomplete</span><span class="p">(</span><span class="s2">&quot;opt2&quot;</span><span class="p">,</span> <span class="n">opt2_autocomplete</span><span class="p">)</span>
-</code></pre></div>
 <h3 id="annotation-based-command-declaration">Annotation based command declaration<a class="headerlink" href="#annotation-based-command-declaration" title="Permanent link">#</a></h3>
 <p>Previously you've seen how to manually declare command options per command
 type, now it's time to go higher.</p>
@@ -1300,6 +1325,108 @@ specific to the command type, it's worth noting that
 <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context">abc.Context</a> is a shared base for every command context type
 and may be used as the type for <code>ctx</code> when a callback supports multiple command
 types.</p>
+<h2 id="responding-to-commands">Responding to commands<a class="headerlink" href="#responding-to-commands" title="Permanent link">#</a></h2>
+<div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_user_menu</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">tanjun</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">User</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;The user to target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="n">ctx</span><span class="o">.</span><span class="n">author</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span>
+        <span class="s2">&quot;message content&quot;</span><span class="p">,</span>
+        <span class="n">attachments</span><span class="o">=</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;./its/a/mystery.jpeg&quot;</span><span class="p">)],</span>
+        <span class="n">embeds</span><span class="o">=</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">author</span><span class="p">))</span><span class="o">.</span><span class="n">set_thumbnail</span><span class="p">(</span><span class="n">author</span><span class="o">.</span><span class="n">display_avatar_url</span><span class="p">)],</span>
+        <span class="n">ensure_result</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context.respond">Context.respond</a> is used to respond to a command
+call, this has a similar signature to Hikari's message respond method but will
+only be guaranteed to return a <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/messages.html#hikari.messages.Message">hikari.messages.Message</a> object when
+<code>ensure_result=True</code> is passed.</p>
+<h3 id="ephemeral-responses">Ephemeral responses<a class="headerlink" href="#ephemeral-responses" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># All this command&#39;s responses will be ephemeral.</span>
+<span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="n">ephemeral_default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command_1</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;hello friend&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_user_menu</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command_2</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="s2">&quot;Starting the thing&quot;</span><span class="p">,</span> <span class="n">ephemeral</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># private response</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">)</span>  <span class="c1"># public response</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_followup</span><span class="p">(</span><span class="s2">&quot;finished the thing&quot;</span><span class="p">,</span> <span class="n">ephemeral</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># private response</span>
+</code></pre></div>
+<p>Ephemeral responses are a slash command and context menus exclusive feature which
+marks a response as private (so that only the command author can see it) and
+temporary. A response can be marked as ephemeral by either passing <code>ephemeral=True</code>
+to <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.AppCommandContext.create_initial_response">AppCommandContext.create_initial_response</a>
+(when initially responding to the slash command) or
+<a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.AppCommandContext.create_followup">AppCommandContext.create_followup</a>
+(for followup responses).
+Alternatively, an ephemeral default can either be set on a client level
+(using <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client.set_ephemeral_default">Client.set_ephemeral_default</a>),
+component level
+(using <a class="autorefs autorefs-internal" href="../reference/components/#tanjun.components.Component.set_ephemeral_default">Component.set_ephemeral_default</a>),
+or for a specific command (by passing <code>default_to_ephemeral=True</code> while
+creating a command) to have any relevant application command responses default
+to ephemeral (including calls to <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context.respond">tanjun.abc.Context.respond</a>).</p>
+<h3 id="deferrals">Deferrals<a class="headerlink" href="#deferrals" title="Permanent link">#</a></h3>
+<p>Slash commands and context menus traditionally need to give an initial response
+within 3 seconds. If you don't have a response message ready within 3 seconds,
+you can defer the first response using
+<a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.AppCommandContext.defer">AppCommandContext.defer</a>; the client will
+even automatically defer by default if you haven't created an initial response
+within a couple of seconds. <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context.respond">Context.respond</a> is
+aware of deferrals so you likely won't need to think about automatic deferral;
+unless you're using
+<a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.AppCommandContext.create_initial_response">AppCommandContext.create_initial_response</a>.</p>
+<p>A deferral should be finished by editing in the initial response using either
+<a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context.edit_initial_response">Context.edit_initial_response</a> or
+<a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context.respond">Context.respond</a> and if you want a deferred
+response to be ephemeral you'll have to either pass <code>ephemeral=True</code> while
+deferring or have the ephemeral default set to <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>.</p>
+<p>Automatic deferral can be configured using
+<a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client.set_auto_defer_after">Client.set_auto_defer_after</a>,
+and commands can even be configured to always defer when they start executing
+by passing <code>always_defer=True</code> while creating the command.</p>
+<h2 id="slash-command-autocomplete">Slash command autocomplete<a class="headerlink" href="#slash-command-autocomplete" title="Permanent link">#</a></h2>
+<p>Autocomplete is a slash command exclusive feature that allows a bot to
+dynamically return choice suggestions to a user as they type a string option.</p>
+<p>Autocomplete callbacks must be asynchronous and support dependency injection.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;opt1&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;opt2&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">slash_command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
+    <span class="n">opt1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">opt2</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+
+
+<span class="nd">@slash_command</span><span class="o">.</span><span class="n">with_str_autocomplete</span><span class="p">(</span><span class="s2">&quot;opt1&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">opt1_autocomplete</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_choices</span><span class="p">(((</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;other_name&quot;</span><span class="p">,</span> <span class="s2">&quot;other_value&quot;</span><span class="p">)),</span> <span class="n">other_other_name</span><span class="o">=</span><span class="s2">&quot;other_other_value&quot;</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span> <span class="nf">opt2_autocomplete</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_choices</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;other_name&quot;</span><span class="p">:</span> <span class="s2">&quot;other_value&quot;</span><span class="p">})</span>
+
+
+<span class="n">slash_command</span><span class="o">.</span><span class="n">set_str_autocomplete</span><span class="p">(</span><span class="s2">&quot;opt2&quot;</span><span class="p">,</span> <span class="n">opt2_autocomplete</span><span class="p">)</span>
+</code></pre></div>
+<p>To set the results for an autocomplete interaction call
+<a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.AutocompleteContext.set_choices">AutocompleteContext.set_choices</a>:
+this has a similar signature to <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#dict">dict</a> and takes up to 25 choices (where both
+name and value have a limit of up to 100 characters).</p>
+<p>Unlike application commands, autocomplete must give a response within 3 seconds
+as these do not support deferrals.</p>
 <h2 id="dependency-injection">Dependency injection<a class="headerlink" href="#dependency-injection" title="Permanent link">#</a></h2>
 <p>Tanjun supports type-based dependency injection as a type-safe approach for
 handling global state for most of the callbacks it takes (e.g. command
@@ -1482,7 +1609,7 @@ of commands concurrently.</p>
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 will manage the concurrency limits for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_bucket">Limiter.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to at most 2 concurrent executions per user,
@@ -1518,7 +1645,7 @@ more information on the resources concurrency can be limited by see
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
 will manage the cooldowns for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager.set_bucket">Manager.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to 5 calls per user every 60 seconds,
@@ -1539,7 +1666,7 @@ only have 1 linked cooldown manager).</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_cooldown">with_cooldown</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_cooldown">with_cooldown</a>
 to mark these commands as using the <code>"main_commands"</code> cooldown bucket;
 buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
