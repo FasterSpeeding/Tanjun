@@ -507,8 +507,8 @@ slash_command.set_str_autocomplete("opt2", opt2_autocomplete)
 
 To set the results for an autocomplete interaction call
 [AutocompleteContext.set_choices][tanjun.abc.AutocompleteContext.set_choices]:
-this takes the same arguments as [dict][] and up to 25 choices (where both name
-and value have a limit of up to 100 characters).
+this has a similar signature to [dict][] and takes up to 25 choices (where both
+name and value have a limit of up to 100 characters).
 
 Unlike application commands, autocomplete must give a response within 3 seconds
 as these do not support deferrals.
