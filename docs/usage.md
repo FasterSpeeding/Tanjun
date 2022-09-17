@@ -453,12 +453,12 @@ to ephemeral (including calls to [tanjun.abc.Context.respond][]).
 
 Slash commands and context menus traditionally need to give an initial response
 within 3 seconds. If you don't have a response message ready within 3 seconds,
-you can defer the first response
-using [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer]; the
-client will even automatically defer by default if you haven't created an
-initial response within a couple of seconds.
-[Context.respond][tanjun.abc.Context.respond] is aware of deferrals so you
-likely won't need to think about automatic deferral; unless you're using
+you can defer the first response using
+[AppCommandContext.defer][tanjun.abc.AppCommandContext.defer]; the client will
+even automatically defer by default if you haven't created an initial response
+within a couple of seconds. [Context.respond][tanjun.abc.Context.respond] is
+aware of deferrals so you likely won't need to think about automatic deferral;
+unless you're using
 [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response].
 
 A deferral should be finished by editing in the initial response using either
