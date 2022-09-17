@@ -86,8 +86,8 @@ async def event_listener(event: hikari.Event) -> None:
 ```
 
 The `with_` methods on [Component][tanjun.components.Component] allow
-loading functionality like commands, event listeners, and schedules into a
-component through a decorator call; the relevant `add_` functions allow adding
+loading functionality like commands, event listeners, and schedules into it
+through a decorator call; the relevant `add_` functions allow adding
 functionality through chained calls.
 
 ```py
@@ -174,9 +174,9 @@ async def slash_command(
     ...
 ```
 
-Slash commands represent the commands you see when you start typing in the
-message box with "/" on Discord and have both names (which follow the
-restraints shown in <https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales>)
+Slash commands represent the commands you see when you start typing with "/" in
+Discord's message box and have names (which follow the restraints shown in
+<https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales>)
 and descriptions (which can be up to 100 characters long).
 
 There are several different kinds of slash command arguments which all require
@@ -452,10 +452,10 @@ async def command(
     ...
 ```
 
-And here we declare a command callback as taking the declared implementations
-of `Foo` and `Bar` as keyword arguments using two different approaches.
-Since both arguments provide no default these command calls will fail if no
-implementation for `Foo` or `Bar` has been set using `set_type_dependency`.
+And here we declare a command callback as taking the client set values for
+`Foo` and `Bar` as keyword arguments using two different approaches.
+Since both arguments don't provide a default, these commands will fail if no
+value for `Foo` or `Bar` has been set using `Client.set_type_dependency`.
 
 A more detailed guide on how this works and the full feature set (e.g. optional
 dependencies) can be found [https://alluka.cursed.solutions/usage/](here).
