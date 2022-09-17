@@ -497,7 +497,6 @@ async def opt1_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> 
     await ctx.set_choices((("name", "value"), ("other_name", "other_value")), other_other_name="other_other_value")
 
 
-@slash_command.with_str_autocomplete("opt2")
 async def opt2_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
     await ctx.set_choices({"name": "value", "other_name": "other_value"})
 
