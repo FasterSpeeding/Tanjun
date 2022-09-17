@@ -915,11 +915,12 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         is_global: bool = True,
     ) -> None:
         super().__init__()
-        names = _internal.MaybeLocalised("name", name)
-        names.assert_length(1, 32)
-        names.assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
-        descriptions = _internal.MaybeLocalised("description", description)
-        descriptions.assert_length(1, 100)
+        names = (
+            _internal.MaybeLocalised("name", name)
+            .assert_length(1, 32)
+            .assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
+        )
+        descriptions = _internal.MaybeLocalised("description", description).assert_length(1, 100)
 
         if default_member_permissions is not None:
             default_member_permissions = hikari.Permissions(default_member_permissions)
@@ -1682,8 +1683,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        names.assert_length(1, 32)
-        names.assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
+        names.assert_length(1, 32).assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
         descriptions.assert_length(1, 100)
 
         if len(self._builder.options) == 25:

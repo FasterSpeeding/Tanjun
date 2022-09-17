@@ -54,6 +54,7 @@ if typing.TYPE_CHECKING:
     from . import abc as tanjun
 
     _P = typing_extensions.ParamSpec("_P")
+    _MaybeLocalisedT = typing.TypeVar("_MaybeLocalisedT", bound="MaybeLocalised")
 
 
 _KeyT = typing.TypeVar("_KeyT")
@@ -429,8 +430,8 @@ class MaybeLocalised:
         return self.default_value
 
     def assert_matches(
-        self, pattern: str, match: collections.Callable[[str], bool], /, *, lower_only: bool = False
-    ) -> None:
+        self: _MaybeLocalisedT, pattern: str, match: collections.Callable[[str], bool], /, *, lower_only: bool = False
+    ) -> _MaybeLocalisedT:
         """Assert that all the values in this match a localised pattern.
 
         Parameters
@@ -452,7 +453,9 @@ class MaybeLocalised:
             if lower_only and value.lower() != value:
                 raise ValueError(f"Invalid {self._field_name} provided, {value!r} must be lowercase")
 
-    def assert_length(self, min_length: int, max_length: int, /) -> None:
+        return self
+
+    def assert_length(self: _MaybeLocalisedT, min_length: int, max_length: int, /) -> _MaybeLocalisedT:
         """Assert that all the lengths in this are within a certain inclusive range.
 
         Parameters
@@ -480,3 +483,5 @@ class MaybeLocalised:
             raise ValueError(
                 f"{self._field_name.capitalize()} must be greater than or equal to {min_length} characters in length"
             )
+
+        return self
