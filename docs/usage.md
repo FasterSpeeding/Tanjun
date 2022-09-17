@@ -63,7 +63,7 @@ async def on_starting(client: alluka.Injected[tanjun.abc.Client]) -> None:
 async def on_closed(session: alluka.Injected[aiohttp.ClientSession]) -> None:
     await session.close()
 
-bit.add_client_callback(tanjun.ClientCallbackNames.CLOSED, on_closed)
+bot.add_client_callback(tanjun.ClientCallbackNames.CLOSED, on_closed)
 ```
 
 ## Managing bot functionality
@@ -323,14 +323,29 @@ or message in Discord and, unlike slash and message commands, do not have
 configurable arguments nor groups. For more information on configuring menu
 commands see [tanjun.as_message_menu][tanjun.commands.menu.as_message_menu].
 
-### Slash command autocomplete
+## Responding to commands
+
+```py
+@tanjun.with_annotated_args(follow_wrapped=True)
+@tanjun.as_slash_command("name", "description")
+@tanjun.as_message_command("name")
+@tanjun.as_user_menu("name")
+async def command(
+    ctx: tanjun.abc.Context,
+    user: typing.Annotated[tanjun.annotations.User | None, "The user to target"] = None
+) -> None:
+    user = user or ctx.author
+    await ctx.respond(user.avatar_url)
+```
+
+blah blah
+
+## Slash command autocomplete
 
 Autocomplete is a slash command exclusive feature that allows a bot to
 dynamically return choice suggestions to a user as they type a string option.
 
-Unlike application commands, autocomplete must give a response within 3 seconds
-as these do not support deferrals. Autocomplete callbacks must be asynchronous
-and support dependency injection.
+Autocomplete callbacks must be asynchronous and support dependency injection.
 
 ```py
 @component.with_command
@@ -347,15 +362,24 @@ async def slash_command(
 
 @slash_command.with_str_autocomplete("opt1")
 async def opt1_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
-    await ctx.set_choices()
+    await ctx.set_choices((("name", "value"), ("other_name", "other_value")), other_other_name="other_other_value")
 
 
+@slash_command.with_str_autocomplete("opt2")
 async def opt2_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
-    await ctx.set_choices()
+    await ctx.set_choices({"name": "value", "other_name": "other_value"})
 
 
 slash_command.set_str_autocomplete("opt2", opt2_autocomplete)
 ```
+
+To set the results for an autocomplete call
+[AutocompleteContext.set_choices][tanjun.abc.AutocompleteContext.set_choices]:
+this takes the same arguments as [dict][] and up to 25 choices (where both name
+and value have a limit of up to 100 characters).
+
+Unlike application commands, autocomplete must give a response within 3 seconds
+as these do not support deferrals.
 
 ### Annotation based command declaration
 
