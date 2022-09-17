@@ -458,11 +458,11 @@ using [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer]; the
 client will even automatically defer by default if you haven't created an
 initial response within a couple of seconds.
 [Context.respond][tanjun.abc.Context.respond] is aware of deferrals so you
-likely don't need to think about automatic deferra; unless you're using
+likely won't need to think about automatic deferral; unless you're using
 [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response].
 
-A deferral should be finished by edited in the initial response using
-[AppCommandContext.edit_initial_response][tanjun.abc.AppCommandContext.edit_initial_response]
+A deferral should be finished by editing in the initial response using
+[AppCommandContext.edit_initial_response][tanjun.abc.AppCommandContext.edit_initial_response],
 and if you want a deferred response to be ephemeral you'll have to either
 pass `ephemeral=True` while deferring or have the ephemeral default set to
 [True][].
