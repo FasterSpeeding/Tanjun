@@ -309,11 +309,81 @@ Snowflake = Converted[conversion.parse_snowflake]
 """An argument which takes a snowflake."""
 
 
-class Flag(_ConfigIdentifier):
+class _PositionalMeta(abc.ABCMeta):
+    def __getitem__(self, type_: type[_T], /) -> type[_T]:
+        return typing.cast(type[_T], typing.Annotated[type_, Positional()])
+
+
+class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
+    """Mark an argument as being passed positionally for message command parsing.
+
+    Arguments will be positional by default (unless the argument has a default)
+    and this allows for marking positional arguments as optional.
+
+    Only `default` will be used for slash command options (as slash commands do
+    not have the distinction of positional verses flag).
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("message")
+    async def command(
+        ctx: tanjun.abc.MessageContext,
+        positional_arg: Positional[Str] = None,
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    or
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("message")
+    async def command(
+        ctx: tanjun.abc.MessageContext,
+        positional_arg: Annotated[Str, Positional()] = None,
+    ) -> None:
+        raise NotImplementedError
+    ```
+    """
+
+    __slots__ = ("_default",)
+
+    def __init__(self, *, default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UndefinedT) -> None:
+        """Create a positional instance.
+
+        Parameters
+        ----------
+        default
+            The argument's default value.
+
+            If not specified then the default in the signature for this argument
+            is used.
+        """
+        self._default = default
+
+    @property
+    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
+        """The flag's default.
+
+        If not specified then the default in the signature for this argument
+        will be used.
+        """
+        return self._default
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        if self._default is not parsing.UNDEFINED:
+            config.default = self.default
+
+        config.is_positional = True
+
+
     """Mark an argument as a flag/option for message command parsing.
 
     This indicates that the argument should be specified by name (e.g. `--name`)
-    rather than positonally and is no-op for slash commands.
+    rather than positonally and only `default` is used for slash command options
+    (as slash commands do not have the distinction of positional verses flag).
 
     Adding a default to an argument will also make it a flag/option.
 
@@ -376,6 +446,7 @@ class Flag(_ConfigIdentifier):
         If not specified then the default in the signature for this argument
         will be used.
         """
+        return self._default
 
     @property
     def empty_value(self) -> typing.Union[parsing.UndefinedT, typing.Any]:
@@ -394,6 +465,7 @@ class Flag(_ConfigIdentifier):
 
         config.aliases = self.aliases
         config.empty_value = self.empty_value
+        config.is_positional = False
 
 
 class _GreedyMeta(abc.ABCMeta):
@@ -910,6 +982,7 @@ class _ArgConfig:
         "description",
         "empty_value",
         "is_greedy",
+        "is_positional",
         "key",
         "max_value",
         "message_name",
@@ -928,6 +1001,7 @@ class _ArgConfig:
         self.description: typing.Optional[str] = None
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
         self.is_greedy: bool = False
+        self.is_positional = default is parsing.UNDEFINED
         self.key: str = key
         self.max_value: typing.Union[float, int, None] = None
         self.message_name: str = "--" + key.replace("_", "-")
@@ -963,7 +1037,7 @@ class _ArgConfig:
             parser = parsing.ShlexParser()
             command.set_parser(parser)
 
-        if self.default is parsing.UNDEFINED:  # TODO: stick with this?
+        if self.is_positional:
             parser.add_argument(
                 self.key,
                 converters=converters,
