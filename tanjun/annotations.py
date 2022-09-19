@@ -56,6 +56,7 @@ __all__: list[str] = [
     "Mentionable",
     "Min",
     "Name",
+    "Positional",
     "Ranged",
     "Role",
     "Snowflake",
@@ -309,75 +310,7 @@ Snowflake = Converted[conversion.parse_snowflake]
 """An argument which takes a snowflake."""
 
 
-class _PositionalMeta(abc.ABCMeta):
-    def __getitem__(self, type_: type[_T], /) -> type[_T]:
-        return typing.cast(type[_T], typing.Annotated[type_, Positional()])
-
-
-class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
-    """Mark an argument as being passed positionally for message command parsing.
-
-    Arguments will be positional by default (unless the argument has a default)
-    and this allows for marking positional arguments as optional.
-
-    Only `default` will be used for slash command options (as slash commands do
-    not have the distinction of positional verses flag).
-
-    Examples
-    --------
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_message_command("message")
-    async def command(
-        ctx: tanjun.abc.MessageContext,
-        positional_arg: Positional[Str] = None,
-    ) -> None:
-        raise NotImplementedError
-    ```
-
-    or
-
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_message_command("message")
-    async def command(
-        ctx: tanjun.abc.MessageContext,
-        positional_arg: Annotated[Str, Positional()] = None,
-    ) -> None:
-        raise NotImplementedError
-    ```
-    """
-
-    __slots__ = ("_default",)
-
-    def __init__(self, *, default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UndefinedT) -> None:
-        """Create a positional instance.
-
-        Parameters
-        ----------
-        default
-            The argument's default value.
-
-            If not specified then the default in the signature for this argument
-            is used.
-        """
-        self._default = default
-
-    @property
-    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
-        """The flag's default.
-
-        If not specified then the default in the signature for this argument
-        will be used.
-        """
-        return self._default
-
-    def set_config(self, config: _ArgConfig, /) -> None:
-        if self._default is not parsing.UNDEFINED:
-            config.default = self.default
-
-        config.is_positional = True
-
+class Flag(_ConfigIdentifier):
     """Mark an argument as a flag/option for message command parsing.
 
     This indicates that the argument should be specified by name (e.g. `--name`)
@@ -465,6 +398,76 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
         config.aliases = self.aliases
         config.empty_value = self.empty_value
         config.is_positional = False
+
+
+class _PositionalMeta(abc.ABCMeta):
+    def __getitem__(self, type_: type[_T], /) -> type[_T]:
+        return typing.cast(type[_T], typing.Annotated[type_, Positional()])
+
+
+class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
+    """Mark an argument as being passed positionally for message command parsing.
+
+    Arguments will be positional by default (unless it has a default) and this
+    allows for marking positional arguments as optional.
+
+    Only `default` will be used for slash command options (as slash commands do
+    not have the distinction of positional verses flag).
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("message")
+    async def command(
+        ctx: tanjun.abc.MessageContext,
+        positional_arg: Positional[Str] = None,
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    or
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("message")
+    async def command(
+        ctx: tanjun.abc.MessageContext,
+        positional_arg: Annotated[Str, Positional()] = None,
+    ) -> None:
+        raise NotImplementedError
+    ```
+    """
+
+    __slots__ = ("_default",)
+
+    def __init__(self, *, default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED) -> None:
+        """Create a positional instance.
+
+        Parameters
+        ----------
+        default
+            The argument's default value.
+
+            If not specified then the default in the signature for this argument
+            is used.
+        """
+        self._default = default
+
+    @property
+    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
+        """The flag's default.
+
+        If not specified then the default in the signature for this argument
+        will be used.
+        """
+        return self._default
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        if self._default is not parsing.UNDEFINED:
+            config.default = self._default
+
+        config.is_positional = True
 
 
 class _GreedyMeta(abc.ABCMeta):
@@ -1040,6 +1043,7 @@ class _ArgConfig:
             parser.add_argument(
                 self.key,
                 converters=converters,
+                default=self.default,
                 greedy=self.is_greedy,
                 min_value=self.min_value,
                 max_value=self.max_value,
