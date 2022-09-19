@@ -242,7 +242,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
         return self._choices
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.choices = self.choices
+        config.choices = self._choices
 
 
 class _ConvertedMeta(abc.ABCMeta):
@@ -294,7 +294,7 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
         return self._converters
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.converters = self.converters
+        config.converters = self._converters
 
 
 Color = Converted[conversion.to_color]
@@ -395,8 +395,8 @@ class Flag(_ConfigIdentifier):
         if config.default is parsing.UNDEFINED:
             raise ValueError(f"Flag argument {config.key!r} must have a default")
 
-        config.aliases = self.aliases
-        config.empty_value = self.empty_value
+        config.aliases = self._aliases
+        config.empty_value = self._empty_value
         config.is_positional = False
 
 
@@ -570,7 +570,7 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
         return self._value
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.max_value = self.value
+        config.max_value = self._value
 
 
 class _MinMeta(abc.ABCMeta):
@@ -631,7 +631,7 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
         return self._value
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.min_value = self.value
+        config.min_value = self._value
 
 
 class Name(_ConfigIdentifier):
@@ -699,8 +699,8 @@ class Name(_ConfigIdentifier):
         return self._slash_name
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.slash_name = self.slash_name or config.slash_name
-        config.message_name = self.message_name or config.message_name
+        config.slash_name = self._slash_name or config.slash_name
+        config.message_name = self._message_name or config.message_name
 
 
 class _RangedMeta(abc.ABCMeta):
@@ -769,8 +769,8 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
         return self._min_value
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.max_value = self.max_value
-        config.min_value = self.min_value
+        config.max_value = self._max_value
+        config.min_value = self._min_value
 
 
 # _MESSAGE_ID_ONLY
@@ -870,7 +870,7 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
         return self._parse_id
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.snowflake_converter = self.parse_id
+        config.snowflake_converter = self._parse_id
 
 
 class _TypeOverride(_ConfigIdentifier):
@@ -879,12 +879,8 @@ class _TypeOverride(_ConfigIdentifier):
     def __init__(self, override: type[typing.Any], /) -> None:
         self._override = override
 
-    @property
-    def override(self) -> type[typing.Any]:
-        return self._override
-
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.option_type = self.override
+        config.option_type = self._override
 
 
 class _TheseChannelsMeta(abc.ABCMeta):
@@ -928,7 +924,7 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
         return self._channel_types
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.channel_types = self.channel_types
+        config.channel_types = self._channel_types
 
 
 def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any]) -> typing.Optional[_T]:
