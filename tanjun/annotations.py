@@ -378,7 +378,6 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
 
         config.is_positional = True
 
-
     """Mark an argument as a flag/option for message command parsing.
 
     This indicates that the argument should be specified by name (e.g. `--name`)
