@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Support for marking positional message arguments as option when using annotation parsing.
+- Support for marking positional message arguments as optional when using annotation parsing.
 
 ## [2.6.3a1] - 2022-09-17
 ### Added
