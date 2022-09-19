@@ -56,6 +56,7 @@ __all__: list[str] = [
     "Mentionable",
     "Min",
     "Name",
+    "Positional",
     "Ranged",
     "Role",
     "Snowflake",
@@ -241,7 +242,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
         return self._choices
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.choices = self.choices
+        config.choices = self._choices
 
 
 class _ConvertedMeta(abc.ABCMeta):
@@ -293,7 +294,7 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
         return self._converters
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.converters = self.converters
+        config.converters = self._converters
 
 
 Color = Converted[conversion.to_color]
@@ -313,7 +314,8 @@ class Flag(_ConfigIdentifier):
     """Mark an argument as a flag/option for message command parsing.
 
     This indicates that the argument should be specified by name (e.g. `--name`)
-    rather than positonally and is no-op for slash commands.
+    rather than positonally and only `default` is used for slash command options
+    (as slash commands do not have the distinction of positional verses flag).
 
     Adding a default to an argument will also make it a flag/option.
 
@@ -376,6 +378,7 @@ class Flag(_ConfigIdentifier):
         If not specified then the default in the signature for this argument
         will be used.
         """
+        return self._default
 
     @property
     def empty_value(self) -> typing.Union[parsing.UndefinedT, typing.Any]:
@@ -392,8 +395,79 @@ class Flag(_ConfigIdentifier):
         if config.default is parsing.UNDEFINED:
             raise ValueError(f"Flag argument {config.key!r} must have a default")
 
-        config.aliases = self.aliases
-        config.empty_value = self.empty_value
+        config.aliases = self._aliases
+        config.empty_value = self._empty_value
+        config.is_positional = False
+
+
+class _PositionalMeta(abc.ABCMeta):
+    def __getitem__(self, type_: type[_T], /) -> type[_T]:
+        return typing.cast(type[_T], typing.Annotated[type_, Positional()])
+
+
+class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
+    """Mark an argument as being passed positionally for message command parsing.
+
+    Arguments will be positional by default (unless it has a default) and this
+    allows for marking positional arguments as optional.
+
+    Only `default` will be used for slash command options (as slash commands do
+    not have the distinction of positional verses flag).
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("message")
+    async def command(
+        ctx: tanjun.abc.MessageContext,
+        positional_arg: Positional[Str] = None,
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    or
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_message_command("message")
+    async def command(
+        ctx: tanjun.abc.MessageContext,
+        positional_arg: Annotated[Str, Positional()] = None,
+    ) -> None:
+        raise NotImplementedError
+    ```
+    """
+
+    __slots__ = ("_default",)
+
+    def __init__(self, *, default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED) -> None:
+        """Create a positional instance.
+
+        Parameters
+        ----------
+        default
+            The argument's default value.
+
+            If not specified then the default in the signature for this argument
+            is used.
+        """
+        self._default = default
+
+    @property
+    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
+        """The flag's default.
+
+        If not specified then the default in the signature for this argument
+        will be used.
+        """
+        return self._default
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        if self._default is not parsing.UNDEFINED:
+            config.default = self._default
+
+        config.is_positional = True
 
 
 class _GreedyMeta(abc.ABCMeta):
@@ -496,7 +570,7 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
         return self._value
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.max_value = self.value
+        config.max_value = self._value
 
 
 class _MinMeta(abc.ABCMeta):
@@ -557,7 +631,7 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
         return self._value
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.min_value = self.value
+        config.min_value = self._value
 
 
 class Name(_ConfigIdentifier):
@@ -625,8 +699,8 @@ class Name(_ConfigIdentifier):
         return self._slash_name
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.slash_name = self.slash_name or config.slash_name
-        config.message_name = self.message_name or config.message_name
+        config.slash_name = self._slash_name or config.slash_name
+        config.message_name = self._message_name or config.message_name
 
 
 class _RangedMeta(abc.ABCMeta):
@@ -695,8 +769,8 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
         return self._min_value
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.max_value = self.max_value
-        config.min_value = self.min_value
+        config.max_value = self._max_value
+        config.min_value = self._min_value
 
 
 # _MESSAGE_ID_ONLY
@@ -796,7 +870,7 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
         return self._parse_id
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.snowflake_converter = self.parse_id
+        config.snowflake_converter = self._parse_id
 
 
 class _TypeOverride(_ConfigIdentifier):
@@ -805,12 +879,8 @@ class _TypeOverride(_ConfigIdentifier):
     def __init__(self, override: type[typing.Any], /) -> None:
         self._override = override
 
-    @property
-    def override(self) -> type[typing.Any]:
-        return self._override
-
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.option_type = self.override
+        config.option_type = self._override
 
 
 class _TheseChannelsMeta(abc.ABCMeta):
@@ -854,7 +924,7 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
         return self._channel_types
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.channel_types = self.channel_types
+        config.channel_types = self._channel_types
 
 
 def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any]) -> typing.Optional[_T]:
@@ -910,6 +980,7 @@ class _ArgConfig:
         "description",
         "empty_value",
         "is_greedy",
+        "is_positional",
         "key",
         "max_value",
         "message_name",
@@ -928,6 +999,7 @@ class _ArgConfig:
         self.description: typing.Optional[str] = None
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
         self.is_greedy: bool = False
+        self.is_positional = default is parsing.UNDEFINED
         self.key: str = key
         self.max_value: typing.Union[float, int, None] = None
         self.message_name: str = "--" + key.replace("_", "-")
@@ -963,10 +1035,11 @@ class _ArgConfig:
             parser = parsing.ShlexParser()
             command.set_parser(parser)
 
-        if self.default is parsing.UNDEFINED:  # TODO: stick with this?
+        if self.is_positional:
             parser.add_argument(
                 self.key,
                 converters=converters,
+                default=self.default,
                 greedy=self.is_greedy,
                 min_value=self.min_value,
                 max_value=self.max_value,

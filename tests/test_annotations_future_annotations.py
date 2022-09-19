@@ -223,7 +223,7 @@ def test_when_follow_wrapping_and_wrapping_unsupported_command():
 
 
 def test_with_with_std_range():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -280,7 +280,7 @@ def test_with_with_std_range():
 
 
 def test_with_with_backwards_std_range():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -337,7 +337,7 @@ def test_with_with_backwards_std_range():
 
 
 def test_with_std_slice():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -394,7 +394,7 @@ def test_with_std_slice():
 
 
 def test_with_backwards_std_slice():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -572,7 +572,7 @@ def test_choices(
     choices_ = choices
     type_cls_ = type_cls
 
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     async def callback(
         ctx: tanjun.abc.Context,
@@ -678,7 +678,7 @@ def test_with_generic_float_choices():
         Blam = 432.123
         Ok = 43.34
 
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -769,7 +769,7 @@ def test_with_generic_int_choices():
         Batman = 123
         Bazman = 0
 
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -859,7 +859,7 @@ def test_with_generic_str_choices():
         Sis = "pls"
         Catgirl = "uwu"
 
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -1120,17 +1120,19 @@ def test_with_flag():
     global empty_value
     empty_value = mock.Mock()
 
-    @annotations.with_annotated_args
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("meow")
+    @tanjun.as_slash_command("beep", "boop")
     async def callback(
         ctx: tanjun.abc.MessageContext,
         eep: typing.Annotated[
-            annotations.Int, annotations.Flag(aliases=("--hi", "--bye"), empty_value=empty_value, default=1231)
+            annotations.Int, annotations.Flag(aliases=("--hi", "--bye"), empty_value=empty_value, default=1231), "b"
         ] = 545454,
     ) -> None:
         ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
     assert len(callback.parser.arguments) == 0
     assert len(callback.parser.options) == 1
     option = callback.parser.options[0]
@@ -1143,17 +1145,32 @@ def test_with_flag():
     assert option.min_value is None
     assert option.max_value is None
 
+    assert callback.wrapped_command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="eep",
+            channel_types=None,
+            description="b",
+            is_required=False,
+        )
+    ]
+    assert len(callback.wrapped_command._tracked_options) == 1
+    option = callback.wrapped_command._tracked_options["eep"]
+    assert option.default == 1231
+
 
 def test_with_flag_inferred_default():
-    @annotations.with_annotated_args
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("meow")
+    @tanjun.as_slash_command("ea", "meow")
     async def callback(
-        ctx: tanjun.abc.MessageContext,
-        eep: typing.Annotated[annotations.Int, annotations.Flag(aliases=("--hi", "--bye"))] = 123,
+        ctx: tanjun.abc.Context,
+        eep: typing.Annotated[annotations.Int, annotations.Flag(aliases=("--hi", "--bye")), "a"] = 123,
     ) -> None:
         ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
     assert len(callback.parser.arguments) == 0
     assert len(callback.parser.options) == 1
     option = callback.parser.options[0]
@@ -1165,6 +1182,19 @@ def test_with_flag_inferred_default():
     assert option.is_multi is False
     assert option.min_value is None
     assert option.max_value is None
+
+    assert callback.wrapped_command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="eep",
+            channel_types=None,
+            description="a",
+            is_required=False,
+        )
+    ]
+    assert len(callback.wrapped_command._tracked_options) == 1
+    option = callback.wrapped_command._tracked_options["eep"]
+    assert option.default == 123
 
 
 def test_with_flag_missing_default():
@@ -1180,8 +1210,113 @@ def test_with_flag_missing_default():
         annotations.with_annotated_args(callback)
 
 
+def test_with_positional():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("name")
+    @tanjun.as_slash_command("boop", "description")
+    async def callback(
+        ctx: tanjun.abc.Context, beep: typing.Annotated[annotations.Str, annotations.Positional(), "eat"]
+    ) -> None:
+        ...
+
+    assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
+    assert len(callback.parser.arguments) == 1
+    assert len(callback.parser.options) == 0
+    option = callback.parser.arguments[0]
+    assert option.key == "beep"
+    assert option.converters == []
+    assert option.default is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
+
+    assert callback.wrapped_command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="beep",
+            channel_types=None,
+            description="eat",
+            is_required=True,
+        )
+    ]
+    assert len(callback.wrapped_command._tracked_options) == 1
+    option = callback.wrapped_command._tracked_options["beep"]
+    assert option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+
+
+def test_with_poisitional_explicit_default():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("noot")
+    @tanjun.as_slash_command("boom", "description 2")
+    async def callback(
+        ctx: tanjun.abc.Context, nom: typing.Annotated[annotations.Str, annotations.Positional(default="ok"), "hi"]
+    ) -> None:
+        ...
+
+    assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
+    assert len(callback.parser.arguments) == 1
+    assert len(callback.parser.options) == 0
+    option = callback.parser.arguments[0]
+    assert option.key == "nom"
+    assert option.converters == []
+    assert option.default == "ok"
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
+
+    assert callback.wrapped_command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="nom",
+            channel_types=None,
+            description="hi",
+            is_required=False,
+        )
+    ]
+    assert len(callback.wrapped_command._tracked_options) == 1
+    option = callback.wrapped_command._tracked_options["nom"]
+    assert option.default == "ok"
+
+
+def test_with_positional_passed_default():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("nom")
+    @tanjun.as_slash_command("blam", "description 3")
+    async def callback(
+        ctx: tanjun.abc.Context, noop: typing.Annotated[annotations.Str, annotations.Positional(), "bye"] = "no"
+    ) -> None:
+        ...
+
+    assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
+    assert len(callback.parser.arguments) == 1
+    assert len(callback.parser.options) == 0
+    option = callback.parser.arguments[0]
+    assert option.key == "noop"
+    assert option.converters == []
+    assert option.default == "no"
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
+
+    assert callback.wrapped_command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="noop",
+            channel_types=None,
+            description="bye",
+            is_required=False,
+        )
+    ]
+    assert len(callback.wrapped_command._tracked_options) == 1
+    option = callback.wrapped_command._tracked_options["noop"]
+    assert option.default == "no"
+
+
 def test_with_greedy():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
     async def callback(
         ctx: tanjun.abc.Context,
@@ -1202,7 +1337,7 @@ def test_with_greedy():
 
 
 def test_with_generic_greedy():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
     async def callback(
         ctx: tanjun.abc.Context,
@@ -1240,7 +1375,7 @@ def test_with_max(
     type__ = type_
     value_ = value
 
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -1324,7 +1459,7 @@ def test_with_generic_max(
     global value_
     value_ = value
 
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -1503,7 +1638,7 @@ def test_with_min(
     type__ = type_
     value_ = value
 
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -1587,7 +1722,7 @@ def test_with_generic_min(
     global value_
     value_ = value
 
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -1749,7 +1884,7 @@ def test_with_min_when_int_for_float():
 
 
 def test_with_overridden_name():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -1824,7 +1959,7 @@ def test_with_overridden_name():
 
 
 def test_with_individually_overridden_name():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -1901,7 +2036,7 @@ def test_with_individually_overridden_name():
 
 
 def test_with_overridden_slash_name():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -1976,7 +2111,7 @@ def test_with_overridden_slash_name():
 
 
 def test_with_overridden_message_name():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -2023,7 +2158,7 @@ def test_with_overridden_message_name():
 
 
 def test_with_ranged():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -2099,7 +2234,7 @@ def test_with_generic_ranged(
     min_value_ = min_value
     max_value_ = max_value
 
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
     async def callback(
@@ -2177,7 +2312,7 @@ def test_with_snowflake_or():
     global mock_callback
     mock_callback = mock.Mock()
 
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
     @tanjun.as_slash_command("yeet", "description")
     async def callback(
@@ -2253,7 +2388,7 @@ def test_with_snowflake_or():
 
 
 def test_with_generic_snowflake_or_for_channel():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
     @tanjun.as_slash_command("yeet", "description")
     async def callback(
@@ -2329,7 +2464,7 @@ def test_with_generic_snowflake_or_for_channel():
 
 
 def test_with_generic_snowflake_or_for_member():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
     @tanjun.as_slash_command("yeet", "description")
     async def callback(
@@ -2405,7 +2540,7 @@ def test_with_generic_snowflake_or_for_member():
 
 
 def test_with_generic_snowflake_or_for_mentionable():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
     @tanjun.as_slash_command("yeet", "description")
     async def callback(
@@ -2481,7 +2616,7 @@ def test_with_generic_snowflake_or_for_mentionable():
 
 
 def test_with_generic_snowflake_or_for_role():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
     @tanjun.as_slash_command("yeet", "description")
     async def callback(
@@ -2557,7 +2692,7 @@ def test_with_generic_snowflake_or_for_role():
 
 
 def test_with_generic_snowflake_or_for_user():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
     @tanjun.as_slash_command("yeet", "description")
     async def callback(
@@ -2633,7 +2768,7 @@ def test_with_generic_snowflake_or_for_user():
 
 
 def test_with_generic_snowflake_or():
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
+    @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
     @tanjun.as_slash_command("yeet", "description")
     async def callback(
