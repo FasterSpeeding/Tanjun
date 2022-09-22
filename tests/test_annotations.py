@@ -85,18 +85,6 @@ class TestFlag:
         assert flag.empty_value is tanjun.parsing.UNDEFINED
 
 
-class TestPositional:
-    def test_default_property(self):
-        positional = annotations.Positional(default=69420)
-
-        assert positional.default == 69420
-
-    def test_default_property_with_default(self):
-        positional = annotations.Positional()
-
-        assert positional.default is tanjun.parsing.UNDEFINED
-
-
 class TestMax:
     def test_value_property(self):
         max_ = annotations.Max(32221)
@@ -1334,76 +1322,6 @@ def test_with_positional():
     assert len(callback.wrapped_command._tracked_options) == 1
     option = callback.wrapped_command._tracked_options["beep"]
     assert option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
-
-
-def test_with_poisitional_explicit_default():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("noot")
-    @tanjun.as_slash_command("boom", "description 2")
-    async def callback(
-        ctx: tanjun.abc.Context, nom: typing.Annotated[annotations.Str, annotations.Positional(default="ok"), "hi"]
-    ) -> None:
-        ...
-
-    assert isinstance(callback.parser, tanjun.ShlexParser)
-    assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
-    assert len(callback.parser.arguments) == 1
-    assert len(callback.parser.options) == 0
-    option = callback.parser.arguments[0]
-    assert option.key == "nom"
-    assert option.converters == []
-    assert option.default == "ok"
-    assert option.is_multi is False
-    assert option.min_value is None
-    assert option.max_value is None
-
-    assert callback.wrapped_command.build().options == [
-        hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="nom",
-            channel_types=None,
-            description="hi",
-            is_required=False,
-        )
-    ]
-    assert len(callback.wrapped_command._tracked_options) == 1
-    option = callback.wrapped_command._tracked_options["nom"]
-    assert option.default == "ok"
-
-
-def test_with_positional_passed_default():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("nom")
-    @tanjun.as_slash_command("blam", "description 3")
-    async def callback(
-        ctx: tanjun.abc.Context, noop: typing.Annotated[annotations.Str, annotations.Positional(), "bye"] = "no"
-    ) -> None:
-        ...
-
-    assert isinstance(callback.parser, tanjun.ShlexParser)
-    assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
-    assert len(callback.parser.arguments) == 1
-    assert len(callback.parser.options) == 0
-    option = callback.parser.arguments[0]
-    assert option.key == "noop"
-    assert option.converters == []
-    assert option.default == "no"
-    assert option.is_multi is False
-    assert option.min_value is None
-    assert option.max_value is None
-
-    assert callback.wrapped_command.build().options == [
-        hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="noop",
-            channel_types=None,
-            description="bye",
-            is_required=False,
-        )
-    ]
-    assert len(callback.wrapped_command._tracked_options) == 1
-    option = callback.wrapped_command._tracked_options["noop"]
-    assert option.default == "no"
 
 
 def test_with_greedy():

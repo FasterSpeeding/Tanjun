@@ -47,6 +47,7 @@ __all__: list[str] = [
     "Colour",
     "Converted",
     "Datetime",
+    "Default",
     "Flag",
     "Float",
     "Greedy",
@@ -74,6 +75,7 @@ import operator
 import sys
 import types
 import typing
+import warnings
 from collections import abc as collections
 
 import hikari
@@ -310,6 +312,82 @@ Snowflake = Converted[conversion.parse_snowflake]
 """An argument which takes a snowflake."""
 
 
+class _DefaultMeta(abc.ABCMeta):
+    def __getitem__(
+        cls, type_: type[_T], default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED, /
+    ) -> type[_T]:
+        return typing.cast(type[_T], typing.Annotated[type_, Default(default)])
+
+
+class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
+    """Explicitly configure the an argument's default.
+
+    Examples
+    --------
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        argument: Annotated[Str, Default(""), "description],
+    ) -> None:
+        ...
+    ```
+
+    or
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        argument: Annotated[Default[Str, ""], "description"],
+    ) -> None:
+        ...
+    ```
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description)
+    async def command(
+        ctx: tanjun.abc.Context,
+        required_argument: Annotated[Default[Str], "description"] = "yeet",
+        other_required: Annotated[Int, Default(), "description"] = 123,
+    ) -> None:
+        ...
+    ```
+
+    Passing an empty [tanjun.annotations.Default][Default] allows you to mark
+    an argument that's optional in the signature as being a required option.
+    """
+
+    __slots__ = ("_default",)
+
+    def __init__(self, default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED, /) -> None:
+        """Initialise a default.
+
+        Parameters
+        ----------
+        default
+            The argument's default.
+
+            If left as [tanjun.parsing.UNDEFINED][] then the argument will be
+            required regardless of the signature default.
+        """
+        self._default = default
+
+    @property
+    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
+        """The option's default.
+
+        This will override the default in the signature for this parameter.
+        """
+        return self._default
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.default = self._default
+
+
 class Flag(_ConfigIdentifier):
     """Mark an argument as a flag/option for message command parsing.
 
@@ -350,15 +428,19 @@ class Flag(_ConfigIdentifier):
 
             This does not override the argument's name.
         default
-            The flag's default value.
+            Deprecated argument used to specify the option's default.
 
-            If not specified then the default in the signature for this argument
-            is used.
+            Use [tanjun.annotations.Default][] instead.
         empty_value
             Value to pass for the argument if the flag is provided without a value.
 
             If left undefined then an explicit value will always be needed.
         """
+        if default is not parsing.UNDEFINED:
+            warnings.warn(
+                "Flag.__init__'s `default` argument is deprecated, use Default[]", category=DeprecationWarning
+            )
+
         self._aliases = aliases
         self._default = default
         self._empty_value = empty_value
@@ -378,6 +460,7 @@ class Flag(_ConfigIdentifier):
         If not specified then the default in the signature for this argument
         will be used.
         """
+        warnings.warn("Flag.default is deprecated")
         return self._default
 
     @property
@@ -391,9 +474,6 @@ class Flag(_ConfigIdentifier):
     def set_config(self, config: _ArgConfig, /) -> None:
         if self._default is not parsing.UNDEFINED:
             config.default = self._default
-
-        if config.default is parsing.UNDEFINED:
-            raise ValueError(f"Flag argument {config.key!r} must have a default")
 
         config.aliases = self._aliases
         config.empty_value = self._empty_value
@@ -439,34 +519,12 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
     ```
     """
 
-    __slots__ = ("_default",)
+    __slots__ = ()
 
-    def __init__(self, *, default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED) -> None:
-        """Create a positional instance.
-
-        Parameters
-        ----------
-        default
-            The argument's default value.
-
-            If not specified then the default in the signature for this argument
-            is used.
-        """
-        self._default = default
-
-    @property
-    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
-        """The flag's default.
-
-        If not specified then the default in the signature for this argument
-        will be used.
-        """
-        return self._default
+    def __init__(self) -> None:
+        """Create a positional instance."""
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        if self._default is not parsing.UNDEFINED:
-            config.default = self._default
-
         config.is_positional = True
 
 
@@ -1046,6 +1104,9 @@ class _ArgConfig:
             )
 
         else:
+            if self.default is parsing.UNDEFINED:
+                raise ValueError(f"Flag argument {self.key!r} must have a default")
+
             parser.add_option(
                 self.key,
                 self.message_name,
