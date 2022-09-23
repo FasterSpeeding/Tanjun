@@ -392,10 +392,8 @@ class Flag(_ConfigIdentifier):
     """Mark an argument as a flag/option for message command parsing.
 
     This indicates that the argument should be specified by name (e.g. `--name`)
-    rather than positonally and only `default` is used for slash command options
-    (as slash commands do not have the distinction of positional verses flag).
-
-    Adding a default to an argument will also make it a flag/option.
+    rather than positonally for message parsing and doesn't effect slash command
+    options.
 
     Examples
     --------
@@ -491,8 +489,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
     Arguments will be positional by default (unless it has a default) and this
     allows for marking positional arguments as optional.
 
-    Only `default` will be used for slash command options (as slash commands do
-    not have the distinction of positional verses flag).
+    This only effects message option parsing.
 
     Examples
     --------
