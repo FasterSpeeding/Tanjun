@@ -356,7 +356,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
         ...
     ```
 
-    Passing an empty [tanjun.annotations.Default][Default] allows you to mark
+    Passing an empty [Default][tanjun.annotations.Default] allows you to mark
     an argument that's optional in the signature as being a required option.
     """
 
