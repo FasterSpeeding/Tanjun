@@ -330,18 +330,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
     async def command(
         ctx: tanjun.abc.Context,
         argument: Annotated[Str, Default(""), "description],
-    ) -> None:
-        ...
-    ```
-
-    or
-
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_slash_command("name", "description")
-    async def command(
-        ctx: tanjun.abc.Context,
-        argument: Annotated[Default[Str, ""], "description"],
+        other_argument: Annotated[Default[Str, ""], "description"],
     ) -> None:
         ...
     ```
