@@ -330,7 +330,7 @@ class _DefaultMeta(abc.ABCMeta):
 
 
 class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
-    """Explicitly configure the an argument's default.
+    """Explicitly configure an argument's default.
 
     Examples
     --------
