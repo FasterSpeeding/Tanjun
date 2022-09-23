@@ -313,20 +313,13 @@ Snowflake = Converted[conversion.parse_snowflake]
 
 
 class _DefaultMeta(abc.ABCMeta):
-    def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], typing.Any]], /) -> type[_T]:
+    def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], _T]], /) -> type[_T]:
         if isinstance(value, tuple):
             type_ = value[0]
-            default = parsing.UNDEFINED
-            try:
-                default = value[1]
-            except IndexError:
-                pass
+            return typing.cast(type[_T], typing.Annotated[type_, Default(value[1])])
 
-        else:
-            default = parsing.UNDEFINED
-            type_ = typing.cast(type[_T], value)
-
-        return typing.cast(type[_T], typing.Annotated[type_, Default(default)])
+        type_ = typing.cast(type[_T], value)
+        return typing.cast(type[_T], typing.Annotated[type_, Default()])
 
 
 class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
@@ -435,7 +428,7 @@ class Flag(_ConfigIdentifier):
         """
         if default is not parsing.UNDEFINED:
             warnings.warn(
-                "Flag.__init__'s `default` argument is deprecated, use Default[]", category=DeprecationWarning
+                "Flag.__init__'s `default` argument is deprecated, use Default instead", category=DeprecationWarning
             )
 
         self._aliases = aliases
