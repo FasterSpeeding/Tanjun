@@ -428,7 +428,7 @@ class Flag(_ConfigIdentifier):
         """
         if default is not parsing.UNDEFINED:
             warnings.warn(
-                "Flag.__init__'s `default` argument is deprecated, use Default[]", category=DeprecationWarning
+                "Flag.__init__'s `default` argument is deprecated, use Default instead", category=DeprecationWarning
             )
 
         self._aliases = aliases
