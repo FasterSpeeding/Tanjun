@@ -313,9 +313,19 @@ Snowflake = Converted[conversion.parse_snowflake]
 
 
 class _DefaultMeta(abc.ABCMeta):
-    def __getitem__(
-        cls, type_: type[_T], default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED, /
-    ) -> type[_T]:
+    def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], typing.Any]], /) -> type[_T]:
+        if isinstance(value, tuple):
+            type_ = value[0]
+            default = parsing.UNDEFINED
+            try:
+                default = value[1]
+            except IndexError:
+                pass
+
+        else:
+            default = parsing.UNDEFINED
+            type_ = typing.cast(type[_T], value)
+
         return typing.cast(type[_T], typing.Annotated[type_, Default(default)])
 
 
@@ -463,7 +473,7 @@ class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
         If not specified then the default in the signature for this argument
         will be used.
         """
-        warnings.warn("Flag.default is deprecated")
+        warnings.warn("Flag.default is deprecated", category=DeprecationWarning)
         return self._default
 
     @property
@@ -478,7 +488,7 @@ class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
         if self._default is not parsing.UNDEFINED:
             config.default = self._default
 
-        config.aliases = self._aliases
+        config.aliases = self._aliases or config.aliases
         config.empty_value = self._empty_value
         config.is_positional = False
 
@@ -1038,7 +1048,7 @@ class _ArgConfig:
         self.description: typing.Optional[str] = None
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
         self.is_greedy: bool = False
-        self.is_positional = default is parsing.UNDEFINED
+        self.is_positional: typing.Optional[bool] = None
         self.key: str = key
         self.max_value: typing.Union[float, int, None] = None
         self.message_name: str = "--" + key.replace("_", "-")
@@ -1074,7 +1084,7 @@ class _ArgConfig:
             parser = parsing.ShlexParser()
             command.set_parser(parser)
 
-        if self.is_positional:
+        if self.is_positional or (self.is_positional is None and self.default is parsing.UNDEFINED):
             parser.add_argument(
                 self.key,
                 converters=converters,

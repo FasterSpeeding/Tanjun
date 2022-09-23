@@ -34,6 +34,7 @@
 
 import enum
 import inspect
+import re
 import sys
 import typing
 from collections import abc as collections
@@ -69,20 +70,43 @@ class TestConverted:
         assert converters.converters == [converter_1, converter_2, converter_3]
 
 
+class TestDefault:
+    def test_default_property(self):
+        value = object()
+
+        default = annotations.Default(value)
+
+        assert default.default is value
+
+    def test_default_property_with_default_value(self):
+        default = annotations.Default()
+
+        assert default.default is tanjun.parsing.UNDEFINED
+
+
 class TestFlag:
     def test_properties(self):
-        flag = annotations.Flag(aliases=("yeet", "meat", "meow"), default=123321, empty_value="nom")
+        flag = annotations.Flag(aliases=("yeet", "meat", "meow"), empty_value="nom")
 
         assert flag.aliases == ("yeet", "meat", "meow")
-        assert flag.default == 123321
         assert flag.empty_value == "nom"
 
     def test_properties_with_default_values(self):
         flag = annotations.Flag()
 
         assert flag.aliases is None
-        assert flag.default is tanjun.parsing.UNDEFINED
         assert flag.empty_value is tanjun.parsing.UNDEFINED
+
+    def test_deprecated_default(self):
+        value = object()
+
+        with pytest.warns(
+            DeprecationWarning, match=re.escape("Flag.__init__'s `default` argument is deprecated, use Default[]")
+        ):
+            flag = annotations.Flag(default=value)
+
+        with pytest.warns(DeprecationWarning, match=re.escape("Flag.default is deprecated")):
+            assert flag.default is value
 
 
 class TestMax:
@@ -1196,6 +1220,183 @@ def test_with_generic_converted():
     assert option.max_value is None
 
 
+def test_with_default():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, argument: typing.Annotated[annotations.Str, annotations.Default("nyaa"), "meow"]
+    ) -> None:
+        ...
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="argument",
+            channel_types=None,
+            description="meow",
+            is_required=False,
+        )
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["argument"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == "nyaa"
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "argument"
+    assert tracked_option.name == "argument"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+    assert len(command.wrapped_command.parser.arguments) == 0
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "argument"
+    assert option.names == ["--argument"]
+    assert option.converters == []
+    assert option.default == "nyaa"
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_with_generic_default():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        argument: typing.Annotated[annotations.Default[annotations.Str, "nyaa"], "meow"],  # noqa: F821
+    ) -> None:
+        ...
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="argument",
+            channel_types=None,
+            description="meow",
+            is_required=False,
+        )
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["argument"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == "nyaa"
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "argument"
+    assert tracked_option.name == "argument"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+    assert len(command.wrapped_command.parser.arguments) == 0
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "argument"
+    assert option.names == ["--argument"]
+    assert option.converters == []
+    assert option.default == "nyaa"
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_with_default_overriding_signature_default():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        argument: typing.Annotated[annotations.Default[annotations.Str, "yeet"], "meow"] = "m",  # noqa: F821
+    ) -> None:
+        ...
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="argument",
+            channel_types=None,
+            description="meow",
+            is_required=False,
+        )
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["argument"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == "yeet"
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "argument"
+    assert tracked_option.name == "argument"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+    assert len(command.wrapped_command.parser.arguments) == 0
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "argument"
+    assert option.names == ["--argument"]
+    assert option.converters == []
+    assert option.default == "yeet"
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_with_default_unsetting_signature_default():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, argument: typing.Annotated[annotations.Default[annotations.Str], "meow"] = "m"
+    ) -> None:
+        ...
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="argument",
+            channel_types=None,
+            description="meow",
+            is_required=True,
+        )
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["argument"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "argument"
+    assert tracked_option.name == "argument"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+    assert len(command.wrapped_command.parser.arguments) == 1
+    assert len(command.wrapped_command.parser.options) == 0
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "argument"
+    assert argument.converters == []
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+
 def test_with_flag():
     empty_value = mock.Mock()
 
@@ -1204,8 +1405,9 @@ def test_with_flag():
     @tanjun.as_slash_command("beep", "boop")
     async def callback(
         ctx: tanjun.abc.MessageContext,
+        meep: typing.Annotated[annotations.Str, annotations.Flag(), "bb"] = "",
         eep: typing.Annotated[
-            annotations.Int, annotations.Flag(aliases=("--hi", "--bye"), empty_value=empty_value, default=1231), "b"
+            annotations.Int, annotations.Flag(aliases=("--hi", "--bye"), empty_value=empty_value), "b"
         ] = 545454,
     ) -> None:
         ...
@@ -1213,16 +1415,70 @@ def test_with_flag():
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
     assert len(callback.parser.arguments) == 0
-    assert len(callback.parser.options) == 1
+    assert len(callback.parser.options) == 2
     option = callback.parser.options[0]
+    assert option.key == "meep"
+    assert option.names == ["--meep"]
+    assert option.converters == []
+    assert option.default == ""
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
+    option = callback.parser.options[1]
     assert option.key == "eep"
     assert option.names == ["--eep", "--hi", "--bye"]
     assert option.converters == [int]
-    assert option.default == 1231
+    assert option.default == 545454
     assert option.empty_value is empty_value
     assert option.is_multi is False
     assert option.min_value is None
     assert option.max_value is None
+
+    assert callback.wrapped_command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="meep",
+            channel_types=None,
+            description="bb",
+            is_required=False,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="eep",
+            channel_types=None,
+            description="b",
+            is_required=False,
+        ),
+    ]
+    assert len(callback.wrapped_command._tracked_options) == 2
+    option = callback.wrapped_command._tracked_options["meep"]
+    assert option.default == ""
+    option = callback.wrapped_command._tracked_options["eep"]
+    assert option.default == 545454
+
+
+def test_with_flag_and_deprecated_default():
+    with pytest.warns(
+        DeprecationWarning, match=re.escape("Flag.__init__'s `default` argument is deprecated, use Default[]")
+    ):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("meow")
+        @tanjun.as_slash_command("beep", "boop")
+        async def callback(
+            ctx: tanjun.abc.MessageContext,
+            eep: typing.Annotated[annotations.Int, annotations.Flag(default=1231), "b"] = 545454,
+        ) -> None:
+            ...
+
+    assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
+    assert len(callback.parser.arguments) == 0
+    assert len(callback.parser.options) == 1
+    option = callback.parser.options[0]
+    assert option.key == "eep"
+    assert option.default == 1231
 
     assert callback.wrapped_command.build().options == [
         hikari.CommandOption(
@@ -1238,7 +1494,7 @@ def test_with_flag():
     assert option.default == 1231
 
 
-def test_with_flag_inferred_default():
+def test_with_flag_and_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("meow")
     @tanjun.as_slash_command("ea", "meow")
@@ -2976,7 +3232,7 @@ def test_with_generic_these_channels():
 
 
 def test_right_option_always_used():
-    ...
+    raise RuntimeError
 
 
 def test_for_attachment_option():
