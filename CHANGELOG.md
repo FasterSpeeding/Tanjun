@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for marking positional message arguments as optional when using annotation parsing.
 
+### Fixed
+- Don't ignore parsing annotations when the top-level type-hint is a union.
+
 ## [2.6.3a1] - 2022-09-17
 ### Added
 - `follow_wrapped` parameter to `Component.with_command`.

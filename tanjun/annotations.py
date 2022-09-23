@@ -1160,7 +1160,7 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
                 slash_commands.append(sub_command)
 
     for parameter in signature.parameters.values():
-        if typing.get_origin(parameter.annotation) is not typing.Annotated:
+        if parameter.annotation is parameter.empty:
             continue
 
         arg_config = _ArgConfig(
@@ -1183,11 +1183,12 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
                     arg_config.min_value = operator.index(arg.stop) - 1
                     arg_config.max_value = operator.index(arg.start)
 
-        for slash_command in slash_commands:
-            arg_config.to_slash_option(slash_command)
+        if arg_config.option_type or arg_config.converters:
+            for slash_command in slash_commands:
+                arg_config.to_slash_option(slash_command)
 
-        for message_command in message_commands:
-            arg_config.to_message_option(message_command)
+            for message_command in message_commands:
+                arg_config.to_message_option(message_command)
 
     return command
 
