@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - [tanjun.annotations.Flag][] will no longer unset any previously set aliases.
 
+### Deprecated
+- [tanjun.annotations.Flag.default][] and the `default` argument for
+  [tanjun.annotations.Flag.__init__][]. [tanjun.annotations.Default][] should be used instead.
+
 ### Fixed
 - Don't ignore parameter annotations when the top-level type-hint is a union.
 
