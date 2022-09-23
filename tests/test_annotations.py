@@ -101,7 +101,7 @@ class TestFlag:
         value = object()
 
         with pytest.warns(
-            DeprecationWarning, match=re.escape("Flag.__init__'s `default` argument is deprecated, use Default[]")
+            DeprecationWarning, match=re.escape("Flag.__init__'s `default` argument is deprecated, use Default instead")
         ):
             flag = annotations.Flag(default=value)
 
@@ -1466,7 +1466,7 @@ def test_with_flag():
 
 def test_with_flag_and_deprecated_default():
     with pytest.warns(
-        DeprecationWarning, match=re.escape("Flag.__init__'s `default` argument is deprecated, use Default[]")
+        DeprecationWarning, match=re.escape("Flag.__init__'s `default` argument is deprecated, use Default instead")
     ):
 
         @annotations.with_annotated_args(follow_wrapped=True)
