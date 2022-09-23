@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Support for marking positional message arguments as optional when using annotation parsing.
+- [tanjun.annotations.Default][] for setting the default for an argument while leaving the actual
+  parameter required.
 
 ### Changed
 - [tanjun.annotations.Flag][] will no longer unset any previously set aliases.
