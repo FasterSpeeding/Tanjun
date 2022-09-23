@@ -442,7 +442,23 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
         config.default = self._default
 
 
-class Flag(_ConfigIdentifier):
+class _FlagMeta(abc.ABCMeta):
+    def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], typing.Any]], /) -> type[_T]:
+        empty_value = parsing.UNDEFINED
+        if isinstance(value, tuple):
+            type_ = value[0]
+            try:
+                empty_value = value[1]
+            except IndexError:
+                pass
+
+        else:
+            type_ = typing.cast(type[_T], value)
+
+        return typing.cast(type[_T], typing.Annotated[type_, Flag(empty_value=empty_value)])
+
+
+class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
     """Mark an argument as a flag/option for message command parsing.
 
     This indicates that the argument should be specified by name (e.g. `--name`)
