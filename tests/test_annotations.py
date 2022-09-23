@@ -3231,10 +3231,6 @@ def test_with_generic_these_channels():
     assert tracked_option.type is hikari.OptionType.CHANNEL
 
 
-def test_right_option_always_used():
-    raise RuntimeError
-
-
 def test_for_attachment_option():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
