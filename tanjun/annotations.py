@@ -447,12 +447,10 @@ class _FlagMeta(abc.ABCMeta):
         empty_value = parsing.UNDEFINED
         if isinstance(value, tuple):
             type_ = value[0]
-            empty_value = value[1]
+            return typing.cast(type[_T], typing.Annotated[type_, Flag(empty_value=value[1])])
 
-        else:
-            type_ = typing.cast(type[_T], value)
-
-        return typing.cast(type[_T], typing.Annotated[type_, Flag(empty_value=empty_value)])
+        type_ = typing.cast(type[_T], value)
+        return typing.cast(type[_T], typing.Annotated[type_, Flag()])
 
 
 class Flag(_ConfigIdentifier, metaclass=_FlagMeta):
