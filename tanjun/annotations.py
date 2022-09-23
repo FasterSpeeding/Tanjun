@@ -443,14 +443,11 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
 
 
 class _FlagMeta(abc.ABCMeta):
-    def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], typing.Any]], /) -> type[_T]:
+    def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], _T]], /) -> type[_T]:
         empty_value = parsing.UNDEFINED
         if isinstance(value, tuple):
             type_ = value[0]
-            try:
-                empty_value = value[1]
-            except IndexError:
-                pass
+            empty_value = value[1]
 
         else:
             type_ = typing.cast(type[_T], value)
