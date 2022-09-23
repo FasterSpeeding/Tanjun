@@ -887,7 +887,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
     def __getitem__(
         cls, value: typing.Union[_ChannelTypeIsh, collections.Collection[_ChannelTypeIsh]], /
     ) -> type[hikari.PartialChannel]:
-        if not isinstance(value, typing.Collection):
+        if not isinstance(value, collections.Collection):
             value = (value,)
 
         return typing.Annotated[Channel, TheseChannels(*value)]
