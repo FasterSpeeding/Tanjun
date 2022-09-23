@@ -3949,10 +3949,148 @@ if sys.version_info >= (3, 10):
 
 
 def test_when_annotated_handles_unions():
-    ...
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        *,
+        value: typing.Annotated[typing.Union[annotations.Positional[annotations.Str], bool], "nyaa"] = False,
+        other_value: typing.Annotated[typing.Optional[annotations.Ranged[123, 432]], "meow"] = None,
+    ) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="value",
+            description="nyaa",
+            is_required=False,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="other_value",
+            description="meow",
+            is_required=False,
+            min_value=123,
+            max_value=432,
+        ),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is False
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "value"
+    assert tracked_option.name == "value"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    tracked_option = command._tracked_options["other_value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "other_value"
+    assert tracked_option.name == "other_value"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "value"
+    assert argument.converters == []
+    assert argument.default is False
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "other_value"
+    assert option.names == ["--other-value"]
+    assert option.converters == [int]
+    assert option.default is None
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_value == 123
+    assert option.max_value == 432
 
 
 if sys.version_info >= (3, 10):
 
     def test_when_annotated_handles_3_10_unions():
-        ...
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("name", "description")
+        @tanjun.as_message_command("name")
+        async def command(
+            ctx: tanjun.abc.Context,
+            *,
+            value: typing.Annotated[annotations.Positional[annotations.Str] | bool, "nyaa"] = False,
+            other_value: typing.Annotated[annotations.Ranged[123, 432] | None, "meow"] = None,
+        ) -> None:
+            raise NotImplementedError
+
+        assert command.build().options == [
+            hikari.CommandOption(
+                type=hikari.OptionType.STRING,
+                name="value",
+                description="nyaa",
+                is_required=False,
+            ),
+            hikari.CommandOption(
+                type=hikari.OptionType.INTEGER,
+                name="other_value",
+                description="meow",
+                is_required=False,
+                min_value=123,
+                max_value=432,
+            ),
+        ]
+
+        assert len(command._tracked_options) == 2
+        tracked_option = command._tracked_options["value"]
+        assert tracked_option.converters == []
+        assert tracked_option.default is False
+        assert tracked_option.is_always_float is False
+        assert tracked_option.is_only_member is False
+        assert tracked_option.key == "value"
+        assert tracked_option.name == "value"
+        assert tracked_option.type is hikari.OptionType.STRING
+
+        tracked_option = command._tracked_options["other_value"]
+        assert tracked_option.converters == []
+        assert tracked_option.default is None
+        assert tracked_option.is_always_float is False
+        assert tracked_option.is_only_member is False
+        assert tracked_option.key == "other_value"
+        assert tracked_option.name == "other_value"
+        assert tracked_option.type is hikari.OptionType.INTEGER
+
+        assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+        assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+        assert len(command.wrapped_command.parser.arguments) == 1
+        argument = command.wrapped_command.parser.arguments[0]
+        assert argument.key == "value"
+        assert argument.converters == []
+        assert argument.default is False
+        assert argument.is_greedy is False
+        assert argument.is_multi is False
+        assert argument.min_value is None
+        assert argument.max_value is None
+
+        assert len(command.wrapped_command.parser.options) == 1
+        option = command.wrapped_command.parser.options[0]
+        assert option.key == "other_value"
+        assert option.names == ["--other-value"]
+        assert option.converters == [int]
+        assert option.default is None
+        assert option.empty_value is tanjun.parsing.UNDEFINED
+        assert option.is_multi is False
+        assert option.min_value == 123
+        assert option.max_value == 432
