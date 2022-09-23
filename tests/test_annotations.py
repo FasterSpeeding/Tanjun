@@ -223,11 +223,14 @@ def test_with_nested_message_command_and_incompatible_parser_set():
 
 
 def test_with_no_annotations():
-    @annotations.with_annotated_args
+    @annotations.with_annotated_args  # pyright: ignore [ reportUnknownArgumentType ]
     @tanjun.as_slash_command("meow", "nyaa")
     @tanjun.as_message_command("meow")
     async def command(
-        ctx: tanjun.abc.Context, injected: alluka.Injected[int], other_injected: str = alluka.inject(type=str)
+        ctx: tanjun.abc.Context,
+        injected: alluka.Injected[int],
+        yeet,  # type: ignore
+        other_injected: str = alluka.inject(type=str),
     ) -> None:
         ...
 
@@ -240,13 +243,16 @@ def test_with_no_annotations():
 def test_with_no_annotations_but_message_parser_already_set():
     @tanjun.as_message_command("meow")
     async def command(
-        ctx: tanjun.abc.Context, injected: alluka.Injected[int], other_injected: str = alluka.inject(type=str)
+        ctx: tanjun.abc.Context,
+        injected: alluka.Injected[int],
+        beat,  # type: ignore
+        other_injected: str = alluka.inject(type=str),
     ) -> None:
         ...
 
     command.set_parser(tanjun.ShlexParser())
 
-    annotations.with_annotated_args(command)
+    annotations.with_annotated_args(command)  # pyright: ignore [ reportUnknownArgumentType ]
 
     assert isinstance(command.parser, tanjun.ShlexParser)
     assert command.parser.arguments == []
