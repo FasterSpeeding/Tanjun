@@ -202,7 +202,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
     @tanjun.as_slash_command("beep", "meow")
     async def command(
         ctx: tanjun.abc.Context,
-        location: Annotated[annotations.Int, "where do you live?", Choices("London", "Paradise", "Nowhere")]
+        location: Annotated[annotations.Int, "where do you live?", Choices("London", "Paradise", "Nowhere")],
     ) -> None:
         raise NotImplementedError
     ```
@@ -504,18 +504,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
     async def command(
         ctx: tanjun.abc.MessageContext,
         positional_arg: Positional[Str] = None,
-    ) -> None:
-        raise NotImplementedError
-    ```
-
-    or
-
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_message_command("message")
-    async def command(
-        ctx: tanjun.abc.MessageContext,
-        positional_arg: Annotated[Str, Positional()] = None,
+        other_positional_arg: Annotated[Str, Positional()] = None,
     ) -> None:
         raise NotImplementedError
     ```
@@ -550,17 +539,7 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
     async def command(
         ctx: tanjun.abc.MessageContext,
         greedy_arg: Greedy[Str],
-    ) -> None:
-        raise NotImplementedError
-    ```
-
-    or
-
-    ```py
-    @tanjun.as_message_command("message")
-    async def command(
-        ctx: tanjun.abc.MessageContext,
-        greedy_arg: Annotated[Str, Greedy()],
+        other_greedy_arg: Annotated[Str, Greedy()],
     ) -> None:
         raise NotImplementedError
     ```
@@ -705,7 +684,7 @@ class Name(_ConfigIdentifier):
     @tanjun.as_message_command("meow")
     async def command(
         ctx: tanjun.abc.Context,
-        resource_type: Annotated[Str, Name("type"), "The type of resource to get."]
+        resource_type: Annotated[Str, Name("type"), "The type of resource to get."],
     ) -> None:
         raise NotImplementedError
     ```
