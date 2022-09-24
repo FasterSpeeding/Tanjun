@@ -1746,7 +1746,7 @@ class Client(tanjun.Client):
         self._make_slash_context = maker
         return self
 
-    def set_human_only(self, value: bool = True) -> Self:
+    def set_human_only(self, value: bool = True, /) -> Self:
         """Set whether or not message commands execution should be limited to "human" users.
 
         !!! note
