@@ -6,6 +6,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.0a1] - 2022-09-24
+### Added
+- Support for marking positional message arguments as optional when using annotation parsing.
+- [tanjun.annotations.Default][] for setting the default for an argument while leaving the actual
+  parameter required.
+
+### Changed
+- [tanjun.annotations.Flag][] will no longer unset any previously set aliases.
+
+### Deprecated
+- [tanjun.annotations.Flag.default][] and the `default` argument for
+  [tanjun.annotations.Flag.__init__][]. [tanjun.annotations.Default][] should be used instead.
+
+### Fixed
+- Don't ignore parameter annotations when the top-level type-hint is a union.
+
 ## [2.6.3a1] - 2022-09-17
 ### Added
 - `follow_wrapped` parameter to `Component.with_command`.
@@ -673,7 +689,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.3a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.7.0a1...HEAD
+[2.7.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.3a1...v2.7.0a1
 [2.6.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.2a1...v2.6.3a1
 [2.6.2a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.1a1...v2.6.2a1
 [2.6.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.5.4a1...v2.6.1a1
