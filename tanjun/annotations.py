@@ -270,6 +270,7 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
     )
     ```
     """
+
     # Where `Converted[...]` follows the same semantics as Converted's `__init__`.
 
     __slots__ = ("_converters",)
