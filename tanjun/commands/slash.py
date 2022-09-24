@@ -1147,7 +1147,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         default_to_ephemeral: typing.Optional[bool] = None,
         sort_options: bool = True,
         validate_arg_keys: bool = True,
-    ) -> collections.Callable[[_CommandCallbackSigT], SlashCommand[_CommandCallbackSigT]]:
+    ) -> _ResultProto:
         r"""Build a [tanjun.SlashCommand][] in this command group by decorating a function.
 
         !!! note
@@ -1199,16 +1199,20 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
         """
-        return lambda callback: self.with_command(
-            as_slash_command(
-                name,
-                description,
-                always_defer=always_defer,
-                default_to_ephemeral=default_to_ephemeral,
-                sort_options=sort_options,
-                validate_arg_keys=validate_arg_keys,
-            )(callback)
-        )
+
+        def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
+            return self.with_command(
+                as_slash_command(
+                    name,
+                    description,
+                    always_defer=always_defer,
+                    default_to_ephemeral=default_to_ephemeral,
+                    sort_options=sort_options,
+                    validate_arg_keys=validate_arg_keys,
+                )(callback)
+            )
+
+        return decorator
 
     def make_sub_group(
         self,
