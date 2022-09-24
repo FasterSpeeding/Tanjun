@@ -843,9 +843,9 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
         ctx: tanjun.abc.Context,
         user: Annotated[User, SnowflakeOr(parse_id=parse_user_id), "The user to target."],
 
-        # When using SnowflakeOr as a type-hint, the `parse_id` callback is
-        # automatically set to the mention format for the specified for the
-        # passed type if applicable.
+        # The `parse_id` callback is automatically set to the mention format for
+        # the specified for the passed type if applicable when using SnowflakeOr
+        # as a generic type-hint
         role: Annotated[Optional[SnowflakeOr[Role]], "The role to target."] = None,
     ) -> None:
         user_id = hikari.Snowflake(user)
