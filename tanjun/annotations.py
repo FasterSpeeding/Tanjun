@@ -265,10 +265,12 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
     @tanjun.as_slash_command("beep", "boop")
     async def command(
         ctx: tanjun.abc.SlashContext,
-        value: Converted[callback, other_callback],
+        argument: Annotated[Str, Converted(callback, other_callback), "description"]
+        other_argument: Annotated[Converted[callback, other_callback], "description"],
     )
     ```
     """
+    # Where `Converted[...]` follows the same semantics as Converted's `__init__`.
 
     __slots__ = ("_converters",)
 
@@ -556,26 +558,14 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
     @tanjun.as_slash_command("beep", "meow")
     async def command(
         ctx: tanjun.abc.Context,
-        age: Annotated[annotations.Int, Max(130), Min(13)],
+        age: Annotated[annotations.Int, Max(130), "How old are you?"],
+        number: Annotated[Max[130.2], "description"],
     ) -> None:
         raise NotImplementedError
     ```
 
-    Alternatively, the slice syntax and `range` may be used to set the min and
-    max values for a float or integesr arguments (where the start is inclusive
-    and stop is exclusive). These default to a min_value of `0` if the start
-    isn't specified.
-
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_slash_command("meow", "description")
-    async def command(
-        ctx: tanjun.abc.SlashContext,
-        float_value: Annotated[annotations.Float, 1.5:101.5],
-        int_value: Annotated[annotations.Int, range(5, 100)],
-    ) -> None:
-        raise NotImplementedError
-    ```
+    When using [Max][tanjun.annotations.Max] as a generic type hint (e.g.
+    `Max[18]`), the option's type will be inferred from the passed value.
     """
 
     __slots__ = ("_value",)
@@ -617,26 +607,14 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
     @tanjun.as_slash_command("beep", "meow")
     async def command(
         ctx: tanjun.abc.Context,
-        age: Annotated[annotations.Int, "How old are you?", Max(130), Min(13)],
+        age: Annotated[annotations.Int, Min(13), "How old are you?"],
+        number: Annotated[Min[13.9], "description"],
     ) -> None:
         raise NotImplementedError
     ```
 
-    Alternatively, the slice syntax and `range` may be used to set the min and
-    max values for a float or integesr arguments (where the start is inclusive
-    and stop is exclusive). These default to a min_value of `0` if the start
-    isn't specified.
-
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_slash_command("meow", "description")
-    async def command(
-        ctx: tanjun.abc.SlashContext,
-        float_value: Annotated[annotations.Float, 1.5:101.5],
-        int_value: Annotated[annotations.Int, range(5, 100)],
-    ) -> None:
-        raise NotImplementedError
-    ```
+    When using [Min][tanjun.annotations.Min] as a generic type hint (e.g.
+    `Min[69.420]`), the option's type will be inferred from the passed value.
     """
 
     __slots__ = ("_value",)
@@ -750,23 +728,31 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
     @tanjun.as_message_command("meow")
     async def command(
         ctx: tanjun.abc.Context,
-        number_arg: Annotated[Int, Ranged(0, 69)],
+        number_arg: Annotated[Int, Ranged(0, 69), "description"],
+        other_number_arg: Annotated[Ranged[13.69, 420.69], "description"],
     ) -> None:
         raise NotImplementedError
     ```
 
+    When using [Ranged][tanjun.annotations.Ranged] as a generic type hint (e.g.
+    `Ranged[123, 666]`) the option's type is inferred from whether integers or
+    floats are passed.
+
     ```py
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("meow", "nyaa")
-    @tanjun.as_message_command("meow")
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("meow", "description")
     async def command(
-        ctx: tanjun.abc.Context,
-        number_arg: Ranged[0, 69],
+        ctx: tanjun.abc.SlashContext,
+        float_value: Annotated[annotations.Float, 1.5:101.5, "description"],
+        int_value: Annotated[annotations.Int, range(5, 100), "description"],
     ) -> None:
         raise NotImplementedError
     ```
-    Here the argument type is inferred from whether integers or floats
-    are passed to `Ranged[...]`
+
+    Alternatively, the slice syntax and `range` may be used to set the range
+    for a float or integer argument (where the start is inclusive and stop is
+    exclusive). These default to a min_value of `0` if the start isn't
+    specified and ignore any specified step.
     """
 
     __slots__ = ("_max_value", "_min_value")
@@ -855,21 +841,11 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
     async def command(
         ctx: tanjun.abc.Context,
         user: Annotated[User, SnowflakeOr(parse_id=parse_user_id), "The user to target."],
-    ) -> None:
-        user_id = hikari.Snowflake(user)
-    ```
-
-    ```py
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("meow", "nyaa")
-    @tanjun.as_message_command("meow")
-    async def command(
-        ctx: tanjun.abc.Context,
 
         # When using SnowflakeOr as a type-hint, the `parse_id` callback is
         # automatically set to the mention format for the specified for the
         # passed type if applicable.
-        user: Annotated[SnowflakeOr[User], "The user to target."],
+        role: Annotated[Optional[SnowflakeOr[Role]], "The role to target."] = None,
     ) -> None:
         user_id = hikari.Snowflake(user)
     ```
