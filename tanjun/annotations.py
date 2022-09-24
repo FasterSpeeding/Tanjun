@@ -270,7 +270,6 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
     )
     ```
     """
-
     # Where `Converted[...]` follows the same semantics as Converted's `__init__`.
 
     __slots__ = ("_converters",)
@@ -565,8 +564,8 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
         raise NotImplementedError
     ```
 
-    When using [Max][tanjun.annotations.Max] as a generic type hint (e.g.
-    `Max[18]`), the option's type will be inferred from the passed value.
+    The option's type will be inferred from the passed value when using
+    [Max][tanjun.annotations.Max] as a generic type hint (e.g. `Max[18]`).
     """
 
     __slots__ = ("_value",)
@@ -614,8 +613,8 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
         raise NotImplementedError
     ```
 
-    When using [Min][tanjun.annotations.Min] as a generic type hint (e.g.
-    `Min[69.420]`), the option's type will be inferred from the passed value.
+    The option's type is be inferred from the passed value when using
+    [Min][tanjun.annotations.Min] as a generic type hint (e.g. `Min[69.4]`).
     """
 
     __slots__ = ("_value",)
@@ -735,9 +734,9 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
         raise NotImplementedError
     ```
 
-    When using [Ranged][tanjun.annotations.Ranged] as a generic type hint (e.g.
-    `Ranged[123, 666]`) the option's type is inferred from whether integers or
-    floats are passed.
+    The option's type is inferred from whether integers or floats are passed
+    when using [Ranged][tanjun.annotations.Ranged] as a generic type hint (e.g.
+    `Ranged[123, 666]`).
 
     ```py
     @annotations.with_annotated_args
