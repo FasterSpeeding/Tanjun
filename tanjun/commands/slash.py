@@ -1216,8 +1216,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
     def as_sub_command(
         self,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -1234,9 +1234,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         Parameters
         ----------
         name
-            The command's name.
+            The command's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
             The command's description.
             This should be inclusively between 1-100 characters in length.
@@ -1272,10 +1272,10 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)  # noqa: D202
 
         def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
             return self.with_command(
@@ -1293,8 +1293,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
     def make_sub_group(
         self,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default_to_ephemeral: typing.Optional[bool] = None,
@@ -1308,9 +1308,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         Parameters
         ----------
         name
-            The name of the command group.
+            The name of the command group (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
             The description of the command group.
         default_to_ephemeral
@@ -1330,10 +1330,10 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self.with_command(slash_command_group(name, description, default_to_ephemeral=default_to_ephemeral))
 
     def remove_command(self: _SlashCommandGroupT, command: tanjun.BaseSlashCommand, /) -> _SlashCommandGroupT:
@@ -2640,7 +2640,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's name.
 
             If localised names were provided for the option then this should
-            be the default (first) name.
+            be the default name.
         callback
             The autocomplete callback for the option.
 
@@ -2692,7 +2692,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's name.
 
             If localised names were provided for the option then this should
-            be the default (first) name.
+            be the default name.
 
         Returns
         -------
@@ -2728,7 +2728,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's name.
 
             If localised names were provided for the option then this should
-            be the default (first) name.
+            be the default name.
         callback
             The autocomplete callback for the option.
 
@@ -2774,7 +2774,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's name.
 
             If localised names were provided for the option then this should
-            be the default (first) name.
+            be the default name.
 
         Returns
         -------
@@ -2810,7 +2810,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's name.
 
             If localised names were provided for the option then this should
-            be the default (first) name.
+            be the default name.
         callback
             The autocomplete callback for the option.
 
@@ -2856,7 +2856,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The option's name.
 
             If localised names were provided for the option then this should
-            be the default (first) name.
+            be the default name.
 
         Returns
         -------

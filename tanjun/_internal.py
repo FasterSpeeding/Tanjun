@@ -401,12 +401,11 @@ class MaybeLocalised:
         else:
             self.localised_values = dict(field)
             self.id = self.localised_values.pop("id", None)
-            value_iter = iter(self.localised_values.items())
-            entry = next(value_iter, None)
+            entry = self.localised_values.pop("default", None) or next(iter(self.localised_values.values()), None)
             if entry is None:
                 raise RuntimeError(f"No default {field_name} given")
 
-            self.default_value = entry[1]
+            self.default_value = entry
 
     def _values(self) -> collections.Iterable[str]:
         return itertools.chain((self.default_value,), self.localised_values.values())
