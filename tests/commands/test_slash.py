@@ -1492,7 +1492,7 @@ class TestSlashCommand:
         assert option.name in command._tracked_options
 
     def test_add_int_option_when_min_greater_than_max(self, command: tanjun.SlashCommand[typing.Any]):
-        with pytest.raises(ValueError, match="`min_value` cannot be greater than the `max_value`"):
+        with pytest.raises(ValueError, match="`min_value` cannot be greater than `max_value`"):
             command.add_int_option(
                 "sesese",
                 "asasasa",
@@ -1671,7 +1671,7 @@ class TestSlashCommand:
         assert option.name in command._tracked_options
 
     def test_add_float_option_when_min_greater_than_max(self, command: tanjun.SlashCommand[typing.Any]):
-        with pytest.raises(ValueError, match="`min_value` cannot be greater than the `max_value`"):
+        with pytest.raises(ValueError, match="`min_value` cannot be greater than `max_value`"):
             command.add_float_option(
                 "sesese",
                 "asasasa",

@@ -157,11 +157,14 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         self: _T,
         key: str,
         /,
+        converters: _MaybeIterable[ConverterSig[str]] = (),
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        max_value: typing.Optional[_CmpProto[str]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[str]] = None,
+        max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
     ) -> _T:
         ...
@@ -176,8 +179,8 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        max_value: typing.Optional[_CmpProtoT] = None,
         min_value: typing.Optional[_CmpProtoT] = None,
+        max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
     ) -> _T:
         ...
@@ -191,8 +194,10 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = False,
     ) -> _T:
         """Add a positional argument type to the parser..
@@ -218,13 +223,23 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         greedy
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
-        max_value
-            Assert that the parsed value(s) for this argument are less than or equal to this.
+        min_length
+            Assert that a string argument's length is greater than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+        max_length
+            Assert that a string argument's length is less than or equal to this.
 
             If any converters are provided then this should be compatible
             with the result of them.
         min_value
             Assert that the parsed value(s) for this argument are greater than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+        max_value
+            Assert that the parsed value(s) for this argument are less than or equal to this.
 
             If any converters are provided then this should be compatible
             with the result of them.
@@ -266,10 +281,13 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         name: str,
         /,
         *names: str,
+        converters: _MaybeIterable[ConverterSig[str]] = (),
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: typing.Optional[_CmpProto[str]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[str]] = None,
+        max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
     ) -> _T:
         ...
@@ -285,8 +303,8 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: typing.Optional[_CmpProtoT] = None,
         min_value: typing.Optional[_CmpProtoT] = None,
+        max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
     ) -> _T:
         ...
@@ -301,8 +319,10 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = False,
     ) -> _T:
         """Add an named option to this parser.
@@ -331,13 +351,23 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
             The value to use if this option is provided without a value.
             If left as [UNDEFINED][tanjun.parsing.UNDEFINED] then this option
             will error if it's provided without a value.
-        max_value
-            Assert that the parsed value(s) for this option are less than or equal to this.
+        min_length
+            Assert that a string argument's length is greater than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+        max_length
+            Assert that a string argument's length is less than or equal to this.
 
             If any converters are provided then this should be compatible
             with the result of them.
         min_value
             Assert that the parsed value(s) for this option are greater than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+        max_value
+            Assert that the parsed value(s) for this option are less than or equal to this.
 
             If any converters are provided then this should be compatible
             with the result of them.
@@ -549,11 +579,14 @@ def with_argument(
 def with_argument(
     key: str,
     /,
+    converters: _MaybeIterable[ConverterSig[str]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
-    max_value: typing.Optional[_CmpProto[str]] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
+    max_value: typing.Optional[_CmpProto[str]] = None,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -567,8 +600,8 @@ def with_argument(
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
-    max_value: typing.Optional[_CmpProtoT] = None,
     min_value: typing.Optional[_CmpProtoT] = None,
+    max_value: typing.Optional[_CmpProtoT] = None,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -581,8 +614,10 @@ def with_argument(
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
     greedy: bool = False,
-    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an argument to a message command through a decorator call.
@@ -628,8 +663,13 @@ def with_argument(
     greedy
         Whether or not this argument should be greedy (meaning that it
         takes in the remaining argument values).
-    max_value
-        Assert that the parsed value(s) for this argument are less than or equal to this.
+    min_length
+        Assert that a string argument's length is greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    max_length
+        Assert that a string argument's length is less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
@@ -638,6 +678,12 @@ def with_argument(
 
         If any converters are provided then this should be compatible
         with the result of them.
+    max_value
+        Assert that the parsed value(s) for this argument are less than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+
     multi
         Whether this argument can be passed multiple times.
 
@@ -659,8 +705,10 @@ def with_argument(
             converters=converters,
             default=default,
             greedy=greedy,
-            max_value=max_value,
+            min_length=min_length,
+            max_length=max_length,
             min_value=min_value,
+            max_value=max_value,
             multi=multi,
         )
         return command
@@ -683,10 +731,13 @@ def with_greedy_argument(
 def with_greedy_argument(
     key: str,
     /,
+    converters: _MaybeIterable[ConverterSig[str]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProto[str]] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
+    max_value: typing.Optional[_CmpProto[str]] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -698,8 +749,8 @@ def with_greedy_argument(
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProtoT] = None,
     min_value: typing.Optional[_CmpProtoT] = None,
+    max_value: typing.Optional[_CmpProtoT] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -710,8 +761,10 @@ def with_greedy_argument(
     converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a greedy argument to a message command through a decorator call.
 
@@ -758,13 +811,27 @@ def with_greedy_argument(
     default
         The default value of this argument, if left as
         [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
-    max_value
-        Assert that the parsed value(s) for this argument are less than or equal to this.
+        Assert that a string argument's length is greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    min_length
+        Assert that a string argument's length is greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    max_length
+        Assert that a string argument's length is less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
     min_value
         Assert that the parsed value(s) for this argument are greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    max_value
+        Assert that the parsed value(s) for this argument are less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
@@ -781,7 +848,14 @@ def with_greedy_argument(
         linked to where `validate_arg_keys` is [True][].
     """
     return with_argument(
-        key, converters=converters, default=default, greedy=True, max_value=max_value, min_value=min_value
+        key,
+        converters=converters,
+        default=default,
+        greedy=True,
+        min_length=min_length,
+        max_length=max_length,
+        min_value=min_value,
+        max_value=max_value,
     )
 
 
@@ -800,10 +874,13 @@ def with_multi_argument(
 def with_multi_argument(
     key: str,
     /,
+    converters: _MaybeIterable[ConverterSig[str]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProto[str]] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
+    max_value: typing.Optional[_CmpProto[str]] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -815,8 +892,8 @@ def with_multi_argument(
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProtoT] = None,
     min_value: typing.Optional[_CmpProtoT] = None,
+    max_value: typing.Optional[_CmpProtoT] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -827,8 +904,10 @@ def with_multi_argument(
     converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a multi-argument to a message command through a decorator call.
 
@@ -876,13 +955,23 @@ def with_multi_argument(
     default
         The default value of this argument, if left as
         [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
-    max_value
-        Assert that the parsed value(s) for this argument are less than or equal to this.
+    min_length
+        Assert that a string argument's length is greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    max_length
+        Assert that a string argument's length is less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
     min_value
         Assert that the parsed value(s) for this argument are greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    max_value
+        Assert that the parsed value(s) for this argument are less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
@@ -899,7 +988,14 @@ def with_multi_argument(
         linked to where `validate_arg_keys` is [True][].
     """
     return with_argument(
-        key, converters=converters, default=default, max_value=max_value, min_value=min_value, multi=True
+        key,
+        converters=converters,
+        default=default,
+        min_length=min_length,
+        max_length=max_length,
+        min_value=min_value,
+        max_value=max_value,
+        multi=True,
     )
 
 
@@ -923,10 +1019,13 @@ def with_option(
     name: str,
     /,
     *names: str,
+    converters: _MaybeIterable[ConverterSig[str]] = (),
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProto[str]] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
+    max_value: typing.Optional[_CmpProto[str]] = None,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -941,8 +1040,8 @@ def with_option(
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProtoT] = None,
     min_value: typing.Optional[_CmpProtoT] = None,
+    max_value: typing.Optional[_CmpProtoT] = None,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -957,8 +1056,10 @@ def with_option(
     converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an option to a message command through a decorator call.
@@ -1004,13 +1105,23 @@ def with_option(
         The value to use if this option is provided without a value. If left as
         [UNDEFINED][tanjun.parsing.UNDEFINED] then this option will error if
         it's provided without a value.
-    max_value
-        Assert that the parsed value(s) for this option are less than or equal to this.
+    min_length
+        Assert that a string argument's length is greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    max_length
+        Assert that a string argument's length is less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
     min_value
         Assert that the parsed value(s) for this option are greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    max_value
+        Assert that the parsed value(s) for this option are less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
@@ -1037,8 +1148,10 @@ def with_option(
             converters=converters,
             default=default,
             empty_value=empty_value,
-            max_value=max_value,
+            min_length=min_length,
+            max_length=max_length,
             min_value=min_value,
+            max_value=max_value,
             multi=multi,
         )
         return command
@@ -1065,10 +1178,13 @@ def with_multi_option(
     name: str,
     /,
     *names: str,
+    converters: _MaybeIterable[ConverterSig[str]] = (),
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProto[str]] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
+    max_value: typing.Optional[_CmpProto[str]] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -1082,8 +1198,8 @@ def with_multi_option(
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProtoT] = None,
     min_value: typing.Optional[_CmpProtoT] = None,
+    max_value: typing.Optional[_CmpProtoT] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -1096,8 +1212,10 @@ def with_multi_option(
     converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     default: typing.Any,
     empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an multi-option to a command's parser through a decorator call.
 
@@ -1147,13 +1265,23 @@ def with_multi_option(
         The value to use if this option is provided without a value. If left as
         [UNDEFINED][tanjun.parsing.UNDEFINED] then this option will error if
         it's provided without a value.
-    max_value
-        Assert that the parsed value(s) for this option are less than or equal to this.
+    min_length
+        Assert that a string argument's length is greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    max_length
+        Assert that a string argument's length is less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
     min_value
         Assert that the parsed value(s) for this option are greater than or equal to this.
+
+        If any converters are provided then this should be compatible
+        with the result of them.
+    max_value
+        Assert that the parsed value(s) for this option are less than or equal to this.
 
         If any converters are provided then this should be compatible
         with the result of them.
@@ -1176,8 +1304,10 @@ def with_multi_option(
         converters=converters,
         default=default,
         empty_value=empty_value,
-        max_value=max_value,
+        min_length=min_length,
+        max_length=max_length,
         min_value=min_value,
+        max_value=max_value,
         multi=True,
     )
 
@@ -1185,7 +1315,18 @@ def with_multi_option(
 class Parameter:
     """Base class for parameters for the standard parser(s)."""
 
-    __slots__ = ("_client", "_component", "_converters", "_default", "_is_multi", "_key", "_max_value", "_min_value")
+    __slots__ = (
+        "_client",
+        "_component",
+        "_converters",
+        "_default",
+        "_is_multi",
+        "_key",
+        "_min_length",
+        "_max_length",
+        "_min_value",
+        "_max_value",
+    )
 
     def __init__(
         self,
@@ -1194,8 +1335,10 @@ class Parameter:
         *,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = False,
     ) -> None:
         """Initialise a parameter."""
@@ -1205,8 +1348,10 @@ class Parameter:
         self._default = default
         self._is_multi = multi
         self._key = key
-        self._max_value = max_value
+        self._min_length = min_length
+        self._max_length = max_length
         self._min_value = min_value
+        self._max_value = max_value
 
         if key.startswith("-"):
             raise ValueError("parameter key cannot start with `-`")
@@ -1245,13 +1390,22 @@ class Parameter:
         return self._is_multi
 
     @property
-    def max_value(self) -> typing.Optional[_CmpProto[typing.Any]]:
-        """If set, this parameters's parsed values will have to be less than or equal to this.
+    def min_length(self) -> typing.Optional[int]:
+        """If set, this parameters's parsed values will have to have lengths greater than or equal to this.
 
         If any converters are provided then this should be compatible with the
         result of them.
         """
-        return self._max_value
+        return self._min_length
+
+    @property
+    def max_length(self) -> typing.Optional[int]:
+        """If set, this parameters's parsed values will have to have lengths less than or equal to this.
+
+        If any converters are provided then this should be compatible with the
+        result of them.
+        """
+        return self._max_length
 
     @property
     def min_value(self) -> typing.Optional[_CmpProto[typing.Any]]:
@@ -1261,6 +1415,15 @@ class Parameter:
         result of them.
         """
         return self._min_value
+
+    @property
+    def max_value(self) -> typing.Optional[_CmpProto[typing.Any]]:
+        """If set, this parameters's parsed values will have to be less than or equal to this.
+
+        If any converters are provided then this should be compatible with the
+        result of them.
+        """
+        return self._max_value
 
     @property
     def key(self) -> str:
@@ -1289,12 +1452,19 @@ class Parameter:
         # assert value >= self._min_value
         if self._min_value is not None and self._min_value > value:
             raise errors.ConversionError(
-                f"{self._key!r} must be greater than or equal to {self._min_value!r}", self.key
+                f"{self._key!r} must be greater than or equal to {self._min_value!r}", self._key
             )
 
         # assert value <= self._max_value
         if self._max_value is not None and self._max_value < value:
-            raise errors.ConversionError(f"{self._key!r} must be less than or equal to {self._max_value!r}", self.key)
+            raise errors.ConversionError(f"{self._key!r} must be less than or equal to {self._max_value!r}", self._key)
+
+        length: typing.Optional[int] = None
+        if self._min_length is not None and self._min_length > (length := len(value)):
+            raise errors.ConversionError(f"{self._key!r} must be longer than {self._min_length - 1}", self._key)
+
+        if self._max_length is not None and self._max_length < (len(value) if length is None else length):
+            raise errors.ConversionError(f"{self._key!r} can't be longer than {self._max_length}", self._key)
 
     async def convert(self, ctx: tanjun.Context, value: str) -> typing.Any:
         """Convert the given value to the type of this parameter."""
@@ -1315,7 +1485,7 @@ class Parameter:
                 return result
 
         parameter_type = "option" if isinstance(self, Option) else "argument"
-        raise errors.ConversionError(f"Couldn't convert {parameter_type} '{self.key}'", self.key, sources)
+        raise errors.ConversionError(f"Couldn't convert {parameter_type} '{self._key}'", self._key, sources)
 
     def copy(self: _ParameterT) -> _ParameterT:
         """Copy the parameter.
@@ -1343,8 +1513,10 @@ class Argument(Parameter):
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = False,
     ) -> None:
         """Initialise a positional argument.
@@ -1368,8 +1540,13 @@ class Argument(Parameter):
         greedy
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
-        max_value
-            Assert that the parsed value(s) for this option are less than or equal to this.
+        min_length
+            Assert that a string argument's length is greater than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+        max_length
+            Assert that a string argument's length is less than or equal to this.
 
             If any converters are provided then this should be compatible
             with the result of them.
@@ -1378,6 +1555,12 @@ class Argument(Parameter):
 
             If any converters are provided then this should be compatible
             with the result of them.
+        max_value
+            Assert that the parsed value(s) for this option are less than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+
         multi
             Whether this argument can be passed multiple times.
         """
@@ -1386,7 +1569,14 @@ class Argument(Parameter):
 
         self._is_greedy = greedy
         super().__init__(
-            key, converters=converters, default=default, max_value=max_value, min_value=min_value, multi=multi
+            key,
+            converters=converters,
+            default=default,
+            min_length=min_length,
+            max_length=max_length,
+            min_value=min_value,
+            max_value=max_value,
+            multi=multi,
         )
 
     @property
@@ -1416,8 +1606,10 @@ class Option(Parameter):
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = True,
     ) -> None:
         """Initialise a named optional parameter.
@@ -1446,8 +1638,13 @@ class Option(Parameter):
             The value to use if this option is provided without a value.
             If left as [UNDEFINED][tanjun.parsing.UNDEFINED] then this option
             will error if it's provided without a value.
-        max_value
-            Assert that the parsed value(s) for this option are less than or equal to this.
+        min_length
+            Assert that a string argument's length is greater than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+        max_length
+            Assert that a string argument's length is less than or equal to this.
 
             If any converters are provided then this should be compatible
             with the result of them.
@@ -1456,6 +1653,12 @@ class Option(Parameter):
 
             If any converters are provided then this should be compatible
             with the result of them.
+        max_value
+            Assert that the parsed value(s) for this option are less than or equal to this.
+
+            If any converters are provided then this should be compatible
+            with the result of them.
+
         multi
             If this option can be provided multiple times.
         """
@@ -1465,7 +1668,14 @@ class Option(Parameter):
         self._empty_value = empty_value
         self._names = [name, *names]
         super().__init__(
-            key, converters=converters, default=default, max_value=max_value, min_value=min_value, multi=multi
+            key,
+            converters=converters,
+            default=default,
+            min_length=min_length,
+            max_length=max_length,
+            min_value=min_value,
+            max_value=max_value,
+            multi=multi,
         )
 
     @property
@@ -1539,11 +1749,14 @@ class ShlexParser(AbstractOptionParser):
         self: _ShlexParserT,
         key: str,
         /,
+        converters: _MaybeIterable[ConverterSig[str]] = (),
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        max_value: typing.Optional[_CmpProto[str]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[str]] = None,
+        max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1557,8 +1770,8 @@ class ShlexParser(AbstractOptionParser):
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        max_value: typing.Optional[_CmpProtoT] = None,
         min_value: typing.Optional[_CmpProtoT] = None,
+        max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1571,8 +1784,10 @@ class ShlexParser(AbstractOptionParser):
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = False,
     ) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
@@ -1582,8 +1797,10 @@ class ShlexParser(AbstractOptionParser):
             converters=converters,
             default=default,
             greedy=greedy,
-            max_value=max_value,
+            min_length=min_length,
+            max_length=max_length,
             min_value=min_value,
+            max_value=max_value,
             multi=multi,
         )
         if self._client:
@@ -1620,10 +1837,13 @@ class ShlexParser(AbstractOptionParser):
         name: str,
         /,
         *names: str,
+        converters: _MaybeIterable[ConverterSig[str]] = (),
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: typing.Optional[_CmpProto[str]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[str]] = None,
+        max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1638,8 +1858,8 @@ class ShlexParser(AbstractOptionParser):
         converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: typing.Optional[_CmpProtoT] = None,
         min_value: typing.Optional[_CmpProtoT] = None,
+        max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
@@ -1654,8 +1874,10 @@ class ShlexParser(AbstractOptionParser):
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = False,
     ) -> _ShlexParserT:
         # <<inherited docstring from AbstractOptionParser>>.
@@ -1667,8 +1889,10 @@ class ShlexParser(AbstractOptionParser):
             converters=converters,
             default=default,
             empty_value=empty_value,
-            max_value=max_value,
+            min_length=min_length,
+            max_length=max_length,
             min_value=min_value,
+            max_value=max_value,
             multi=multi,
         )
 

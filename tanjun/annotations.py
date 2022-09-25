@@ -565,19 +565,8 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
         ctx: tanjun.abc.Context,
         max_and_min: typing.Annotated[annotations.Str, Length(123, 321)],
         max_only: typing.Annotated[annotations.Str, Length(123)],
-    ) -> None:
-        raise NotImplementedError
-    ```
-
-    or
-
-    ```py
-    @annotations.with_annotated_args
-    @tanjun.as_slash_command("meow", "blam")
-    async def command(
-        ctx: tanjun.abc.Context,
-        max_and_min: typing.Annotated[Length[123, 433], "meow"],
-        max_only: typing.Annotated[Length[433], "meow"],
+        generic_max_and_min: typing.Annotated[Length[5, 13], "meow"],
+        generic_max_only: typing.Annotated[Length[21], "meow"],
     ) -> None:
         raise NotImplementedError
     ```
@@ -606,7 +595,8 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
         max_length
             The maximum length this string argument can be.
 
-            Defaults to `6000`.
+            If not specified then `min_or_max_length` will be used as the max
+            length.
         """
         if max_length is None:
             self._min_length = 0
@@ -1097,8 +1087,8 @@ class _ArgConfig:
         self.is_positional: typing.Optional[bool] = None
         self.key: str = key
         self.min_length: typing.Optional[int] = None
-        self.min_value: typing.Union[float, int, None] = None
         self.max_length: typing.Optional[int] = None
+        self.min_value: typing.Union[float, int, None] = None
         self.max_value: typing.Union[float, int, None] = None
         self.message_name: str = "--" + key.replace("_", "-")
         self.option_type: typing.Optional[type[typing.Any]] = None
@@ -1138,6 +1128,8 @@ class _ArgConfig:
                 converters=converters,
                 default=self.default,
                 greedy=self.is_greedy,
+                min_length=self.min_length,
+                max_length=self.max_length,
                 min_value=self.min_value,
                 max_value=self.max_value,
             )
@@ -1153,6 +1145,8 @@ class _ArgConfig:
                 converters=converters,
                 default=self.default,
                 empty_value=self.empty_value,
+                min_length=self.min_length,
+                max_length=self.max_length,
                 min_value=self.min_value,
                 max_value=self.max_value,
             )

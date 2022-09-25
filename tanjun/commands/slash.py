@@ -1601,8 +1601,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_length: typing.Optional[int] = None,
-        min_value: typing.Union[int, float, None] = None,
         max_length: typing.Optional[int] = None,
+        min_value: typing.Union[int, float, None] = None,
         max_value: typing.Union[int, float, None] = None,
         only_member: bool = False,
         pass_as_kwarg: bool = True,
@@ -1615,7 +1615,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             raise ValueError("Slash commands cannot have more than 25 options")
 
         if min_value is not None and max_value is not None and min_value > max_value:
-            raise ValueError("`min_value` cannot be greater than the `max_value`")
+            raise ValueError("`min_value` cannot be greater than `max_value`")
 
         if min_length is not None and max_length is not None and min_length > max_length:
             raise ValueError("`min_length` cannot be greater than `max_length`")
@@ -1668,9 +1668,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                 choices=actual_choices,
                 channel_types=channel_types,
                 min_length=min_length,
-                min_value=min_value,
                 max_length=max_length,
                 max_value=max_value,
+                min_value=min_value,
                 autocomplete=autocomplete,
             )
         )
