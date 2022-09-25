@@ -579,7 +579,9 @@ def _add_directory(
     return directory.resolve(), (namespace, set()) if namespace is None else (namespace, set())
 
 
-def _add_modules(paths: tuple[typing.Union[str, pathlib.Path]], /) -> tuple[dict[str, _PyPathInfo], list[pathlib.Path]]:
+def _add_modules(
+    paths: tuple[typing.Union[str, pathlib.Path], ...], /
+) -> tuple[dict[str, _PyPathInfo], list[pathlib.Path]]:
     py_paths: dict[str, _PyPathInfo] = {}
     sys_paths: list[pathlib.Path] = []
 

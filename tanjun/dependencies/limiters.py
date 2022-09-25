@@ -240,7 +240,7 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
         if not ctx.member or len(ctx.member.role_ids) <= 1:  # If they only have 1 role ID then this is @everyone.
             return ctx.guild_id
 
-        roles = ctx.member.get_roles()
+        roles: collections.Iterable[hikari.Role] = ctx.member.get_roles()
         try_rest = not roles
         if try_rest and (role_cache := ctx.get_type_dependency(async_cache.SfCache[hikari.Role])):
             try:

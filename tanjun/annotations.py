@@ -231,12 +231,12 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
             Choice values.
         """
         if isinstance(mapping, collections.Sequence):
-            mapping_ = (value if isinstance(value, tuple) else (str(value), value) for value in mapping)
+            self._choices: dict[str, _ChoiceUnion] = dict(
+                (value if isinstance(value, tuple) else (str(value), value) for value in mapping), **kwargs
+            )
 
         else:
-            mapping_ = mapping
-
-        self._choices: dict[str, _ChoiceUnion] = dict(mapping_, **kwargs)
+            self._choices = dict(mapping, **kwargs)
 
     @property
     def choices(self) -> collections.Mapping[str, _ChoiceUnion]:
@@ -954,7 +954,7 @@ def _ensure_values(
     return typing.cast(collections.Mapping[str, _T], mapping)
 
 
-_OPTION_TYPE_TO_CONVERTERS: dict[type[typing.Any], _ConverterSig[typing.Any]] = {
+_OPTION_TYPE_TO_CONVERTERS: dict[type[typing.Any], tuple[_ConverterSig[typing.Any], ...]] = {
     hikari.Attachment: NotImplemented,
     bool: (conversion.to_bool,),
     hikari.PartialChannel: (conversion.to_channel,),
