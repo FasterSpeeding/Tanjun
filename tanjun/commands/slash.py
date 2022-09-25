@@ -74,6 +74,7 @@ if typing.TYPE_CHECKING:
 
     _AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=tanjun.AutocompleteCallbackSig)
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
+    _AnyBaseSlashCommandT = typing.TypeVar("_AnyBaseSlashCommandT", bound="tanjun.BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
     _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
     _CommandT = typing.Union[
@@ -1275,7 +1276,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         del self._commands[command.name]
         return self
 
-    def with_command(self, command: _BaseSlashCommandT, /) -> _BaseSlashCommandT:
+    def with_command(self, command: _AnyBaseSlashCommandT, /) -> _AnyBaseSlashCommandT:
         """Add a slash command to this group through a decorator call.
 
         Parameters
