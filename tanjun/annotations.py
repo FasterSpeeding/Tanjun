@@ -199,11 +199,11 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("beep", "meow")
     async def command(
         ctx: tanjun.abc.Context,
-        location: Annotated[annotations.Int, "where do you live?", Choices("London", "Paradise", "Nowhere")],
+        location: Annotated[Int, "where do you live?", Choices("London", "Paradise", "Nowhere")],
     ) -> None:
         raise NotImplementedError
     ```
@@ -257,12 +257,12 @@ class _ConvertedMeta(abc.ABCMeta):
 
 
 class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
-    """Marked an argument as type [tanjun.annotations.Str][] with converters.
+    """Marked an argument as type [Str][tanjun.annotations.Str] with converters.
 
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("beep", "boop")
     async def command(
         ctx: tanjun.abc.SlashContext,
@@ -332,7 +332,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context,
@@ -343,7 +343,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
     ```
 
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("name", "description)
     async def command(
         ctx: tanjun.abc.Context,
@@ -394,7 +394,7 @@ class Flag(_ConfigIdentifier):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_message_command("message")
     async def command(
         ctx: tanjun.abc.MessageContext,
@@ -424,7 +424,7 @@ class Flag(_ConfigIdentifier):
         default
             Deprecated argument used to specify the option's default.
 
-            Use [tanjun.annotations.Default][] instead.
+            Use [Default][tanjun.annotations.Default] instead.
         empty_value
             Value to pass for the argument if the flag is provided without a value.
 
@@ -490,7 +490,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_message_command("message")
     async def command(
         ctx: tanjun.abc.MessageContext,
@@ -525,7 +525,7 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_message_command("message")
     async def command(
         ctx: tanjun.abc.MessageContext,
@@ -559,12 +559,12 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("meow", "blam")
     async def command(
         ctx: tanjun.abc.Context,
-        max_and_min: typing.Annotated[annotations.Str, Length(123, 321)],
-        max_only: typing.Annotated[annotations.Str, Length(123)],
+        max_and_min: typing.Annotated[Str, Length(123, 321)],
+        max_only: typing.Annotated[Str, Length(123)],
         generic_max_and_min: typing.Annotated[Length[5, 13], "meow"],
         generic_max_only: typing.Annotated[Length[21], "meow"],
     ) -> None:
@@ -574,11 +574,12 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     where `Length[...]` follows the same semantics as Length's `__init__`.
 
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("meow", "description")
     async def command(
         ctx: tanjun.abc.SlashContext,
-        int_value: Annotated[annotations.Str, range(5, 100), "description"],
+        argument: Annotated[Str, range(5, 100), "description"],
+        other_argument: Annotated[Str, 4:64, "description"],
     ) -> None:
         raise NotImplementedError
     ```
@@ -645,16 +646,16 @@ class _MaxMeta(abc.ABCMeta):
 
 
 class Max(_ConfigIdentifier, metaclass=_MaxMeta):
-    """Inclusive maximum value for a [tanjun.annotations.Float][] or [tanjun.annotations.Int][] argument.
+    """Inclusive maximum value for a [Float][tanjun.annotations.Float] or [Int][tanjun.annotations.Int] argument.
 
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("beep", "meow")
     async def command(
         ctx: tanjun.abc.Context,
-        age: Annotated[annotations.Int, Max(130), "How old are you?"],
+        age: Annotated[Int, Max(130), "How old are you?"],
         number: Annotated[Max[130.2], "description"],
     ) -> None:
         raise NotImplementedError
@@ -694,16 +695,16 @@ class _MinMeta(abc.ABCMeta):
 
 
 class Min(_ConfigIdentifier, metaclass=_MinMeta):
-    """Inclusive minimum value for a [tanjun.annotations.Float][] or [tanjun.annotations.Int][] argument.
+    """Inclusive minimum value for a [Float][tanjun.annotations.Float] or [Int][tanjun.annotations.Int] argument.
 
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("beep", "meow")
     async def command(
         ctx: tanjun.abc.Context,
-        age: Annotated[annotations.Int, Min(13), "How old are you?"],
+        age: Annotated[Int, Min(13), "How old are you?"],
         number: Annotated[Min[13.9], "description"],
     ) -> None:
         raise NotImplementedError
@@ -740,7 +741,7 @@ class Name(_ConfigIdentifier):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args(follow_wrapped=True)
+    @with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("meow", "nyaa")
     @tanjun.as_message_command("meow")
     async def command(
@@ -819,7 +820,7 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args(follow_wrapped=True)
+    @with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("meow", "nyaa")
     @tanjun.as_message_command("meow")
     async def command(
@@ -835,12 +836,12 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
     `Ranged[123, 666]`).
 
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("meow", "description")
     async def command(
         ctx: tanjun.abc.SlashContext,
-        float_value: Annotated[annotations.Float, 1.5:101.5, "description"],
-        int_value: Annotated[annotations.Int, range(5, 100), "description"],
+        float_value: Annotated[Float, 1.5:101.5, "description"],
+        int_value: Annotated[Int, range(5, 100), "description"],
     ) -> None:
         raise NotImplementedError
     ```
@@ -931,7 +932,7 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args(follow_wrapped=True)
+    @with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("meow", "nyaa")
     @tanjun.as_message_command("meow")
     async def command(
