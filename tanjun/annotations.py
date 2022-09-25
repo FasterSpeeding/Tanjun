@@ -387,8 +387,8 @@ class Flag(_ConfigIdentifier):
     """Mark an argument as a flag/option for message command parsing.
 
     This indicates that the argument should be specified by name (e.g. `--name`)
-    rather than positonally for message parsing and doesn't effect slash command
-    options.
+    rather than positionally for message parsing and doesn't effect slash
+    command options.
 
     Examples
     --------
