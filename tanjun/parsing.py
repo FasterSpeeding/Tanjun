@@ -74,7 +74,13 @@ if typing.TYPE_CHECKING:
         def __lt__(self, __other: _T_contra) -> bool:
             raise NotImplementedError
 
+    class _SizedCmpProto(_CmpProto[_T_contra]):
+        def __len__(self) -> int:
+            raise NotImplementedError
+
     _CmpProtoT = typing.TypeVar("_CmpProtoT", bound=_CmpProto[typing.Any])
+    _SizedCmpProtoT = typing.TypeVar("_SizedCmpProtoT", bound=_SizedCmpProto[typing.Any])
+
 
 _T = typing.TypeVar("_T")
 
@@ -165,6 +171,40 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def add_argument(
+        self: _T,
+        key: str,
+        /,
+        converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
+        *,
+        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        greedy: bool = False,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
+        min_value: typing.Optional[_SizedCmpProtoT] = None,
+        max_value: typing.Optional[_SizedCmpProtoT] = None,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def add_argument(
+        self: _T,
+        key: str,
+        /,
+        converters: _MaybeIterable[ConverterSig[collections.Sized]],
+        *,
+        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        greedy: bool = False,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         multi: bool = False,
     ) -> _T:
         ...
@@ -288,6 +328,42 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def add_option(
+        self: _T,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
+        default: typing.Any,
+        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
+        min_value: typing.Optional[_SizedCmpProtoT] = None,
+        max_value: typing.Optional[_SizedCmpProtoT] = None,
+        multi: bool = False,
+    ) -> _T:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def add_option(
+        self: _T,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        converters: _MaybeIterable[ConverterSig[collections.Sized]],
+        default: typing.Any,
+        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         multi: bool = False,
     ) -> _T:
         ...
@@ -596,6 +672,38 @@ def with_argument(
 def with_argument(
     key: str,
     /,
+    converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    greedy: bool = False,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
+    min_value: typing.Optional[_SizedCmpProtoT] = None,
+    max_value: typing.Optional[_SizedCmpProtoT] = None,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_argument(
+    key: str,
+    /,
+    converters: _MaybeIterable[ConverterSig[collections.Sized]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    greedy: bool = False,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_argument(
+    key: str,
+    /,
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
@@ -738,6 +846,34 @@ def with_greedy_argument(
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
     max_value: typing.Optional[_CmpProto[str]] = None,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_greedy_argument(
+    key: str,
+    /,
+    converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
+    min_value: typing.Optional[_SizedCmpProtoT] = None,
+    max_value: typing.Optional[_SizedCmpProtoT] = None,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_greedy_argument(
+    key: str,
+    /,
+    converters: _MaybeIterable[ConverterSig[collections.Sized]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -889,6 +1025,34 @@ def with_multi_argument(
 def with_multi_argument(
     key: str,
     /,
+    converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
+    min_value: typing.Optional[_SizedCmpProtoT] = None,
+    max_value: typing.Optional[_SizedCmpProtoT] = None,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_multi_argument(
+    key: str,
+    /,
+    converters: _MaybeIterable[ConverterSig[collections.Sized]],
+    *,
+    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_multi_argument(
+    key: str,
+    /,
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     *,
     default: _UndefinedOr[typing.Any] = UNDEFINED,
@@ -1026,6 +1190,40 @@ def with_option(
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
     max_value: typing.Optional[_CmpProto[str]] = None,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
+    min_value: typing.Optional[_SizedCmpProtoT] = None,
+    max_value: typing.Optional[_SizedCmpProtoT] = None,
+    multi: bool = False,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    converters: _MaybeIterable[ConverterSig[collections.Sized]],
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -1185,6 +1383,38 @@ def with_multi_option(
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
     max_value: typing.Optional[_CmpProto[str]] = None,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_multi_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
+    min_value: typing.Optional[_SizedCmpProtoT] = None,
+    max_value: typing.Optional[_SizedCmpProtoT] = None,
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_multi_option(
+    key: str,
+    name: str,
+    /,
+    *names: str,
+    converters: _MaybeIterable[ConverterSig[collections.Sized]],
+    default: typing.Any,
+    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -1766,6 +1996,38 @@ class ShlexParser(AbstractOptionParser):
         self: _ShlexParserT,
         key: str,
         /,
+        converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
+        *,
+        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        greedy: bool = False,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
+        min_value: typing.Optional[_SizedCmpProtoT] = None,
+        max_value: typing.Optional[_SizedCmpProtoT] = None,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
+    @typing.overload
+    def add_argument(
+        self: _ShlexParserT,
+        key: str,
+        /,
+        converters: _MaybeIterable[ConverterSig[collections.Sized]],
+        *,
+        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        greedy: bool = False,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
+    @typing.overload
+    def add_argument(
+        self: _ShlexParserT,
+        key: str,
+        /,
         converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         *,
         default: _UndefinedOr[typing.Any] = UNDEFINED,
@@ -1844,6 +2106,40 @@ class ShlexParser(AbstractOptionParser):
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
+    @typing.overload
+    def add_option(
+        self: _ShlexParserT,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
+        default: typing.Any,
+        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
+        min_value: typing.Optional[_SizedCmpProtoT] = None,
+        max_value: typing.Optional[_SizedCmpProtoT] = None,
+        multi: bool = False,
+    ) -> _ShlexParserT:
+        ...
+
+    @typing.overload
+    def add_option(
+        self: _ShlexParserT,
+        key: str,
+        name: str,
+        /,
+        *names: str,
+        converters: _MaybeIterable[ConverterSig[collections.Sized]],
+        default: typing.Any,
+        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         multi: bool = False,
     ) -> _ShlexParserT:
         ...
