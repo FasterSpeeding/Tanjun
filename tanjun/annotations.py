@@ -572,6 +572,21 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     ```
 
     where `Length[...]` follows the same semantics as Length's `__init__`.
+
+
+    ```py
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("meow", "description")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        int_value: Annotated[annotations.Str, range(5, 100), "description"],
+    ) -> None:
+        raise NotImplementedError
+    ```
+    Alternatively, the slice syntax and `range` may be used to set the range
+    for a string argument (where the start is inclusive and stop is exclusive).
+    These default to a min_value of `0` if the start isn't specified and ignore
+    any specified step.
     """
 
     __slots__ = ("_min_length", "_max_length")
@@ -1071,6 +1086,8 @@ class _ArgConfig:
         "max_value",
         "message_name",
         "option_type",
+        "range_or_slice",
+        "range_or_slice_is_finalised",
         "slash_name",
         "snowflake_converter",
     )
@@ -1092,8 +1109,31 @@ class _ArgConfig:
         self.max_value: typing.Union[float, int, None] = None
         self.message_name: str = "--" + key.replace("_", "-")
         self.option_type: typing.Optional[type[typing.Any]] = None
+        self.range_or_slice: typing.Union[range, slice, None] = None
         self.slash_name: str = key
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
+
+    def finalise_slice(self) -> None:
+        if not self.range_or_slice:
+            return
+
+        self.range_or_slice_is_finalised = True
+        # Slice's attributes are all Any so we need to cast to int.
+        if self.range_or_slice.step is None or operator.index(self.range_or_slice.step) > 0:
+            min_value = operator.index(self.range_or_slice.start) if self.range_or_slice.start is not None else 0
+            max_value = operator.index(self.range_or_slice.stop) - 1
+        else:
+            # start will have to have been specified for this to be reached.
+            min_value = operator.index(self.range_or_slice.stop) - 1
+            max_value = operator.index(self.range_or_slice.start)
+
+        if self.option_type is str:
+            self.min_length = min_value
+            self.max_length = max_value
+
+        elif self.option_type is int or self.option_type is float:
+            self.min_value = min_value
+            self.max_value = max_value
 
     def to_message_option(self, command: message.MessageCommand[typing.Any], /) -> None:
         if self.converters:
@@ -1270,15 +1310,9 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
                 arg_config.description = arg
 
             elif isinstance(arg, (range, slice)):
-                # Slice's attributes are all Any so we need to cast to int.
-                if arg.step is None or operator.index(arg.step) > 0:
-                    arg_config.min_value = operator.index(arg.start) if arg.start is not None else 0
-                    arg_config.max_value = operator.index(arg.stop) - 1
-                else:
-                    # start will have to have been specified for this to be reached.
-                    arg_config.min_value = operator.index(arg.stop) - 1
-                    arg_config.max_value = operator.index(arg.start)
+                arg_config.range_or_slice = arg
 
+        arg_config.finalise_slice()
         if arg_config.option_type or arg_config.converters:
             for slash_command in slash_commands:
                 arg_config.to_slash_option(slash_command)
