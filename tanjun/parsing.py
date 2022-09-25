@@ -1690,9 +1690,11 @@ class Parameter:
             raise errors.ConversionError(f"{self._key!r} must be less than or equal to {self._max_value!r}", self._key)
 
         length: typing.Optional[int] = None
+        # assert that len(value) >= self._min_length
         if self._min_length is not None and self._min_length > (length := len(value)):
             raise errors.ConversionError(f"{self._key!r} must be longer than {self._min_length - 1}", self._key)
 
+        # assert that len(value) <= self._max_length
         if self._max_length is not None and self._max_length < (len(value) if length is None else length):
             raise errors.ConversionError(f"{self._key!r} can't be longer than {self._max_length}", self._key)
 
