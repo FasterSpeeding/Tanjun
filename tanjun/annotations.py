@@ -573,7 +573,6 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
 
     where `Length[...]` follows the same semantics as Length's `__init__`.
 
-
     ```py
     @annotations.with_annotated_args
     @tanjun.as_slash_command("meow", "description")
@@ -583,6 +582,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     ) -> None:
         raise NotImplementedError
     ```
+
     Alternatively, the slice syntax and `range` may be used to set the range
     for a string argument (where the start is inclusive and stop is exclusive).
     These default to a min_value of `0` if the start isn't specified and ignore
@@ -1081,8 +1081,8 @@ class _ArgConfig:
         "is_positional",
         "key",
         "min_length",
-        "min_value",
         "max_length",
+        "min_value",
         "max_value",
         "message_name",
         "option_type",
