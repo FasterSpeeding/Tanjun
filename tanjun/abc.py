@@ -297,6 +297,7 @@ class Context(alluka.Context):
         """Object of the Hikari shard manager this context's client was initialised with."""
 
     @property
+    @abc.abstractmethod
     def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
         """Object of the Hikari voice component this context's client was initialised with."""
 
@@ -1893,6 +1894,7 @@ class AutocompleteContext(alluka.Context):
         """Object of the Hikari shard manager this context's client was initialised with."""
 
     @property
+    @abc.abstractmethod
     def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
         """Object of the Hikari voice component this context's client was initialised with."""
 
@@ -2557,6 +2559,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         """Name of the command."""
 
     @property
+    @abc.abstractmethod
     def tracked_command(self) -> typing.Optional[hikari.PartialCommand]:
         """Object of the actual command this object tracks if set."""
 
@@ -2630,6 +2633,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         """Object of the group this command is in."""
 
     @property
+    @abc.abstractmethod
     def tracked_command(self) -> typing.Optional[hikari.SlashCommand]:
         """Object of the actual command this object tracks if set."""
 
@@ -3830,6 +3834,7 @@ class Client(abc.ABC):
         """Object of the Hikari shard manager this client was initialised with."""
 
     @property
+    @abc.abstractmethod
     def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
         """Object of the Hikari voice component this client was initialised with."""
 
