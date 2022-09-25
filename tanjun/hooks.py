@@ -42,7 +42,7 @@ from collections import abc as collections
 from . import abc as tanjun
 from . import errors
 
-if typing.TypeVar:
+if typing.TYPE_CHECKING:
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _ErrorHookSigT = typing.TypeVar("_ErrorHookSigT", bound=tanjun.ErrorHookSig)
     _HookSigT = typing.TypeVar("_HookSigT", bound=tanjun.HookSig)
