@@ -428,6 +428,13 @@ class MaybeLocalised:
         ----------
         ctx
             The context to localise for.
+        localiser
+            The localiser to use for localising the response,
+            if applicable.
+        field_type
+            The type of field being localised.
+        field_name
+            Name of the field being localised.
 
         Returns
         -------
@@ -582,7 +589,6 @@ def localise_command(cmd_builder: hikari.api.CommandBuilder, localiser: dependen
         The application command builder to localise the fields for.
     localiser
         The abstract localiser to localise fields with.
-
     """
     localise_type = _TYPE_TO_STR[cmd_builder.type]
     names = dict(cmd_builder.name_localizations)
