@@ -608,6 +608,7 @@ def localise_command(cmd_builder: hikari.api.CommandBuilder, localiser: dependen
                 option.description_localizations.update(
                     localiser.get_all_variants(to_localise_id(localise_type, name, "description"))
                 )
+                options = option.options
                 continue
 
             for option in options:
@@ -619,3 +620,4 @@ def localise_command(cmd_builder: hikari.api.CommandBuilder, localiser: dependen
                 option.description_localizations.update(
                     localiser.get_all_variants(to_localise_id(localise_type, name, "option.description", option.name))
                 )
+                break
