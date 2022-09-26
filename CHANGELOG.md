@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Bumped the minimum Hikari version to `2.0.0.dev111`.
+
 ### Fixed
 - Make [tanjun.commands.slash.SlashCommandGroup.as_sub_command][]'s typing more
   flexible to allow decorating other command objects.
