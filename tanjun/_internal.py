@@ -45,6 +45,7 @@ from collections import abc as collections
 
 import hikari
 
+from . import dependencies
 from . import errors
 from ._vendor import inspect
 
@@ -338,7 +339,9 @@ _COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
 )
 
 
-def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /) -> collections.Sequence[_OptionT]:
+def flatten_options(
+    name: str, options: typing.Optional[collections.Sequence[_OptionT]], /
+) -> tuple[str, collections.Sequence[_OptionT]]:
     """Flatten the options of a slash/autocomplete interaction.
 
     Parameters
@@ -348,13 +351,14 @@ def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /)
 
     Returns
     -------
-    collections.abc.Sequence[_OptionT]
-        A sequence of the actual command options.
+    tuple[str, collections.abc.Sequence[_OptionT]]
+        The full triggering command name and a sequence of the actual command options.
     """
     while options and (first_option := options[0]).type in _COMMAND_OPTION_TYPES:
+        name = f"{name} {first_option.name}"
         options = typing.cast("collections.Sequence[_OptionT]", first_option.options)
 
-    return options or ()
+    return name, options or ()
 
 
 class MaybeLocalised:
@@ -410,7 +414,14 @@ class MaybeLocalised:
     def _values(self) -> collections.Iterable[str]:
         return itertools.chain((self.default_value,), self.localised_values.values())
 
-    def get_for_ctx_or_default(self, ctx: tanjun.Context, /) -> str:
+    def get_for_ctx_or_default(
+        self,
+        ctx: tanjun.Context,
+        localiser: typing.Optional[dependencies.AbstractLocaliser],
+        field_type: _NamedFields,
+        field_name: str,
+        /,
+    ) -> str:
         """Get the localised value for a context.
 
         Parameters
@@ -423,8 +434,13 @@ class MaybeLocalised:
         str
             The localised value or the default value.
         """
-        if self.localised_values and isinstance(ctx, tanjun.SlashContext):
-            return self.localised_values.get(ctx.interaction.locale, self.default_value)
+        if (self.localised_values or localiser) and isinstance(ctx, tanjun.AppCommandContext):
+            field: typing.Optional[str] = None
+            if localiser:
+                localise_id = to_localise_id(_TYPE_TO_STR[ctx.type], ctx.triggering_name, field_type, field_name)
+                field = localiser.localise(ctx.interaction.locale, localise_id)
+
+            return field or self.localised_values.get(ctx.interaction.locale, self.default_value)
 
         return self.default_value
 
@@ -484,3 +500,122 @@ class MaybeLocalised:
             )
 
         return self
+
+
+_TYPE_TO_STR: dict[hikari.CommandType, typing.Literal["USER", "SLASH", "MESSAGE"]] = {
+    hikari.CommandType.USER: "USER",
+    hikari.CommandType.SLASH: "SLASH",
+    hikari.CommandType.MESSAGE: "MESSAGE",
+}
+_NamedFields = typing.Literal["check", "option.description", "option.name"]
+_UnnamedFields = typing.Literal["description", "name"]
+_FieldType = typing.Union[_NamedFields, _UnnamedFields]
+
+
+@typing.overload
+def to_localise_id(
+    command_type: typing.Literal["SLASH", "USER", "MESSAGE"],
+    command_name: str,
+    field_type: _NamedFields,
+    field_name: str,
+    /,
+) -> str:
+    ...
+
+
+@typing.overload
+def to_localise_id(
+    command_type: typing.Literal["SLASH", "USER", "MESSAGE"],
+    command_name: str,
+    field_type: _UnnamedFields,
+    field_name: typing.Literal[None] = None,
+    /,
+) -> str:
+    ...
+
+
+def to_localise_id(
+    command_type: typing.Literal["SLASH", "USER", "MESSAGE"],
+    command_name: str,
+    field_type: _FieldType,
+    field_name: typing.Optional[str] = None,
+    /,
+) -> str:
+    """Generate an ID for a localised field.
+
+    Parameters
+    ----------
+    command_type
+        The type of command this field is attached to.
+    command_name
+        Name of the command this field is attached to.
+    field_type
+        The type of field this localisation ID is for.
+    field_name
+        Name of the field this localisation ID is for.
+
+        This doesn't apply to command names and descriptions.
+
+    Returns
+    -------
+    str
+        The generated localied field ID.
+    """
+    if field_name:
+        if field_type == "name" or field_type == "description":
+            raise RuntimeError(f"Field_name must not be provided for {field_type} fields")
+
+        return f"{command_type}:{command_name}:{field_type}:{field_name}"
+
+    if field_type != "name" and field_type != "description":
+        raise RuntimeError(f"Field_name must be provided for {field_type} fields")
+
+    return f"{command_type}:{command_name}:{field_type}"
+
+
+def localise_command(cmd_builder: hikari.api.CommandBuilder, localiser: dependencies.AbstractLocaliser, /) -> None:
+    """Localise the fields for a command builder.
+
+    Parameters
+    ----------
+    cmd_builder
+        The application command builder to localise the fields for.
+    localiser
+        The abstract localiser to localise fields with.
+
+    """
+    localise_type = _TYPE_TO_STR[cmd_builder.type]
+    names = dict(cmd_builder.name_localizations)
+    names.update(localiser.get_all_variants(to_localise_id(localise_type, cmd_builder.name, "name")))
+    cmd_builder.set_name_localizations(names)
+
+    if isinstance(cmd_builder, hikari.api.SlashCommandBuilder):
+        descriptions = dict(cmd_builder.description_localizations)
+        descriptions.update(localiser.get_all_variants(to_localise_id(localise_type, cmd_builder.name, "description")))
+        cmd_builder.set_description_localizations(descriptions)
+
+        name = cmd_builder.name
+        options = cmd_builder.options
+        while options:
+            if options[0].type in _COMMAND_OPTION_TYPES:
+                option = options[0]
+                name = f"{name} {option.name}"
+                option.name_localizations = dict(option.name_localizations)
+                option.name_localizations.update(
+                    localiser.get_all_variants(to_localise_id(localise_type, name, "name"))
+                )
+                option.description_localizations = dict(option.description_localizations)
+                option.description_localizations.update(
+                    localiser.get_all_variants(to_localise_id(localise_type, name, "description"))
+                )
+                continue
+
+            for option in options:
+                option.name_localizations = dict(option.name_localizations)
+                option.name_localizations.update(
+                    localiser.get_all_variants(to_localise_id(localise_type, name, "option.name", option.name))
+                )
+                option.description_localizations = dict(option.name_localizations)
+                option.description_localizations.update(
+                    localiser.get_all_variants(to_localise_id(localise_type, name, "option.description", option.name))
+                )

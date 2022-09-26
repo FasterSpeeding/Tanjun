@@ -475,7 +475,7 @@ class Flag(_ConfigIdentifier):
 
 
 class _PositionalMeta(abc.ABCMeta):
-    def __getitem__(self, type_: type[_T], /) -> type[_T]:
+    def __getitem__(cls, type_: type[_T], /) -> type[_T]:
         return typing.cast(type[_T], typing.Annotated[type_, Positional()])
 
 
@@ -511,7 +511,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
 
 
 class _GreedyMeta(abc.ABCMeta):
-    def __getitem__(self, type_: type[_T], /) -> type[_T]:
+    def __getitem__(cls, type_: type[_T], /) -> type[_T]:
         return typing.cast(type[_T], typing.Annotated[type_, Greedy()])
 
 

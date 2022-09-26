@@ -1796,6 +1796,11 @@ class SlashContext(AppCommandContext, abc.ABC):
     def options(self) -> collections.Mapping[str, SlashOption]:
         """Mapping of option names to the values provided for them."""
 
+    @property
+    @abc.abstractmethod
+    def type(self) -> typing.Literal[hikari.CommandType.SLASH]:
+        """Type of application command this context is for."""
+
     @abc.abstractmethod
     def set_command(self: _T, command: typing.Optional[BaseSlashCommand], /) -> _T:
         """Set the command for this context.
@@ -1911,6 +1916,11 @@ class AutocompleteContext(alluka.Context):
     @abc.abstractmethod
     def options(self) -> collections.Mapping[str, hikari.AutocompleteInteractionOption]:
         """Mapping of option names to the values provided for them."""
+
+    @property
+    @abc.abstractmethod
+    def triggering_name(self) -> str:
+        """Full command name this autocomplete was triggered for."""
 
     @abc.abstractmethod
     async def fetch_channel(self) -> hikari.TextableChannel:

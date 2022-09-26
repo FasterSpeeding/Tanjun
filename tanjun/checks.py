@@ -92,7 +92,7 @@ def _optional_kwargs(
 
 
 class _Check:
-    __slots__ = ("_error", "_error_message", "_halt_execution", "__weakref__")
+    __slots__ = ("_error", "_error_message", "_halt_execution", "_localise_id", "__weakref__")
 
     def __init__(
         self,
@@ -103,15 +103,24 @@ class _Check:
         self._error = error
         self._error_message = _internal.MaybeLocalised("error_message", error_message) if error_message else None
         self._halt_execution = halt_execution
+        self._localise_id = f"tanjun.{type(self).__name__}"
 
-    def _handle_result(self, ctx: tanjun.Context, result: bool, /, *args: typing.Any) -> bool:
+    def _handle_result(
+        self,
+        ctx: tanjun.Context,
+        result: bool,
+        localiser: typing.Optional[dependencies.AbstractLocaliser] = None,
+        /,
+        *args: typing.Any,
+    ) -> bool:
         if not result:
             if self._error:
                 raise self._error(*args) from None  # TODO: also pass ctx here
             if self._halt_execution:
                 raise errors.HaltExecution from None
             if self._error_message:
-                raise errors.CommandError(self._error_message.get_for_ctx_or_default(ctx)) from None
+                message = self._error_message.get_for_ctx_or_default(ctx, localiser, "check", self._localise_id)
+                raise errors.CommandError(message) from None
 
         return result
 
@@ -158,8 +167,9 @@ class OwnerCheck(_Check):
         self,
         ctx: tanjun.Context,
         dependency: alluka.Injected[dependencies.AbstractOwners],
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
-        return self._handle_result(ctx, await dependency.check_ownership(ctx.client, ctx.author))
+        return self._handle_result(ctx, await dependency.check_ownership(ctx.client, ctx.author), localiser)
 
 
 _GuildChannelCacheT = typing.Optional[dependencies.SfCache[hikari.GuildChannel]]
@@ -240,8 +250,11 @@ class NsfwCheck(_Check):
         /,
         *,
         channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
-        return self._handle_result(ctx, await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache))
+        return self._handle_result(
+            ctx, await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache), localiser
+        )
 
 
 class SfwCheck(_Check):
@@ -290,8 +303,11 @@ class SfwCheck(_Check):
         /,
         *,
         channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
-        return self._handle_result(ctx, not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache))
+        return self._handle_result(
+            ctx, not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache), localiser
+        )
 
 
 class DmCheck(_Check):
@@ -332,8 +348,13 @@ class DmCheck(_Check):
         """
         super().__init__(error, error_message, halt_execution)
 
-    def __call__(self, ctx: tanjun.Context, /) -> bool:
-        return self._handle_result(ctx, ctx.guild_id is None)
+    def __call__(
+        self,
+        ctx: tanjun.Context,
+        /,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+    ) -> bool:
+        return self._handle_result(ctx, ctx.guild_id is None, localiser)
 
 
 class GuildCheck(_Check):
@@ -376,8 +397,13 @@ class GuildCheck(_Check):
         """
         super().__init__(error, error_message, halt_execution)
 
-    def __call__(self, ctx: tanjun.Context, /) -> bool:
-        return self._handle_result(ctx, ctx.guild_id is not None)
+    def __call__(
+        self,
+        ctx: tanjun.Context,
+        /,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+    ) -> bool:
+        return self._handle_result(ctx, ctx.guild_id is not None, localiser)
 
 
 class AuthorPermissionCheck(_Check):
@@ -428,7 +454,12 @@ class AuthorPermissionCheck(_Check):
         super().__init__(error, error_message, halt_execution)
         self._permissions = permissions
 
-    async def __call__(self, ctx: tanjun.Context, /) -> bool:
+    async def __call__(
+        self,
+        ctx: tanjun.Context,
+        /,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+    ) -> bool:
         if not ctx.member:
             # If there's no member when this is within a guild then it's likely
             # something like a webhook or guild visitor with no real permissions
@@ -448,7 +479,7 @@ class AuthorPermissionCheck(_Check):
             perms = await permissions.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
 
         missing_perms = ~perms & self._permissions
-        return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, missing_perms)
+        return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, localiser, missing_perms)
 
 
 _MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
@@ -507,6 +538,7 @@ class OwnPermissionCheck(_Check):
         ctx: tanjun.Context,
         /,
         *,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
         my_user: hikari.OwnUser = dependencies.inject_lc(hikari.OwnUser),
         member_cache: alluka.Injected[_MemberCacheT] = None,
     ) -> bool:
@@ -526,7 +558,7 @@ class OwnPermissionCheck(_Check):
             perms = await permissions.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
         missing_perms = ~perms & self._permissions
-        return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, missing_perms)
+        return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, localiser, missing_perms)
 
 
 @typing.overload
@@ -1052,7 +1084,12 @@ class _AnyChecks(_Check):
         self._checks = checks
         self._suppress = suppress
 
-    async def __call__(self, ctx: tanjun.Context, /) -> bool:
+    async def __call__(
+        self,
+        ctx: tanjun.Context,
+        /,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+    ) -> bool:
         for check in self._checks:
             try:
                 if await ctx.call_with_async_di(check, ctx):
@@ -1064,7 +1101,7 @@ class _AnyChecks(_Check):
             except self._suppress:
                 pass
 
-        return self._handle_result(ctx, False)
+        return self._handle_result(ctx, False, localiser)
 
 
 def any_checks(

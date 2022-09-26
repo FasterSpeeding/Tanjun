@@ -62,6 +62,7 @@ from .. import conversion
 from .. import errors
 from .. import hooks
 from . import async_cache
+from . import locales
 from . import owners
 
 if typing.TYPE_CHECKING:
@@ -700,6 +701,7 @@ class CooldownPreExecution:
         ctx: tanjun.Context,
         cooldowns: alluka.Injected[AbstractCooldownManager],
         *,
+        localiser: typing.Optional[locales.AbstractLocaliser] = None,
         owner_check: alluka.Injected[typing.Optional[owners.AbstractOwners]],
     ) -> None:
         if self._owners_exempt:
@@ -715,7 +717,7 @@ class CooldownPreExecution:
                 raise self._error(self._bucket_id, wait_until) from None
 
             wait_until_repr = conversion.from_datetime(wait_until, style="R")
-            message = self._error_message.get_for_ctx_or_default(ctx)
+            message = self._error_message.get_for_ctx_or_default(ctx, localiser, "check", "tanjun.cooldown")
             raise errors.CommandError(message.format(cooldown=wait_until_repr))
 
 
@@ -1042,12 +1044,14 @@ class ConcurrencyPreExecution:
         self,
         ctx: tanjun.Context,
         limiter: alluka.Injected[AbstractConcurrencyLimiter],
+        localiser: typing.Optional[locales.AbstractLocaliser] = None,
     ) -> None:
         if not await limiter.try_acquire(self._bucket_id, ctx):
             if self._error:
                 raise self._error(self._bucket_id) from None
 
-            raise errors.CommandError(self._error_message.get_for_ctx_or_default(ctx)) from None
+            message = self._error_message.get_for_ctx_or_default(ctx, localiser, "check", "tanjun.concurrency")
+            raise errors.CommandError(message) from None
 
 
 class ConcurrencyPostExecution:

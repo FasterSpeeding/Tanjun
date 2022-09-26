@@ -1344,6 +1344,7 @@ class Client(tanjun.Client):
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
+        localiser = self._injector.get_type_dependency(dependencies.AbstractLocaliser, default=None)
         command_ids = command_ids or {}
         message_ids = message_ids or {}
         user_ids = user_ids or {}
@@ -1386,6 +1387,9 @@ class Client(tanjun.Client):
 
             if builder.is_dm_enabled is hikari.UNDEFINED:
                 builder.set_is_dm_enabled(self.dms_enabled_for_app_cmds)
+
+            if localiser:
+                _internal.localise_command(builder, localiser)
 
             builders[key] = builder
 

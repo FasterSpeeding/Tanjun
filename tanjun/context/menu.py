@@ -126,6 +126,11 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         return next(iter(mapping.values()))
 
     @property
+    def triggering_name(self) -> str:
+        # <<inherited docstring from tanjun.abc.Context>>.
+        return self._interaction.command_name
+
+    @property
     def type(self) -> typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE]:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.command_type in _VALID_TYPES
