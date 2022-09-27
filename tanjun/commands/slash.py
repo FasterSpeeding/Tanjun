@@ -385,6 +385,8 @@ def with_str_slash_option(
     converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
     key: typing.Optional[str] = None,
+    min_length: typing.Optional[int] = None,
+    max_length: typing.Optional[int] = None,
     pass_as_kwarg: bool = True,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a string option to a slash command.
@@ -414,6 +416,8 @@ def with_str_slash_option(
         converters=converters,
         default=default,
         key=key,
+        min_length=min_length,
+        max_length=max_length,
         pass_as_kwarg=pass_as_kwarg,
         _stack_level=1,
     )
@@ -1342,6 +1346,17 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         await command.execute_autocomplete(ctx, option=option)
 
 
+def _assert_in_range(name: str, value: typing.Optional[int], min_value: int, max_value: int) -> None:
+    if value is None:
+        return
+
+    if value < min_value:
+        raise ValueError(f"`{name}` must be greater than or equal to {min_value}")
+
+    if value > max_value:
+        raise ValueError(f"`{name}` must be less than or equal to {max_value}")
+
+
 class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
     """Standard implementation of a slash command."""
 
@@ -1585,6 +1600,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         min_value: typing.Union[int, float, None] = None,
         max_value: typing.Union[int, float, None] = None,
         only_member: bool = False,
@@ -1598,7 +1615,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             raise ValueError("Slash commands cannot have more than 25 options")
 
         if min_value is not None and max_value is not None and min_value > max_value:
-            raise ValueError("The min value cannot be greater than the max value")
+            raise ValueError("`min_value` cannot be greater than `max_value`")
+
+        if min_length is not None and max_length is not None and min_length > max_length:
+            raise ValueError("`min_length` cannot be greater than `max_length`")
+
+        _assert_in_range("min_length", min_length, 0, 6000)
+        _assert_in_range("max_length", max_length, 1, 6000)
 
         key = key or name
         _validate_name(name)
@@ -1644,8 +1667,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                 is_required=required,
                 choices=actual_choices,
                 channel_types=channel_types,
-                min_value=min_value,
+                min_length=min_length,
+                max_length=max_length,
                 max_value=max_value,
+                min_value=min_value,
                 autocomplete=autocomplete,
             )
         )
@@ -1743,6 +1768,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
@@ -1793,6 +1820,16 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
             This defaults to the first name provided in `name` and is no-op
             if `pass_as_kwarg` is [False][].
+        min_length
+            The minimum length of this string.
+
+            This must be greater than or equal to 0, and less than or equal
+            to `max_length` and `6000`.
+        max_length
+            The maximum length of this string.
+
+            This must be greater then or equal to `min_length` and 1, and
+            less than or equal to `6000`.
         pass_as_kwarg
             Whether or not to pass this option as a keyword argument to the
             command callback.
@@ -1818,6 +1855,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
+            * If `min_length` is greater than `max_length`.
+            * If `min_length` is less than `0` or greater than `6000`.
+            * If `max_length` is less than `1` or greater than `6000`.
         """
         if choices is None:
             actual_choices = None
@@ -1853,6 +1893,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             converters=converters,
             default=default,
             key=key,
+            min_length=min_length,
+            max_length=max_length,
             pass_as_kwarg=pass_as_kwarg,
         )
 

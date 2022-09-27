@@ -52,6 +52,7 @@ __all__: list[str] = [
     "Float",
     "Greedy",
     "Int",
+    "Length",
     "Max",
     "Member",
     "Mentionable",
@@ -198,11 +199,11 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("beep", "meow")
     async def command(
         ctx: tanjun.abc.Context,
-        location: Annotated[annotations.Int, "where do you live?", Choices("London", "Paradise", "Nowhere")],
+        location: Annotated[Int, "where do you live?", Choices("London", "Paradise", "Nowhere")],
     ) -> None:
         raise NotImplementedError
     ```
@@ -256,12 +257,12 @@ class _ConvertedMeta(abc.ABCMeta):
 
 
 class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
-    """Marked an argument as type [tanjun.annotations.Str][] with converters.
+    """Marked an argument as type [Str][tanjun.annotations.Str] with converters.
 
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("beep", "boop")
     async def command(
         ctx: tanjun.abc.SlashContext,
@@ -331,7 +332,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context,
@@ -342,7 +343,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
     ```
 
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("name", "description)
     async def command(
         ctx: tanjun.abc.Context,
@@ -393,7 +394,7 @@ class Flag(_ConfigIdentifier):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_message_command("message")
     async def command(
         ctx: tanjun.abc.MessageContext,
@@ -423,7 +424,7 @@ class Flag(_ConfigIdentifier):
         default
             Deprecated argument used to specify the option's default.
 
-            Use [tanjun.annotations.Default][] instead.
+            Use [Default][tanjun.annotations.Default] instead.
         empty_value
             Value to pass for the argument if the flag is provided without a value.
 
@@ -489,7 +490,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_message_command("message")
     async def command(
         ctx: tanjun.abc.MessageContext,
@@ -524,7 +525,7 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_message_command("message")
     async def command(
         ctx: tanjun.abc.MessageContext,
@@ -541,6 +542,105 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
         config.is_greedy = True
 
 
+class _LengthMeta(abc.ABCMeta):
+    def __getitem__(cls, value: typing.Union[int, tuple[int, int]], /) -> type[str]:
+        if isinstance(value, int):
+            obj = Length(value)
+
+        else:
+            obj = Length(*value)
+
+        return typing.Annotated[Str, obj]
+
+
+class Length(_ConfigIdentifier, metaclass=_LengthMeta):
+    """Define length restraints for a string option.
+
+    !!! note
+        Length constraints are applied before conversion for slash commands
+        but after conversion for message commands.
+
+    Examples
+    --------
+    ```py
+    @with_annotated_args
+    @tanjun.as_slash_command("meow", "blam")
+    async def command(
+        ctx: tanjun.abc.Context,
+        max_and_min: typing.Annotated[Str, Length(123, 321)],
+        max_only: typing.Annotated[Str, Length(123)],
+        generic_max_and_min: typing.Annotated[Length[5, 13], "meow"],
+        generic_max_only: typing.Annotated[Length[21], "meow"],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    where `Length[...]` follows the same semantics as Length's `__init__`.
+
+    ```py
+    @with_annotated_args
+    @tanjun.as_slash_command("meow", "description")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        argument: Annotated[Str, range(5, 100), "description"],
+        other_argument: Annotated[Str, 4:64, "description"],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    Alternatively, the slice syntax and `range` may be used to set the length
+    restraints for a string argument (where the start is inclusive and stop is
+    exclusive). These default to a min_length of `0` if the start isn't
+    specified and ignore any specified step.
+    """
+
+    __slots__ = ("_min_length", "_max_length")
+
+    @typing.overload
+    def __init__(self, max_length: int, /) -> None:
+        ...
+
+    @typing.overload
+    def __init__(self, min_length: int, max_length: int, /) -> None:
+        ...
+
+    def __init__(self, min_or_max_length: int, max_length: typing.Optional[int] = None, /) -> None:
+        """Initialise a length constraint.
+
+        Parameters
+        ----------
+        min_or_max_length
+            If `max_length` is left as [None][] then this will be used as the
+            maximum length and the minimum length will be `0`.
+        max_length
+            The maximum length this string argument can be.
+
+            If not specified then `min_or_max_length` will be used as the max
+            length.
+        """
+        if max_length is None:
+            self._min_length = 0
+            self._max_length = min_or_max_length
+
+        else:
+            self._min_length = min_or_max_length
+            self._max_length = max_length
+
+    @property
+    def min_length(self) -> int:
+        """The minimum length of this string option."""
+        return self._min_length
+
+    @property
+    def max_length(self) -> int:
+        """The maximum length of this string option."""
+        return self._max_length
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.min_length = self._min_length
+        config.max_length = self._max_length
+
+
 class _MaxMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
@@ -550,16 +650,16 @@ class _MaxMeta(abc.ABCMeta):
 
 
 class Max(_ConfigIdentifier, metaclass=_MaxMeta):
-    """Inclusive maximum value for a [tanjun.annotations.Float][] or [tanjun.annotations.Int][] argument.
+    """Inclusive maximum value for a [Float][tanjun.annotations.Float] or [Int][tanjun.annotations.Int] argument.
 
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("beep", "meow")
     async def command(
         ctx: tanjun.abc.Context,
-        age: Annotated[annotations.Int, Max(130), "How old are you?"],
+        age: Annotated[Int, Max(130), "How old are you?"],
         number: Annotated[Max[130.2], "description"],
     ) -> None:
         raise NotImplementedError
@@ -599,16 +699,16 @@ class _MinMeta(abc.ABCMeta):
 
 
 class Min(_ConfigIdentifier, metaclass=_MinMeta):
-    """Inclusive minimum value for a [tanjun.annotations.Float][] or [tanjun.annotations.Int][] argument.
+    """Inclusive minimum value for a [Float][tanjun.annotations.Float] or [Int][tanjun.annotations.Int] argument.
 
     Examples
     --------
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("beep", "meow")
     async def command(
         ctx: tanjun.abc.Context,
-        age: Annotated[annotations.Int, Min(13), "How old are you?"],
+        age: Annotated[Int, Min(13), "How old are you?"],
         number: Annotated[Min[13.9], "description"],
     ) -> None:
         raise NotImplementedError
@@ -645,7 +745,7 @@ class Name(_ConfigIdentifier):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args(follow_wrapped=True)
+    @with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("meow", "nyaa")
     @tanjun.as_message_command("meow")
     async def command(
@@ -724,7 +824,7 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args(follow_wrapped=True)
+    @with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("meow", "nyaa")
     @tanjun.as_message_command("meow")
     async def command(
@@ -740,12 +840,12 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
     `Ranged[123, 666]`).
 
     ```py
-    @annotations.with_annotated_args
+    @with_annotated_args
     @tanjun.as_slash_command("meow", "description")
     async def command(
         ctx: tanjun.abc.SlashContext,
-        float_value: Annotated[annotations.Float, 1.5:101.5, "description"],
-        int_value: Annotated[annotations.Int, range(5, 100), "description"],
+        float_value: Annotated[Float, 1.5:101.5, "description"],
+        int_value: Annotated[Int, range(5, 100), "description"],
     ) -> None:
         raise NotImplementedError
     ```
@@ -836,7 +936,7 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
     Examples
     --------
     ```py
-    @annotations.with_annotated_args(follow_wrapped=True)
+    @with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("meow", "nyaa")
     @tanjun.as_message_command("meow")
     async def command(
@@ -985,10 +1085,14 @@ class _ArgConfig:
         "is_greedy",
         "is_positional",
         "key",
+        "min_length",
+        "max_length",
+        "min_value",
         "max_value",
         "message_name",
-        "min_value",
         "option_type",
+        "range_or_slice",
+        "range_or_slice_is_finalised",
         "slash_name",
         "snowflake_converter",
     )
@@ -1004,12 +1108,37 @@ class _ArgConfig:
         self.is_greedy: bool = False
         self.is_positional: typing.Optional[bool] = None
         self.key: str = key
+        self.min_length: typing.Optional[int] = None
+        self.max_length: typing.Optional[int] = None
+        self.min_value: typing.Union[float, int, None] = None
         self.max_value: typing.Union[float, int, None] = None
         self.message_name: str = "--" + key.replace("_", "-")
-        self.min_value: typing.Union[float, int, None] = None
         self.option_type: typing.Optional[type[typing.Any]] = None
+        self.range_or_slice: typing.Union[range, slice, None] = None
         self.slash_name: str = key
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
+
+    def finalise_slice(self) -> None:
+        if not self.range_or_slice:
+            return
+
+        self.range_or_slice_is_finalised = True
+        # Slice's attributes are all Any so we need to cast to int.
+        if self.range_or_slice.step is None or operator.index(self.range_or_slice.step) > 0:
+            min_value = operator.index(self.range_or_slice.start) if self.range_or_slice.start is not None else 0
+            max_value = operator.index(self.range_or_slice.stop) - 1
+        else:
+            # start will have to have been specified for this to be reached.
+            min_value = operator.index(self.range_or_slice.stop) - 1
+            max_value = operator.index(self.range_or_slice.start)
+
+        if self.option_type is str:
+            self.min_length = min_value
+            self.max_length = max_value
+
+        elif self.option_type is int or self.option_type is float:
+            self.min_value = min_value
+            self.max_value = max_value
 
     def to_message_option(self, command: message.MessageCommand[typing.Any], /) -> None:
         if self.converters:
@@ -1044,6 +1173,8 @@ class _ArgConfig:
                 converters=converters,
                 default=self.default,
                 greedy=self.is_greedy,
+                min_length=self.min_length,
+                max_length=self.max_length,
                 min_value=self.min_value,
                 max_value=self.max_value,
             )
@@ -1059,6 +1190,8 @@ class _ArgConfig:
                 converters=converters,
                 default=self.default,
                 empty_value=self.empty_value,
+                min_length=self.min_length,
+                max_length=self.max_length,
                 min_value=self.min_value,
                 max_value=self.max_value,
             )
@@ -1124,6 +1257,8 @@ class _ArgConfig:
             converters=self.converters or (),
             default=self._slash_default(),
             key=self.key,
+            min_length=self.min_length,
+            max_length=self.max_length,
         ),
         hikari.User: lambda self, c, d: c.add_user_option(
             self.slash_name, d, default=self._slash_default(), key=self.key
@@ -1180,15 +1315,9 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
                 arg_config.description = arg
 
             elif isinstance(arg, (range, slice)):
-                # Slice's attributes are all Any so we need to cast to int.
-                if arg.step is None or operator.index(arg.step) > 0:
-                    arg_config.min_value = operator.index(arg.start) if arg.start is not None else 0
-                    arg_config.max_value = operator.index(arg.stop) - 1
-                else:
-                    # start will have to have been specified for this to be reached.
-                    arg_config.min_value = operator.index(arg.stop) - 1
-                    arg_config.max_value = operator.index(arg.start)
+                arg_config.range_or_slice = arg
 
+        arg_config.finalise_slice()
         if arg_config.option_type or arg_config.converters:
             for slash_command in slash_commands:
                 arg_config.to_slash_option(slash_command)

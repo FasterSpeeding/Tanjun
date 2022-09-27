@@ -1527,6 +1527,326 @@ def test_with_generic_greedy():
     assert argument.max_value is None
 
 
+def test_with_length():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        value: typing.Annotated[annotations.Str, annotations.Length(123), "nom"],
+        other_value: typing.Annotated[typing.Optional[annotations.Str], annotations.Length(5544), "meow"] = None,
+    ) -> None:
+        ...
+
+    assert callback.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="value",
+            channel_types=None,
+            description="nom",
+            is_required=True,
+            min_length=0,
+            max_length=123,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="other_value",
+            channel_types=None,
+            description="meow",
+            is_required=False,
+            min_length=0,
+            max_length=5544,
+        ),
+    ]
+
+    assert len(callback._tracked_options) == 2
+    tracked_option = callback._tracked_options["value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "value"
+    assert tracked_option.name == "value"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    tracked_option = callback._tracked_options["other_value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "other_value"
+    assert tracked_option.name == "other_value"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(callback.wrapped_command.parser.arguments) == 1
+    argument = callback.wrapped_command.parser.arguments[0]
+    assert argument.key == "value"
+    assert argument.converters == []
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length == 0
+    assert argument.max_length == 123
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(callback.wrapped_command.parser.options) == 1
+    option = callback.wrapped_command.parser.options[0]
+    assert option.key == "other_value"
+    assert option.names == ["--other-value"]
+    assert option.converters == []
+    assert option.default is None
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_length == 0
+    assert option.max_length == 5544
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_with_length_when_min_specificed():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        value: typing.Annotated[annotations.Str, annotations.Length(43, 5444), "nom"],
+        other_value: typing.Annotated[typing.Optional[annotations.Str], annotations.Length(32, 4343), "meow"] = None,
+    ) -> None:
+        ...
+
+    assert callback.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="value",
+            channel_types=None,
+            description="nom",
+            is_required=True,
+            min_length=43,
+            max_length=5444,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="other_value",
+            channel_types=None,
+            description="meow",
+            is_required=False,
+            min_length=32,
+            max_length=4343,
+        ),
+    ]
+
+    assert len(callback._tracked_options) == 2
+    tracked_option = callback._tracked_options["value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "value"
+    assert tracked_option.name == "value"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    tracked_option = callback._tracked_options["other_value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "other_value"
+    assert tracked_option.name == "other_value"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(callback.wrapped_command.parser.arguments) == 1
+    argument = callback.wrapped_command.parser.arguments[0]
+    assert argument.key == "value"
+    assert argument.converters == []
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length == 43
+    assert argument.max_length == 5444
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(callback.wrapped_command.parser.options) == 1
+    option = callback.wrapped_command.parser.options[0]
+    assert option.key == "other_value"
+    assert option.names == ["--other-value"]
+    assert option.converters == []
+    assert option.default is None
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_length == 32
+    assert option.max_length == 4343
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_with_generic_length():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        value: typing.Annotated[annotations.Length[123], "nom"],
+        other_value: typing.Annotated[typing.Optional[annotations.Length[5544]], "meow"] = None,
+    ) -> None:
+        ...
+
+    assert callback.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="value",
+            channel_types=None,
+            description="nom",
+            is_required=True,
+            min_length=0,
+            max_length=123,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="other_value",
+            channel_types=None,
+            description="meow",
+            is_required=False,
+            min_length=0,
+            max_length=5544,
+        ),
+    ]
+
+    assert len(callback._tracked_options) == 2
+    tracked_option = callback._tracked_options["value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "value"
+    assert tracked_option.name == "value"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    tracked_option = callback._tracked_options["other_value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "other_value"
+    assert tracked_option.name == "other_value"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(callback.wrapped_command.parser.arguments) == 1
+    argument = callback.wrapped_command.parser.arguments[0]
+    assert argument.key == "value"
+    assert argument.converters == []
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length == 0
+    assert argument.max_length == 123
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(callback.wrapped_command.parser.options) == 1
+    option = callback.wrapped_command.parser.options[0]
+    assert option.key == "other_value"
+    assert option.names == ["--other-value"]
+    assert option.converters == []
+    assert option.default is None
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_length == 0
+    assert option.max_length == 5544
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_with_generic_length_when_min_specificed():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def callback(
+        ctx: tanjun.abc.Context,
+        value: typing.Annotated[annotations.Length[43, 5444], "nom"],
+        other_value: typing.Annotated[typing.Optional[annotations.Length[32, 4343]], "meow"] = None,
+    ) -> None:
+        ...
+
+    assert callback.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="value",
+            channel_types=None,
+            description="nom",
+            is_required=True,
+            min_length=43,
+            max_length=5444,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="other_value",
+            channel_types=None,
+            description="meow",
+            is_required=False,
+            min_length=32,
+            max_length=4343,
+        ),
+    ]
+
+    assert len(callback._tracked_options) == 2
+    tracked_option = callback._tracked_options["value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "value"
+    assert tracked_option.name == "value"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    tracked_option = callback._tracked_options["other_value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "other_value"
+    assert tracked_option.name == "other_value"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(callback.wrapped_command.parser.arguments) == 1
+    argument = callback.wrapped_command.parser.arguments[0]
+    assert argument.key == "value"
+    assert argument.converters == []
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length == 43
+    assert argument.max_length == 5444
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(callback.wrapped_command.parser.options) == 1
+    option = callback.wrapped_command.parser.options[0]
+    assert option.key == "other_value"
+    assert option.names == ["--other-value"]
+    assert option.converters == []
+    assert option.default is None
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_length == 32
+    assert option.max_length == 4343
+    assert option.min_value is None
+    assert option.max_value is None
+
+
 @pytest.mark.parametrize(
     ("type_", "value", "raw_type", "option_type"),
     [
