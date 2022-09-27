@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for specifying `min_length` and `max_length` for slash command string options.
+- Support for specifying `min_length` and `max_length` for message command parsing options with either
+  no converters or converters which result in a [collections.abc.Sized][] compatible value.
+- Support for specifying the length of a string argument in annotation command declaration through
+  [tanjun.annotations.Length][].
+
 ### Changed
 - Bumped the minimum Hikari version to `2.0.0.dev111`.
 
