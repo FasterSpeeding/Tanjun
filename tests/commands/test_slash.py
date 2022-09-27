@@ -1351,7 +1351,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_test_add_str_option_with_invalid_name(self, name: str):
+    def test_add_str_option_with_invalid_name(self, name: str):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1360,7 +1360,7 @@ class TestSlashCommand:
         ):
             command.add_str_option(name, "aye")
 
-    def test_test_add_str_option_when_name_isnt_lowercase(self):
+    def test_add_str_option_when_name_isnt_lowercase(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1369,7 +1369,7 @@ class TestSlashCommand:
         ):
             command.add_str_option("BeBooBp", "aye")
 
-    def test_test_add_str_option_when_description_too_long(self):
+    def test_add_str_option_when_description_too_long(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1378,7 +1378,7 @@ class TestSlashCommand:
         ):
             command.add_str_option("boi", "a" * 101)
 
-    def test_test_add_str_option_when_too_many_options(self):
+    def test_add_str_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         for index in range(25):
             command.add_str_option(str(index), str(index))
@@ -1389,7 +1389,7 @@ class TestSlashCommand:
         ):
             command.add_str_option("namae", "aye")
 
-    def test_test_add_str_option_with_too_many_choices(self):
+    def test_add_str_option_with_too_many_choices(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
@@ -1559,7 +1559,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_test_add_int_option_with_invalid_name(self, name: str):
+    def test_add_int_option_with_invalid_name(self, name: str):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1568,13 +1568,13 @@ class TestSlashCommand:
         ):
             command.add_int_option(name, "aye")
 
-    def test_test_add_int_option_when_name_isnt_lowercase(self):
+    def test_add_int_option_when_name_isnt_lowercase(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Invalid name provided, 'YAWN' must be lowercase"):
             command.add_int_option("YAWN", "aye")
 
-    def test_test_add_int_option_when_description_too_long(self):
+    def test_add_int_option_when_description_too_long(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1583,7 +1583,7 @@ class TestSlashCommand:
         ):
             command.add_int_option("boi", "a" * 101)
 
-    def test_test_add_int_option_when_too_many_options(self):
+    def test_add_int_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         for index in range(25):
             command.add_str_option(str(index), str(index))
@@ -1594,7 +1594,7 @@ class TestSlashCommand:
         ):
             command.add_int_option("namae", "aye")
 
-    def test_test_add_int_option_with_too_many_choices(self):
+    def test_add_int_option_with_too_many_choices(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
@@ -1740,7 +1740,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_test_add_float_option_with_invalid_name(self, name: str):
+    def test_add_float_option_with_invalid_name(self, name: str):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1749,13 +1749,13 @@ class TestSlashCommand:
         ):
             command.add_float_option(name, "aye")
 
-    def test_test_add_float_option_when_name_isnt_lowercase(self):
+    def test_add_float_option_when_name_isnt_lowercase(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Invalid name provided, 'Bloop' must be lowercase"):
             command.add_float_option("Bloop", "aye")
 
-    def test_test_add_float_option_when_description_too_long(self):
+    def test_add_float_option_when_description_too_long(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1764,7 +1764,7 @@ class TestSlashCommand:
         ):
             command.add_float_option("boi", "a" * 101)
 
-    def test_test_add_float_option_when_too_many_options(self):
+    def test_add_float_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         for index in range(25):
             command.add_str_option(str(index), str(index))
@@ -1775,7 +1775,7 @@ class TestSlashCommand:
         ):
             command.add_float_option("namae", "aye")
 
-    def test_test_add_float_option_with_too_many_choices(self):
+    def test_add_float_option_with_too_many_choices(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
@@ -1837,7 +1837,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_test_add_bool_option_with_invalid_name(self, name: str):
+    def test_add_bool_option_with_invalid_name(self, name: str):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1846,7 +1846,7 @@ class TestSlashCommand:
         ):
             command.add_bool_option(name, "aye")
 
-    def test_test_add_bool_option_when_name_isnt_lowercase(self):
+    def test_add_bool_option_when_name_isnt_lowercase(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1855,7 +1855,7 @@ class TestSlashCommand:
         ):
             command.add_bool_option("SNOOO", "aye")
 
-    def test_test_add_bool_option_when_description_too_long(self):
+    def test_add_bool_option_when_description_too_long(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1864,7 +1864,7 @@ class TestSlashCommand:
         ):
             command.add_bool_option("boi", "a" * 101)
 
-    def test_test_add_bool_option_when_too_many_options(self):
+    def test_add_bool_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         for index in range(25):
             command.add_str_option(str(index), str(index))
@@ -1931,7 +1931,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_test_add_user_option_with_invalid_name(self, name: str):
+    def test_add_user_option_with_invalid_name(self, name: str):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1940,7 +1940,7 @@ class TestSlashCommand:
         ):
             command.add_user_option(name, "aye")
 
-    def test_test_add_user_option_when_name_isnt_lowercase(self):
+    def test_add_user_option_when_name_isnt_lowercase(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1949,7 +1949,7 @@ class TestSlashCommand:
         ):
             command.add_user_option("WWWWWWWWWWW", "aye")
 
-    def test_test_add_user_option_when_description_too_long(self):
+    def test_add_user_option_when_description_too_long(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -1958,7 +1958,7 @@ class TestSlashCommand:
         ):
             command.add_user_option("boi", "a" * 101)
 
-    def test_test_add_user_option_when_too_many_options(self):
+    def test_add_user_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         for index in range(25):
             command.add_str_option(str(index), str(index))
@@ -2016,7 +2016,7 @@ class TestSlashCommand:
         assert tracked.is_only_member is True
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_test_add_member_option_with_invalid_name(self, name: str):
+    def test_add_member_option_with_invalid_name(self, name: str):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -2025,13 +2025,13 @@ class TestSlashCommand:
         ):
             command.add_member_option(name, "aye")
 
-    def test_test_add_member_option_when_name_isnt_lowercase(self):
+    def test_add_member_option_when_name_isnt_lowercase(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Invalid name provided, 'YEET' must be lowercase"):
             command.add_member_option("YEET", "aye")
 
-    def test_test_add_member_option_when_description_too_long(self):
+    def test_add_member_option_when_description_too_long(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -2040,7 +2040,7 @@ class TestSlashCommand:
         ):
             command.add_member_option("boi", "a" * 101)
 
-    def test_test_add_member_option_when_too_many_options(self):
+    def test_add_member_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         for index in range(25):
             command.add_str_option(str(index), str(index))
@@ -2158,7 +2158,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_test_add_channel_option_with_invalid_name(self, name: str):
+    def test_add_channel_option_with_invalid_name(self, name: str):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -2167,13 +2167,13 @@ class TestSlashCommand:
         ):
             command.add_channel_option(name, "aye")
 
-    def test_test_add_channel_option_when_name_isnt_lowercase(self):
+    def test_add_channel_option_when_name_isnt_lowercase(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Invalid name provided, 'MeOw' must be lowercase"):
             command.add_channel_option("MeOw", "aye")
 
-    def test_test_add_channel_option_when_description_too_long(self):
+    def test_add_channel_option_when_description_too_long(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -2182,7 +2182,7 @@ class TestSlashCommand:
         ):
             command.add_channel_option("boi", "a" * 101)
 
-    def test_test_add_channel_option_when_too_many_options(self):
+    def test_add_channel_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         for index in range(25):
             command.add_str_option(str(index), str(index))
@@ -2249,7 +2249,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_test_add_role_option_with_invalid_name(self, name: str):
+    def test_add_role_option_with_invalid_name(self, name: str):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -2258,13 +2258,13 @@ class TestSlashCommand:
         ):
             command.add_role_option(name, "aye")
 
-    def test_test_add_role_option_when_name_isnt_lowercase(self):
+    def test_add_role_option_when_name_isnt_lowercase(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Invalid name provided, 'MeeP' must be lowercase"):
             command.add_role_option("MeeP", "aye")
 
-    def test_test_add_role_option_when_description_too_long(self):
+    def test_add_role_option_when_description_too_long(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -2273,7 +2273,7 @@ class TestSlashCommand:
         ):
             command.add_role_option("boi", "a" * 101)
 
-    def test_test_add_role_option_when_too_many_options(self):
+    def test_add_role_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         for index in range(25):
             command.add_str_option(str(index), str(index))
@@ -2340,7 +2340,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_test_add_mentionable_option_with_invalid_name(self, name: str):
+    def test_add_mentionable_option_with_invalid_name(self, name: str):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -2349,13 +2349,13 @@ class TestSlashCommand:
         ):
             command.add_mentionable_option(name, "aye")
 
-    def test_test_add_mentionable_option_when_name_isnt_lowercase(self):
+    def test_add_mentionable_option_when_name_isnt_lowercase(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(ValueError, match="Invalid name provided, 'Sharlette' must be lowercase"):
             command.add_mentionable_option("Sharlette", "aye")
 
-    def test_test_add_mentionable_option_when_description_too_long(self):
+    def test_add_mentionable_option_when_description_too_long(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         with pytest.raises(
@@ -2364,7 +2364,7 @@ class TestSlashCommand:
         ):
             command.add_mentionable_option("boi", "a" * 101)
 
-    def test_test_add_mentionable_option_when_too_many_options(self):
+    def test_add_mentionable_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
         for index in range(25):
             command.add_str_option(str(index), str(index))

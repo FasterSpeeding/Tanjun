@@ -1310,7 +1310,7 @@ def test_with_cooldown_when_no_set_hooks():
     mock_command.wrapped_command.set_hooks.assert_not_called()
 
 
-def test_test_with_cooldown_when_follow_wrapping():
+def test_with_cooldown_when_follow_wrapping():
     mock_command = mock.Mock()
     mock_command.wrapped_command.hooks = None
     mock_command.wrapped_command.wrapped_command.hooks = None
@@ -1345,7 +1345,7 @@ def test_test_with_cooldown_when_follow_wrapping():
     )
 
 
-def test_test_with_cooldown_when_follow_wrapping_and_not_wrapping():
+def test_with_cooldown_when_follow_wrapping_and_not_wrapping():
     mock_command = mock.Mock(wrapped_command=None)
     mock_error_callback = mock.Mock()
 
@@ -1364,7 +1364,7 @@ def test_test_with_cooldown_when_follow_wrapping_and_not_wrapping():
         mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
 
 
-def test_test_with_cooldown_when_follow_wrapping_and_unsupported_command():
+def test_with_cooldown_when_follow_wrapping_and_unsupported_command():
     mock_command = mock.Mock(tanjun.abc.SlashCommand)
     mock_error_callback = mock.Mock()
     with pytest.raises(AttributeError):
@@ -1385,7 +1385,7 @@ def test_test_with_cooldown_when_follow_wrapping_and_unsupported_command():
         mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
 
 
-def test_test_with_cooldown_when_follow_wrapping_and_wrapping_unsupported_command():
+def test_with_cooldown_when_follow_wrapping_and_wrapping_unsupported_command():
     mock_command = mock.Mock(wrapped_command=mock.Mock(tanjun.abc.SlashCommand))
     mock_error_callback = mock.Mock()
     with pytest.raises(AttributeError):
@@ -1908,7 +1908,7 @@ def test_with_concurrency_limit_makes_new_hooks():
     mock_command.wrapped_command.set_hooks.assert_not_called()
 
 
-def test_test_with_concurrency_limit_when_follow_wrapping():
+def test_with_concurrency_limit_when_follow_wrapping():
     mock_command = mock.Mock()
     mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
     mock_command.hooks.add_post_execution.return_value = mock_command.hooks
@@ -1958,7 +1958,7 @@ def test_test_with_concurrency_limit_when_follow_wrapping():
     post_execution.assert_called_once_with("bucket me")
 
 
-def test_test_with_concurrency_limit_when_follow_wrapping_and_not_wrapping():
+def test_with_concurrency_limit_when_follow_wrapping_and_not_wrapping():
     mock_command = mock.Mock(wrapped_command=None)
     mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
     mock_command.hooks.add_post_execution.return_value = mock_command.hooks
@@ -1979,7 +1979,7 @@ def test_test_with_concurrency_limit_when_follow_wrapping_and_not_wrapping():
     post_execution.assert_called_once_with("bucket me")
 
 
-def test_test_with_concurrency_limit_when_follow_wrapping_and_unsupported_command():
+def test_with_concurrency_limit_when_follow_wrapping_and_unsupported_command():
     mock_command = mock.Mock(tanjun.abc.ExecutableCommand)
     mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
     mock_command.hooks.add_post_execution.return_value = mock_command.hooks
@@ -2002,7 +2002,7 @@ def test_test_with_concurrency_limit_when_follow_wrapping_and_unsupported_comman
     post_execution.assert_called_once_with("bucket me")
 
 
-def test_test_with_concurrency_limit_when_follow_wrapping_and_wrapping_unsupported_command():
+def test_with_concurrency_limit_when_follow_wrapping_and_wrapping_unsupported_command():
     mock_command = mock.Mock(wrapped_command=mock.Mock(tanjun.abc.SlashCommand))
     mock_command.hooks.add_pre_execution.return_value = mock_command.hooks
     mock_command.hooks.add_post_execution.return_value = mock_command.hooks
