@@ -1,7 +1,7 @@
 # See ./inspect.pyi.LICENSE for license information.
 
 # Vendored from https://github.com/python/typeshed/blob/0e185f40877a614c5ddd87815707cf8153296872/stdlib/inspect.pyi
-# with modifications which freeze it to 3.10 typeshed.
+# with modifications which freeze it to 3.10's typeshed.
 import enum
 import sys
 import types
