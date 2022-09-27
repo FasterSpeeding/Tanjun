@@ -556,6 +556,10 @@ class _LengthMeta(abc.ABCMeta):
 class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     """Define length restraints for a string option.
 
+    !!! note
+        Length constraints are applied before conversion for slash commands
+        but after conversion for message commands.
+
     Examples
     --------
     ```py
@@ -584,10 +588,10 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
         raise NotImplementedError
     ```
 
-    Alternatively, the slice syntax and `range` may be used to set the range
-    for a string argument (where the start is inclusive and stop is exclusive).
-    These default to a min_value of `0` if the start isn't specified and ignore
-    any specified step.
+    Alternatively, the slice syntax and `range` may be used to set the length
+    restraints for a string argument (where the start is inclusive and stop is
+    exclusive). These default to a min_length of `0` if the start isn't
+    specified and ignore any specified step.
     """
 
     __slots__ = ("_min_length", "_max_length")
