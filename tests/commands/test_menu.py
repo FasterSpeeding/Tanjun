@@ -203,14 +203,14 @@ class TestMenuCommand:
     def test__init__when_name_too_long(self):
         with pytest.raises(
             ValueError,
-            match="Command name must be between 1-32 characters in length",
+            match="Name must be less than or equal to 32 characters in length",
         ):
             tanjun.commands.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "x" * 33)
 
-    def test__init__when_no_name(self):
+    def test__init__when_name_too_short(self):
         with pytest.raises(
             ValueError,
-            match="Command name must be between 1-32 characters in length",
+            match="Name must be greater than or equal to 1 characters in length",
         ):
             tanjun.commands.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "")
 
