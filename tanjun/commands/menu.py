@@ -517,10 +517,10 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
     def build(self, *, component: typing.Optional[tanjun.Component] = None) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
-        builder = hikari.impl.ContextMenuCommandBuilder(  # TODO: switch to pyright ignores
-            self._type,  # type: ignore
-            self._names.default_value,  # type: ignore
-            name_localizations=self._names.localised_values,  # type: ignore
+        builder = hikari.impl.ContextMenuCommandBuilder(
+            self._type,
+            self._names.default_value,
+            name_localizations=self._names.localised_values,  # pyright: ignore [ reportGeneralTypeIssues ]
         )
 
         component = component or self._component

@@ -627,17 +627,17 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
             # pre-fix in init.
             result = hikari.impl.InteractionMessageBuilder(
-                type=hikari.ResponseType.MESSAGE_CREATE,  # type: ignore
-                content=content,  # type: ignore
-                attachments=attachments,  # type: ignore
-                components=components,  # type: ignore
-                embeds=embeds,  # type: ignore
-                flags=flags,  # type: ignore
-                is_tts=tts,  # type: ignore
-                mentions_everyone=mentions_everyone,  # type: ignore
-                user_mentions=user_mentions,  # type: ignore
-                role_mentions=role_mentions,  # type: ignore
-            )  # type: ignore
+                hikari.ResponseType.MESSAGE_CREATE,
+                content,
+                attachments=attachments,  # pyright: ignore [ reportGeneralTypeIssues ]
+                components=components,  # pyright: ignore [ reportGeneralTypeIssues ]
+                embeds=embeds,  # pyright: ignore [ reportGeneralTypeIssues ]
+                flags=flags,  # pyright: ignore [ reportGeneralTypeIssues ]
+                is_tts=tts,  # pyright: ignore [ reportGeneralTypeIssues ]
+                mentions_everyone=mentions_everyone,  # pyright: ignore [ reportGeneralTypeIssues ]
+                user_mentions=user_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]
+                role_mentions=role_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]
+            )
 
             self._response_future.set_result(result)
 

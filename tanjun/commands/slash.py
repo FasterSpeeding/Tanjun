@@ -835,13 +835,12 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         *,
         id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
-        # TODO: switch to pyright ignore
         super().__init__(
             name,
             description,
-            description_localizations=description_localizations,  # type: ignore
-            id=id_,  # type: ignore
-            name_localizations=name_localizations,  # type: ignore
+            description_localizations=description_localizations,  # pyright: ignore [ reportGeneralTypeIssues ]
+            id=id_,  # pyright: ignore [ reportGeneralTypeIssues ]
+            name_localizations=name_localizations,  # pyright: ignore [ reportGeneralTypeIssues ]
         )
         self._has_been_sorted = True
         self._options_dict: dict[str, hikari.CommandOption] = {}
