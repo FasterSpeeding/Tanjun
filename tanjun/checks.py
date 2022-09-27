@@ -115,7 +115,7 @@ class _Check:
     ) -> bool:
         if not result:
             if self._error:
-                raise self._error(*args) from None  # TODO: also pass ctx here
+                raise self._error(*args) from None
             if self._halt_execution:
                 raise errors.HaltExecution from None
             if self._error_message:
