@@ -67,6 +67,7 @@ from .. import components
 from .. import conversion
 from .. import errors
 from .. import hooks as hooks_
+from .._internal import localisation
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -916,11 +917,11 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     ) -> None:
         super().__init__()
         names = (
-            _internal.MaybeLocalised("name", name)
+            localisation.MaybeLocalised("name", name)
             .assert_length(1, 32)
             .assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
         )
-        descriptions = _internal.MaybeLocalised("description", description).assert_length(1, 100)
+        descriptions = localisation.MaybeLocalised("description", description).assert_length(1, 100)
 
         if default_member_permissions is not None:
             default_member_permissions = hikari.Permissions(default_member_permissions)
@@ -1661,8 +1662,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def _add_option(
         self: _SlashCommandT,
-        names: _internal.MaybeLocalised,
-        descriptions: _internal.MaybeLocalised,
+        names: localisation.MaybeLocalised,
+        descriptions: localisation.MaybeLocalised,
         type_: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
         /,
         *,
@@ -1824,8 +1825,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            _internal.MaybeLocalised("name", name),
-            _internal.MaybeLocalised("description", description),
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
             hikari.OptionType.ATTACHMENT,
             default=default,
             key=key,
@@ -1959,8 +1960,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                 else:
                     actual_choices[choice.capitalize()] = choice
 
-        names = _internal.MaybeLocalised("name", name)
-        descriptions = _internal.MaybeLocalised("description", description)
+        names = localisation.MaybeLocalised("name", name)
+        descriptions = localisation.MaybeLocalised("description", description)
         self._add_option(
             names,
             descriptions,
@@ -2068,8 +2069,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
-        names = _internal.MaybeLocalised("name", name)
-        descriptions = _internal.MaybeLocalised("description", description)
+        names = localisation.MaybeLocalised("name", name)
+        descriptions = localisation.MaybeLocalised("description", description)
         self._add_option(
             names,
             descriptions,
@@ -2185,8 +2186,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
-        names = _internal.MaybeLocalised("name", name)
-        descriptions = _internal.MaybeLocalised("description", description)
+        names = localisation.MaybeLocalised("name", name)
+        descriptions = localisation.MaybeLocalised("description", description)
         self._add_option(
             names,
             descriptions,
@@ -2264,8 +2265,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            _internal.MaybeLocalised("name", name),
-            _internal.MaybeLocalised("description", description),
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
             hikari.OptionType.BOOLEAN,
             default=default,
             key=key,
@@ -2334,8 +2335,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            _internal.MaybeLocalised("name", name),
-            _internal.MaybeLocalised("description", description),
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
             hikari.OptionType.USER,
             default=default,
             key=key,
@@ -2401,8 +2402,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            _internal.MaybeLocalised("name", name),
-            _internal.MaybeLocalised("description", description),
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
             hikari.OptionType.USER,
             default=default,
             key=key,
@@ -2488,8 +2489,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             channel_types = None
 
         return self._add_option(
-            _internal.MaybeLocalised("name", name),
-            _internal.MaybeLocalised("description", description),
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
             hikari.OptionType.CHANNEL,
             channel_types=channel_types,
             default=default,
@@ -2553,8 +2554,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            _internal.MaybeLocalised("name", name),
-            _internal.MaybeLocalised("description", description),
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
             hikari.OptionType.ROLE,
             default=default,
             key=key,
@@ -2621,8 +2622,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
               `validate_arg_keys` is [True][].
         """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            _internal.MaybeLocalised("name", name),
-            _internal.MaybeLocalised("description", description),
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
             hikari.OptionType.MENTIONABLE,
             default=default,
             key=key,

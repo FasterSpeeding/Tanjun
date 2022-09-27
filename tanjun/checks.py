@@ -66,6 +66,7 @@ from . import abc as tanjun
 from . import dependencies
 from . import errors
 from . import permissions
+from ._internal import localisation
 
 _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
@@ -101,7 +102,7 @@ class _Check:
         halt_execution: bool,
     ) -> None:
         self._error = error
-        self._error_message = _internal.MaybeLocalised("error_message", error_message) if error_message else None
+        self._error_message = localisation.MaybeLocalised("error_message", error_message) if error_message else None
         self._halt_execution = halt_execution
         self._localise_id = f"tanjun.{type(self).__name__}"
 

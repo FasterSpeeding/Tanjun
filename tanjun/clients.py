@@ -67,6 +67,7 @@ from . import context
 from . import dependencies
 from . import errors
 from . import hooks
+from ._internal import localisation
 
 if typing.TYPE_CHECKING:
     import types
@@ -1389,7 +1390,7 @@ class Client(tanjun.Client):
                 builder.set_is_dm_enabled(self.dms_enabled_for_app_cmds)
 
             if localiser:
-                _internal.localise_command(builder, localiser)
+                localisation.localise_command(builder, localiser)
 
             builders[key] = builder
 

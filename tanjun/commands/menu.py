@@ -41,6 +41,7 @@ from .. import abc as tanjun
 from .. import components
 from .. import errors
 from .. import hooks as hooks_
+from .._internal import localisation
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -430,7 +431,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             * If the command name has uppercase characters.
         """
         super().__init__()
-        names = _internal.MaybeLocalised("name", name).assert_length(1, 32)
+        names = localisation.MaybeLocalised("name", name).assert_length(1, 32)
 
         if type_ not in _VALID_TYPES:
             raise ValueError("Command type must be message or user")

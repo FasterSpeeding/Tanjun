@@ -61,6 +61,7 @@ from .. import abc as tanjun
 from .. import conversion
 from .. import errors
 from .. import hooks
+from .._internal import localisation
 from . import async_cache
 from . import locales
 from . import owners
@@ -693,7 +694,7 @@ class CooldownPreExecution:
         """
         self._bucket_id = bucket_id
         self._error = error
-        self._error_message = _internal.MaybeLocalised("error_message", error_message)
+        self._error_message = localisation.MaybeLocalised("error_message", error_message)
         self._owners_exempt = owners_exempt
 
     async def __call__(
@@ -1038,7 +1039,7 @@ class ConcurrencyPreExecution:
         """
         self._bucket_id = bucket_id
         self._error = error
-        self._error_message = _internal.MaybeLocalised("error_message", error_message)
+        self._error_message = localisation.MaybeLocalised("error_message", error_message)
 
     async def __call__(
         self,
