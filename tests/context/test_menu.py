@@ -134,6 +134,9 @@ class TestMenuContext:
         with pytest.raises(RuntimeError, match="Unknown menu type"):
             context.target
 
+    def test_triggering_name_property(self, context: tanjun.context.menu.MenuContext):
+        assert context.triggering_name is context.interaction.command_name
+
     @pytest.mark.parametrize("command_type", [hikari.CommandType.MESSAGE, hikari.CommandType.USER])
     def test_type_property(
         self,

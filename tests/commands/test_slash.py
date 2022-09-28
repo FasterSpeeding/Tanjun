@@ -616,7 +616,7 @@ class Test_SlashCommandBuilder:
     ...
 
 
-_INVALID_NAMES = ["'#'#42123"]
+_INVALID_NAMES = ["☠︎⍓︎♋︎♋︎ ⬧︎♏︎■︎◻︎♋︎♓︎"]
 
 
 class TestBaseSlashCommand:
@@ -624,7 +624,8 @@ class TestBaseSlashCommand:
     def test__init__with_invalid_name(self, name: str):
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=(name, "desccc"))
 
@@ -1377,7 +1378,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_str_option(name, "aye")
 
@@ -1612,7 +1614,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_int_option(name, "aye")
 
@@ -1820,7 +1823,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_float_option(name, "aye")
 
@@ -1944,7 +1948,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_bool_option(name, "aye")
 
@@ -2065,7 +2070,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_user_option(name, "aye")
 
@@ -2177,7 +2183,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_member_option(name, "aye")
 
@@ -2346,7 +2353,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_channel_option(name, "aye")
 
@@ -2464,7 +2472,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_role_option(name, "aye")
 
@@ -2582,7 +2591,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_mentionable_option(name, "aye")
 
