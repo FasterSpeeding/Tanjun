@@ -332,7 +332,7 @@ def collect_wrapped(command: tanjun.ExecutableCommand[typing.Any]) -> list[tanju
 
 
 _OptionT = typing.TypeVar("_OptionT", bound=hikari.CommandInteractionOption)
-COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
+SUB_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
     [hikari.OptionType.SUB_COMMAND, hikari.OptionType.SUB_COMMAND_GROUP]
 )
 
@@ -352,7 +352,7 @@ def flatten_options(
     tuple[str, collections.abc.Sequence[_OptionT]]
         The full triggering command name and a sequence of the actual command options.
     """
-    while options and (first_option := options[0]).type in COMMAND_OPTION_TYPES:
+    while options and (first_option := options[0]).type in SUB_COMMAND_OPTION_TYPES:
         name = f"{name} {first_option.name}"
         options = typing.cast("collections.Sequence[_OptionT]", first_option.options)
 

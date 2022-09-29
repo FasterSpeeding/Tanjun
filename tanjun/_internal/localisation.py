@@ -286,30 +286,29 @@ def localise_command(cmd_builder: hikari.api.CommandBuilder, localiser: dependen
         descriptions.update(localiser.get_all_variants(to_localise_id(localise_type, cmd_builder.name, "description")))
         cmd_builder.set_description_localizations(descriptions)
 
-        name = cmd_builder.name
-        options = cmd_builder.options
-        while options:
-            if options[0].type in _internal.COMMAND_OPTION_TYPES:
-                option = options[0]
-                name = f"{name} {option.name}"
-                option.name_localizations = dict(option.name_localizations)
-                option.name_localizations.update(
-                    localiser.get_all_variants(to_localise_id(localise_type, name, "name"))
-                )
-                option.description_localizations = dict(option.description_localizations)
-                option.description_localizations.update(
-                    localiser.get_all_variants(to_localise_id(localise_type, name, "description"))
-                )
-                options = option.options
-                continue
+        for option in cmd_builder.options:
+            _localise_slash_option(option, cmd_builder.name, localiser)
 
-            for option in options:
-                option.name_localizations = dict(option.name_localizations)
-                option.name_localizations.update(
-                    localiser.get_all_variants(to_localise_id(localise_type, name, "option.name", option.name))
-                )
-                option.description_localizations = dict(option.name_localizations)
-                option.description_localizations.update(
-                    localiser.get_all_variants(to_localise_id(localise_type, name, "option.description", option.name))
-                )
-                break
+
+def _localise_slash_option(
+    option: hikari.CommandOption, name: str, localiser: dependencies.AbstractLocaliser, /
+) -> None:
+    if option.type in _internal.SUB_COMMAND_OPTION_TYPES:
+        name = f"{name} {option.name}"
+        name_variants = localiser.get_all_variants(to_localise_id("SLASH", name, "name"))
+        description_variants = localiser.get_all_variants(to_localise_id("SLASH", name, "description"))
+
+    else:
+        name_variants = localiser.get_all_variants(to_localise_id("SLASH", name, "option.name", option.name))
+        description_variants = localiser.get_all_variants(
+            to_localise_id("SLASH", name, "option.description", option.name)
+        )
+
+    option.name_localizations = dict(option.name_localizations)
+    option.name_localizations.update(name_variants)
+    option.description_localizations = dict(option.description_localizations)
+    option.description_localizations.update(description_variants)
+
+    if option.options:
+        for option in option.options:
+            _localise_slash_option(option, name, localiser)
