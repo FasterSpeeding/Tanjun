@@ -161,95 +161,85 @@ class TestAutocompleteContext:
 
         assert context.options == {"hi": mock_option_1, "bye": mock_option_2, "yoda": mock_option_3}
 
-    # def test_options_property_for_top_level_command(self, mock_client: mock.Mock):
-    #     mock_option_1 = mock.Mock()
-    #     mock_option_1.name = "hi"
-    #     mock_option_2 = mock.Mock()
-    #     mock_option_2.name = "bye"
-    #     context = tanjun.context.SlashContext(
-    #         mock_client,
-    #         mock.Mock(),
-    #         mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2]),
-    #         command=mock.Mock(),
-    #         component=mock.Mock(),
-    #     )
+    def test_options_property_for_top_level_command(self, mock_client: mock.Mock):
+        mock_option_1 = mock.Mock(focused=True)
+        mock_option_1.name = "hi"
+        mock_option_2 = mock.Mock()
+        mock_option_2.name = "bye"
+        context = tanjun.context.AutocompleteContext(mock_client, mock.Mock(options=[mock_option_1, mock_option_2]))
 
-    #     assert len(context.options) == 2
-    #     assert context.options["hi"].type is mock_option_1.type
-    #     assert context.options["hi"].value is mock_option_1.value
-    #     assert context.options["hi"].name is mock_option_1.name
-    #     assert isinstance(context.options["hi"], tanjun.context.SlashOption)
+        assert len(context.options) == 2
+        assert context.options["hi"].type is mock_option_1.type
+        assert context.options["hi"].value is mock_option_1.value
+        assert context.options["hi"].name is mock_option_1.name
 
-    #     assert context.options["bye"].type is mock_option_2.type
-    #     assert context.options["bye"].value is mock_option_2.value
-    #     assert context.options["bye"].name is mock_option_2.name
-    #     assert isinstance(context.options["bye"], tanjun.context.SlashOption)
+        assert context.options["bye"].type is mock_option_2.type
+        assert context.options["bye"].value is mock_option_2.value
+        assert context.options["bye"].name is mock_option_2.name
 
-    # def test_options_property_for_command_group(self, mock_client: mock.Mock):
-    #     mock_option_1 = mock.Mock()
-    #     mock_option_1.name = "kachow"
-    #     mock_option_2 = mock.Mock()
-    #     mock_option_2.name = "nyaa"
-    #     group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
-    #     context = tanjun.context.SlashContext(
-    #         mock_client,
-    #         mock.Mock(),
-    #         mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
-    #         command=mock.Mock(),
-    #         component=mock.Mock(),
-    #     )
+    def test_options_property_for_command_group(self, mock_client: mock.Mock):
+        mock_option_1 = mock.Mock(focused=True)
+        mock_option_1.name = "kachow"
+        mock_option_2 = mock.Mock()
+        mock_option_2.name = "nyaa"
+        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
+        context = tanjun.context.AutocompleteContext(
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option])
+        )
 
-    #     assert len(context.options) == 2
-    #     assert context.options["kachow"].type is mock_option_1.type
-    #     assert context.options["kachow"].value is mock_option_1.value
-    #     assert context.options["kachow"].name is mock_option_1.name
-    #     assert isinstance(context.options["kachow"], tanjun.context.SlashOption)
+        assert len(context.options) == 2
+        assert context.options["kachow"].type is mock_option_1.type
+        assert context.options["kachow"].value is mock_option_1.value
+        assert context.options["kachow"].name is mock_option_1.name
 
-    #     assert context.options["nyaa"].type is mock_option_2.type
-    #     assert context.options["nyaa"].value is mock_option_2.value
-    #     assert context.options["nyaa"].name is mock_option_2.name
-    #     assert isinstance(context.options["nyaa"], tanjun.context.SlashOption)
+        assert context.options["nyaa"].type is mock_option_2.type
+        assert context.options["nyaa"].value is mock_option_2.value
+        assert context.options["nyaa"].name is mock_option_2.name
 
-    # @pytest.mark.parametrize("raw_options", [None, []])
-    # def test_options_property_for_command_group_with_no_sub_option(
-    #     self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
-    # ):
-    #     group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
-    #     context = tanjun.context.SlashContext(
-    #         mock_client,
-    #         mock.Mock(),
-    #         mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
-    #         command=mock.Mock(),
-    #         component=mock.Mock(),
-    #     )
+    def test_options_property_for_sub_command_group(self, mock_client: mock.Mock):
+        mock_option_1 = mock.Mock(focused=True)
+        mock_option_1.name = "meow"
+        mock_option_2 = mock.Mock()
+        mock_option_2.name = "nya"
+        sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
+        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
+        context = tanjun.context.AutocompleteContext(
+            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option])
+        )
 
-    #     assert context.options == {}
+        assert len(context.options) == 2
+        assert context.options["meow"].type is mock_option_1.type
+        assert context.options["meow"].value is mock_option_1.value
+        assert context.options["meow"].name is mock_option_1.name
 
-    # def test_options_property_for_sub_command_group(self, mock_client: mock.Mock):
-    #     mock_option_1 = mock.Mock()
-    #     mock_option_1.name = "meow"
-    #     mock_option_2 = mock.Mock()
-    #     mock_option_2.name = "nya"
-    #     sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
-    #     group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
-    #     context = tanjun.context.SlashContext(
-    #         mock_client,
-    #         mock.Mock(),
-    #         mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]),
-    #         command=mock.Mock(),
-    #         component=mock.Mock(),
-    #     )
+        assert context.options["nya"].type is mock_option_2.type
+        assert context.options["nya"].value is mock_option_2.value
+        assert context.options["nya"].name is mock_option_2.name
 
-    #     assert len(context.options) == 2
-    #     assert context.options["meow"].type is mock_option_1.type
-    #     assert context.options["meow"].value is mock_option_1.value
-    #     assert context.options["meow"].name is mock_option_1.name
-    #     assert isinstance(context.options["meow"], tanjun.context.SlashOption)
+    def test_triggering_name_property_for_top_level_command(
+        self, context: tanjun.context.autocomplete.AutocompleteContext
+    ):
+        assert context.triggering_name is context.interaction.command_name
 
-    #     assert context.options["nya"].type is mock_option_2.type
-    #     assert context.options["nya"].value is mock_option_2.value
-    #     assert context.options["nya"].name is mock_option_2.name
-    #     assert isinstance(context.options["nya"], tanjun.context.SlashOption)
+    def test_triggering_name_property_for_sub_command(self, mock_client: mock.Mock):
+        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock.Mock(focused=True)])
+        group_option.name = "daniel"
+        context = tanjun.context.AutocompleteContext(
+            mock_client, mock.Mock(command_name="damn", options=[group_option])
+        )
+
+        assert context.triggering_name == "damn daniel"
+
+    def test_triggering_name_property_for_sub_sub_command(self, mock_client: mock.Mock):
+        sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock.Mock(focused=True)])
+        sub_group_option.name = "nyaa"
+        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
+        group_option.name = "xes"
+        context = tanjun.context.AutocompleteContext(
+            mock_client, mock.Mock(command_name="meow", options=[group_option])
+        )
+
+        assert context.triggering_name == "meow xes nyaa"
 
     @pytest.mark.asyncio()
     async def test_fetch_channel(self, context: tanjun.context.AutocompleteContext, mock_interaction: mock.Mock):
