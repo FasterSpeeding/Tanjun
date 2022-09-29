@@ -50,19 +50,23 @@ class AbstractLocaliser(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
-    def localise(self, tag: str, identifier: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
+    def get_all_variants(self, identifier: str, /, **kwargs: typing.Any) -> collections.Mapping[str, str]:
+        """Get all the localisation variants for an identifier."""
+
+    @abc.abstractmethod
+    def localise(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
         """Localise a string with the given identifier and arguments.
 
         Parameters
         ----------
+        identifier
+            The unique identifier of the string to localise.
         tag
             The "IETF lang tag" to localise the string to.
 
             Discord doesn't document this well like at all, nor the standard(s)
             they follow for this, and the cloest you'll get to a conclusive list is
             <https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales>
-        identifier
-            The unique identifier of the string to localise.
         **kwargs
             Key-word arguments to pass to the string as format args.
 
@@ -72,13 +76,9 @@ class AbstractLocaliser(abc.ABC):
             The localised string.
         """
 
-    def localize(self, tag: str, identifier: str, /, *args: typing.Any, **kwargs: typing.Any) -> typing.Optional[str]:
+    def localize(self, identifier: str, tag: str, /, *args: typing.Any, **kwargs: typing.Any) -> typing.Optional[str]:
         """Alias for `AbstractLocaliser.localise`."""
-        return self.localise(tag, identifier, *args, **kwargs)
-
-    @abc.abstractmethod
-    def get_all_variants(self, identifier: str, /, **kwargs: typing.Any) -> collections.Mapping[str, str]:
-        """Get all the localisation variants for an identifier."""
+        return self.localise(identifier, tag, *args, **kwargs)
 
 
 AbstractLocalizer = AbstractLocaliser
@@ -94,22 +94,34 @@ class BasicLocaliser(AbstractLocaliser):
         """Initialise a new `BasicLocaliser`."""
         self._tags: dict[str, dict[str, str]] = {}
 
-    def localise(self, tag: str, identifier: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
-        # <<inherited docstring from AbstractLocaliser>>.
-        if (tag_values := self._tags.get(tag)) and (string := tag_values.get(identifier)):
-            return string.format(**kwargs)
-
     def get_all_variants(self, identifier: str, /, **kwargs: typing.Any) -> collections.Mapping[str, str]:
         # <<inherited docstring from AbstractLocaliser>>.
         try:
             results = self._tags[identifier]
             if kwargs:
-                return {name: value.format(**kwargs) for name, value in results.items()}
+                results = {name: value.format(**kwargs) for name, value in results.items()}
 
-            return results.copy()
+            else:
+                results = results.copy()
+
+            results.pop("default", None)
+            return results
 
         except KeyError:
             return {}
+
+    def localise(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
+        # <<inherited docstring from AbstractLocaliser>>.
+        if (tag_values := self._tags.get(tag)) and (string := tag_values.get(identifier)):
+            return string.format(**kwargs)
+
+    def set_variants(
+        self, identifier: str, variants: typing.Optional[collections.Mapping[str, str]] = None, /, **other_variants: str
+    ) -> None:
+        if variants:
+            other_variants.update(variants)
+
+        self._tags[identifier] = other_variants
 
 
 BasicLocalizer = BasicLocaliser

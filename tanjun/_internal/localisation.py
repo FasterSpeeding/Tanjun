@@ -131,7 +131,7 @@ class MaybeLocalised:
             field: typing.Optional[str] = None
             if localiser:
                 localise_id = to_localise_id(_TYPE_TO_STR[ctx.type], ctx.triggering_name, field_type, field_name)
-                field = localiser.localise(ctx.interaction.locale, localise_id)
+                field = localiser.localise(localise_id, ctx.interaction.locale)
 
             return field or self.localised_values.get(ctx.interaction.locale, self.default_value)
 
