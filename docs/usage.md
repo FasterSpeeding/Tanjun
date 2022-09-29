@@ -812,4 +812,61 @@ buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
 [BucketResource][tanjun.dependencies.BucketResource].
 
+## Localisation
+
+Slash commands and context menu commands can be tailored to specific languages.
+
+### Localising command declarations
+
+```py
+@tanjun.as_slash_command({hikari.Locale.ES_US: "Hola"}, "description")
+```
+
+### Client localiser
+
+```py
+
+```
+
+By
+
+### Localising command responses
+
+```py
+LOCALISED_RESPONSES = {
+    hikari.Locale.DA: "Hej",
+    hikari.Locale.DE: "Hallo",
+    hikari.Locale.EN_GB: "Good day fellow sir",
+    hikari.Locale.EN_US: "*shoots you*",
+    hikari.Locale.ES_ES: "Hola",
+    hikari.Locale.FR: "Bonjour, camarade baguette",
+    hikari.Locale.IT: "Ciao",
+    hikari.Locale.PL: "Musimy szerzyć gejostwo w Strefach wolnych od LGBT, musimy zrobić rajd gejowski",
+    hikari.Locale.SV_SE: "Hej, jag älskar min Blåhaj",
+    hikari.Locale.VI: "Xin chào, Cây nói tiếng Việt",
+    hikari.Locale.TR: "Merhaba",
+    hikari.Locale.CS: "Ahoj",
+    hikari.Locale.ZH_CN: "自由香港",
+    hikari.Locale.JA: "こんにちは、アニメの女の子だったらいいのに",
+    hikari.Locale.ZH_TW: "让台湾自由",
+}
+
+@tanjun.as_slash_command("name", "description")
+async def as_slash_command(ctx: tanjun.abc.SlashContext) -> None:
+    await ctx.respond(LOCALISED_RESPONSES.get(ctx.interaction.locale, "hello"))
+```
+
+[tanjun.abc.AppCommandContext.interaction][] (base class for both
+[tanjun.abc.SlashContext][] and [tanjun.abc.MenuContext][]) has the fields
+`guild_locale` and `locale` which provide the set locale of the guild and the
+user triggering the command respectively. This [locale][hikari.locales.Locale]
+can be used to localise responses to specific languages within your own code.
+
+```
+@tanjun.as_slash_command("name", "description")
+async def as_slash_command(ctx: tanjun.abc.SlashContext) -> None:
+    await ctx.respond("hi")
+```
+
+
 <!-- # TODO: some day, document buildings commands using the flient interface -->
