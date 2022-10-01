@@ -12,7 +12,7 @@ isort==5.10.1
     # via -r dev-requirements/reformat.in
 mypy-extensions==0.4.3
     # via black
-pathspec==0.10.0
+pathspec==0.10.1
     # via black
 platformdirs==2.5.2
     # via black
@@ -21,4 +21,6 @@ sort-all==1.2.0
 tokenize-rt==4.2.1
     # via sort-all
 tomli==2.0.1
+    # via black
+typing-extensions==4.3.0
     # via black

@@ -6,7 +6,7 @@
 #
 attrs==22.1.0
     # via pytest
-coverage[toml]==6.4.4
+coverage[toml]==6.5.0
     # via pytest-cov
 execnet==1.9.0
     # via pytest-xdist

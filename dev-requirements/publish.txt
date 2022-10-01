@@ -6,7 +6,7 @@
 #
 build==0.8.0
     # via pip-tools
-certifi==2022.6.15
+certifi==2022.9.24
     # via requests
 charset-normalizer==2.1.1
     # via requests
@@ -18,7 +18,7 @@ flit==3.7.1
     # via -r dev-requirements/publish.in
 flit-core==3.7.1
     # via flit
-idna==3.3
+idna==3.4
     # via requests
 packaging==21.3
     # via build

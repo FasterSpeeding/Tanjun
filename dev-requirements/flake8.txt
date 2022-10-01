@@ -96,7 +96,7 @@ mr-proper==0.0.7
     # via flake8-functions
 mypy-extensions==0.4.3
     # via black
-pathspec==0.10.0
+pathspec==0.10.1
     # via black
 pbr==5.10.0
     # via stevedore
@@ -127,6 +127,8 @@ tomli==2.0.1
     # via
     #   black
     #   flake8-black
+typing-extensions==4.3.0
+    # via black
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
