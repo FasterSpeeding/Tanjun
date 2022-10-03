@@ -1452,7 +1452,6 @@ class AppCommandContext(Context, abc.ABC):
 
             Slash command responses can only be deleted within 15 minutes of the
             command being received.
-
         ephemeral
             Whether the deferred response should be ephemeral.
 
