@@ -362,8 +362,8 @@ return a [typing.Annotated][] instance from their generic calls and can also be
 passed as arguments to Annotated like `Annotated[Int, Ranged(13, 130)]` and
 `Annotated[Str, Converted(get_video)]`.
 
-This example doesn't demonstrate every future of this and more information on
-how arguments are configured through annotations can be seen in
+This example doesn't demonstrate every feature of this and more information on
+how arguments are configured through annotations can be found in
 [tanjun.annotations][].
 
 ### Wrapped commands
