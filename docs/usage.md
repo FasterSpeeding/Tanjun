@@ -358,8 +358,8 @@ above).
 
 The special generic types offered in [tanjun.annotations] (e.g
 [Ranged][tanjun.annotations.Ranged] and [Converted][tanjun.annotations.Converted])
-return a [typing.Annotated][] instance from their generic calls, and can also be
-passed as arguments to Annotated like `Annotated[Int, Ranged(13, 130)]` and
+return a [typing.Annotated][] instance from their generic calls and can also be
+passed as arguments to Annotated like `Annotated[Int, Ranged(13, 130)]`, and
 `Annotated[Str, Converted(get_video)]`.
 
 This example doesn't demonstrate every feature of this. More information on
