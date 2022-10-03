@@ -108,6 +108,30 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
+    async def test_when_false_and_error_message_dict(self):
+        ...
+
+    async def test_when_false_and_error_message_dict_defaults(self):
+        ...
+
+    async def test_when_false_and_error_message_dict_explicit_default(self):
+        ...
+
+    async def test_when_false_and_error_message_localiser(self):
+        ...
+
+    async def test_when_false_and_error_message_localiser_overridden_id(self):
+        ...
+
+    async def test_when_false_and_error_message_localiser_defaults(self):
+        ...
+
+    async def test_when_false_and_error_message_localiser_overridden_default(self):
+        ...
+
+    async def test_when_false_and_error_message_localiser_explicit_default(self):
+        ...
+
     async def test_when_false_and_halt_execution(self):
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
@@ -250,6 +274,30 @@ class TestNsfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_not_called()
 
+    async def test_when_false_and_error_message_dict(self):
+        ...
+
+    async def test_when_false_and_error_message_dict_defaults(self):
+        ...
+
+    async def test_when_false_and_error_message_dict_explicit_default(self):
+        ...
+
+    async def test_when_false_and_error_message_localiser(self):
+        ...
+
+    async def test_when_false_and_error_message_localiser_overridden_id(self):
+        ...
+
+    async def test_when_false_and_error_message_localiser_defaults(self):
+        ...
+
+    async def test_when_false_and_error_message_localiser_overridden_default(self):
+        ...
+
+    async def test_when_false_and_error_message_localiser_explicit_default(self):
+        ...
+
     async def test_when_false_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -384,6 +432,30 @@ class TestSfwCheck:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_cache.get.assert_not_called()
 
+    async def test_when_is_nsfw_and_error_message_dict(self):
+        ...
+
+    async def test_when_is_nsfw_and_error_message_dict_defaults(self):
+        ...
+
+    async def test_when_is_nsfw_and_error_message_dict_explicit_default(self):
+        ...
+
+    async def test_when_is_nsfw_and_error_message_localiser(self):
+        ...
+
+    async def test_when_is_nsfw_and_error_message_localiser_overridden_id(self):
+        ...
+
+    async def test_when_is_nsfw_and_error_message_localiser_defaults(self):
+        ...
+
+    async def test_when_is_nsfw_and_error_message_localiser_overridden_default(self):
+        ...
+
+    async def test_when_is_nsfw_and_error_message_localiser_explicit_default(self):
+        ...
+
     async def test_when_is_nsfw_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -426,6 +498,30 @@ class TestDmCheck:
         with pytest.raises(tanjun.CommandError, match="message"):
             assert tanjun.checks.DmCheck(error_message="message")(mock.Mock(guild_id=3123))
 
+    def test_for_guild_when_error_message_dict(self):
+        ...
+
+    def test_for_guild_when_error_message_dict_defaults(self):
+        ...
+
+    def test_for_guild_when_error_message_dict_explicit_default(self):
+        ...
+
+    def test_for_guild_when_error_message_localiser(self):
+        ...
+
+    def test_for_guild_when_error_message_localiser_overridden_id(self):
+        ...
+
+    def test_for_guild_when_error_message_localiser_defaults(self):
+        ...
+
+    def test_for_guild_when_error_message_localiser_overridden_default(self):
+        ...
+
+    def test_for_guild_when_error_message_localiser_explicit_default(self):
+        ...
+
 
 class TestGuildCheck:
     def test_for_guild(self):
@@ -453,6 +549,30 @@ class TestGuildCheck:
     def test_for_dm_when_error_message(self):
         with pytest.raises(tanjun.CommandError, match="hi"):
             tanjun.checks.GuildCheck(error_message="hi")(mock.Mock(guild_id=None))
+
+    def test_for_dm_when_error_message_dict(self):
+        ...
+
+    def test_for_dm_when_error_message_dict_defaults(self):
+        ...
+
+    def test_for_dm_when_error_message_dict_explicit_default(self):
+        ...
+
+    def test_for_dm_when_error_message_localiser(self):
+        ...
+
+    def test_for_dm_when_error_message_localiser_overridden_id(self):
+        ...
+
+    def test_for_dm_when_error_message_localiser_defaults(self):
+        ...
+
+    def test_for_dm_when_error_message_localiser_overridden_default(self):
+        ...
+
+    def test_for_dm_when_error_message_localiser_explicit_default(self):
+        ...
 
 
 def _perm_combos(perms: hikari.Permissions) -> collections.Iterator[hikari.Permissions]:
@@ -649,6 +769,30 @@ class TestAuthorPermissionCheck:
         fetch_permissions.assert_awaited_once_with(
             mock_context.client, mock_context.member, channel=mock_context.channel_id
         )
+
+    async def test_when_missing_perms_and_error_message_dict(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_dict_defaults(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_dict_explicit_default(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_localiser(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_localiser_overridden_id(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_localiser_defaults(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_localiser_overridden_default(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_localiser_explicit_default(self):
+        ...
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_halt_execution(
@@ -1011,6 +1155,30 @@ class TestOwnPermissionCheck:
         mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
         mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
         mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
+
+    async def test_when_missing_perms_and_error_message_dict(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_dict_defaults(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_dict_explicit_default(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_localiser(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_localiser_overridden_id(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_localiser_defaults(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_localiser_overridden_default(self):
+        ...
+
+    async def test_when_missing_perms_and_error_message_localiser_explicit_default(self):
+        ...
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_halt_execution(
@@ -2376,6 +2544,46 @@ async def test_any_checks_when_all_fail_and_error_message():
             mock.call(mock_check_3, mock_context),
         ]
     )
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error_message_dict():
+    ...
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error_message_dict_defaults():
+    ...
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error_message_dict_explicit_default():
+    ...
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error_message_localiser():
+    ...
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_id():
+    ...
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error_message_localiser_defaults():
+    ...
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_default():
+    ...
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error_message_localiser_explicit_default():
+    ...
 
 
 @pytest.mark.asyncio()

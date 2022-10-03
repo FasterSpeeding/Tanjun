@@ -1244,6 +1244,10 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
+    async def test_call_when_wait_until(self):
+        raise NotImplementedError
+
+    @pytest.mark.asyncio()
     async def test_call_when_wait_until_and_error_callback(self):
         class MockException(Exception):
             ...
@@ -1824,6 +1828,10 @@ class TestConcurrencyPreExecution:
             await hook(mock_context, mock_limiter)
 
         mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
+
+    @pytest.mark.asyncio()
+    async def test_call_when_acquire_fails(self):
+        raise NotImplementedError
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_and_error_callback(self):

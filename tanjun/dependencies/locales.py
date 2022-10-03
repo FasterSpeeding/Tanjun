@@ -43,6 +43,8 @@ import abc
 import typing
 from collections import abc as collections
 
+_BasicLocaliserT = typing.TypeVar("_BasicLocaliserT", bound="BasicLocaliser")
+
 
 class AbstractLocaliser(abc.ABC):
     """Abstract class of a string localiser."""
@@ -64,9 +66,7 @@ class AbstractLocaliser(abc.ABC):
         tag
             The "IETF lang tag" to localise the string to.
 
-            Discord doesn't document this well like at all, nor the standard(s)
-            they follow for this, and the cloest you'll get to a conclusive list is
-            <https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales>
+            This should usually be a [hikari.locales.Locale][].
         **kwargs
             Key-word arguments to pass to the string as format args.
 
@@ -116,12 +116,31 @@ class BasicLocaliser(AbstractLocaliser):
             return string.format(**kwargs)
 
     def set_variants(
-        self, identifier: str, variants: typing.Optional[collections.Mapping[str, str]] = None, /, **other_variants: str
-    ) -> None:
+        self: _BasicLocaliserT,
+        identifier: str,
+        variants: typing.Optional[collections.Mapping[str, str]] = None,
+        /,
+        **other_variants: str,
+    ) -> _BasicLocaliserT:
+        """Set the variants for a localised field.
+
+        Parameters
+        ----------
+        identifier
+            Identifier of the field to set the localised variants for.
+        variants
+            Mapping of [hikari.locales.Locale][]s to the localised values.
+
+        Returns
+        -------
+        Self
+            The localiser object to enable chained calls.
+        """
         if variants:
             other_variants.update(variants)
 
         self._tags[identifier] = other_variants
+        return self
 
 
 BasicLocalizer = BasicLocaliser
