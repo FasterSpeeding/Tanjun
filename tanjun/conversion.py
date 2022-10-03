@@ -311,8 +311,9 @@ class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
         If you just want to convert inpute to a [hikari.emojis.Emoji][],
         [hikari.emojis.CustomEmoji][] or [hikari.emojis.UnicodeEmoji][] without
         making any cache or REST calls then you can just use the relevant
-        [hikari.emojis.Emoji.parse][], [hikari.emojis.CustomEmoji.parse][] or
-        [hikari.emojis.UnicodeEmoji.parse][] methods.
+        [Emoji.parse][hikari.emojis.Emoji.parse],
+        [CustomEmoji.parse][hikari.emojis.CustomEmoji.parse] or
+        [UnicodeEmoji.parse][hikari.emojis.UnicodeEmoji.parse] methods.
     """
 
     __slots__ = ()

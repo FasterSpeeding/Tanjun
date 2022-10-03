@@ -380,7 +380,6 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             This should be an asynchronous callback which takes one positional
             argument of type [tanjun.abc.MenuContext][], returns [None][]
             and may use dependency injection to access other services.
-
         type_ : hikari.commands.CommandType
             The type of menu command this is.
 
