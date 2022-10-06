@@ -47,13 +47,14 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+    from typing_extensions import Self
+
     _CommandT = typing.Union[
         tanjun.MenuCommand["_MenuCommandCallbackSigT", typing.Any],
         tanjun.MessageCommand["_MenuCommandCallbackSigT"],
         tanjun.SlashCommand["_MenuCommandCallbackSigT"],
     ]
     _CallbackishT = typing.Union["_MenuCommandCallbackSigT", _CommandT["_MenuCommandCallbackSigT"]]
-    _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="MenuCommand[typing.Any, typing.Any]")
 
 import hikari
 
@@ -536,7 +537,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
 
         return builder
 
-    def set_tracked_command(self: _MenuCommandT, command: hikari.PartialCommand, /) -> _MenuCommandT:
+    def set_tracked_command(self, command: hikari.PartialCommand, /) -> Self:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         if not isinstance(command, hikari.ContextMenuCommand):
             raise TypeError("Command must be a ContextMenuCommand")
@@ -544,7 +545,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         self._tracked_command = command
         return self
 
-    def set_ephemeral_default(self: _MenuCommandT, state: typing.Optional[bool], /) -> _MenuCommandT:
+    def set_ephemeral_default(self, state: typing.Optional[bool], /) -> Self:
         """Set whether this command's responses should default to ephemeral.
 
         Parameters
@@ -572,7 +573,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         ctx.set_command(None)
         return result
 
-    def copy(self: _MenuCommandT, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None) -> _MenuCommandT:
+    def copy(self, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy()
         inst._parent = parent

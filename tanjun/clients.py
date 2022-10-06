@@ -73,9 +73,9 @@ if typing.TYPE_CHECKING:
     import types
 
     import typing_extensions
+    from typing_extensions import Self
 
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
-    _ClientT = typing.TypeVar("_ClientT", bound="Client")
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig)
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun.MetaEventSig)
     _PrefixGetterSigT = typing.TypeVar("_PrefixGetterSigT", bound="PrefixGetterSig")
@@ -782,7 +782,7 @@ class Client(tanjun.Client):
             _stack_level=_stack_level,
         )
 
-    def _maybe_set_type_dep(self: _ClientT, type_: type[_T], value: typing.Optional[_T]) -> _ClientT:
+    def _maybe_set_type_dep(self, type_: type[_T], value: typing.Optional[_T]) -> Self:
         if value is not None:
             self.set_type_dependency(type_, value)
 
@@ -1442,7 +1442,7 @@ class Client(tanjun.Client):
 
         return responses
 
-    def set_auto_defer_after(self: _ClientT, time: typing.Optional[float], /) -> _ClientT:
+    def set_auto_defer_after(self, time: typing.Optional[float], /) -> Self:
         """Set when this client should automatically defer execution of commands.
 
         !!! warning
@@ -1457,9 +1457,7 @@ class Client(tanjun.Client):
         self._auto_defer_after = float(time) if time is not None else None
         return self
 
-    def set_default_app_command_permissions(
-        self: _ClientT, permissions: typing.Union[int, hikari.Permissions], /
-    ) -> _ClientT:
+    def set_default_app_command_permissions(self, permissions: typing.Union[int, hikari.Permissions], /) -> Self:
         """Set the default member permissions needed for this client's commands.
 
         !!! warning
@@ -1483,7 +1481,7 @@ class Client(tanjun.Client):
         self._default_app_cmd_permissions = hikari.Permissions(permissions)
         return self
 
-    def set_dms_enabled_for_app_cmds(self: _ClientT, state: bool, /) -> _ClientT:
+    def set_dms_enabled_for_app_cmds(self, state: bool, /) -> Self:
         """Set whether this clients's commands should be enabled in DMs.
 
         Parameters
@@ -1504,7 +1502,7 @@ class Client(tanjun.Client):
         self._dms_enabled_for_app_cmds = state
         return self
 
-    def set_ephemeral_default(self: _ClientT, state: bool, /) -> _ClientT:
+    def set_ephemeral_default(self, state: bool, /) -> Self:
         """Set whether slash contexts spawned by this client should default to ephemeral responses.
 
         This defaults to [False][] if not explicitly set.
@@ -1525,7 +1523,7 @@ class Client(tanjun.Client):
         self._defaults_to_ephemeral = state
         return self
 
-    def set_hikari_trait_injectors(self: _ClientT, bot: hikari.RESTAware, /) -> _ClientT:
+    def set_hikari_trait_injectors(self, bot: hikari.RESTAware, /) -> Self:
         """Set type based dependency injection based on the hikari traits found in `bot`.
 
         This is a short hand for calling [tanjun.Client.add_type_dependency][] for all
@@ -1542,7 +1540,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def set_interaction_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
+    def set_interaction_not_found(self, message: typing.Optional[str], /) -> Self:
         """Set the response message for when an interaction command is not found.
 
         !!! warning
@@ -1557,7 +1555,7 @@ class Client(tanjun.Client):
         """
         return self.set_menu_not_found(message).set_slash_not_found(message)
 
-    def set_menu_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
+    def set_menu_not_found(self, message: typing.Optional[str], /) -> Self:
         """Set the response message for when a menu command is not found.
 
         !!! warning
@@ -1573,7 +1571,7 @@ class Client(tanjun.Client):
         self._menu_not_found = message
         return self
 
-    def set_slash_not_found(self: _ClientT, message: typing.Optional[str], /) -> _ClientT:
+    def set_slash_not_found(self, message: typing.Optional[str], /) -> Self:
         """Set the response message for when a slash command is not found.
 
         !!! warning
@@ -1589,7 +1587,7 @@ class Client(tanjun.Client):
         self._slash_not_found = message
         return self
 
-    def set_interaction_accepts(self: _ClientT, accepts: InteractionAcceptsEnum, /) -> _ClientT:
+    def set_interaction_accepts(self, accepts: InteractionAcceptsEnum, /) -> Self:
         """Set the kind of interactions this client should execute.
 
         Parameters
@@ -1608,7 +1606,7 @@ class Client(tanjun.Client):
         self._interaction_accepts = accepts
         return self
 
-    def set_message_accepts(self: _ClientT, accepts: MessageAcceptsEnum, /) -> _ClientT:
+    def set_message_accepts(self, accepts: MessageAcceptsEnum, /) -> Self:
         """Set the kind of messages commands should be executed based on.
 
         Parameters
@@ -1634,8 +1632,8 @@ class Client(tanjun.Client):
         return self
 
     def set_autocomplete_ctx_maker(
-        self: _ClientT, maker: _AutocompleteContextMakerProto = context.AutocompleteContext, /
-    ) -> _ClientT:
+        self, maker: _AutocompleteContextMakerProto = context.AutocompleteContext, /
+    ) -> Self:
         """Set the autocomplete context maker to use when creating contexts.
 
         !!! warning
@@ -1661,7 +1659,7 @@ class Client(tanjun.Client):
         self._make_autocomplete_context = maker
         return self
 
-    def set_menu_ctx_maker(self: _ClientT, maker: _MenuContextMakerProto = context.MenuContext, /) -> _ClientT:
+    def set_menu_ctx_maker(self, maker: _MenuContextMakerProto = context.MenuContext, /) -> Self:
         """Set the autocomplete context maker to use when creating contexts.
 
         !!! warning
@@ -1687,7 +1685,7 @@ class Client(tanjun.Client):
         self._make_menu_context = maker
         return self
 
-    def set_message_ctx_maker(self: _ClientT, maker: _MessageContextMakerProto = context.MessageContext, /) -> _ClientT:
+    def set_message_ctx_maker(self, maker: _MessageContextMakerProto = context.MessageContext, /) -> Self:
         """Set the message context maker to use when creating context for a message.
 
         !!! warning
@@ -1713,12 +1711,12 @@ class Client(tanjun.Client):
         self._make_message_context = maker
         return self
 
-    def set_metadata(self: _ClientT, key: typing.Any, value: typing.Any, /) -> _ClientT:
+    def set_metadata(self, key: typing.Any, value: typing.Any, /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         self._metadata[key] = value
         return self
 
-    def set_slash_ctx_maker(self: _ClientT, maker: _SlashContextMakerProto = context.SlashContext, /) -> _ClientT:
+    def set_slash_ctx_maker(self, maker: _SlashContextMakerProto = context.SlashContext, /) -> Self:
         """Set the slash context maker to use when creating context for a slash command.
 
         !!! warning
@@ -1744,7 +1742,7 @@ class Client(tanjun.Client):
         self._make_slash_context = maker
         return self
 
-    def set_human_only(self: _ClientT, value: bool = True) -> _ClientT:
+    def set_human_only(self, value: bool = True) -> Self:
         """Set whether or not message commands execution should be limited to "human" users.
 
         !!! note
@@ -1770,7 +1768,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def add_check(self: _ClientT, check: tanjun.CheckSig, /) -> _ClientT:
+    def add_check(self, check: tanjun.CheckSig, /) -> Self:
         """Add a generic check to this client.
 
         This will be applied to both message and slash command execution.
@@ -1792,7 +1790,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def remove_check(self: _ClientT, check: tanjun.CheckSig, /) -> _ClientT:
+    def remove_check(self, check: tanjun.CheckSig, /) -> Self:
         """Remove a check from the client.
 
         Parameters
@@ -1829,7 +1827,7 @@ class Client(tanjun.Client):
     async def check(self, ctx: tanjun.Context, /) -> bool:
         return await _internal.gather_checks(ctx, self._checks)
 
-    def add_component(self: _ClientT, component: tanjun.Component, /) -> _ClientT:
+    def add_component(self, component: tanjun.Component, /) -> Self:
         """Add a component to this client.
 
         Parameters
@@ -1865,7 +1863,7 @@ class Client(tanjun.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._components.get(name)
 
-    def remove_component(self: _ClientT, component: tanjun.Component, /) -> _ClientT:
+    def remove_component(self, component: tanjun.Component, /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         stored_component = self._components.get(component.name)
         if not stored_component or stored_component != component:
@@ -1886,13 +1884,13 @@ class Client(tanjun.Client):
 
         return self
 
-    def remove_component_by_name(self: _ClientT, name: str, /) -> _ClientT:
+    def remove_component_by_name(self, name: str, /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self.remove_component(self._components[name])
 
     def add_client_callback(
-        self: _ClientT, name: typing.Union[str, tanjun.ClientCallbackNames], callback: tanjun.MetaEventSig, /
-    ) -> _ClientT:
+        self, name: typing.Union[str, tanjun.ClientCallbackNames], callback: tanjun.MetaEventSig, /
+    ) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         try:
@@ -1925,8 +1923,8 @@ class Client(tanjun.Client):
         return ()
 
     def remove_client_callback(
-        self: _ClientT, name: typing.Union[str, tanjun.ClientCallbackNames], callback: tanjun.MetaEventSig, /
-    ) -> _ClientT:
+        self, name: typing.Union[str, tanjun.ClientCallbackNames], callback: tanjun.MetaEventSig, /
+    ) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         self._client_callbacks[name].remove(callback)
@@ -1945,9 +1943,7 @@ class Client(tanjun.Client):
 
         return decorator
 
-    def add_listener(
-        self: _ClientT, event_type: type[hikari.Event], callback: tanjun.ListenerCallbackSig, /
-    ) -> _ClientT:
+    def add_listener(self, event_type: type[hikari.Event], callback: tanjun.ListenerCallbackSig, /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         injected = self.injector.as_async_self_injecting(callback)
         try:
@@ -1964,9 +1960,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def remove_listener(
-        self: _ClientT, event_type: type[hikari.Event], callback: tanjun.ListenerCallbackSig, /
-    ) -> _ClientT:
+    def remove_listener(self, event_type: type[hikari.Event], callback: tanjun.ListenerCallbackSig, /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         callbacks = self._listeners[event_type]
 
@@ -1995,7 +1989,7 @@ class Client(tanjun.Client):
 
         return decorator
 
-    def add_prefix(self: _ClientT, prefixes: typing.Union[collections.Iterable[str], str], /) -> _ClientT:
+    def add_prefix(self, prefixes: typing.Union[collections.Iterable[str], str], /) -> Self:
         """Add a prefix used to filter message command calls.
 
         This will be matched against the first character(s) in a message's
@@ -2022,7 +2016,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def remove_prefix(self: _ClientT, prefix: str, /) -> _ClientT:
+    def remove_prefix(self, prefix: str, /) -> Self:
         """Remove a message content prefix from the client.
 
         Parameters
@@ -2043,7 +2037,7 @@ class Client(tanjun.Client):
         self._prefixes.remove(prefix)
         return self
 
-    def set_prefix_getter(self: _ClientT, getter: typing.Optional[PrefixGetterSig], /) -> _ClientT:
+    def set_prefix_getter(self, getter: typing.Optional[PrefixGetterSig], /) -> Self:
         """Set the callback used to retrieve message prefixes set for the relevant guild.
 
         Parameters
@@ -2315,7 +2309,7 @@ class Client(tanjun.Client):
 
         return self._cached_application_id
 
-    def set_hooks(self: _ClientT, hooks: typing.Optional[tanjun.AnyHooks], /) -> _ClientT:
+    def set_hooks(self, hooks: typing.Optional[tanjun.AnyHooks], /) -> Self:
         """Set the general command execution hooks for this client.
 
         The callbacks within this hook will be added to every slash and message
@@ -2336,7 +2330,7 @@ class Client(tanjun.Client):
         self._hooks = hooks
         return self
 
-    def set_menu_hooks(self: _ClientT, hooks: typing.Optional[tanjun.MenuHooks], /) -> _ClientT:
+    def set_menu_hooks(self, hooks: typing.Optional[tanjun.MenuHooks], /) -> Self:
         """Set the menu command execution hooks for this client.
 
         The callbacks within this hook will be added to every menu command
@@ -2358,7 +2352,7 @@ class Client(tanjun.Client):
         self._menu_hooks = hooks
         return self
 
-    def set_slash_hooks(self: _ClientT, hooks: typing.Optional[tanjun.SlashHooks], /) -> _ClientT:
+    def set_slash_hooks(self, hooks: typing.Optional[tanjun.SlashHooks], /) -> Self:
         """Set the slash command execution hooks for this client.
 
         The callbacks within this hook will be added to every slash command
@@ -2380,7 +2374,7 @@ class Client(tanjun.Client):
         self._slash_hooks = hooks
         return self
 
-    def set_message_hooks(self: _ClientT, hooks: typing.Optional[tanjun.MessageHooks], /) -> _ClientT:
+    def set_message_hooks(self, hooks: typing.Optional[tanjun.MessageHooks], /) -> Self:
         """Set the message command execution hooks for this client.
 
         The callbacks within this hook will be added to every message command
@@ -2403,12 +2397,12 @@ class Client(tanjun.Client):
         return self
 
     def load_directory(
-        self: _ClientT,
+        self,
         directory: typing.Union[str, pathlib.Path],
         /,
         *,
         namespace: typing.Optional[str] = None,
-    ) -> _ClientT:
+    ) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         paths = _scan_directory(pathlib.Path(directory), namespace)
         for path in paths:
@@ -2485,7 +2479,7 @@ class Client(tanjun.Client):
 
             self._path_modules[module_path] = module
 
-    def load_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
+    def load_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, pathlib.Path):
@@ -2524,7 +2518,7 @@ class Client(tanjun.Client):
             else:
                 raise RuntimeError("Generator didn't finish")
 
-    def unload_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
+    def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
         # <<inherited docstring from tanjun.ab.Client>>.
         for module_path in modules:
             if isinstance(module_path, str):
@@ -2600,7 +2594,7 @@ class Client(tanjun.Client):
         else:
             modules_dict[module_path] = module
 
-    def reload_modules(self: _ClientT, *modules: typing.Union[str, pathlib.Path]) -> _ClientT:
+    def reload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, pathlib.Path):
@@ -2641,7 +2635,7 @@ class Client(tanjun.Client):
             else:
                 raise RuntimeError("Generator didn't finish")
 
-    def set_type_dependency(self: _ClientT, type_: type[_T], value: _T, /) -> _ClientT:
+    def set_type_dependency(self, type_: type[_T], value: _T, /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         self._injector.set_type_dependency(type_, value)
         return self
@@ -2650,14 +2644,14 @@ class Client(tanjun.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._injector.get_type_dependency(type_)
 
-    def remove_type_dependency(self: _ClientT, type_: type[typing.Any], /) -> _ClientT:
+    def remove_type_dependency(self, type_: type[typing.Any], /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         self._injector.remove_type_dependency(type_)
         return self
 
     def set_callback_override(
-        self: _ClientT, callback: alluka.abc.CallbackSig[_T], override: alluka.abc.CallbackSig[_T], /
-    ) -> _ClientT:
+        self, callback: alluka.abc.CallbackSig[_T], override: alluka.abc.CallbackSig[_T], /
+    ) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         self._injector.set_callback_override(callback, override)
         return self
@@ -2668,7 +2662,7 @@ class Client(tanjun.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._injector.get_callback_override(callback)
 
-    def remove_callback_override(self: _ClientT, callback: alluka.abc.CallbackSig[_T], /) -> _ClientT:
+    def remove_callback_override(self, callback: alluka.abc.CallbackSig[_T], /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         self._injector.remove_callback_override(callback)
         return self

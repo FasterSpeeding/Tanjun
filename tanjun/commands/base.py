@@ -42,8 +42,9 @@ from .. import abc as tanjun
 from .. import components
 
 if typing.TYPE_CHECKING:
+    from typing_extensions import Self
+
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
-    _PartialCommandT = typing.TypeVar("_PartialCommandT", bound="PartialCommand[typing.Any]")
 
 
 _ContextT = typing.TypeVar("_ContextT", bound="tanjun.Context")
@@ -80,7 +81,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._metadata
 
-    def copy(self: _PartialCommandT) -> _PartialCommandT:
+    def copy(self) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = copy.copy(self)
         inst._checks = [copy.copy(check) for check in self._checks]
@@ -88,24 +89,24 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         inst._metadata = self._metadata.copy()
         return inst
 
-    def set_hooks(self: _PartialCommandT, hooks: typing.Optional[tanjun.Hooks[_ContextT]], /) -> _PartialCommandT:
+    def set_hooks(self, hooks: typing.Optional[tanjun.Hooks[_ContextT]], /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._hooks = hooks
         return self
 
-    def set_metadata(self: _PartialCommandT, key: typing.Any, value: typing.Any, /) -> _PartialCommandT:
+    def set_metadata(self, key: typing.Any, value: typing.Any, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._metadata[key] = value
         return self
 
-    def add_check(self: _PartialCommandT, check: tanjun.CheckSig, /) -> _PartialCommandT:
+    def add_check(self, check: tanjun.CheckSig, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         if check not in self._checks:
             self._checks.append(check)
 
         return self
 
-    def remove_check(self: _PartialCommandT, check: tanjun.CheckSig, /) -> _PartialCommandT:
+    def remove_check(self, check: tanjun.CheckSig, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._checks.remove(check)
         return self
@@ -114,11 +115,11 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         self.add_check(check)
         return check
 
-    def bind_client(self: _PartialCommandT, client: tanjun.Client, /) -> _PartialCommandT:
+    def bind_client(self, client: tanjun.Client, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self
 
-    def bind_component(self: _PartialCommandT, component: tanjun.Component, /) -> _PartialCommandT:
+    def bind_component(self, component: tanjun.Component, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._component = component
         return self

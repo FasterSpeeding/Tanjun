@@ -50,13 +50,11 @@ from . import _internal
 from . import components
 
 if typing.TYPE_CHECKING:
+    from typing_extensions import Self
+
     from . import abc as tanjun
 
-    _DatetimeT = typing.TypeVar("_DatetimeT", bound="_Datetime")
-    _IntervalScheduleT = typing.TypeVar("_IntervalScheduleT", bound="IntervalSchedule[typing.Any]")
     _OtherCallbackT = typing.TypeVar("_OtherCallbackT", bound="_CallbackSig")
-    _T = typing.TypeVar("_T")
-    _TimeSchedule = typing.TypeVar("_TimeSchedule", bound="TimeSchedule[typing.Any]")
 
 _CallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound="_CallbackSig")
@@ -82,7 +80,7 @@ class AbstractSchedule(abc.ABC):
         """Whether the schedule is alive."""
 
     @abc.abstractmethod
-    def copy(self: _T) -> _T:
+    def copy(self) -> Self:
         """Copy the schedule.
 
         Returns
@@ -295,7 +293,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
             await self._callback(*args, **kwargs)
 
-    def copy(self: _IntervalScheduleT) -> _IntervalScheduleT:
+    def copy(self) -> Self:
         # <<inherited docstring from IntervalSchedule>>.
         if self._task:
             raise RuntimeError("Cannot copy an active schedule")
@@ -309,7 +307,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         if isinstance(component, _ComponentProto):
             component.add_schedule(self)
 
-    def set_start_callback(self: _IntervalScheduleT, callback: _CallbackSig, /) -> _IntervalScheduleT:
+    def set_start_callback(self, callback: _CallbackSig, /) -> Self:
         """Set the callback executed before the schedule starts to run.
 
         Parameters
@@ -325,7 +323,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         self._start_callback = callback
         return self
 
-    def set_stop_callback(self: _IntervalScheduleT, callback: _CallbackSig, /) -> _IntervalScheduleT:
+    def set_stop_callback(self, callback: _CallbackSig, /) -> Self:
         """Set the callback executed after the schedule is finished.
 
         Parameters
@@ -518,7 +516,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         self.set_stop_callback(callback)
         return callback
 
-    def set_ignored_exceptions(self: _IntervalScheduleT, *exceptions: type[Exception]) -> _IntervalScheduleT:
+    def set_ignored_exceptions(self, *exceptions: type[Exception]) -> Self:
         """Set the exceptions that a schedule will ignore.
 
         If any of these exceptions are encountered, there will be nothing printed to console.
@@ -536,7 +534,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         self._ignored_exceptions = exceptions
         return self
 
-    def set_fatal_exceptions(self: _IntervalScheduleT, *exceptions: type[Exception]) -> _IntervalScheduleT:
+    def set_fatal_exceptions(self, *exceptions: type[Exception]) -> Self:
         """Set the exceptions that will stop a schedule.
 
         If any of these exceptions are encountered, the task will stop.
@@ -666,7 +664,7 @@ class _Datetime:
         self._next_second()
         return self._date
 
-    def _next_month(self: _DatetimeT) -> _DatetimeT:
+    def _next_month(self) -> Self:
         """Bump this to the next valid month.
 
         The current month will also be considered.
@@ -685,7 +683,7 @@ class _Datetime:
         self._date = self._date.replace(month=month, day=1, hour=0, minute=0, second=0)
         return self._next_day()
 
-    def _next_day(self: _DatetimeT) -> _DatetimeT:
+    def _next_day(self) -> Self:
         """Bump this to the next valid day.
 
         The current day will also be considered.
@@ -738,7 +736,7 @@ class _Datetime:
 
         return self._next_hour()
 
-    def _next_hour(self: _DatetimeT) -> _DatetimeT:
+    def _next_hour(self) -> Self:
         """Bump this to the next valid hour.
 
         The current hour will also be considered.
@@ -757,7 +755,7 @@ class _Datetime:
         self._date = self._date.replace(hour=hour, minute=0, second=0)
         return self._next_minute()
 
-    def _next_minute(self: _DatetimeT) -> _DatetimeT:
+    def _next_minute(self) -> Self:
         """Bump this to the next valid minute.
 
         The current minute will also be considered.
@@ -776,7 +774,7 @@ class _Datetime:
         self._date = self._date.replace(minute=minute, second=0)
         return self._next_second()
 
-    def _next_second(self: _DatetimeT) -> _DatetimeT:
+    def _next_second(self) -> Self:
         """Bump this to the next valid second.
 
         The current second will also be considered.
@@ -1052,7 +1050,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
             await self._callback(*args, **kwargs)
 
-    def copy(self: _TimeSchedule) -> _TimeSchedule:
+    def copy(self) -> Self:
         # <<inherited docstring from IntervalSchedule>>.
         if self._task:
             raise RuntimeError("Cannot copy an active schedule")
@@ -1146,7 +1144,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
 
             raise
 
-    def set_ignored_exceptions(self: _TimeSchedule, *exceptions: type[Exception]) -> _TimeSchedule:
+    def set_ignored_exceptions(self, *exceptions: type[Exception]) -> Self:
         """Set the exceptions that a schedule will ignore.
 
         If any of these exceptions are encountered, there will be nothing printed to console.
@@ -1164,7 +1162,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         self._ignored_exceptions = exceptions
         return self
 
-    def set_fatal_exceptions(self: _TimeSchedule, *exceptions: type[Exception]) -> _TimeSchedule:
+    def set_fatal_exceptions(self, *exceptions: type[Exception]) -> Self:
         """Set the exceptions that will stop a schedule.
 
         If any of these exceptions are encountered, the task will stop.

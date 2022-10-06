@@ -80,10 +80,10 @@ if typing.TYPE_CHECKING:
     import datetime
     import pathlib
 
+    from typing_extensions import Self
+
     _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
-    _ClientT = typing.TypeVar("_ClientT", bound="Client")
-    _ContextT = typing.TypeVar("_ContextT", bound="Context")
     _ErrorHookSigT = typing.TypeVar("_ErrorHookSigT", bound="ErrorHookSig")
     _HookSigT = typing.TypeVar("_HookSigT", bound="HookSig")
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound="ListenerCallbackSig")
@@ -225,7 +225,7 @@ class Context(alluka.Context):
 
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
     @abc.abstractmethod
-    def command(self: _ContextT) -> typing.Optional[ExecutableCommand[_ContextT]]:
+    def command(self) -> typing.Optional[ExecutableCommand[Self]]:
         """Object of the command this context is bound to.
 
         !!! note
@@ -307,7 +307,7 @@ class Context(alluka.Context):
         """Command name this execution was triggered with."""
 
     @abc.abstractmethod
-    def set_component(self: _T, component: typing.Optional[Component], /) -> _T:
+    def set_component(self, component: typing.Optional[Component], /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -936,15 +936,15 @@ class MessageContext(Context, abc.ABC):
         """Command name that triggered the context."""
 
     @abc.abstractmethod
-    def set_command(self: _T, command: typing.Optional[MessageCommand[typing.Any]], /) -> _T:
+    def set_command(self, command: typing.Optional[MessageCommand[typing.Any]], /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_content(self: _T, content: str, /) -> _T:
+    def set_content(self, content: str, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_triggering_name(self: _T, name: str, /) -> _T:
+    def set_triggering_name(self, name: str, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -1355,7 +1355,7 @@ class AppCommandContext(Context, abc.ABC):
         """Type of application command this context is for."""
 
     @abc.abstractmethod
-    def set_ephemeral_default(self: _T, state: bool, /) -> _T:
+    def set_ephemeral_default(self, state: bool, /) -> Self:
         """Set the ephemeral default state for this context.
 
         Parameters
@@ -1705,7 +1705,7 @@ class MenuContext(AppCommandContext, abc.ABC):
         """The type of context menu this context is for."""
 
     @abc.abstractmethod
-    def set_command(self: _T, command: typing.Optional[MenuCommand[typing.Any, typing.Any]], /) -> _T:
+    def set_command(self, command: typing.Optional[MenuCommand[typing.Any, typing.Any]], /) -> Self:
         """Set the command for this context.
 
         Parameters
@@ -1802,7 +1802,7 @@ class SlashContext(AppCommandContext, abc.ABC):
         """Type of application command this context is for."""
 
     @abc.abstractmethod
-    def set_command(self: _T, command: typing.Optional[BaseSlashCommand], /) -> _T:
+    def set_command(self, command: typing.Optional[BaseSlashCommand], /) -> Self:
         """Set the command for this context.
 
         Parameters
@@ -2067,11 +2067,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
     __slots__ = ()
 
     @abc.abstractmethod
-    def copy(self: _T) -> _T:
+    def copy(self) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def add_on_error(self: _T, callback: ErrorHookSig, /) -> _T:
+    def add_on_error(self, callback: ErrorHookSig, /) -> Self:
         """Add an error callback to this hook object.
 
         !!! note
@@ -2140,7 +2140,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_on_parser_error(self: _T, callback: HookSig, /) -> _T:
+    def add_on_parser_error(self, callback: HookSig, /) -> Self:
         """Add a parser error callback to this hook object.
 
         Parameters
@@ -2191,7 +2191,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_post_execution(self: _T, callback: HookSig, /) -> _T:
+    def add_post_execution(self, callback: HookSig, /) -> Self:
         """Add a post-execution callback to this hook object.
 
         Parameters
@@ -2239,7 +2239,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_pre_execution(self: _T, callback: HookSig, /) -> _T:
+    def add_pre_execution(self, callback: HookSig, /) -> Self:
         """Add a pre-execution callback for this hook object.
 
         Parameters
@@ -2287,7 +2287,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_on_success(self: _T, callback: HookSig, /) -> _T:
+    def add_on_success(self, callback: HookSig, /) -> Self:
         """Add a success callback to this hook object.
 
         Parameters
@@ -2420,15 +2420,15 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
         """
 
     @abc.abstractmethod
-    def bind_client(self: _T, client: Client, /) -> _T:
+    def bind_client(self, client: Client, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def bind_component(self: _T, component: Component, /) -> _T:
+    def bind_component(self, component: Component, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def copy(self: _T) -> _T:
+    def copy(self) -> Self:
         """Create a copy of this command.
 
         Returns
@@ -2438,7 +2438,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
         """
 
     @abc.abstractmethod
-    def set_hooks(self: _T, hooks: typing.Optional[Hooks[_ContextT_co]], /) -> _T:
+    def set_hooks(self, hooks: typing.Optional[Hooks[_ContextT_co]], /) -> Self:
         """Set the hooks that are triggered when the command is executed.
 
         Parameters
@@ -2453,7 +2453,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
         """
 
     @abc.abstractmethod
-    def add_check(self: _T, check: CheckSig, /) -> _T:  # TODO: remove or add with_check?
+    def add_check(self, check: CheckSig, /) -> Self:  # TODO: remove or add with_check?
         """Add a check to the command.
 
         Parameters
@@ -2468,7 +2468,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
         """
 
     @abc.abstractmethod
-    def remove_check(self: _T, check: CheckSig, /) -> _T:
+    def remove_check(self, check: CheckSig, /) -> Self:
         """Remove a check from the command.
 
         Parameters
@@ -2488,7 +2488,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
         """
 
     @abc.abstractmethod
-    def set_metadata(self: _T, key: typing.Any, value: typing.Any, /) -> _T:
+    def set_metadata(self, key: typing.Any, value: typing.Any, /) -> Self:
         """Set a field in the command's metadata.
 
         Parameters
@@ -2616,7 +2616,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def set_tracked_command(self: _T, command: hikari.PartialCommand, /) -> _T:
+    def set_tracked_command(self, command: hikari.PartialCommand, /) -> Self:
         """Set the global command this tracks.
 
         Parameters
@@ -2671,7 +2671,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         """
 
     @abc.abstractmethod
-    def copy(self: _T, *, parent: typing.Optional[SlashCommandGroup] = None) -> _T:
+    def copy(self, *, parent: typing.Optional[SlashCommandGroup] = None) -> Self:
         """Create a copy of this command.
 
         Parameters
@@ -2686,7 +2686,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         """
 
     @abc.abstractmethod
-    def set_parent(self: _T, parent: typing.Optional[SlashCommandGroup], /) -> _T:
+    def set_parent(self, parent: typing.Optional[SlashCommandGroup], /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -2792,7 +2792,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
         """Collection of the commands in this group."""
 
     @abc.abstractmethod
-    def add_command(self: _T, command: BaseSlashCommand, /) -> _T:
+    def add_command(self, command: BaseSlashCommand, /) -> Self:
         """Add a command to this group.
 
         Parameters
@@ -2807,7 +2807,7 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_command(self: _T, command: BaseSlashCommand, /) -> _T:
+    def remove_command(self, command: BaseSlashCommand, /) -> Self:
         """Remove a command from this group.
 
         Parameters
@@ -2848,15 +2848,15 @@ class MessageParser(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
-    def bind_client(self: _T, client: Client, /) -> _T:
+    def bind_client(self, client: Client, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def bind_component(self: _T, component: Component, /) -> _T:
+    def bind_component(self, component: Component, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def copy(self: _T) -> _T:
+    def copy(self) -> Self:
         """Copy the parser.
 
         Returns
@@ -2938,7 +2938,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         """Parser for this command."""
 
     @abc.abstractmethod
-    def set_parent(self: _T, parent: typing.Optional[MessageCommandGroup[typing.Any]], /) -> _T:
+    def set_parent(self, parent: typing.Optional[MessageCommandGroup[typing.Any]], /) -> Self:
         """Set the parent of this command.
 
         Parameters
@@ -2953,7 +2953,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         """
 
     @abc.abstractmethod
-    def set_parser(self: _T, parser: MessageParser, /) -> _T:
+    def set_parser(self, parser: MessageParser, /) -> Self:
         """Set the for this message command.
 
         Parameters
@@ -2974,7 +2974,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         """
 
     @abc.abstractmethod
-    def copy(self: _T, *, parent: typing.Optional[MessageCommandGroup[typing.Any]] = None) -> _T:
+    def copy(self, *, parent: typing.Optional[MessageCommandGroup[typing.Any]] = None) -> Self:
         """Create a copy of this command.
 
         Parameters
@@ -3014,7 +3014,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_command(self: _T, command: MessageCommand[typing.Any], /) -> _T:
+    def add_command(self, command: MessageCommand[typing.Any], /) -> Self:
         """Add a command to this group.
 
         Parameters
@@ -3029,7 +3029,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_command(self: _T, command: MessageCommand[typing.Any], /) -> _T:
+    def remove_command(self, command: MessageCommand[typing.Any], /) -> Self:
         """Remove a command from this group.
 
         Parameters
@@ -3163,7 +3163,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def set_metadata(self: _T, key: typing.Any, value: typing.Any, /) -> _T:
+    def set_metadata(self, key: typing.Any, value: typing.Any, /) -> Self:
         """Set a field in the component's metadata.
 
         Parameters
@@ -3180,7 +3180,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_menu_command(self: _T, command: MenuCommand[typing.Any, typing.Any], /) -> _T:
+    def add_menu_command(self, command: MenuCommand[typing.Any, typing.Any], /) -> Self:
         """Add a menu command to this component.
 
         Parameters
@@ -3195,7 +3195,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_menu_command(self: _T, command: MenuCommand[typing.Any, typing.Any], /) -> _T:
+    def remove_menu_command(self, command: MenuCommand[typing.Any, typing.Any], /) -> Self:
         """Remove a menu command from this component.
 
         Parameters
@@ -3239,7 +3239,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_slash_command(self: _T, command: BaseSlashCommand, /) -> _T:
+    def add_slash_command(self, command: BaseSlashCommand, /) -> Self:
         """Add a slash command to this component.
 
         Parameters
@@ -3254,7 +3254,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_slash_command(self: _T, command: BaseSlashCommand, /) -> _T:
+    def remove_slash_command(self, command: BaseSlashCommand, /) -> Self:
         """Remove a slash command from this component.
 
         Parameters
@@ -3305,7 +3305,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_message_command(self: _T, command: MessageCommand[typing.Any], /) -> _T:
+    def add_message_command(self, command: MessageCommand[typing.Any], /) -> Self:
         """Add a message command to this component.
 
         Parameters
@@ -3320,7 +3320,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_message_command(self: _T, command: MessageCommand[typing.Any], /) -> _T:
+    def remove_message_command(self, command: MessageCommand[typing.Any], /) -> Self:
         """Remove a message command from this component.
 
         Parameters
@@ -3371,7 +3371,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_listener(self: _T, event: type[hikari.Event], listener: ListenerCallbackSig, /) -> _T:
+    def add_listener(self, event: type[hikari.Event], listener: ListenerCallbackSig, /) -> Self:
         """Add a listener to this component.
 
         Parameters
@@ -3388,7 +3388,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_listener(self: _T, event: type[hikari.Event], listener: ListenerCallbackSig, /) -> _T:
+    def remove_listener(self, event: type[hikari.Event], listener: ListenerCallbackSig, /) -> Self:
         """Remove a listener from this component.
 
         Parameters
@@ -3437,11 +3437,11 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def bind_client(self: _T, client: Client, /) -> _T:
+    def bind_client(self, client: Client, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def unbind_client(self: _T, client: Client, /) -> _T:
+    def unbind_client(self, client: Client, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -4086,7 +4086,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def set_metadata(self: _T, key: typing.Any, value: typing.Any, /) -> _T:
+    def set_metadata(self, key: typing.Any, value: typing.Any, /) -> Self:
         """Set a field in the client's metadata.
 
         Parameters
@@ -4103,7 +4103,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_component(self: _T, component: Component, /) -> _T:
+    def add_component(self, component: Component, /) -> Self:
         """Add a component to this client.
 
         Parameters
@@ -4133,7 +4133,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_component(self: _T, component: Component, /) -> _T:
+    def remove_component(self, component: Component, /) -> Self:
         """Remove a component from this client.
 
         This will unsubscribe any client callbacks, commands and listeners
@@ -4156,7 +4156,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_component_by_name(self: _T, name: str, /) -> _T:
+    def remove_component_by_name(self, name: str, /) -> Self:
         """Remove a component from this client by name.
 
         This will unsubscribe any client callbacks, commands and listeners
@@ -4174,7 +4174,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_client_callback(self: _T, name: typing.Union[str, ClientCallbackNames], callback: MetaEventSig, /) -> _T:
+    def add_client_callback(self, name: typing.Union[str, ClientCallbackNames], callback: MetaEventSig, /) -> Self:
         """Add a client callback.
 
         Parameters
@@ -4235,7 +4235,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_client_callback(self: _T, name: typing.Union[str, ClientCallbackNames], callback: MetaEventSig, /) -> _T:
+    def remove_client_callback(self, name: typing.Union[str, ClientCallbackNames], callback: MetaEventSig, /) -> Self:
         """Remove a client callback.
 
         Parameters
@@ -4294,7 +4294,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_listener(self: _T, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> _T:
+    def add_listener(self, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> Self:
         """Add a listener to the client.
 
         Parameters
@@ -4316,7 +4316,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_listener(self: _T, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> _T:
+    def remove_listener(self, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> Self:
         """Remove a listener from the client.
 
         Parameters
@@ -4507,12 +4507,12 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def load_directory(
-        self: _T,
+        self,
         directory: typing.Union[str, pathlib.Path],
         /,
         *,
         namespace: typing.Optional[str] = None,
-    ) -> _T:
+    ) -> Self:
         """Load entities into this client from the modules in a directory.
 
         The same loading rules for [tanjun.abc.Client.load_modules][] mostly
@@ -4565,7 +4565,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def load_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
+    def load_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
         """Load entities into this client from modules based on present loaders.
 
         !!! note
@@ -4635,7 +4635,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def unload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
+    def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
         """Unload entities from this client based on unloaders in one or more modules.
 
         !!! note
@@ -4687,7 +4687,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def reload_modules(self: _T, *modules: typing.Union[str, pathlib.Path]) -> _T:
+    def reload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
         """Reload entities in this client based on the loaders in loaded module(s).
 
         !!! note
@@ -4746,7 +4746,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def set_type_dependency(self: _ClientT, type_: type[_T], value: _T, /) -> _ClientT:
+    def set_type_dependency(self, type_: type[_T], value: _T, /) -> Self:
         """Set a callback to be called to resolve a injected type.
 
         Parameters
@@ -4778,7 +4778,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_type_dependency(self: _ClientT, type_: type[typing.Any], /) -> _ClientT:
+    def remove_type_dependency(self, type_: type[typing.Any], /) -> Self:
         """Remove a type dependency.
 
         Parameters
@@ -4798,9 +4798,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def set_callback_override(
-        self: _ClientT, callback: alluka.CallbackSig[_T], override: alluka.CallbackSig[_T], /
-    ) -> _ClientT:
+    def set_callback_override(self, callback: alluka.CallbackSig[_T], override: alluka.CallbackSig[_T], /) -> Self:
         """Override a specific injected callback.
 
         Parameters
@@ -4832,7 +4830,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_callback_override(self: _ClientT, callback: alluka.CallbackSig[_T], /) -> _ClientT:
+    def remove_callback_override(self, callback: alluka.CallbackSig[_T], /) -> Self:
         """Remove a callback override.
 
         Parameters

@@ -44,7 +44,8 @@ from .. import _internal
 from .. import abc as tanjun
 from .. import dependencies
 
-_MaybeLocalisedT = typing.TypeVar("_MaybeLocalisedT", bound="MaybeLocalised")
+if typing.TYPE_CHECKING:
+    from typing_extensions import self
 
 
 class MaybeLocalised:
@@ -144,8 +145,8 @@ class MaybeLocalised:
         return self.default_value.format(**kwargs)
 
     def assert_matches(
-        self: _MaybeLocalisedT, pattern: str, match: collections.Callable[[str], bool], /, *, lower_only: bool = False
-    ) -> _MaybeLocalisedT:
+        self, pattern: str, match: collections.Callable[[str], bool], /, *, lower_only: bool = False
+    ) -> Self:
         """Assert that all the values in this match a localised pattern.
 
         Parameters
@@ -169,7 +170,7 @@ class MaybeLocalised:
 
         return self
 
-    def assert_length(self: _MaybeLocalisedT, min_length: int, max_length: int, /) -> _MaybeLocalisedT:
+    def assert_length(self, min_length: int, max_length: int, /) -> Self:
         """Assert that all the lengths in this are within a certain inclusive range.
 
         Parameters

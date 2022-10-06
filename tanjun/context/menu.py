@@ -45,8 +45,9 @@ if typing.TYPE_CHECKING:
     import asyncio
     from collections import abc as collections
 
+    from typing_extensions import Self
+
     _T = typing.TypeVar("_T")
-    _MenuContextT = typing.TypeVar("_MenuContextT", bound="MenuContext")
     _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
 
 
@@ -143,9 +144,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
             self._marked_not_found = True
             await self._on_not_found(self)
 
-    def set_command(
-        self: _MenuContextT, command: typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]], /
-    ) -> _MenuContextT:
+    def set_command(self, command: typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]], /) -> Self:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         if command:
             self._set_type_special_case(tanjun.MenuCommand, command)

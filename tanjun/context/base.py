@@ -43,7 +43,7 @@ from hikari import snowflakes
 from .. import abc as tanjun
 
 if typing.TYPE_CHECKING:
-    _BaseContextT = typing.TypeVar("_BaseContextT", bound="BaseContext")
+    from typing_extensions import Self
 
 
 class BaseContext(alluka.BasicContext, tanjun.Context):
@@ -116,7 +116,7 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
         if self._final:
             raise TypeError("Cannot modify a finalised context")
 
-    def finalise(self: _BaseContextT) -> _BaseContextT:
+    def finalise(self) -> Self:
         """Finalise the context, dis-allowing any further modifications.
 
         Returns
@@ -127,7 +127,7 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
         self._final = True
         return self
 
-    def set_component(self: _BaseContextT, component: typing.Optional[tanjun.Component], /) -> _BaseContextT:
+    def set_component(self, component: typing.Optional[tanjun.Component], /) -> Self:
         # <<inherited docstring from tanjun.abc.Context>>.
         self._assert_not_final()
         if component:

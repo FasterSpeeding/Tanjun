@@ -46,6 +46,8 @@ from .. import hooks as hooks_
 from . import base
 
 if typing.TYPE_CHECKING:
+    from typing_extensions import Self
+
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
     _CommandT = typing.Union[
         tanjun.MenuCommand["_CommandCallbackSigT", typing.Any],
@@ -53,8 +55,6 @@ if typing.TYPE_CHECKING:
         tanjun.SlashCommand["_CommandCallbackSigT"],
     ]
     _CallbackishT = typing.Union[_CommandT["_CommandCallbackSigT"], "_CommandCallbackSigT"]
-    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
-    _MessageCommandGroupT = typing.TypeVar("_MessageCommandGroupT", bound="MessageCommandGroup[typing.Any]")
 
 _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
 _OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.CommandCallbackSig)
@@ -278,7 +278,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         """The command object this wraps, if any."""
         return self._wrapped_command
 
-    def bind_client(self: _MessageCommandT, client: tanjun.Client, /) -> _MessageCommandT:
+    def bind_client(self, client: tanjun.Client, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_client(client)
         if self._parser:
@@ -286,7 +286,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
 
         return self
 
-    def bind_component(self: _MessageCommandT, component: tanjun.Component, /) -> _MessageCommandT:
+    def bind_component(self, component: tanjun.Component, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_component(component)
         if self._parser:
@@ -294,9 +294,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
 
         return self
 
-    def copy(
-        self: _MessageCommandT, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None
-    ) -> _MessageCommandT:
+    def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         inst = super().copy()
         inst._callback = copy.copy(self._callback)
@@ -305,14 +303,12 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         inst._parser = self._parser.copy() if self._parser else None
         return inst
 
-    def set_parent(
-        self: _MessageCommandT, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]], /
-    ) -> _MessageCommandT:
+    def set_parent(self, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]], /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         self._parent = parent
         return self
 
-    def set_parser(self: _MessageCommandT, parser: typing.Optional[tanjun.MessageParser], /) -> _MessageCommandT:
+    def set_parser(self, parser: typing.Optional[tanjun.MessageParser], /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if parser and self._arg_names is not None:
             try:
@@ -459,9 +455,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
     def is_strict(self) -> bool:
         return self._is_strict
 
-    def copy(
-        self: _MessageCommandGroupT, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None
-    ) -> _MessageCommandGroupT:
+    def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         inst = super().copy(parent=parent)
         commands = {command: command.copy(parent=self) for command in self._commands}
@@ -469,9 +463,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         inst._names_to_commands = {name: commands[command] for name, command in self._names_to_commands.items()}
         return inst
 
-    def add_command(
-        self: _MessageCommandGroupT, command: tanjun.MessageCommand[typing.Any], /
-    ) -> _MessageCommandGroupT:
+    def add_command(self, command: tanjun.MessageCommand[typing.Any], /) -> Self:
         """Add a command to this group.
 
         Parameters
@@ -574,9 +566,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
         return decorator
 
-    def remove_command(
-        self: _MessageCommandGroupT, command: tanjun.MessageCommand[typing.Any], /
-    ) -> _MessageCommandGroupT:
+    def remove_command(self, command: tanjun.MessageCommand[typing.Any], /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommandGroup>>.
         self._commands.remove(command)
         if self._is_strict:
@@ -591,7 +581,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         self.add_command(command)
         return command
 
-    def bind_client(self: _MessageCommandGroupT, client: tanjun.Client, /) -> _MessageCommandGroupT:
+    def bind_client(self, client: tanjun.Client, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_client(client)
         for command in self._commands:
@@ -599,7 +589,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
         return self
 
-    def bind_component(self: _MessageCommandGroupT, component: tanjun.Component, /) -> _MessageCommandGroupT:
+    def bind_component(self, component: tanjun.Component, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         super().bind_component(component)
         for command in self._commands:

@@ -72,12 +72,11 @@ from . import base
 
 if typing.TYPE_CHECKING:
     from hikari.api import special_endpoints as special_endpoints_api
+    from typing_extensions import Self
 
     _AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=tanjun.AutocompleteCallbackSig)
-    _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
     _AnyBaseSlashCommandT = typing.TypeVar("_AnyBaseSlashCommandT", bound="tanjun.BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
-    _SlashCommandGroupT = typing.TypeVar("_SlashCommandGroupT", bound="SlashCommandGroup")
     _CommandT = typing.Union[
         tanjun.MenuCommand["_CommandCallbackSigT", typing.Any],
         tanjun.MessageCommand["_CommandCallbackSigT"],
@@ -846,7 +845,7 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         self._options_dict: dict[str, hikari.CommandOption] = {}
         self._sort_options = sort_options
 
-    def add_option(self: _SlashCommandBuilderT, option: hikari.CommandOption) -> _SlashCommandBuilderT:
+    def add_option(self, option: hikari.CommandOption) -> Self:
         if self._options:
             self._has_been_sorted = False
 
@@ -857,7 +856,7 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
     def get_option(self, name: str) -> typing.Optional[hikari.CommandOption]:
         return self._options_dict.get(name)
 
-    def sort(self: _SlashCommandBuilderT) -> _SlashCommandBuilderT:
+    def sort(self) -> Self:
         if self._sort_options and not self._has_been_sorted:
             required: list[hikari.CommandOption] = []
             not_required: list[hikari.CommandOption] = []
@@ -992,7 +991,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         # <<inherited docstring from tanjun.abc.AppCommand>>.
         return hikari.CommandType.SLASH
 
-    def set_tracked_command(self: _BaseSlashCommandT, command: hikari.PartialCommand, /) -> _BaseSlashCommandT:
+    def set_tracked_command(self, command: hikari.PartialCommand, /) -> Self:
         # <<inherited docstring from tanjun.abc.AppCommand>>.
         if not isinstance(command, hikari.SlashCommand):
             raise TypeError("The tracked command must be a slash command")
@@ -1000,7 +999,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         self._tracked_command = command
         return self
 
-    def set_ephemeral_default(self: _BaseSlashCommandT, state: typing.Optional[bool], /) -> _BaseSlashCommandT:
+    def set_ephemeral_default(self, state: typing.Optional[bool], /) -> Self:
         """Set whether this command's responses should default to ephemeral.
 
         Parameters
@@ -1021,9 +1020,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         self._defaults_to_ephemeral = state
         return self
 
-    def set_parent(
-        self: _BaseSlashCommandT, parent: typing.Optional[tanjun.SlashCommandGroup], /
-    ) -> _BaseSlashCommandT:
+    def set_parent(self, parent: typing.Optional[tanjun.SlashCommandGroup], /) -> Self:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         self._parent = parent
         return self
@@ -1035,9 +1032,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         ctx.set_command(None)
         return result
 
-    def copy(
-        self: _BaseSlashCommandT, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None
-    ) -> _BaseSlashCommandT:
+    def copy(self, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy()
         inst._parent = parent
@@ -1179,15 +1174,13 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
         return builder
 
-    def copy(
-        self: _SlashCommandGroupT, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None
-    ) -> _SlashCommandGroupT:
+    def copy(self, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy(parent=parent)
         inst._commands = {name: command.copy(parent=inst) for name, command in self._commands.items()}
         return inst
 
-    def add_command(self: _SlashCommandGroupT, command: tanjun.BaseSlashCommand, /) -> _SlashCommandGroupT:
+    def add_command(self, command: tanjun.BaseSlashCommand, /) -> Self:
         """Add a slash command to this group.
 
         !!! warning
@@ -1338,7 +1331,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self.with_command(slash_command_group(name, description, default_to_ephemeral=default_to_ephemeral))
 
-    def remove_command(self: _SlashCommandGroupT, command: tanjun.BaseSlashCommand, /) -> _SlashCommandGroupT:
+    def remove_command(self, command: tanjun.BaseSlashCommand, /) -> Self:
         """Remove a command from this group.
 
         Parameters
@@ -1629,7 +1622,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         """The command object this wraps, if any."""
         return self._wrapped_command
 
-    def bind_client(self: _SlashCommandT, client: tanjun.Client, /) -> _SlashCommandT:
+    def bind_client(self, client: tanjun.Client, /) -> Self:
         self._client = client
         super().bind_client(client)
         for option in self._tracked_options.values():
@@ -1662,7 +1655,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             self._wrapped_command.load_into_component(component)
 
     def _add_option(
-        self: _SlashCommandT,
+        self,
         names: localisation.MaybeLocalised,
         descriptions: localisation.MaybeLocalised,
         type_: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
@@ -1684,7 +1677,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         only_member: bool = False,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
-    ) -> _SlashCommandT:
+    ) -> Self:
         names.assert_length(1, 32).assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
         descriptions.assert_length(1, 100)
 
@@ -1767,7 +1760,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         return self
 
     def add_attachment_option(
-        self: _SlashCommandT,
+        self,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -1775,7 +1768,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
-    ) -> _SlashCommandT:
+    ) -> Self:
         r"""Add an attachment option to the slash command.
 
         !!! note
@@ -1835,7 +1828,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
     def add_str_option(
-        self: _SlashCommandT,
+        self,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -1849,7 +1842,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         max_length: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
-    ) -> _SlashCommandT:
+    ) -> Self:
         r"""Add a string option to the slash command.
 
         !!! note
@@ -1983,7 +1976,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         return self
 
     def add_int_option(
-        self: _SlashCommandT,
+        self,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -1997,7 +1990,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         max_value: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
-    ) -> _SlashCommandT:
+    ) -> Self:
         r"""Add an integer option to the slash command.
 
         Parameters
@@ -2093,7 +2086,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         return self
 
     def add_float_option(
-        self: _SlashCommandT,
+        self,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -2108,7 +2101,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         max_value: typing.Optional[float] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
-    ) -> _SlashCommandT:
+    ) -> Self:
         r"""Add a float option to a slash command.
 
         Parameters
@@ -2211,7 +2204,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         return self
 
     def add_bool_option(
-        self: _SlashCommandT,
+        self,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -2219,7 +2212,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
-    ) -> _SlashCommandT:
+    ) -> Self:
         r"""Add a boolean option to a slash command.
 
         Parameters
@@ -2275,7 +2268,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
     def add_user_option(
-        self: _SlashCommandT,
+        self,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -2283,7 +2276,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
-    ) -> _SlashCommandT:
+    ) -> Self:
         r"""Add a user option to a slash command.
 
         !!! note
@@ -2345,14 +2338,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
     def add_member_option(
-        self: _SlashCommandT,
+        self,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
-    ) -> _SlashCommandT:
+    ) -> Self:
         r"""Add a member option to a slash command.
 
         !!! note
@@ -2412,7 +2405,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
     def add_channel_option(
-        self: _SlashCommandT,
+        self,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -2421,7 +2414,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         key: typing.Optional[str] = None,
         types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
         pass_as_kwarg: bool = True,
-    ) -> _SlashCommandT:
+    ) -> Self:
         r"""Add a channel option to a slash command.
 
         !!! note
@@ -2500,7 +2493,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
     def add_role_option(
-        self: _SlashCommandT,
+        self,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -2508,7 +2501,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
-    ) -> _SlashCommandT:
+    ) -> Self:
         r"""Add a role option to a slash command.
 
         Parameters
@@ -2564,7 +2557,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
     def add_mentionable_option(
-        self: _SlashCommandT,
+        self,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -2572,7 +2565,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         pass_as_kwarg: bool = True,
-    ) -> _SlashCommandT:
+    ) -> Self:
         r"""Add a mentionable option to a slash command.
 
         !!! note
@@ -2631,9 +2624,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             pass_as_kwarg=pass_as_kwarg,
         )
 
-    def set_float_autocomplete(
-        self: _SlashCommandT, name: str, callback: typing.Optional[tanjun.AutocompleteCallbackSig], /
-    ) -> _SlashCommandT:
+    def set_float_autocomplete(self, name: str, callback: typing.Optional[tanjun.AutocompleteCallbackSig], /) -> Self:
         """Set the autocomplete callback for a float option.
 
         Parameters
@@ -2719,9 +2710,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         return decorator
 
-    def set_int_autocomplete(
-        self: _SlashCommandT, name: str, callback: tanjun.AutocompleteCallbackSig, /
-    ) -> _SlashCommandT:
+    def set_int_autocomplete(self, name: str, callback: tanjun.AutocompleteCallbackSig, /) -> Self:
         """Set the autocomplete callback for a string option.
 
         Parameters
@@ -2801,9 +2790,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         return decorator
 
-    def set_str_autocomplete(
-        self: _SlashCommandT, name: str, callback: tanjun.AutocompleteCallbackSig, /
-    ) -> _SlashCommandT:
+    def set_str_autocomplete(self, name: str, callback: tanjun.AutocompleteCallbackSig, /) -> Self:
         """Set the autocomplete callback for a str option.
 
         Parameters
@@ -3000,7 +2987,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         await ctx.call_with_async_di(callback, ctx, ctx.focused.value)
 
-    def copy(self: _SlashCommandT, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None) -> _SlashCommandT:
+    def copy(self, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy(parent=parent)
         inst._callback = copy.copy(self._callback)
