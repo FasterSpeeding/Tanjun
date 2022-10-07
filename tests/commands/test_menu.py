@@ -291,6 +291,21 @@ class TestMenuCommand:
 
         assert command.name == "uwu"
 
+    def test_name_property_when_localised(self):
+        ...
+
+    def test_name_property_when_localised_implicit_default(self):
+        ...
+
+    def test_name_localisations_property(self):
+        ...
+
+    def test_name_localisations_property_when_dict_without_localisations(self):
+        ...
+
+    def test_name_localisations_property_when_not_localised(self):
+        ...
+
     def test_tracked_command_property(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "uwu")
 
@@ -338,6 +353,9 @@ class TestMenuCommand:
         assert builder.id is hikari.UNDEFINED
         assert builder.default_member_permissions == hikari.Permissions(4123)
         assert builder.is_dm_enabled is False
+
+    def test_build_with_localised_fields(self):
+        ...
 
     def test_build_with_bound_component_field_inheritance(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](

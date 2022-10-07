@@ -1244,8 +1244,24 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_call_when_wait_until(self):
-        raise NotImplementedError
+    async def test_call_when_wat_until_localised(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_call_when_wait_until_localised_defaults(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_call_when_with_until_localised_by_localiser(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_call_when_wait_until_localised_but_localiser_not_found(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_call_when_wait_until_defaults_with_localiser(self):
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_and_error_callback(self):
@@ -1830,8 +1846,24 @@ class TestConcurrencyPreExecution:
         mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
 
     @pytest.mark.asyncio()
-    async def test_call_when_acquire_fails(self):
-        raise NotImplementedError
+    async def test_call_when_acquire_fails_localised(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_call_when_acquire_fails_localised_defaults(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_call_when_acquire_fails_localised_by_localiser(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_call_when_acquire_fails_localised_but_localiser_not_found(self):
+        ...
+
+    @pytest.mark.asyncio()
+    async def test_call_when_acquire_fails_defaults_with_localiser(self):
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_and_error_callback(self):

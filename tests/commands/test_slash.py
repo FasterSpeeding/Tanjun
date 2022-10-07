@@ -678,6 +678,21 @@ class TestBaseSlashCommand:
 
         assert command.description == "desccc"
 
+    def test_description_property_when_localised(self):
+        ...
+
+    def test_description_property_when_localised_implicit_default(self):
+        ...
+
+    def test_description_localisations_property(self):
+        ...
+
+    def test_description_localisations_property_when_dict_without_localisations(self):
+        ...
+
+    def test_description_localisations_property_when_not_localised(self):
+        ...
+
     def test_is_dm_enabled_property(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"dm_enabled": False})
 
@@ -692,6 +707,21 @@ class TestBaseSlashCommand:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
         assert command.name == "yee"
+
+    def test_name_property_when_localised(self):
+        ...
+
+    def test_name_property_when_localised_implicit_default(self):
+        ...
+
+    def test_name_localisations_property(self):
+        ...
+
+    def test_name_localisations_property_when_dict_without_localisations(self):
+        ...
+
+    def test_name_localisations_property_when_not_localised(self):
+        ...
 
     def test_parent_property(self):
         mock_parent = mock.Mock()
@@ -808,6 +838,9 @@ class TestSlashCommandGroup:
         assert result.default_member_permissions == 4321123
         assert result.is_dm_enabled is False
         assert result.options == []
+
+    def test_build_with_localised_fields(self):
+        ...
 
     def test_build_with_bound_component_field_inheritance(self):
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").bind_component(
@@ -1238,6 +1271,29 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.ATTACHMENT
         assert option.name not in command._tracked_options
 
+    def test_add_attachment_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_attachment_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ):
+        ...
+
+    def test_add_attachment_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_attachment_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_attachment_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_attachment_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_attachment_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
     def test_add_str_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
         command.add_str_option(
@@ -1496,6 +1552,27 @@ class TestSlashCommand:
         option = command.build().options[0]
         assert option.max_length == 6000
 
+    def test_add_str_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_str_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_str_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_str_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_str_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_str_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_str_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
     def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
 
@@ -1677,6 +1754,27 @@ class TestSlashCommand:
 
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_int_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
+
+    def test_add_int_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_int_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_int_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_int_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_int_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_int_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_int_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
 
     def test_add_float_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
@@ -1887,6 +1985,27 @@ class TestSlashCommand:
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_float_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
 
+    def test_add_float_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_float_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_float_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_float_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_float_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_float_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_float_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
     def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_bool_option("eaassa", "saas", default="feel", key="o")
 
@@ -2008,6 +2127,27 @@ class TestSlashCommand:
             match="Slash commands cannot have more than 25 options",
         ):
             command.add_bool_option("namae", "aye")
+
+    def test_add_bool_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_bool_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_bool_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_bool_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_bool_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_bool_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_bool_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
 
     def test_add_user_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_user_option("yser", "nanm", default="nou", key="oh")
@@ -2131,6 +2271,27 @@ class TestSlashCommand:
         ):
             command.add_user_option("namae", "aye")
 
+    def test_add_user_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_user_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_user_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_user_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_user_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_user_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_user_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
     def test_add_member_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_member_option("ddddd", "sssss", default="dsasds", key="key2")
 
@@ -2240,6 +2401,27 @@ class TestSlashCommand:
             match="Slash commands cannot have more than 25 options",
         ):
             command.add_member_option("namae", "aye")
+
+    def test_add_member_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_member_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_member_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_member_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_member_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_member_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_member_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
 
     def test_add_channel_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_channel_option("c", "d", default="eee", key="eep")
@@ -2411,6 +2593,27 @@ class TestSlashCommand:
         ):
             command.add_channel_option("namae", "aye")
 
+    def test_add_channel_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_channel_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_channel_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_channel_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_channel_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_channel_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_channel_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
     def test_add_role_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_role_option("jhjh", "h", default="shera", key="catra")
 
@@ -2529,6 +2732,27 @@ class TestSlashCommand:
             match="Slash commands cannot have more than 25 options",
         ):
             command.add_role_option("namae", "aye")
+
+    def test_add_role_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_role_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_role_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_role_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_role_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_role_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_role_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
 
     def test_add_mentionable_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_mentionable_option("単純", "iwi", default="ywy", key="neko")
@@ -2649,8 +2873,37 @@ class TestSlashCommand:
         ):
             command.add_mentionable_option("namae", "aye")
 
+    def test_add_mentionable_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_mentionable_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ):
+        ...
+
+    def test_add_mentionable_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_mentionable_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_mentionable_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_mentionable_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        ...
+
+    def test_add_mentionable_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ):
+        ...
+
     @pytest.mark.skip(reason="TODO")
     def test_build(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_build_with_localised_fields(self):
         ...
 
     @pytest.mark.skip(reason="TODO")

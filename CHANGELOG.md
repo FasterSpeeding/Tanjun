@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Bumped the minimum Hikari version to `2.0.0.dev111`.
+- Bumped the minimum Alluka vesion to `0.1.2`.
 
 ### Fixed
 - Make [tanjun.commands.slash.SlashCommandGroup.as_sub_command][]'s typing more
