@@ -1157,7 +1157,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
                 hikari.CommandOption(
                     type=option_type,
                     name=command.name,
+                    name_localizations=command_builder.name_localizations,
                     description=command_builder.description,
+                    description_localizations=command_builder.description_localizations,
                     is_required=False,
                     options=command_builder.options,
                 )

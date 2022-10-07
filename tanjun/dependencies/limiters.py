@@ -664,7 +664,7 @@ class CooldownPreExecution:
         self,
         bucket_id: str,
         /,
-        *,  # TODO: also take ctx
+        *,
         error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
         error_message: typing.Union[
             str, collections.Mapping[str, str]
@@ -725,7 +725,7 @@ class CooldownPreExecution:
 def with_cooldown(
     bucket_id: str,
     /,
-    *,  # TODO: also take ctx
+    *,
     error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
     error_message: typing.Union[
         str, collections.Mapping[str, str]
@@ -1014,7 +1014,7 @@ class ConcurrencyPreExecution:
         bucket_id: str,
         /,
         *,
-        error: typing.Optional[collections.Callable[[str], Exception]] = None,  # TODO: also take ctx
+        error: typing.Optional[collections.Callable[[str], Exception]] = None,
         error_message: typing.Union[
             str, collections.Mapping[str, str]
         ] = "This resource is currently busy; please try again later.",
@@ -1089,7 +1089,7 @@ def with_concurrency_limit(
     bucket_id: str,
     /,
     *,
-    error: typing.Optional[collections.Callable[[str], Exception]] = None,  # TODO: also take ctx
+    error: typing.Optional[collections.Callable[[str], Exception]] = None,
     error_message: typing.Union[
         str, collections.Mapping[str, str]
     ] = "This resource is currently busy; please try again later.",
