@@ -91,7 +91,10 @@ class MaybeLocalised:
         else:
             self.localised_values = dict(field)
             self.id = self.localised_values.pop("id", None)
-            entry = self.localised_values.pop("default", None) or next(iter(self.localised_values.values()), None)
+            entry = self.localised_values.pop("default", None)
+            if entry is None:
+                entry = next(iter(self.localised_values.values()), None)
+
             if entry is None:
                 raise RuntimeError(f"No default {field_name} given")
 

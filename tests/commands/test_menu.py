@@ -201,7 +201,8 @@ def test_as_user_menu_when_wrapping_command(
 
 class TestMenuCommand:
     def test__init__when_no_names_provided(self):
-        ...
+        with pytest.raises(RuntimeError, match="No default name given"):
+            tanjun.commands.MenuCommand(mock.AsyncMock(), hikari.CommandType.USER, {"id": "idea"})
 
     def test__init__when_name_too_long(self):
         with pytest.raises(
@@ -210,12 +211,56 @@ class TestMenuCommand:
         ):
             tanjun.commands.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "x" * 33)
 
+    def test__init__when_localised_name_too_long(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            tanjun.commands.MenuCommand(
+                mock.Mock(),
+                hikari.CommandType.MESSAGE,
+                {hikari.Locale.BG: "year", hikari.Locale.DA: "y" * 33, hikari.Locale.DE: "ein", "default": "meow"},
+            )
+
+    def test__init__when_localised_default_name_too_long(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            tanjun.commands.MenuCommand(
+                mock.Mock(),
+                hikari.CommandType.MESSAGE,
+                {hikari.Locale.BG: "year", hikari.Locale.DE: "ein", "default": "meow" * 9},
+            )
+
     def test__init__when_name_too_short(self):
         with pytest.raises(
             ValueError,
             match="Name must be greater than or equal to 1 characters in length",
         ):
             tanjun.commands.MenuCommand(mock.Mock(), hikari.CommandType.MESSAGE, "")
+
+    def test__init__when_localised_name_too_short(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            tanjun.commands.MenuCommand(
+                mock.Mock(),
+                hikari.CommandType.MESSAGE,
+                {hikari.Locale.BG: "", hikari.Locale.DA: "damn", hikari.Locale.HR: "beep"},
+            )
+
+    def test__init__when_localised_default_name_too_short(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            tanjun.commands.MenuCommand(
+                mock.Mock(),
+                hikari.CommandType.MESSAGE,
+                {hikari.Locale.EN_GB: "great scott", "default": "", hikari.Locale.EL: "beep", hikari.Locale.DA: "boop"},
+            )
 
     @pytest.mark.parametrize(
         "inner_command",

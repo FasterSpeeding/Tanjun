@@ -629,12 +629,36 @@ class TestBaseSlashCommand:
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=(name, "desccc"))
 
-    def test__init__when_no_names_provided(self):
-        ...
-
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test__init__with_invalid_localised_name(self, name: str):
-        ...
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=({hikari.Locale.CS: "yeet", hikari.Locale.HI: "bye", hikari.Locale.NL: name}, "desccc"),
+            )
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test__init__with_invalid_localised_default_name(self, name: str):
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=(
+                    {hikari.Locale.CS: "yeet", hikari.Locale.HI: "bye", "default": name, hikari.Locale.NL: "oop"},
+                    "desccc",
+                ),
+            )
+
+    def test__init__when_no_names_provided(self):
+        with pytest.raises(RuntimeError, match="No default name given"):
+            tanjun.commands.SlashCommand(mock.AsyncMock(), {"id": "id"}, "description")
 
     def test__init__when_name_too_long(self):
         with pytest.raises(
@@ -644,7 +668,27 @@ class TestBaseSlashCommand:
             stub_class(tanjun.commands.BaseSlashCommand, args=("x" * 33, "description"))
 
     def test__init__when_localised_name_too_long(self):
-        ...
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=({hikari.Locale.DE: "x" * 33, hikari.Locale.JA: "op", hikari.Locale.KO: "opop"}, "description"),
+            )
+
+    def test__init__when_localised_default_name_too_long(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=(
+                    {hikari.Locale.DE: "noooo", "default": "x" * 33, hikari.Locale.JA: "op", hikari.Locale.KO: "opop"},
+                    "description",
+                ),
+            )
 
     def test__init__when_name_too_short(self):
         with pytest.raises(
@@ -654,17 +698,60 @@ class TestBaseSlashCommand:
             stub_class(tanjun.commands.BaseSlashCommand, args=("", "description"))
 
     def test__init__when_localised_name_too_short(self):
-        ...
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=(
+                    {hikari.Locale.JA: "konnichiwa", hikari.Locale.EN_US: "hello", hikari.Locale.BG: ""},
+                    "description",
+                ),
+            )
+
+    def test__init__when_localised_default_name_too_short(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=(
+                    {
+                        hikari.Locale.JA: "konnichiwa",
+                        hikari.Locale.EN_US: "hello",
+                        hikari.Locale.BG: "bon bon",
+                        "default": "",
+                    },
+                    "description",
+                ),
+            )
 
     def test__init__when_name_isnt_lowercase(self):
         with pytest.raises(ValueError, match="Invalid name provided, 'VooDOo' must be lowercase"):
             stub_class(tanjun.commands.BaseSlashCommand, args=("VooDOo", "desccc"))
 
     def test__init__when_localised_name_isnt_lowercase(self):
-        ...
+        with pytest.raises(ValueError, match="Invalid name provided, 'BeepBeep' must be lowercase"):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=({hikari.Locale.DE: "im_a_very_good_german", hikari.Locale.ES_ES: "BeepBeep"}, "desccc"),
+            )
+
+    def test__init__when_localised_default_name_isnt_lowercase(self):
+        with pytest.raises(ValueError, match="Invalid name provided, 'WoreLSA' must be lowercase"):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=(
+                    {"default": "WoreLSA", hikari.Locale.DE: "im_a_very_good_german", hikari.Locale.ES_ES: "que"},
+                    "desccc",
+                ),
+            )
 
     def test__init__when_no_descriptions_provided(self):
-        ...
+        with pytest.raises(RuntimeError, match="No default description given"):
+            tanjun.commands.SlashCommand(mock.AsyncMock(), "name", {"id": "path"})
 
     def test__init__when_description_too_long(self):
         with pytest.raises(
@@ -674,7 +761,23 @@ class TestBaseSlashCommand:
             stub_class(tanjun.commands.BaseSlashCommand, args=("gary", "x" * 101))
 
     def test__init__when_localised_description_too_long(self):
-        ...
+        with pytest.raises(
+            ValueError,
+            match="Description must be less than or equal to 100 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=("gary", {hikari.Locale.ES_ES: "x" * 101, hikari.Locale.EL: "el salvador"}),
+            )
+
+    def test__init__when_localised_default_description_too_long(self):
+        with pytest.raises(
+            ValueError,
+            match="Description must be less than or equal to 100 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand, args=("gary", {"default": "x" * 101, hikari.Locale.EL: "el salvador"})
+            )
 
     def test__init__when_description_too_short(self):
         with pytest.raises(
@@ -684,7 +787,20 @@ class TestBaseSlashCommand:
             stub_class(tanjun.commands.BaseSlashCommand, args=("gary", ""))
 
     def test__init__when_localised_description_too_short(self):
-        ...
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand, args=("gary", {hikari.Locale.EL: "", hikari.Locale.CS: "essa"})
+            )
+
+    def test__init__when_localised_default_description_too_short(self):
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            stub_class(tanjun.commands.BaseSlashCommand, args=("gary", {"default": "", hikari.Locale.CS: "essa"}))
 
     def test_default_member_permissions_property(self):
         command = stub_class(
