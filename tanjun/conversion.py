@@ -98,7 +98,7 @@ _ValueT = typing.TypeVar("_ValueT")
 _LOGGER = logging.getLogger("hikari.tanjun.conversion")
 
 
-class BaseConverter(typing.Generic[_ValueT], abc.ABC):
+class BaseConverter(abc.ABC):
     """Base class for the standard converters.
 
     !!! warning
@@ -206,7 +206,7 @@ _GuildChannelCacheT = async_cache.SfCache[hikari.PartialChannel]
 
 
 # TODO: GuildChannelConverter
-class ToChannel(BaseConverter[hikari.PartialChannel]):
+class ToChannel(BaseConverter):
     """Standard converter for channels mentions/IDs.
 
     For a standard instance of this see [tanjun.conversion.to_channel][].
@@ -302,7 +302,7 @@ ChannelConverter = ToChannel
 _EmojiCacheT = async_cache.SfCache[hikari.KnownCustomEmoji]
 
 
-class ToEmoji(BaseConverter[hikari.KnownCustomEmoji]):
+class ToEmoji(BaseConverter):
     """Standard converter for custom emojis.
 
     For a standard instance of this see [tanjun.conversion.to_emoji][].
@@ -378,7 +378,7 @@ EmojiConverter = ToEmoji
 _GuildCacheT = async_cache.SfCache[hikari.Guild]
 
 
-class ToGuild(BaseConverter[hikari.Guild]):
+class ToGuild(BaseConverter):
     """Stanard converter for guilds.
 
     For a standard instance of this see [tanjun.conversion.to_guild][].
@@ -443,7 +443,7 @@ GuildConverter = ToGuild
 _InviteCacheT = async_cache.AsyncCache[str, hikari.InviteWithMetadata]
 
 
-class ToInvite(BaseConverter[hikari.Invite]):
+class ToInvite(BaseConverter):
     """Standard converter for invites."""
 
     __slots__ = ()
@@ -504,7 +504,7 @@ InviteConverter = ToInvite
 """Deprecated alias of [tanjun.conversion.ToInvite][]."""
 
 
-class ToInviteWithMetadata(BaseConverter[hikari.InviteWithMetadata]):
+class ToInviteWithMetadata(BaseConverter):
     """Standard converter for invites with metadata.
 
     For a standard instance of this see [tanjun.conversion.to_invite_with_metadata][].
@@ -562,7 +562,7 @@ InviteWithMetadataConverter = ToInviteWithMetadata
 _MemberCacheT = async_cache.SfGuildBound[hikari.Member]
 
 
-class ToMember(BaseConverter[hikari.Member]):
+class ToMember(BaseConverter):
     """Standard converter for guild members.
 
     For a standard instance of this see [tanjun.conversion.to_member][].
@@ -644,7 +644,7 @@ MemberConverter = ToMember
 _PresenceCacheT = async_cache.SfGuildBound[hikari.MemberPresence]
 
 
-class ToPresence(BaseConverter[hikari.MemberPresence]):
+class ToPresence(BaseConverter):
     """Standard converter for presences.
 
     For a standard instance of this see [tanjun.conversion.to_presence][].
@@ -701,7 +701,7 @@ PresenceConverter = ToPresence
 _RoleCacheT = async_cache.SfCache[hikari.Role]
 
 
-class ToRole(BaseConverter[hikari.Role]):
+class ToRole(BaseConverter):
     """Standard converter for guild roles.
 
     For a standard instance of this see [tanjun.conversion.to_role][].
@@ -765,7 +765,7 @@ RoleConverter = ToRole
 _UserCacheT = async_cache.SfCache[hikari.User]
 
 
-class ToUser(BaseConverter[hikari.User]):
+class ToUser(BaseConverter):
     """Standard converter for users.
 
     For a standard instance of this see [tanjun.conversion.to_user][].
@@ -832,7 +832,7 @@ UserConverter = ToUser
 _MessageCacheT = async_cache.SfCache[hikari.Message]
 
 
-class ToMessage(BaseConverter[hikari.Message]):
+class ToMessage(BaseConverter):
     """Standard converter for messages.
 
     For a standard instance of this see [tanjun.conversion.to_message][].
@@ -894,7 +894,7 @@ class ToMessage(BaseConverter[hikari.Message]):
 _VoiceStateCacheT = async_cache.SfGuildBound[hikari.VoiceState]
 
 
-class ToVoiceState(BaseConverter[hikari.VoiceState]):
+class ToVoiceState(BaseConverter):
     """Standard converter for voice states.
 
     For a standard instance of this see [tanjun.conversion.to_voice_state][].
