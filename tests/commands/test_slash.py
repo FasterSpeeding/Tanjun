@@ -823,9 +823,11 @@ class TestSlashCommandGroup:
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND_GROUP,
                     name=mock_command_group.name,  # type: ignore
-                    name_localizations=mock_command.build.return_value.name_localizations,  # type: ignore
+                    name_localizations=mock_command_group.build.return_value.name_localizations,  # type: ignore
                     description=mock_command_group.build.return_value.description,  # type: ignore
-                    description_localizations=mock_command.build.return_value.description_localizations,  # type: ignore
+                    description_localizations=(
+                        mock_command_group.build.return_value.description_localizations  # type: ignore
+                    ),
                     is_required=False,  # type: ignore
                     options=mock_command_group.build.return_value.options,  # type: ignore
                 )
