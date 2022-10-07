@@ -13,12 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [tanjun.annotations.Length][].
 - [AutocompleteContext.triggering_name][tanjun.abc.AutocompleteContext.triggering_name] which acts
   like [Context.triggering_name][tanjun.abc.Context.triggering_name].
-- Support for localising check slash command responses, and slash command + context menu declarations.
+- Support for localising check responses for application command contexts, and slash command +
+  context menu declarations (names and descriptions).
   More information on how this works can be found in [localisation][].
-- Support for localising the `name` and `description` fields of slash commands, slash command options
-  and menu commands.
-- Support for localising the `content` error response message of checks and limiters when they're
-  being executed with an application command context.
 
 ### Changed
 - Bumped the minimum Hikari version to `2.0.0.dev111`.
