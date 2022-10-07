@@ -200,6 +200,9 @@ def test_as_user_menu_when_wrapping_command(
 
 
 class TestMenuCommand:
+    def test__init__when_no_names_provided(self):
+        ...
+
     def test__init__when_name_too_long(self):
         with pytest.raises(
             ValueError,
@@ -286,25 +289,51 @@ class TestMenuCommand:
 
         assert command.is_global is True
 
-    def test_name_property(self):
+    def test_name_properties(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "uwu")
 
         assert command.name == "uwu"
+        assert command.name_localisations == {}
+        assert command._names.id is None
 
-    def test_name_property_when_localised(self):
-        ...
+    def test_name_properties_when_localised(self):
+        command = tanjun.MenuCommand(
+            mock.AsyncMock(),
+            hikari.CommandType.USER,
+            {
+                hikari.Locale.BG: "hi",
+                hikari.Locale.CS: "Nay",
+                "default": "nay",
+                "id": "meow",
+                hikari.Locale.PT_BR: "yeet",
+            },
+        )
 
-    def test_name_property_when_localised_implicit_default(self):
-        ...
+        assert command.name == "nay"
+        assert command.name_localisations == {
+            hikari.Locale.BG: "hi",
+            hikari.Locale.CS: "Nay",
+            hikari.Locale.PT_BR: "yeet",
+        }
+        assert command._names.id == "meow"
 
-    def test_name_localisations_property(self):
-        ...
+    def test_name_properties_when_localised_implicit_default(self):
+        command = tanjun.MenuCommand(
+            mock.AsyncMock(), hikari.CommandType.MESSAGE, {hikari.Locale.JA: "Rei", hikari.Locale.DE: "Meow"}
+        )
 
-    def test_name_localisations_property_when_dict_without_localisations(self):
-        ...
+        assert command.name == "Rei"
+        assert command.name_localisations == {hikari.Locale.JA: "Rei", hikari.Locale.DE: "Meow"}
+        assert command._names.id is None
 
-    def test_name_localisations_property_when_not_localised(self):
-        ...
+    def test_name_properties_when_dict_without_localisations(self):
+        command = tanjun.MenuCommand(
+            mock.AsyncMock(), hikari.CommandType.MESSAGE, {"id": "shinjis_man", "default": "no papa"}
+        )
+
+        assert command.name == "no papa"
+        assert command.name_localisations == {}
+        assert command._names.id == "shinjis_man"
 
     def test_tracked_command_property(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "uwu")
@@ -353,9 +382,45 @@ class TestMenuCommand:
         assert builder.id is hikari.UNDEFINED
         assert builder.default_member_permissions == hikari.Permissions(4123)
         assert builder.is_dm_enabled is False
+        assert builder.name_localizations == {}
 
     def test_build_with_localised_fields(self):
-        ...
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
+            mock.Mock(),
+            hikari.CommandType.USER,
+            {hikari.Locale.EN_GB: "yeet", hikari.Locale.FI: "beat", "default": "shinji", hikari.Locale.JA: "Ayanami"},
+        )
+
+        builder = command.build()
+
+        assert builder.name == "shinji"
+        assert builder.name_localizations == {
+            hikari.Locale.EN_GB: "yeet",
+            hikari.Locale.FI: "beat",
+            hikari.Locale.JA: "Ayanami",
+        }
+
+    def test_build_with_localised_fields_and_implicit_default(self):
+        command = tanjun.MenuCommand[typing.Any, typing.Any](
+            mock.Mock(),
+            hikari.CommandType.USER,
+            {
+                hikari.Locale.EN_GB: "yeet",
+                hikari.Locale.FI: "beat",
+                hikari.Locale.DA: "drum",
+                hikari.Locale.JA: "Ayanami",
+            },
+        )
+
+        builder = command.build()
+
+        assert builder.name == "yeet"
+        assert builder.name_localizations == {
+            hikari.Locale.EN_GB: "yeet",
+            hikari.Locale.FI: "beat",
+            hikari.Locale.DA: "drum",
+            hikari.Locale.JA: "Ayanami",
+        }
 
     def test_build_with_bound_component_field_inheritance(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](

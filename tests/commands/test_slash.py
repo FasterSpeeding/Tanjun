@@ -629,12 +629,22 @@ class TestBaseSlashCommand:
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=(name, "desccc"))
 
+    def test__init__when_no_names_provided(self):
+        ...
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test__init__with_invalid_localised_name(self, name: str):
+        ...
+
     def test__init__when_name_too_long(self):
         with pytest.raises(
             ValueError,
             match="Name must be less than or equal to 32 characters in length",
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=("x" * 33, "description"))
+
+    def test__init__when_localised_name_too_long(self):
+        ...
 
     def test__init__when_name_too_short(self):
         with pytest.raises(
@@ -643,9 +653,18 @@ class TestBaseSlashCommand:
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=("", "description"))
 
+    def test__init__when_localised_name_too_short(self):
+        ...
+
     def test__init__when_name_isnt_lowercase(self):
         with pytest.raises(ValueError, match="Invalid name provided, 'VooDOo' must be lowercase"):
             stub_class(tanjun.commands.BaseSlashCommand, args=("VooDOo", "desccc"))
+
+    def test__init__when_localised_name_isnt_lowercase(self):
+        ...
+
+    def test__init__when_no_descriptions_provided(self):
+        ...
 
     def test__init__when_description_too_long(self):
         with pytest.raises(
@@ -654,12 +673,18 @@ class TestBaseSlashCommand:
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=("gary", "x" * 101))
 
+    def test__init__when_localised_description_too_long(self):
+        ...
+
     def test__init__when_description_too_short(self):
         with pytest.raises(
             ValueError,
             match="Description must be greater than or equal to 1 characters in length",
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=("gary", ""))
+
+    def test__init__when_localised_description_too_short(self):
+        ...
 
     def test_default_member_permissions_property(self):
         command = stub_class(
@@ -673,25 +698,58 @@ class TestBaseSlashCommand:
 
         assert command.set_ephemeral_default(True).defaults_to_ephemeral is True
 
-    def test_description_property(self):
+    def test_description_properties(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "desccc"))
 
         assert command.description == "desccc"
+        assert command.description_localisations == {}
+        assert command._descriptions.id is None
 
-    def test_description_property_when_localised(self):
-        ...
+    def test_description_properties_when_localised(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand,
+            args=(
+                "meow",
+                {
+                    hikari.Locale.DA: "We",
+                    hikari.Locale.EN_GB: "don't",
+                    "default": "talk",
+                    "id": "about",
+                    hikari.Locale.EL: "Bruno",
+                },
+            ),
+        )
 
-    def test_description_property_when_localised_implicit_default(self):
-        ...
+        assert command.description == "talk"
+        assert command.description_localisations == {
+            hikari.Locale.DA: "We",
+            hikari.Locale.EN_GB: "don't",
+            hikari.Locale.EL: "Bruno",
+        }
+        assert command._descriptions.id == "about"
 
-    def test_description_localisations_property(self):
-        ...
+    def test_description_properties_when_localised_implicit_default(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand,
+            args=("eep", {hikari.Locale.HU: "how are you", hikari.Locale.JA: "nihongo", hikari.Locale.TR: "no"}),
+        )
 
-    def test_description_localisations_property_when_dict_without_localisations(self):
-        ...
+        assert command.description == "how are you"
+        assert command.description_localisations == {
+            hikari.Locale.HU: "how are you",
+            hikari.Locale.JA: "nihongo",
+            hikari.Locale.TR: "no",
+        }
+        assert command._descriptions.id is None
 
-    def test_description_localisations_property_when_not_localised(self):
-        ...
+    def test_description_properties_when_dict_without_localisations(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand, args=("meep", {"default": "ok girl boss", "id": "idididid"})
+        )
+
+        assert command.description == "ok girl boss"
+        assert command.description_localisations == {}
+        assert command._descriptions.id == "idididid"
 
     def test_is_dm_enabled_property(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"dm_enabled": False})
@@ -703,25 +761,56 @@ class TestBaseSlashCommand:
 
         assert command.is_global is False
 
-    def test_name_property(self):
+    def test_name_properties(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
         assert command.name == "yee"
+        assert command.name_localisations == {}
+        assert command._names.id is None
 
-    def test_name_property_when_localised(self):
-        ...
+    def test_name_properties_when_localised(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand,
+            args=(
+                {
+                    hikari.Locale.EN_GB: "not gun",
+                    hikari.Locale.EN_US: "gun",
+                    hikari.Locale.FR: "baguette",
+                    "default": "us_forever",
+                    "id": "43",
+                },
+                "beep",
+            ),
+        )
 
-    def test_name_property_when_localised_implicit_default(self):
-        ...
+        assert command.name == "us_forever"
+        assert command.name_localisations == {
+            hikari.Locale.EN_GB: "not gun",
+            hikari.Locale.EN_US: "gun",
+            hikari.Locale.FR: "baguette",
+        }
+        assert command._names.id == "43"
 
-    def test_name_localisations_property(self):
-        ...
+    def test_name_properties_when_localised_implicit_default(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand,
+            args=({hikari.Locale.HI: "hug", hikari.Locale.HR: "human eaters", hikari.Locale.KO: "kyoto"}, "o"),
+        )
 
-    def test_name_localisations_property_when_dict_without_localisations(self):
-        ...
+        assert command.name == "hug"
+        assert command.name_localisations == {
+            hikari.Locale.HI: "hug",
+            hikari.Locale.HR: "human eaters",
+            hikari.Locale.KO: "kyoto",
+        }
+        assert command._names.id is None
 
-    def test_name_localisations_property_when_not_localised(self):
-        ...
+    def test_name_properties_when_dict_without_localisations(self):
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=({"default": "this_default", "id": "meep"}, "boop"))
+
+        assert command.name == "this_default"
+        assert command.name_localisations == {}
+        assert command._names.id == "meep"
 
     def test_parent_property(self):
         mock_parent = mock.Mock()
