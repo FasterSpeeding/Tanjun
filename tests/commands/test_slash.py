@@ -806,30 +806,30 @@ class TestSlashCommandGroup:
 
         assert result.default_member_permissions is hikari.UNDEFINED
         assert result.is_dm_enabled is hikari.UNDEFINED
+        mock_build: hikari.api.SlashCommandBuilder = mock_command.build.return_value
+        mock_group_build: hikari.api.SlashCommandBuilder = mock_command_group.build.return_value
         assert result == (
             tanjun.commands.slash._SlashCommandBuilder("yee", {}, "nsoosos", {}, False)
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND,
                     name=mock_command.name,  # type: ignore
-                    name_localizations=mock_command.build.return_value.name_localizations,  # type: ignore
-                    description=mock_command.build.return_value.description,  # type: ignore
-                    description_localizations=mock_command.build.return_value.description_localizations,  # type: ignore
-                    is_required=False,  # type: ignore
-                    options=mock_command.build.return_value.options,  # type: ignore
+                    name_localizations=mock_build.name_localizations,
+                    description=mock_build.description,
+                    description_localizations=mock_build.description_localizations,
+                    is_required=False,
+                    options=mock_build.options,
                 )
             )
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND_GROUP,
                     name=mock_command_group.name,  # type: ignore
-                    name_localizations=mock_command_group.build.return_value.name_localizations,  # type: ignore
-                    description=mock_command_group.build.return_value.description,  # type: ignore
-                    description_localizations=(
-                        mock_command_group.build.return_value.description_localizations  # type: ignore
-                    ),
-                    is_required=False,  # type: ignore
-                    options=mock_command_group.build.return_value.options,  # type: ignore
+                    name_localizations=mock_group_build.name_localizations,
+                    description=mock_group_build.description,
+                    description_localizations=mock_group_build.description_localizations,
+                    is_required=False,
+                    options=mock_group_build.options,
                 )
             )
         )
