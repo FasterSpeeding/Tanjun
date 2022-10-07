@@ -66,7 +66,7 @@ class TestBaseConverter:
         ],
     )
     def test_cache_components_property(
-        self, obj: tanjun.conversion.BaseConverter[typing.Any], expected: hikari.api.CacheComponents
+        self, obj: tanjun.conversion.BaseConverter, expected: hikari.api.CacheComponents
     ):
         assert obj.cache_components == expected
 
@@ -85,7 +85,7 @@ class TestBaseConverter:
             (tanjun.to_voice_state, hikari.Intents.GUILDS | hikari.Intents.GUILD_VOICE_STATES),
         ],
     )
-    def test_intents_property(self, obj: tanjun.conversion.BaseConverter[typing.Any], expected: hikari.Intents):
+    def test_intents_property(self, obj: tanjun.conversion.BaseConverter, expected: hikari.Intents):
         assert obj.intents == expected
 
     @pytest.mark.parametrize(
@@ -103,7 +103,7 @@ class TestBaseConverter:
             (tanjun.to_voice_state, True),
         ],
     )
-    def test_requires_cache_property(self, obj: tanjun.conversion.BaseConverter[typing.Any], expected: bool):
+    def test_requires_cache_property(self, obj: tanjun.conversion.BaseConverter, expected: bool):
         assert obj.requires_cache is expected
 
 

@@ -19,6 +19,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make [tanjun.commands.slash.SlashCommandGroup.as_sub_command][]'s typing more
   flexible to allow decorating other command objects.
 
+### Removed
+- The generic value field from `BaseConverter`.
+
 ## [2.7.0a1] - 2022-09-24
 ### Added
 - Support for marking positional message arguments as optional when using annotation parsing.
