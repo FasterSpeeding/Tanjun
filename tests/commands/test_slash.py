@@ -1051,7 +1051,62 @@ class TestSlashCommandGroup:
         assert result.options == []
 
     def test_build_with_localised_fields(self):
-        ...
+        command = tanjun.SlashCommand[typing.Any](
+            mock.Mock(),
+            {hikari.Locale.EN_GB: "yeet", hikari.Locale.FI: "beat", "default": "shinji", hikari.Locale.JA: "ayanami"},
+            {
+                "default": "Who's the girl next door living in the haunted mansion?",
+                hikari.Locale.CS: "descript me a visor",
+                hikari.Locale.EN_US: "meep meep",
+            },
+        )
+
+        builder = command.build()
+
+        assert builder.name == "shinji"
+        assert builder.name_localizations == {
+            hikari.Locale.EN_GB: "yeet",
+            hikari.Locale.FI: "beat",
+            hikari.Locale.JA: "ayanami",
+        }
+        assert builder.description == "Who's the girl next door living in the haunted mansion?"
+        assert builder.description_localizations == {
+            hikari.Locale.CS: "descript me a visor",
+            hikari.Locale.EN_US: "meep meep",
+        }
+
+    def test_build_with_localised_fields_and_implicit_default(self):
+        command = tanjun.SlashCommand[typing.Any](
+            mock.Mock(),
+            {
+                hikari.Locale.EN_GB: "yeet",
+                hikari.Locale.FI: "beat",
+                hikari.Locale.DA: "drum",
+                hikari.Locale.JA: "ayanami",
+            },
+            {
+                hikari.Locale.DA: "Who's the girl next door living in the haunted mansion?",
+                "default": "bye bye",
+                hikari.Locale.CS: "descript me a visor pls",
+                hikari.Locale.EN_US: "meep meep",
+            },
+        )
+
+        builder = command.build()
+
+        assert builder.name == "yeet"
+        assert builder.name_localizations == {
+            hikari.Locale.EN_GB: "yeet",
+            hikari.Locale.FI: "beat",
+            hikari.Locale.DA: "drum",
+            hikari.Locale.JA: "ayanami",
+        }
+        assert builder.description == "bye bye"
+        assert builder.description_localizations == {
+            hikari.Locale.DA: "Who's the girl next door living in the haunted mansion?",
+            hikari.Locale.CS: "descript me a visor pls",
+            hikari.Locale.EN_US: "meep meep",
+        }
 
     def test_build_with_bound_component_field_inheritance(self):
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").bind_component(
@@ -1431,7 +1486,9 @@ class TestSlashCommand:
 
         option = command.build().options[0]
         assert option.name == "me"
+        assert option.name_localizations == {}
         assert option.description == "ow"
+        assert option.description_localizations == {}
         assert option.is_required is False
         assert option.options is None
         assert option.type is hikari.OptionType.ATTACHMENT
@@ -1454,7 +1511,9 @@ class TestSlashCommand:
 
         option = command.build().options[0]
         assert option.name == "nya"
+        assert option.name_localizations == {}
         assert option.description == "aaaa"
+        assert option.description_localizations == {}
         assert option.is_required is True
         assert option.options is None
         assert option.type is hikari.OptionType.ATTACHMENT
@@ -1478,17 +1537,56 @@ class TestSlashCommand:
 
         option = command.build().options[0]
         assert option.name == "me"
+        assert option.name_localizations == {}
         assert option.description == "how"
+        assert option.description_localizations == {}
         assert option.type is hikari.OptionType.ATTACHMENT
         assert option.name not in command._tracked_options
 
     def test_add_attachment_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
-        ...
+        command.add_attachment_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+            pass_as_kwarg=False,
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.ATTACHMENT
 
     def test_add_attachment_option_with_localised_explicit_default_and_id(
         self, command: tanjun.SlashCommand[typing.Any]
     ):
-        ...
+        command.add_attachment_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+            pass_as_kwarg=False,
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.ATTACHMENT
 
     def test_add_attachment_option_with_localised_name_regex_mismatch(self, command: tanjun.SlashCommand[typing.Any]):
         ...
@@ -3115,6 +3213,10 @@ class TestSlashCommand:
 
     @pytest.mark.skip(reason="TODO")
     def test_build_with_localised_fields(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_build_with_localised_fields_and_implicit_default(self):
         ...
 
     @pytest.mark.skip(reason="TODO")

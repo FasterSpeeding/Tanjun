@@ -402,6 +402,7 @@ class TestMenuCommand:
         builder = command.build()
 
         assert builder.name == "owo"
+        assert builder.name_localizations == {}
         assert builder.type is hikari.CommandType.USER
         assert builder.id is hikari.UNDEFINED
         assert builder.default_member_permissions is hikari.UNDEFINED

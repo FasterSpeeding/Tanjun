@@ -76,9 +76,9 @@ class AbstractLocaliser(abc.ABC):
             The localised string.
         """
 
-    def localize(self, identifier: str, tag: str, /, *args: typing.Any, **kwargs: typing.Any) -> typing.Optional[str]:
+    def localize(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
         """Alias for `AbstractLocaliser.localise`."""
-        return self.localise(identifier, tag, *args, **kwargs)
+        return self.localise(identifier, tag, **kwargs)
 
 
 AbstractLocalizer = AbstractLocaliser
@@ -112,7 +112,7 @@ class BasicLocaliser(AbstractLocaliser):
 
     def localise(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
         # <<inherited docstring from AbstractLocaliser>>.
-        if (tag_values := self._tags.get(tag)) and (string := tag_values.get(identifier)):
+        if (tag_values := self._tags.get(identifier)) and (string := tag_values.get(tag)):
             return string.format(**kwargs)
 
     def set_variants(
