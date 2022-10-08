@@ -832,8 +832,8 @@ def as_time_schedule(
 
     This should be loaded into a component using either
     [Component.with_schedule][tanjun.components.Component.with_schedule] or
-    [Component.load_from_scope][tanjun.components.Component.load_from_scope] and
-    will be started and stopped with the linked tanjun client.
+    [Component.load_from_scope][tanjun.components.Component.load_from_scope],
+    and will be started and stopped with the linked tanjun client.
 
     Parameters
     ----------
