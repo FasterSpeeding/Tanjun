@@ -152,6 +152,21 @@ def as_interval(
 ) -> collections.Callable[[_CallbackSigT], IntervalSchedule[_CallbackSigT]]:
     """Decorator to create an schedule.
 
+    Examples
+    --------
+
+    ```py
+    @component.with_schedule
+    @tanjun.as_interval(datetime.timedelta(minutes=5))  # This will run every 5 minutes
+    async def interval(client: alluka.Injected[tanjun.abc.Client]) -> None:
+        ...
+    ```
+
+    This should be loaded into a component using either
+    [Component.with_schedule][tanjun.components.Component.with_schedule] or
+    [Component.load_from_scope][tanjun.components.Component.load_from_scope],
+    and will be started and stopped with the linked tanjun client.
+
     Parameters
     ----------
     interval
@@ -183,7 +198,14 @@ def as_interval(
 
 
 class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLoader, AbstractSchedule):
-    """A callback schedule with an interval between calls."""
+    """A callback schedule with an interval between calls.
+
+    This should be loaded into a component using either
+    [Component.load_from_scope][tanjun.components.Component.load_from_scope],
+    [Component.add_schedule][tanjun.components.Component.add_schedule] or
+    [Component.with_schedule][tanjun.components.Component.with_schedule], and
+    will be started and stopped with the linked tanjun client.
+    """
 
     __slots__ = (
         "_callback",
@@ -795,6 +817,24 @@ def as_time_schedule(
 ) -> collections.Callable[[_CallbackSigT], TimeSchedule[_CallbackSigT]]:
     """Create a time schedule through a decorator call.
 
+    Examples
+    --------
+
+    ```py
+    @component.with_schedule
+
+    @tanjun.as_time_schedule(  # This will run every week day at 8:00 and 16:00 UTC.
+        minutes=0, hours=[8, 16], days=range(0, 5), weekly=True, timezone=datetime.timezone.utc
+    )
+    async def interval(client: alluka.Injected[tanjun.abc.Client]) -> None:
+        ...
+    ```
+
+    This should be loaded into a component using either
+    [Component.with_schedule][tanjun.components.Component.with_schedule] or
+    [Component.load_from_scope][tanjun.components.Component.load_from_scope] and
+    will be started and stopped with the linked tanjun client.
+
     Parameters
     ----------
     months
@@ -878,7 +918,14 @@ def as_time_schedule(
 
 
 class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLoader, AbstractSchedule):
-    """A schedule that runs at specific times."""
+    """A schedule that runs at specific times.
+
+    This should be loaded into a component using either
+    [Component.load_from_scope][tanjun.components.Component.load_from_scope],
+    [Component.add_schedule][tanjun.components.Component.add_schedule] or
+    [Component.with_schedule][tanjun.components.Component.with_schedule] and
+    will be started and stopped with the linked tanjun client.
+    """
 
     __slots__ = ("_callback", "_config", "_fatal_exceptions", "_ignored_exceptions", "_task", "_tasks")
 
