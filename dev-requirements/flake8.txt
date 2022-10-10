@@ -8,7 +8,7 @@ astor==0.8.1
     # via flake8-if-statements
 bandit==1.7.4
     # via flake8-bandit
-black==22.8.0
+black==22.10.0
     # via flake8-black
 click==8.1.3
     # via
