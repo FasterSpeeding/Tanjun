@@ -60,7 +60,7 @@ flake8-html==0.4.2
     # via -r dev-requirements/flake8.in
 flake8-if-statements==1.0.0
     # via -r dev-requirements/flake8.in
-flake8-isort==4.2.0
+flake8-isort==5.0.0
     # via -r dev-requirements/flake8.in
 flake8-mutable==1.2
     # via -r dev-requirements/flake8.in
