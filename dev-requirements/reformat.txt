@@ -22,5 +22,3 @@ tokenize-rt==4.2.1
     # via sort-all
 tomli==2.0.1
     # via black
-typing-extensions==4.3.0
-    # via black
