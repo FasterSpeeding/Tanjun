@@ -45,7 +45,7 @@ mkdocs==1.4.0
     #   mkdocstrings
 mkdocs-autorefs==0.4.1
     # via mkdocstrings
-mkdocs-material==8.5.4
+mkdocs-material==8.5.6
     # via -r dev-requirements/docs.in
 mkdocs-material-extensions==1.0.3
     # via mkdocs-material
