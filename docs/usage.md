@@ -22,8 +22,8 @@ bot.run()
 Here a Tanjun client is linked to a gateway bot instance to enable both
 message and application command execution.
 
-There's no need to directly start or stop the Tanjun client it'll be managed by
-lifetime events by default.
+There's no need to directly start or stop the Tanjun client as it'll be managed
+by lifetime events (unless `event_managed=False` is passed).
 
 `declare_global_commands=True` instructs the client to declare the bot's slash
 commands and context menus on startup and `mention_prefix=True` allows the
@@ -39,11 +39,11 @@ async def main():
         await bot.join()
 ```
 
-And here a Tanjun client is linked to a rest server bot instance to enable
+And here a Tanjun client is linked to a REST server bot instance to enable
 application command execution.
 
 Since Hikari's RESTBot doesn't have lifetime events, we have to startup and
-close Tanjun's client around the rest bot ourselves. The bot should always be
+close Tanjun's client around the REST bot ourselves. The bot should always be
 started before Tanjun.
 
 ### Client lifetime management
