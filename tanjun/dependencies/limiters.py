@@ -718,8 +718,8 @@ class CooldownPreExecution:
                 raise self._error(self._bucket_id, wait_until) from None
 
             wait_until_repr = conversion.from_datetime(wait_until, style="R")
-            message = self._error_message.get_for_ctx_or_default(ctx, localiser, "check", "tanjun.cooldown")
-            raise errors.CommandError(message.format(cooldown=wait_until_repr))
+            message = self._error_message.localise(ctx, localiser, "check", "tanjun.cooldown", cooldown=wait_until_repr)
+            raise errors.CommandError(message)
 
 
 def with_cooldown(
@@ -1051,7 +1051,7 @@ class ConcurrencyPreExecution:
             if self._error:
                 raise self._error(self._bucket_id) from None
 
-            message = self._error_message.get_for_ctx_or_default(ctx, localiser, "check", "tanjun.concurrency")
+            message = self._error_message.localise(ctx, localiser, "check", "tanjun.concurrency")
             raise errors.CommandError(message) from None
 
 

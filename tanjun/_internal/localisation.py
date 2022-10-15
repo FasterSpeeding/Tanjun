@@ -103,13 +103,14 @@ class MaybeLocalised:
     def _values(self) -> collections.Iterable[str]:
         return itertools.chain((self.default_value,), self.localised_values.values())
 
-    def get_for_ctx_or_default(
+    def localise(
         self,
         ctx: tanjun.Context,
         localiser: typing.Optional[dependencies.AbstractLocaliser],
         field_type: _NamedFields,
         field_name: str,
         /,
+        **kwargs: typing.Any,
     ) -> str:
         """Get the localised value for a context.
 
@@ -131,14 +132,14 @@ class MaybeLocalised:
             The localised value or the default value.
         """
         if (self.localised_values or localiser) and isinstance(ctx, tanjun.AppCommandContext):
-            field: typing.Optional[str] = None
             if localiser:
                 localise_id = to_localise_id(_TYPE_TO_STR[ctx.type], ctx.triggering_name, field_type, field_name)
-                field = localiser.localise(localise_id, ctx.interaction.locale)
+                if field := localiser.localise(localise_id, ctx.interaction.locale, **kwargs):
+                    return field
 
-            return field or self.localised_values.get(ctx.interaction.locale, self.default_value)
+            return self.localised_values.get(ctx.interaction.locale, self.default_value).format(**kwargs)
 
-        return self.default_value
+        return self.default_value.format(**kwargs)
 
     def assert_matches(
         self: _MaybeLocalisedT, pattern: str, match: collections.Callable[[str], bool], /, *, lower_only: bool = False

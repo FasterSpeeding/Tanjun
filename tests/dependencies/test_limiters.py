@@ -1244,24 +1244,175 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_call_when_wat_until_localised(self):
-        ...
+    async def test_call_when_wait_until_localised(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            error_message={
+                hikari.Locale.CS: "yeet",
+                hikari.Locale.FR: "eep",
+                hikari.Locale.ES_ES: "i am {cooldown} meow",
+            },
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.ES_ES
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
+            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
+        )
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(tanjun.CommandError, match="i am <t:1452946089:R> meow"):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_wait_until_localised_but_non_app_command_defaults(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            error_message={
+                hikari.Locale.FR: "eep",
+                "default": "meow meow {cooldown} nyaa",
+                hikari.Locale.ES_ES: "i am {cooldown} meow",
+            },
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.MessageContext)
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
+            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
+        )
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(tanjun.CommandError, match="meow meow <t:1452946089:R> nyaa"):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
+        mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_localised_defaults(self):
-        ...
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            error_message={
+                hikari.Locale.IT: "epic {cooldown} stones",
+                hikari.Locale.FR: "meow meow {cooldown} nyaa",
+                hikari.Locale.ES_ES: "i am {cooldown} meow",
+            },
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context.interaction.locale = hikari.Locale.HR
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
+            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
+        )
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(tanjun.CommandError, match="epic <t:1452946089:R> stones"):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
+        mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_call_when_with_until_localised_by_localiser(self):
-        ...
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            error_message={
+                hikari.Locale.CS: "yeet",
+                hikari.Locale.FR: "eep",
+                hikari.Locale.ES_ES: "i am {cooldown} meow",
+            },
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eep meow nyaa")
+        mock_context.type = hikari.CommandType.SLASH
+        mock_context.interaction.locale = hikari.Locale.FR
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
+            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
+        )
+        mock_owner_check = mock.AsyncMock()
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "SLASH:eep meow nyaa:check:tanjun.cooldown",
+            {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am {cooldown} nyaa"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="i am <t:1452946089:R> nyaa"):
+            await pre_execution(
+                mock_context, cooldowns=mock_cooldown_manager, localiser=localiser, owner_check=mock_owner_check
+            )
+
+        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
+        mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_localised_but_localiser_not_found(self):
-        ...
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            error_message={
+                hikari.Locale.CS: "yeet",
+                hikari.Locale.FR: "eep",
+                hikari.Locale.ES_ES: "meow {cooldown} meow",
+            },
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eep meow nyaa")
+        mock_context.type = hikari.CommandType.SLASH
+        mock_context.interaction.locale = hikari.Locale.ES_ES
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
+            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
+        )
+        mock_owner_check = mock.AsyncMock()
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "SLASH:eep meow nyaa:check:tanjun.cooldown",
+            {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am {cooldown} nyaa"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="meow <t:1452946089:R> meow"):
+            await pre_execution(
+                mock_context, cooldowns=mock_cooldown_manager, localiser=localiser, owner_check=mock_owner_check
+            )
+
+        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
+        mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_defaults_with_localiser(self):
-        ...
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            error_message={
+                hikari.Locale.CS: "yeet",
+                hikari.Locale.FR: "eep",
+                "default": "echo echo {cooldown} foxtrot",
+                hikari.Locale.ES_ES: "meow {cooldown} meow",
+            },
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eep meow nyaa")
+        mock_context.type = hikari.CommandType.SLASH
+        mock_context.interaction.locale = hikari.Locale.PT_BR
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
+            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
+        )
+        mock_owner_check = mock.AsyncMock()
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "SLASH:eep meow nyaa:check:tanjun.cooldown",
+            {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am {cooldown} nyaa"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="echo echo <t:1452946089:R> foxtrot"):
+            await pre_execution(
+                mock_context, cooldowns=mock_cooldown_manager, localiser=localiser, owner_check=mock_owner_check
+            )
+
+        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
+        mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_and_error_callback(self):
@@ -1847,23 +1998,144 @@ class TestConcurrencyPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_localised(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="yeetus beatus")
+        mock_context.interaction.locale = hikari.Locale.HU
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_limiter = mock.AsyncMock()
+        mock_limiter.try_acquire.return_value = False
+        hook = tanjun.dependencies.ConcurrencyPreExecution(
+            "bucket catgirls",
+            error_message={
+                hikari.Locale.DA: "an error message",
+                hikari.Locale.EN_GB: "owowowo",
+                hikari.Locale.HU: "meow nyaa",
+            },
+        )
+
+        with pytest.raises(tanjun.CommandError, match="meow nyaa"):
+            await hook(mock_context, mock_limiter)
+
+        mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
+
+    @pytest.mark.asyncio()
+    async def test_call_when_acquire_fails_localised_but_not_app_command_defaults(self):
+        mock_context = mock.Mock(tanjun.abc.MessageContext, triggering_name="yeetus beatus")
+        mock_limiter = mock.AsyncMock()
+        mock_limiter.try_acquire.return_value = False
+        hook = tanjun.dependencies.ConcurrencyPreExecution(
+            "bucket catgirls",
+            error_message={
+                hikari.Locale.DA: "egg egg egg",
+                hikari.Locale.EN_GB: "owowowo",
+                hikari.Locale.HU: "meow nyaa",
+            },
+        )
+
+        with pytest.raises(tanjun.CommandError, match="egg egg egg"):
+            await hook(mock_context, mock_limiter)
+
+        mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_localised_defaults(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="yeetus beatus")
+        mock_context.interaction.locale = hikari.Locale.FR
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_limiter = mock.AsyncMock()
+        mock_limiter.try_acquire.return_value = False
+        hook = tanjun.dependencies.ConcurrencyPreExecution(
+            "bucket catgirls",
+            error_message={
+                hikari.Locale.DA: "an error message",
+                "default": "definitely not a default",
+                hikari.Locale.HU: "meow nyaa",
+            },
+        )
+
+        with pytest.raises(tanjun.CommandError, match="definitely not a default"):
+            await hook(mock_context, mock_limiter)
+
+        mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_localised_by_localiser(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="epic flintstones")
+        mock_context.interaction.locale = hikari.Locale.DA
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_limiter = mock.AsyncMock()
+        mock_limiter.try_acquire.return_value = False
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "MESSAGE:epic flintstones:check:tanjun.concurrency",
+            {
+                hikari.Locale.DA: "multiple messages",
+                hikari.Locale.EN_GB: "ear",
+                hikari.Locale.BG: "neat",
+            },
+        )
+        hook = tanjun.dependencies.ConcurrencyPreExecution(
+            "bucket catgirls",
+            error_message={
+                hikari.Locale.DA: "meow meow",
+                hikari.Locale.BG: "definitely not a default",
+                hikari.Locale.HU: "meow nyaa",
+            },
+        )
+
+        with pytest.raises(tanjun.CommandError, match="multiple messages"):
+            await hook(mock_context, mock_limiter, localiser=localiser)
+
+        mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_localised_but_localiser_not_found(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="epic flintstones")
+        mock_context.interaction.locale = hikari.Locale.EN_GB
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_limiter = mock.AsyncMock()
+        mock_limiter.try_acquire.return_value = False
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "MESSAGE:epic flintstones:check:tanjun.concurrency",
+            {hikari.Locale.EN_GB: "ear", hikari.Locale.BG: "neat", hikari.Locale.DA: "meow meow"},
+        )
+        hook = tanjun.dependencies.ConcurrencyPreExecution(
+            "bucket catgirls",
+            error_message={
+                hikari.Locale.DA: "multiple messages",
+                hikari.Locale.BG: "definitely not a default",
+                hikari.Locale.HU: "meow nyaa",
+            },
+        )
+
+        with pytest.raises(tanjun.CommandError, match="ear"):
+            await hook(mock_context, mock_limiter, localiser=localiser)
+
+        mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_defaults_with_localiser(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="epic flintstones")
+        mock_context.interaction.locale = hikari.Locale.JA
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_limiter = mock.AsyncMock()
+        mock_limiter.try_acquire.return_value = False
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "MESSAGE:epic flintstones:check:tanjun.concurrency",
+            {hikari.Locale.EN_GB: "ear", hikari.Locale.BG: "neat", hikari.Locale.DA: "meow meow"},
+        )
+        hook = tanjun.dependencies.ConcurrencyPreExecution(
+            "bucket catgirls",
+            error_message={
+                hikari.Locale.DA: "multiple messages",
+                "default": "deeper meaning than i am",
+                hikari.Locale.BG: "definitely not a default",
+                hikari.Locale.HU: "meow nyaa",
+            },
+        )
+
+        with pytest.raises(tanjun.CommandError, match="deeper meaning than i am"):
+            await hook(mock_context, mock_limiter, localiser=localiser)
+
+        mock_limiter.try_acquire.assert_awaited_once_with("deeper meaning than i am", mock_context)
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_and_error_callback(self):

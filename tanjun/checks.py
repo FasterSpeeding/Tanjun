@@ -120,7 +120,7 @@ class _Check:
             if self._halt_execution:
                 raise errors.HaltExecution from None
             if self._error_message:
-                message = self._error_message.get_for_ctx_or_default(ctx, localiser, "check", self._localise_id)
+                message = self._error_message.localise(ctx, localiser, "check", self._localise_id)
                 raise errors.CommandError(message) from None
 
         return result
