@@ -92,7 +92,6 @@ class TestLoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_loader(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -104,7 +103,6 @@ class TestLoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_loader()(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -116,7 +114,6 @@ class TestLoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_loader(standard_impl=True)(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -127,7 +124,6 @@ class TestLoaderDescriptor:
     def test_load_when_must_be_std_and_not_std(self):
         mock_callback = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         with pytest.raises(TypeError, match="This loader requires instances of the standard Client implementation"):
@@ -139,7 +135,6 @@ class TestLoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback, standard_impl=False)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -151,7 +146,6 @@ class TestLoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_loader(standard_impl=False)(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -205,7 +199,6 @@ class TestUnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_unloader(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)
@@ -217,7 +210,6 @@ class TestUnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_unloader()(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)
@@ -229,7 +221,6 @@ class TestUnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_unloader(standard_impl=True)(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)
@@ -240,7 +231,6 @@ class TestUnloaderDescriptor:
     def test_unload_when_must_be_std_and_not_std(self):
         mock_callback = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         with pytest.raises(TypeError, match="This unloader requires instances of the standard Client implementation"):
@@ -252,7 +242,6 @@ class TestUnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback, standard_impl=False)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)
@@ -264,7 +253,6 @@ class TestUnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_unloader(standard_impl=False)(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)

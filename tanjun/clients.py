@@ -142,6 +142,11 @@ if typing.TYPE_CHECKING:
     class _GatewayBotProto(hikari.EventManagerAware, hikari.RESTAware, hikari.ShardAware, typing.Protocol):
         """Protocol of a cacheless Hikari Gateway bot."""
 
+    _LoaderSigBase = collections.Callable[typing_extensions.Concatenate[_T, _P], None]
+    _LoaderSig = _LoaderSigBase[_T, ...]
+    _LoaderSigT = typing.TypeVar("_LoaderSigT", bound=_LoaderSig[tanjun.Client])
+    _StdLoaderSigT = typing.TypeVar("_StdLoaderSigT", bound=_LoaderSig["Client"])
+
 
 # 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
 if typing.TYPE_CHECKING:
@@ -191,10 +196,12 @@ class _LoaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.updat
             if not isinstance(client, Client):
                 raise TypeError("This loader requires instances of the standard Client implementation")
 
-            self._callback(client)
+            client.injector.call_with_di(self._callback, client)
 
         else:
-            typing.cast("collections.Callable[[tanjun.Client], None]", self._callback)(client)
+            client.injector.call_with_di(
+                typing.cast("collections.Callable[[tanjun.Client], None]", self._callback), client
+            )
 
         return True
 
@@ -231,54 +238,43 @@ class _UnloaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.upd
             if not isinstance(client, Client):
                 raise TypeError("This unloader requires instances of the standard Client implementation")
 
-            self._callback(client)
+            client.injector.call_with_di(self._callback, client)
 
         else:
-            typing.cast("collections.Callable[[tanjun.Client], None]", self._callback)(client)
+            client.injector.call_with_di(
+                typing.cast("collections.Callable[[tanjun.Client], None]", self._callback), client
+            )
 
         return True
 
 
 @typing.overload
-def as_loader(
-    callback: collections.Callable[[Client], None], /, *, standard_impl: typing.Literal[True] = True
-) -> collections.Callable[[Client], None]:
+def as_loader(callback: _StdLoaderSigT, /, *, standard_impl: typing.Literal[True] = True) -> _StdLoaderSigT:
     ...
 
 
 @typing.overload
-def as_loader(
-    *, standard_impl: typing.Literal[True] = True
-) -> collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]]:
+def as_loader(*, standard_impl: typing.Literal[True] = True) -> collections.Callable[[_StdLoaderSigT], _StdLoaderSigT]:
     ...
 
 
 @typing.overload
-def as_loader(
-    callback: collections.Callable[[tanjun.Client], None], /, *, standard_impl: typing.Literal[False]
-) -> collections.Callable[[tanjun.Client], None]:
+def as_loader(callback: _LoaderSigT, /, *, standard_impl: typing.Literal[False]) -> _LoaderSigT:
     ...
 
 
 @typing.overload
-def as_loader(
-    *, standard_impl: typing.Literal[False]
-) -> collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]]:
+def as_loader(*, standard_impl: typing.Literal[False]) -> collections.Callable[[_LoaderSigT], _LoaderSigT]:
     ...
 
 
 def as_loader(
-    callback: typing.Union[
-        collections.Callable[[tanjun.Client], None], collections.Callable[[Client], None], None
-    ] = None,
-    /,
-    *,
-    standard_impl: bool = True,
+    callback: typing.Union[_LoaderSigT, _StdLoaderSigT, None] = None, /, *, standard_impl: bool = True
 ) -> typing.Union[
-    collections.Callable[[tanjun.Client], None],
-    collections.Callable[[Client], None],
-    collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]],
-    collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]],
+    _LoaderSigT,
+    _StdLoaderSigT,
+    collections.Callable[[_StdLoaderSigT], _StdLoaderSigT],
+    collections.Callable[[_LoaderSigT], _LoaderSigT],
 ]:
     """Mark a callback as being used to load Tanjun components from a module.
 
@@ -294,6 +290,8 @@ def as_loader(
         [tanjun.abc.Client][] if `standard_impl` is [False][]), return nothing
         and will be expected to initiate and add utilities such as components
         to the provided client.
+
+        This supports sync DI.
     standard_impl
         Whether this loader should only allow instances of [tanjun.Client][]
         as opposed to [tanjun.abc.Client][].
@@ -315,45 +313,34 @@ def as_loader(
 
 
 @typing.overload
-def as_unloader(
-    callback: collections.Callable[[Client], None], /, *, standard_impl: typing.Literal[True] = True
-) -> collections.Callable[[Client], None]:
+def as_unloader(callback: _StdLoaderSigT, /, *, standard_impl: typing.Literal[True] = True) -> _StdLoaderSigT:
     ...
 
 
 @typing.overload
 def as_unloader(
     *, standard_impl: typing.Literal[True] = True
-) -> collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]]:
+) -> collections.Callable[[_StdLoaderSigT], _StdLoaderSigT]:
     ...
 
 
 @typing.overload
-def as_unloader(
-    callback: collections.Callable[[tanjun.Client], None], /, *, standard_impl: typing.Literal[False]
-) -> collections.Callable[[tanjun.Client], None]:
+def as_unloader(callback: _LoaderSigT, /, *, standard_impl: typing.Literal[False]) -> _LoaderSigT:
     ...
 
 
 @typing.overload
-def as_unloader(
-    *, standard_impl: typing.Literal[False]
-) -> collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]]:
+def as_unloader(*, standard_impl: typing.Literal[False]) -> collections.Callable[[_LoaderSigT], _LoaderSigT]:
     ...
 
 
 def as_unloader(
-    callback: typing.Union[
-        collections.Callable[[Client], None], collections.Callable[[tanjun.Client], None], None
-    ] = None,
-    /,
-    *,
-    standard_impl: bool = True,
+    callback: typing.Union[_StdLoaderSigT, _LoaderSigT, None] = None, /, *, standard_impl: bool = True
 ) -> typing.Union[
-    collections.Callable[[Client], None],
-    collections.Callable[[tanjun.Client], None],
-    collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]],
-    collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]],
+    _StdLoaderSigT,
+    _LoaderSigT,
+    collections.Callable[[_StdLoaderSigT], _StdLoaderSigT],
+    collections.Callable[[_LoaderSigT], _LoaderSigT],
 ]:
     """Mark a callback as being used to unload a module's utilities from a client.
 
@@ -371,6 +358,8 @@ def as_unloader(
         [tanjun.abc.Client][] if `standard_impl` is [False][]), return nothing
         and will be expected to remove utilities such as components from the
         provided client.
+
+        This supports sync DI.
     standard_impl
         Whether this unloader should only allow instances of [tanjun.Client][]
         as opposed to [tanjun.abc.Client][].

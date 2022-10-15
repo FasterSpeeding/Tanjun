@@ -70,19 +70,25 @@ from ._internal import localisation
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+    import typing_extensions
+
+    _P = typing_extensions.ParamSpec("_P")
+
+    _PermissionErrorSigBase = collections.Callable[typing_extensions.Concatenate[hikari.Permissions, _P], Exception]
+    _PermissionErrorSig = _PermissionErrorSigBase[...]
+
+    _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _ContextT_contra = typing.TypeVar("_ContextT_contra", bound=tanjun.Context, contravariant=True)
+    _CallbackReturnT = typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]
+    _MenuCommandT = typing.TypeVar("_MenuCommandT", bound=tanjun.MenuCommand[typing.Any, typing.Any])
+    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=tanjun.MessageCommand[typing.Any])
+    _SlashCommandT = typing.TypeVar("_SlashCommandT", bound=tanjun.BaseSlashCommand)
 
     class _AnyCallback(typing.Protocol[_ContextT_contra]):
         async def __call__(
             self, ctx: _ContextT_contra, /, *, localiser: typing.Optional[dependencies.AbstractLocaliser] = None
         ) -> bool:
             raise NotImplementedError
-
-    _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
-    _CallbackReturnT = typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]
-    _MenuCommandT = typing.TypeVar("_MenuCommandT", bound=tanjun.MenuCommand[typing.Any, typing.Any])
-    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=tanjun.MessageCommand[typing.Any])
-    _SlashCommandT = typing.TypeVar("_SlashCommandT", bound=tanjun.BaseSlashCommand)
 
 
 _ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
@@ -132,7 +138,7 @@ class _Check:
     ) -> bool:
         if not result:
             if self._error:
-                raise self._error(*args) from None
+                raise ctx.call_with_di(self._error, args) from None
             if self._halt_execution:
                 raise errors.HaltExecution from None
             if self._error_message:
@@ -153,7 +159,7 @@ class OwnerCheck(_Check):
     def __init__(
         self,
         *,
-        error: typing.Optional[collections.Callable[[], Exception]] = None,
+        error: typing.Optional[collections.Callable[..., Exception]] = None,
         error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
         halt_execution: bool = False,
     ) -> None:
@@ -164,7 +170,8 @@ class OwnerCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This takes priority over `error_message`.
+            This takes no positional arguments, supports sync DI and takes
+            priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
@@ -210,7 +217,7 @@ class NsfwCheck(_Check):
     def __init__(
         self,
         *,
-        error: typing.Optional[collections.Callable[[], Exception]] = None,
+        error: typing.Optional[collections.Callable[..., Exception]] = None,
         error_message: typing.Union[
             str, collections.Mapping[str, str], None
         ] = "Command can only be used in NSFW channels",
@@ -223,7 +230,8 @@ class NsfwCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This takes priority over `error_message`.
+            This takes no positional arguments, supports sync DI and takes
+            priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
@@ -261,7 +269,7 @@ class SfwCheck(_Check):
     def __init__(
         self,
         *,
-        error: typing.Optional[collections.Callable[[], Exception]] = None,
+        error: typing.Optional[collections.Callable[..., Exception]] = None,
         error_message: typing.Union[
             str, collections.Mapping[str, str], None
         ] = "Command can only be used in SFW channels",
@@ -274,7 +282,8 @@ class SfwCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This takes priority over `error_message`.
+            This takes no positonal arguments, supports sync DI and takes
+            priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
@@ -312,7 +321,7 @@ class DmCheck(_Check):
     def __init__(
         self,
         *,
-        error: typing.Optional[collections.Callable[[], Exception]] = None,
+        error: typing.Optional[collections.Callable[..., Exception]] = None,
         error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
         halt_execution: bool = False,
     ) -> None:
@@ -323,7 +332,8 @@ class DmCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This takes priority over `error_message`.
+            This takes no positonal arguments, supports sync DI and takes
+            priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
@@ -361,7 +371,7 @@ class GuildCheck(_Check):
     def __init__(
         self,
         *,
-        error: typing.Optional[collections.Callable[[], Exception]] = None,
+        error: typing.Optional[collections.Callable[..., Exception]] = None,
         error_message: typing.Union[
             str, collections.Mapping[str, str], None
         ] = "Command can only be used in guild channels",
@@ -374,7 +384,8 @@ class GuildCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This takes priority over `error_message`.
+            This takes no positonal arguments, supports sync DI and takes
+            priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
 
@@ -414,7 +425,7 @@ class AuthorPermissionCheck(_Check):
         permissions: typing.Union[hikari.Permissions, int],
         /,
         *,
-        error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
+        error: typing.Optional[_PermissionErrorSig] = None,
         error_message: typing.Union[
             str, collections.Mapping[str, str], None
         ] = "You don't have the permissions required to use this command",
@@ -429,8 +440,10 @@ class AuthorPermissionCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This should take 1 positional argument of type [hikari.permissions.Permissions][]
-            which represents the missing permissions required for this command to run.
+            This should match the signature `def (hikari.permissions.Permissions, ...) -> Exception`
+            where the first argument is the missing permissions required for this command
+            and sync dependency injection is supported. The returned [Exception][] will
+            be raised.
 
             This takes priority over `error_message`.
         error_message
@@ -495,7 +508,7 @@ class OwnPermissionCheck(_Check):
         permissions: typing.Union[hikari.Permissions, int],
         /,
         *,
-        error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
+        error: typing.Optional[_PermissionErrorSig] = None,
         error_message: typing.Union[
             str, collections.Mapping[str, str], None
         ] = "Bot doesn't have the permissions required to run this command",
@@ -510,8 +523,10 @@ class OwnPermissionCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This should take 1 positional argument of type [hikari.permissions.Permissions][]
-            which represents the missing permissions required for this command to run.
+            This should match the signature `def (hikari.permissions.Permissions, ...) -> Exception`
+            where the first argument is the missing permissions required for this command
+            and sync dependency injection is supported. The returned [Exception][] will
+            be raised.
 
             This takes priority over `error_message`.
         error_message
@@ -567,7 +582,7 @@ def with_dm_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_dm_check(
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
@@ -579,7 +594,7 @@ def with_dm_check(
     command: typing.Optional[_CommandT] = None,
     /,
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
@@ -593,7 +608,8 @@ def with_dm_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This takes priority over `error_message`.
+        This takes no positonal arguments, supports sync DI and takes priority
+        over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
@@ -629,7 +645,7 @@ def with_guild_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_guild_check(
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[
         str, collections.Mapping[str, str], None
     ] = "Command can only be used in guild channels",
@@ -643,7 +659,7 @@ def with_guild_check(
     command: typing.Optional[_CommandT] = None,
     /,
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[
         str, collections.Mapping[str, str], None
     ] = "Command can only be used in guild channels",
@@ -659,7 +675,8 @@ def with_guild_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This takes priority over `error_message`.
+        This takes no positonal arguments, supports sync DI and takes priority
+        over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
@@ -695,7 +712,7 @@ def with_nsfw_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_nsfw_check(
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in NSFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
@@ -707,7 +724,7 @@ def with_nsfw_check(
     command: typing.Optional[_CommandT] = None,
     /,
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in NSFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
@@ -721,7 +738,8 @@ def with_nsfw_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This takes priority over `error_message`.
+        This takes no positonal arguments, supports sync DI and takes priority
+        over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
@@ -757,7 +775,7 @@ def with_sfw_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_sfw_check(
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in SFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
@@ -769,7 +787,7 @@ def with_sfw_check(
     command: typing.Optional[_CommandT] = None,
     /,
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in SFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
@@ -783,7 +801,8 @@ def with_sfw_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This takes priority over `error_message`.
+        This takes no positonal arguments, supports sync DI and takes priority
+        over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
@@ -819,7 +838,7 @@ def with_owner_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_owner_check(
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
@@ -831,7 +850,7 @@ def with_owner_check(
     command: typing.Optional[_CommandT] = None,
     /,
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
@@ -845,7 +864,8 @@ def with_owner_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This takes priority over `error_message`.
+        This takes no positonal arguments, supports sync DI and takes priority
+        over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
@@ -876,7 +896,7 @@ def with_owner_check(
 def with_author_permission_check(
     permissions: typing.Union[hikari.Permissions, int],
     *,
-    error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
+    error: typing.Optional[_PermissionErrorSig] = None,
     error_message: typing.Union[
         str, collections.Mapping[str, str], None
     ] = "You don't have the permissions required to use this command",
@@ -896,8 +916,10 @@ def with_author_permission_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should take 1 positional argument of type [hikari.permissions.Permissions][]
-        which represents the missing permissions required for this command to run.
+        This should match the signature `def (hikari.permissions.Permissions, ...) -> Exception`
+        where the first argument is the missing permissions required for this command
+        and sync dependency injection is supported. The returned [Exception][] will
+        be raised.
 
         This takes priority over `error_message`.
     error_message
@@ -932,7 +954,7 @@ def with_author_permission_check(
 def with_own_permission_check(
     permissions: typing.Union[hikari.Permissions, int],
     *,
-    error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
+    error: typing.Optional[_PermissionErrorSig] = None,
     error_message: typing.Union[
         str, collections.Mapping[str, str], None
     ] = "Bot doesn't have the permissions required to run this command",
@@ -952,8 +974,10 @@ def with_own_permission_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should take 1 positional argument of type [hikari.permissions.Permissions][]
-        which represents the missing permissions required for this command to run.
+        This should match the signature `def (hikari.permissions.Permissions, ...) -> Exception`
+        where the first argument is the missing permissions required for this command
+        and sync dependency injection is supported. The returned [Exception][] will
+        be raised.
 
         This takes priority over `error_message`.
     error_message
@@ -1150,7 +1174,7 @@ class _AnyChecks(_Check, typing.Generic[_ContextT]):
     def __init__(
         self,
         checks: list[tanjun.CheckSig[_ContextT]],
-        error: typing.Optional[collections.Callable[[], Exception]],
+        error: typing.Optional[collections.Callable[..., Exception]],
         error_message: typing.Union[str, collections.Mapping[str, str], None],
         halt_execution: bool,
         suppress: tuple[type[Exception], ...],
@@ -1180,7 +1204,7 @@ def any_checks(
     check: tanjun.CheckSig[_ContextT],
     /,
     *checks: tanjun.CheckSig[_ContextT],
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None],
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
@@ -1199,7 +1223,8 @@ def any_checks(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This takes priority over `error_message`.
+        This takes no positonal arguments, supports sync DI and takes priority
+        over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
@@ -1226,7 +1251,7 @@ def with_any_checks(
     check: tanjun.AnyCheckSig,
     /,
     *checks: tanjun.AnyCheckSig,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error: typing.Optional[collections.Callable[..., Exception]] = None,
     error_message: typing.Union[str, collections.Mapping[str, str], None],
     follow_wrapped: bool = False,
     halt_execution: bool = False,
@@ -1306,7 +1331,8 @@ def with_any_checks(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This takes priority over `error_message`.
+        This takes no positonal arguments, supports sync DI and takes priority
+        over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
 
