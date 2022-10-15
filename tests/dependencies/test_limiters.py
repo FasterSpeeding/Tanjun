@@ -2135,7 +2135,7 @@ class TestConcurrencyPreExecution:
         with pytest.raises(tanjun.CommandError, match="deeper meaning than i am"):
             await hook(mock_context, mock_limiter, localiser=localiser)
 
-        mock_limiter.try_acquire.assert_awaited_once_with("deeper meaning than i am", mock_context)
+        mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_and_error_callback(self):
