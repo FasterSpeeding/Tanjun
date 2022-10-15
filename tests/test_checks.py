@@ -109,28 +109,139 @@ class TestOwnerCheck:
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     async def test_when_false_and_error_message_dict(self):
-        ...
+        mock_dependency = mock.AsyncMock()
+        mock_dependency.check_ownership.return_value = False
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.JA
+        check = tanjun.checks.OwnerCheck(
+            error_message={hikari.Locale.EN_GB: "aye", hikari.Locale.HR: "eepers", hikari.Locale.JA: "yeet"}
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="yeet"):
+            await check(mock_context, mock_dependency)
+
+        mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
+
+    async def test_when_false_and_error_message_dict_but_not_app_command(self):
+        mock_dependency = mock.AsyncMock()
+        mock_dependency.check_ownership.return_value = False
+        mock_context = mock.Mock(tanjun.abc.Context)
+        check = tanjun.checks.OwnerCheck(
+            error_message={
+                hikari.Locale.CS: "meow",
+                "default": "meep",
+                hikari.Locale.FI: "eep",
+            }
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="meep"):
+            await check(mock_context, mock_dependency)
+
+        mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     async def test_when_false_and_error_message_dict_defaults(self):
-        ...
+        mock_dependency = mock.AsyncMock()
+        mock_dependency.check_ownership.return_value = False
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.FR
+        check = tanjun.checks.OwnerCheck(
+            error_message={hikari.Locale.EN_US: "catgirl moment", hikari.Locale.HR: "eepers", hikari.Locale.JA: "yeet"}
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="catgirl moment"):
+            await check(mock_context, mock_dependency)
+
+        mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     async def test_when_false_and_error_message_dict_explicit_default(self):
-        ...
+        mock_dependency = mock.AsyncMock()
+        mock_dependency.check_ownership.return_value = False
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.FR
+        check = tanjun.checks.OwnerCheck(
+            error_message={
+                hikari.Locale.EN_US: "catgirl moment",
+                hikari.Locale.HR: "eepers",
+                "default": "epic default",
+                hikari.Locale.JA: "yeet",
+            }
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="epic default"):
+            await check(mock_context, mock_dependency)
+
+        mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     async def test_when_false_and_error_message_localiser(self):
-        ...
+        mock_dependency = mock.AsyncMock()
+        mock_dependency.check_ownership.return_value = False
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eepers creepers")
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_context.interaction.locale = hikari.Locale.JA
+        check = tanjun.checks.OwnerCheck(
+            error_message={hikari.Locale.EN_GB: "aye", hikari.Locale.HR: "eepers", hikari.Locale.JA: "yeet"}
+        )
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "MESSAGE:eepers creepers:check:tanjun.OwnerCheck", {hikari.Locale.DE: "oop", hikari.Locale.JA: "nyaa"}
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="nyaa"):
+            await check(mock_context, mock_dependency, localiser=localiser)
+
+        mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     async def test_when_false_and_error_message_localiser_overridden_id(self):
-        ...
+        mock_dependency = mock.AsyncMock()
+        mock_dependency.check_ownership.return_value = False
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eepers creepers")
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_context.interaction.locale = hikari.Locale.JA
+        check = tanjun.checks.OwnerCheck(
+            error_message={
+                hikari.Locale.EN_GB: "aye",
+                hikari.Locale.HR: "eepers",
+                hikari.Locale.JA: "yeet",
+                "id": "meeeeeow",
+            }
+        )
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants(
+                "MESSAGE:eepers creepers:check:tanjun.OwnerCheck",
+                {hikari.Locale.DE: "oop", hikari.Locale.JA: "nyaa"},
+            )
+            .set_variants(
+                "meeeeeow", {hikari.Locale.CS: "aaaaa", hikari.Locale.JA: "cup of isis", hikari.Locale.DA: "noooo"}
+            )
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="cup of isis"):
+            await check(mock_context, mock_dependency, localiser=localiser)
+
+        mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     async def test_when_false_and_error_message_localiser_defaults(self):
-        ...
+        mock_dependency = mock.AsyncMock()
+        mock_dependency.check_ownership.return_value = False
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eepers creepers")
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_context.interaction.locale = hikari.Locale.FR
+        check = tanjun.checks.OwnerCheck(
+            error_message={
+                hikari.Locale.EN_GB: "aye",
+                "default": "defo",
+                hikari.Locale.HR: "eepers",
+                hikari.Locale.JA: "yeet",
+            }
+        )
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "MESSAGE:eepers creepers:check:tanjun.OwnerCheck", {hikari.Locale.DE: "oop", hikari.Locale.JA: "nyaa"}
+        )
 
-    async def test_when_false_and_error_message_localiser_overridden_default(self):
-        ...
+        with pytest.raises(tanjun.errors.CommandError, match="defo"):
+            await check(mock_context, mock_dependency, localiser=localiser)
 
-    async def test_when_false_and_error_message_localiser_explicit_default(self):
-        ...
+        mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     async def test_when_false_and_halt_execution(self):
         mock_dependency = mock.AsyncMock()
@@ -275,28 +386,172 @@ class TestNsfwCheck:
         mock_cache.get.assert_not_called()
 
     async def test_when_false_and_error_message_dict(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.HU
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.NsfwCheck(
+            error_message={hikari.Locale.DE: "oh", hikari.Locale.HU: "no", hikari.Locale.EN_GB: "meow"}
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="no"):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    async def test_when_false_and_error_message_dict_but_not_app_command(self):
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.NsfwCheck(
+            error_message={
+                hikari.Locale.DE: "op",
+                "default": "defaulted",
+                hikari.Locale.HU: "no",
+                hikari.Locale.EN_GB: "meow",
+            }
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="defaulted"):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_false_and_error_message_dict_defaults(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.DA
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.NsfwCheck(
+            error_message={
+                hikari.Locale.DE: "default default default",
+                hikari.Locale.HU: "no",
+                hikari.Locale.EN_GB: "meow",
+            }
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="default default default"):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_false_and_error_message_dict_explicit_default(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.DA
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.NsfwCheck(
+            error_message={
+                hikari.Locale.DE: "default default default",
+                "default": "real default",
+                hikari.Locale.HU: "no",
+                hikari.Locale.EN_GB: "meow",
+            }
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="real default"):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_false_and_error_message_localiser(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow meow")
+        mock_context.type = hikari.CommandType.USER
+        mock_context.interaction.locale = hikari.Locale.EN_GB
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.NsfwCheck(
+            error_message={
+                hikari.Locale.DE: "default default default",
+                hikari.Locale.HU: "no",
+                hikari.Locale.EN_GB: "meow",
+            }
+        )
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "USER:meow meow:check:tanjun.NsfwCheck",
+            {hikari.Locale.CS: "n", hikari.Locale.EN_GB: "override", hikari.Locale.FI: "i'm finished"},
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="override"):
+            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_false_and_error_message_localiser_overridden_id(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow meow")
+        mock_context.type = hikari.CommandType.USER
+        mock_context.interaction.locale = hikari.Locale.EN_GB
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.NsfwCheck(
+            error_message={
+                hikari.Locale.DE: "default default default",
+                hikari.Locale.HU: "no",
+                "id": "cthulhu calls",
+                hikari.Locale.EN_GB: "meow",
+            }
+        )
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants(
+                "USER:meow meow:check:tanjun.NsfwCheck",
+                {hikari.Locale.CS: "n", hikari.Locale.EN_GB: "override", hikari.Locale.FI: "i'm finished"},
+            )
+            .set_variants("cthulhu calls", {hikari.Locale.EN_GB: "wowzer Fred, I'm gay", hikari.Locale.CS: "meow"})
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="wowzer Fred, I'm gay"):
+            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_false_and_error_message_localiser_defaults(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow meow")
+        mock_context.type = hikari.CommandType.USER
+        mock_context.interaction.locale = hikari.Locale.FR
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.NsfwCheck(
+            error_message={
+                hikari.Locale.DE: "default default default",
+                hikari.Locale.HU: "no",
+                hikari.Locale.EN_GB: "meow",
+            }
+        )
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants(
+                "USER:meow meow:check:tanjun.NsfwCheck",
+                {hikari.Locale.CS: "n", hikari.Locale.EN_GB: "override", hikari.Locale.FI: "i'm finished"},
+            )
+            .set_variants("cthulhu calls", {hikari.Locale.EN_GB: "wowzer Fred, I'm gay", hikari.Locale.CS: "meow"})
+        )
 
-    async def test_when_false_and_error_message_localiser_overridden_default(self):
-        ...
+        with pytest.raises(tanjun.errors.CommandError, match="default default default"):
+            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
 
-    async def test_when_false_and_error_message_localiser_explicit_default(self):
-        ...
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_false_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
@@ -433,28 +688,182 @@ class TestSfwCheck:
         mock_cache.get.assert_not_called()
 
     async def test_when_is_nsfw_and_error_message_dict(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.DA
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.SfwCheck(
+            error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="moooo"):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
+
+    async def test_when_is_nsfw_and_error_message_dict_but_not_app_command(self):
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.SfwCheck(
+            error_message={
+                hikari.Locale.BG: "oooooo",
+                "default": "bye bye",
+                hikari.Locale.DA: "moooo",
+                hikari.Locale.EN_GB: "pussy cat",
+            }
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="bye bye"):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_is_nsfw_and_error_message_dict_defaults(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.FR
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.SfwCheck(
+            error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="oooooo"):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_is_nsfw_and_error_message_dict_explicit_default(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.FR
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.SfwCheck(
+            error_message={
+                hikari.Locale.BG: "oooooo",
+                hikari.Locale.DA: "moooo",
+                hikari.Locale.EN_GB: "pussy cat",
+                "default": "oh no",
+            }
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="oh no"):
+            await check(mock_context, channel_cache=mock_cache)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_is_nsfw_and_error_message_localiser(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="oh no girl")
+        mock_context.type = hikari.CommandType.USER
+        mock_context.interaction.locale = hikari.Locale.DA
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.SfwCheck(
+            error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
+        )
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "USER:oh no girl:check:tanjun.SfwCheck", {hikari.Locale.DA: "real value", hikari.Locale.BG: "op"}
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="real value"):
+            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_is_nsfw_and_error_message_localiser_overridden_id(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="oh no girl")
+        mock_context.type = hikari.CommandType.USER
+        mock_context.interaction.locale = hikari.Locale.EN_GB
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.SfwCheck(
+            error_message={
+                hikari.Locale.BG: "oooooo",
+                hikari.Locale.DA: "moooo",
+                "id": "meow meow meow meow",
+                hikari.Locale.EN_GB: "pussy cat",
+            }
+        )
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants(
+                "USER:oh no girl:check:tanjun.SfwCheck",
+                {
+                    hikari.Locale.EN_GB: "You can sail the seven seas and find",
+                    hikari.Locale.EN_US: "Love is a place you'll never see",
+                },
+            )
+            .set_variants(
+                "meow meow meow meow",
+                {
+                    hikari.Locale.EN_GB: "Passing you like a summer breeze",
+                    hikari.Locale.EN_US: "You feel life has no other reason to be",
+                },
+            )
+        )
+
+        with pytest.raises(tanjun.errors.CommandError, match="Passing you like a summer breeze"):
+            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_is_nsfw_and_error_message_localiser_defaults(self):
-        ...
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="oh no girl")
+        mock_context.type = hikari.CommandType.USER
+        mock_context.interaction.locale = hikari.Locale.DE
+        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_cache = mock.AsyncMock()
+        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        check = tanjun.checks.SfwCheck(
+            error_message={
+                hikari.Locale.JA: "years of meows",
+                hikari.Locale.DA: "moooo",
+                "id": "meow meow meow meow",
+                hikari.Locale.EN_GB: "pussy cat",
+            }
+        )
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants(
+                "USER:oh no girl:check:tanjun.SfwCheck",
+                {
+                    hikari.Locale.EN_GB: "You can sail the seven seas and find",
+                    hikari.Locale.EN_US: "Love is a place you'll never see",
+                },
+            )
+            .set_variants(
+                "meow meow meow meow",
+                {
+                    hikari.Locale.EN_GB: "Passing you like a summer breeze",
+                    hikari.Locale.EN_US: "You feel life has no other reason to be",
+                },
+            )
+        )
 
-    async def test_when_is_nsfw_and_error_message_localiser_overridden_default(self):
-        ...
+        with pytest.raises(tanjun.errors.CommandError, match="years of meows"):
+            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
 
-    async def test_when_is_nsfw_and_error_message_localiser_explicit_default(self):
-        ...
+        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_cache.get.assert_not_called()
 
     async def test_when_is_nsfw_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
@@ -486,41 +895,146 @@ class TestDmCheck:
                 ...
 
         check = tanjun.checks.DmCheck(error=MockException, error_message="meow")
+        mock_context = mock.Mock(guild_id=3123)
 
         with pytest.raises(MockException):
-            assert check(mock.Mock(guild_id=3123))
+            assert check(mock_context)
 
     def test_for_guild_when_halt_execution(self):
+        check = tanjun.checks.DmCheck(error_message="beep", halt_execution=True)
+        mock_context = mock.Mock(guild_id=3123)
+
         with pytest.raises(tanjun.HaltExecution):
-            assert tanjun.checks.DmCheck(error_message="beep", halt_execution=True)(mock.Mock(guild_id=3123))
+            assert check(mock_context)
 
     def test_for_guild_when_error_message(self):
+        check = tanjun.checks.DmCheck(error_message="message")
+        mock_context = mock.Mock(guild_id=3123)
+
         with pytest.raises(tanjun.CommandError, match="message"):
-            assert tanjun.checks.DmCheck(error_message="message")(mock.Mock(guild_id=3123))
+            assert check(mock_context)
 
     def test_for_guild_when_error_message_dict(self):
-        ...
+        check = tanjun.checks.DmCheck(
+            error_message={
+                hikari.Locale.ES_ES: "weeb girl",
+                hikari.Locale.EN_US: "tax girl",
+                hikari.Locale.EN_GB: "tea girl",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=3123)
+        mock_context.interaction.locale = hikari.Locale.EN_US
+
+        with pytest.raises(tanjun.CommandError, match="tax girl"):
+            assert check(mock_context)
+
+    def test_for_guild_when_error_message_dict_but_not_app_command(self):
+        check = tanjun.checks.DmCheck(
+            error_message={
+                hikari.Locale.ES_ES: "weeb girl",
+                "default": "weeby girl",
+                hikari.Locale.EN_US: "tax girl",
+                hikari.Locale.EN_GB: "tea girl",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.Context, guild_id=3123)
+
+        with pytest.raises(tanjun.CommandError, match="weeby girl"):
+            assert check(mock_context)
 
     def test_for_guild_when_error_message_dict_defaults(self):
-        ...
+        check = tanjun.checks.DmCheck(
+            error_message={
+                hikari.Locale.EN_GB: "tea girl",
+                hikari.Locale.EN_US: "tax girl",
+                hikari.Locale.ES_ES: "weeb girl",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=3123)
+        mock_context.interaction.locale = hikari.Locale.FR
+
+        with pytest.raises(tanjun.CommandError, match="tea girl"):
+            assert check(mock_context)
 
     def test_for_guild_when_error_message_dict_explicit_default(self):
-        ...
+        check = tanjun.checks.DmCheck(
+            error_message={
+                hikari.Locale.EN_GB: "tea girl",
+                hikari.Locale.EN_US: "tax girl",
+                "default": "man girl",
+                hikari.Locale.ES_ES: "weeb girl",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=3123)
+        mock_context.interaction.locale = hikari.Locale.FR
+
+        with pytest.raises(tanjun.CommandError, match="man girl"):
+            assert check(mock_context)
 
     def test_for_guild_when_error_message_localiser(self):
-        ...
+        check = tanjun.checks.DmCheck(
+            error_message={
+                hikari.Locale.EN_GB: "tea girl",
+                hikari.Locale.EN_US: "tax girl",
+                hikari.Locale.ES_ES: "weeb girl",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=3123, triggering_name="girl girl")
+        mock_context.type = hikari.CommandType.SLASH
+        mock_context.interaction.locale = hikari.Locale.EN_GB
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "SLASH:girl girl:check:tanjun.DmCheck",
+            {hikari.Locale.DE: "beer girl", hikari.Locale.EN_GB: "me girl", hikari.Locale.JA: "anime girl"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="me girl"):
+            assert check(mock_context, localiser=localiser)
 
     def test_for_guild_when_error_message_localiser_overridden_id(self):
-        ...
+        check = tanjun.checks.DmCheck(
+            error_message={
+                hikari.Locale.EN_GB: "tea girl",
+                hikari.Locale.EN_US: "tax girl",
+                "id": "girl girl",
+                hikari.Locale.ES_ES: "weeb girl",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=3123, triggering_name="girl girl")
+        mock_context.type = hikari.CommandType.SLASH
+        mock_context.interaction.locale = hikari.Locale.EN_GB
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants(
+                "SLASH:girl girl:check:tanjun.DmCheck",
+                {hikari.Locale.DE: "beer girl", hikari.Locale.EN_GB: "me girl", hikari.Locale.JA: "anime girl"},
+            )
+            .set_variants(
+                "girl girl",
+                {hikari.Locale.EN_GB: "my girl", hikari.Locale.ZH_CN: "camp girl", hikari.Locale.ZH_TW: "real girl"},
+            )
+        )
+
+        with pytest.raises(tanjun.CommandError, match="my girl"):
+            assert check(mock_context, localiser=localiser)
 
     def test_for_guild_when_error_message_localiser_defaults(self):
-        ...
+        check = tanjun.checks.DmCheck(
+            error_message={
+                hikari.Locale.ES_ES: "weeb girl",
+                hikari.Locale.EN_GB: "tea girl",
+                hikari.Locale.EN_US: "tax girl",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=3123, triggering_name="girl girl")
+        mock_context.type = hikari.CommandType.SLASH
+        mock_context.interaction.locale = hikari.Locale.ZH_TW
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "SLASH:girl girl:check:tanjun.DmCheck",
+            {hikari.Locale.DE: "beer girl", hikari.Locale.EN_GB: "me girl", hikari.Locale.JA: "anime girl"},
+        )
 
-    def test_for_guild_when_error_message_localiser_overridden_default(self):
-        ...
-
-    def test_for_guild_when_error_message_localiser_explicit_default(self):
-        ...
+        with pytest.raises(tanjun.CommandError, match="weeb girl"):
+            assert check(mock_context, localiser=localiser)
 
 
 class TestGuildCheck:
@@ -543,36 +1057,142 @@ class TestGuildCheck:
             assert check(mock.Mock(guild_id=None))
 
     def test_for_dm_when_halt_execution(self):
+        check = tanjun.checks.GuildCheck(error_message="beep", halt_execution=True)
+        mock_context = mock.Mock(guild_id=None)
+
         with pytest.raises(tanjun.HaltExecution):
-            tanjun.checks.GuildCheck(error_message="beep", halt_execution=True)(mock.Mock(guild_id=None))
+            check(mock_context)
 
     def test_for_dm_when_error_message(self):
+        check = tanjun.checks.GuildCheck(error_message="hi")
+        mock_context = mock.Mock(guild_id=None)
+
         with pytest.raises(tanjun.CommandError, match="hi"):
-            tanjun.checks.GuildCheck(error_message="hi")(mock.Mock(guild_id=None))
+            check(mock_context)
 
     def test_for_dm_when_error_message_dict(self):
-        ...
+        check = tanjun.checks.GuildCheck(
+            error_message={
+                hikari.Locale.EN_GB: "hi",
+                hikari.Locale.EN_US: r"\*shoots\*",
+                hikari.Locale.JA: "Konnichiwa",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=None)
+        mock_context.interaction.locale = hikari.Locale.JA
+
+        with pytest.raises(tanjun.CommandError, match="Konnichiwa"):
+            check(mock_context)
+
+    def test_for_dm_when_error_message_dict_but_not_app_command(self):
+        check = tanjun.checks.GuildCheck(
+            error_message={
+                hikari.Locale.EN_US: "*shoots*",
+                "default": "*heals*",
+                hikari.Locale.EN_GB: "hi",
+                hikari.Locale.JA: "Konnichiwa",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
+
+        with pytest.raises(tanjun.CommandError, match=r"\*heals\*"):
+            check(mock_context)
 
     def test_for_dm_when_error_message_dict_defaults(self):
-        ...
+        check = tanjun.checks.GuildCheck(
+            error_message={
+                hikari.Locale.SV_SE: "Blåhaj my beloved",
+                hikari.Locale.EN_GB: "hi",
+                hikari.Locale.EN_US: r"\*shoots\*",
+                hikari.Locale.JA: "Konnichiwa",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=None)
+        mock_context.interaction.locale = hikari.Locale.FR
+
+        with pytest.raises(tanjun.CommandError, match="Blåhaj my beloved"):
+            check(mock_context)
 
     def test_for_dm_when_error_message_dict_explicit_default(self):
-        ...
+        check = tanjun.checks.GuildCheck(
+            error_message={
+                hikari.Locale.SV_SE: "Blåhaj my beloved",
+                "default": "nyaa",
+                hikari.Locale.EN_GB: "hi",
+                hikari.Locale.EN_US: r"\*shoots\*",
+                hikari.Locale.JA: "Konnichiwa",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=None)
+        mock_context.interaction.locale = hikari.Locale.FR
+
+        with pytest.raises(tanjun.CommandError, match="nyaa"):
+            check(mock_context)
 
     def test_for_dm_when_error_message_localiser(self):
-        ...
+        check = tanjun.checks.GuildCheck(
+            error_message={
+                hikari.Locale.SV_SE: "Blåhaj my beloved",
+                hikari.Locale.EN_GB: "hi",
+                hikari.Locale.EN_US: r"\*shoots\*",
+                hikari.Locale.JA: "Konnichiwa",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=None, triggering_name="blue shark uwu")
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_context.interaction.locale = hikari.Locale.EN_GB
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "MESSAGE:blue shark uwu:check:tanjun.GuildCheck",
+            {hikari.Locale.BG: "background", hikari.Locale.EN_GB: "Please uwu me"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="Please uwu me"):
+            check(mock_context, localiser=localiser)
 
     def test_for_dm_when_error_message_localiser_overridden_id(self):
-        ...
+        check = tanjun.checks.GuildCheck(
+            error_message={
+                hikari.Locale.SV_SE: "Blåhaj my beloved",
+                hikari.Locale.EN_GB: "hi",
+                "id": "cabbage pfp",
+                hikari.Locale.EN_US: r"\*shoots\*",
+                hikari.Locale.JA: "Konnichiwa",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=None, triggering_name="blue shark uwu")
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_context.interaction.locale = hikari.Locale.EN_GB
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants(
+                "MESSAGE:blue shark uwu:check:tanjun.GuildCheck",
+                {hikari.Locale.BG: "background", hikari.Locale.EN_GB: "Please uwu me"},
+            )
+            .set_variants("cabbage pfp", {hikari.Locale.EN_GB: "Blåhaj fan 69"})
+        )
+
+        with pytest.raises(tanjun.CommandError, match="Blåhaj fan 69"):
+            check(mock_context, localiser=localiser)
 
     def test_for_dm_when_error_message_localiser_defaults(self):
-        ...
+        check = tanjun.checks.GuildCheck(
+            error_message={
+                hikari.Locale.SV_SE: "Blåhaj my beloved",
+                hikari.Locale.EN_GB: "hi",
+                hikari.Locale.EN_US: r"\*shoots\*",
+                hikari.Locale.JA: "Konnichiwa",
+            }
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, guild_id=None, triggering_name="blue shark uwu")
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_context.interaction.locale = hikari.Locale.EN_GB
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "MESSAGE:blue shark uwu:check:tanjun.GuildCheck",
+            {hikari.Locale.BG: "background", hikari.Locale.EN_GB: "Please uwu me"},
+        )
 
-    def test_for_dm_when_error_message_localiser_overridden_default(self):
-        ...
-
-    def test_for_dm_when_error_message_localiser_explicit_default(self):
-        ...
+        with pytest.raises(tanjun.CommandError, match="Please uwu me"):
+            check(mock_context, localiser=localiser)
 
 
 def _perm_combos(perms: hikari.Permissions) -> collections.Iterator[hikari.Permissions]:
@@ -770,29 +1390,23 @@ class TestAuthorPermissionCheck:
             mock_context.client, mock_context.member, channel=mock_context.channel_id
         )
 
-    async def test_when_missing_perms_and_error_message_dict(self):
-        ...
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_when_missing_perms_and_error_message_dict(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock()
+        check = tanjun.checks.AuthorPermissionCheck(
+            required_perms, error_message={hikari.Locale.BG: "yeet", "default": "moop"}
+        )
 
-    async def test_when_missing_perms_and_error_message_dict_defaults(self):
-        ...
+        with pytest.raises(tanjun.CommandError, match="moop"), mock.patch.object(
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context)
 
-    async def test_when_missing_perms_and_error_message_dict_explicit_default(self):
-        ...
-
-    async def test_when_missing_perms_and_error_message_localiser(self):
-        ...
-
-    async def test_when_missing_perms_and_error_message_localiser_overridden_id(self):
-        ...
-
-    async def test_when_missing_perms_and_error_message_localiser_defaults(self):
-        ...
-
-    async def test_when_missing_perms_and_error_message_localiser_overridden_default(self):
-        ...
-
-    async def test_when_missing_perms_and_error_message_localiser_explicit_default(self):
-        ...
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.member, channel=mock_context.channel_id
+        )
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_halt_execution(
@@ -855,6 +1469,147 @@ class TestAuthorPermissionCheck:
 
         with pytest.raises(tanjun.CommandError, match="yeet feet"):
             await check(mock_context)
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_member_when_missing_perms_and_error_message_dict(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(
+            tanjun.abc.AppCommandContext, member=mock.Mock(hikari.InteractionMember, permissions=actual_perms)
+        )
+        mock_context.interaction.locale = hikari.Locale.EN_US
+        check = tanjun.checks.AuthorPermissionCheck(
+            required_perms,
+            error_message={hikari.Locale.EN_GB: "Feet are not", hikari.Locale.EN_US: "ok", hikari.Locale.JA: "STOP"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="ok"):
+            await check(mock_context)
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_member_when_missing_perms_and_error_message_dict_defaults(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(
+            tanjun.abc.AppCommandContext, member=mock.Mock(hikari.InteractionMember, permissions=actual_perms)
+        )
+        mock_context.interaction.locale = hikari.Locale.FR
+        check = tanjun.checks.AuthorPermissionCheck(
+            required_perms,
+            error_message={hikari.Locale.EN_GB: "Feet are not", hikari.Locale.EN_US: "ok", hikari.Locale.JA: "STOP"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="Feet are not"):
+            await check(mock_context)
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_member_when_missing_perms_and_error_message_dict_explicit_default(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(
+            tanjun.abc.AppCommandContext, member=mock.Mock(hikari.InteractionMember, permissions=actual_perms)
+        )
+        mock_context.interaction.locale = hikari.Locale.FR
+        check = tanjun.checks.AuthorPermissionCheck(
+            required_perms,
+            error_message={
+                hikari.Locale.EN_GB: "Feet are not",
+                hikari.Locale.EN_US: "ok",
+                hikari.Locale.JA: "STOP",
+                "default": "catgirls",
+            },
+        )
+
+        with pytest.raises(tanjun.CommandError, match="catgirls"):
+            await check(mock_context)
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_member_when_missing_perms_and_error_message_localiser(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(
+            tanjun.abc.AppCommandContext,
+            member=mock.Mock(hikari.InteractionMember, permissions=actual_perms),
+            triggering_name="rawr xd",
+        )
+        mock_context.type = hikari.CommandType.USER
+        mock_context.interaction.locale = hikari.Locale.JA
+        check = tanjun.checks.AuthorPermissionCheck(
+            required_perms,
+            error_message={hikari.Locale.EN_GB: "Feet are not", hikari.Locale.EN_US: "ok", hikari.Locale.JA: "STOP"},
+        )
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "USER:rawr xd:check:tanjun.AuthorPermissionCheck",
+            {hikari.Locale.DA: "das is good", hikari.Locale.JA: "meowers"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="meowers"):
+            await check(mock_context, localiser=localiser)
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_member_when_missing_perms_and_error_message_localiser_overridden_id(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(
+            tanjun.abc.AppCommandContext,
+            member=mock.Mock(hikari.InteractionMember, permissions=actual_perms),
+            triggering_name="rawr xd",
+        )
+        mock_context.type = hikari.CommandType.USER
+        mock_context.interaction.locale = hikari.Locale.JA
+        check = tanjun.checks.AuthorPermissionCheck(
+            required_perms,
+            error_message={
+                hikari.Locale.EN_GB: "Feet are not",
+                "id": "cool id nyaa",
+                hikari.Locale.EN_US: "ok",
+                hikari.Locale.JA: "STOP",
+            },
+        )
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants(
+                "USER:rawr xd:check:tanjun.AuthorPermissionCheck",
+                {hikari.Locale.DA: "das is good", hikari.Locale.EN_GB: "meowers"},
+            )
+            .set_variants("cool id nyaa", {hikari.Locale.JA: "meow", hikari.Locale.CS: "echo"})
+        )
+
+        with pytest.raises(tanjun.CommandError, match="meow"):
+            await check(mock_context, localiser=localiser)
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_member_when_missing_perms_and_error_message_localiser_defaults(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(
+            tanjun.abc.AppCommandContext,
+            member=mock.Mock(hikari.InteractionMember, permissions=actual_perms),
+            triggering_name="rawr xd",
+        )
+        mock_context.type = hikari.CommandType.USER
+        mock_context.interaction.locale = hikari.Locale.CS
+        check = tanjun.checks.AuthorPermissionCheck(
+            required_perms,
+            error_message={
+                hikari.Locale.EN_GB: "Feet are not",
+                "default": "eepers",
+                "id": "cool id nyaa",
+                hikari.Locale.EN_US: "ok",
+                hikari.Locale.JA: "STOP",
+            },
+        )
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants(
+                "USER:rawr xd:check:tanjun.AuthorPermissionCheck",
+                {hikari.Locale.DA: "das is good", hikari.Locale.EN_GB: "meowers"},
+            )
+            .set_variants("cool id nyaa", {hikari.Locale.EN_GB: "meow", hikari.Locale.DE: "echo"})
+        )
+
+        with pytest.raises(tanjun.CommandError, match="eepers"):
+            await check(mock_context, localiser=localiser)
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms_and_halt_execution(
@@ -1156,29 +1911,31 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
         mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
-    async def test_when_missing_perms_and_error_message_dict(self):
-        ...
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_when_missing_perms_and_error_message_dict(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_context.cache.get_member.return_value = None
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        mock_member_cache.get_from_guild.return_value = None
+        check = tanjun.checks.OwnPermissionCheck(
+            required_perms, error_message={hikari.Locale.DE: "meow meow", "default": "bye meow"}
+        )
 
-    async def test_when_missing_perms_and_error_message_dict_defaults(self):
-        ...
+        with pytest.raises(tanjun.CommandError, match="bye meow"), mock.patch.object(
+            tanjun.permissions, "fetch_permissions", return_value=actual_perms
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
-    async def test_when_missing_perms_and_error_message_dict_explicit_default(self):
-        ...
-
-    async def test_when_missing_perms_and_error_message_localiser(self):
-        ...
-
-    async def test_when_missing_perms_and_error_message_localiser_overridden_id(self):
-        ...
-
-    async def test_when_missing_perms_and_error_message_localiser_defaults(self):
-        ...
-
-    async def test_when_missing_perms_and_error_message_localiser_overridden_default(self):
-        ...
-
-    async def test_when_missing_perms_and_error_message_localiser_explicit_default(self):
-        ...
+        fetch_permissions.assert_awaited_once_with(
+            mock_context.client, mock_context.rest.fetch_member.return_value, channel=mock_context.channel_id
+        )
+        mock_context.cache.get_member.assert_called_once_with(mock_context.guild_id, mock_own_user)
+        mock_member_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id, default=None)
+        mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_halt_execution(
@@ -1440,7 +2197,7 @@ class TestOwnPermissionCheck:
     async def test_for_interaction_context_with_app_permissions(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions
     ):
-        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -1460,7 +2217,7 @@ class TestOwnPermissionCheck:
     async def test_for_interaction_context_with_app_permissions_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -1484,7 +2241,7 @@ class TestOwnPermissionCheck:
             ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
-        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -1504,7 +2261,7 @@ class TestOwnPermissionCheck:
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -1522,10 +2279,194 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_dict(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.interaction.locale = hikari.Locale.EN_GB
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(
+            required_perms,
+            error_message={hikari.Locale.DE: "bees", hikari.Locale.EN_GB: "hip", hikari.Locale.EN_US: "to bee"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="hip"), mock.patch.object(
+            tanjun.permissions, "fetch_permissions"
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_dict_defaults(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.interaction.locale = hikari.Locale.FR
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(
+            required_perms,
+            error_message={hikari.Locale.DE: "bees", hikari.Locale.EN_GB: "hip", hikari.Locale.EN_US: "to bee"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="bees"), mock.patch.object(
+            tanjun.permissions, "fetch_permissions"
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_dict_explicit_default(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.interaction.locale = hikari.Locale.FR
+        mock_context.rest = mock.AsyncMock()
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(
+            required_perms,
+            error_message={
+                hikari.Locale.DE: "bees",
+                hikari.Locale.EN_GB: "hip",
+                "default": "inject me uwu",
+                hikari.Locale.EN_US: "to bee",
+            },
+        )
+
+        with pytest.raises(tanjun.CommandError, match="inject me uwu"), mock.patch.object(
+            tanjun.permissions, "fetch_permissions"
+        ) as fetch_permissions:
+            await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_localiser(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow command")
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.interaction.locale = hikari.Locale.EN_US
+        mock_context.rest = mock.AsyncMock()
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(
+            required_perms,
+            error_message={hikari.Locale.DE: "bees", hikari.Locale.EN_GB: "hip", hikari.Locale.EN_US: "to bee"},
+        )
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "MESSAGE:meow command:check:tanjun.OwnPermissionCheck",
+            {hikari.Locale.EN_GB: "no", hikari.Locale.EN_US: "girls"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="girls"), mock.patch.object(
+            tanjun.permissions, "fetch_permissions"
+        ) as fetch_permissions:
+            await check(mock_context, localiser=localiser, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_localiser_overridden_id(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow command")
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.interaction.locale = hikari.Locale.EN_US
+        mock_context.rest = mock.AsyncMock()
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(
+            required_perms,
+            error_message={
+                hikari.Locale.DE: "bees",
+                hikari.Locale.EN_GB: "hip",
+                "id": "yuri",
+                hikari.Locale.EN_US: "to bee",
+            },
+        )
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants(
+                "MESSAGE:meow command:check:tanjun.OwnPermissionCheck",
+                {hikari.Locale.EN_GB: "no", hikari.Locale.EN_US: "girls"},
+            )
+            .set_variants("yuri", {hikari.Locale.EN_US: "uwu owo"})
+        )
+
+        with pytest.raises(tanjun.CommandError, match="uwu owo"), mock.patch.object(
+            tanjun.permissions, "fetch_permissions"
+        ) as fetch_permissions:
+            await check(mock_context, localiser=localiser, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
+    async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_localiser_defaults(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
+    ):
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow command")
+        mock_context.interaction.app_permissions = actual_perms
+        mock_context.interaction.locale = hikari.Locale.FR
+        mock_context.rest = mock.AsyncMock()
+        mock_context.type = hikari.CommandType.MESSAGE
+        mock_own_user = mock.Mock()
+        mock_member_cache = mock.AsyncMock()
+        check = tanjun.checks.OwnPermissionCheck(
+            required_perms,
+            error_message={
+                hikari.Locale.DE: "bees",
+                hikari.Locale.EN_GB: "hip",
+                "default": "meow-nyon",
+                hikari.Locale.EN_US: "to bee",
+            },
+        )
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "MESSAGE:meow command:check:tanjun.OwnPermissionCheck",
+            {hikari.Locale.EN_GB: "no", hikari.Locale.EN_US: "girls"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="meow-nyon"), mock.patch.object(
+            tanjun.permissions, "fetch_permissions"
+        ) as fetch_permissions:
+            await check(mock_context, localiser=localiser, member_cache=mock_member_cache, my_user=mock_own_user)
+
+        fetch_permissions.assert_not_called()
+        mock_context.cache.get_member.assert_not_called()
+        mock_member_cache.get_from_guild.assert_not_called()
+        mock_context.rest.fetch_member.assert_not_called()
+
+    @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -2548,42 +3489,227 @@ async def test_any_checks_when_all_fail_and_error_message():
 
 @pytest.mark.asyncio()
 async def test_any_checks_when_all_fail_and_error_message_dict():
-    ...
+    mock_check_1 = mock.Mock()
+    mock_check_2 = mock.Mock()
+    mock_check_3 = mock.Mock()
+    mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+    mock_context.interaction.locale = hikari.Locale.DA
+    mock_context.call_with_async_di = mock.AsyncMock(side_effect=[tanjun.FailedCheck, False, False])
+    check = tanjun.checks.any_checks(
+        mock_check_1,
+        mock_check_2,
+        mock_check_3,
+        error_message={hikari.Locale.CS: "meow", hikari.Locale.DA: "op", hikari.Locale.EN_GB: "oooooooh"},
+    )
+
+    with pytest.raises(tanjun.CommandError, match="op"):
+        await check(mock_context)
+
+    mock_context.call_with_async_di.assert_has_awaits(
+        [
+            mock.call(mock_check_1, mock_context),
+            mock.call(mock_check_2, mock_context),
+            mock.call(mock_check_3, mock_context),
+        ]
+    )
+
+
+@pytest.mark.asyncio()
+async def test_any_checks_when_all_fail_and_error_message_dict_but_not_app_command():
+    mock_check_1 = mock.Mock()
+    mock_check_2 = mock.Mock()
+    mock_check_3 = mock.Mock()
+    mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+    mock_context.interaction.locale = hikari.Locale.LT
+    mock_context.call_with_async_di = mock.AsyncMock(side_effect=[tanjun.FailedCheck, False, False])
+    check = tanjun.checks.any_checks(
+        mock_check_1,
+        mock_check_2,
+        mock_check_3,
+        error_message={
+            hikari.Locale.CS: "meow",
+            hikari.Locale.DA: "op",
+            "default": "justice!!!",
+            hikari.Locale.EN_GB: "oooooooh",
+        },
+    )
+
+    with pytest.raises(tanjun.CommandError, match="justice!!!"):
+        await check(mock_context)
+
+    mock_context.call_with_async_di.assert_has_awaits(
+        [
+            mock.call(mock_check_1, mock_context),
+            mock.call(mock_check_2, mock_context),
+            mock.call(mock_check_3, mock_context),
+        ]
+    )
 
 
 @pytest.mark.asyncio()
 async def test_any_checks_when_all_fail_and_error_message_dict_defaults():
-    ...
+    mock_check_1 = mock.Mock()
+    mock_check_2 = mock.Mock()
+    mock_check_3 = mock.Mock()
+    mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+    mock_context.interaction.locale = hikari.Locale.FR
+    mock_context.call_with_async_di = mock.AsyncMock(side_effect=[tanjun.FailedCheck, False, False])
+    check = tanjun.checks.any_checks(
+        mock_check_1,
+        mock_check_2,
+        mock_check_3,
+        error_message={hikari.Locale.CS: "meow", hikari.Locale.DA: "op", hikari.Locale.EN_GB: "oooooooh"},
+    )
+
+    with pytest.raises(tanjun.CommandError, match="meow"):
+        await check(mock_context)
+
+    mock_context.call_with_async_di.assert_has_awaits(
+        [
+            mock.call(mock_check_1, mock_context),
+            mock.call(mock_check_2, mock_context),
+            mock.call(mock_check_3, mock_context),
+        ]
+    )
 
 
 @pytest.mark.asyncio()
 async def test_any_checks_when_all_fail_and_error_message_dict_explicit_default():
-    ...
+    mock_check_1 = mock.Mock()
+    mock_check_2 = mock.Mock()
+    mock_check_3 = mock.Mock()
+    mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+    mock_context.interaction.locale = hikari.Locale.FR
+    mock_context.call_with_async_di = mock.AsyncMock(side_effect=[tanjun.FailedCheck, False, False])
+    check = tanjun.checks.any_checks(
+        mock_check_1,
+        mock_check_2,
+        mock_check_3,
+        error_message={
+            hikari.Locale.CS: "meow",
+            hikari.Locale.DA: "op",
+            hikari.Locale.EN_GB: "oooooooh",
+            "default": "catgirl token",
+        },
+    )
+
+    with pytest.raises(tanjun.CommandError, match="catgirl token"):
+        await check(mock_context)
+
+    mock_context.call_with_async_di.assert_has_awaits(
+        [
+            mock.call(mock_check_1, mock_context),
+            mock.call(mock_check_2, mock_context),
+            mock.call(mock_check_3, mock_context),
+        ]
+    )
 
 
 @pytest.mark.asyncio()
 async def test_any_checks_when_all_fail_and_error_message_localiser():
-    ...
+    mock_check_1 = mock.Mock()
+    mock_check_2 = mock.Mock()
+    mock_check_3 = mock.Mock()
+    mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="catgirl bot")
+    mock_context.type = hikari.CommandType.SLASH
+    mock_context.interaction.locale = hikari.Locale.EN_GB
+    mock_context.call_with_async_di = mock.AsyncMock(side_effect=[tanjun.FailedCheck, False, False])
+    check = tanjun.checks.any_checks(
+        mock_check_1,
+        mock_check_2,
+        mock_check_3,
+        error_message={hikari.Locale.CS: "meow", hikari.Locale.DA: "op", hikari.Locale.EN_GB: "oooooooh"},
+    )
+    localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+        "SLASH:catgirl bot:check:tanjun.any_check", {hikari.Locale.EN_GB: "Bark bark", hikari.Locale.DA: "germany"}
+    )
+
+    with pytest.raises(tanjun.CommandError, match="Bark bark"):
+        await check(mock_context, localiser=localiser)
+
+    mock_context.call_with_async_di.assert_has_awaits(
+        [
+            mock.call(mock_check_1, mock_context),
+            mock.call(mock_check_2, mock_context),
+            mock.call(mock_check_3, mock_context),
+        ]
+    )
 
 
 @pytest.mark.asyncio()
 async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_id():
-    ...
+    mock_check_1 = mock.Mock()
+    mock_check_2 = mock.Mock()
+    mock_check_3 = mock.Mock()
+    mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="catgirl bot")
+    mock_context.type = hikari.CommandType.SLASH
+    mock_context.interaction.locale = hikari.Locale.EN_GB
+    mock_context.call_with_async_di = mock.AsyncMock(side_effect=[tanjun.FailedCheck, False, False])
+    check = tanjun.checks.any_checks(
+        mock_check_1,
+        mock_check_2,
+        mock_check_3,
+        error_message={
+            hikari.Locale.CS: "meow",
+            hikari.Locale.DA: "op",
+            "id": "meme girl",
+            hikari.Locale.EN_GB: "oooooooh",
+        },
+    )
+    localiser = (
+        tanjun.dependencies.BasicLocaliser()
+        .set_variants(
+            "SLASH:catgirl bot:check:tanjun.any_check", {hikari.Locale.EN_GB: "Bark bark", hikari.Locale.DA: "germany"}
+        )
+        .set_variants("meme girl", {hikari.Locale.FI: "finish", hikari.Locale.EN_GB: "useless token"})
+    )
+
+    with pytest.raises(tanjun.CommandError, match="useless token"):
+        await check(mock_context, localiser=localiser)
+
+    mock_context.call_with_async_di.assert_has_awaits(
+        [
+            mock.call(mock_check_1, mock_context),
+            mock.call(mock_check_2, mock_context),
+            mock.call(mock_check_3, mock_context),
+        ]
+    )
 
 
 @pytest.mark.asyncio()
 async def test_any_checks_when_all_fail_and_error_message_localiser_defaults():
-    ...
+    mock_check_1 = mock.Mock()
+    mock_check_2 = mock.Mock()
+    mock_check_3 = mock.Mock()
+    mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="catgirl bot")
+    mock_context.type = hikari.CommandType.SLASH
+    mock_context.interaction.locale = hikari.Locale.JA
+    mock_context.call_with_async_di = mock.AsyncMock(side_effect=[tanjun.FailedCheck, False, False])
+    check = tanjun.checks.any_checks(
+        mock_check_1,
+        mock_check_2,
+        mock_check_3,
+        error_message={
+            hikari.Locale.CS: "meow",
+            "default": "i'm finished finally",
+            hikari.Locale.DA: "op",
+            hikari.Locale.EN_GB: "oooooooh",
+        },
+    )
+    localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+        "SLASH:catgirl bot:check:tanjun.any_check", {hikari.Locale.EN_GB: "Bark bark", hikari.Locale.DA: "germany"}
+    )
 
+    with pytest.raises(tanjun.CommandError, match="i'm finished finally"):
+        await check(mock_context, localiser=localiser)
 
-@pytest.mark.asyncio()
-async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_default():
-    ...
-
-
-@pytest.mark.asyncio()
-async def test_any_checks_when_all_fail_and_error_message_localiser_explicit_default():
-    ...
+    mock_context.call_with_async_di.assert_has_awaits(
+        [
+            mock.call(mock_check_1, mock_context),
+            mock.call(mock_check_2, mock_context),
+            mock.call(mock_check_3, mock_context),
+        ]
+    )
 
 
 @pytest.mark.asyncio()

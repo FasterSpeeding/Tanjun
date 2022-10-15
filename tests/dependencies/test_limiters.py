@@ -1269,7 +1269,7 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_call_when_wait_until_localised_but_non_app_command_defaults(self):
+    async def test_call_when_wait_until_localised_but_not_app_command_defaults(self):
         pre_execution = tanjun.dependencies.CooldownPreExecution(
             "catgirls yuri",
             error_message={
@@ -1279,7 +1279,7 @@ class TestCooldownPreExecution:
             },
             owners_exempt=False,
         )
-        mock_context = mock.Mock(tanjun.abc.MessageContext)
+        mock_context = mock.Mock(tanjun.abc.Context)
         mock_cooldown_manager = mock.AsyncMock()
         mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
             2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
@@ -1303,7 +1303,7 @@ class TestCooldownPreExecution:
             },
             owners_exempt=False,
         )
-        mock_context = mock.Mock(tanjun.abc.SlashContext)
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.HR
         mock_cooldown_manager = mock.AsyncMock()
         mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
@@ -2019,19 +2019,20 @@ class TestConcurrencyPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_localised_but_not_app_command_defaults(self):
-        mock_context = mock.Mock(tanjun.abc.MessageContext, triggering_name="yeetus beatus")
+        mock_context = mock.Mock(tanjun.abc.Context, triggering_name="yeetus beatus")
         mock_limiter = mock.AsyncMock()
         mock_limiter.try_acquire.return_value = False
         hook = tanjun.dependencies.ConcurrencyPreExecution(
             "bucket catgirls",
             error_message={
                 hikari.Locale.DA: "egg egg egg",
+                "default": "i am the egg",
                 hikari.Locale.EN_GB: "owowowo",
                 hikari.Locale.HU: "meow nyaa",
             },
         )
 
-        with pytest.raises(tanjun.CommandError, match="egg egg egg"):
+        with pytest.raises(tanjun.CommandError, match="i am the egg"):
             await hook(mock_context, mock_limiter)
 
         mock_limiter.try_acquire.assert_awaited_once_with("bucket catgirls", mock_context)

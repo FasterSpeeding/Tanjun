@@ -68,6 +68,18 @@ from . import errors
 from . import permissions
 from ._internal import localisation
 
+if typing.TYPE_CHECKING:
+
+    class _AnyCallback(typing.Protocol):
+        async def __call__(
+            self,
+            ctx: tanjun.Context,
+            /,
+            localiser: typing.Optional[dependencies.AbstractLocaliser] = None,
+        ) -> bool:
+            raise NotImplementedError
+
+
 _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
 _CallbackReturnT = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
@@ -100,11 +112,14 @@ class _Check:
         error: typing.Optional[collections.Callable[..., Exception]],
         error_message: typing.Union[str, collections.Mapping[str, str], None],
         halt_execution: bool,
+        /,
+        *,
+        id_name: typing.Optional[str] = None,
     ) -> None:
         self._error = error
         self._error_message = localisation.MaybeLocalised("error_message", error_message) if error_message else None
         self._halt_execution = halt_execution
-        self._localise_id = f"tanjun.{type(self).__name__}"
+        self._localise_id = f"tanjun.{id_name or type(self).__name__}"
 
     def _handle_result(
         self,
@@ -546,7 +561,7 @@ class OwnPermissionCheck(_Check):
         if ctx.guild_id is None:
             perms = permissions.DM_PERMISSIONS
 
-        elif isinstance(ctx, tanjun.SlashContext):
+        elif isinstance(ctx, tanjun.AppCommandContext):
             assert ctx.interaction.app_permissions is not None
             perms = ctx.interaction.app_permissions
 
@@ -1081,7 +1096,7 @@ class _AnyChecks(_Check):
         halt_execution: bool,
         suppress: tuple[type[Exception], ...],
     ) -> None:
-        super().__init__(error, error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution, id_name="any_check")
         self._checks = checks
         self._suppress = suppress
 
@@ -1113,7 +1128,7 @@ def any_checks(
     error_message: typing.Union[str, collections.Mapping[str, str], None],
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
-) -> collections.Callable[[tanjun.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
+) -> _AnyCallback:
     """Combine multiple checks into a check which'll pass if any of the callbacks pass.
 
     This ensures that the callbacks are run in the order they were supplied in

@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   flexible to allow decorating other command objects.
 - `tanjun.context.slash.SlashContext.triggering_name` now returns the full triggering command name
   for sub-commands instead of just the top level command's name.
+- Optimise [tanjun.checks.OwnPermissionCheck][] to use `context.app_permissions` instead of
+  calculating the bot's permissions for context menu command calls.
 
 ## [2.7.0a1] - 2022-09-24
 ### Added

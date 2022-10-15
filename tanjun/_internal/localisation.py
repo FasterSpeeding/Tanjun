@@ -133,7 +133,9 @@ class MaybeLocalised:
         """
         if (self.localised_values or localiser) and isinstance(ctx, tanjun.AppCommandContext):
             if localiser:
-                localise_id = to_localise_id(_TYPE_TO_STR[ctx.type], ctx.triggering_name, field_type, field_name)
+                localise_id = self.id or to_localise_id(
+                    _TYPE_TO_STR[ctx.type], ctx.triggering_name, field_type, field_name
+                )
                 if field := localiser.localise(localise_id, ctx.interaction.locale, **kwargs):
                     return field
 
