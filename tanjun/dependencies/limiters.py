@@ -688,7 +688,8 @@ class CooldownPreExecution:
         error_message
             The error message to send in response as a command error if the check fails.
 
-            This supports [localisation][].
+            This supports [localisation][] and uses the check name
+            `"tanjun.cooldown"` for global overrides.
         owners_exempt
             Whether owners should be exempt from the cooldown.
         """
@@ -756,7 +757,8 @@ def with_cooldown(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.cooldown"` for global overrides.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -1035,7 +1037,8 @@ class ConcurrencyPreExecution:
             The error message to send in response as a command error if this fails
             to acquire the concurrency limit.
 
-            This supports [localisation][].
+            This supports [localisation][] and uses the check name
+            `"tanjun.concurrency"` for global overrides.
         """
         self._bucket_id = bucket_id
         self._error = error
@@ -1117,7 +1120,8 @@ def with_concurrency_limit(
         The error message to send in response as a command error if this fails
         to acquire the concurrency limit.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.concurrency"` for global overrides.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.

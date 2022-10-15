@@ -63,6 +63,9 @@ class AbstractLocaliser(abc.ABC):
         ----------
         identifier
             The unique identifier of the string to localise.
+
+            This may be in any format but the formats used by the standard
+            implementations can be found at [client-localiser][].
         tag
             The "IETF lang tag" to localise the string to.
 
@@ -128,6 +131,9 @@ class BasicLocaliser(AbstractLocaliser):
         ----------
         identifier
             Identifier of the field to set the localised variants for.
+
+            This may be in any format but the formats used by the standard
+            implementations can be found at [client-localiser][].
         variants
             Mapping of [hikari.locales.Locale][]s to the localised values.
 

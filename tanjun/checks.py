@@ -170,7 +170,8 @@ class OwnerCheck(_Check):
             Setting this to [None][] will disable the error message allowing the
             command search to continue.
 
-            This supports [localisation][].
+            This supports [localisation][] and uses the check name
+            `"tanjun.OwnerCheck"` for global overrides.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -251,7 +252,8 @@ class NsfwCheck(_Check):
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
 
-            This supports [localisation][].
+            This supports [localisation][] and uses the check name
+            `"tanjun.NsfwCheck"` for global overrides.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -304,7 +306,8 @@ class SfwCheck(_Check):
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
 
-            This supports [localisation][].
+            This supports [localisation][] and uses the check name
+            `"tanjun.SfwCheck"` for global overrides.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -355,7 +358,8 @@ class DmCheck(_Check):
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
 
-            This supports [localisation][].
+            This supports [localisation][] and uses the check name
+            `"tanjun.DmCheck"` for global overrides.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -404,7 +408,8 @@ class GuildCheck(_Check):
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
 
-            This supports [localisation][].
+            This supports [localisation][] and uses the check name
+            `"tanjun.GuildCheck"` for global overrides.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -460,7 +465,8 @@ class AuthorPermissionCheck(_Check):
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
 
-            This supports [localisation][].
+            This supports [localisation][] and uses the check name
+            `"tanjun.AuthorPermissionCheck"` for global overrides.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -539,7 +545,8 @@ class OwnPermissionCheck(_Check):
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
 
-            This supports [localisation][].
+            This supports [localisation][] and uses the check name
+            `"tanjun.OwnPermissionCheck"` for global overrides.
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -618,7 +625,8 @@ def with_dm_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.DmCheck"` for global overrides.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -683,7 +691,8 @@ def with_guild_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.GuildCheck"` for global overrides.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -744,7 +753,8 @@ def with_nsfw_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.NsfwCheck"` for global overrides.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -805,7 +815,8 @@ def with_sfw_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.SfwCheck"` for global overrides.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -866,7 +877,8 @@ def with_owner_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.OwnerCheck"` for global overrides.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -919,7 +931,8 @@ def with_author_permission_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.AuthorPermissionCheck"` for global overrides.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -974,7 +987,8 @@ def with_own_permission_check(
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.OwnPermissionCheck"` for global overrides.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -1147,7 +1161,8 @@ def any_checks(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.any_check"` for global overrides.
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -1192,7 +1207,8 @@ def with_any_checks(
     error_message
         The error message to send in response as a command error if the check fails.
 
-        This supports [localisation][].
+        This supports [localisation][] and uses the check name
+        `"tanjun.any_check"` for global overrides.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
