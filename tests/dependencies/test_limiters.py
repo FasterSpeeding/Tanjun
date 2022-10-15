@@ -1337,7 +1337,7 @@ class TestCooldownPreExecution:
         )
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "SLASH:eep meow nyaa:check:tanjun.cooldown",
+            "slash:eep meow nyaa:check:tanjun.cooldown",
             {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am {cooldown} nyaa"},
         )
 
@@ -1369,7 +1369,7 @@ class TestCooldownPreExecution:
         )
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "SLASH:eep meow nyaa:check:tanjun.cooldown",
+            "slash:eep meow nyaa:check:tanjun.cooldown",
             {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am {cooldown} nyaa"},
         )
 
@@ -1402,7 +1402,7 @@ class TestCooldownPreExecution:
         )
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "SLASH:eep meow nyaa:check:tanjun.cooldown",
+            "slash:eep meow nyaa:check:tanjun.cooldown",
             {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am {cooldown} nyaa"},
         )
 
@@ -2066,7 +2066,7 @@ class TestConcurrencyPreExecution:
         mock_limiter = mock.AsyncMock()
         mock_limiter.try_acquire.return_value = False
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "MESSAGE:epic flintstones:check:tanjun.concurrency",
+            "message_menu:epic flintstones:check:tanjun.concurrency",
             {
                 hikari.Locale.DA: "multiple messages",
                 hikari.Locale.EN_GB: "ear",
@@ -2095,7 +2095,7 @@ class TestConcurrencyPreExecution:
         mock_limiter = mock.AsyncMock()
         mock_limiter.try_acquire.return_value = False
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "MESSAGE:epic flintstones:check:tanjun.concurrency",
+            "message_menu:epic flintstones:check:tanjun.concurrency",
             {hikari.Locale.EN_GB: "ear", hikari.Locale.BG: "neat", hikari.Locale.DA: "meow meow"},
         )
         hook = tanjun.dependencies.ConcurrencyPreExecution(
@@ -2120,7 +2120,7 @@ class TestConcurrencyPreExecution:
         mock_limiter = mock.AsyncMock()
         mock_limiter.try_acquire.return_value = False
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "MESSAGE:epic flintstones:check:tanjun.concurrency",
+            "message_menu:epic flintstones:check:tanjun.concurrency",
             {hikari.Locale.EN_GB: "ear", hikari.Locale.BG: "neat", hikari.Locale.DA: "meow meow"},
         )
         hook = tanjun.dependencies.ConcurrencyPreExecution(
