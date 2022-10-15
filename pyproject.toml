@@ -42,7 +42,7 @@ name = "tanjun"
 line-length     = 120
 target-version  = ["py39"]
 include         = ".*pyi?$"
-extend-exclude = ["^/tanjun/_vendor/.*"]
+extend-exclude = ["^/tanjun/_internal/vendor/.*"]
 
 [tool.coverage.run]
 concurrency = ["multiprocessing"]
@@ -60,15 +60,15 @@ exclude_lines = [
     "^\\s*@abc.abstractmethod$",
     "^if typing.TYPE_CHECKING:$"
 ]
-omit = ["tanjun/_vendor/*"]
+omit = ["tanjun/_internal/vendor/*"]
 
 [tool.isort]
 profile = "black"
 force_single_line = true
-skip = ["alluka/_vendor"]
+skip = ["alluka/_internal/vendor"]
 
 [tool.pyright]
-exclude = ["tanjun/_vendor"]
+exclude = ["tanjun/_internal/vendor"]
 include = ["examples", "tanjun", "noxfile.py", "tests"]
 
 pythonVersion = "3.9"
@@ -107,11 +107,11 @@ allow_redefinition = true
 disable_error_code = ["return-value"]
 
 # Ignore vendored modules
-exclude = ["tanjun/_vendor/"]
+exclude = ["tanjun/_internal/vendor/"]
 
 [tool.slotscheck]
 strict-imports = true
 require-superclass = true
 require-subclass = true
 exclude-classes = """tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor) | .*Proto"""
-exclude-modules = "tanjun._vendor"
+exclude-modules = "tanjun._internal.vendor"

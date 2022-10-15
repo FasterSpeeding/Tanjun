@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import itertools
 import pathlib
+import re
 import shutil
 import tempfile
 from collections import abc as collections
@@ -41,9 +42,9 @@ import nox
 
 nox.options.sessions = ["reformat", "flake8", "spell-check", "slot-check", "type-check", "test", "verify-types"]  # type: ignore
 GENERAL_TARGETS = ["./noxfile.py", "./tests"]
-_BLACKLISTED_TARGETS = {"_vendor", "__pycache__"}
-for path in pathlib.Path("./tanjun").glob("*"):
-    if path.name not in _BLACKLISTED_TARGETS:
+_BLACKLISTED_TARGETS = re.compile("^_internal/vendor/.*\\.py")
+for path in pathlib.Path("./tanjun").glob("**/*.py"):
+    if not _BLACKLISTED_TARGETS.match(str(path.relative_to("./tanjun")).replace("\\", "/")):
         GENERAL_TARGETS.append(str(path))
 
 
@@ -224,7 +225,7 @@ def test_publish(session: nox.Session) -> None:
 def reformat(session: nox.Session) -> None:
     """Reformat this project's modules to fit the standard style."""
     install_requirements(session, *_dev_dep("reformat"))  # include_standard_requirements=False
-    session.run("black", *GENERAL_TARGETS, "--extend-exclude", "^/tanjun/_vendor/.*$")
+    session.run("black", *GENERAL_TARGETS, "--extend-exclude", "^/tanjun/_internal/vendor/.*$")
     session.run("isort", *GENERAL_TARGETS)
     session.run("sort-all", *map(str, pathlib.Path("./tanjun/").glob("**/*.py")), success_codes=[0, 1])
 
