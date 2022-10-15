@@ -190,7 +190,7 @@ class HotReloader:
         self._waiting_for_sys: dict[pathlib.Path, int] = {}
         """Dict of system paths to the new edit time of a module that's scheduled for a reload."""
 
-    def add_to_client(self: _HotReloaderT, client: tanjun.Client, /) -> _HotReloaderT:
+    def add_to_client(self, client: tanjun.Client, /) -> None:
         """Add this to a [tanjun.abc.Client][] instance.
 
         This registers start and closing callbacks which handle the lifetime of
@@ -200,11 +200,6 @@ class HotReloader:
         ----------
         client
             The client to link this hot reloader to.
-
-        Returns
-        -------
-        Self
-            The hot reloader to enable chained calls.
         """
         (
             client.add_client_callback(tanjun.ClientCallbackNames.STARTED, self.start)
@@ -213,8 +208,6 @@ class HotReloader:
         )
         if client.is_alive and client.loop:
             client.loop.call_soon_threadsafe(self.start, client)
-
-        return self
 
     async def add_modules_async(self: _HotReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _HotReloaderT:
         """Asynchronous variant of [tanjun.dependencies.reloaders.HotReloader.add_modules][].
