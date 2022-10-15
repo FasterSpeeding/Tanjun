@@ -32,6 +32,7 @@
 
 
 from unittest import mock
+
 import hikari
 
 import tanjun
@@ -101,7 +102,9 @@ class TestBasicLocaliser:
         assert tanjun.dependencies.BasicLocaliser().get_all_variants("nope") == {}
 
     def test_localise(self):
-        localiser = tanjun.dependencies.BasicLocaliser().set_variants("the end", {hikari.Locale.FI: "bye"}, vi="echo", fi="meow")
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "the end", {hikari.Locale.FI: "bye"}, vi="echo", fi="meow"
+        )
 
         assert localiser.localise("the end", "vi") == "echo"
 
@@ -123,7 +126,9 @@ class TestBasicLocaliser:
         assert tanjun.dependencies.BasicLocaliser().localise("foo", hikari.Locale.FR) is None
 
     def test_localize(self):
-        localiser = tanjun.dependencies.BasicLocaliser().set_variants("the end", {hikari.Locale.FI: "bye"}, vi="echo", fi="meow")
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "the end", {hikari.Locale.FI: "bye"}, vi="echo", fi="meow"
+        )
 
         assert localiser.localize("the end", "vi") == "echo"
 

@@ -42,6 +42,7 @@ __all__: list[str] = [
 import abc
 import typing
 from collections import abc as collections
+
 from .. import abc as tanjun
 
 _BasicLocaliserT = typing.TypeVar("_BasicLocaliserT", bound="BasicLocaliser")
