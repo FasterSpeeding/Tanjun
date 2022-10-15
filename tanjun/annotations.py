@@ -84,7 +84,7 @@ import hikari
 from . import _internal
 from . import conversion
 from . import parsing
-from ._vendor import inspect
+from ._internal.vendor import inspect
 from .commands import message
 from .commands import slash
 

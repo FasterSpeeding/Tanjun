@@ -38,4 +38,4 @@ accept-encodings =      utf-8
 docstring-convention =  numpy
 ignore-decorators =     overload
 exclude =
-    tanjun/_vendor/
+    tanjun/_internal/vendor/
