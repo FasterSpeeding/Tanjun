@@ -88,6 +88,7 @@ class LazyConstant(typing.Generic[_T]):
 
     def reset(self: _LazyConstantT) -> _LazyConstantT:
         """Clear the internally stored value."""
+        self._lock = None
         self._value = None
         return self
 

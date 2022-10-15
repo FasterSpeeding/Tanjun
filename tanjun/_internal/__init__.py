@@ -45,13 +45,13 @@ from collections import abc as collections
 
 import hikari
 
-from . import errors
-from ._vendor import inspect
+from .. import errors
+from .._vendor import inspect
 
 if typing.TYPE_CHECKING:
     import typing_extensions
 
-    from . import abc as tanjun
+    from .. import abc as tanjun
 
     _P = typing_extensions.ParamSpec("_P")
 
@@ -332,12 +332,14 @@ def collect_wrapped(command: tanjun.ExecutableCommand[typing.Any]) -> list[tanju
 
 
 _OptionT = typing.TypeVar("_OptionT", bound=hikari.CommandInteractionOption)
-_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
+SUB_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
     [hikari.OptionType.SUB_COMMAND, hikari.OptionType.SUB_COMMAND_GROUP]
 )
 
 
-def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /) -> collections.Sequence[_OptionT]:
+def flatten_options(
+    name: str, options: typing.Optional[collections.Sequence[_OptionT]], /
+) -> tuple[str, collections.Sequence[_OptionT]]:
     """Flatten the options of a slash/autocomplete interaction.
 
     Parameters
@@ -347,10 +349,11 @@ def flatten_options(options: typing.Optional[collections.Sequence[_OptionT]], /)
 
     Returns
     -------
-    collections.abc.Sequence[_OptionT]
-        A sequence of the actual command options.
+    tuple[str, collections.abc.Sequence[_OptionT]]
+        The full triggering command name and a sequence of the actual command options.
     """
-    while options and (first_option := options[0]).type in _COMMAND_OPTION_TYPES:
+    while options and (first_option := options[0]).type in SUB_COMMAND_OPTION_TYPES:
+        name = f"{name} {first_option.name}"
         options = typing.cast("collections.Sequence[_OptionT]", first_option.options)
 
-    return options or ()
+    return name, options or ()

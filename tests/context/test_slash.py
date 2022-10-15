@@ -613,9 +613,6 @@ class TestAppCommandContext:
     def test_member_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.member is context.interaction.member
 
-    def test_triggering_name_property(self, context: tanjun.context.slash.AppCommandContext):
-        assert context.triggering_name is context.interaction.command_name
-
     def test_interaction_property(self, context: tanjun.context.slash.AppCommandContext):
         assert context.interaction is context._interaction
 
@@ -1028,7 +1025,7 @@ class TestSlashContext:
         mock_option_2.name = "bye"
         context = tanjun.context.SlashContext(
             mock_client,
-            mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2]),
+            mock.Mock(options=[mock_option_1, mock_option_2]),
             mock.Mock(),
         )
 
@@ -1049,9 +1046,7 @@ class TestSlashContext:
         mock_option_2 = mock.Mock()
         mock_option_2.name = "nyaa"
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
-        context = tanjun.context.SlashContext(
-            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]), mock.Mock()
-        )
+        context = tanjun.context.SlashContext(mock_client, mock.Mock(options=[group_option]), mock.Mock())
 
         assert len(context.options) == 2
         assert context.options["kachow"].type is mock_option_1.type
@@ -1069,9 +1064,7 @@ class TestSlashContext:
         self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
     ):
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
-        context = tanjun.context.SlashContext(
-            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]), mock.Mock()
-        )
+        context = tanjun.context.SlashContext(mock_client, mock.Mock(options=[group_option]), mock.Mock())
 
         assert context.options == {}
 
@@ -1082,9 +1075,7 @@ class TestSlashContext:
         mock_option_2.name = "nya"
         sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[mock_option_1, mock_option_2])
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
-        context = tanjun.context.SlashContext(
-            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[group_option]), mock.Mock()
-        )
+        context = tanjun.context.SlashContext(mock_client, mock.Mock(options=[group_option]), mock.Mock())
 
         assert len(context.options) == 2
         assert context.options["meow"].type is mock_option_1.type
@@ -1103,11 +1094,32 @@ class TestSlashContext:
     ):
         sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
-        context = tanjun.context.SlashContext(
-            mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=[group_option]), mock.Mock()
-        )
+        context = tanjun.context.SlashContext(mock_client, mock.Mock(options=[group_option]), mock.Mock())
 
         assert context.options == {}
+
+    def test_triggering_name_property_for_top_level_command(self, context: tanjun.context.slash.SlashContext):
+        assert context.triggering_name is context.interaction.command_name
+
+    def test_triggering_name_property_for_sub_command(self, mock_client: mock.Mock):
+        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=None)
+        group_option.name = "daniel"
+        context = tanjun.context.SlashContext(
+            mock_client, mock.Mock(command_name="damn", options=[group_option]), mock.Mock()
+        )
+
+        assert context.triggering_name == "damn daniel"
+
+    def test_triggering_name_property_for_sub_sub_command(self, mock_client: mock.Mock):
+        sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=None)
+        sub_group_option.name = "nyaa"
+        group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])
+        group_option.name = "xes"
+        context = tanjun.context.SlashContext(
+            mock_client, mock.Mock(command_name="meow", options=[group_option]), mock.Mock()
+        )
+
+        assert context.triggering_name == "meow xes nyaa"
 
     def test_type_property(self, context: tanjun.context.SlashContext):
         assert context.type is hikari.CommandType.SLASH

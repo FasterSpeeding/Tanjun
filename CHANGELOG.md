@@ -11,13 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   no converters or converters which result in a [collections.abc.Sized][] compatible value.
 - Support for specifying the length of a string argument in annotation command declaration through
   [tanjun.annotations.Length][].
+- [AutocompleteContext.triggering_name][tanjun.abc.AutocompleteContext.triggering_name] which acts
+  like [Context.triggering_name][tanjun.abc.Context.triggering_name].
+- Support for localising check responses for application command contexts, and slash command +
+  context menu declarations (names and descriptions).
+  More information on how this works can be found in [localisation][].
 
 ### Changed
 - Bumped the minimum Hikari version to `2.0.0.dev111`.
+- Bumped the minimum Alluka version to `0.1.2`.
 
 ### Fixed
 - Make [tanjun.commands.slash.SlashCommandGroup.as_sub_command][]'s typing more
   flexible to allow decorating other command objects.
+- `tanjun.context.slash.SlashContext.triggering_name` now returns the full triggering command name
+  for sub-commands instead of just the top level command's name.
+- Optimise [tanjun.checks.OwnPermissionCheck][] to use `context.app_permissions` instead of
+  calculating the bot's permissions for context menu command calls.
 
 ### Removed
 - The generic value field from `BaseConverter`.

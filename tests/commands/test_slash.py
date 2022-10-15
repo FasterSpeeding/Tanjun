@@ -616,7 +616,7 @@ class Test_SlashCommandBuilder:
     ...
 
 
-_INVALID_NAMES = ["a" * 33, "", "'#'#42123"]
+_INVALID_NAMES = ["☠︎⍓︎♋︎♋︎ ⬧︎♏︎■︎◻︎♋︎♓︎"]
 
 
 class TestBaseSlashCommand:
@@ -624,20 +624,183 @@ class TestBaseSlashCommand:
     def test__init__with_invalid_name(self, name: str):
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=(name, "desccc"))
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test__init__with_invalid_localised_name(self, name: str):
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=({hikari.Locale.CS: "yeet", hikari.Locale.HI: "bye", hikari.Locale.NL: name}, "desccc"),
+            )
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test__init__with_invalid_localised_default_name(self, name: str):
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=(
+                    {hikari.Locale.CS: "yeet", hikari.Locale.HI: "bye", "default": name, hikari.Locale.NL: "oop"},
+                    "desccc",
+                ),
+            )
+
+    def test__init__when_no_names_provided(self):
+        with pytest.raises(RuntimeError, match="No default name given"):
+            tanjun.commands.SlashCommand(mock.AsyncMock(), {"id": "id"}, "description")
+
+    def test__init__when_name_too_long(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            stub_class(tanjun.commands.BaseSlashCommand, args=("x" * 33, "description"))
+
+    def test__init__when_localised_name_too_long(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=({hikari.Locale.DE: "x" * 33, hikari.Locale.JA: "op", hikari.Locale.KO: "opop"}, "description"),
+            )
+
+    def test__init__when_localised_default_name_too_long(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=(
+                    {hikari.Locale.DE: "noooo", "default": "x" * 33, hikari.Locale.JA: "op", hikari.Locale.KO: "opop"},
+                    "description",
+                ),
+            )
+
+    def test__init__when_name_too_short(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            stub_class(tanjun.commands.BaseSlashCommand, args=("", "description"))
+
+    def test__init__when_localised_name_too_short(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=(
+                    {hikari.Locale.JA: "konnichiwa", hikari.Locale.EN_US: "hello", hikari.Locale.BG: ""},
+                    "description",
+                ),
+            )
+
+    def test__init__when_localised_default_name_too_short(self):
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=(
+                    {
+                        hikari.Locale.JA: "konnichiwa",
+                        hikari.Locale.EN_US: "hello",
+                        hikari.Locale.BG: "bon bon",
+                        "default": "",
+                    },
+                    "description",
+                ),
+            )
 
     def test__init__when_name_isnt_lowercase(self):
         with pytest.raises(ValueError, match="Invalid name provided, 'VooDOo' must be lowercase"):
             stub_class(tanjun.commands.BaseSlashCommand, args=("VooDOo", "desccc"))
 
+    def test__init__when_localised_name_isnt_lowercase(self):
+        with pytest.raises(ValueError, match="Invalid name provided, 'BeepBeep' must be lowercase"):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=({hikari.Locale.DE: "im_a_very_good_german", hikari.Locale.ES_ES: "BeepBeep"}, "desccc"),
+            )
+
+    def test__init__when_localised_default_name_isnt_lowercase(self):
+        with pytest.raises(ValueError, match="Invalid name provided, 'WoreLSA' must be lowercase"):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=(
+                    {"default": "WoreLSA", hikari.Locale.DE: "im_a_very_good_german", hikari.Locale.ES_ES: "que"},
+                    "desccc",
+                ),
+            )
+
+    def test__init__when_no_descriptions_provided(self):
+        with pytest.raises(RuntimeError, match="No default description given"):
+            tanjun.commands.SlashCommand(mock.AsyncMock(), "name", {"id": "path"})
+
     def test__init__when_description_too_long(self):
         with pytest.raises(
             ValueError,
-            match="The command description cannot be over 100 characters in length",
+            match="Description must be less than or equal to 100 characters in length",
         ):
             stub_class(tanjun.commands.BaseSlashCommand, args=("gary", "x" * 101))
+
+    def test__init__when_localised_description_too_long(self):
+        with pytest.raises(
+            ValueError,
+            match="Description must be less than or equal to 100 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand,
+                args=("gary", {hikari.Locale.ES_ES: "x" * 101, hikari.Locale.EL: "el salvador"}),
+            )
+
+    def test__init__when_localised_default_description_too_long(self):
+        with pytest.raises(
+            ValueError,
+            match="Description must be less than or equal to 100 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand, args=("gary", {"default": "x" * 101, hikari.Locale.EL: "el salvador"})
+            )
+
+    def test__init__when_description_too_short(self):
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            stub_class(tanjun.commands.BaseSlashCommand, args=("gary", ""))
+
+    def test__init__when_localised_description_too_short(self):
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            stub_class(
+                tanjun.commands.BaseSlashCommand, args=("gary", {hikari.Locale.EL: "", hikari.Locale.CS: "essa"})
+            )
+
+    def test__init__when_localised_default_description_too_short(self):
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            stub_class(tanjun.commands.BaseSlashCommand, args=("gary", {"default": "", hikari.Locale.CS: "essa"}))
 
     def test_default_member_permissions_property(self):
         command = stub_class(
@@ -651,10 +814,58 @@ class TestBaseSlashCommand:
 
         assert command.set_ephemeral_default(True).defaults_to_ephemeral is True
 
-    def test_description_property(self):
+    def test_description_properties(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "desccc"))
 
         assert command.description == "desccc"
+        assert command.description_localisations == {}
+        assert command._descriptions.id is None
+
+    def test_description_properties_when_localised(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand,
+            args=(
+                "meow",
+                {
+                    hikari.Locale.DA: "We",
+                    hikari.Locale.EN_GB: "don't",
+                    "default": "talk",
+                    "id": "about",
+                    hikari.Locale.EL: "Bruno",
+                },
+            ),
+        )
+
+        assert command.description == "talk"
+        assert command.description_localisations == {
+            hikari.Locale.DA: "We",
+            hikari.Locale.EN_GB: "don't",
+            hikari.Locale.EL: "Bruno",
+        }
+        assert command._descriptions.id == "about"
+
+    def test_description_properties_when_localised_implicit_default(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand,
+            args=("eep", {hikari.Locale.HU: "how are you", hikari.Locale.JA: "nihongo", hikari.Locale.TR: "no"}),
+        )
+
+        assert command.description == "how are you"
+        assert command.description_localisations == {
+            hikari.Locale.HU: "how are you",
+            hikari.Locale.JA: "nihongo",
+            hikari.Locale.TR: "no",
+        }
+        assert command._descriptions.id is None
+
+    def test_description_properties_when_dict_without_localisations(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand, args=("meep", {"default": "ok girl boss", "id": "idididid"})
+        )
+
+        assert command.description == "ok girl boss"
+        assert command.description_localisations == {}
+        assert command._descriptions.id == "idididid"
 
     def test_is_dm_enabled_property(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"dm_enabled": False})
@@ -666,10 +877,56 @@ class TestBaseSlashCommand:
 
         assert command.is_global is False
 
-    def test_name_property(self):
+    def test_name_properties(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
         assert command.name == "yee"
+        assert command.name_localisations == {}
+        assert command._names.id is None
+
+    def test_name_properties_when_localised(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand,
+            args=(
+                {
+                    hikari.Locale.EN_GB: "not gun",
+                    hikari.Locale.EN_US: "gun",
+                    hikari.Locale.FR: "baguette",
+                    "default": "us_forever",
+                    "id": "43",
+                },
+                "beep",
+            ),
+        )
+
+        assert command.name == "us_forever"
+        assert command.name_localisations == {
+            hikari.Locale.EN_GB: "not gun",
+            hikari.Locale.EN_US: "gun",
+            hikari.Locale.FR: "baguette",
+        }
+        assert command._names.id == "43"
+
+    def test_name_properties_when_localised_implicit_default(self):
+        command = stub_class(
+            tanjun.commands.BaseSlashCommand,
+            args=({hikari.Locale.HI: "hug", hikari.Locale.HR: "human eaters", hikari.Locale.KO: "kyoto"}, "o"),
+        )
+
+        assert command.name == "hug"
+        assert command.name_localisations == {
+            hikari.Locale.HI: "hug",
+            hikari.Locale.HR: "human eaters",
+            hikari.Locale.KO: "kyoto",
+        }
+        assert command._names.id is None
+
+    def test_name_properties_when_dict_without_localisations(self):
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=({"default": "this_default", "id": "meep"}, "boop"))
+
+        assert command.name == "this_default"
+        assert command.name_localisations == {}
+        assert command._names.id == "meep"
 
     def test_parent_property(self):
         mock_parent = mock.Mock()
@@ -754,24 +1011,30 @@ class TestSlashCommandGroup:
 
         assert result.default_member_permissions is hikari.UNDEFINED
         assert result.is_dm_enabled is hikari.UNDEFINED
+        mock_build: hikari.api.SlashCommandBuilder = mock_command.build.return_value
+        mock_group_build: hikari.api.SlashCommandBuilder = mock_command_group.build.return_value
         assert result == (
-            tanjun.commands.slash._SlashCommandBuilder("yee", "nsoosos", False)
+            tanjun.commands.slash._SlashCommandBuilder("yee", {}, "nsoosos", {}, False)
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND,
                     name=mock_command.name,  # type: ignore
-                    description=mock_command.build.return_value.description,  # type: ignore
-                    is_required=False,  # type: ignore
-                    options=mock_command.build.return_value.options,  # type: ignore
+                    name_localizations=mock_build.name_localizations,
+                    description=mock_build.description,
+                    description_localizations=mock_build.description_localizations,
+                    is_required=False,
+                    options=mock_build.options,
                 )
             )
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND_GROUP,
                     name=mock_command_group.name,  # type: ignore
-                    description=mock_command_group.build.return_value.description,  # type: ignore
-                    is_required=False,  # type: ignore
-                    options=mock_command_group.build.return_value.options,  # type: ignore
+                    name_localizations=mock_group_build.name_localizations,
+                    description=mock_group_build.description,
+                    description_localizations=mock_group_build.description_localizations,
+                    is_required=False,
+                    options=mock_group_build.options,
                 )
             )
         )
@@ -786,6 +1049,64 @@ class TestSlashCommandGroup:
         assert result.default_member_permissions == 4321123
         assert result.is_dm_enabled is False
         assert result.options == []
+
+    def test_build_with_localised_fields(self):
+        command = tanjun.SlashCommand[typing.Any](
+            mock.Mock(),
+            {hikari.Locale.EN_GB: "yeet", hikari.Locale.FI: "beat", "default": "shinji", hikari.Locale.JA: "ayanami"},
+            {
+                "default": "Who's the girl next door living in the haunted mansion?",
+                hikari.Locale.CS: "descript me a visor",
+                hikari.Locale.EN_US: "meep meep",
+            },
+        )
+
+        builder = command.build()
+
+        assert builder.name == "shinji"
+        assert builder.name_localizations == {
+            hikari.Locale.EN_GB: "yeet",
+            hikari.Locale.FI: "beat",
+            hikari.Locale.JA: "ayanami",
+        }
+        assert builder.description == "Who's the girl next door living in the haunted mansion?"
+        assert builder.description_localizations == {
+            hikari.Locale.CS: "descript me a visor",
+            hikari.Locale.EN_US: "meep meep",
+        }
+
+    def test_build_with_localised_fields_and_implicit_default(self):
+        command = tanjun.SlashCommand[typing.Any](
+            mock.Mock(),
+            {
+                hikari.Locale.EN_GB: "yeet",
+                hikari.Locale.FI: "beat",
+                hikari.Locale.DA: "drum",
+                hikari.Locale.JA: "ayanami",
+            },
+            {
+                hikari.Locale.DA: "Who's the girl next door living in the haunted mansion?",
+                "default": "bye bye",
+                hikari.Locale.CS: "descript me a visor pls",
+                hikari.Locale.EN_US: "meep meep",
+            },
+        )
+
+        builder = command.build()
+
+        assert builder.name == "yeet"
+        assert builder.name_localizations == {
+            hikari.Locale.EN_GB: "yeet",
+            hikari.Locale.FI: "beat",
+            hikari.Locale.DA: "drum",
+            hikari.Locale.JA: "ayanami",
+        }
+        assert builder.description == "bye bye"
+        assert builder.description_localizations == {
+            hikari.Locale.DA: "Who's the girl next door living in the haunted mansion?",
+            hikari.Locale.CS: "descript me a visor pls",
+            hikari.Locale.EN_US: "meep meep",
+        }
 
     def test_build_with_bound_component_field_inheritance(self):
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").bind_component(
@@ -1165,7 +1486,9 @@ class TestSlashCommand:
 
         option = command.build().options[0]
         assert option.name == "me"
+        assert option.name_localizations == {}
         assert option.description == "ow"
+        assert option.description_localizations == {}
         assert option.is_required is False
         assert option.options is None
         assert option.type is hikari.OptionType.ATTACHMENT
@@ -1188,7 +1511,9 @@ class TestSlashCommand:
 
         option = command.build().options[0]
         assert option.name == "nya"
+        assert option.name_localizations == {}
         assert option.description == "aaaa"
+        assert option.description_localizations == {}
         assert option.is_required is True
         assert option.options is None
         assert option.type is hikari.OptionType.ATTACHMENT
@@ -1212,9 +1537,91 @@ class TestSlashCommand:
 
         option = command.build().options[0]
         assert option.name == "me"
+        assert option.name_localizations == {}
         assert option.description == "how"
+        assert option.description_localizations == {}
         assert option.type is hikari.OptionType.ATTACHMENT
         assert option.name not in command._tracked_options
+
+    def test_add_attachment_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_attachment_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.ATTACHMENT
+
+    def test_add_attachment_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ):
+        command.add_attachment_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.ATTACHMENT
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_add_attachment_option_with_localised_name_regex_mismatch(
+        self, command: tanjun.SlashCommand[typing.Any], name: str
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            command.add_attachment_option({hikari.Locale.BG: name}, "description")
+
+    def test_add_attachment_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
+            command.add_attachment_option({hikari.Locale.KO: "xy3" * 11}, "description")
+
+    def test_add_attachment_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
+            command.add_attachment_option({hikari.Locale.EL: ""}, "description")
+
+    def test_add_attachment_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
+            command.add_attachment_option("name", {hikari.Locale.EN_US: "y" * 101})
+
+    def test_add_attachment_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
+            command.add_attachment_option("name", {hikari.Locale.IT: ""})
 
     def test_add_str_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
@@ -1356,7 +1763,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_str_option(name, "aye")
 
@@ -1374,9 +1782,36 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match="The option description cannot be over 100 characters in length",
+            match="Description must be less than or equal to 100 characters in length",
         ):
             command.add_str_option("boi", "a" * 101)
+
+    def test_add_str_option_when_description_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            command.add_str_option("boi", "")
+
+    def test_add_str_option_when_name_too_long(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            command.add_str_option("x" * 33, "description")
+
+    def test_add_str_option_when_name_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            command.add_str_option("", "description")
 
     def test_add_str_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -1445,6 +1880,84 @@ class TestSlashCommand:
 
         option = command.build().options[0]
         assert option.max_length == 6000
+
+    def test_add_str_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_str_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.STRING
+
+    def test_add_str_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_str_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.STRING
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_add_str_option_with_localised_name_regex_mismatch(
+        self, command: tanjun.SlashCommand[typing.Any], name: str
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            command.add_str_option({hikari.Locale.EN_GB: name}, "description")
+
+    def test_add_str_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
+            command.add_str_option({hikari.Locale.KO: "xy3" * 11}, "description")
+
+    def test_add_str_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
+            command.add_str_option({hikari.Locale.EL: ""}, "description")
+
+    def test_add_str_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
+            command.add_str_option("name", {hikari.Locale.EN_US: "y" * 101})
+
+    def test_add_str_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
+            command.add_str_option("name", {hikari.Locale.IT: ""})
 
     def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
@@ -1564,7 +2077,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_int_option(name, "aye")
 
@@ -1579,9 +2093,36 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match="The option description cannot be over 100 characters in length",
+            match="Description must be less than or equal to 100 characters in length",
         ):
             command.add_int_option("boi", "a" * 101)
+
+    def test_add_int_option_when_description_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            command.add_int_option("eep", "")
+
+    def test_add_int_option_when_name_too_long(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            command.add_int_option("x" * 33, "description")
+
+    def test_add_int_option_when_name_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            command.add_int_option("", "description")
 
     def test_add_int_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -1599,6 +2140,84 @@ class TestSlashCommand:
 
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_int_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
+
+    def test_add_int_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_int_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.INTEGER
+
+    def test_add_int_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_int_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.INTEGER
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_add_int_option_with_localised_name_regex_mismatch(
+        self, command: tanjun.SlashCommand[typing.Any], name: str
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            command.add_int_option({hikari.Locale.DE: name}, "description")
+
+    def test_add_int_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
+            command.add_int_option({hikari.Locale.KO: "xy3" * 11}, "description")
+
+    def test_add_int_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
+            command.add_int_option({hikari.Locale.EL: ""}, "description")
+
+    def test_add_int_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
+            command.add_int_option("name", {hikari.Locale.EN_US: "y" * 101})
+
+    def test_add_int_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
+            command.add_int_option("name", {hikari.Locale.IT: ""})
 
     def test_add_float_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
@@ -1745,7 +2364,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_float_option(name, "aye")
 
@@ -1760,9 +2380,36 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match="The option description cannot be over 100 characters in length",
+            match="Description must be less than or equal to 100 characters in length",
         ):
             command.add_float_option("boi", "a" * 101)
+
+    def test_add_float_option_when_description_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            command.add_float_option("eep", "")
+
+    def test_add_float_option_when_name_too_long(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            command.add_float_option("x" * 33, "description")
+
+    def test_add_float_option_when_name_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            command.add_float_option("", "description")
 
     def test_add_float_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -1780,6 +2427,84 @@ class TestSlashCommand:
 
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_float_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
+
+    def test_add_float_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_float_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.FLOAT
+
+    def test_add_float_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_float_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.FLOAT
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_add_float_option_with_localised_name_regex_mismatch(
+        self, command: tanjun.SlashCommand[typing.Any], name: str
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            command.add_float_option({hikari.Locale.FI: name}, "description")
+
+    def test_add_float_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
+            command.add_float_option({hikari.Locale.KO: "xy3" * 11}, "description")
+
+    def test_add_float_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
+            command.add_float_option({hikari.Locale.EL: ""}, "description")
+
+    def test_add_float_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
+            command.add_float_option("name", {hikari.Locale.EN_US: "y" * 101})
+
+    def test_add_float_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
+            command.add_float_option("name", {hikari.Locale.IT: ""})
 
     def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_bool_option("eaassa", "saas", default="feel", key="o")
@@ -1842,7 +2567,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_bool_option(name, "aye")
 
@@ -1860,9 +2586,36 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match="The option description cannot be over 100 characters in length",
+            match="Description must be less than or equal to 100 characters in length",
         ):
             command.add_bool_option("boi", "a" * 101)
+
+    def test_add_bool_option_when_description_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            command.add_bool_option("boi", "")
+
+    def test_add_bool_option_when_name_too_long(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            command.add_bool_option("x" * 33, "description")
+
+    def test_add_bool_option_when_name_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            command.add_bool_option("", "description")
 
     def test_add_bool_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -1874,6 +2627,84 @@ class TestSlashCommand:
             match="Slash commands cannot have more than 25 options",
         ):
             command.add_bool_option("namae", "aye")
+
+    def test_add_bool_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_bool_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.BOOLEAN
+
+    def test_add_bool_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_bool_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.BOOLEAN
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_add_bool_option_with_localised_name_regex_mismatch(
+        self, command: tanjun.SlashCommand[typing.Any], name: str
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            command.add_bool_option({hikari.Locale.SV_SE: name}, "description")
+
+    def test_add_bool_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
+            command.add_bool_option({hikari.Locale.KO: "xy3" * 11}, "description")
+
+    def test_add_bool_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
+            command.add_bool_option({hikari.Locale.EL: ""}, "description")
+
+    def test_add_bool_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
+            command.add_bool_option("name", {hikari.Locale.EN_US: "y" * 101})
+
+    def test_add_bool_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
+            command.add_bool_option("name", {hikari.Locale.IT: ""})
 
     def test_add_user_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_user_option("yser", "nanm", default="nou", key="oh")
@@ -1936,7 +2767,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_user_option(name, "aye")
 
@@ -1954,9 +2786,36 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match="The option description cannot be over 100 characters in length",
+            match="Description must be less than or equal to 100 characters in length",
         ):
             command.add_user_option("boi", "a" * 101)
+
+    def test_add_user_option_when_description_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            command.add_user_option("boi", "")
+
+    def test_add_user_option_when_name_too_long(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            command.add_user_option("x" * 33, "description")
+
+    def test_add_user_option_when_name_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            command.add_user_option("", "description")
 
     def test_add_user_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -1968,6 +2827,84 @@ class TestSlashCommand:
             match="Slash commands cannot have more than 25 options",
         ):
             command.add_user_option("namae", "aye")
+
+    def test_add_user_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_user_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.USER
+
+    def test_add_user_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_user_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.USER
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_add_user_option_with_localised_name_regex_mismatch(
+        self, command: tanjun.SlashCommand[typing.Any], name: str
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            command.add_user_option({hikari.Locale.BG: name}, "description")
+
+    def test_add_user_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
+            command.add_user_option({hikari.Locale.KO: "xy3" * 11}, "description")
+
+    def test_add_user_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
+            command.add_user_option({hikari.Locale.EL: ""}, "description")
+
+    def test_add_user_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
+            command.add_user_option("name", {hikari.Locale.EN_US: "y" * 101})
+
+    def test_add_user_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
+            command.add_user_option("name", {hikari.Locale.IT: ""})
 
     def test_add_member_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_member_option("ddddd", "sssss", default="dsasds", key="key2")
@@ -2021,7 +2958,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_member_option(name, "aye")
 
@@ -2036,9 +2974,36 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match="The option description cannot be over 100 characters in length",
+            match="Description must be less than or equal to 100 characters in length",
         ):
             command.add_member_option("boi", "a" * 101)
+
+    def test_add_member_option_when_description_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            command.add_member_option("boi", "")
+
+    def test_add_member_option_when_name_too_long(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            command.add_member_option("x" * 33, "description")
+
+    def test_add_member_option_when_name_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            command.add_member_option("", "description")
 
     def test_add_member_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -2050,6 +3015,88 @@ class TestSlashCommand:
             match="Slash commands cannot have more than 25 options",
         ):
             command.add_member_option("namae", "aye")
+
+    def test_add_member_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_member_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.USER
+
+        assert command._tracked_options[option.name].is_only_member is True
+
+    def test_add_member_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_member_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.USER
+
+        assert command._tracked_options[option.name].is_only_member is True
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_add_member_option_with_localised_name_regex_mismatch(
+        self, command: tanjun.SlashCommand[typing.Any], name: str
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            command.add_member_option({hikari.Locale.FR: name}, "description")
+
+    def test_add_member_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
+            command.add_member_option({hikari.Locale.KO: "xy3" * 11}, "description")
+
+    def test_add_member_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
+            command.add_member_option({hikari.Locale.EL: ""}, "description")
+
+    def test_add_member_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
+            command.add_member_option("name", {hikari.Locale.EN_US: "y" * 101})
+
+    def test_add_member_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
+            command.add_member_option("name", {hikari.Locale.IT: ""})
 
     def test_add_channel_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_channel_option("c", "d", default="eee", key="eep")
@@ -2163,7 +3210,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_channel_option(name, "aye")
 
@@ -2178,9 +3226,36 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match="The option description cannot be over 100 characters in length",
+            match="Description must be less than or equal to 100 characters in length",
         ):
             command.add_channel_option("boi", "a" * 101)
+
+    def test_add_channel_option_when_description_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            command.add_channel_option("boi", "")
+
+    def test_add_channel_option_when_name_too_long(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            command.add_channel_option("x" * 33, "description")
+
+    def test_add_channel_option_when_name_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            command.add_channel_option("", "description")
 
     def test_add_channel_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -2192,6 +3267,84 @@ class TestSlashCommand:
             match="Slash commands cannot have more than 25 options",
         ):
             command.add_channel_option("namae", "aye")
+
+    def test_add_channel_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_channel_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.CHANNEL
+
+    def test_add_channel_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_channel_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.CHANNEL
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_add_channel_option_with_localised_name_regex_mismatch(
+        self, command: tanjun.SlashCommand[typing.Any], name: str
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            command.add_channel_option({hikari.Locale.KO: name}, "description")
+
+    def test_add_channel_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
+            command.add_channel_option({hikari.Locale.KO: "xy3" * 11}, "description")
+
+    def test_add_channel_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
+            command.add_channel_option({hikari.Locale.EL: ""}, "description")
+
+    def test_add_channel_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
+            command.add_channel_option("name", {hikari.Locale.EN_US: "y" * 101})
+
+    def test_add_channel_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
+            command.add_channel_option("name", {hikari.Locale.IT: ""})
 
     def test_add_role_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_role_option("jhjh", "h", default="shera", key="catra")
@@ -2254,7 +3407,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_role_option(name, "aye")
 
@@ -2269,9 +3423,36 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match="The option description cannot be over 100 characters in length",
+            match="Description must be less than or equal to 100 characters in length",
         ):
             command.add_role_option("boi", "a" * 101)
+
+    def test_add_role_option_when_description_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            command.add_role_option("boi", "")
+
+    def test_add_role_option_when_name_too_long(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            command.add_role_option("x" * 33, "description")
+
+    def test_add_role_option_when_name_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            command.add_role_option("", "description")
 
     def test_add_role_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -2283,6 +3464,84 @@ class TestSlashCommand:
             match="Slash commands cannot have more than 25 options",
         ):
             command.add_role_option("namae", "aye")
+
+    def test_add_role_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_role_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.ROLE
+
+    def test_add_role_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_role_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.ROLE
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_add_role_option_with_localised_name_regex_mismatch(
+        self, command: tanjun.SlashCommand[typing.Any], name: str
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            command.add_role_option({hikari.Locale.EL: name}, "description")
+
+    def test_add_role_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
+            command.add_role_option({hikari.Locale.KO: "xy3" * 11}, "description")
+
+    def test_add_role_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
+            command.add_role_option({hikari.Locale.EL: ""}, "description")
+
+    def test_add_role_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
+            command.add_role_option("name", {hikari.Locale.EN_US: "y" * 101})
+
+    def test_add_role_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
+            command.add_role_option("name", {hikari.Locale.IT: ""})
 
     def test_add_mentionable_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_mentionable_option("単純", "iwi", default="ywy", key="neko")
@@ -2345,7 +3604,8 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match=f"Invalid name provided, {name!r} doesn't match the required regex " + re.escape(r"`^\w{1,32}$`"),
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             command.add_mentionable_option(name, "aye")
 
@@ -2360,9 +3620,36 @@ class TestSlashCommand:
 
         with pytest.raises(
             ValueError,
-            match="The option description cannot be over 100 characters in length",
+            match="Description must be less than or equal to 100 characters in length",
         ):
             command.add_mentionable_option("boi", "a" * 101)
+
+    def test_add_mentionable_option_when_description_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Description must be greater than or equal to 1 characters in length",
+        ):
+            command.add_mentionable_option("boi", "")
+
+    def test_add_mentionable_option_when_name_too_long(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be less than or equal to 32 characters in length",
+        ):
+            command.add_mentionable_option("x" * 33, "description")
+
+    def test_add_mentionable_option_when_name_too_short(self):
+        command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
+
+        with pytest.raises(
+            ValueError,
+            match="Name must be greater than or equal to 1 characters in length",
+        ):
+            command.add_mentionable_option("", "description")
 
     def test_add_mentionable_option_when_too_many_options(self):
         command = tanjun.SlashCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -2375,8 +3662,98 @@ class TestSlashCommand:
         ):
             command.add_mentionable_option("namae", "aye")
 
+    def test_add_mentionable_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+        command.add_mentionable_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
+            {
+                hikari.Locale.DA: "description girl",
+                hikari.Locale.ES_ES: "meep meep",
+                hikari.Locale.FI: "finished for the cats",
+            },
+        )
+
+        option = command.build().options[0]
+        assert option.name == "meep"
+        assert option.name_localizations == {
+            hikari.Locale.EN_GB: "meep",
+            hikari.Locale.DE: "moop",
+            hikari.Locale.EN_US: "bungus",
+        }
+        assert option.description == "description girl"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.ES_ES: "meep meep",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.MENTIONABLE
+
+    def test_add_mentionable_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ):
+        command.add_mentionable_option(
+            {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
+            {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
+        )
+
+        option = command.build().options[0]
+        assert option.name == "bungus"
+        assert option.name_localizations == {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop"}
+        assert option.description == "meep meep"
+        assert option.description_localizations == {
+            hikari.Locale.DA: "description girl",
+            hikari.Locale.FI: "finished for the cats",
+        }
+        assert option.type is hikari.OptionType.MENTIONABLE
+
+    @pytest.mark.parametrize("name", _INVALID_NAMES)
+    def test_add_mentionable_option_with_localised_name_regex_mismatch(
+        self, command: tanjun.SlashCommand[typing.Any], name: str
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(
+            ValueError,
+            match=f"Invalid name provided, {name!r} doesn't match the required regex "
+            + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
+        ):
+            command.add_mentionable_option({hikari.Locale.BG: name}, "description")
+
+    def test_add_mentionable_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
+            command.add_mentionable_option({hikari.Locale.KO: "xy3" * 11}, "description")
+
+    def test_add_mentionable_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
+            command.add_mentionable_option({hikari.Locale.EL: ""}, "description")
+
+    def test_add_mentionable_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
+            command.add_mentionable_option("name", {hikari.Locale.EN_US: "y" * 101})
+
+    def test_add_mentionable_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ):
+        command = tanjun.SlashCommand(mock.AsyncMock(), "name", "description")
+
+        with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
+            command.add_mentionable_option("name", {hikari.Locale.IT: ""})
+
     @pytest.mark.skip(reason="TODO")
     def test_build(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_build_with_localised_fields(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_build_with_localised_fields_and_implicit_default(self):
         ...
 
     @pytest.mark.skip(reason="TODO")

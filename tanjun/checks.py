@@ -66,6 +66,19 @@ from . import abc as tanjun
 from . import dependencies
 from . import errors
 from . import permissions
+from ._internal import localisation
+
+if typing.TYPE_CHECKING:
+
+    class _AnyCallback(typing.Protocol):
+        async def __call__(
+            self,
+            ctx: tanjun.Context,
+            /,
+            localiser: typing.Optional[dependencies.AbstractLocaliser] = None,
+        ) -> bool:
+            raise NotImplementedError
+
 
 _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
@@ -92,26 +105,38 @@ def _optional_kwargs(
 
 
 class _Check:
-    __slots__ = ("_error", "_error_message", "_halt_execution", "__weakref__")
+    __slots__ = ("_error", "_error_message", "_halt_execution", "_localise_id", "__weakref__")
 
     def __init__(
         self,
         error: typing.Optional[collections.Callable[..., Exception]],
-        error_message: typing.Optional[str],
+        error_message: typing.Union[str, collections.Mapping[str, str], None],
         halt_execution: bool,
+        /,
+        *,
+        id_name: typing.Optional[str] = None,
     ) -> None:
         self._error = error
-        self._error_message = error_message
+        self._error_message = localisation.MaybeLocalised("error_message", error_message) if error_message else None
         self._halt_execution = halt_execution
+        self._localise_id = f"tanjun.{id_name or type(self).__name__}"
 
-    def _handle_result(self, result: bool, /, *args: typing.Any) -> bool:
+    def _handle_result(
+        self,
+        ctx: tanjun.Context,
+        result: bool,
+        localiser: typing.Optional[dependencies.AbstractLocaliser] = None,
+        /,
+        *args: typing.Any,
+    ) -> bool:
         if not result:
             if self._error:
                 raise self._error(*args) from None
             if self._halt_execution:
                 raise errors.HaltExecution from None
             if self._error_message:
-                raise errors.CommandError(self._error_message) from None
+                message = self._error_message.localise(ctx, localiser, "check", self._localise_id)
+                raise errors.CommandError(message) from None
 
         return result
 
@@ -128,7 +153,7 @@ class OwnerCheck(_Check):
         self,
         *,
         error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Optional[str] = "Only bot owners can use this command",
+        error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
         halt_execution: bool = False,
     ) -> None:
         """Initialise an owner check.
@@ -144,6 +169,8 @@ class OwnerCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the
             command search to continue.
+
+            This supports [localisation][].
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -156,8 +183,9 @@ class OwnerCheck(_Check):
         self,
         ctx: tanjun.Context,
         dependency: alluka.Injected[dependencies.AbstractOwners],
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
-        return self._handle_result(await dependency.check_ownership(ctx.client, ctx.author))
+        return self._handle_result(ctx, await dependency.check_ownership(ctx.client, ctx.author), localiser)
 
 
 _GuildChannelCacheT = typing.Optional[dependencies.SfCache[hikari.GuildChannel]]
@@ -204,7 +232,9 @@ class NsfwCheck(_Check):
         self,
         *,
         error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str], None
+        ] = "Command can only be used in NSFW channels",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a NSFW check.
@@ -220,6 +250,8 @@ class NsfwCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This supports [localisation][].
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -234,8 +266,11 @@ class NsfwCheck(_Check):
         /,
         *,
         channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
-        return self._handle_result(await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache))
+        return self._handle_result(
+            ctx, await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache), localiser
+        )
 
 
 class SfwCheck(_Check):
@@ -250,7 +285,9 @@ class SfwCheck(_Check):
         self,
         *,
         error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str], None
+        ] = "Command can only be used in SFW channels",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a SFW check.
@@ -266,6 +303,8 @@ class SfwCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This supports [localisation][].
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -280,8 +319,11 @@ class SfwCheck(_Check):
         /,
         *,
         channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
-        return self._handle_result(not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache))
+        return self._handle_result(
+            ctx, not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache), localiser
+        )
 
 
 class DmCheck(_Check):
@@ -296,7 +338,7 @@ class DmCheck(_Check):
         self,
         *,
         error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Optional[str] = "Command can only be used in DMs",
+        error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a DM check.
@@ -312,6 +354,8 @@ class DmCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This supports [localisation][].
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -320,8 +364,13 @@ class DmCheck(_Check):
         """
         super().__init__(error, error_message, halt_execution)
 
-    def __call__(self, ctx: tanjun.Context, /) -> bool:
-        return self._handle_result(ctx.guild_id is None)
+    def __call__(
+        self,
+        ctx: tanjun.Context,
+        /,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+    ) -> bool:
+        return self._handle_result(ctx, ctx.guild_id is None, localiser)
 
 
 class GuildCheck(_Check):
@@ -336,7 +385,9 @@ class GuildCheck(_Check):
         self,
         *,
         error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Optional[str] = "Command can only be used in guild channels",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str], None
+        ] = "Command can only be used in guild channels",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a guild check.
@@ -352,6 +403,8 @@ class GuildCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This supports [localisation][].
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -360,8 +413,13 @@ class GuildCheck(_Check):
         """
         super().__init__(error, error_message, halt_execution)
 
-    def __call__(self, ctx: tanjun.Context, /) -> bool:
-        return self._handle_result(ctx.guild_id is not None)
+    def __call__(
+        self,
+        ctx: tanjun.Context,
+        /,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+    ) -> bool:
+        return self._handle_result(ctx, ctx.guild_id is not None, localiser)
 
 
 class AuthorPermissionCheck(_Check):
@@ -378,7 +436,9 @@ class AuthorPermissionCheck(_Check):
         /,
         *,
         error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-        error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str], None
+        ] = "You don't have the permissions required to use this command",
         halt_execution: bool = False,
     ) -> None:
         """Initialise an author permission check.
@@ -399,6 +459,8 @@ class AuthorPermissionCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This supports [localisation][].
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -408,7 +470,12 @@ class AuthorPermissionCheck(_Check):
         super().__init__(error, error_message, halt_execution)
         self._permissions = permissions
 
-    async def __call__(self, ctx: tanjun.Context, /) -> bool:
+    async def __call__(
+        self,
+        ctx: tanjun.Context,
+        /,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+    ) -> bool:
         if not ctx.member:
             # If there's no member when this is within a guild then it's likely
             # something like a webhook or guild visitor with no real permissions
@@ -428,7 +495,7 @@ class AuthorPermissionCheck(_Check):
             perms = await permissions.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
 
         missing_perms = ~perms & self._permissions
-        return self._handle_result(missing_perms is hikari.Permissions.NONE, missing_perms)
+        return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, localiser, missing_perms)
 
 
 _MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
@@ -448,7 +515,9 @@ class OwnPermissionCheck(_Check):
         /,
         *,
         error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-        error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str], None
+        ] = "Bot doesn't have the permissions required to run this command",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a own permission check.
@@ -469,6 +538,8 @@ class OwnPermissionCheck(_Check):
 
             Setting this to [None][] will disable the error message allowing the command
             search to continue.
+
+            This supports [localisation][].
         halt_execution
             Whether this check should raise [tanjun.HaltExecution][] to
             end the execution search when it fails instead of returning [False][].
@@ -483,13 +554,14 @@ class OwnPermissionCheck(_Check):
         ctx: tanjun.Context,
         /,
         *,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
         my_user: hikari.OwnUser = dependencies.inject_lc(hikari.OwnUser),
         member_cache: alluka.Injected[_MemberCacheT] = None,
     ) -> bool:
         if ctx.guild_id is None:
             perms = permissions.DM_PERMISSIONS
 
-        elif isinstance(ctx, tanjun.SlashContext):
+        elif isinstance(ctx, tanjun.AppCommandContext):
             assert ctx.interaction.app_permissions is not None
             perms = ctx.interaction.app_permissions
 
@@ -502,7 +574,7 @@ class OwnPermissionCheck(_Check):
             perms = await permissions.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
         missing_perms = ~perms & self._permissions
-        return self._handle_result(missing_perms is hikari.Permissions.NONE, missing_perms)
+        return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, localiser, missing_perms)
 
 
 @typing.overload
@@ -514,7 +586,7 @@ def with_dm_check(command: _CommandT, /) -> _CommandT:
 def with_dm_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in DMs",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -526,7 +598,7 @@ def with_dm_check(
     /,
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in DMs",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -545,6 +617,8 @@ def with_dm_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This supports [localisation][].
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -573,7 +647,9 @@ def with_guild_check(command: _CommandT, /) -> _CommandT:
 def with_guild_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in guild channels",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str], None
+    ] = "Command can only be used in guild channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -585,7 +661,9 @@ def with_guild_check(
     /,
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in guild channels",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str], None
+    ] = "Command can only be used in guild channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -604,6 +682,8 @@ def with_guild_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This supports [localisation][].
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -632,7 +712,7 @@ def with_nsfw_check(command: _CommandT, /) -> _CommandT:
 def with_nsfw_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in NSFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -644,7 +724,7 @@ def with_nsfw_check(
     /,
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in NSFW channels",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in NSFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -663,6 +743,8 @@ def with_nsfw_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This supports [localisation][].
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -691,7 +773,7 @@ def with_sfw_check(command: _CommandT, /) -> _CommandT:
 def with_sfw_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in SFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -703,7 +785,7 @@ def with_sfw_check(
     /,
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Command can only be used in SFW channels",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in SFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -722,6 +804,8 @@ def with_sfw_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This supports [localisation][].
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -750,7 +834,7 @@ def with_owner_check(command: _CommandT, /) -> _CommandT:
 def with_owner_check(
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Only bot owners can use this command",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -762,7 +846,7 @@ def with_owner_check(
     /,
     *,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str] = "Only bot owners can use this command",
+    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -781,6 +865,8 @@ def with_owner_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This supports [localisation][].
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -804,7 +890,9 @@ def with_author_permission_check(
     permissions: typing.Union[hikari.Permissions, int],
     *,
     error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-    error_message: typing.Optional[str] = "You don't have the permissions required to use this command",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str], None
+    ] = "You don't have the permissions required to use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -830,6 +918,8 @@ def with_author_permission_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This supports [localisation][].
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -855,7 +945,9 @@ def with_own_permission_check(
     permissions: typing.Union[hikari.Permissions, int],
     *,
     error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-    error_message: typing.Optional[str] = "Bot doesn't have the permissions required to run this command",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str], None
+    ] = "Bot doesn't have the permissions required to run this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -881,6 +973,8 @@ def with_own_permission_check(
 
         Setting this to [None][] will disable the error message allowing the command
         search to continue.
+
+        This supports [localisation][].
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -998,15 +1092,20 @@ class _AnyChecks(_Check):
         self,
         checks: list[tanjun.CheckSig],
         error: typing.Optional[collections.Callable[[], Exception]],
-        error_message: typing.Optional[str],
+        error_message: typing.Union[str, collections.Mapping[str, str], None],
         halt_execution: bool,
         suppress: tuple[type[Exception], ...],
     ) -> None:
-        super().__init__(error, error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution, id_name="any_check")
         self._checks = checks
         self._suppress = suppress
 
-    async def __call__(self, ctx: tanjun.Context, /) -> bool:
+    async def __call__(
+        self,
+        ctx: tanjun.Context,
+        /,
+        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+    ) -> bool:
         for check in self._checks:
             try:
                 if await ctx.call_with_async_di(check, ctx):
@@ -1018,7 +1117,7 @@ class _AnyChecks(_Check):
             except self._suppress:
                 pass
 
-        return self._handle_result(False)
+        return self._handle_result(ctx, False, localiser)
 
 
 def any_checks(
@@ -1026,10 +1125,10 @@ def any_checks(
     /,
     *checks: tanjun.CheckSig,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str],
+    error_message: typing.Union[str, collections.Mapping[str, str], None],
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
-) -> collections.Callable[[tanjun.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
+) -> _AnyCallback:
     """Combine multiple checks into a check which'll pass if any of the callbacks pass.
 
     This ensures that the callbacks are run in the order they were supplied in
@@ -1047,6 +1146,8 @@ def any_checks(
         This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
+
+        This supports [localisation][].
     halt_execution
         Whether this check should raise [tanjun.HaltExecution][] to
         end the execution search when it fails instead of returning [False][].
@@ -1068,7 +1169,7 @@ def with_any_checks(
     /,
     *checks: tanjun.CheckSig,
     error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Optional[str],
+    error_message: typing.Union[str, collections.Mapping[str, str], None],
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
@@ -1090,6 +1191,8 @@ def with_any_checks(
         This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
+
+        This supports [localisation][].
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.

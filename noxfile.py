@@ -175,7 +175,7 @@ def spell_check(session: nox.Session) -> None:
         ".pre-commit-config.yaml",
         "./docs",
         "--ignore-regex",
-        "TimeSchedule",
+        "TimeSchedule|Nd",
     )
 
 

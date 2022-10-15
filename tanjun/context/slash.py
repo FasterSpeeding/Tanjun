@@ -373,12 +373,6 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         return self._interaction.member
 
     @property
-    def triggering_name(self) -> str:
-        # <<inherited docstring from tanjun.abc.Context>>.
-        # TODO: account for command groups
-        return self._interaction.command_name
-
-    @property
     def interaction(self) -> hikari.CommandInteraction:
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         return self._interaction
@@ -633,17 +627,17 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
             # pre-fix in init.
             result = hikari.impl.InteractionMessageBuilder(
-                type=hikari.ResponseType.MESSAGE_CREATE,  # type: ignore
-                content=content,  # type: ignore
-                attachments=attachments,  # type: ignore
-                components=components,  # type: ignore
-                embeds=embeds,  # type: ignore
-                flags=flags,  # type: ignore
-                is_tts=tts,  # type: ignore
-                mentions_everyone=mentions_everyone,  # type: ignore
-                user_mentions=user_mentions,  # type: ignore
-                role_mentions=role_mentions,  # type: ignore
-            )  # type: ignore
+                hikari.ResponseType.MESSAGE_CREATE,
+                content,
+                attachments=attachments,  # pyright: ignore [ reportGeneralTypeIssues ]
+                components=components,  # pyright: ignore [ reportGeneralTypeIssues ]
+                embeds=embeds,  # pyright: ignore [ reportGeneralTypeIssues ]
+                flags=flags,  # pyright: ignore [ reportGeneralTypeIssues ]
+                is_tts=tts,  # pyright: ignore [ reportGeneralTypeIssues ]
+                mentions_everyone=mentions_everyone,  # pyright: ignore [ reportGeneralTypeIssues ]
+                user_mentions=user_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]
+                role_mentions=role_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]
+            )
 
             self._response_future.set_result(result)
 
@@ -976,7 +970,7 @@ def _to_list(
 class SlashContext(AppCommandContext, tanjun.SlashContext):
     """Standard implementation of [tanjun.abc.SlashContext][]."""
 
-    __slots__ = ("_command", "_marked_not_found", "_on_not_found", "_options")
+    __slots__ = ("_command", "_command_name", "_marked_not_found", "_on_not_found", "_options")
 
     def __init__(
         self,
@@ -1011,10 +1005,9 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         self._on_not_found = on_not_found
 
         self._command: typing.Optional[tanjun.BaseSlashCommand] = None
-        self._options = {
-            option.name: SlashOption(interaction.resolved, option)
-            for option in _internal.flatten_options(interaction.options)
-        }
+        command_name, options = _internal.flatten_options(interaction.command_name, interaction.options)
+        self._command_name = command_name
+        self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
         (self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(SlashContext, self))
 
     @property
@@ -1026,6 +1019,11 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
     def options(self) -> collections.Mapping[str, tanjun.SlashOption]:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._options.copy()
+
+    @property
+    def triggering_name(self) -> str:
+        # <<inherited docstring from tanjun.abc.Context>>.
+        return self._command_name
 
     @property
     def type(self) -> typing.Literal[hikari.CommandType.SLASH]:

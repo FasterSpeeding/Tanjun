@@ -61,7 +61,9 @@ from .. import abc as tanjun
 from .. import conversion
 from .. import errors
 from .. import hooks
+from .._internal import localisation
 from . import async_cache
+from . import locales
 from . import owners
 
 if typing.TYPE_CHECKING:
@@ -664,7 +666,9 @@ class CooldownPreExecution:
         /,
         *,
         error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
-        error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str]
+        ] = "This command is currently in cooldown. Try again {cooldown}.",
         owners_exempt: bool = True,
     ) -> None:
         """Initialise a pre-execution cooldown command hook.
@@ -683,12 +687,14 @@ class CooldownPreExecution:
             This takes priority over `error_message`.
         error_message
             The error message to send in response as a command error if the check fails.
+
+            This supports [localisation][].
         owners_exempt
             Whether owners should be exempt from the cooldown.
         """
         self._bucket_id = bucket_id
         self._error = error
-        self._error_message = error_message
+        self._error_message = localisation.MaybeLocalised("error_message", error_message)
         self._owners_exempt = owners_exempt
 
     async def __call__(
@@ -696,6 +702,7 @@ class CooldownPreExecution:
         ctx: tanjun.Context,
         cooldowns: alluka.Injected[AbstractCooldownManager],
         *,
+        localiser: typing.Optional[locales.AbstractLocaliser] = None,
         owner_check: alluka.Injected[typing.Optional[owners.AbstractOwners]],
     ) -> None:
         if self._owners_exempt:
@@ -711,7 +718,8 @@ class CooldownPreExecution:
                 raise self._error(self._bucket_id, wait_until) from None
 
             wait_until_repr = conversion.from_datetime(wait_until, style="R")
-            raise errors.CommandError(self._error_message.format(cooldown=wait_until_repr))
+            message = self._error_message.localise(ctx, localiser, "check", "tanjun.cooldown", cooldown=wait_until_repr)
+            raise errors.CommandError(message)
 
 
 def with_cooldown(
@@ -719,7 +727,9 @@ def with_cooldown(
     /,
     *,
     error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
-    error_message: str = "This command is currently in cooldown. Try again {cooldown}.",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str]
+    ] = "This command is currently in cooldown. Try again {cooldown}.",
     follow_wrapped: bool = False,
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -745,6 +755,8 @@ def with_cooldown(
         This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if the check fails.
+
+        This supports [localisation][].
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -1003,7 +1015,9 @@ class ConcurrencyPreExecution:
         /,
         *,
         error: typing.Optional[collections.Callable[[str], Exception]] = None,
-        error_message: str = "This resource is currently busy; please try again later.",
+        error_message: typing.Union[
+            str, collections.Mapping[str, str]
+        ] = "This resource is currently busy; please try again later.",
     ) -> None:
         """Initialise a concurrency pre-execution hook.
 
@@ -1020,21 +1034,25 @@ class ConcurrencyPreExecution:
         error_message
             The error message to send in response as a command error if this fails
             to acquire the concurrency limit.
+
+            This supports [localisation][].
         """
         self._bucket_id = bucket_id
         self._error = error
-        self._error_message = error_message
+        self._error_message = localisation.MaybeLocalised("error_message", error_message)
 
     async def __call__(
         self,
         ctx: tanjun.Context,
         limiter: alluka.Injected[AbstractConcurrencyLimiter],
+        localiser: typing.Optional[locales.AbstractLocaliser] = None,
     ) -> None:
         if not await limiter.try_acquire(self._bucket_id, ctx):
             if self._error:
                 raise self._error(self._bucket_id) from None
 
-            raise errors.CommandError(self._error_message) from None
+            message = self._error_message.localise(ctx, localiser, "check", "tanjun.concurrency")
+            raise errors.CommandError(message) from None
 
 
 class ConcurrencyPostExecution:
@@ -1072,7 +1090,9 @@ def with_concurrency_limit(
     /,
     *,
     error: typing.Optional[collections.Callable[[str], Exception]] = None,
-    error_message: str = "This resource is currently busy; please try again later.",
+    error_message: typing.Union[
+        str, collections.Mapping[str, str]
+    ] = "This resource is currently busy; please try again later.",
     follow_wrapped: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.
@@ -1096,6 +1116,8 @@ def with_concurrency_limit(
     error_message
         The error message to send in response as a command error if this fails
         to acquire the concurrency limit.
+
+        This supports [localisation][].
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.

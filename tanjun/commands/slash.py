@@ -54,8 +54,8 @@ __all__: list[str] = [
 
 import copy
 import itertools
-import re
 import typing
+import unicodedata
 import warnings
 from collections import abc as collections
 
@@ -67,6 +67,7 @@ from .. import components
 from .. import conversion
 from .. import errors
 from .. import hooks as hooks_
+from .._internal import localisation
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -84,7 +85,6 @@ if typing.TYPE_CHECKING:
     ]
     _CallbackishT = typing.Union["_CommandCallbackSigT", _CommandT["_CommandCallbackSigT"]]
 
-_SCOMMAND_NAME_REG: typing.Final[re.Pattern[str]] = re.compile(r"^[\w-]{1,32}$", flags=re.UNICODE)
 _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
@@ -95,17 +95,47 @@ ConverterSig = typing.Union[
 ]
 
 
-def _validate_name(name: str) -> None:
-    if not _SCOMMAND_NAME_REG.fullmatch(name):
-        raise ValueError(f"Invalid name provided, {name!r} doesn't match the required regex `^\\w{{1,32}}$`")
+_SCOMMAND_NAME_REG: typing.Final[str] = r"^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$"
+_VALID_NAME_UNICODE_CATEGORIES = frozenset(
+    (
+        # L
+        "Lu",
+        "Ll",
+        "Lt",
+        "Lm",
+        "Lo",
+        # N
+        "Nd",
+        "Nl",
+        "No",
+    )
+)
+_VALID_NAME_CHARACTERS = frozenset(("-", "_"))
 
-    if name.lower() != name:
-        raise ValueError(f"Invalid name provided, {name!r} must be lowercase")
+
+def _check_name_char(character: str) -> bool:
+    # `^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`
+    # * `-_`` is just `-` and `_`
+    # * L (All letter characters so "Lu", "Ll", "Lt", "Lm" and "Lo")
+    # * N (all numeric characters so "Nd", "Nl" and "No")
+    # * Deva: `\u0900-\u097F`  # TODO: Deva extended?
+    # * Thai: `\u0E00-\u0E7F`
+
+    return (
+        character in _VALID_NAME_CHARACTERS
+        or unicodedata.category(character) in _VALID_NAME_UNICODE_CATEGORIES
+        or 0x0900 >= (code_point := ord(character)) <= 0x097F
+        or 0x0E00 >= code_point <= 0x0E7F
+    )
+
+
+def _validate_name(name: str) -> bool:
+    return all(map(_check_name_char, name))
 
 
 def slash_command_group(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
@@ -153,11 +183,13 @@ def slash_command_group(
     Parameters
     ----------
     name
-        The name of the command group.
+        The name of the command group (supports [localisation][]).
 
-        This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
+        This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
     description
-        The description of the command group.
+        The description of the command group (supports [localisation][]).
+
+        This should be inclusively between 1-100 characters in length.
     default_member_permissions
         Member permissions necessary to utilize this command by default.
 
@@ -187,10 +219,10 @@ def slash_command_group(
     ValueError
         Raises a value error for any of the following reasons:
 
-        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+        * If the command name doesn't fit Discord's requirements.
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
-    """
+    """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
     return SlashCommandGroup(
         name,
         description,
@@ -215,8 +247,8 @@ class _ResultProto(typing.Protocol):
 
 
 def as_slash_command(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     always_defer: bool = False,
@@ -256,11 +288,12 @@ def as_slash_command(
     Parameters
     ----------
     name
-        The command's name.
+        The command's name (supports [localisation][]).
 
-        This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+        This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
     description
-        The command's description.
+        The command's description (supports [localisation][]).
+
         This should be inclusively between 1-100 characters in length.
     always_defer
         Whether the contexts this command is executed with should always be deferred
@@ -308,10 +341,10 @@ def as_slash_command(
     ValueError
         Raises a value error for any of the following reasons:
 
-        * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+        * If the command name doesn't fit Discord's requirements.
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
-    """
+    """  # noqa: E501,D202
 
     def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
@@ -343,8 +376,8 @@ UNDEFINED_DEFAULT = object()
 
 
 def with_attachment_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -376,8 +409,8 @@ def with_attachment_slash_option(
 
 
 def with_str_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
@@ -424,8 +457,8 @@ def with_str_slash_option(
 
 
 def with_int_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
@@ -472,8 +505,8 @@ def with_int_slash_option(
 
 
 def with_float_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     always_float: bool = True,
@@ -522,8 +555,8 @@ def with_float_slash_option(
 
 
 def with_bool_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -553,8 +586,8 @@ def with_bool_slash_option(
 
 
 def with_user_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -589,7 +622,12 @@ def with_user_slash_option(
 
 
 def with_member_slash_option(
-    name: str, description: str, /, *, default: typing.Any = UNDEFINED_DEFAULT, key: typing.Optional[str] = None
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
+    /,
+    *,
+    default: typing.Any = UNDEFINED_DEFAULT,
+    key: typing.Optional[str] = None,
 ) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
     """Add a member option to a slash command.
 
@@ -637,8 +675,8 @@ for _channel_cls, _types in _CHANNEL_TYPES.copy().items():
 
 
 def with_channel_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
@@ -674,8 +712,8 @@ def with_channel_slash_option(
 
 
 def with_role_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -705,8 +743,8 @@ def with_role_slash_option(
 
 
 def with_mentionable_slash_option(
-    name: str,
-    description: str,
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
     default: typing.Any = UNDEFINED_DEFAULT,
@@ -790,12 +828,20 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
     def __init__(
         self,
         name: str,
+        name_localizations: collections.Mapping[str, str],
         description: str,
+        description_localizations: collections.Mapping[str, str],
         sort_options: bool,
         *,
         id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
-        super().__init__(name, description, id=id_)  # type: ignore
+        super().__init__(
+            name,
+            description,
+            description_localizations=description_localizations,  # pyright: ignore [ reportGeneralTypeIssues ]
+            id=id_,  # pyright: ignore [ reportGeneralTypeIssues ]
+            name_localizations=name_localizations,  # pyright: ignore [ reportGeneralTypeIssues ]
+        )
         self._has_been_sorted = True
         self._options_dict: dict[str, hikari.CommandOption] = {}
         self._sort_options = sort_options
@@ -828,7 +874,14 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
 
     # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
     def copy(self, /) -> _SlashCommandBuilder:
-        builder = _SlashCommandBuilder(self.name, self.description, self._sort_options, id_=self.id)
+        builder = _SlashCommandBuilder(
+            self.name,
+            self.name_localizations,
+            self.description,
+            self.description_localizations,
+            self._sort_options,
+            id_=self.id,
+        )
 
         for option in self.options:
             builder.add_option(option)
@@ -842,18 +895,18 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     __slots__ = (
         "_default_member_permissions",
         "_defaults_to_ephemeral",
-        "_description",
+        "_descriptions",
         "_is_dm_enabled",
         "_is_global",
-        "_name",
+        "_names",
         "_parent",
         "_tracked_command",
     )
 
     def __init__(
         self,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
@@ -862,19 +915,22 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         is_global: bool = True,
     ) -> None:
         super().__init__()
-        _validate_name(name)
-        if len(description) > 100:
-            raise ValueError("The command description cannot be over 100 characters in length")
+        names = (
+            localisation.MaybeLocalised("name", name)
+            .assert_length(1, 32)
+            .assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
+        )
+        descriptions = localisation.MaybeLocalised("description", description).assert_length(1, 100)
 
         if default_member_permissions is not None:
             default_member_permissions = hikari.Permissions(default_member_permissions)
 
         self._default_member_permissions = default_member_permissions
         self._defaults_to_ephemeral = default_to_ephemeral
-        self._description = description
+        self._descriptions = descriptions
         self._is_dm_enabled = dm_enabled
         self._is_global = is_global
-        self._name = name
+        self._names = names
         self._parent: typing.Optional[tanjun.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.SlashCommand] = None
 
@@ -891,7 +947,11 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     @property
     def description(self) -> str:  # TODO: this feels like a mistake
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        return self._description
+        return self._descriptions.default_value
+
+    @property
+    def description_localisations(self) -> collections.Mapping[str, str]:
+        return self._descriptions.localised_values.copy()
 
     @property
     def is_dm_enabled(self) -> typing.Optional[bool]:
@@ -906,7 +966,11 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     @property
     def name(self) -> str:
         # <<inherited docstring from tanjun.abc.AppCommand>>.
-        return self._name
+        return self._names.default_value
+
+    @property
+    def name_localisations(self) -> collections.Mapping[str, str]:
+        return self._names.localised_values.copy()
 
     @property
     def parent(self) -> typing.Optional[tanjun.SlashCommandGroup]:
@@ -997,8 +1061,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
     def __init__(
         self,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
@@ -1020,11 +1084,13 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         Parameters
         ----------
         name
-            The name of the command group.
+            The name of the command group (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The description of the command group.
+            The description of the command group (supports [localisation][]).
+
+            This should be inclusively between 1-100 characters in length.
         default_member_permissions
             Member permissions necessary to utilize this command by default.
 
@@ -1049,10 +1115,10 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         super().__init__(
             name,
             description,
@@ -1072,7 +1138,13 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         self, *, component: typing.Optional[tanjun.Component] = None
     ) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        builder = _SlashCommandBuilder(self._name, self._description, False)
+        builder = _SlashCommandBuilder(
+            self._names.default_value,
+            self._names.localised_values,
+            self._descriptions.default_value,
+            self._descriptions.localised_values,
+            False,
+        )
 
         for command in self._commands.values():
             option_type = (
@@ -1085,7 +1157,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
                 hikari.CommandOption(
                     type=option_type,
                     name=command.name,
+                    name_localizations=command_builder.name_localizations,
                     description=command_builder.description,
+                    description_localizations=command_builder.description_localizations,
                     is_required=False,
                     options=command_builder.options,
                 )
@@ -1144,8 +1218,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
     def as_sub_command(
         self,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -1162,9 +1236,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         Parameters
         ----------
         name
-            The command's name.
+            The command's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
             The command's description.
             This should be inclusively between 1-100 characters in length.
@@ -1200,10 +1274,10 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """
+        """  # noqa: E501,D202
 
         def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
             return self.with_command(
@@ -1221,8 +1295,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
     def make_sub_group(
         self,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default_to_ephemeral: typing.Optional[bool] = None,
@@ -1236,9 +1310,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         Parameters
         ----------
         name
-            The name of the command group.
+            The name of the command group (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}$` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
             The description of the command group.
         default_to_ephemeral
@@ -1258,10 +1332,10 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self.with_command(slash_command_group(name, description, default_to_ephemeral=default_to_ephemeral))
 
     def remove_command(self: _SlashCommandGroupT, command: tanjun.BaseSlashCommand, /) -> _SlashCommandGroupT:
@@ -1377,8 +1451,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
     def __init__(
         self,
         callback: _CommandT[_CommandCallbackSigT],
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -1396,8 +1470,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
     def __init__(
         self,
         callback: _CommandCallbackSigT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -1414,8 +1488,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
     def __init__(
         self,
         callback: _CallbackishT[_CommandCallbackSigT],
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
@@ -1451,11 +1525,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             argument of type [tanjun.abc.SlashContext][], returns `None` and may use
             dependency injection to access other services.
         name
-            The command's name.
+            The command's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The command's description.
+            The command's description (supports [localisation][]).
+
             This should be inclusively between 1-100 characters in length.
         always_defer
             Whether the contexts this command is executed with should always be deferred
@@ -1493,10 +1568,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the command name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         super().__init__(
             name,
             description,
@@ -1510,7 +1585,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         self._always_defer = always_defer
         self._arg_names = _internal.get_kwargs(callback) if validate_arg_keys else None
-        self._builder = _SlashCommandBuilder(name, description, sort_options)
+        self._builder = _SlashCommandBuilder(
+            self.name, self.name_localisations, self.description, self.description_localisations, sort_options
+        )
         self._callback: _CommandCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None
         self._float_autocompletes: dict[str, tanjun.AutocompleteCallbackSig] = {}
@@ -1586,8 +1663,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def _add_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        names: localisation.MaybeLocalised,
+        descriptions: localisation.MaybeLocalised,
         type_: typing.Union[hikari.OptionType, int] = hikari.OptionType.STRING,
         /,
         *,
@@ -1608,8 +1685,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
     ) -> _SlashCommandT:
-        if len(description) > 100:
-            raise ValueError("The option description cannot be over 100 characters in length")
+        names.assert_length(1, 32).assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
+        descriptions.assert_length(1, 100)
 
         if len(self._builder.options) == 25:
             raise ValueError("Slash commands cannot have more than 25 options")
@@ -1623,8 +1700,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         _assert_in_range("min_length", min_length, 0, 6000)
         _assert_in_range("max_length", max_length, 1, 6000)
 
-        key = key or name
-        _validate_name(name)
+        key = key or names.default_value
         if self._arg_names is not None and key not in self._arg_names:
             raise ValueError(f"{key!r} is not a valid keyword argument for {self._callback}")
 
@@ -1638,7 +1714,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         if self._client:
             for converter in converters:
                 if isinstance(converter, conversion.BaseConverter):
-                    converter.check_client(self._client, f"{self._name}'s slash option '{name}'")
+                    converter.check_client(
+                        self._client, f"{self._names.default_value}'s slash option '{names.default_value}'"
+                    )
 
         if choices is None:
             actual_choices: typing.Optional[list[hikari.CommandChoice]] = None
@@ -1662,8 +1740,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         self._builder.add_option(
             hikari.CommandOption(
                 type=type_,
-                name=name,
-                description=description,
+                name=names.default_value,
+                name_localizations=names.localised_values,
+                description=descriptions.default_value,
+                description_localizations=descriptions.localised_values,
                 is_required=required,
                 choices=actual_choices,
                 channel_types=channel_types,
@@ -1675,8 +1755,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             )
         )
         if pass_as_kwarg:
-            self._tracked_options[name] = _TrackedOption(
-                name=name,
+            self._tracked_options[names.default_value] = _TrackedOption(
+                name=names.default_value,
                 option_type=type_,
                 always_float=always_float,
                 converters=converters,
@@ -1688,8 +1768,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def add_attachment_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -1704,16 +1784,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
-
-        Other Parameters
-        ----------------
         default
             The option's default value.
 
@@ -1741,16 +1818,16 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            name,
-            description,
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
             hikari.OptionType.ATTACHMENT,
             default=default,
             key=key,
@@ -1759,8 +1836,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def add_str_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
@@ -1783,11 +1860,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         autocomplete
@@ -1848,7 +1925,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
@@ -1858,7 +1935,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `min_length` is greater than `max_length`.
             * If `min_length` is less than `0` or greater than `6000`.
             * If `max_length` is less than `1` or greater than `6000`.
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         if choices is None:
             actual_choices = None
 
@@ -1884,9 +1961,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
                 else:
                     actual_choices[choice.capitalize()] = choice
 
+        names = localisation.MaybeLocalised("name", name)
+        descriptions = localisation.MaybeLocalised("description", description)
         self._add_option(
-            name,
-            description,
+            names,
+            descriptions,
             hikari.OptionType.STRING,
             autocomplete=autocomplete is not None,
             choices=actual_choices,
@@ -1899,14 +1978,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
         if autocomplete:
-            self._str_autocompletes[name] = autocomplete
+            self._str_autocompletes[names.default_value] = autocomplete
 
         return self
 
     def add_int_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
@@ -1924,11 +2003,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         autocomplete
@@ -1982,7 +2061,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
@@ -1990,10 +2069,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `min_value` is greater than `max_value`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        names = localisation.MaybeLocalised("name", name)
+        descriptions = localisation.MaybeLocalised("description", description)
         self._add_option(
-            name,
-            description,
+            names,
+            descriptions,
             hikari.OptionType.INTEGER,
             autocomplete=autocomplete is not None,
             choices=choices,
@@ -2007,14 +2088,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
         if autocomplete:
-            self._int_autocompletes[name] = autocomplete
+            self._int_autocompletes[names.default_value] = autocomplete
 
         return self
 
     def add_float_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_float: bool = True,
@@ -2033,11 +2114,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         always_float
@@ -2097,7 +2178,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
@@ -2105,10 +2186,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `min_value` is greater than `max_value`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        names = localisation.MaybeLocalised("name", name)
+        descriptions = localisation.MaybeLocalised("description", description)
         self._add_option(
-            name,
-            description,
+            names,
+            descriptions,
             hikari.OptionType.FLOAT,
             autocomplete=autocomplete is not None,
             choices=choices,
@@ -2123,14 +2206,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         )
 
         if autocomplete:
-            self._float_autocompletes[name] = autocomplete
+            self._float_autocompletes[names.default_value] = autocomplete
 
         return self
 
     def add_bool_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2142,11 +2225,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2175,21 +2258,26 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            name, description, hikari.OptionType.BOOLEAN, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
+            hikari.OptionType.BOOLEAN,
+            default=default,
+            key=key,
+            pass_as_kwarg=pass_as_kwarg,
         )
 
     def add_user_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2206,11 +2294,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2239,22 +2327,27 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the option has more than 25 choices.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            name, description, hikari.OptionType.USER, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
+            hikari.OptionType.USER,
+            default=default,
+            key=key,
+            pass_as_kwarg=pass_as_kwarg,
         )
 
     def add_member_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2275,11 +2368,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2302,19 +2395,26 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
-        return self._add_option(name, description, hikari.OptionType.USER, default=default, key=key, only_member=True)
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        return self._add_option(
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
+            hikari.OptionType.USER,
+            default=default,
+            key=key,
+            only_member=True,
+        )
 
     def add_channel_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2331,11 +2431,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2368,14 +2468,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If an invalid type is passed in `types`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         if types:
             try:
                 types_iter = itertools.chain.from_iterable(
@@ -2390,8 +2490,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             channel_types = None
 
         return self._add_option(
-            name,
-            description,
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
             hikari.OptionType.CHANNEL,
             channel_types=channel_types,
             default=default,
@@ -2401,8 +2501,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def add_role_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2414,11 +2514,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2447,21 +2547,26 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            name, description, hikari.OptionType.ROLE, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
+            hikari.OptionType.ROLE,
+            default=default,
+            key=key,
+            pass_as_kwarg=pass_as_kwarg,
         )
 
     def add_mentionable_option(
         self: _SlashCommandT,
-        name: str,
-        description: str,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         default: typing.Any = UNDEFINED_DEFAULT,
@@ -2477,11 +2582,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         Parameters
         ----------
         name
-            The option's name.
+            The option's name (supports [localisation][]).
 
-            This must match the regex `^[\w-]{1,32}` in Unicode mode and be lowercase.
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
         description
-            The option's description.
+            The option's description (supports [localisation][]).
 
             This should be inclusively between 1-100 characters in length.
         default
@@ -2510,15 +2615,20 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ValueError
             Raises a value error for any of the following reasons:
 
-            * If the option name doesn't match the regex `^[\w-]{1,32}$` (Unicode mode).
+            * If the option name doesn't fit Discord's requirements.
             * If the option name has uppercase characters.
             * If the option description is over 100 characters in length.
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """
+        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
         return self._add_option(
-            name, description, hikari.OptionType.MENTIONABLE, default=default, key=key, pass_as_kwarg=pass_as_kwarg
+            localisation.MaybeLocalised("name", name),
+            localisation.MaybeLocalised("description", description),
+            hikari.OptionType.MENTIONABLE,
+            default=default,
+            key=key,
+            pass_as_kwarg=pass_as_kwarg,
         )
 
     def set_float_autocomplete(
@@ -2530,6 +2640,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ----------
         name
             The option's name.
+
+            If localised names were provided for the option then this should
+            be the default name.
         callback
             The autocomplete callback for the option.
 
@@ -2580,6 +2693,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         name
             The option's name.
 
+            If localised names were provided for the option then this should
+            be the default name.
+
         Returns
         -------
         Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
@@ -2612,6 +2728,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ----------
         name
             The option's name.
+
+            If localised names were provided for the option then this should
+            be the default name.
         callback
             The autocomplete callback for the option.
 
@@ -2656,6 +2775,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         name
             The option's name.
 
+            If localised names were provided for the option then this should
+            be the default name.
+
         Returns
         -------
         Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
@@ -2688,6 +2810,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ----------
         name
             The option's name.
+
+            If localised names were provided for the option then this should
+            be the default name.
         callback
             The autocomplete callback for the option.
 
@@ -2731,6 +2856,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         ----------
         name
             The option's name.
+
+            If localised names were provided for the option then this should
+            be the default name.
 
         Returns
         -------

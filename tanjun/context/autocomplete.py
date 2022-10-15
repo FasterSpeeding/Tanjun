@@ -55,7 +55,7 @@ if typing.TYPE_CHECKING:
 class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     """Standard implementation of an autocomplete context."""
 
-    __slots__ = ("_client", "_focused", "_future", "_has_responded", "_interaction", "_options")
+    __slots__ = ("_client", "_command_name", "_focused", "_future", "_has_responded", "_interaction", "_options")
 
     def __init__(
         self,
@@ -84,12 +84,14 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
 
         focused: typing.Optional[hikari.AutocompleteInteractionOption] = None
         self._options: dict[str, hikari.AutocompleteInteractionOption] = {}
-        for option in _internal.flatten_options(interaction.options):
+        command_name, options = _internal.flatten_options(interaction.command_name, interaction.options)
+        for option in options:
             self._options[option.name] = option
             if option.is_focused:
                 focused = self._options[option.name]
 
         assert focused is not None
+        self._command_name = command_name
         self._focused = focused
         self._set_type_special_case(AutocompleteContext, self)._set_type_special_case(tanjun.AutocompleteContext, self)
 
@@ -112,6 +114,11 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._client
+
+    @property
+    def triggering_name(self) -> str:
+        # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
+        return self._command_name
 
     @property
     def created_at(self) -> datetime.datetime:

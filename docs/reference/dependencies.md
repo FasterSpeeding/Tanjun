@@ -18,6 +18,10 @@ Default dependency utilities used within Tanjun and their abstract interfaces.
     rendering:
         show_root_heading: true
 
+::: tanjun.dependencies.locales
+    rendering:
+        show_root_heading: true
+
 ::: tanjun.dependencies.owners
     rendering:
         show_root_heading: true
