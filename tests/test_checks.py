@@ -182,7 +182,7 @@ class TestOwnerCheck:
             error_message={hikari.Locale.EN_GB: "aye", hikari.Locale.HR: "eepers", hikari.Locale.JA: "yeet"}
         )
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "MESSAGE:eepers creepers:check:tanjun.OwnerCheck", {hikari.Locale.DE: "oop", hikari.Locale.JA: "nyaa"}
+            "message_menu:eepers creepers:check:tanjun.OwnerCheck", {hikari.Locale.DE: "oop", hikari.Locale.JA: "nyaa"}
         )
 
         with pytest.raises(tanjun.errors.CommandError, match="nyaa"):
@@ -207,7 +207,7 @@ class TestOwnerCheck:
         localiser = (
             tanjun.dependencies.BasicLocaliser()
             .set_variants(
-                "MESSAGE:eepers creepers:check:tanjun.OwnerCheck",
+                "message_menu:eepers creepers:check:tanjun.OwnerCheck",
                 {hikari.Locale.DE: "oop", hikari.Locale.JA: "nyaa"},
             )
             .set_variants(
@@ -235,7 +235,7 @@ class TestOwnerCheck:
             }
         )
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "MESSAGE:eepers creepers:check:tanjun.OwnerCheck", {hikari.Locale.DE: "oop", hikari.Locale.JA: "nyaa"}
+            "message_menu:eepers creepers:check:tanjun.OwnerCheck", {hikari.Locale.DE: "oop", hikari.Locale.JA: "nyaa"}
         )
 
         with pytest.raises(tanjun.errors.CommandError, match="defo"):
@@ -481,7 +481,7 @@ class TestNsfwCheck:
             }
         )
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "USER:meow meow:check:tanjun.NsfwCheck",
+            "user_menu:meow meow:check:tanjun.NsfwCheck",
             {hikari.Locale.CS: "n", hikari.Locale.EN_GB: "override", hikari.Locale.FI: "i'm finished"},
         )
 
@@ -510,7 +510,7 @@ class TestNsfwCheck:
         localiser = (
             tanjun.dependencies.BasicLocaliser()
             .set_variants(
-                "USER:meow meow:check:tanjun.NsfwCheck",
+                "user_menu:meow meow:check:tanjun.NsfwCheck",
                 {hikari.Locale.CS: "n", hikari.Locale.EN_GB: "override", hikari.Locale.FI: "i'm finished"},
             )
             .set_variants("cthulhu calls", {hikari.Locale.EN_GB: "wowzer Fred, I'm gay", hikari.Locale.CS: "meow"})
@@ -540,7 +540,7 @@ class TestNsfwCheck:
         localiser = (
             tanjun.dependencies.BasicLocaliser()
             .set_variants(
-                "USER:meow meow:check:tanjun.NsfwCheck",
+                "user_menu:meow meow:check:tanjun.NsfwCheck",
                 {hikari.Locale.CS: "n", hikari.Locale.EN_GB: "override", hikari.Locale.FI: "i'm finished"},
             )
             .set_variants("cthulhu calls", {hikari.Locale.EN_GB: "wowzer Fred, I'm gay", hikari.Locale.CS: "meow"})
@@ -775,7 +775,7 @@ class TestSfwCheck:
             error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
         )
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "USER:oh no girl:check:tanjun.SfwCheck", {hikari.Locale.DA: "real value", hikari.Locale.BG: "op"}
+            "user_menu:oh no girl:check:tanjun.SfwCheck", {hikari.Locale.DA: "real value", hikari.Locale.BG: "op"}
         )
 
         with pytest.raises(tanjun.errors.CommandError, match="real value"):
@@ -803,7 +803,7 @@ class TestSfwCheck:
         localiser = (
             tanjun.dependencies.BasicLocaliser()
             .set_variants(
-                "USER:oh no girl:check:tanjun.SfwCheck",
+                "user_menu:oh no girl:check:tanjun.SfwCheck",
                 {
                     hikari.Locale.EN_GB: "You can sail the seven seas and find",
                     hikari.Locale.EN_US: "Love is a place you'll never see",
@@ -843,7 +843,7 @@ class TestSfwCheck:
         localiser = (
             tanjun.dependencies.BasicLocaliser()
             .set_variants(
-                "USER:oh no girl:check:tanjun.SfwCheck",
+                "user_menu:oh no girl:check:tanjun.SfwCheck",
                 {
                     hikari.Locale.EN_GB: "You can sail the seven seas and find",
                     hikari.Locale.EN_US: "Love is a place you'll never see",
@@ -983,7 +983,7 @@ class TestDmCheck:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.EN_GB
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "SLASH:girl girl:check:tanjun.DmCheck",
+            "slash:girl girl:check:tanjun.DmCheck",
             {hikari.Locale.DE: "beer girl", hikari.Locale.EN_GB: "me girl", hikari.Locale.JA: "anime girl"},
         )
 
@@ -1005,7 +1005,7 @@ class TestDmCheck:
         localiser = (
             tanjun.dependencies.BasicLocaliser()
             .set_variants(
-                "SLASH:girl girl:check:tanjun.DmCheck",
+                "slash:girl girl:check:tanjun.DmCheck",
                 {hikari.Locale.DE: "beer girl", hikari.Locale.EN_GB: "me girl", hikari.Locale.JA: "anime girl"},
             )
             .set_variants(
@@ -1029,7 +1029,7 @@ class TestDmCheck:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.ZH_TW
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "SLASH:girl girl:check:tanjun.DmCheck",
+            "slash:girl girl:check:tanjun.DmCheck",
             {hikari.Locale.DE: "beer girl", hikari.Locale.EN_GB: "me girl", hikari.Locale.JA: "anime girl"},
         )
 
@@ -1142,7 +1142,7 @@ class TestGuildCheck:
         mock_context.type = hikari.CommandType.MESSAGE
         mock_context.interaction.locale = hikari.Locale.EN_GB
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "MESSAGE:blue shark uwu:check:tanjun.GuildCheck",
+            "message_menu:blue shark uwu:check:tanjun.GuildCheck",
             {hikari.Locale.BG: "background", hikari.Locale.EN_GB: "Please uwu me"},
         )
 
@@ -1165,7 +1165,7 @@ class TestGuildCheck:
         localiser = (
             tanjun.dependencies.BasicLocaliser()
             .set_variants(
-                "MESSAGE:blue shark uwu:check:tanjun.GuildCheck",
+                "message_menu:blue shark uwu:check:tanjun.GuildCheck",
                 {hikari.Locale.BG: "background", hikari.Locale.EN_GB: "Please uwu me"},
             )
             .set_variants("cabbage pfp", {hikari.Locale.EN_GB: "Blåhaj fan 69"})
@@ -1187,7 +1187,7 @@ class TestGuildCheck:
         mock_context.type = hikari.CommandType.MESSAGE
         mock_context.interaction.locale = hikari.Locale.EN_GB
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "MESSAGE:blue shark uwu:check:tanjun.GuildCheck",
+            "message_menu:blue shark uwu:check:tanjun.GuildCheck",
             {hikari.Locale.BG: "background", hikari.Locale.EN_GB: "Please uwu me"},
         )
 
@@ -1539,7 +1539,7 @@ class TestAuthorPermissionCheck:
             error_message={hikari.Locale.EN_GB: "Feet are not", hikari.Locale.EN_US: "ok", hikari.Locale.JA: "STOP"},
         )
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "USER:rawr xd:check:tanjun.AuthorPermissionCheck",
+            "user_menu:rawr xd:check:tanjun.AuthorPermissionCheck",
             {hikari.Locale.DA: "das is good", hikari.Locale.JA: "meowers"},
         )
 
@@ -1569,7 +1569,7 @@ class TestAuthorPermissionCheck:
         localiser = (
             tanjun.dependencies.BasicLocaliser()
             .set_variants(
-                "USER:rawr xd:check:tanjun.AuthorPermissionCheck",
+                "user_menu:rawr xd:check:tanjun.AuthorPermissionCheck",
                 {hikari.Locale.DA: "das is good", hikari.Locale.EN_GB: "meowers"},
             )
             .set_variants("cool id nyaa", {hikari.Locale.JA: "meow", hikari.Locale.CS: "echo"})
@@ -1602,7 +1602,7 @@ class TestAuthorPermissionCheck:
         localiser = (
             tanjun.dependencies.BasicLocaliser()
             .set_variants(
-                "USER:rawr xd:check:tanjun.AuthorPermissionCheck",
+                "user_menu:rawr xd:check:tanjun.AuthorPermissionCheck",
                 {hikari.Locale.DA: "das is good", hikari.Locale.EN_GB: "meowers"},
             )
             .set_variants("cool id nyaa", {hikari.Locale.EN_GB: "meow", hikari.Locale.DE: "echo"})
@@ -2374,7 +2374,7 @@ class TestOwnPermissionCheck:
             error_message={hikari.Locale.DE: "bees", hikari.Locale.EN_GB: "hip", hikari.Locale.EN_US: "to bee"},
         )
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "MESSAGE:meow command:check:tanjun.OwnPermissionCheck",
+            "message_menu:meow command:check:tanjun.OwnPermissionCheck",
             {hikari.Locale.EN_GB: "no", hikari.Locale.EN_US: "girls"},
         )
 
@@ -2411,7 +2411,7 @@ class TestOwnPermissionCheck:
         localiser = (
             tanjun.dependencies.BasicLocaliser()
             .set_variants(
-                "MESSAGE:meow command:check:tanjun.OwnPermissionCheck",
+                "message_menu:meow command:check:tanjun.OwnPermissionCheck",
                 {hikari.Locale.EN_GB: "no", hikari.Locale.EN_US: "girls"},
             )
             .set_variants("yuri", {hikari.Locale.EN_US: "uwu owo"})
@@ -2448,7 +2448,7 @@ class TestOwnPermissionCheck:
             },
         )
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "MESSAGE:meow command:check:tanjun.OwnPermissionCheck",
+            "message_menu:meow command:check:tanjun.OwnPermissionCheck",
             {hikari.Locale.EN_GB: "no", hikari.Locale.EN_US: "girls"},
         )
 
@@ -3621,7 +3621,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser():
         error_message={hikari.Locale.CS: "meow", hikari.Locale.DA: "op", hikari.Locale.EN_GB: "oooooooh"},
     )
     localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-        "SLASH:catgirl bot:check:tanjun.any_check", {hikari.Locale.EN_GB: "Bark bark", hikari.Locale.DA: "germany"}
+        "slash:catgirl bot:check:tanjun.any_check", {hikari.Locale.EN_GB: "Bark bark", hikari.Locale.DA: "germany"}
     )
 
     with pytest.raises(tanjun.CommandError, match="Bark bark"):
@@ -3659,7 +3659,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_i
     localiser = (
         tanjun.dependencies.BasicLocaliser()
         .set_variants(
-            "SLASH:catgirl bot:check:tanjun.any_check", {hikari.Locale.EN_GB: "Bark bark", hikari.Locale.DA: "germany"}
+            "slash:catgirl bot:check:tanjun.any_check", {hikari.Locale.EN_GB: "Bark bark", hikari.Locale.DA: "germany"}
         )
         .set_variants("meme girl", {hikari.Locale.FI: "finish", hikari.Locale.EN_GB: "useless token"})
     )
@@ -3697,7 +3697,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser_defaults():
         },
     )
     localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-        "SLASH:catgirl bot:check:tanjun.any_check", {hikari.Locale.EN_GB: "Bark bark", hikari.Locale.DA: "germany"}
+        "slash:catgirl bot:check:tanjun.any_check", {hikari.Locale.EN_GB: "Bark bark", hikari.Locale.DA: "germany"}
     )
 
     with pytest.raises(tanjun.CommandError, match="i'm finished finally"):

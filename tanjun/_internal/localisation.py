@@ -201,10 +201,11 @@ class MaybeLocalised:
         return self
 
 
-_TYPE_TO_STR: dict[hikari.CommandType, typing.Literal["USER", "SLASH", "MESSAGE"]] = {
-    hikari.CommandType.USER: "USER",
-    hikari.CommandType.SLASH: "SLASH",
-    hikari.CommandType.MESSAGE: "MESSAGE",
+_CommandTypes = typing.Literal["message_menu", "slash", "user_menu"]
+_TYPE_TO_STR: dict[hikari.CommandType, _CommandTypes] = {
+    hikari.CommandType.MESSAGE: "message_menu",
+    hikari.CommandType.SLASH: "slash",
+    hikari.CommandType.USER: "user_menu",
 }
 _NamedFields = typing.Literal["check", "option.description", "option.name"]
 _UnnamedFields = typing.Literal["description", "name"]
@@ -213,7 +214,7 @@ _FieldType = typing.Union[_NamedFields, _UnnamedFields]
 
 @typing.overload
 def to_localise_id(
-    command_type: typing.Literal["SLASH", "USER", "MESSAGE"],
+    command_type: _CommandTypes,
     command_name: str,
     field_type: _NamedFields,
     field_name: str,
@@ -224,7 +225,7 @@ def to_localise_id(
 
 @typing.overload
 def to_localise_id(
-    command_type: typing.Literal["SLASH", "USER", "MESSAGE"],
+    command_type: _CommandTypes,
     command_name: str,
     field_type: _UnnamedFields,
     field_name: typing.Literal[None] = None,
@@ -234,7 +235,7 @@ def to_localise_id(
 
 
 def to_localise_id(
-    command_type: typing.Literal["SLASH", "USER", "MESSAGE"],
+    command_type: _CommandTypes,
     command_name: str,
     field_type: _FieldType,
     field_name: typing.Optional[str] = None,
@@ -301,13 +302,13 @@ def _localise_slash_option(
 ) -> None:
     if option.type in _internal.SUB_COMMAND_OPTION_TYPES:
         name = f"{name} {option.name}"
-        name_variants = localiser.get_all_variants(to_localise_id("SLASH", name, "name"))
-        description_variants = localiser.get_all_variants(to_localise_id("SLASH", name, "description"))
+        name_variants = localiser.get_all_variants(to_localise_id("slash", name, "name"))
+        description_variants = localiser.get_all_variants(to_localise_id("slash", name, "description"))
 
     else:
-        name_variants = localiser.get_all_variants(to_localise_id("SLASH", name, "option.name", option.name))
+        name_variants = localiser.get_all_variants(to_localise_id("slash", name, "option.name", option.name))
         description_variants = localiser.get_all_variants(
-            to_localise_id("SLASH", name, "option.description", option.name)
+            to_localise_id("slash", name, "option.description", option.name)
         )
 
     option.name_localizations = dict(option.name_localizations)
