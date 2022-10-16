@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.5.2">
+      <meta name="generator" content="mkdocs-1.4.0, mkdocs-material-8.5.6">
     
     
       
@@ -17,7 +17,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.9f9400aa.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.20d9efc8.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
@@ -500,6 +500,40 @@
           <li class="md-nav__item">
   <a href="#cooldowns" class="md-nav__link">
     Cooldowns
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#localisation" class="md-nav__link">
+    Localisation
+  </a>
+  
+    <nav class="md-nav" aria-label="Localisation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#localising-command-declarations" class="md-nav__link">
+    Localising command declarations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client-localiser" class="md-nav__link">
+    Client localiser
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#localising-command-responses" class="md-nav__link">
+    Localising command responses
   </a>
   
 </li>
@@ -997,6 +1031,40 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#localisation" class="md-nav__link">
+    Localisation
+  </a>
+  
+    <nav class="md-nav" aria-label="Localisation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#localising-command-declarations" class="md-nav__link">
+    Localising command declarations
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#client-localiser" class="md-nav__link">
+    Client localiser
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#localising-command-responses" class="md-nav__link">
+    Localising command responses
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1029,8 +1097,8 @@ you'll want to link it to a Hikari bot.</p>
 </code></pre></div>
 <p>Here a Tanjun client is linked to a gateway bot instance to enable both
 message and application command execution.</p>
-<p>There's no need to directly start or stop the Tanjun client it'll be managed by
-lifetime events by default.</p>
+<p>There's no need to directly start or stop the Tanjun client as it'll be managed
+by lifetime events (unless <code>event_managed=False</code> is passed).</p>
 <p><code>declare_global_commands=True</code> instructs the client to declare the bot's slash
 commands and context menus on startup and <code>mention_prefix=True</code> allows the
 bot's message commands to be triggered by starting a command call with <code>@bot</code>.</p>
@@ -1042,10 +1110,10 @@ bot's message commands to be triggered by starting a command call with <code>@bo
     <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 </code></pre></div>
-<p>And here a Tanjun client is linked to a rest server bot instance to enable
+<p>And here a Tanjun client is linked to a REST server bot instance to enable
 application command execution.</p>
 <p>Since Hikari's RESTBot doesn't have lifetime events, we have to startup and
-close Tanjun's client around the rest bot ourselves. The bot should always be
+close Tanjun's client around the REST bot ourselves. The bot should always be
 started before Tanjun.</p>
 <h3 id="client-lifetime-management">Client lifetime management<a class="headerlink" href="#client-lifetime-management" title="Permanent link">#</a></h3>
 <p>While Hikari's bots provide systems for stating and stopping sub-components,
@@ -1301,13 +1369,13 @@ While this feature is cross-compatible, there is one key difference: a
 description must be included for options when annotating for a slash command,
 which is done by passing a string value to <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#typing.Annotated">typing.Annotated</a> (as shown
 above).</p>
-<p>The special generic types offered in [tanjun.annotations] like
-<a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Ranged">Ranged</a> and <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Converted">Converted</a>
+<p>The special generic types offered in [tanjun.annotations] (e.g
+<a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Ranged">Ranged</a> and <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Converted">Converted</a>)
 return a <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#typing.Annotated">typing.Annotated</a> instance from their generic calls and can also be
-passed as arguments to Annotated like <code>Annotated[Int, Ranged(13, 130)]</code> and
+passed as arguments to Annotated like <code>Annotated[Int, Ranged(13, 130)]</code>, and
 <code>Annotated[Str, Converted(get_video)]</code>.</p>
-<p>This example doesn't demonstrate every future of this and more information on
-how arguments are configured through annotations can be seen in
+<p>This example doesn't demonstrate every feature of this, and More information on
+how arguments are configured through annotations can be found in
 <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations">tanjun.annotations</a>.</p>
 <h3 id="wrapped-commands">Wrapped commands<a class="headerlink" href="#wrapped-commands" title="Permanent link">#</a></h3>
 <p>When creating multiple command types in a decorator call chain, standard
@@ -1612,7 +1680,7 @@ of commands concurrently.</p>
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 will manage the concurrency limits for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_bucket">Limiter.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to at most 2 concurrent executions per user,
@@ -1633,11 +1701,11 @@ linked limiter).</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_concurrency_limit">with_concurrency_limit</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_concurrency_limit">with_concurrency_limit</a>
 to mark these commands as using the <code>"main_commands"</code> concurrency limit bucket;
 buckets share their limits for a resource across all the commands under it. For
 more information on the resources concurrency can be limited by see
-<a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.BucketResource">BucketResource</a>.</p>
+<a class="autorefs autorefs-internal" href="../reference/#tanjun.BucketResource">BucketResource</a>.</p>
 <h3 id="cooldowns">Cooldowns<a class="headerlink" href="#cooldowns" title="Permanent link">#</a></h3>
 <p>Cooldowns limit how often a group of commands can be called.</p>
 <div class="highlight"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
@@ -1669,11 +1737,89 @@ only have 1 linked cooldown manager).</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_cooldown">with_cooldown</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_cooldown">with_cooldown</a>
 to mark these commands as using the <code>"main_commands"</code> cooldown bucket;
 buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
-<a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.BucketResource">BucketResource</a>.</p>
+<a class="autorefs autorefs-internal" href="../reference/#tanjun.BucketResource">BucketResource</a>.</p>
+<h2 id="localisation">Localisation<a class="headerlink" href="#localisation" title="Permanent link">#</a></h2>
+<p><a href="https://en.wikipedia.org/wiki/Language_localisation">Localisation</a> allows for
+tailoring the declarations and responses of slash commands and context menu
+commands to match specific regions through by providing multiple translations
+of a field. Localisation on Discord is limited to the locales Discord supports
+(listed at <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/locales.html#hikari.locales.Locale">hikari.locales.Locale</a>).</p>
+<h3 id="localising-command-declarations">Localising command declarations<a class="headerlink" href="#localising-command-declarations" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">({</span><span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">ES_US</span><span class="p">:</span> <span class="s2">&quot;Hola&quot;</span><span class="p">},</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>For fields which support localisation you've previously seen a single string
+being passed to them: this value is used as a default for all locales and for
+environments which don't support localisation (e.g. message command execution).
+But as shown above, you can also pass a dictionary of localised values to these
+fields.</p>
+<h3 id="client-localiser">Client localiser<a class="headerlink" href="#client-localiser" title="Permanent link">#</a></h3>
+<p>Tanjun also provides an optional global localiser which allows for
+setting/overriding the locale-specific variants used for localised fields such
+as error message responses and application fields globally.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+<span class="p">(</span>
+    <span class="n">tanjun</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">BasicLocaliser</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">set_overrides</span><span class="p">(</span>
+        <span class="s2">&quot;slash:command name:name&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_US</span><span class="p">:</span> <span class="s2">&quot;american variant&quot;</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_GB</span><span class="p">:</span> <span class="s2">&quot;english variant&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">set_overrides</span><span class="p">(</span>
+        <span class="s2">&quot;message_menu:command name:check:tanjun.OwnerCheck&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">JA</span><span class="p">:</span> <span class="s2">&quot;konnichiwa&quot;</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">ES_ES</span><span class="p">:</span> <span class="s2">&quot;Hola&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Specific fields may be overridden by their ID as shown above. There is no
+guaranteed format for field IDs but the standard implementations will always
+use the following formats unless explicitly overridden:</p>
+<ul>
+<li>Checks and limiters: <code>f"{command_type}:{command_name}:check:{check_name}"</code></li>
+<li>Command descriptions: <code>f"{command_type}:{command_name}:description"</code></li>
+<li>Command names: <code>f"{command_type}:{command_name}:name"</code></li>
+<li>Slash option names: <code>f"slash:{command_name}:option.name:{option_name}"</code></li>
+<li>Slash option descriptions: <code>f"slash:{command_name}:option.description:{option_name}"</code></li>
+</ul>
+<p><code>command_type</code> may be one of <code>"message_menu"</code>, <code>"slash"</code> or <code>"user_menu"</code>,
+and <code>command_name</code> will be the full name of the command (including parent
+command names in the path) and standard check names will always be
+prefixed with <code>"tanjun."</code>.</p>
+<p>It's highly recommended that 3rd party libraries match this format if possible.</p>
+<h3 id="localising-command-responses">Localising command responses<a class="headerlink" href="#localising-command-responses" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">LOCALISED_RESPONSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">DA</span><span class="p">:</span> <span class="s2">&quot;Hej&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">DE</span><span class="p">:</span> <span class="s2">&quot;Hallo&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_GB</span><span class="p">:</span> <span class="s2">&quot;Good day fellow sir&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_US</span><span class="p">:</span> <span class="s2">&quot;*shoots you*&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">ES_ES</span><span class="p">:</span> <span class="s2">&quot;Hola&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">FR</span><span class="p">:</span> <span class="s2">&quot;Bonjour, camarade baguette&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">PL</span><span class="p">:</span> <span class="s2">&quot;Musimy szerzyć gejostwo w Strefach wolnych od LGBT, musimy zrobić rajd gejowski&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">SV_SE</span><span class="p">:</span> <span class="s2">&quot;Hej, jag älskar min Blåhaj&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">VI</span><span class="p">:</span> <span class="s2">&quot;Xin chào, Cây nói tiếng Việt&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">TR</span><span class="p">:</span> <span class="s2">&quot;Merhaba&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">CS</span><span class="p">:</span> <span class="s2">&quot;Ahoj&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">ZH_CN</span><span class="p">:</span> <span class="s2">&quot;自由香港&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">JA</span><span class="p">:</span> <span class="s2">&quot;こんにちは、アニメの女の子だったらいいのに&quot;</span><span class="p">,</span>
+    <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">ZH_TW</span><span class="p">:</span> <span class="s2">&quot;让台湾自由&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">as_slash_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="n">LOCALISED_RESPONSES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">interaction</span><span class="o">.</span><span class="n">locale</span><span class="p">,</span> <span class="s2">&quot;hello&quot;</span><span class="p">))</span>
+</code></pre></div>
+<p><a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.AppCommandContext.interaction">tanjun.abc.AppCommandContext.interaction</a> (base class for both
+<a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.SlashContext">tanjun.abc.SlashContext</a> and <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.MenuContext">tanjun.abc.MenuContext</a>) both have the
+fields <code>guild_locale</code> and <code>locale</code> which provide the set locale of the guild
+and the user triggering the command respectively.
+This <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/locales.html#hikari.locales.Locale">locale</a> can be used to localise responses to
+specific languages within your own code.</p>
 <!-- # TODO: some day, document buildings commands using the flient interface -->
 
 
@@ -1748,10 +1894,10 @@ For more information on the resources cooldowns can be set for see
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.39f04ddb.min.js"></script>
+      <script src="../assets/javascripts/bundle.078830c0.min.js"></script>
       
     
   </body>

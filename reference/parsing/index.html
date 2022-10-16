@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.5.2">
+      <meta name="generator" content="mkdocs-1.4.0, mkdocs-material-8.5.6">
     
     
       
@@ -17,7 +17,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.9f9400aa.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.20d9efc8.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
@@ -726,8 +726,22 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.max_length" class="md-nav__link">
+    max_length()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tanjun.parsing.Parameter.max_value" class="md-nav__link">
     max_value()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.min_length" class="md-nav__link">
+    min_length()
   </a>
   
 </li>
@@ -1111,8 +1125,22 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.max_length" class="md-nav__link">
+    max_length()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tanjun.parsing.Parameter.max_value" class="md-nav__link">
     max_value()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.parsing.Parameter.min_length" class="md-nav__link">
+    min_length()
   </a>
   
 </li>
@@ -1392,7 +1420,7 @@
 
 
 <h3 id="tanjun.parsing.AbstractOptionParser.add_argument" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">add_argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
@@ -1484,9 +1512,45 @@ takes in the remaining argument values).</p>
           </td>
         </tr>
         <tr>
-          <td><code>max_value</code></td>
+          <td><code>min_length</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
+            <p>Assert that a string argument's length is greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>Assert that a string argument's length is less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are greater than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -1502,9 +1566,9 @@ with the result of them.</p>
           </td>
         </tr>
         <tr>
-          <td><code>min_value</code></td>
+          <td><code>max_value</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this argument are greater than or equal to this.</p>
+            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -1590,7 +1654,7 @@ to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-external"
 
 
 <h3 id="tanjun.parsing.AbstractOptionParser.add_option" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">add_option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
@@ -1704,9 +1768,45 @@ will error if it's provided without a value.</p>
           </td>
         </tr>
         <tr>
-          <td><code>max_value</code></td>
+          <td><code>min_length</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+            <p>Assert that a string argument's length is greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>Assert that a string argument's length is less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -1722,9 +1822,9 @@ with the result of them.</p>
           </td>
         </tr>
         <tr>
-          <td><code>min_value</code></td>
+          <td><code>max_value</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
+            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -1896,7 +1996,7 @@ to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-external"
 
 
 <h3 id="tanjun.parsing.Argument.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.parsing.Argument.__init__" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -1981,15 +2081,33 @@ takes in the remaining argument values).</p>
           </td>
         </tr>
         <tr>
-          <td><code>max_value</code></td>
+          <td><code>min_length</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+            <p>Assert that a string argument's length is greater than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>Assert that a string argument's length is less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -2017,23 +2135,27 @@ with the result of them.</p>
           </td>
         </tr>
         <tr>
-          <td><code>multi</code></td>
+          <td><code>max_value</code></td>
           <td class="doc-param-details">
-            <p>Whether this argument can be passed multiple times.</p>
+            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
-                    <code>False</code>
+                    <code>None</code>
                 </span>
             </p>
           </td>
         </tr>
     </tbody>
   </table>
+      <p>multi
+    Whether this argument can be passed multiple times.</p>
 
   </div>
 
@@ -2112,7 +2234,7 @@ string (with converters also being passed the whole string).</p>
 
 
 <h3 id="tanjun.parsing.Option.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 <a href="#tanjun.parsing.Option.__init__" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -2226,15 +2348,33 @@ will error if it's provided without a value.</p>
           </td>
         </tr>
         <tr>
-          <td><code>max_value</code></td>
+          <td><code>min_length</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+            <p>Assert that a string argument's length is greater than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>Assert that a string argument's length is less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -2262,23 +2402,27 @@ with the result of them.</p>
           </td>
         </tr>
         <tr>
-          <td><code>multi</code></td>
+          <td><code>max_value</code></td>
           <td class="doc-param-details">
-            <p>If this option can be provided multiple times.</p>
+            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
-                    <code>True</code>
+                    <code>None</code>
                 </span>
             </p>
           </td>
         </tr>
     </tbody>
   </table>
+      <p>multi
+    If this option can be provided multiple times.</p>
 
   </div>
 
@@ -2373,7 +2517,7 @@ required for the option.</p>
 
 
 <h3 id="tanjun.parsing.Parameter.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.parsing.Parameter.__init__" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -2543,6 +2687,30 @@ this parameter (with each entry being converted separately.)</p>
 
 
 
+<h3 id="tanjun.parsing.Parameter.max_length" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">max_length</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.parsing.Parameter.max_length" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>If set, this parameters's parsed values will have to have lengths less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible with the
+result of them.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
 <h3 id="tanjun.parsing.Parameter.max_value" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">max_value</span><span class="p">()</span></code>
   
@@ -2556,6 +2724,30 @@ this parameter (with each entry being converted separately.)</p>
   <div class="doc doc-contents ">
   
       <p>If set, this parameters's parsed values will have to be less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible with the
+result of them.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.parsing.Parameter.min_length" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">min_length</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.parsing.Parameter.min_length" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>If set, this parameters's parsed values will have to have lengths greater than or equal to this.</p>
 <p>If any converters are provided then this should be compatible with the
 result of them.</p>
 
@@ -2697,7 +2889,7 @@ result of them.</p>
 
 
 <h2 id="tanjun.parsing.with_argument" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.parsing.with_argument" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -2804,15 +2996,33 @@ takes in the remaining argument values).</p>
           </td>
         </tr>
         <tr>
-          <td><code>max_value</code></td>
+          <td><code>min_length</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
+            <p>Assert that a string argument's length is greater than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>Assert that a string argument's length is less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -2840,23 +3050,27 @@ with the result of them.</p>
           </td>
         </tr>
         <tr>
-          <td><code>multi</code></td>
+          <td><code>max_value</code></td>
           <td class="doc-param-details">
-            <p>Whether this argument can be passed multiple times.</p>
+            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanjun.parsing._CmpProto">_CmpProto</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
-                    <code>False</code>
+                    <code>None</code>
                 </span>
             </p>
           </td>
         </tr>
     </tbody>
   </table>
+      <p>multi
+    Whether this argument can be passed multiple times.</p>
 
   <table>
     <thead>
@@ -2910,7 +3124,7 @@ linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-ex
 
 
 <h2 id="tanjun.parsing.with_greedy_argument" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_greedy_argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_greedy_argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#tanjun.parsing.with_greedy_argument" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -2990,7 +3204,10 @@ during parsing.</p>
           <td><code>default</code></td>
           <td class="doc-param-details">
             <p>The default value of this argument, if left as
-<a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this will have no default.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.parsing.UNDEFINED">UNDEFINED</a> then this will have no default.
+Assert that a string argument's length is greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -3004,9 +3221,45 @@ during parsing.</p>
           </td>
         </tr>
         <tr>
-          <td><code>max_value</code></td>
+          <td><code>min_length</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
+            <p>Assert that a string argument's length is greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>Assert that a string argument's length is less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are greater than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -3022,9 +3275,9 @@ with the result of them.</p>
           </td>
         </tr>
         <tr>
-          <td><code>min_value</code></td>
+          <td><code>max_value</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this argument are greater than or equal to this.</p>
+            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -3094,7 +3347,7 @@ linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-ex
 
 
 <h2 id="tanjun.parsing.with_multi_argument" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_multi_argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_multi_argument</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#tanjun.parsing.with_multi_argument" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -3189,9 +3442,45 @@ during parsing.</p>
           </td>
         </tr>
         <tr>
-          <td><code>max_value</code></td>
+          <td><code>min_length</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
+            <p>Assert that a string argument's length is greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>Assert that a string argument's length is less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this argument are greater than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -3207,9 +3496,9 @@ with the result of them.</p>
           </td>
         </tr>
         <tr>
-          <td><code>min_value</code></td>
+          <td><code>max_value</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this argument are greater than or equal to this.</p>
+            <p>Assert that the parsed value(s) for this argument are less than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -3279,7 +3568,7 @@ linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-ex
 
 
 <h2 id="tanjun.parsing.with_multi_option" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_multi_option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_multi_option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 <a href="#tanjun.parsing.with_multi_option" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -3409,9 +3698,45 @@ it's provided without a value.</p>
           </td>
         </tr>
         <tr>
-          <td><code>max_value</code></td>
+          <td><code>min_length</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+            <p>Assert that a string argument's length is greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>Assert that a string argument's length is less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -3427,9 +3752,9 @@ with the result of them.</p>
           </td>
         </tr>
         <tr>
-          <td><code>min_value</code></td>
+          <td><code>max_value</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
+            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -3499,7 +3824,7 @@ linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-ex
 
 
 <h2 id="tanjun.parsing.with_option" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 <a href="#tanjun.parsing.with_option" class="headerlink" title="Permanent link">#</a></h2>
 
@@ -3625,9 +3950,45 @@ it's provided without a value.</p>
           </td>
         </tr>
         <tr>
-          <td><code>max_value</code></td>
+          <td><code>min_length</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
+            <p>Assert that a string argument's length is greater than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>Assert that a string argument's length is less than or equal to this.</p>
+<p>If any converters are provided then this should be compatible
+with the result of them.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>min_value</code></td>
+          <td class="doc-param-details">
+            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -3643,9 +4004,9 @@ with the result of them.</p>
           </td>
         </tr>
         <tr>
-          <td><code>min_value</code></td>
+          <td><code>max_value</code></td>
           <td class="doc-param-details">
-            <p>Assert that the parsed value(s) for this option are greater than or equal to this.</p>
+            <p>Assert that the parsed value(s) for this option are less than or equal to this.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -3896,10 +4257,10 @@ linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-ex
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.39f04ddb.min.js"></script>
+      <script src="../../assets/javascripts/bundle.078830c0.min.js"></script>
       
     
   </body>

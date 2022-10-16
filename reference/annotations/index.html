@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.5.2">
+      <meta name="generator" content="mkdocs-1.4.0, mkdocs-material-8.5.6">
     
     
       
@@ -17,7 +17,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.9f9400aa.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.20d9efc8.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
@@ -615,6 +615,40 @@
   <a href="#tanjun.annotations.Greedy" class="md-nav__link">
     Greedy
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.annotations.Length" class="md-nav__link">
+    Length
+  </a>
+  
+    <nav class="md-nav" aria-label="Length">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.annotations.Length.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.annotations.Length.max_length" class="md-nav__link">
+    max_length()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.annotations.Length.min_length" class="md-nav__link">
+    min_length()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1279,6 +1313,40 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tanjun.annotations.Length" class="md-nav__link">
+    Length
+  </a>
+  
+    <nav class="md-nav" aria-label="Length">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.annotations.Length.__init__" class="md-nav__link">
+    __init__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.annotations.Length.max_length" class="md-nav__link">
+    max_length()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.annotations.Length.min_length" class="md-nav__link">
+    min_length()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tanjun.annotations.Max" class="md-nav__link">
     Max
   </a>
@@ -1845,11 +1913,11 @@ valid for string, integer and float options.</p>
 </div>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;beep&quot;</span><span class="p">,</span> <span class="s2">&quot;meow&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="n">location</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="s2">&quot;where do you live?&quot;</span><span class="p">,</span> <span class="n">Choices</span><span class="p">(</span><span class="s2">&quot;London&quot;</span><span class="p">,</span> <span class="s2">&quot;Paradise&quot;</span><span class="p">,</span> <span class="s2">&quot;Nowhere&quot;</span><span class="p">)],</span>
+    <span class="n">location</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="s2">&quot;where do you live?&quot;</span><span class="p">,</span> <span class="n">Choices</span><span class="p">(</span><span class="s2">&quot;London&quot;</span><span class="p">,</span> <span class="s2">&quot;Paradise&quot;</span><span class="p">,</span> <span class="s2">&quot;Nowhere&quot;</span><span class="p">)],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
@@ -1976,14 +2044,15 @@ of <code>tuple[name, value]</code> or a sequence of choice values.</p>
         Bases: <code><span title="tanjun.annotations._ConfigIdentifier">_ConfigIdentifier</span></code></p>
 
   
-      <p>Marked an argument as type <a class="autorefs autorefs-internal" href="#tanjun.annotations.Str">tanjun.annotations.Str</a> with converters.</p>
+      <p>Marked an argument as type <a class="autorefs autorefs-internal" href="#tanjun.annotations.Str">Str</a> with converters.</p>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;beep&quot;</span><span class="p">,</span> <span class="s2">&quot;boop&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-    <span class="n">value</span><span class="p">:</span> <span class="n">Converted</span><span class="p">[</span><span class="n">callback</span><span class="p">,</span> <span class="n">other_callback</span><span class="p">],</span>
+    <span class="n">argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">other_callback</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
+    <span class="n">other_argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Converted</span><span class="p">[</span><span class="n">callback</span><span class="p">,</span> <span class="n">other_callback</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div>
 
@@ -2111,7 +2180,7 @@ during parsing.</p>
       <p>Explicitly configure an argument's default.</p>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
@@ -2120,7 +2189,7 @@ during parsing.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
@@ -2242,11 +2311,11 @@ required regardless of the signature default.</p>
   
       <p>Mark an argument as a flag/option for message command parsing.</p>
 <p>This indicates that the argument should be specified by name (e.g. <code>--name</code>)
-rather than positonally for message parsing and doesn't effect slash command
-options.</p>
+rather than positionally for message parsing and doesn't effect slash
+command options.</p>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span>
@@ -2312,7 +2381,7 @@ options.</p>
           <td><code>default</code></td>
           <td class="doc-param-details">
             <p>Deprecated argument used to specify the option's default.</p>
-<p>Use <a class="autorefs autorefs-internal" href="#tanjun.annotations.Default">tanjun.annotations.Default</a> instead.</p>
+<p>Use <a class="autorefs autorefs-internal" href="#tanjun.annotations.Default">Default</a> instead.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -2449,7 +2518,7 @@ can only be applied to one positional argument and is no-op for slash
 commands and flags.</p>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span>
@@ -2485,6 +2554,182 @@ commands and flags.</p>
 
 
 
+<h2 id="tanjun.annotations.Length" class="doc doc-heading">
+        <code>Length</code>
+
+
+<a href="#tanjun.annotations.Length" class="headerlink" title="Permanent link">#</a></h2>
+
+
+  <div class="doc doc-contents ">
+      <p class="doc doc-class-bases">
+        Bases: <code><span title="tanjun.annotations._ConfigIdentifier">_ConfigIdentifier</span></code></p>
+
+  
+      <p>Define length restraints for a string option.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Length constraints are applied before conversion for slash commands
+but after conversion for message commands.</p>
+</div>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;blam&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">max_and_min</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Length</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="mi">321</span><span class="p">)],</span>
+    <span class="n">max_only</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Length</span><span class="p">(</span><span class="mi">123</span><span class="p">)],</span>
+    <span class="n">generic_max_and_min</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">Length</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">13</span><span class="p">],</span> <span class="s2">&quot;meow&quot;</span><span class="p">],</span>
+    <span class="n">generic_max_only</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">Length</span><span class="p">[</span><span class="mi">21</span><span class="p">],</span> <span class="s2">&quot;meow&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
+<p>where <code>Length[...]</code> follows the same semantics as Length's <code>__init__</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
+    <span class="n">argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">other_argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span><span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</code></pre></div>
+<p>Alternatively, the slice syntax and <code>range</code> may be used to set the length
+restraints for a string argument (where the start is inclusive and stop is
+exclusive). These default to a min_length of <code>0</code> if the start isn't
+specified and ignore any specified step.</p>
+
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.annotations.Length.__init__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">min_or_max_length</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#tanjun.annotations.Length.__init__" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Initialise a length constraint.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>min_or_max_length</code></td>
+          <td class="doc-param-details">
+            <p>If <code>max_length</code> is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then this will be used as the
+maximum length and the minimum length will be <code>0</code>.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>The maximum length this string argument can be.</p>
+<p>If not specified then <code>min_or_max_length</code> will be used as the max
+length.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.annotations.Length.max_length" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">max_length</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.annotations.Length.max_length" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>The maximum length of this string option.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.annotations.Length.min_length" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">min_length</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.annotations.Length.min_length" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>The minimum length of this string option.</p>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="tanjun.annotations.Max" class="doc doc-heading">
         <code>Max</code>
 
@@ -2497,30 +2742,20 @@ commands and flags.</p>
         Bases: <code><span title="tanjun.annotations._ConfigIdentifier">_ConfigIdentifier</span></code></p>
 
   
-      <p>Inclusive maximum value for a <a class="autorefs autorefs-internal" href="#tanjun.annotations.Float">tanjun.annotations.Float</a> or <a class="autorefs autorefs-internal" href="#tanjun.annotations.Int">tanjun.annotations.Int</a> argument.</p>
+      <p>Inclusive maximum value for a <a class="autorefs autorefs-internal" href="#tanjun.annotations.Float">Float</a> or <a class="autorefs autorefs-internal" href="#tanjun.annotations.Int">Int</a> argument.</p>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;beep&quot;</span><span class="p">,</span> <span class="s2">&quot;meow&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="n">age</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="n">Max</span><span class="p">(</span><span class="mi">130</span><span class="p">),</span> <span class="n">Min</span><span class="p">(</span><span class="mi">13</span><span class="p">)],</span>
+    <span class="n">age</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Max</span><span class="p">(</span><span class="mi">130</span><span class="p">),</span> <span class="s2">&quot;How old are you?&quot;</span><span class="p">],</span>
+    <span class="n">number</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Max</span><span class="p">[</span><span class="mf">130.2</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>Alternatively, the slice syntax and <code>range</code> may be used to set the min and
-max values for a float or integesr arguments (where the start is inclusive
-and stop is exclusive). These default to a min_value of <code>0</code> if the start
-isn't specified.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-    <span class="n">float_value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">:</span><span class="mf">101.5</span><span class="p">],</span>
-    <span class="n">int_value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">)],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-</code></pre></div>
+<p>The option's type will be inferred from the passed value when using
+<a class="autorefs autorefs-internal" href="#tanjun.annotations.Max">Max</a> as a generic type hint (e.g. <code>Max[18]</code>).</p>
 
 
 
@@ -2623,30 +2858,20 @@ isn't specified.</p>
         Bases: <code><span title="tanjun.annotations._ConfigIdentifier">_ConfigIdentifier</span></code></p>
 
   
-      <p>Inclusive minimum value for a <a class="autorefs autorefs-internal" href="#tanjun.annotations.Float">tanjun.annotations.Float</a> or <a class="autorefs autorefs-internal" href="#tanjun.annotations.Int">tanjun.annotations.Int</a> argument.</p>
+      <p>Inclusive minimum value for a <a class="autorefs autorefs-internal" href="#tanjun.annotations.Float">Float</a> or <a class="autorefs autorefs-internal" href="#tanjun.annotations.Int">Int</a> argument.</p>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;beep&quot;</span><span class="p">,</span> <span class="s2">&quot;meow&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="n">age</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="s2">&quot;How old are you?&quot;</span><span class="p">,</span> <span class="n">Max</span><span class="p">(</span><span class="mi">130</span><span class="p">),</span> <span class="n">Min</span><span class="p">(</span><span class="mi">13</span><span class="p">)],</span>
+    <span class="n">age</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Min</span><span class="p">(</span><span class="mi">13</span><span class="p">),</span> <span class="s2">&quot;How old are you?&quot;</span><span class="p">],</span>
+    <span class="n">number</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Min</span><span class="p">[</span><span class="mf">13.9</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>Alternatively, the slice syntax and <code>range</code> may be used to set the min and
-max values for a float or integesr arguments (where the start is inclusive
-and stop is exclusive). These default to a min_value of <code>0</code> if the start
-isn't specified.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-    <span class="n">float_value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">:</span><span class="mf">101.5</span><span class="p">],</span>
-    <span class="n">int_value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">)],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-</code></pre></div>
+<p>The option's type is be inferred from the passed value when using
+<a class="autorefs autorefs-internal" href="#tanjun.annotations.Min">Min</a> as a generic type hint (e.g. <code>Min[69.4]</code>).</p>
 
 
 
@@ -2752,7 +2977,7 @@ isn't specified.</p>
       <p>Override the inferred name used to declare an option.</p>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;nyaa&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
@@ -2934,7 +3159,7 @@ allows for marking positional arguments as optional.</p>
 <p>This only effects message option parsing.</p>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span>
@@ -3003,26 +3228,32 @@ allows for marking positional arguments as optional.</p>
       <p>Declare the range limit for an <code>Int</code> or <code>Float</code> argument.</p>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;nyaa&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="n">number_arg</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Ranged</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">69</span><span class="p">)],</span>
+    <span class="n">number_arg</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Ranged</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">69</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">other_number_arg</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Ranged</span><span class="p">[</span><span class="mf">13.69</span><span class="p">,</span> <span class="mf">420.69</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p><div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;nyaa&quot;</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">)</span>
+<p>The option's type is inferred from whether integers or floats are passed
+when using <a class="autorefs autorefs-internal" href="#tanjun.annotations.Ranged">Ranged</a> as a generic type hint (e.g.
+<code>Ranged[123, 666]</code>).</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="n">number_arg</span><span class="p">:</span> <span class="n">Ranged</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">69</span><span class="p">],</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
+    <span class="n">float_value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Float</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">:</span><span class="mf">101.5</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">int_value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-Here the argument type is inferred from whether integers or floats
-are passed to <code>Ranged[...]</code></p>
+<p>Alternatively, the slice syntax and <code>range</code> may be used to set the range
+for a float or integer argument (where the start is inclusive and stop is
+exclusive). These default to a min_value of <code>0</code> if the start isn't
+specified and ignore any specified step.</p>
 
 
 
@@ -3172,25 +3403,17 @@ object each time for the following types:</p>
 </ul>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;nyaa&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
     <span class="n">user</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">User</span><span class="p">,</span> <span class="n">SnowflakeOr</span><span class="p">(</span><span class="n">parse_id</span><span class="o">=</span><span class="n">parse_user_id</span><span class="p">),</span> <span class="s2">&quot;The user to target.&quot;</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">user_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><span class="nd">@annotations</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;nyaa&quot;</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
 
-    <span class="c1"># When using SnowflakeOr as a type-hint, the `parse_id` callback is</span>
-    <span class="c1"># automatically set to the mention format for the specified for the</span>
-    <span class="c1"># passed type if applicable.</span>
-    <span class="n">user</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">SnowflakeOr</span><span class="p">[</span><span class="n">User</span><span class="p">],</span> <span class="s2">&quot;The user to target.&quot;</span><span class="p">],</span>
+    <span class="c1"># The `parse_id` callback is automatically set to the mention format for</span>
+    <span class="c1"># the specified for the passed type if applicable when using SnowflakeOr</span>
+    <span class="c1"># as a generic type-hint.</span>
+    <span class="n">role</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">SnowflakeOr</span><span class="p">[</span><span class="n">Role</span><span class="p">]],</span> <span class="s2">&quot;The role to target.&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">user_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
 </code></pre></div>
@@ -3640,10 +3863,10 @@ this wraps in a decorator call chain.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.39f04ddb.min.js"></script>
+      <script src="../../assets/javascripts/bundle.078830c0.min.js"></script>
       
     
   </body>

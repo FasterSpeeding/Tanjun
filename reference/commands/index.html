@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.5.2">
+      <meta name="generator" content="mkdocs-1.4.0, mkdocs-material-8.5.6">
     
     
       
@@ -17,7 +17,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.9f9400aa.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.20d9efc8.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
@@ -1679,38 +1679,123 @@ and may use dependency injection to access other services.</p>
             </p>
           </td>
         </tr>
+        <tr>
+          <td><code>type_</code></td>
+          <td class="doc-param-details">
+            <p>The type of menu command this is.</p>
+<p>Only <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/commands.html#hikari.commands.CommandType.USER">hikari.commands.CommandType.USER</a> and <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/commands.html#hikari.commands.CommandType.MESSAGE">hikari.commands.CommandType.MESSAGE</a>
+are valid here.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<a class="autorefs autorefs-external" title="hikari.commands" href="https://hikari-py.github.io/hikari/hikari/commands.html">commands</a>.<a class="autorefs autorefs-external" title="hikari.commands.CommandType" href="https://hikari-py.github.io/hikari/hikari/commands.html#hikari.commands.CommandType">CommandType</a></code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The command's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must be between 1 and 32 characters in length.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>always_defer</code></td>
+          <td class="doc-param-details">
+            <p>Whether the contexts this command is executed with should always be deferred
+before being passed to the command's callback.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default_member_permissions</code></td>
+          <td class="doc-param-details">
+            <p>Member permissions necessary to utilize this command by default.</p>
+<p>If this is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then the configuration for the parent component or client
+will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.Permissions">Permissions</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>, None]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>default_to_ephemeral</code></td>
+          <td class="doc-param-details">
+            <p>Whether this command's responses should default to ephemeral unless flags
+are set to override this.</p>
+<p>If this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then the default set on the parent command(s),
+component or client will be in effect.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>dm_enabled</code></td>
+          <td class="doc-param-details">
+            <p>Whether this command is enabled in DMs with the bot.</p>
+<p>If this is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then the configuration for the parent component or client
+will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>is_global</code></td>
+          <td class="doc-param-details">
+            <p>Whether this command is a global command.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>True</code>
+                </span>
+            </p>
+          </td>
+        </tr>
     </tbody>
   </table>
-      <p>type_ : hikari.commands.CommandType
-    The type of menu command this is.</p>
-<pre><code>Only [hikari.commands.CommandType.USER][] and [hikari.commands.CommandType.MESSAGE][]
-are valid here.
-</code></pre>
-<p>name
-    The command's name.</p>
-<pre><code>This must be between 1 and 32 characters in length.
-</code></pre>
-<p>always_defer
-    Whether the contexts this command is executed with should always be deferred
-    before being passed to the command's callback.
-default_member_permissions
-    Member permissions necessary to utilize this command by default.</p>
-<pre><code>If this is [None][] then the configuration for the parent component or client
-will be used.
-</code></pre>
-<p>default_to_ephemeral
-    Whether this command's responses should default to ephemeral unless flags
-    are set to override this.</p>
-<pre><code>If this is left as [None][] then the default set on the parent command(s),
-component or client will be in effect.
-</code></pre>
-<p>dm_enabled
-    Whether this command is enabled in DMs with the bot.</p>
-<pre><code>If this is [None][] then the configuration for the parent component or client
-will be used.
-</code></pre>
-<p>is_global
-    Whether this command is a global command.</p>
 
   <table>
     <thead>
@@ -1907,12 +1992,12 @@ or when <code>declare_global_commands</code> is True</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The command's name.</p>
+            <p>The command's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This must be between 1 and 32 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -2108,12 +2193,12 @@ or when <code>declare_global_commands</code> is True</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The command's name.</p>
+            <p>The command's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This must be between 1 and 32 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -3349,12 +3434,12 @@ dependency injection to access other services.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The command's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The command's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -3362,12 +3447,12 @@ dependency injection to access other services.</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The command's description.
-This should be inclusively between 1-100 characters in length.</p>
+            <p>The command's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -3516,7 +3601,7 @@ ones.</p>
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the command name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the command name doesn't fit Discord's requirements.</li>
 <li>If the command name has uppercase characters.</li>
 <li>If the description is over 100 characters long.</li>
 </ul>
@@ -3558,12 +3643,12 @@ ones.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The option's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The option's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -3571,27 +3656,16 @@ ones.</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The option's description.</p>
+            <p>The option's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
         </tr>
-    </tbody>
-  </table>
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>PARAMETER</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
         <tr>
           <td><code>default</code></td>
           <td class="doc-param-details">
@@ -3601,6 +3675,10 @@ ones.</p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>UNDEFINED_DEFAULT</code>
                 </span>
             </p>
           </td>
@@ -3615,6 +3693,10 @@ if <code>pass_as_kwarg</code> is <a class="autorefs autorefs-external" href="htt
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
                 </span>
             </p>
           </td>
@@ -3631,6 +3713,10 @@ the option is required without the actual value being used and the
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>True</code>
                 </span>
             </p>
           </td>
@@ -3676,7 +3762,7 @@ the option is required without the actual value being used and the
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name doesn't fit Discord's requirements.</li>
 <li>If the option name has uppercase characters.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the command already has 25 options.</li>
@@ -3717,12 +3803,12 @@ the option is required without the actual value being used and the
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The option's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The option's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -3730,12 +3816,12 @@ the option is required without the actual value being used and the
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The option's description.</p>
+            <p>The option's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -3835,7 +3921,7 @@ the option is required without the actual value being used.</p>
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name doesn't fit Discord's requirements.</li>
 <li>If the option name has uppercase characters.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the command already has 25 options.</li>
@@ -3881,12 +3967,12 @@ the option is required without the actual value being used.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The option's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The option's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -3894,12 +3980,12 @@ the option is required without the actual value being used.</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The option's description.</p>
+            <p>The option's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -4016,7 +4102,7 @@ the option is required without the actual value being used.</p>
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name doesn't fit Discord's requirements.</li>
 <li>If the option name has uppercase characters.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the command already has 25 options.</li>
@@ -4058,12 +4144,12 @@ the option is required without the actual value being used.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The option's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The option's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -4071,12 +4157,12 @@ the option is required without the actual value being used.</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The option's description.</p>
+            <p>The option's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -4286,7 +4372,7 @@ fields <code>coverters</code>, and <code>always_float</code> will be ignored.</p
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name doesn't fit Discord's requirements.</li>
 <li>If the option name has uppercase characters.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the option has more than 25 choices.</li>
@@ -4329,12 +4415,12 @@ fields <code>coverters</code>, and <code>always_float</code> will be ignored.</p
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The option's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The option's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -4342,12 +4428,12 @@ fields <code>coverters</code>, and <code>always_float</code> will be ignored.</p
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The option's description.</p>
+            <p>The option's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -4538,7 +4624,7 @@ the option is required without the actual value being used and the
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name doesn't fit Discord's requirements.</li>
 <li>If the option name has uppercase characters.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the option has more than 25 choices.</li>
@@ -4593,12 +4679,12 @@ present when its not being passed as a keyword argument.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The option's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The option's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -4606,12 +4692,12 @@ present when its not being passed as a keyword argument.</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The option's description.</p>
+            <p>The option's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -4692,7 +4778,7 @@ if <code>pass_as_kwarg</code> is <a class="autorefs autorefs-external" href="htt
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name doesn't fit Discord's requirements.</li>
 <li>If the option name has uppercase characters.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the command already has 25 options.</li>
@@ -4738,12 +4824,12 @@ if <code>pass_as_kwarg</code> is <a class="autorefs autorefs-external" href="htt
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The option's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The option's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -4751,12 +4837,12 @@ if <code>pass_as_kwarg</code> is <a class="autorefs autorefs-external" href="htt
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The option's description.</p>
+            <p>The option's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -4856,7 +4942,7 @@ the option is required without the actual value being used.</p>
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name doesn't fit Discord's requirements.</li>
 <li>If the option name has uppercase characters.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the command already has 25 options.</li>
@@ -4897,12 +4983,12 @@ the option is required without the actual value being used.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The option's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The option's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -4910,12 +4996,12 @@ the option is required without the actual value being used.</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The option's description.</p>
+            <p>The option's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -5015,7 +5101,7 @@ the option is required without the actual value being used.</p>
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name doesn't fit Discord's requirements.</li>
 <li>If the option name has uppercase characters.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the command already has 25 options.</li>
@@ -5036,7 +5122,7 @@ the option is required without the actual value being used.</p>
 
 
 <h4 id="tanjun.commands.slash.SlashCommand.add_str_option" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_str_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">autocomplete</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">_stack_level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">add_str_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">autocomplete</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">_stack_level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
 
 <a href="#tanjun.commands.slash.SlashCommand.add_str_option" class="headerlink" title="Permanent link">#</a></h4>
 
@@ -5062,12 +5148,12 @@ both the choice's name and value with the names being capitalised).</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The option's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The option's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -5075,12 +5161,12 @@ both the choice's name and value with the names being capitalised).</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The option's description.</p>
+            <p>The option's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -5180,6 +5266,42 @@ if <code>pass_as_kwarg</code> is <a class="autorefs autorefs-external" href="htt
           </td>
         </tr>
         <tr>
+          <td><code>min_length</code></td>
+          <td class="doc-param-details">
+            <p>The minimum length of this string.</p>
+<p>This must be greater than or equal to 0, and less than or equal
+to <code>max_length</code> and <code>6000</code>.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>max_length</code></td>
+          <td class="doc-param-details">
+            <p>The maximum length of this string.</p>
+<p>This must be greater then or equal to <code>min_length</code> and 1, and
+less than or equal to <code>6000</code>.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td><code>pass_as_kwarg</code></td>
           <td class="doc-param-details">
             <p>Whether or not to pass this option as a keyword argument to the
@@ -5240,13 +5362,16 @@ the option is required without the actual value being used and the
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name doesn't fit Discord's requirements.</li>
 <li>If the option name has uppercase characters.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the option has more than 25 choices.</li>
 <li>If the command already has 25 options.</li>
 <li>If <code>name</code> isn't valid for this command's callback when
 <code>validate_arg_keys</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>.</li>
+<li>If <code>min_length</code> is greater than <code>max_length</code>.</li>
+<li>If <code>min_length</code> is less than <code>0</code> or greater than <code>6000</code>.</li>
+<li>If <code>max_length</code> is less than <code>1</code> or greater than <code>6000</code>.</li>
 </ul>
           </td>
         </tr>
@@ -5288,12 +5413,12 @@ command was executed in a DM channel.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The option's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The option's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -5301,12 +5426,12 @@ command was executed in a DM channel.</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The option's description.</p>
+            <p>The option's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
 <p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -5406,7 +5531,7 @@ the option is required without the actual value being used.</p>
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the option name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the option name doesn't fit Discord's requirements.</li>
 <li>If the option name has uppercase characters.</li>
 <li>If the option description is over 100 characters in length.</li>
 <li>If the option has more than 25 choices.</li>
@@ -5449,6 +5574,8 @@ the option is required without the actual value being used.</p>
           <td><code>name</code></td>
           <td class="doc-param-details">
             <p>The option's name.</p>
+<p>If localised names were provided for the option then this should
+be the default name.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5559,6 +5686,8 @@ option.</p>
           <td><code>name</code></td>
           <td class="doc-param-details">
             <p>The option's name.</p>
+<p>If localised names were provided for the option then this should
+be the default name.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5669,6 +5798,8 @@ option.</p>
           <td><code>name</code></td>
           <td class="doc-param-details">
             <p>The option's name.</p>
+<p>If localised names were provided for the option then this should
+be the default name.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5779,6 +5910,8 @@ option.</p>
           <td><code>name</code></td>
           <td class="doc-param-details">
             <p>The option's name.</p>
+<p>If localised names were provided for the option then this should
+be the default name.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5875,6 +6008,8 @@ argument should be of type <a class="autorefs autorefs-external" href="https://d
           <td><code>name</code></td>
           <td class="doc-param-details">
             <p>The option's name.</p>
+<p>If localised names were provided for the option then this should
+be the default name.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5971,6 +6106,8 @@ argument should be of type <a class="autorefs autorefs-external" href="https://d
           <td><code>name</code></td>
           <td class="doc-param-details">
             <p>The option's name.</p>
+<p>If localised names were provided for the option then this should
+be the default name.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -6144,12 +6281,12 @@ ignored for commands groups within another slash command groups.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The name of the command group.</p>
-<p>This must match the regex <code>^[\w-]{1,32}$</code> in Unicode mode and be lowercase.</p>
+            <p>The name of the command group (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -6157,11 +6294,12 @@ ignored for commands groups within another slash command groups.</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The description of the command group.</p>
+            <p>The description of the command group (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -6257,7 +6395,7 @@ will be used.</p>
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the command name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the command name doesn't fit Discord's requirements.</li>
 <li>If the command name has uppercase characters.</li>
 <li>If the description is over 100 characters long.</li>
 </ul>
@@ -6366,12 +6504,12 @@ will be used.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The command's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The command's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -6384,7 +6522,7 @@ This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -6504,7 +6642,7 @@ ones.</p>
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the command name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the command name doesn't fit Discord's requirements.</li>
 <li>If the command name has uppercase characters.</li>
 <li>If the description is over 100 characters long.</li>
 </ul>
@@ -6547,12 +6685,12 @@ be callable functions themselves.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The name of the command group.</p>
-<p>This must match the regex <code>^[\w-]{1,32}$</code> in Unicode mode and be lowercase.</p>
+            <p>The name of the command group (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -6564,7 +6702,7 @@ be callable functions themselves.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -6629,7 +6767,7 @@ component or client will be in effect.</p>
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the command name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the command name doesn't fit Discord's requirements.</li>
 <li>If the command name has uppercase characters.</li>
 <li>If the description is over 100 characters long.</li>
 </ul>
@@ -6825,12 +6963,12 @@ ignored for commands within slash command groups.</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The command's name.</p>
-<p>This must match the regex <code>^[\w-]{1,32}</code> in Unicode mode and be lowercase.</p>
+            <p>The command's name (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -6838,12 +6976,12 @@ ignored for commands within slash command groups.</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The command's description.
-This should be inclusively between 1-100 characters in length.</p>
+            <p>The command's description (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -7017,7 +7155,7 @@ and will manage loading the other command into a component when using
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the command name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the command name doesn't fit Discord's requirements.</li>
 <li>If the command name has uppercase characters.</li>
 <li>If the description is over 100 characters long.</li>
 </ul>
@@ -7090,12 +7228,12 @@ the following decorator based approach:</p>
         <tr>
           <td><code>name</code></td>
           <td class="doc-param-details">
-            <p>The name of the command group.</p>
-<p>This must match the regex <code>^[\w-]{1,32}$</code> in Unicode mode and be lowercase.</p>
+            <p>The name of the command group (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -7103,11 +7241,12 @@ the following decorator based approach:</p>
         <tr>
           <td><code>description</code></td>
           <td class="doc-param-details">
-            <p>The description of the command group.</p>
+            <p>The description of the command group (supports <a class="autorefs autorefs-internal" href="../../usage/#localisation">localisation</a>).</p>
+<p>This should be inclusively between 1-100 characters in length.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a></code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]]</code>
                 </span>
             </p>
           </td>
@@ -7224,7 +7363,7 @@ will be used.</p>
           <td class="doc-raises-details">
             <p>Raises a value error for any of the following reasons:</p>
 <ul>
-<li>If the command name doesn't match the regex <code>^[\w-]{1,32}$</code> (Unicode mode).</li>
+<li>If the command name doesn't fit Discord's requirements.</li>
 <li>If the command name has uppercase characters.</li>
 <li>If the description is over 100 characters long.</li>
 </ul>
@@ -7639,7 +7778,7 @@ will be used.</p>
 
 
 <h3 id="tanjun.commands.slash.with_str_slash_option" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_str_slash_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">autocomplete</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">with_str_slash_option</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">autocomplete</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">UNDEFINED_DEFAULT</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pass_as_kwarg</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
 
 <a href="#tanjun.commands.slash.with_str_slash_option" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -7816,10 +7955,10 @@ command was executed in a DM channel.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.ecf98df9.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.39f04ddb.min.js"></script>
+      <script src="../../assets/javascripts/bundle.078830c0.min.js"></script>
       
     
   </body>
