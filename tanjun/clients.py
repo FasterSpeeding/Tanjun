@@ -477,6 +477,10 @@ def _cmp_command(built: typing.Optional[hikari.api.CommandBuilder], cmd: hikari.
     if dm_enabled is not cmd.is_dm_enabled or default_perms != builder_default_perms:
         return False
 
+    # name doesn't need to be checked as `builder` will be `None` if that didn't match.
+    if built.name_localizations != cmd.name_localizations:
+        return False
+
     if isinstance(cmd, hikari.SlashCommand):
         assert isinstance(built, hikari.api.SlashCommandBuilder)
         if built.description != cmd.description or built.description_localizations != cmd.description_localizations:
@@ -486,8 +490,7 @@ def _cmp_command(built: typing.Optional[hikari.api.CommandBuilder], cmd: hikari.
 
         return len(built.options) == len(opts) and all(itertools.starmap(operator.eq, zip(built.options, opts)))
 
-    # name doesn't need to be checked as `builder` will be `None` if that didn't match.
-    return built.name_localizations == cmd.name_localizations
+    return True
 
 
 class _StartDeclarer:
