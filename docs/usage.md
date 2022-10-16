@@ -868,9 +868,9 @@ use the following formats unless explicitly overridden:
 * Slash option descriptions: `f"slash:{command_name}:option.description:{option_name}"`
 
 `command_type` may be one of `"message_menu"`, `"slash"` or `"user_menu"`,
-and `command_name` will be the full name of the command (including parent
-command names in the path) and standard check names will always be
-prefixed with `"tanjun."`.
+`command_name` will be the full name of the command (including parent command
+names in the path), and standard check names will always be prefixed with
+`"tanjun."`.
 
 It's highly recommended that 3rd party libraries match this format if possible.
 
