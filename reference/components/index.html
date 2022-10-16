@@ -1244,14 +1244,16 @@
 
 
 <h2 id="tanjun.components.OnCallbackSig" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">OnCallbackSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span></code>
+        <span class="doc doc-object-name doc-attribute-name">OnCallbackSig</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 <a href="#tanjun.components.OnCallbackSig" class="headerlink" title="Permanent link">#</a></h2>
-
+<div class="highlight"><pre><span></span><code><span class="n">OnCallbackSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1268,7 +1270,7 @@ should return <a class="autorefs autorefs-external" href="https://docs.python.or
 
 
 <h2 id="tanjun.components.AbstractComponentLoader" class="doc doc-heading">
-        <code>AbstractComponentLoader</code>
+        <span class="doc doc-object-name doc-class-name">AbstractComponentLoader</span>
 
 
 <a href="#tanjun.components.AbstractComponentLoader" class="headerlink" title="Permanent link">#</a></h2>
@@ -1300,14 +1302,16 @@ should return <a class="autorefs autorefs-external" href="https://docs.python.or
 
 
 <h3 id="tanjun.components.AbstractComponentLoader.load_into_component" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">load_into_component</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.components.AbstractComponentLoader.load_into_component" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">load_into_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1353,7 +1357,7 @@ should return <a class="autorefs autorefs-external" href="https://docs.python.or
 
 
 <h2 id="tanjun.components.Component" class="doc doc-heading">
-        <code>Component</code>
+        <span class="doc doc-object-name doc-class-name">Component</span>
 
 
 <a href="#tanjun.components.Component" class="headerlink" title="Permanent link">#</a></h2>
@@ -1393,10 +1397,12 @@ supports dependency injection.</p>
 
 
 <h3 id="tanjun.components.Component.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
 
 <a href="#tanjun.components.Component.__init__" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1458,10 +1464,12 @@ spaces and will have to be unique to one command within the component.</p>
 
 
 <h3 id="tanjun.components.Component.add_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">add_check</span>
+
 
 <a href="#tanjun.components.Component.add_check" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1520,10 +1528,12 @@ spaces and will have to be unique to one command within the component.</p>
 
 
 <h3 id="tanjun.components.Component.add_client_callback" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_client_callback</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">add_client_callback</span>
+
 
 <a href="#tanjun.components.Component.add_client_callback" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">add_client_callback</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1598,10 +1608,12 @@ detail around the <code>name</code> being subscribed to.</p>
 
 
 <h3 id="tanjun.components.Component.add_command" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">add_command</span>
+
 
 <a href="#tanjun.components.Component.add_command" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">add_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1660,10 +1672,12 @@ detail around the <code>name</code> being subscribed to.</p>
 
 
 <h3 id="tanjun.components.Component.add_message_command" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_message_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">add_message_command</span>
+
 
 <a href="#tanjun.components.Component.add_message_command" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">add_message_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1744,10 +1758,12 @@ component.</p>
 
 
 <h3 id="tanjun.components.Component.add_on_close" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_on_close</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">add_on_close</span>
+
 
 <a href="#tanjun.components.Component.add_on_close" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">add_on_close</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1814,10 +1830,12 @@ take use injected dependencies.</p>
 
 
 <h3 id="tanjun.components.Component.add_on_open" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_on_open</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">add_on_open</span>
+
 
 <a href="#tanjun.components.Component.add_on_open" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">add_on_open</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1884,10 +1902,12 @@ take use injected dependencies.</p>
 
 
 <h3 id="tanjun.components.Component.add_schedule" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">add_schedule</span>
+
 
 <a href="#tanjun.components.Component.add_schedule" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">add_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1946,14 +1966,16 @@ take use injected dependencies.</p>
 
 
 <h3 id="tanjun.components.Component.checks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">checks</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">checks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.components.Component.checks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">checks</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1968,10 +1990,12 @@ take use injected dependencies.</p>
 
 
 <h3 id="tanjun.components.Component.get_client_callbacks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_client_callbacks</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">get_client_callbacks</span>
+
 
 <a href="#tanjun.components.Component.get_client_callbacks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">get_client_callbacks</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2031,14 +2055,16 @@ take use injected dependencies.</p>
 
 
 <h3 id="tanjun.components.Component.hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">hooks</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">hooks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.components.Component.hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">hooks</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2053,10 +2079,12 @@ take use injected dependencies.</p>
 
 
 <h3 id="tanjun.components.Component.load_from_scope" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">load_from_scope</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">include_globals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">load_from_scope</span>
+
 
 <a href="#tanjun.components.Component.load_from_scope" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">load_from_scope</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">include_globals</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2187,10 +2215,12 @@ stack frame inspection when <code>scope</code> is not provided.</p>
 
 
 <h3 id="tanjun.components.Component.make_loader" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">make_loader</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">make_loader</span>
+
 
 <a href="#tanjun.components.Component.make_loader" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">make_loader</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2256,14 +2286,16 @@ client by targeting the module using [tanjun.Client.load_modules][],
 
 
 <h3 id="tanjun.components.Component.menu_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">menu_hooks</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">menu_hooks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.components.Component.menu_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">menu_hooks</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2278,14 +2310,16 @@ client by targeting the module using [tanjun.Client.load_modules][],
 
 
 <h3 id="tanjun.components.Component.message_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">message_hooks</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">message_hooks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.components.Component.message_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">message_hooks</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2300,10 +2334,12 @@ client by targeting the module using [tanjun.Client.load_modules][],
 
 
 <h3 id="tanjun.components.Component.remove_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">remove_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">remove_check</span>
+
 
 <a href="#tanjun.components.Component.remove_check" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">remove_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2383,10 +2419,12 @@ client by targeting the module using [tanjun.Client.load_modules][],
 
 
 <h3 id="tanjun.components.Component.remove_client_callback" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">remove_client_callback</span>
+
 
 <a href="#tanjun.components.Component.remove_client_callback" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">remove_client_callback</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2489,10 +2527,12 @@ client by targeting the module using [tanjun.Client.load_modules][],
 
 
 <h3 id="tanjun.components.Component.remove_command" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">remove_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">remove_command</span>
+
 
 <a href="#tanjun.components.Component.remove_command" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">remove_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2551,10 +2591,12 @@ client by targeting the module using [tanjun.Client.load_modules][],
 
 
 <h3 id="tanjun.components.Component.remove_schedule" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">remove_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">remove_schedule</span>
+
 
 <a href="#tanjun.components.Component.remove_schedule" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">remove_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2634,14 +2676,16 @@ client by targeting the module using [tanjun.Client.load_modules][],
 
 
 <h3 id="tanjun.components.Component.schedules" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">schedules</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">schedules</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.components.Component.schedules" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">schedules</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2656,10 +2700,12 @@ client by targeting the module using [tanjun.Client.load_modules][],
 
 
 <h3 id="tanjun.components.Component.set_default_app_command_permissions" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_default_app_command_permissions</span><span class="p">(</span><span class="n">permissions</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_default_app_command_permissions</span>
+
 
 <a href="#tanjun.components.Component.set_default_app_command_permissions" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_default_app_command_permissions</span><span class="p">(</span><span class="n">permissions</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2727,10 +2773,12 @@ from the parent client.</p>
 
 
 <h3 id="tanjun.components.Component.set_dms_enabled_for_app_cmds" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_dms_enabled_for_app_cmds</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_dms_enabled_for_app_cmds</span>
+
 
 <a href="#tanjun.components.Component.set_dms_enabled_for_app_cmds" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_dms_enabled_for_app_cmds</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2792,10 +2840,12 @@ from the parent client.</p>
 
 
 <h3 id="tanjun.components.Component.set_ephemeral_default" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_ephemeral_default</span>
+
 
 <a href="#tanjun.components.Component.set_ephemeral_default" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2858,10 +2908,12 @@ client propagate and decide the ephemeral default behaviour.</p>
 
 
 <h3 id="tanjun.components.Component.set_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_hooks</span>
+
 
 <a href="#tanjun.components.Component.set_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2920,10 +2972,12 @@ client propagate and decide the ephemeral default behaviour.</p>
 
 
 <h3 id="tanjun.components.Component.set_menu_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_menu_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_menu_hooks</span>
+
 
 <a href="#tanjun.components.Component.set_menu_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_menu_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2982,10 +3036,12 @@ client propagate and decide the ephemeral default behaviour.</p>
 
 
 <h3 id="tanjun.components.Component.set_message_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_message_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_message_hooks</span>
+
 
 <a href="#tanjun.components.Component.set_message_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_message_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3044,10 +3100,12 @@ client propagate and decide the ephemeral default behaviour.</p>
 
 
 <h3 id="tanjun.components.Component.set_slash_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_slash_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_slash_hooks</span>
+
 
 <a href="#tanjun.components.Component.set_slash_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_slash_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3106,14 +3164,16 @@ client propagate and decide the ephemeral default behaviour.</p>
 
 
 <h3 id="tanjun.components.Component.slash_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">slash_hooks</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">slash_hooks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.components.Component.slash_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">slash_hooks</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3128,10 +3188,12 @@ client propagate and decide the ephemeral default behaviour.</p>
 
 
 <h3 id="tanjun.components.Component.with_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">with_check</span>
+
 
 <a href="#tanjun.components.Component.with_check" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">with_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3190,10 +3252,12 @@ client propagate and decide the ephemeral default behaviour.</p>
 
 
 <h3 id="tanjun.components.Component.with_client_callback" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_client_callback</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">with_client_callback</span>
+
 
 <a href="#tanjun.components.Component.with_client_callback" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">with_client_callback</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3264,10 +3328,12 @@ detail around the <code>name</code> being subscribed to.</p>
 
 
 <h3 id="tanjun.components.Component.with_command" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_command</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">with_command</span>
+
 
 <a href="#tanjun.components.Component.with_command" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">with_command</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3379,10 +3445,12 @@ call chain.</p>
 
 
 <h3 id="tanjun.components.Component.with_on_close" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_on_close</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">with_on_close</span>
+
 
 <a href="#tanjun.components.Component.with_on_close" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">with_on_close</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3449,10 +3517,12 @@ take use injected dependencies.</p>
 
 
 <h3 id="tanjun.components.Component.with_on_open" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_on_open</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">with_on_open</span>
+
 
 <a href="#tanjun.components.Component.with_on_open" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">with_on_open</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3519,10 +3589,12 @@ take use injected dependencies.</p>
 
 
 <h3 id="tanjun.components.Component.with_schedule" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">with_schedule</span>
+
 
 <a href="#tanjun.components.Component.with_schedule" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">with_schedule</span><span class="p">(</span><span class="n">schedule</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   

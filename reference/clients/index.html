@@ -1636,14 +1636,16 @@
 
 
 <h2 id="tanjun.clients.ClientCallbackNames" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">ClientCallbackNames</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">ClientCallbackNames</span></code>
+        <span class="doc doc-object-name doc-attribute-name">ClientCallbackNames</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 <a href="#tanjun.clients.ClientCallbackNames" class="headerlink" title="Permanent link">#</a></h2>
-
+<div class="highlight"><pre><span></span><code><span class="n">ClientCallbackNames</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">ClientCallbackNames</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1657,14 +1659,16 @@
 
 
 <h2 id="tanjun.clients.PrefixGetterSig" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">PrefixGetterSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span></code>
+        <span class="doc doc-object-name doc-attribute-name">PrefixGetterSig</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 <a href="#tanjun.clients.PrefixGetterSig" class="headerlink" title="Permanent link">#</a></h2>
-
+<div class="highlight"><pre><span></span><code><span class="n">PrefixGetterSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1685,7 +1689,7 @@ argument will always be a <a class="autorefs autorefs-internal" href="../abc/#ta
 
 
 <h2 id="tanjun.clients.Client" class="doc doc-heading">
-        <code>Client</code>
+        <span class="doc doc-object-name doc-class-name">Client</span>
 
 
 <a href="#tanjun.clients.Client" class="headerlink" title="Permanent link">#</a></h2>
@@ -1725,10 +1729,12 @@ by overwritten if you call <a class="autorefs autorefs-internal" href="#tanjun.c
 
 
 <h3 id="tanjun.clients.Client.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">rest</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shards</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">voice</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">event_managed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_stack_level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
 
 <a href="#tanjun.clients.Client.__init__" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">rest</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shards</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">voice</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">event_managed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_stack_level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2036,10 +2042,12 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.add_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">add_check</span>
+
 
 <a href="#tanjun.clients.Client.add_check" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">add_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2101,10 +2109,12 @@ with dependency injection being supported for its keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.Client.add_component" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">add_component</span>
+
 
 <a href="#tanjun.clients.Client.add_component" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">add_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2184,10 +2194,12 @@ with dependency injection being supported for its keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.Client.add_prefix" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">add_prefix</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">add_prefix</span>
+
 
 <a href="#tanjun.clients.Client.add_prefix" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">add_prefix</span><span class="p">(</span><span class="n">prefixes</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2250,14 +2262,16 @@ prefixes.</p>
 
 
 <h3 id="tanjun.clients.Client.checks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">checks</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">checks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.checks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">checks</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2276,14 +2290,16 @@ prefixes.</p>
 
 
 <h3 id="tanjun.clients.Client.close" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">close</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">deregister_listeners</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">close</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.close" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">close</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">deregister_listeners</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2319,14 +2335,16 @@ prefixes.</p>
 
 
 <h3 id="tanjun.clients.Client.fetch_rest_application_id" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">fetch_rest_application_id</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">fetch_rest_application_id</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.fetch_rest_application_id" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">fetch_rest_application_id</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2362,14 +2380,16 @@ prefixes.</p>
 
 
 <h3 id="tanjun.clients.Client.from_gateway_bot" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">event_managed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">from_gateway_bot</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.from_gateway_bot" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">event_managed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2562,14 +2582,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.from_rest_bot" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">from_rest_bot</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.from_rest_bot" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2728,14 +2750,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">hooks</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">hooks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">hooks</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2751,14 +2775,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.interaction_accepts" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">interaction_accepts</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">interaction_accepts</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.interaction_accepts" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">interaction_accepts</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2773,14 +2799,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.is_human_only" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">is_human_only</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">is_human_only</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.is_human_only" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">is_human_only</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2795,14 +2823,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.menu_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">menu_hooks</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">menu_hooks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.menu_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">menu_hooks</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2818,14 +2848,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.message_accepts" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">message_accepts</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">message_accepts</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.message_accepts" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">message_accepts</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2840,14 +2872,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.message_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">message_hooks</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">message_hooks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.message_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">message_hooks</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2863,14 +2897,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.on_autocomplete_interaction_request" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">on_autocomplete_interaction_request</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">on_autocomplete_interaction_request</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.on_autocomplete_interaction_request" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">on_autocomplete_interaction_request</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2929,14 +2965,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.on_command_interaction_request" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">on_command_interaction_request</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">on_command_interaction_request</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.on_command_interaction_request" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">on_command_interaction_request</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2995,14 +3033,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.on_gateway_autocomplete_create" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">on_gateway_autocomplete_create</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">on_gateway_autocomplete_create</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.on_gateway_autocomplete_create" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">on_gateway_autocomplete_create</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3040,14 +3080,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.on_gateway_command_create" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">on_gateway_command_create</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">on_gateway_command_create</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.on_gateway_command_create" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">on_gateway_command_create</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3085,14 +3127,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.on_interaction_create_event" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">on_interaction_create_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">on_interaction_create_event</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.on_interaction_create_event" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">on_interaction_create_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3131,14 +3175,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.on_message_create_event" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">on_message_create_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">on_message_create_event</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.on_message_create_event" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">on_message_create_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3176,14 +3222,16 @@ of existing commands to update.</p>
 
 
 <h3 id="tanjun.clients.Client.open" class="doc doc-heading">
-<code class="highlight language-python"><span class="nb">open</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">register_listeners</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">open</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.open" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="nb">open</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">register_listeners</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3222,14 +3270,16 @@ to Discord if it cannot get the current user from the cache.</p>
 
 
 <h3 id="tanjun.clients.Client.prefix_getter" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">prefix_getter</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">prefix_getter</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.prefix_getter" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">prefix_getter</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3246,14 +3296,16 @@ to Discord if it cannot get the current user from the cache.</p>
 
 
 <h3 id="tanjun.clients.Client.prefixes" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">prefixes</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">prefixes</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.prefixes" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">prefixes</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3268,10 +3320,12 @@ to Discord if it cannot get the current user from the cache.</p>
 
 
 <h3 id="tanjun.clients.Client.remove_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">remove_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">remove_check</span>
+
 
 <a href="#tanjun.clients.Client.remove_check" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">remove_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3330,10 +3384,12 @@ to Discord if it cannot get the current user from the cache.</p>
 
 
 <h3 id="tanjun.clients.Client.remove_prefix" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">remove_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">remove_prefix</span>
+
 
 <a href="#tanjun.clients.Client.remove_prefix" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">remove_prefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3413,10 +3469,12 @@ to Discord if it cannot get the current user from the cache.</p>
 
 
 <h3 id="tanjun.clients.Client.set_auto_defer_after" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_auto_defer_after</span><span class="p">(</span><span class="n">time</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_auto_defer_after</span>
+
 
 <a href="#tanjun.clients.Client.set_auto_defer_after" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_auto_defer_after</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3459,10 +3517,12 @@ This may lead to unexpected behaviour.</p>
 
 
 <h3 id="tanjun.clients.Client.set_autocomplete_ctx_maker" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_autocomplete_ctx_maker</span><span class="p">(</span><span class="n">maker</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_autocomplete_ctx_maker</span>
+
 
 <a href="#tanjun.clients.Client.set_autocomplete_ctx_maker" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_autocomplete_ctx_maker</span><span class="p">(</span><span class="n">maker</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3535,10 +3595,12 @@ an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.co
 
 
 <h3 id="tanjun.clients.Client.set_default_app_command_permissions" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_default_app_command_permissions</span><span class="p">(</span><span class="n">permissions</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_default_app_command_permissions</span>
+
 
 <a href="#tanjun.clients.Client.set_default_app_command_permissions" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_default_app_command_permissions</span><span class="p">(</span><span class="n">permissions</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3605,10 +3667,12 @@ client.</p>
 
 
 <h3 id="tanjun.clients.Client.set_dms_enabled_for_app_cmds" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_dms_enabled_for_app_cmds</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_dms_enabled_for_app_cmds</span>
+
 
 <a href="#tanjun.clients.Client.set_dms_enabled_for_app_cmds" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_dms_enabled_for_app_cmds</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3671,10 +3735,12 @@ client.</p>
 
 
 <h3 id="tanjun.clients.Client.set_ephemeral_default" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_ephemeral_default</span>
+
 
 <a href="#tanjun.clients.Client.set_ephemeral_default" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_ephemeral_default</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3736,14 +3802,16 @@ should default to ephemeral.</p>
 
 
 <h3 id="tanjun.clients.Client.set_global_commands" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_global_commands</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_global_commands</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.set_global_commands" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_global_commands</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">application</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">guild</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3762,10 +3830,12 @@ should default to ephemeral.</p>
 
 
 <h3 id="tanjun.clients.Client.set_hikari_trait_injectors" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_hikari_trait_injectors</span>
+
 
 <a href="#tanjun.clients.Client.set_hikari_trait_injectors" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_hikari_trait_injectors</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3805,10 +3875,12 @@ the hikari trait types <code>bot</code> is valid for with bot.</p>
 
 
 <h3 id="tanjun.clients.Client.set_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_hooks</span>
+
 
 <a href="#tanjun.clients.Client.set_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3870,10 +3942,12 @@ command execution started by this client.</p>
 
 
 <h3 id="tanjun.clients.Client.set_human_only" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_human_only</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_human_only</span>
+
 
 <a href="#tanjun.clients.Client.set_human_only" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_human_only</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3922,10 +3996,12 @@ based on webhook and bot messages.</p>
 
 
 <h3 id="tanjun.clients.Client.set_interaction_accepts" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_interaction_accepts</span><span class="p">(</span><span class="n">accepts</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_interaction_accepts</span>
+
 
 <a href="#tanjun.clients.Client.set_interaction_accepts" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_interaction_accepts</span><span class="p">(</span><span class="n">accepts</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -3984,10 +4060,12 @@ based on webhook and bot messages.</p>
 
 
 <h3 id="tanjun.clients.Client.set_interaction_not_found" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_interaction_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_interaction_not_found</span>
+
 
 <a href="#tanjun.clients.Client.set_interaction_not_found" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_interaction_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4031,10 +4109,12 @@ only be done if you know what you're doing.</p>
 
 
 <h3 id="tanjun.clients.Client.set_menu_ctx_maker" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_menu_ctx_maker</span><span class="p">(</span><span class="n">maker</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_menu_ctx_maker</span>
+
 
 <a href="#tanjun.clients.Client.set_menu_ctx_maker" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_menu_ctx_maker</span><span class="p">(</span><span class="n">maker</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4107,10 +4187,12 @@ an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.co
 
 
 <h3 id="tanjun.clients.Client.set_menu_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_menu_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_menu_hooks</span>
+
 
 <a href="#tanjun.clients.Client.set_menu_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_menu_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4173,10 +4255,12 @@ client.</p>
 
 
 <h3 id="tanjun.clients.Client.set_menu_not_found" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_menu_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_menu_not_found</span>
+
 
 <a href="#tanjun.clients.Client.set_menu_not_found" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_menu_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4220,10 +4304,12 @@ only be done if you know what you're doing.</p>
 
 
 <h3 id="tanjun.clients.Client.set_message_accepts" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_message_accepts</span><span class="p">(</span><span class="n">accepts</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_message_accepts</span>
+
 
 <a href="#tanjun.clients.Client.set_message_accepts" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_message_accepts</span><span class="p">(</span><span class="n">accepts</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4293,10 +4379,12 @@ when the client doesn't have a linked event manager.</p>
 
 
 <h3 id="tanjun.clients.Client.set_message_ctx_maker" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_message_ctx_maker</span><span class="p">(</span><span class="n">maker</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_message_ctx_maker</span>
+
 
 <a href="#tanjun.clients.Client.set_message_ctx_maker" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_message_ctx_maker</span><span class="p">(</span><span class="n">maker</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4369,10 +4457,12 @@ of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.messag
 
 
 <h3 id="tanjun.clients.Client.set_message_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_message_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_message_hooks</span>
+
 
 <a href="#tanjun.clients.Client.set_message_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_message_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4435,10 +4525,12 @@ client.</p>
 
 
 <h3 id="tanjun.clients.Client.set_prefix_getter" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_prefix_getter</span>
+
 
 <a href="#tanjun.clients.Client.set_prefix_getter" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4502,10 +4594,12 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.Client.set_slash_ctx_maker" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_slash_ctx_maker</span><span class="p">(</span><span class="n">maker</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_slash_ctx_maker</span>
+
 
 <a href="#tanjun.clients.Client.set_slash_ctx_maker" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_slash_ctx_maker</span><span class="p">(</span><span class="n">maker</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4578,10 +4672,12 @@ of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.
 
 
 <h3 id="tanjun.clients.Client.set_slash_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_slash_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_slash_hooks</span>
+
 
 <a href="#tanjun.clients.Client.set_slash_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_slash_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4644,10 +4740,12 @@ client.</p>
 
 
 <h3 id="tanjun.clients.Client.set_slash_not_found" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">set_slash_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">set_slash_not_found</span>
+
 
 <a href="#tanjun.clients.Client.set_slash_not_found" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">set_slash_not_found</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4691,14 +4789,16 @@ only be done if you know what you're doing.</p>
 
 
 <h3 id="tanjun.clients.Client.slash_hooks" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">slash_hooks</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">slash_hooks</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.clients.Client.slash_hooks" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">slash_hooks</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4714,10 +4814,12 @@ only be done if you know what you're doing.</p>
 
 
 <h3 id="tanjun.clients.Client.with_check" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">with_check</span>
+
 
 <a href="#tanjun.clients.Client.with_check" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">with_check</span><span class="p">(</span><span class="n">check</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4778,10 +4880,12 @@ with dependency injection being supported for its keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.Client.with_prefix_getter" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">with_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">with_prefix_getter</span>
+
 
 <a href="#tanjun.clients.Client.with_prefix_getter" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">with_prefix_getter</span><span class="p">(</span><span class="n">getter</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4860,7 +4964,7 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h2 id="tanjun.clients.InteractionAcceptsEnum" class="doc doc-heading">
-        <code>InteractionAcceptsEnum</code>
+        <span class="doc doc-object-name doc-class-name">InteractionAcceptsEnum</span>
 
 
 <a href="#tanjun.clients.InteractionAcceptsEnum" class="headerlink" title="Permanent link">#</a></h2>
@@ -4890,14 +4994,16 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.InteractionAcceptsEnum.ALL" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">ALL</span> <span class="o">=</span> <span class="n">AUTOCOMPLETE</span> <span class="o">|</span> <span class="n">COMMANDS</span></code>
+        <span class="doc doc-object-name doc-attribute-name">ALL</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.clients.InteractionAcceptsEnum.ALL" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">ALL</span> <span class="o">=</span> <span class="n">AUTOCOMPLETE</span> <span class="o">|</span> <span class="n">COMMANDS</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4911,14 +5017,16 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.InteractionAcceptsEnum.AUTOCOMPLETE" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">AUTOCOMPLETE</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-attribute-name">AUTOCOMPLETE</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.clients.InteractionAcceptsEnum.AUTOCOMPLETE" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">AUTOCOMPLETE</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4932,14 +5040,16 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.InteractionAcceptsEnum.COMMANDS" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">COMMANDS</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-attribute-name">COMMANDS</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.clients.InteractionAcceptsEnum.COMMANDS" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">COMMANDS</span> <span class="o">=</span> <span class="n">enum</span><span class="o">.</span><span class="n">auto</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4954,14 +5064,16 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.InteractionAcceptsEnum.NONE" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span></code>
+        <span class="doc doc-object-name doc-attribute-name">NONE</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.clients.InteractionAcceptsEnum.NONE" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">NONE</span> <span class="o">=</span> <span class="mi">0</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -4985,7 +5097,7 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h2 id="tanjun.clients.MessageAcceptsEnum" class="doc doc-heading">
-        <code>MessageAcceptsEnum</code>
+        <span class="doc doc-object-name doc-class-name">MessageAcceptsEnum</span>
 
 
 <a href="#tanjun.clients.MessageAcceptsEnum" class="headerlink" title="Permanent link">#</a></h2>
@@ -5015,14 +5127,16 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.MessageAcceptsEnum.ALL" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">ALL</span> <span class="o">=</span> <span class="s1">&#39;ALL&#39;</span></code>
+        <span class="doc doc-object-name doc-attribute-name">ALL</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.clients.MessageAcceptsEnum.ALL" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">ALL</span> <span class="o">=</span> <span class="s1">&#39;ALL&#39;</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5036,14 +5150,16 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.MessageAcceptsEnum.DM_ONLY" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">DM_ONLY</span> <span class="o">=</span> <span class="s1">&#39;DM_ONLY&#39;</span></code>
+        <span class="doc doc-object-name doc-attribute-name">DM_ONLY</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.clients.MessageAcceptsEnum.DM_ONLY" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">DM_ONLY</span> <span class="o">=</span> <span class="s1">&#39;DM_ONLY&#39;</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5057,14 +5173,16 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.MessageAcceptsEnum.GUILD_ONLY" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">GUILD_ONLY</span> <span class="o">=</span> <span class="s1">&#39;GUILD_ONLY&#39;</span></code>
+        <span class="doc doc-object-name doc-attribute-name">GUILD_ONLY</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.clients.MessageAcceptsEnum.GUILD_ONLY" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">GUILD_ONLY</span> <span class="o">=</span> <span class="s1">&#39;GUILD_ONLY&#39;</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5078,14 +5196,16 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.MessageAcceptsEnum.NONE" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">NONE</span> <span class="o">=</span> <span class="s1">&#39;NONE&#39;</span></code>
+        <span class="doc doc-object-name doc-attribute-name">NONE</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.clients.MessageAcceptsEnum.NONE" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">NONE</span> <span class="o">=</span> <span class="s1">&#39;NONE&#39;</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5101,10 +5221,12 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
 
 <h3 id="tanjun.clients.MessageAcceptsEnum.get_event_type" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_event_type</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">get_event_type</span>
+
 
 <a href="#tanjun.clients.MessageAcceptsEnum.get_event_type" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">get_event_type</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5152,10 +5274,12 @@ message create events.</p>
 
 
 <h2 id="tanjun.clients.as_loader" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">as_loader</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">standard_impl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">as_loader</span>
+
 
 <a href="#tanjun.clients.as_loader" class="headerlink" title="Permanent link">#</a></h2>
-
+<div class="highlight"><pre><span></span><code><span class="n">as_loader</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">standard_impl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5243,10 +5367,12 @@ as opposed to <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Cli
 
 
 <h2 id="tanjun.clients.as_unloader" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">as_unloader</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">standard_impl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">as_unloader</span>
+
 
 <a href="#tanjun.clients.as_unloader" class="headerlink" title="Permanent link">#</a></h2>
-
+<div class="highlight"><pre><span></span><code><span class="n">as_unloader</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">standard_impl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -5336,14 +5462,16 @@ as opposed to <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Cli
 
 
 <h2 id="tanjun.clients.on_parser_error" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">on_parser_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">on_parser_error</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.clients.on_parser_error" class="headerlink" title="Permanent link">#</a></h2>
-
+<div class="highlight"><pre><span></span><code><span class="n">on_parser_error</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   

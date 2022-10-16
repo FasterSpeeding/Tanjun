@@ -1272,14 +1272,16 @@
 
 
 <h2 id="tanjun.errors.MissingDependencyError" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">MissingDependencyError</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">MissingDependencyError</span></code>
+        <span class="doc doc-object-name doc-attribute-name">MissingDependencyError</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.MissingDependencyError" class="headerlink" title="Permanent link">#</a></h2>
-
+<div class="highlight"><pre><span></span><code><span class="n">MissingDependencyError</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">MissingDependencyError</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1294,7 +1296,7 @@
 
 
 <h2 id="tanjun.errors.CommandError" class="doc doc-heading">
-        <code>CommandError</code>
+        <span class="doc doc-object-name doc-class-name">CommandError</span>
 
 
 <a href="#tanjun.errors.CommandError" class="headerlink" title="Permanent link">#</a></h2>
@@ -1326,10 +1328,12 @@
 
 
 <h3 id="tanjun.errors.CommandError.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">delete_after</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attachment</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">attachments</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">embeds</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">user_mentions</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">role_mentions</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
 
 <a href="#tanjun.errors.CommandError.__init__" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">delete_after</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">attachment</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">attachments</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">component</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">embed</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">embeds</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">mentions_everyone</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">user_mentions</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">,</span> <span class="n">role_mentions</span><span class="o">=</span><span class="n">hikari</span><span class="o">.</span><span class="n">UNDEFINED</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1574,14 +1578,16 @@ derivatives to enforce mentioning specific roles.</p>
 
 
 <h3 id="tanjun.errors.CommandError.send" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">send</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ensure_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">send</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.send" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">send</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ensure_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1751,7 +1757,7 @@ nature, and will trigger this exception if they occur.</p>
 
 
 <h2 id="tanjun.errors.ConversionError" class="doc doc-heading">
-        <code>ConversionError</code>
+        <span class="doc doc-object-name doc-class-name">ConversionError</span>
 
 
 <a href="#tanjun.errors.ConversionError" class="headerlink" title="Permanent link">#</a></h2>
@@ -1781,14 +1787,16 @@ nature, and will trigger this exception if they occur.</p>
 
 
 <h3 id="tanjun.errors.ConversionError.parameter" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span></code>
+        <span class="doc doc-object-name doc-attribute-name">parameter</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.ConversionError.parameter" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1804,10 +1812,12 @@ nature, and will trigger this exception if they occur.</p>
 
 
 <h3 id="tanjun.errors.ConversionError.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="p">())</span></code>
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
 
 <a href="#tanjun.errors.ConversionError.__init__" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="p">())</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1869,7 +1879,7 @@ nature, and will trigger this exception if they occur.</p>
 
 
 <h2 id="tanjun.errors.FailedCheck" class="doc doc-heading">
-        <code>FailedCheck</code>
+        <span class="doc doc-object-name doc-class-name">FailedCheck</span>
 
 
 <a href="#tanjun.errors.FailedCheck" class="headerlink" title="Permanent link">#</a></h2>
@@ -1893,7 +1903,7 @@ nature, and will trigger this exception if they occur.</p>
 
 
 <h2 id="tanjun.errors.FailedModuleImport" class="doc doc-heading">
-        <code>FailedModuleImport</code>
+        <span class="doc doc-object-name doc-class-name">FailedModuleImport</span>
 
 
 <a href="#tanjun.errors.FailedModuleImport" class="headerlink" title="Permanent link">#</a></h2>
@@ -1918,7 +1928,7 @@ nature, and will trigger this exception if they occur.</p>
 
 
 <h2 id="tanjun.errors.FailedModuleLoad" class="doc doc-heading">
-        <code>FailedModuleLoad</code>
+        <span class="doc doc-object-name doc-class-name">FailedModuleLoad</span>
 
 
 <a href="#tanjun.errors.FailedModuleLoad" class="headerlink" title="Permanent link">#</a></h2>
@@ -1952,14 +1962,16 @@ its loaders erroring.</p>
 
 
 <h3 id="tanjun.errors.FailedModuleLoad.__cause__" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">__cause__</span><span class="p">:</span> <span class="ne">Exception</span></code>
+        <span class="doc doc-object-name doc-attribute-name">__cause__</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.FailedModuleLoad.__cause__" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">__cause__</span><span class="p">:</span> <span class="ne">Exception</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -1975,14 +1987,16 @@ its loaders erroring.</p>
 
 
 <h3 id="tanjun.errors.FailedModuleLoad.path" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">path</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">path</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.errors.FailedModuleLoad.path" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">path</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2005,7 +2019,7 @@ its loaders erroring.</p>
 
 
 <h2 id="tanjun.errors.FailedModuleUnload" class="doc doc-heading">
-        <code>FailedModuleUnload</code>
+        <span class="doc doc-object-name doc-class-name">FailedModuleUnload</span>
 
 
 <a href="#tanjun.errors.FailedModuleUnload" class="headerlink" title="Permanent link">#</a></h2>
@@ -2039,14 +2053,16 @@ of its unloaders erroring.</p>
 
 
 <h3 id="tanjun.errors.FailedModuleUnload.__cause__" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">__cause__</span><span class="p">:</span> <span class="ne">Exception</span></code>
+        <span class="doc doc-object-name doc-attribute-name">__cause__</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.FailedModuleUnload.__cause__" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">__cause__</span><span class="p">:</span> <span class="ne">Exception</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2062,14 +2078,16 @@ of its unloaders erroring.</p>
 
 
 <h3 id="tanjun.errors.FailedModuleUnload.path" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">path</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">path</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.errors.FailedModuleUnload.path" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">path</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2092,7 +2110,7 @@ of its unloaders erroring.</p>
 
 
 <h2 id="tanjun.errors.HaltExecution" class="doc doc-heading">
-        <code>HaltExecution</code>
+        <span class="doc doc-object-name doc-class-name">HaltExecution</span>
 
 
 <a href="#tanjun.errors.HaltExecution" class="headerlink" title="Permanent link">#</a></h2>
@@ -2118,7 +2136,7 @@ other commands from being tried.</p>
 
 
 <h2 id="tanjun.errors.InvalidCheck" class="doc doc-heading">
-        <code>InvalidCheck</code>
+        <span class="doc doc-object-name doc-class-name">InvalidCheck</span>
 
 
 <a href="#tanjun.errors.InvalidCheck" class="headerlink" title="Permanent link">#</a></h2>
@@ -2142,7 +2160,7 @@ other commands from being tried.</p>
 
 
 <h2 id="tanjun.errors.ModuleMissingLoaders" class="doc doc-heading">
-        <code>ModuleMissingLoaders</code>
+        <span class="doc doc-object-name doc-class-name">ModuleMissingLoaders</span>
 
 
 <a href="#tanjun.errors.ModuleMissingLoaders" class="headerlink" title="Permanent link">#</a></h2>
@@ -2174,14 +2192,16 @@ other commands from being tried.</p>
 
 
 <h3 id="tanjun.errors.ModuleMissingLoaders.message" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">message</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">message</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.errors.ModuleMissingLoaders.message" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">message</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2196,14 +2216,16 @@ other commands from being tried.</p>
 
 
 <h3 id="tanjun.errors.ModuleMissingLoaders.path" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">path</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">path</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.errors.ModuleMissingLoaders.path" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">path</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2226,7 +2248,7 @@ other commands from being tried.</p>
 
 
 <h2 id="tanjun.errors.ModuleMissingUnloaders" class="doc doc-heading">
-        <code>ModuleMissingUnloaders</code>
+        <span class="doc doc-object-name doc-class-name">ModuleMissingUnloaders</span>
 
 
 <a href="#tanjun.errors.ModuleMissingUnloaders" class="headerlink" title="Permanent link">#</a></h2>
@@ -2258,14 +2280,16 @@ other commands from being tried.</p>
 
 
 <h3 id="tanjun.errors.ModuleMissingUnloaders.message" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">message</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">message</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.errors.ModuleMissingUnloaders.message" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">message</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2280,14 +2304,16 @@ other commands from being tried.</p>
 
 
 <h3 id="tanjun.errors.ModuleMissingUnloaders.path" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">path</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">path</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.errors.ModuleMissingUnloaders.path" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">path</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2310,7 +2336,7 @@ other commands from being tried.</p>
 
 
 <h2 id="tanjun.errors.ModuleStateConflict" class="doc doc-heading">
-        <code>ModuleStateConflict</code>
+        <span class="doc doc-object-name doc-class-name">ModuleStateConflict</span>
 
 
 <a href="#tanjun.errors.ModuleStateConflict" class="headerlink" title="Permanent link">#</a></h2>
@@ -2342,14 +2368,16 @@ other commands from being tried.</p>
 
 
 <h3 id="tanjun.errors.ModuleStateConflict.message" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">message</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">message</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.errors.ModuleStateConflict.message" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">message</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2364,14 +2392,16 @@ other commands from being tried.</p>
 
 
 <h3 id="tanjun.errors.ModuleStateConflict.path" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">path</span><span class="p">()</span></code>
+        <span class="doc doc-object-name doc-function-name">path</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.errors.ModuleStateConflict.path" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">path</span><span class="p">()</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2394,7 +2424,7 @@ other commands from being tried.</p>
 
 
 <h2 id="tanjun.errors.NotEnoughArgumentsError" class="doc doc-heading">
-        <code>NotEnoughArgumentsError</code>
+        <span class="doc doc-object-name doc-class-name">NotEnoughArgumentsError</span>
 
 
 <a href="#tanjun.errors.NotEnoughArgumentsError" class="headerlink" title="Permanent link">#</a></h2>
@@ -2424,14 +2454,16 @@ other commands from being tried.</p>
 
 
 <h3 id="tanjun.errors.NotEnoughArgumentsError.parameter" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span></code>
+        <span class="doc doc-object-name doc-attribute-name">parameter</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.NotEnoughArgumentsError.parameter" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2447,10 +2479,12 @@ other commands from being tried.</p>
 
 
 <h3 id="tanjun.errors.NotEnoughArgumentsError.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
 
 <a href="#tanjun.errors.NotEnoughArgumentsError.__init__" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2508,7 +2542,7 @@ other commands from being tried.</p>
 
 
 <h2 id="tanjun.errors.ParserError" class="doc doc-heading">
-        <code>ParserError</code>
+        <span class="doc doc-object-name doc-class-name">ParserError</span>
 
 
 <a href="#tanjun.errors.ParserError" class="headerlink" title="Permanent link">#</a></h2>
@@ -2544,10 +2578,12 @@ other commands from being tried.</p>
 
 
 <h3 id="tanjun.errors.ParserError.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
 
 <a href="#tanjun.errors.ParserError.__init__" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2606,7 +2642,7 @@ if not applicable.</p>
 
 
 <h2 id="tanjun.errors.TanjunError" class="doc doc-heading">
-        <code>TanjunError</code>
+        <span class="doc doc-object-name doc-class-name">TanjunError</span>
 
 
 <a href="#tanjun.errors.TanjunError" class="headerlink" title="Permanent link">#</a></h2>
@@ -2630,7 +2666,7 @@ if not applicable.</p>
 
 
 <h2 id="tanjun.errors.TooManyArgumentsError" class="doc doc-heading">
-        <code>TooManyArgumentsError</code>
+        <span class="doc doc-object-name doc-class-name">TooManyArgumentsError</span>
 
 
 <a href="#tanjun.errors.TooManyArgumentsError" class="headerlink" title="Permanent link">#</a></h2>
@@ -2660,14 +2696,16 @@ if not applicable.</p>
 
 
 <h3 id="tanjun.errors.TooManyArgumentsError.parameter" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span></code>
+        <span class="doc doc-object-name doc-attribute-name">parameter</span>
+
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.TooManyArgumentsError.parameter" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="n">parameter</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
@@ -2683,10 +2721,12 @@ if not applicable.</p>
 
 
 <h3 id="tanjun.errors.TooManyArgumentsError.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span></code>
+        <span class="doc doc-object-name doc-function-name">__init__</span>
+
 
 <a href="#tanjun.errors.TooManyArgumentsError.__init__" class="headerlink" title="Permanent link">#</a></h3>
-
+<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
+</code></pre></div>
 
   <div class="doc doc-contents ">
   
