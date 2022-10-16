@@ -54,7 +54,7 @@ plugins:
             show_signature_annotations: false
             show_source: false
             show_submodules: false
-            separate_signature: false
+            separate_signature: true
           import:
             - https://docs.python.org/3.9/objects.inv
             - https://hikari-py.github.io/hikari/objects.inv
