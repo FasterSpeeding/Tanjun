@@ -812,4 +812,98 @@ buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
 [BucketResource][tanjun.dependencies.BucketResource].
 
+## Localisation
+
+[Localisation](https://en.wikipedia.org/wiki/Language_localisation) allows for
+tailoring the declarations and responses of slash commands and context menu
+commands to match specific regions through by providing multiple translations
+of a field. Localisation on Discord is limited to the locales Discord supports
+(listed at [hikari.locales.Locale][]).
+
+### Localising command declarations
+
+```py
+@tanjun.as_slash_command({hikari.Locale.ES_US: "Hola"}, "description")
+```
+
+For fields which support localisation you've previously seen a single string
+being passed to them: this value is used as a default for all locales and for
+environments which don't support localisation (e.g. message command execution).
+But as shown above, you can also pass a dictionary of localised values to these
+fields.
+
+### Client localiser
+
+Tanjun also provides an optional global localiser which allows for
+setting/overriding the locale-specific variants used for localised fields such
+as error message responses and application fields globally.
+
+```py
+import tanjun
+
+client = tanjun.Client.from_gateway_bot(...)
+
+(
+    tanjun.dependencies.BasicLocaliser()
+    .set_overrides(
+        "slash:command name:name",
+        {hikari.Locale.EN_US: "american variant", hikari.Locale.EN_GB: "english variant"}
+    )
+    .set_overrides(
+        "message_menu:command name:check:tanjun.OwnerCheck",
+        {hikari.Locale.JA: "konnichiwa", hikari.Locale.ES_ES: "Hola"}
+    )
+    .add_to_client(client)
+)
+```
+
+Specific fields may be overridden by their ID as shown above. There is no
+guaranteed format for field IDs but the standard implementations will always
+use the following formats unless explicitly overridden:
+
+* Checks and limiters: `f"{command_type}:{command_name}:check:{check_name}"`
+* Command descriptions: `f"{command_type}:{command_name}:description"`
+* Command names: `f"{command_type}:{command_name}:name"`
+* Slash option names: `f"slash:{command_name}:option.name:{option_name}"`
+* Slash option descriptions: `f"slash:{command_name}:option.description:{option_name}"`
+
+`command_type` may be one of `"message_menu"`, `"slash"` or `"user_menu"`,
+and `command_name` will be the full name of the command (including parent
+command names in the path) and standard check names will always be
+prefixed with `"tanjun."`.
+
+It's highly recommended that 3rd party libraries match this format if possible.
+
+### Localising command responses
+
+```py
+LOCALISED_RESPONSES = {
+    hikari.Locale.DA: "Hej",
+    hikari.Locale.DE: "Hallo",
+    hikari.Locale.EN_GB: "Good day fellow sir",
+    hikari.Locale.EN_US: "*shoots you*",
+    hikari.Locale.ES_ES: "Hola",
+    hikari.Locale.FR: "Bonjour, camarade baguette",
+    hikari.Locale.PL: "Musimy szerzyć gejostwo w Strefach wolnych od LGBT, musimy zrobić rajd gejowski",
+    hikari.Locale.SV_SE: "Hej, jag älskar min Blåhaj",
+    hikari.Locale.VI: "Xin chào, Cây nói tiếng Việt",
+    hikari.Locale.TR: "Merhaba",
+    hikari.Locale.CS: "Ahoj",
+    hikari.Locale.ZH_CN: "自由香港",
+    hikari.Locale.JA: "こんにちは、アニメの女の子だったらいいのに",
+    hikari.Locale.ZH_TW: "让台湾自由",
+}
+
+@tanjun.as_slash_command("name", "description")
+async def as_slash_command(ctx: tanjun.abc.SlashContext) -> None:
+    await ctx.respond(LOCALISED_RESPONSES.get(ctx.interaction.locale, "hello"))
+```
+
+[tanjun.abc.AppCommandContext.interaction][] (base class for both
+[tanjun.abc.SlashContext][] and [tanjun.abc.MenuContext][]) both have the
+fields `guild_locale` and `locale` which provide the set locale of the guild
+and the user triggering the command respectively.
+This [locale][hikari.locales.Locale] can be used to localise responses to
+specific languages within your own code.
+
 <!-- # TODO: some day, document buildings commands using the flient interface -->

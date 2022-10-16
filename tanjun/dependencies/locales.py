@@ -43,6 +43,8 @@ import abc
 import typing
 from collections import abc as collections
 
+from .. import abc as tanjun
+
 _BasicLocaliserT = typing.TypeVar("_BasicLocaliserT", bound="BasicLocaliser")
 
 
@@ -63,6 +65,9 @@ class AbstractLocaliser(abc.ABC):
         ----------
         identifier
             The unique identifier of the string to localise.
+
+            This may be in any format but the formats used by the standard
+            implementations can be found at [client-localiser][].
         tag
             The "IETF lang tag" to localise the string to.
 
@@ -93,6 +98,19 @@ class BasicLocaliser(AbstractLocaliser):
     def __init__(self) -> None:
         """Initialise a new `BasicLocaliser`."""
         self._tags: dict[str, dict[str, str]] = {}
+
+    def add_to_client(self, client: tanjun.Client, /) -> None:
+        """Add this global localiser to a tanjun client.
+
+        !!! note
+            This registers the manager as a type dependency to let Tanjun use it.
+
+        Parameters
+        ----------
+        client
+            The client to add this global localiser to.
+        """
+        client.set_type_dependency(AbstractLocalizer, self)
 
     def get_all_variants(self, identifier: str, /, **kwargs: typing.Any) -> collections.Mapping[str, str]:
         # <<inherited docstring from AbstractLocaliser>>.
@@ -128,6 +146,9 @@ class BasicLocaliser(AbstractLocaliser):
         ----------
         identifier
             Identifier of the field to set the localised variants for.
+
+            This may be in any format but the formats used by the standard
+            implementations can be found at [client-localiser][].
         variants
             Mapping of [hikari.locales.Locale][]s to the localised values.
 
