@@ -835,7 +835,7 @@ fields.
 ### Client localiser
 
 Tanjun also provides an optional global localiser which allows for
-setting/overriding the locale-specific varients used for localised fields such
+setting/overriding the locale-specific variants used for localised fields such
 as error message responses and application fields globally.
 
 ```py
@@ -857,7 +857,7 @@ client = tanjun.Client.from_gateway_bot(...)
 )
 ```
 
-Specific fields may be overriden by their ID as shown above. There is no
+Specific fields may be overridden by their ID as shown above. There is no
 guaranteed format for field IDs but the standard implementations will always
 use the following formats unless explicitly overridden:
 
