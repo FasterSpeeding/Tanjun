@@ -45,7 +45,7 @@ from .. import abc as tanjun
 from .. import dependencies
 
 if typing.TYPE_CHECKING:
-    from typing_extensions import self
+    from typing_extensions import Self
 
 
 class MaybeLocalised:
