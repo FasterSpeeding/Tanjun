@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.8.0a1] - 2022-10-01
+## [2.8.0a1] - 2022-10-16
 ### Added
 - Support for specifying `min_length` and `max_length` for slash command string options.
 - Support for specifying `min_length` and `max_length` for message command parsing options with either
