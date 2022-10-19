@@ -67,10 +67,10 @@ from . import locales
 from . import owners
 
 if typing.TYPE_CHECKING:
+    from typing_extensions import Self
+
     _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
     _OtherCommandT = typing.TypeVar("_OtherCommandT", bound="tanjun.ExecutableCommand[typing.Any]")
-    _InMemoryCooldownManagerT = typing.TypeVar("_InMemoryCooldownManagerT", bound="InMemoryCooldownManager")
-    _InMemoryConcurrencyLimiterT = typing.TypeVar("_InMemoryConcurrencyLimiterT", bound="InMemoryConcurrencyLimiter")
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
 
@@ -283,7 +283,7 @@ class _Cooldown:
         # Expiration doesn't actually matter for cases where the limit is -1.
         return _now() >= self.resets_at
 
-    def increment(self: _CooldownT) -> _CooldownT:
+    def increment(self) -> Self:
         # A limit of -1 is special cased to mean no limit, so there's no need to increment the counter.
         if self.limit == -1:
             return self
@@ -567,7 +567,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
-    def disable_bucket(self: _InMemoryCooldownManagerT, bucket_id: str, /) -> _InMemoryCooldownManagerT:
+    def disable_bucket(self, bucket_id: str, /) -> Self:
         """Disable a cooldown bucket.
 
         This will stop the bucket from ever hitting a cooldown and also
@@ -597,13 +597,13 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         return self
 
     def set_bucket(
-        self: _InMemoryCooldownManagerT,
+        self,
         bucket_id: str,
         resource: BucketResource,
         limit: int,
         reset_after: typing.Union[int, float, datetime.timedelta],
         /,
-    ) -> _InMemoryCooldownManagerT:
+    ) -> Self:
         """Set the cooldown for a specific bucket.
 
         !!! note
@@ -934,7 +934,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         if limit := self._acquiring_ctxs.pop((bucket_id, ctx), None):
             limit.release()
 
-    def disable_bucket(self: _InMemoryConcurrencyLimiterT, bucket_id: str, /) -> _InMemoryConcurrencyLimiterT:
+    def disable_bucket(self, bucket_id: str, /) -> Self:
         """Disable a concurrency limit bucket.
 
         This will stop the bucket from ever hitting a concurrency limit
@@ -960,9 +960,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         return self
 
-    def set_bucket(
-        self: _InMemoryConcurrencyLimiterT, bucket_id: str, resource: BucketResource, limit: int, /
-    ) -> _InMemoryConcurrencyLimiterT:
+    def set_bucket(self, bucket_id: str, resource: BucketResource, limit: int, /) -> Self:
         """Set the concurrency limit for a specific bucket.
 
         !!! note

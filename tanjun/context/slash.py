@@ -49,9 +49,9 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
+    from typing_extensions import Self
+
     _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
-    _SlashContextT = typing.TypeVar("_SlashContextT", bound="SlashContext")
     _T = typing.TypeVar("_T")
 
 _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
@@ -394,7 +394,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
 
         return flags or hikari.MessageFlag.NONE
 
-    def start_defer_timer(self: _AppCommandContextT, count_down: typing.Union[int, float], /) -> _AppCommandContextT:
+    def start_defer_timer(self, count_down: typing.Union[int, float], /) -> Self:
         """Start the auto-deferral timer.
 
         Parameters
@@ -415,7 +415,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self._defer_task = asyncio.create_task(self._auto_defer(count_down))
         return self
 
-    def set_ephemeral_default(self: _AppCommandContextT, state: bool, /) -> _AppCommandContextT:
+    def set_ephemeral_default(self, state: bool, /) -> Self:
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         self._assert_not_final()  # TODO: document not final assertions.
         self._defaults_to_ephemeral = state
@@ -1037,7 +1037,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
             self._marked_not_found = True
             await self._on_not_found(self)
 
-    def set_command(self: _SlashContextT, command: typing.Optional[tanjun.BaseSlashCommand], /) -> _SlashContextT:
+    def set_command(self, command: typing.Optional[tanjun.BaseSlashCommand], /) -> Self:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         self._assert_not_final()
         if command:

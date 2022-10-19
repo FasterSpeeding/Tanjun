@@ -45,7 +45,8 @@ from collections import abc as collections
 
 from .. import abc as tanjun
 
-_BasicLocaliserT = typing.TypeVar("_BasicLocaliserT", bound="BasicLocaliser")
+if typing.TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class AbstractLocaliser(abc.ABC):
@@ -134,12 +135,12 @@ class BasicLocaliser(AbstractLocaliser):
             return string.format(**kwargs)
 
     def set_variants(
-        self: _BasicLocaliserT,
+        self,
         identifier: str,
         variants: typing.Optional[collections.Mapping[str, str]] = None,
         /,
         **other_variants: str,
-    ) -> _BasicLocaliserT:
+    ) -> Self:
         """Set the variants for a localised field.
 
         Parameters

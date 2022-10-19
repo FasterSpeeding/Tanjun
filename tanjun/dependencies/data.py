@@ -45,7 +45,7 @@ if typing.TYPE_CHECKING:
     import contextlib
     from collections import abc as collections
 
-    _LazyConstantT = typing.TypeVar("_LazyConstantT", bound="LazyConstant[typing.Any]")
+    from typing_extensions import Self
 
 _T = typing.TypeVar("_T")
 
@@ -86,13 +86,13 @@ class LazyConstant(typing.Generic[_T]):
         """Get the value of this constant if set, else [None][]."""
         return self._value
 
-    def reset(self: _LazyConstantT) -> _LazyConstantT:
+    def reset(self) -> Self:
         """Clear the internally stored value."""
         self._lock = None
         self._value = None
         return self
 
-    def set_value(self: _LazyConstantT, value: _T, /) -> _LazyConstantT:
+    def set_value(self, value: _T, /) -> Self:
         """Set the constant value.
 
         Parameters

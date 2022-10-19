@@ -49,11 +49,13 @@ from .. import _internal
 from .. import abc as tanjun
 from .. import errors
 
+if typing.TYPE_CHECKING:
+    from typing_extensions import Self
+
 _LOGGER = logging.getLogger("hikari.tanjun.reloader")
 
 _BuilderDict = dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder]
 _DirectoryEntry = typing.Union[tuple[str, set[str]], tuple[None, set[pathlib.Path]]]
-_HotReloaderT = typing.TypeVar("_HotReloaderT", bound="HotReloader")
 
 
 class _PyPathInfo:
@@ -209,7 +211,7 @@ class HotReloader:
         if client.is_alive and client.loop:
             client.loop.call_soon_threadsafe(self.start, client)
 
-    async def add_modules_async(self: _HotReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _HotReloaderT:
+    async def add_modules_async(self, *paths: typing.Union[str, pathlib.Path]) -> Self:
         """Asynchronous variant of [tanjun.dependencies.reloaders.HotReloader.add_modules][].
 
         Unlike [tanjun.dependencies.reloaders.HotReloader.add_modules][],
@@ -223,7 +225,7 @@ class HotReloader:
         self._sys_paths.update((key, -1) for key in sys_paths)
         return self
 
-    def add_modules(self: _HotReloaderT, *paths: typing.Union[str, pathlib.Path]) -> _HotReloaderT:
+    def add_modules(self, *paths: typing.Union[str, pathlib.Path]) -> Self:
         """Add modules for this hot reloader to track.
 
         Parameters
@@ -247,8 +249,8 @@ class HotReloader:
         return self
 
     async def add_directory_async(
-        self: _HotReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
-    ) -> _HotReloaderT:
+        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
+    ) -> Self:
         """Asynchronous variant of [tanjun.dependencies.reloaders.HotReloader.add_directory][].
 
         Unlike [tanjun.dependencies.reloaders.HotReloader.add_directory][],
@@ -262,8 +264,8 @@ class HotReloader:
         return self
 
     def add_directory(
-        self: _HotReloaderT, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
-    ) -> _HotReloaderT:
+        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
+    ) -> Self:
         """Add a directory for this hot reloader to track.
 
         !!! note

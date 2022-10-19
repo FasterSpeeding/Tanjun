@@ -47,7 +47,8 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    _MessageContextT = typing.TypeVar("_MessageContextT", bound="MessageContext")
+    from typing_extensions import Self
+
 
 _LOGGER = logging.getLogger("hikari.tanjun.context")
 
@@ -176,9 +177,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._triggering_prefix
 
-    def set_command(
-        self: _MessageContextT, command: typing.Optional[tanjun.MessageCommand[typing.Any]], /
-    ) -> _MessageContextT:
+    def set_command(self, command: typing.Optional[tanjun.MessageCommand[typing.Any]], /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
         if command:
@@ -193,19 +192,19 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self._command = command
         return self
 
-    def set_content(self: _MessageContextT, content: str, /) -> _MessageContextT:
+    def set_content(self, content: str, /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
         self._content = content
         return self
 
-    def set_triggering_name(self: _MessageContextT, name: str, /) -> _MessageContextT:
+    def set_triggering_name(self, name: str, /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
         self._triggering_name = name
         return self
 
-    def set_triggering_prefix(self: _MessageContextT, triggering_prefix: str, /) -> _MessageContextT:
+    def set_triggering_prefix(self, triggering_prefix: str, /) -> Self:
         """Set the triggering prefix for this context.
 
         Parameters

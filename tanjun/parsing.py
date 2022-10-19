@@ -62,9 +62,9 @@ from . import conversion
 from . import errors
 
 if typing.TYPE_CHECKING:
+    from typing_extensions import Self
+
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.MessageCommand[typing.Any])
-    _ParameterT = typing.TypeVar("_ParameterT", bound="Parameter")
-    _ShlexParserT = typing.TypeVar("_ShlexParserT", bound="ShlexParser")
     _T_contra = typing.TypeVar("_T_contra", contravariant=True)
 
     class _CmpProto(typing.Protocol[_T_contra]):
@@ -146,7 +146,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
     @typing.overload
     @abc.abstractmethod
     def add_argument(
-        self: _T,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[typing.Any]],
@@ -154,13 +154,13 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def add_argument(
-        self: _T,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[str]] = (),
@@ -172,13 +172,13 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def add_argument(
-        self: _T,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
@@ -190,13 +190,13 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_SizedCmpProtoT] = None,
         max_value: typing.Optional[_SizedCmpProtoT] = None,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def add_argument(
-        self: _T,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[collections.Sized]],
@@ -206,13 +206,13 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def add_argument(
-        self: _T,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
@@ -222,12 +222,12 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         ...
 
     @abc.abstractmethod
     def add_argument(
-        self: _T,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
@@ -239,7 +239,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
         max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         """Add a positional argument type to the parser..
 
         !!! note
@@ -301,7 +301,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
     @typing.overload
     @abc.abstractmethod
     def add_option(
-        self: _T,
+        self,
         key: str,
         name: str,
         /,
@@ -310,13 +310,13 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def add_option(
-        self: _T,
+        self,
         key: str,
         name: str,
         /,
@@ -329,13 +329,13 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def add_option(
-        self: _T,
+        self,
         key: str,
         name: str,
         /,
@@ -348,13 +348,13 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_SizedCmpProtoT] = None,
         max_value: typing.Optional[_SizedCmpProtoT] = None,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def add_option(
-        self: _T,
+        self,
         key: str,
         name: str,
         /,
@@ -365,13 +365,13 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def add_option(
-        self: _T,
+        self,
         key: str,
         name: str,
         /,
@@ -382,12 +382,12 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         ...
 
     @abc.abstractmethod
     def add_option(
-        self: _T,
+        self,
         key: str,
         name: str,
         /,
@@ -400,7 +400,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
         max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = False,
-    ) -> _T:
+    ) -> Self:
         """Add an named option to this parser.
 
         Parameters
@@ -1719,7 +1719,7 @@ class Parameter:
         parameter_type = "option" if isinstance(self, Option) else "argument"
         raise errors.ConversionError(f"Couldn't convert {parameter_type} '{self._key}'", self._key, sources)
 
-    def copy(self: _ParameterT) -> _ParameterT:
+    def copy(self) -> Self:
         """Copy the parameter.
 
         Returns
@@ -1951,7 +1951,7 @@ class ShlexParser(AbstractOptionParser):
         # <<inherited docstring from AbstractOptionParser>>.
         return self._options.copy()
 
-    def copy(self: _ShlexParserT) -> _ShlexParserT:
+    def copy(self) -> Self:
         # <<inherited docstring from AbstractOptionParser>>.
         inst = copy.copy(self)
         inst._arguments = [argument.copy() for argument in self._arguments]
@@ -1965,7 +1965,7 @@ class ShlexParser(AbstractOptionParser):
 
     @typing.overload
     def add_argument(
-        self: _ShlexParserT,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[typing.Any]],
@@ -1973,12 +1973,12 @@ class ShlexParser(AbstractOptionParser):
         default: _UndefinedOr[typing.Any] = UNDEFINED,
         greedy: bool = False,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         ...
 
     @typing.overload
     def add_argument(
-        self: _ShlexParserT,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[str]] = (),
@@ -1990,12 +1990,12 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         ...
 
     @typing.overload
     def add_argument(
-        self: _ShlexParserT,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
@@ -2007,12 +2007,12 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_SizedCmpProtoT] = None,
         max_value: typing.Optional[_SizedCmpProtoT] = None,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         ...
 
     @typing.overload
     def add_argument(
-        self: _ShlexParserT,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[collections.Sized]],
@@ -2022,12 +2022,12 @@ class ShlexParser(AbstractOptionParser):
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         ...
 
     @typing.overload
     def add_argument(
-        self: _ShlexParserT,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
@@ -2037,11 +2037,11 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         ...
 
     def add_argument(
-        self: _ShlexParserT,
+        self,
         key: str,
         /,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
@@ -2053,7 +2053,7 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
         max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         # <<inherited docstring from AbstractOptionParser>>.
         self._assert_key(key)
         argument = Argument(
@@ -2082,7 +2082,7 @@ class ShlexParser(AbstractOptionParser):
 
     @typing.overload
     def add_option(
-        self: _ShlexParserT,
+        self,
         key: str,
         name: str,
         /,
@@ -2091,12 +2091,12 @@ class ShlexParser(AbstractOptionParser):
         default: typing.Any,
         empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         ...
 
     @typing.overload
     def add_option(
-        self: _ShlexParserT,
+        self,
         key: str,
         name: str,
         /,
@@ -2109,12 +2109,12 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         ...
 
     @typing.overload
     def add_option(
-        self: _ShlexParserT,
+        self,
         key: str,
         name: str,
         /,
@@ -2127,12 +2127,12 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_SizedCmpProtoT] = None,
         max_value: typing.Optional[_SizedCmpProtoT] = None,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         ...
 
     @typing.overload
     def add_option(
-        self: _ShlexParserT,
+        self,
         key: str,
         name: str,
         /,
@@ -2143,12 +2143,12 @@ class ShlexParser(AbstractOptionParser):
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         ...
 
     @typing.overload
     def add_option(
-        self: _ShlexParserT,
+        self,
         key: str,
         name: str,
         /,
@@ -2159,12 +2159,12 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         ...
 
     # TODO: add default getter
     def add_option(
-        self: _ShlexParserT,
+        self,
         key: str,
         name: str,
         /,
@@ -2177,7 +2177,7 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
         max_value: typing.Optional[_CmpProto[typing.Any]] = None,
         multi: bool = False,
-    ) -> _ShlexParserT:
+    ) -> Self:
         # <<inherited docstring from AbstractOptionParser>>.
         self._assert_key(key)
         option = Option(
@@ -2203,7 +2203,7 @@ class ShlexParser(AbstractOptionParser):
         self._options.append(option)
         return self
 
-    def bind_client(self: _ShlexParserT, client: tanjun.Client, /) -> _ShlexParserT:
+    def bind_client(self, client: tanjun.Client, /) -> Self:
         # <<inherited docstring from AbstractOptionParser>>.
         self._client = client
         for parameter in itertools.chain(self._options, self._arguments):
@@ -2211,7 +2211,7 @@ class ShlexParser(AbstractOptionParser):
 
         return self
 
-    def bind_component(self: _ShlexParserT, component: tanjun.Component, /) -> _ShlexParserT:
+    def bind_component(self, component: tanjun.Component, /) -> Self:
         # <<inherited docstring from AbstractOptionParser>>.
         self._component = component
         for parameter in itertools.chain(self._options, self._arguments):
