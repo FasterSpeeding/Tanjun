@@ -460,10 +460,6 @@ class Context(alluka.Context):
     ) -> hikari.Message:
         """Edit the initial response for this context.
 
-        !!! note
-            Since (as of writing) ephemeral responses cannot be deleted by the bot,
-            `delete_after` is ignored for ephemeral slash command responses.
-
         Parameters
         ----------
         content
@@ -587,10 +583,6 @@ class Context(alluka.Context):
         ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         """Edit the last response for this context.
-
-        !!! note
-            Since (as of writing) ephemeral responses cannot be deleted by the bot,
-            `delete_after` is ignored for ephemeral slash command responses.
 
         Parameters
         ----------
@@ -785,10 +777,6 @@ class Context(alluka.Context):
         ] = hikari.UNDEFINED,
     ) -> typing.Optional[hikari.Message]:
         """Respond to this context.
-
-        !!! note
-            Since (as of writing) ephemeral responses cannot be deleted by the bot,
-            `delete_after` is ignored for ephemeral slash command responses.
 
         Parameters
         ----------
@@ -1428,10 +1416,6 @@ class AppCommandContext(Context, abc.ABC):
             Calling this on a context which hasn't had an initial response yet
             will lead to a [hikari.errors.NotFoundError][] being raised.
 
-        !!! note
-            Since (as of writing) ephemeral responses cannot be deleted by the bot,
-            `delete_after` is ignored for ephemeral slash command responses.
-
         Parameters
         ----------
         content
@@ -1553,10 +1537,6 @@ class AppCommandContext(Context, abc.ABC):
             will result in this raising a [hikari.errors.NotFoundError][].
             This includes if the REST interaction server has already responded
             to the request and deferrals.
-
-        !!! note
-            Since (as of writing) ephemeral responses cannot be deleted by the bot,
-            `delete_after` is ignored for ephemeral slash command responses.
 
         Parameters
         ----------

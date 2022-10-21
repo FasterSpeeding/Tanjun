@@ -514,7 +514,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         # unexpected behaviour around deferrals) should be accounted for.
         self._has_responded = True
 
-        if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
+        if delete_after is not None:
             self._register_task(asyncio.create_task(self._delete_followup_after(delete_after, message)))
 
         return message
@@ -642,7 +642,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             self._response_future.set_result(result)
 
         self._has_responded = True
-        if delete_after is not None and not flags & hikari.MessageFlag.EPHEMERAL:
+        if delete_after is not None:
             self._register_task(asyncio.create_task(self._delete_initial_response_after(delete_after)))
 
     async def create_initial_response(
@@ -747,7 +747,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         # This will be False if the initial response was deferred with this finishing the referral.
         self._has_responded = True
 
-        if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
+        if delete_after is not None:
             self._register_task(asyncio.create_task(self._delete_initial_response_after(delete_after)))
 
         return message
@@ -789,7 +789,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 user_mentions=user_mentions,
                 role_mentions=role_mentions,
             )
-            if delete_after is not None and not message.flags & hikari.MessageFlag.EPHEMERAL:
+            if delete_after is not None:
                 self._register_task(asyncio.create_task(self._delete_followup_after(delete_after, message)))
 
             return message
