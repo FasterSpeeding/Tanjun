@@ -902,30 +902,6 @@ class TestAppCommandContext:
         create_task.assert_called_once_with(mock_delete_initial_response_after.return_value)
         mock_register_task.assert_called_once_with(create_task.return_value)
 
-    @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=545), 545, 545.0])
-    @pytest.mark.asyncio()
-    async def test_edit_initial_response_ignores_delete_after_when_is_ephemeral(
-        self, mock_client: mock.Mock, delete_after: typing.Union[datetime.timedelta, int, float]
-    ):
-        mock_delete_initial_response_after = mock.Mock()
-        mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
-        mock_interaction.edit_initial_response.return_value.flags = hikari.MessageFlag.EPHEMERAL
-        mock_register_task = mock.Mock()
-        context = stub_class(
-            tanjun.context.slash.AppCommandContext,
-            type=mock.Mock(),
-            mark_not_found=mock.AsyncMock(),
-            _delete_initial_response_after=mock_delete_initial_response_after,
-            args=(mock_client, mock_interaction, mock_register_task),
-        )
-
-        with mock.patch.object(asyncio, "create_task") as create_task:
-            await context.edit_initial_response("bye", delete_after=delete_after)
-
-        mock_delete_initial_response_after.assert_not_called()
-        create_task.assert_not_called()
-        mock_register_task.assert_not_called()
-
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=901), 901, 901.0])
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_delete_after_will_have_expired(
