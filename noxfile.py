@@ -35,7 +35,6 @@ import itertools
 import pathlib
 import re
 import shutil
-import tempfile
 from collections import abc as collections
 
 import nox
@@ -275,35 +274,3 @@ def verify_types(session: nox.Session) -> None:
     """Verify the "type completeness" of types exported by the library using Pyright."""
     install_requirements(session, ".", *_dev_dep("type-checking"))
     _run_pyright(session, "--verifytypes", "tanjun", "--ignoreexternal")
-
-
-@nox.session(name="check-dependencies")
-def check_dependencies(session: nox.Session) -> None:
-    """Verify that all the dependencies declared in pyproject.toml are up to date."""
-    import httpx
-
-    # Note: this can be linked to a specific hash by adding it between raw and {file.name} as another route segment.
-    with httpx.Client() as client:
-        requirements = client.get(
-            "https://gist.githubusercontent.com/FasterSpeeding/13e3d871f872fa09cf7bdc4144d62b2b/raw/requirements.json"
-        ).json()
-
-        # Note: this can be linked to a specific hash by adding it between raw and {file.name} as another route segment.
-        code = client.get(
-            "https://gist.githubusercontent.com/FasterSpeeding/13e3d871f872fa09cf7bdc4144d62b2b/raw/check_dependency.py"
-        ).read()
-
-    install_requirements(session, *requirements)
-    # This is saved to a temporary file to avoid the source showing up in any of the output.
-
-    # A try, finally is used to delete the file rather than relying on delete=True behaviour
-    # as on Windows the file cannot be accessed by other processes if delete is True.
-    file = tempfile.NamedTemporaryFile(delete=False)
-    try:
-        with file:
-            file.write(code)
-
-        session.run("python", file.name)
-
-    finally:
-        pathlib.Path(file.name).unlink(missing_ok=False)
