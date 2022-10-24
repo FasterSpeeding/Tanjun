@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.0, mkdocs-material-8.5.6">
+      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
     
     
       
@@ -5346,8 +5346,8 @@ globally or for a specific guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.default_member_permissions" class="headerlink" title="Permanent link">#</a></h3>
@@ -5380,8 +5380,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.defaults_to_ephemeral" class="headerlink" title="Permanent link">#</a></h3>
@@ -5414,8 +5414,8 @@ component or client is used.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.is_dm_enabled" class="headerlink" title="Permanent link">#</a></h3>
@@ -5449,8 +5449,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.is_global" class="headerlink" title="Permanent link">#</a></h3>
@@ -5479,8 +5479,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.name" class="headerlink" title="Permanent link">#</a></h3>
@@ -5549,7 +5549,7 @@ is inherited regardless of what it's set as on the child command.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -5572,8 +5572,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.tracked_command" class="headerlink" title="Permanent link">#</a></h3>
@@ -5597,8 +5597,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.tracked_command_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -5622,8 +5622,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -5702,11 +5702,6 @@ is inherited regardless of what it's set as on the child command.</p>
 <p class="admonition-title">Warning</p>
 <p>Calling this on a context which hasn't had an initial response yet
 will lead to a <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/errors.html#hikari.errors.NotFoundError">hikari.errors.NotFoundError</a> being raised.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Since (as of writing) ephemeral responses cannot be deleted by the bot,
-<code>delete_after</code> is ignored for ephemeral slash command responses.</p>
 </div>
 
   <table>
@@ -6073,11 +6068,6 @@ and <code>components</code> are passed or both <code>embed</code> and <code>embe
 will result in this raising a <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/errors.html#hikari.errors.NotFoundError">hikari.errors.NotFoundError</a>.
 This includes if the REST interaction server has already responded
 to the request and deferrals.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Since (as of writing) ephemeral responses cannot be deleted by the bot,
-<code>delete_after</code> is ignored for ephemeral slash command responses.</p>
 </div>
 
   <table>
@@ -6477,8 +6467,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.defaults_to_ephemeral" class="headerlink" title="Permanent link">#</a></h3>
@@ -6581,8 +6571,8 @@ passed flags.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.expires_at" class="headerlink" title="Permanent link">#</a></h3>
@@ -6608,8 +6598,8 @@ context will always raise <a class="autorefs autorefs-external" href="https://hi
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.has_been_deferred" class="headerlink" title="Permanent link">#</a></h3>
@@ -6640,8 +6630,8 @@ will need to be used to create the initial response rather than
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.interaction" class="headerlink" title="Permanent link">#</a></h3>
@@ -6692,8 +6682,8 @@ response message being sent.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.member" class="headerlink" title="Permanent link">#</a></h3>
@@ -6766,8 +6756,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -6831,8 +6821,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.author" class="headerlink" title="Permanent link">#</a></h3>
@@ -6856,8 +6846,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.cache" class="headerlink" title="Permanent link">#</a></h3>
@@ -6881,8 +6871,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.channel_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -6906,8 +6896,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.client" class="headerlink" title="Permanent link">#</a></h3>
@@ -6931,8 +6921,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.created_at" class="headerlink" title="Permanent link">#</a></h3>
@@ -6960,8 +6950,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.events" class="headerlink" title="Permanent link">#</a></h3>
@@ -7255,8 +7245,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.focused" class="headerlink" title="Permanent link">#</a></h3>
@@ -7381,8 +7371,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.guild_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -7407,8 +7397,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.has_responded" class="headerlink" title="Permanent link">#</a></h3>
@@ -7432,8 +7422,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.interaction" class="headerlink" title="Permanent link">#</a></h3>
@@ -7457,8 +7447,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.member" class="headerlink" title="Permanent link">#</a></h3>
@@ -7483,8 +7473,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.options" class="headerlink" title="Permanent link">#</a></h3>
@@ -7508,8 +7498,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.rest" class="headerlink" title="Permanent link">#</a></h3>
@@ -7533,8 +7523,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.server" class="headerlink" title="Permanent link">#</a></h3>
@@ -7663,8 +7653,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.shard" class="headerlink" title="Permanent link">#</a></h3>
@@ -7693,8 +7683,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.shards" class="headerlink" title="Permanent link">#</a></h3>
@@ -7718,8 +7708,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.triggering_name" class="headerlink" title="Permanent link">#</a></h3>
@@ -7743,8 +7733,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.voice" class="headerlink" title="Permanent link">#</a></h3>
@@ -7932,7 +7922,7 @@ globally or for a specific guild.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -7955,8 +7945,8 @@ globally or for a specific guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.BaseSlashCommand.parent" class="headerlink" title="Permanent link">#</a></h3>
@@ -7980,8 +7970,8 @@ globally or for a specific guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.BaseSlashCommand.tracked_command" class="headerlink" title="Permanent link">#</a></h3>
@@ -8005,8 +7995,8 @@ globally or for a specific guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.BaseSlashCommand.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -8133,7 +8123,7 @@ detail around the <code>name</code> being subscribed to.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -8201,7 +8191,7 @@ detail around the <code>name</code> being subscribed to.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -8285,7 +8275,7 @@ implementation detail.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -8308,8 +8298,8 @@ implementation detail.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.cache" class="headerlink" title="Permanent link">#</a></h3>
@@ -8555,8 +8545,8 @@ being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.res
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.components" class="headerlink" title="Permanent link">#</a></h3>
@@ -9096,8 +9086,8 @@ only 200 application command creates per day (per guild or globally).</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.default_app_cmd_permissions" class="headerlink" title="Permanent link">#</a></h3>
@@ -9128,8 +9118,8 @@ required permissions.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.defaults_to_ephemeral" class="headerlink" title="Permanent link">#</a></h3>
@@ -9249,8 +9239,8 @@ slash command execution.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.dms_enabled_for_app_cmds" class="headerlink" title="Permanent link">#</a></h3>
@@ -9280,8 +9270,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.events" class="headerlink" title="Permanent link">#</a></h3>
@@ -9579,8 +9569,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.injector" class="headerlink" title="Permanent link">#</a></h3>
@@ -9604,8 +9594,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.is_alive" class="headerlink" title="Permanent link">#</a></h3>
@@ -9879,8 +9869,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.listeners" class="headerlink" title="Permanent link">#</a></h3>
@@ -9973,7 +9963,7 @@ a <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/librar
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -10131,7 +10121,7 @@ module will fail to resolve.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -10236,8 +10226,8 @@ documentation for <a class="autorefs autorefs-internal" href="#tanjun.abc.Client
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.loop" class="headerlink" title="Permanent link">#</a></h3>
@@ -10261,8 +10251,8 @@ documentation for <a class="autorefs autorefs-internal" href="#tanjun.abc.Client
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.metadata" class="headerlink" title="Permanent link">#</a></h3>
@@ -10291,8 +10281,8 @@ the client.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.prefixes" class="headerlink" title="Permanent link">#</a></h3>
@@ -10378,7 +10368,7 @@ which handles loading and one which handles unloading present.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -10550,7 +10540,7 @@ documentation for <a class="autorefs autorefs-internal" href="#tanjun.abc.Client
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -10683,7 +10673,7 @@ documentation for <a class="autorefs autorefs-internal" href="#tanjun.abc.Client
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -10774,7 +10764,7 @@ registered in the provided component.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -10955,7 +10945,7 @@ registered in the provided component.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -11023,7 +11013,7 @@ registered in the provided component.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -11067,8 +11057,8 @@ registered in the provided component.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.rest" class="headerlink" title="Permanent link">#</a></h3>
@@ -11092,8 +11082,8 @@ registered in the provided component.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.server" class="headerlink" title="Permanent link">#</a></h3>
@@ -11175,7 +11165,7 @@ registered in the provided component.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -11255,7 +11245,7 @@ registered in the provided component.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -11335,7 +11325,7 @@ registered in the provided component.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -11358,8 +11348,8 @@ registered in the provided component.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.shards" class="headerlink" title="Permanent link">#</a></h3>
@@ -11451,7 +11441,7 @@ used to find unloaders.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -11517,8 +11507,8 @@ error can be found at <a class="autorefs autorefs-internal" href="../errors/#tan
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.voice" class="headerlink" title="Permanent link">#</a></h3>
@@ -12038,8 +12028,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.ClientLoader.has_load" class="headerlink" title="Permanent link">#</a></h3>
@@ -12063,8 +12053,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.ClientLoader.has_unload" class="headerlink" title="Permanent link">#</a></h3>
@@ -12324,7 +12314,7 @@ into a tanjun client.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -12392,7 +12382,7 @@ into a tanjun client.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -12460,7 +12450,7 @@ into a tanjun client.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -12528,7 +12518,7 @@ into a tanjun client.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -12704,8 +12694,8 @@ the top level command name.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.client" class="headerlink" title="Permanent link">#</a></h3>
@@ -12802,8 +12792,8 @@ the top level command name.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.default_app_cmd_permissions" class="headerlink" title="Permanent link">#</a></h3>
@@ -12833,8 +12823,8 @@ and if this is <a class="autorefs autorefs-external" href="https://docs.python.o
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.defaults_to_ephemeral" class="headerlink" title="Permanent link">#</a></h3>
@@ -12868,8 +12858,8 @@ the default from the parent client is used.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.dms_enabled_for_app_cmds" class="headerlink" title="Permanent link">#</a></h3>
@@ -13335,8 +13325,8 @@ execute with the current context.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.listeners" class="headerlink" title="Permanent link">#</a></h3>
@@ -13360,8 +13350,8 @@ execute with the current context.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.loop" class="headerlink" title="Permanent link">#</a></h3>
@@ -13385,8 +13375,8 @@ execute with the current context.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.menu_commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -13410,8 +13400,8 @@ execute with the current context.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.message_commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -13435,8 +13425,8 @@ execute with the current context.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.metadata" class="headerlink" title="Permanent link">#</a></h3>
@@ -13465,8 +13455,8 @@ the component.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.name" class="headerlink" title="Permanent link">#</a></h3>
@@ -13619,7 +13609,7 @@ If the component isn't bound to a client.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -13687,7 +13677,7 @@ If the component isn't bound to a client.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -13776,7 +13766,7 @@ If the component isn't bound to a client.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -13865,7 +13855,7 @@ If the component isn't bound to a client.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -13945,7 +13935,7 @@ If the component isn't bound to a client.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -13968,8 +13958,8 @@ If the component isn't bound to a client.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.slash_commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -14394,8 +14384,8 @@ for the callback's first argument.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.author" class="headerlink" title="Permanent link">#</a></h3>
@@ -14419,8 +14409,8 @@ for the callback's first argument.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.cache" class="headerlink" title="Permanent link">#</a></h3>
@@ -14444,8 +14434,8 @@ for the callback's first argument.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.channel_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -14469,8 +14459,8 @@ for the callback's first argument.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.client" class="headerlink" title="Permanent link">#</a></h3>
@@ -14494,8 +14484,8 @@ for the callback's first argument.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.command" class="headerlink" title="Permanent link">#</a></h3>
@@ -14524,8 +14514,8 @@ specific command but never during command execution.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.component" class="headerlink" title="Permanent link">#</a></h3>
@@ -14554,8 +14544,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.created_at" class="headerlink" title="Permanent link">#</a></h3>
@@ -14682,11 +14672,6 @@ specific command but never during command execution nor checks.</p>
   <div class="doc doc-contents ">
   
       <p>Edit the initial response for this context.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Since (as of writing) ephemeral responses cannot be deleted by the bot,
-<code>delete_after</code> is ignored for ephemeral slash command responses.</p>
-</div>
 
   <table>
     <thead>
@@ -15070,11 +15055,6 @@ nature, and will trigger this exception if they occur.</p>
   <div class="doc doc-contents ">
   
       <p>Edit the last response for this context.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Since (as of writing) ephemeral responses cannot be deleted by the bot,
-<code>delete_after</code> is ignored for ephemeral slash command responses.</p>
-</div>
 
   <table>
     <thead>
@@ -15447,8 +15427,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.events" class="headerlink" title="Permanent link">#</a></h3>
@@ -15937,8 +15917,8 @@ component enabled.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.guild_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -15963,8 +15943,8 @@ component enabled.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.has_responded" class="headerlink" title="Permanent link">#</a></h3>
@@ -15988,8 +15968,8 @@ component enabled.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.is_human" class="headerlink" title="Permanent link">#</a></h3>
@@ -16014,8 +15994,8 @@ component enabled.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.member" class="headerlink" title="Permanent link">#</a></h3>
@@ -16051,11 +16031,6 @@ component enabled.</p>
   <div class="doc doc-contents ">
   
       <p>Respond to this context.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Since (as of writing) ephemeral responses cannot be deleted by the bot,
-<code>delete_after</code> is ignored for ephemeral slash command responses.</p>
-</div>
 
   <table>
     <thead>
@@ -16431,8 +16406,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.rest" class="headerlink" title="Permanent link">#</a></h3>
@@ -16456,8 +16431,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.server" class="headerlink" title="Permanent link">#</a></h3>
@@ -16481,8 +16456,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.shard" class="headerlink" title="Permanent link">#</a></h3>
@@ -16510,8 +16485,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.shards" class="headerlink" title="Permanent link">#</a></h3>
@@ -16535,8 +16510,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.triggering_name" class="headerlink" title="Permanent link">#</a></h3>
@@ -16560,8 +16535,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.voice" class="headerlink" title="Permanent link">#</a></h3>
@@ -16670,7 +16645,7 @@ nature, and will trigger this exception if they occur.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -16693,8 +16668,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.ExecutableCommand.checks" class="headerlink" title="Permanent link">#</a></h3>
@@ -16718,8 +16693,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.ExecutableCommand.component" class="headerlink" title="Permanent link">#</a></h3>
@@ -16765,7 +16740,7 @@ nature, and will trigger this exception if they occur.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -16788,8 +16763,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.ExecutableCommand.hooks" class="headerlink" title="Permanent link">#</a></h3>
@@ -16813,8 +16788,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.ExecutableCommand.metadata" class="headerlink" title="Permanent link">#</a></h3>
@@ -16909,7 +16884,7 @@ the command.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -16977,7 +16952,7 @@ the command.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -17057,7 +17032,7 @@ the command.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -17176,7 +17151,7 @@ other error hooks make by majority rule.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -17249,7 +17224,7 @@ always suppress the error.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -17320,7 +17295,7 @@ synchronous or asynchronous.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -17391,7 +17366,7 @@ synchronous or asynchronous.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -17462,7 +17437,7 @@ synchronous or asynchronous.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -18008,8 +17983,8 @@ globally or for a specific guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuCommand.callback" class="headerlink" title="Permanent link">#</a></h3>
@@ -18033,8 +18008,8 @@ globally or for a specific guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuCommand.tracked_command" class="headerlink" title="Permanent link">#</a></h3>
@@ -18058,8 +18033,8 @@ globally or for a specific guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuCommand.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -18123,8 +18098,8 @@ globally or for a specific guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuContext.command" class="headerlink" title="Permanent link">#</a></h3>
@@ -18400,7 +18375,7 @@ user isn't in the current guild.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="tanjun.commands.MenuCommand" href="../commands/#tanjun.commands.menu.MenuCommand">MenuCommand</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="tanjun.commands.MenuCommand" href="../#tanjun.MenuCommand">MenuCommand</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
                 </span>
             </p>
           </td>
@@ -18421,8 +18396,8 @@ user isn't in the current guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuContext.target" class="headerlink" title="Permanent link">#</a></h3>
@@ -18446,8 +18421,8 @@ user isn't in the current guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuContext.target_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -18471,8 +18446,8 @@ user isn't in the current guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuContext.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -18536,8 +18511,8 @@ user isn't in the current guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageCommand.callback" class="headerlink" title="Permanent link">#</a></h3>
@@ -18615,7 +18590,7 @@ matches the message.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -18638,8 +18613,8 @@ matches the message.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageCommand.names" class="headerlink" title="Permanent link">#</a></h3>
@@ -18663,8 +18638,8 @@ matches the message.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageCommand.parent" class="headerlink" title="Permanent link">#</a></h3>
@@ -18688,8 +18663,8 @@ matches the message.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageCommand.parser" class="headerlink" title="Permanent link">#</a></h3>
@@ -18758,7 +18733,7 @@ matches the message.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -18826,7 +18801,7 @@ matches the message.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -18956,7 +18931,7 @@ matches the message.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -18979,8 +18954,8 @@ matches the message.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageCommandGroup.commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -19074,7 +19049,7 @@ matches the message.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -19205,8 +19180,8 @@ matches the message.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageContext.command" class="headerlink" title="Permanent link">#</a></h3>
@@ -19236,8 +19211,8 @@ nor client/component check execution.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageContext.content" class="headerlink" title="Permanent link">#</a></h3>
@@ -19261,8 +19236,8 @@ nor client/component check execution.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageContext.message" class="headerlink" title="Permanent link">#</a></h3>
@@ -19698,8 +19673,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageContext.triggering_name" class="headerlink" title="Permanent link">#</a></h3>
@@ -19723,8 +19698,8 @@ nature, and will trigger this exception if they occur.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageContext.triggering_prefix" class="headerlink" title="Permanent link">#</a></h3>
@@ -19810,7 +19785,7 @@ nature, and will trigger this exception if they occur.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -20048,8 +20023,8 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashCommand.callback" class="headerlink" title="Permanent link">#</a></h3>
@@ -20073,8 +20048,8 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashCommand.float_autocompletes" class="headerlink" title="Permanent link">#</a></h3>
@@ -20098,8 +20073,8 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashCommand.int_autocompletes" class="headerlink" title="Permanent link">#</a></h3>
@@ -20123,8 +20098,8 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashCommand.str_autocompletes" class="headerlink" title="Permanent link">#</a></h3>
@@ -20238,7 +20213,7 @@ have their own callback.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -20261,8 +20236,8 @@ have their own callback.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashCommandGroup.commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -20352,7 +20327,7 @@ have their own callback.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code>Self</code>
+                  <code><span title="typing_extensions.Self">Self</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -20483,8 +20458,8 @@ have their own callback.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashContext.command" class="headerlink" title="Permanent link">#</a></h3>
@@ -20514,8 +20489,8 @@ component/client checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashContext.options" class="headerlink" title="Permanent link">#</a></h3>
@@ -20586,8 +20561,8 @@ component/client checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashContext.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -20808,8 +20783,8 @@ when it's a malformed (incomplete) integer.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashOption.name" class="headerlink" title="Permanent link">#</a></h3>
@@ -21444,8 +21419,8 @@ or USER.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashOption.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -21469,8 +21444,8 @@ or USER.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashOption.value" class="headerlink" title="Permanent link">#</a></h3>
@@ -21579,10 +21554,10 @@ this will be the entity's ID.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.5bf1dace.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.078830c0.min.js"></script>
+      <script src="../../assets/javascripts/bundle.8492ddcf.min.js"></script>
       
     
   </body>

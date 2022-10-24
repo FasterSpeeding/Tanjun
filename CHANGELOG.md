@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.8.1a1] - 2022-10-24
+### Changed
+- No longer ignore `delete_after` for ephemeral responses.
+
 ## [2.8.0a1] - 2022-10-16
 ### Added
 - Support for specifying `min_length` and `max_length` for slash command string options.
@@ -718,7 +722,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.0a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.1a1...HEAD
+[2.8.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.0a1...v2.8.1a1
 [2.8.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.7.0a1...v2.8.0a1
 [2.7.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.3a1...v2.7.0a1
 [2.6.3a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.2a1...v2.6.3a1
