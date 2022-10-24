@@ -4,30 +4,14 @@
 #
 #    pip-compile --output-file=dev-requirements/nox.txt dev-requirements/nox.in
 #
-anyio==3.6.1
-    # via httpcore
 argcomplete==2.0.0
     # via nox
-certifi==2022.9.24
-    # via
-    #   httpcore
-    #   httpx
 colorlog==6.7.0
     # via nox
 distlib==0.3.6
     # via virtualenv
 filelock==3.8.0
     # via virtualenv
-h11==0.12.0
-    # via httpcore
-httpcore==0.15.0
-    # via httpx
-httpx==0.23.0
-    # via -r dev-requirements/nox.in
-idna==3.4
-    # via
-    #   anyio
-    #   rfc3986
 nox==2022.8.7
     # via -r dev-requirements/nox.in
 packaging==21.3
@@ -38,12 +22,5 @@ py==1.11.0
     # via nox
 pyparsing==3.0.9
     # via packaging
-rfc3986[idna2008]==1.5.0
-    # via httpx
-sniffio==1.3.0
-    # via
-    #   anyio
-    #   httpcore
-    #   httpx
 virtualenv==20.16.5
     # via nox

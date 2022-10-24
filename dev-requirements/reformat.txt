@@ -18,7 +18,9 @@ platformdirs==2.5.2
     # via black
 sort-all==1.2.0
     # via -r dev-requirements/reformat.in
-tokenize-rt==4.2.1
+tokenize-rt==5.0.0
     # via sort-all
 tomli==2.0.1
+    # via black
+typing-extensions==4.4.0
     # via black
