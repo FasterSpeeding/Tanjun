@@ -16,6 +16,10 @@ griffe==0.22.2
     # via mkdocstrings-python
 idna==3.4
     # via requests
+importlib-metadata==5.0.0
+    # via
+    #   markdown
+    #   mkdocs
 jinja2==3.1.2
     # via
     #   mkdocs
@@ -47,7 +51,7 @@ mkdocs-autorefs==0.4.1
     # via mkdocstrings
 mkdocs-material==8.5.7
     # via -r dev-requirements/docs.in
-mkdocs-material-extensions==1.0.3
+mkdocs-material-extensions==1.1
     # via mkdocs-material
 mkdocstrings[python]==0.19.0
     # via
@@ -59,7 +63,7 @@ packaging==21.3
     # via mkdocs
 pygments==2.13.0
     # via mkdocs-material
-pymdown-extensions==9.6
+pymdown-extensions==9.7
     # via
     #   mkdocs-material
     #   mkdocstrings
@@ -81,3 +85,5 @@ urllib3==1.26.12
     # via requests
 watchdog==2.1.9
     # via mkdocs
+zipp==3.10.0
+    # via importlib-metadata
