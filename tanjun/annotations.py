@@ -336,7 +336,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context,
-        argument: Annotated[Str, Default(""), "description],
+        argument: Annotated[Str, Default(""), "description"],
         other_argument: Annotated[Default[Str, ""], "description"],
     ) -> None:
         ...
@@ -344,7 +344,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
 
     ```py
     @with_annotated_args
-    @tanjun.as_slash_command("name", "description)
+    @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context,
         required_argument: Annotated[Default[Str], "description"] = "yeet",
