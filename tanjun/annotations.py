@@ -591,7 +591,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     Alternatively, the slice syntax and `range` may be used to set the length
     restraints for a string argument (where the start is inclusive and stop is
     exclusive). These default to a min_length of `0` if the start isn't
-    specified and ignore any specified step.
+    specified and ignores any specified step.
     """
 
     __slots__ = ("_min_length", "_max_length")
@@ -853,7 +853,7 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
     Alternatively, the slice syntax and `range` may be used to set the range
     for a float or integer argument (where the start is inclusive and stop is
     exclusive). These default to a min_value of `0` if the start isn't
-    specified and ignore any specified step.
+    specified and ignores any specified step.
     """
 
     __slots__ = ("_max_value", "_min_value")
@@ -927,11 +927,11 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
     commands without requiring that the message command equivalent fetch the
     object each time for the following types:
 
-    * [hikari.users.User][]
-    * [hikari.guilds.Role][]
-    * [hikari.guilds.Member][]
-    * [hikari.channels.PartialChannel][]
-    * `hikari.User | hikari.Role`
+    * [User][tanjun.annotations.User]
+    * [Role][tanjun.annotations.Role]
+    * [Member][tanjun.annotations.Member]
+    * [Channel][tanjun.annotations.Channel]
+    * [Mentionable][tanjun.annotations.Mentionable]
 
     Examples
     --------
