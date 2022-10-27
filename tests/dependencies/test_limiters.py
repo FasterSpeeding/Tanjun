@@ -96,7 +96,9 @@ async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_chan
     mock_context.get_channel.assert_called_once_with()
     mock_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
     mock_context.fetch_channel.assert_not_called()
-    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
+    mock_context.get_type_dependency.assert_called_once_with(
+        tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]
+    )
 
 
 @pytest.mark.parametrize(
@@ -122,7 +124,9 @@ async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_none
     assert result == result
     mock_context.get_channel.assert_called_once_with()
     mock_context.fetch_channel.assert_awaited_once()
-    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
+    mock_context.get_type_dependency.assert_called_once_with(
+        tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]
+    )
     mock_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
 
 
@@ -147,7 +151,9 @@ async def test__get_ctx_target_when_parent_channel_and_no_async_cache_falls_back
     assert result == result
     mock_context.get_channel.assert_called_once_with()
     mock_context.fetch_channel.assert_awaited_once()
-    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.GuildChannel])
+    mock_context.get_type_dependency.assert_called_once_with(
+        tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]
+    )
 
 
 @pytest.mark.asyncio()

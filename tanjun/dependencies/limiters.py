@@ -212,12 +212,16 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
         if cached_channel := ctx.get_channel():
             return cached_channel.parent_id or ctx.guild_id
 
-        channel_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.GuildChannel])
+        channel_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.PermissibleGuildChannel])
         if channel_cache and (channel_ := await channel_cache.get(ctx.channel_id, default=None)):
             return channel_.parent_id or ctx.guild_id
 
+        thread_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.GuildThreadChannel])
+        if thread_cache and (channel_ := await thread_cache.get(ctx.channel_id, default=None)):
+            return channel_.parent_id
+
         channel = await ctx.fetch_channel()
-        assert isinstance(channel, hikari.TextableGuildChannel)
+        assert isinstance(channel, hikari.GuildChannel)
         return channel.parent_id or ctx.guild_id
 
     # if type_ is BucketResource.CATEGORY:

@@ -30,7 +30,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """Functions used to calculate permissions in Tanjun."""
-
 from __future__ import annotations
 
 __all__: list[str] = [
@@ -47,6 +46,7 @@ from collections import abc as collections
 
 import hikari
 
+from ._internal import cache
 from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
@@ -71,7 +71,7 @@ DM_PERMISSIONS: typing.Final[hikari.Permissions] = (
 
 
 def _calculate_channel_overwrites(
-    channel: hikari.GuildChannel, member: hikari.Member, permissions: hikari.Permissions
+    channel: hikari.PermissibleGuildChannel, member: hikari.Member, permissions: hikari.Permissions
 ) -> hikari.Permissions:
     if everyone_overwrite := channel.permission_overwrites.get(member.guild_id):
         permissions &= ~everyone_overwrite.deny
@@ -112,7 +112,7 @@ def calculate_permissions(
     guild: hikari.Guild,
     roles: collections.Mapping[hikari.Snowflake, hikari.Role],
     *,
-    channel: typing.Optional[hikari.GuildChannel] = None,
+    channel: typing.Optional[hikari.PermissibleGuildChannel] = None,
 ) -> hikari.Permissions:
     """Calculate the permissions a member has within a guild.
 
@@ -155,31 +155,17 @@ def calculate_permissions(
 
 
 async def _fetch_channel(
-    client: tanjun.Client, channel: hikari.SnowflakeishOr[hikari.PartialChannel]
-) -> hikari.GuildChannel:
-    if isinstance(channel, hikari.GuildChannel):
+    client: tanjun.Client, channel: hikari.SnowflakeishOr[hikari.GuildChannel]
+) -> hikari.PermissibleGuildChannel:
+    if isinstance(channel, hikari.PermissibleGuildChannel):
         return channel
 
-    channel_id = hikari.Snowflake(channel)
-    if client.cache and (found_channel_ := client.cache.get_guild_channel(channel_id)):
-        return found_channel_
+    if isinstance(channel, hikari.GuildChannel) and channel.parent_id:
+        channel = channel.parent_id
 
-    if channel_cache := client.get_type_dependency(_ChannelCacheT):
-        try:
-            return await channel_cache.get(channel_id)
-
-        except async_cache.EntryNotFound:
-            raise
-
-        except async_cache.CacheMissError:
-            pass
-
-    found_channel = await client.rest.fetch_channel(channel_id)
-    assert isinstance(found_channel, hikari.GuildChannel), "Cannot perform operation on a DM channel."
-    return found_channel
+    return await cache.get_perm_channel(client, hikari.Snowflake(channel))
 
 
-_ChannelCacheT = async_cache.SfCache[hikari.GuildChannel]
 _GuildCacheT = async_cache.SfCache[hikari.Guild]
 _RoleCacheT = async_cache.SfCache[hikari.Role]
 _GuldRoleCacheT = async_cache.SfGuildBound[hikari.Role]
@@ -190,7 +176,7 @@ async def fetch_permissions(
     member: hikari.Member,
     /,
     *,
-    channel: typing.Optional[hikari.SnowflakeishOr[hikari.PartialChannel]] = None,
+    channel: typing.Optional[hikari.SnowflakeishOr[hikari.GuildChannel]] = None,
 ) -> hikari.Permissions:
     """Calculate the permissions a member has within a guild.
 
@@ -205,7 +191,7 @@ async def fetch_permissions(
     member
         The object of the member to calculate the permissions for.
     channel
-        The object of ID of the channel to get their permissions in.
+        The object or ID of the channel to get their permissions in.
         If left as [None][] then this will return their base guild
         permissions.
 
@@ -263,7 +249,7 @@ def calculate_everyone_permissions(
     everyone_role: hikari.Role,
     /,
     *,
-    channel: typing.Optional[hikari.GuildChannel] = None,
+    channel: typing.Optional[hikari.PermissibleGuildChannel] = None,
 ) -> hikari.Permissions:
     """Calculate a guild's default permissions within the guild or for a specific channel.
 
@@ -304,7 +290,7 @@ async def fetch_everyone_permissions(
     guild_id: hikari.Snowflake,
     /,
     *,
-    channel: typing.Optional[hikari.SnowflakeishOr[hikari.PartialChannel]] = None,
+    channel: typing.Optional[hikari.SnowflakeishOr[hikari.GuildChannel]] = None,
 ) -> hikari.Permissions:
     """Calculate the permissions a guild's default @everyone role has within a guild or for a specific channel.
 

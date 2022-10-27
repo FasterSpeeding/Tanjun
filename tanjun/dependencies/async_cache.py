@@ -45,7 +45,8 @@ Tanjun will use the following type dependencies for these interfaces if they are
 registered with the client:
 
 * `AsyncCache[str, hikari.InviteWithMetadata]`
-* `SfCache[hikari.GuildChannel]`
+* `SfCache[hikari.PermissibleGuildChannel]`
+* `SfCache[hikari.GuildThreadChannel]`
 * `SfCache[hikari.KnownCustomEmoji]`
 * `SfCache[hikari.Guild]`
 * `SfCache[hikari.Role]`

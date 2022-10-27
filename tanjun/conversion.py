@@ -202,7 +202,8 @@ class BaseConverter(abc.ABC):
 
 
 _DmCacheT = async_cache.SfCache[hikari.DMChannel]
-_GuildChannelCacheT = async_cache.SfCache[hikari.PartialChannel]
+_GuildChannelCacheT = async_cache.SfCache[hikari.PermissibleGuildChannel]
+_ThreadCacheT = async_cache.SfCache[hikari.GuildThreadChannel]
 
 
 # TODO: GuildChannelConverter
@@ -230,7 +231,7 @@ class ToChannel(BaseConverter):
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
         # <<inherited docstring from BaseConverter>>.
-        return (_GuildChannelCacheT, _DmCacheT)
+        return (_GuildChannelCacheT, _DmCacheT, _ThreadCacheT)
 
     @property
     def cache_components(self) -> hikari.api.CacheComponents:
@@ -255,6 +256,7 @@ class ToChannel(BaseConverter):
         *,
         cache: alluka.Injected[typing.Optional[_GuildChannelCacheT]] = None,
         dm_cache: alluka.Injected[typing.Optional[_DmCacheT]] = None,
+        thread_cache: alluka.Injected[typing.Optional[_ThreadCacheT]] = None,
     ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID found")
         if ctx.cache and (channel_ := ctx.cache.get_guild_channel(channel_id)):

@@ -66,6 +66,7 @@ from . import abc as tanjun
 from . import dependencies
 from . import errors
 from . import permissions
+from ._internal import cache
 from ._internal import localisation
 
 if typing.TYPE_CHECKING:
@@ -189,36 +190,11 @@ class OwnerCheck(_Check):
         return self._handle_result(ctx, await dependency.check_ownership(ctx.client, ctx.author), localiser)
 
 
-_GuildChannelCacheT = typing.Optional[dependencies.SfCache[hikari.GuildChannel]]
-
-
-async def _get_is_nsfw(
-    ctx: tanjun.Context,
-    /,
-    *,
-    dm_default: bool,
-    channel_cache: _GuildChannelCacheT,
-) -> bool:
+async def _get_is_nsfw(ctx: tanjun.Context, /, *, dm_default: bool) -> bool:
     if ctx.guild_id is None:
         return dm_default
 
-    channel: typing.Optional[hikari.PartialChannel] = None
-    if ctx.cache and (channel := ctx.cache.get_guild_channel(ctx.channel_id)):
-        return channel.is_nsfw or False
-
-    if channel_cache:
-        try:
-            return (await channel_cache.get(ctx.channel_id)).is_nsfw or False
-
-        except dependencies.EntryNotFound:
-            raise
-
-        except dependencies.CacheMissError:
-            pass
-
-    channel = await ctx.rest.fetch_channel(ctx.channel_id)
-    assert isinstance(channel, hikari.GuildChannel)
-    return channel.is_nsfw or False
+    return (await cache.get_perm_channel(ctx.client, ctx.channel_id)).is_nsfw or False
 
 
 class NsfwCheck(_Check):
@@ -267,12 +243,9 @@ class NsfwCheck(_Check):
         ctx: tanjun.Context,
         /,
         *,
-        channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
-        return self._handle_result(
-            ctx, await _get_is_nsfw(ctx, dm_default=True, channel_cache=channel_cache), localiser
-        )
+        return self._handle_result(ctx, await _get_is_nsfw(ctx, dm_default=True), localiser)
 
 
 class SfwCheck(_Check):
@@ -321,12 +294,9 @@ class SfwCheck(_Check):
         ctx: tanjun.Context,
         /,
         *,
-        channel_cache: alluka.Injected[_GuildChannelCacheT] = None,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
-        return self._handle_result(
-            ctx, not await _get_is_nsfw(ctx, dm_default=False, channel_cache=channel_cache), localiser
-        )
+        return self._handle_result(ctx, not await _get_is_nsfw(ctx, dm_default=False), localiser)
 
 
 class DmCheck(_Check):

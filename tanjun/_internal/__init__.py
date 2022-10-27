@@ -46,7 +46,7 @@ from collections import abc as collections
 import hikari
 
 from .. import errors
-from .._internal.vendor import inspect
+from .vendor import inspect
 
 if typing.TYPE_CHECKING:
     import typing_extensions
