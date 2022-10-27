@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Added `bot_managed` argument to [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot]
+  for automatically starting the client when the linked REST bot starts. This defaults to [False][]
+  for backwards compatibility.
+
 ### Changed
 - Bumped the minimum Hikari version to `2.0.0.dev112`.
 ### Removed
