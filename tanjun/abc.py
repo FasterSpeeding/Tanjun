@@ -449,7 +449,6 @@ class Context(alluka.Context):
         components: hikari.UndefinedNoneOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
-        replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
@@ -499,8 +498,6 @@ class Context(alluka.Context):
             An embed to replace the initial response with.
         embeds
             A sequence of embeds to replace the initial response with.
-        replace_attachments
-            Whether to replace the attachments of the response or not.
         mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.
@@ -573,7 +570,6 @@ class Context(alluka.Context):
         components: hikari.UndefinedNoneOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
-        replace_attachments: bool = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
@@ -623,8 +619,6 @@ class Context(alluka.Context):
             An embed to replace the last response with.
         embeds
             A sequence of embeds to replace the last response with.
-        replace_attachments
-            Whether to replace the attachments of the response or not.
         mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.

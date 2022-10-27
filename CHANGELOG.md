@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The project metadata dunder attributes from [tanjun][].
   [importlib.metadata][] should be used to get this metadata instead.
 
+### Removed
+- `replace_attachments` argument from the relevant context edit response.
+  For more information see <link to hikari thingy>.
+
 ## [2.8.1a1] - 2022-10-24
 ### Changed
 - No longer ignore `delete_after` for ephemeral responses.
