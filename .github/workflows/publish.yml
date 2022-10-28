@@ -28,4 +28,4 @@ jobs:
         env:
           FLIT_INDEX_URL: ${{ secrets.PYPI_TARGET }}
           FLIT_USERNAME: __token__
-          FLIT_PASSWORD: ${{ secrets.PYPI_TOKEN }} 
+          FLIT_PASSWORD: ${{ secrets.PYPI_TOKEN }}
