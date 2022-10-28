@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - The [ToChannel][tanjun.checks.ToChannel]/[to_channel][tanjun.checks.to_channel] converter
-  now correctly uses the registered channel async cache if set.
+  now correctly uses the registered async channel cache if set.
 
 ### Removed
 - `replace_attachments` argument from the relevant context edit response.
