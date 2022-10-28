@@ -356,7 +356,7 @@ description must be included for options when annotating for a slash command,
 which is done by passing a string value to [typing.Annotated][] (as shown
 above).
 
-The special generic types offered in [tanjun.annotations] (e.g
+The special generic types offered in [tanjun.annotations][] (e.g
 [Ranged][tanjun.annotations.Ranged] and [Converted][tanjun.annotations.Converted])
 return a [typing.Annotated][] instance from their generic calls and can also be
 passed as arguments to Annotated like `Annotated[Int, Ranged(13, 130)]`, and
@@ -434,7 +434,7 @@ async def command_2(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None:
     await ctx.create_followup("finished the thing", ephemeral=True)  # private response
 ```
 
-Ephemeral responses are a slash command and context menus exclusive feature which
+Ephemeral responses are a slash command and context menu exclusive feature which
 marks a response as private (so that only the command author can see it) and
 temporary. A response can be marked as ephemeral by either passing `ephemeral=True`
 to [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response]
