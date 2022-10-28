@@ -188,7 +188,7 @@ def build(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-def publish(session: nox.Session, env: typing.Optional[typing.Dict[str, str]] = None) -> None:
+def publish(session: nox.Session, env: dict[str, str] | None = None) -> None:
     """Publish this project to pypi."""
     install_requirements(session, *_dev_dep("publish"))
     install_requirements(session, ".", first_call=False)
