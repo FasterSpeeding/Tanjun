@@ -356,7 +356,7 @@ description must be included for options when annotating for a slash command,
 which is done by passing a string value to [typing.Annotated][] (as shown
 above).
 
-The special generic types offered in [tanjun.annotations] (e.g
+The special generic types offered in [tanjun.annotations][] (e.g
 [Ranged][tanjun.annotations.Ranged] and [Converted][tanjun.annotations.Converted])
 return a [typing.Annotated][] instance from their generic calls and can also be
 passed as arguments to Annotated like `Annotated[Int, Ranged(13, 130)]`, and
