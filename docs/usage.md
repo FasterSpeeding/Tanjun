@@ -546,7 +546,7 @@ value for `Foo` or `Bar` has been set using
 [Client.set_type_dependency][tanjun.abc.Client.set_type_dependency].
 
 A more detailed guide on how this works and the full feature set (e.g. optional
-dependencies) can be found [https://alluka.cursed.solutions/usage/](here).
+dependencies) can be found [here](https://alluka.cursed.solutions/usage/).
 [alluka.abc.Client][] is exposed at [Client.injector][tanjun.abc.Client.injector].
 
 ### Standard and special cased injected types.
