@@ -134,8 +134,6 @@ __all__: list[str] = [
     "SlashHooks",
     "TanjunError",
     "TooManyArgumentsError",
-    "__author__",
-    "__version__",
     "abc",
     "annotations",
     "as_interval",
@@ -315,6 +313,3 @@ from .parsing import with_option
 from .parsing import with_parser
 from .schedules import as_interval
 from .schedules import as_time_schedule
-
-__author__: typing.Final[str] = "Faster Speeding"
-__version__: typing.Final[str] = "2.8.1a1"
