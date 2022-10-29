@@ -1,4 +1,5 @@
 flake8==5.0.4
+pyproject-flake8>5.0.0  # These are always pinned to the flake8 ver anyways
 
 # Flake8 plugins
 # Ref: https://github.com/DmytroLitvinov/awesome-flake8-extensions
