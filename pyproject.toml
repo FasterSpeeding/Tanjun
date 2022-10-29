@@ -65,6 +65,16 @@ omit = ["tanjun/_internal/vendor/*"]
 
 [tool.flake8]
 count = true
+max-complexity = 20
+max-function-length = 100
+# Technically this is 120, but black has a policy of "1 or 2 over is fine if it is tidier", so we have to raise this.
+max-line-length = 130
+show_source = false
+statistics = false
+accept-encodings = "utf-8"
+docstring-convention = "numpy"
+ignore-decorators = "overload"
+exclude = ["tanjun/_internal/vendor/"]
 ignore = [
     "A003",      # class attribute is shadowing a builtin
     "CFQ004",    # Function has too many returns.
@@ -83,16 +93,6 @@ ignore = [
     "E203",      # whitespace before ':'
     "E231",      # missing whitespace after ','
 ]
-max-complexity = 20
-max-function-length = 100
-# Technically this is 120, but black has a policy of "1 or 2 over is fine if it is tidier", so we have to raise this.
-max-line-length = 130
-show_source = false
-statistics = false
-accept-encodings = "utf-8"
-docstring-convention = "numpy"
-ignore-decorators = "overload"
-exclude = ["tanjun/_internal/vendor/"]
 per-file-ignores = [
     "noxfile.py: D100, D101, D103",
     "tanjun/py.typed: D100",
