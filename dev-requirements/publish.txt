@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=dev-requirements/publish.txt dev-requirements/publish.in
 #
-build==0.8.0
+build==0.9.0
     # via pip-tools
 certifi==2022.9.24
     # via requests
