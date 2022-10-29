@@ -1369,7 +1369,7 @@ While this feature is cross-compatible, there is one key difference: a
 description must be included for options when annotating for a slash command,
 which is done by passing a string value to <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#typing.Annotated">typing.Annotated</a> (as shown
 above).</p>
-<p>The special generic types offered in [tanjun.annotations] (e.g
+<p>The special generic types offered in <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations">tanjun.annotations</a> (e.g
 <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Ranged">Ranged</a> and <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Converted">Converted</a>)
 return a <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#typing.Annotated">typing.Annotated</a> instance from their generic calls and can also be
 passed as arguments to Annotated like <code>Annotated[Int, Ranged(13, 130)]</code>, and
@@ -1432,7 +1432,7 @@ only be guaranteed to return a <a class="autorefs autorefs-external" href="https
     <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">)</span>  <span class="c1"># public response</span>
     <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_followup</span><span class="p">(</span><span class="s2">&quot;finished the thing&quot;</span><span class="p">,</span> <span class="n">ephemeral</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># private response</span>
 </code></pre></div>
-<p>Ephemeral responses are a slash command and context menus exclusive feature which
+<p>Ephemeral responses are a slash command and context menu exclusive feature which
 marks a response as private (so that only the command author can see it) and
 temporary. A response can be marked as ephemeral by either passing <code>ephemeral=True</code>
 to <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.AppCommandContext.create_initial_response">AppCommandContext.create_initial_response</a>
@@ -1524,7 +1524,7 @@ Since both arguments don't provide a default, these commands will fail if no
 value for <code>Foo</code> or <code>Bar</code> has been set using
 <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Client.set_type_dependency">Client.set_type_dependency</a>.</p>
 <p>A more detailed guide on how this works and the full feature set (e.g. optional
-dependencies) can be found <a href="here">https://alluka.cursed.solutions/usage/</a>.
+dependencies) can be found <a href="https://alluka.cursed.solutions/usage/">here</a>.
 <a class="autorefs autorefs-external" href="https://alluka.cursed.solutions/reference/abc/#alluka.abc.Client">alluka.abc.Client</a> is exposed at <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Client.injector">Client.injector</a>.</p>
 <h3 id="standard-and-special-cased-injected-types">Standard and special cased injected types.<a class="headerlink" href="#standard-and-special-cased-injected-types" title="Permanent link">#</a></h3>
 <p>The following types are registered globally as type dependencies:</p>
@@ -1663,7 +1663,7 @@ to workout whether the error should be re-raised: <a class="autorefs autorefs-ex
 towards suppressing the error, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#False">False</a> acts as a vote towards re-raising the
 error and <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> acts as no vote. In the case of a tie the error will be
 re-raised.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@hooks</span><span class="o">.</span><span class="n">add_on_parser_error</span>  <span class="c1"># hooks.add_on_parser_error</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@hooks</span><span class="o">.</span><span class="n">with_on_parser_error</span>  <span class="c1"># hooks.add_on_parser_error</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">parser_error_hook</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">ParserError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
@@ -1701,7 +1701,7 @@ linked limiter).</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_concurrency_limit">with_concurrency_limit</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_concurrency_limit">with_concurrency_limit</a>
 to mark these commands as using the <code>"main_commands"</code> concurrency limit bucket;
 buckets share their limits for a resource across all the commands under it. For
 more information on the resources concurrency can be limited by see
@@ -1716,7 +1716,7 @@ more information on the resources concurrency can be limited by see
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
 will manage the cooldowns for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager.set_bucket">Manager.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to 5 calls per user every 60 seconds,
@@ -1737,7 +1737,7 @@ only have 1 linked cooldown manager).</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_cooldown">with_cooldown</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_cooldown">with_cooldown</a>
 to mark these commands as using the <code>"main_commands"</code> cooldown bucket;
 buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
