@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Removed
-- The project metadata duner attributes from [tanjun][].
+- The project metadata dunder attributes from [tanjun][].
   [importlib.metadata][] should be used to get this metadata instead.
 
 ## [2.8.1a1] - 2022-10-24
