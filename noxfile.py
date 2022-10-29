@@ -146,7 +146,7 @@ def generate_docs(session: nox.Session) -> None:
 def flake8(session: nox.Session) -> None:
     """Run this project's modules against the pre-defined flake8 linters."""
     install_requirements(session, *_dev_dep("flake8"))
-    session.run("flake8", *GENERAL_TARGETS)
+    session.run("pflake8", *GENERAL_TARGETS)
 
 
 @nox.session(reuse_venv=True, name="slot-check")
