@@ -1,4 +1,4 @@
-flake8==4.0.1
+flake8==5.0.4
 
 # Flake8 plugins
 # Ref: https://github.com/DmytroLitvinov/awesome-flake8-extensions
