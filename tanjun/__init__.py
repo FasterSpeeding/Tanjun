@@ -211,8 +211,6 @@ __all__: list[str] = [
     "with_user_slash_option",
 ]
 
-import typing
-
 from alluka import inject
 from alluka import inject as injected
 
