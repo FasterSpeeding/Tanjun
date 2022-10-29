@@ -134,16 +134,6 @@ __all__: list[str] = [
     "SlashHooks",
     "TanjunError",
     "TooManyArgumentsError",
-    "__author__",
-    "__ci__",
-    "__copyright__",
-    "__coverage__",
-    "__docs__",
-    "__email__",
-    "__issue_tracker__",
-    "__license__",
-    "__url__",
-    "__version__",
     "abc",
     "annotations",
     "as_interval",
@@ -220,8 +210,6 @@ __all__: list[str] = [
     "with_str_slash_option",
     "with_user_slash_option",
 ]
-
-import typing
 
 from alluka import inject
 from alluka import inject as injected
@@ -323,14 +311,3 @@ from .parsing import with_option
 from .parsing import with_parser
 from .schedules import as_interval
 from .schedules import as_time_schedule
-
-__author__: typing.Final[str] = "Faster Speeding"
-__ci__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/actions"
-__copyright__: typing.Final[str] = "© 2020-2022 Faster Speeding"
-__coverage__: typing.Final[str] = "https://codeclimate.com/github/FasterSpeeding/Tanjun"
-__docs__: typing.Final[str] = "https://tanjun.cursed.solutions/"
-__email__: typing.Final[str] = "lucina@lmbyrne.dev"
-__issue_tracker__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun/issues"
-__license__: typing.Final[str] = "BSD"
-__url__: typing.Final[str] = "https://github.com/FasterSpeeding/Tanjun"
-__version__: typing.Final[str] = "2.8.1a1"
