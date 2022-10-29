@@ -715,7 +715,7 @@ error and [None][] acts as no vote. In the case of a tie the error will be
 re-raised.
 
 ```py
-@hooks.add_on_parser_error  # hooks.add_on_parser_error
+@hooks.with_on_parser_error  # hooks.add_on_parser_error
 async def parser_error_hook(ctx: tanjun.abc.Context, error: tanjun.ParserError) -> None:
     ...
 ```
