@@ -188,36 +188,17 @@ def build(session: nox.Session) -> None:
 
 
 @nox.session(reuse_venv=True)
-def publish(session: nox.Session, test: bool = False) -> None:
+def publish(session: nox.Session, env: dict[str, str] | None = None) -> None:
     """Publish this project to pypi."""
     install_requirements(session, *_dev_dep("publish"))
     install_requirements(session, ".", first_call=False)
-
-    env: dict[str, str] = {}
-
-    if username := _try_find_option(session, "-u", "--username"):
-        env["FLIT_USERNAME"] = username
-
-    if password := _try_find_option(session, "-p", "--password"):
-        env["FLIT_PASSWORD"] = password
-
-    if index_url := _try_find_option(session, "-i", "--index-url"):
-        env["FLIT_INDEX_URL"] = index_url
-
-    elif test:
-        env["FLIT_INDEX_URL"] = "https://test.pypi.org/legacy/"
-
-    else:
-        env["FLIT_INDEX_URL"] = "https://upload.pypi.org/legacy/"
-
-    session.log("Initiating TestPYPI upload" if test else "Initiating PYPI upload")
     session.run("flit", "publish", env=env)
 
 
 @nox.session(name="test-publish", reuse_venv=True)
 def test_publish(session: nox.Session) -> None:
     """Publish this project to test pypi."""
-    publish(session, test=True)
+    publish(session, env={"FLIT_INDEX_URL": "https://test.pypi.org/legacy/"})
 
 
 @nox.session(reuse_venv=True)

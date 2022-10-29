@@ -24,4 +24,8 @@ jobs:
           python -m pip install -r ./dev-requirements/nox.txt
 
       - name: publish
-        run: python -m nox -s publish -- -u __token__ -p ${{ secrets.PYPI_TOKEN }} -i ${{ secrets.PYPI_TARGET }} --skip-version-check
+        run: python -m nox -s publish
+        env:
+          FLIT_INDEX_URL: ${{ secrets.PYPI_TARGET }}
+          FLIT_USERNAME: __token__
+          FLIT_PASSWORD: ${{ secrets.PYPI_TOKEN }}
