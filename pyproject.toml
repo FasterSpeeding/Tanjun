@@ -31,10 +31,10 @@ dependencies = ["alluka~=0.1.2", "hikari~=2.0.0.dev111"]
 dynamic = ["description"]
 
 [project.urls]
-homepage = "https://github.com/FasterSpeeding/Tanjun"
-repository = "https://github.com/FasterSpeeding/Tanjun"
-documentation = "https://tanjun.cursed.solutions/"
-changelog = "https://github.com/FasterSpeeding/tanjun/blob/master/CHANGELOG.md"
+Homepage = "https://github.com/FasterSpeeding/Tanjun"
+Repository = "https://github.com/FasterSpeeding/Tanjun"
+Documentation = "https://tanjun.cursed.solutions/"
+Changelog = "https://github.com/FasterSpeeding/tanjun/blob/master/CHANGELOG.md"
 
 [tool.flit.module]
 name = "tanjun"
