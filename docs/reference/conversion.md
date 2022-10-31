@@ -1,5 +1,5 @@
 # tanjun.conversion
 
 ::: tanjun.conversion
-    selection:
+    options:
         inherited_members: false

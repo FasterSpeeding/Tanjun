@@ -3,13 +3,13 @@
 Standard implementations of Tanjun's command objects.
 
 ::: tanjun.commands.menu
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.commands.message
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.commands.slash
-    rendering:
+    options:
         show_root_heading: true

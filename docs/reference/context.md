@@ -3,17 +3,17 @@
 Standard implementations of Tanjun's context classes.
 
 ::: tanjun.context.autocomplete
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.context.menu
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.context.message
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.context.slash
-    rendering:
+    options:
         show_root_heading: true

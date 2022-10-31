@@ -45,16 +45,15 @@ plugins:
       default_handler: python
       handlers:
         python:
-          selection:
+          options:
+            docstring_section_style: spacy
             docstring_style: numpy
             inherited_members: true
-          rendering:
-            docstring_section_style: spacy
             merge_init_into_class: false
+            separate_signature: true
             show_signature_annotations: false
             show_source: false
             show_submodules: false
-            separate_signature: true
           import:
             - https://docs.python.org/3.9/objects.inv
             - https://hikari-py.github.io/hikari/objects.inv
