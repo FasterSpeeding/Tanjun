@@ -44,7 +44,7 @@ flake8-builtins==2.0.0
     # via -r dev-requirements/flake8.in
 flake8-coding==1.3.2
     # via -r dev-requirements/flake8.in
-flake8-comprehensions==3.10.0
+flake8-comprehensions==3.10.1
     # via -r dev-requirements/flake8.in
 flake8-deprecated==2.0.1
     # via -r dev-requirements/flake8.in
@@ -127,8 +127,6 @@ tomli==2.0.1
     #   black
     #   flake8-black
     #   pyproject-flake8
-typing-extensions==4.4.0
-    # via black
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
