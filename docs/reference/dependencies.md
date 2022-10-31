@@ -3,29 +3,29 @@
 Default dependency utilities used within Tanjun and their abstract interfaces.
 
 ::: tanjun.dependencies.async_cache
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.dependencies.callbacks
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.dependencies.data
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.dependencies.limiters
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.dependencies.locales
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.dependencies.owners
-    rendering:
+    options:
         show_root_heading: true
 
 ::: tanjun.dependencies.reloaders
-    rendering:
+    options:
         show_root_heading: true
