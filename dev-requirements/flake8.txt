@@ -127,6 +127,8 @@ tomli==2.0.1
     #   black
     #   flake8-black
     #   pyproject-flake8
+typing-extensions==4.4.0
+    # via black
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
