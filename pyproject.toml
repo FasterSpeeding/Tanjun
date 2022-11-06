@@ -27,7 +27,7 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-dependencies = ["alluka~=0.1.2", "hikari @ git+https://github.com/hikari-py/hikari.git@67b42ad4ffe009d4a6065b2be9e26caa3b11a4d1"]
+dependencies = ["alluka~=0.1.2", "hikari~=2.0.0.dev112"]
 dynamic = ["description"]
 
 [project.urls]

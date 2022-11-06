@@ -77,11 +77,11 @@ async def get_perm_channel(client: tanjun.Client, channel_id: hikari.Snowflake, 
         return channel
 
     channel = await client.rest.fetch_channel(channel_id)
-    assert isinstance(channel, hikari.GuildChannel)
     if channel.type not in _THREAD_CHANNEL_TYPES:
         assert isinstance(channel, hikari.PermissibleGuildChannel)
         return channel
 
+    assert isinstance(channel, hikari.GuildChannel)
     assert channel.parent_id is not None
     if client.cache and (channel_ := client.cache.get_guild_channel(channel.parent_id)):
         return channel_

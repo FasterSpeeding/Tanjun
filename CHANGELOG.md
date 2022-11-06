@@ -13,19 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Bumped the minimum Hikari version to `2.0.0.dev112`.
-- `SfCache[hikari.PermissibleGuildChannel]` is now `SfCache[hikari.GuildChannel]`
-
-### Removed
-- The project metadata dunder attributes from [tanjun][].
-  [importlib.metadata][] should be used to get this metadata instead.
+- `SfCache[hikari.GuildChannel]` is now `SfCache[hikari.PermissibleGuildChannel]`.
 
 ### Fixed
 - The [ToChannel][tanjun.checks.ToChannel]/[to_channel][tanjun.checks.to_channel] converter
   now correctly uses the registered async channel cache if set.
 
 ### Removed
+- The project metadata dunder attributes from [tanjun][].
+  [importlib.metadata][] should be used to get this metadata instead.
 - `replace_attachments` argument from the relevant context edit response.
-  For more information see <link to hikari thingy>.
+  For more information see <https://github.com/hikari-py/hikari/releases/tag/2.0.0.dev112>.
 
 ## [2.8.1a1] - 2022-10-24
 ### Changed

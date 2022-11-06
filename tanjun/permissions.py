@@ -160,6 +160,8 @@ async def _fetch_channel(
     if isinstance(channel, hikari.PermissibleGuildChannel):
         return channel
 
+    # If this is a non-permissible guild object then the assumption is that the parent
+    # channel has the perms as this is how it works under the current threads system.
     if isinstance(channel, hikari.GuildChannel) and channel.parent_id:
         channel = channel.parent_id
 
