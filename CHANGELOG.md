@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [2.9.0a1] - 2022-11-08
 ### Added
 - Added `bot_managed` argument to [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot]
   for automatically starting the client when the linked REST bot starts. This defaults to [False][]
@@ -742,7 +743,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.1a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.9.0a1...HEAD
+[2.9.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.0a1...v2.9.0a1
 [2.8.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.0a1...v2.8.1a1
 [2.8.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.7.0a1...v2.8.0a1
 [2.7.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.6.3a1...v2.7.0a1
