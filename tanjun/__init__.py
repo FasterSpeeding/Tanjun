@@ -74,19 +74,17 @@ bot = hikari.RESTBot("BOT_TOKEN", "Bot")
 # declare_global_commands=True instructs the client to set the global commands
 # for the relevant bot on first startup (this will replace any previously
 # declared commands).
-client = tanjun.Client.from_rest_bot(bot, declare_global_commands=True)
+#
+# `bot_managed=True` has to be explicitly passed here to indicate that the client
+# should automatically start when the linked REST bot starts.
+client = tanjun.Client.from_rest_bot(bot, bot_managed=True, declare_global_commands=True)
 
 # This will load components from modules based on loader functions.
 # For more information on this see [tanjun.as_loader][].
 client.load_modules("module.paths")
 
-# Note, unlike a gateway bound bot, the rest bot will not automatically start
-# itself due to the lack of Hikari lifetime events in this environment and
-# will have to be started after the Hikari client.
-async def main() -> None:
-    await bot.start()
-    async with client:
-        await bot.join()
+# Thanks to `bot_managed=True`, this will also start the client.
+bot.run()
 ```
 
 For more extensive examples see the

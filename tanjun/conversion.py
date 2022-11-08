@@ -202,7 +202,8 @@ class BaseConverter(abc.ABC):
 
 
 _DmCacheT = async_cache.SfCache[hikari.DMChannel]
-_GuildChannelCacheT = async_cache.SfCache[hikari.PartialChannel]
+_GuildChannelCacheT = async_cache.SfCache[hikari.PermissibleGuildChannel]
+_ThreadCacheT = async_cache.SfCache[hikari.GuildThreadChannel]
 
 
 # TODO: GuildChannelConverter
@@ -230,7 +231,7 @@ class ToChannel(BaseConverter):
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
         # <<inherited docstring from BaseConverter>>.
-        return (_GuildChannelCacheT, _DmCacheT)
+        return (_GuildChannelCacheT, _DmCacheT, _ThreadCacheT)
 
     @property
     def cache_components(self) -> hikari.api.CacheComponents:
@@ -255,43 +256,51 @@ class ToChannel(BaseConverter):
         *,
         cache: alluka.Injected[typing.Optional[_GuildChannelCacheT]] = None,
         dm_cache: alluka.Injected[typing.Optional[_DmCacheT]] = None,
+        thread_cache: alluka.Injected[typing.Optional[_ThreadCacheT]] = None,
     ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID found")
         if ctx.cache and (channel_ := ctx.cache.get_guild_channel(channel_id)):
             return channel_
 
-        no_guild_channel = False
+        no_guild_channel = cache and thread_cache and dm_cache
         if cache:
             try:
                 return await cache.get(channel_id)
 
             except async_cache.EntryNotFound:
-                if not self._include_dms:
-                    raise ValueError("Couldn't find channel") from None
-
-                no_guild_channel = True
+                pass
 
             except async_cache.CacheMissError:
+                no_guild_channel = False
+
+        if thread_cache:
+            try:
+                return await thread_cache.get(channel_id)
+
+            except async_cache.EntryNotFound:
                 pass
+
+            except async_cache.CacheMissError:
+                no_guild_channel = False
 
         if dm_cache and self._include_dms:
             try:
                 return await dm_cache.get(channel_id)
 
             except async_cache.EntryNotFound:
-                if no_guild_channel:
-                    raise ValueError("Couldn't find channel") from None
-
-            except async_cache.CacheMissError:
                 pass
 
-        try:
-            channel = await ctx.rest.fetch_channel(channel_id)
-            if self._include_dms or isinstance(channel, hikari.GuildChannel):
-                return channel
+            except async_cache.CacheMissError:
+                no_guild_channel = False
 
-        except hikari.NotFoundError:
-            pass
+        if not no_guild_channel:
+            try:
+                channel = await ctx.rest.fetch_channel(channel_id)
+                if self._include_dms or isinstance(channel, hikari.GuildChannel):
+                    return channel
+
+            except hikari.NotFoundError:
+                pass
 
         raise ValueError("Couldn't find channel")
 

@@ -5,9 +5,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Added `bot_managed` argument to [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot]
+  for automatically starting the client when the linked REST bot starts. This defaults to [False][]
+  for backwards compatibility.
+- Thread support (including a `SfCache[hikari.GuildThreadChannel]` concept).
+
+### Changed
+- Bumped the minimum Hikari version to `2.0.0.dev112`.
+- `SfCache[hikari.GuildChannel]` is now `SfCache[hikari.PermissibleGuildChannel]`.
+- Allow [None][] to be passed for `attachment` and `attachments` to edit response methods.
+
+### Fixed
+- The [ToChannel][tanjun.checks.ToChannel]/[to_channel][tanjun.checks.to_channel] converter
+  now correctly uses the registered async channel cache if set.
+
 ### Removed
 - The project metadata dunder attributes from [tanjun][].
   [importlib.metadata][] should be used to get this metadata instead.
+- `replace_attachments` argument from the relevant context edit response methods.
+  For more information see <https://github.com/hikari-py/hikari/releases/tag/2.0.0.dev112>.
 
 ## [2.8.1a1] - 2022-10-24
 ### Changed

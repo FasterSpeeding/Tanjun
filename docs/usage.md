@@ -32,19 +32,16 @@ bot's message commands to be triggered by starting a command call with `@bot`.
 ```py
 async def main():
     bot = hikari.impl.RESTBot("TOKEN", hikari.TokenType.BOT)
-    client = tanjun.Client.from_rest_bot(bot, declare_global_commands=True)
-
-    await bot.start()
-    async with client:
-        await bot.join()
+    tanjun.Client.from_rest_bot(bot, bot_managed=True, declare_global_commands=True)
+    bot.run()
 ```
 
 And here a Tanjun client is linked to a REST server bot instance to enable
 application command execution.
 
-Since Hikari's RESTBot doesn't have lifetime events, we have to startup and
-close Tanjun's client around the REST bot ourselves. The bot should always be
-started before Tanjun.
+Unlike when linked to a Gateway bot, `bot_managed=True` must be explicitly
+passed to [Client.from_rest_bot][tanjun.clients.Client.from_rest_bot] to
+have the client automatically start when the Rest bot starts.
 
 ### Client lifetime management
 

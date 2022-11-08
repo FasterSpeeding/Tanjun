@@ -44,6 +44,7 @@ import hikari
 import pytest
 
 import tanjun
+from tanjun._internal import cache
 
 
 @pytest.fixture()
@@ -259,154 +260,78 @@ class TestOwnerCheck:
 class TestNsfwCheck:
     async def test_when_is_dm(self):
         mock_context = mock.Mock(guild_id=None)
-        mock_cache = mock.AsyncMock()
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error=TypeError, error_message="meep", halt_execution=True)
 
-        result = await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            result = await check(mock_context)
 
         assert result is True
-        mock_context.cache.get_guild_channel.assert_not_called()
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_not_called()
 
     async def test(self):
         mock_context = mock.Mock()
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
-        mock_cache = mock.AsyncMock()
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error_message=None)
 
-        result = await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            result = await check(mock_context)
 
         assert result is True
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
-
-    async def test_when_async_cache_raises_not_found(self):
-        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.EntryNotFound
-        check = tanjun.checks.NsfwCheck(error_message=None)
-
-        with pytest.raises(tanjun.dependencies.EntryNotFound):
-            await check(mock_context, channel_cache=mock_cache)
-
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_called_once_with(mock_context.channel_id)
-
-    async def test_when_not_cache_bound_and_async_cache_hit(self):
-        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.return_value.is_nsfw = True
-        check = tanjun.checks.NsfwCheck(error_message=None)
-
-        result = await check(mock_context, channel_cache=mock_cache)
-
-        assert result is True
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_called_once_with(mock_context.channel_id)
-
-    async def test_when_not_found_in_cache_and_async_cache_hit(self):
-        mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.cache.get_guild_channel.return_value = None
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.return_value.is_nsfw = None
-        check = tanjun.checks.NsfwCheck(error_message=None)
-
-        result = await check(mock_context, channel_cache=mock_cache)
-
-        assert result is False
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_called_once_with(mock_context.channel_id)
-
-    async def test_when_not_cache_bound(self):
-        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
-        check = tanjun.checks.NsfwCheck(error_message=None)
-
-        result = await check(mock_context, channel_cache=None)
-
-        assert result is True
-        mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
-
-    async def test_when_not_found_in_cache(self):
-        mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.cache.get_guild_channel.return_value = None
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        check = tanjun.checks.NsfwCheck(error_message=None)
-
-        result = await check(mock_context, channel_cache=mock_cache)
-
-        assert result is True
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
-        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false(self):
-        mock_context = mock.Mock()
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = None
+        mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.NsfwCheck(error_message=None)
 
-        result = await check(mock_context, channel_cache=None)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=None)) as get_perm_channel:
+            result = await check(mock_context)
 
         assert result is False
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_when_error(self):
         class MockException(Exception):
             def __init__(self):
                 ...
 
-        mock_context = mock.Mock()
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = None
+        mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.NsfwCheck(error=MockException, error_message="nye")
 
-        with pytest.raises(MockException):
-            await check(mock_context, channel_cache=None)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=None)) as get_perm_channel:
+            with pytest.raises(MockException):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_and_error_message(self):
         mock_context = mock.Mock()
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error_message="meow me")
 
-        with pytest.raises(tanjun.errors.CommandError, match="meow me"):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="meow me"):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_and_error_message_dict(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.HU
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(
             error_message={hikari.Locale.DE: "oh", hikari.Locale.HU: "no", hikari.Locale.EN_GB: "meow"}
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="no"):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="no"):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_and_error_message_dict_but_not_app_command(self):
         mock_context = mock.Mock(tanjun.abc.Context)
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(
             error_message={
                 hikari.Locale.DE: "op",
@@ -416,19 +341,16 @@ class TestNsfwCheck:
             }
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="defaulted"):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="defaulted"):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_and_error_message_dict_defaults(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.DA
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(
             error_message={
                 hikari.Locale.DE: "default default default",
@@ -437,19 +359,16 @@ class TestNsfwCheck:
             }
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="default default default"):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="default default default"):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_and_error_message_dict_explicit_default(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.DA
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(
             error_message={
                 hikari.Locale.DE: "default default default",
@@ -459,20 +378,17 @@ class TestNsfwCheck:
             }
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="real default"):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="real default"):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_and_error_message_localiser(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow meow")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.EN_GB
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(
             error_message={
                 hikari.Locale.DE: "default default default",
@@ -485,20 +401,17 @@ class TestNsfwCheck:
             {hikari.Locale.CS: "n", hikari.Locale.EN_GB: "override", hikari.Locale.FI: "i'm finished"},
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="override"):
-            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="override"):
+                await check(mock_context, localiser=localiser)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_and_error_message_localiser_overridden_id(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow meow")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.EN_GB
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(
             error_message={
                 hikari.Locale.DE: "default default default",
@@ -516,20 +429,17 @@ class TestNsfwCheck:
             .set_variants("cthulhu calls", {hikari.Locale.EN_GB: "wowzer Fred, I'm gay", hikari.Locale.CS: "meow"})
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="wowzer Fred, I'm gay"):
-            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="wowzer Fred, I'm gay"):
+                await check(mock_context, localiser=localiser)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_and_error_message_localiser_defaults(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow meow")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.FR
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(
             error_message={
                 hikari.Locale.DE: "default default default",
@@ -546,169 +456,100 @@ class TestNsfwCheck:
             .set_variants("cthulhu calls", {hikari.Locale.EN_GB: "wowzer Fred, I'm gay", hikari.Locale.CS: "meow"})
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="default default default"):
-            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="default default default"):
+                await check(mock_context, localiser=localiser)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.cache.get_guild_channel.return_value = None
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=False)
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error_message="yeet", halt_execution=True)
 
-        with pytest.raises(tanjun.errors.HaltExecution):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.HaltExecution):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
-        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
 
 @pytest.mark.asyncio()
 class TestSfwCheck:
     async def test_when_is_dm(self):
         mock_context = mock.Mock(guild_id=None)
-        mock_cache = mock.AsyncMock()
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error=ValueError, error_message="lll", halt_execution=True)
 
-        result = await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            result = await check(mock_context)
 
         assert result is True
-        mock_context.cache.get_guild_channel.assert_not_called()
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_not_called()
 
     async def test(self):
         mock_context = mock.Mock()
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = False
-        mock_cache = mock.AsyncMock()
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error_message=None)
 
-        result = await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
+            result = await check(mock_context)
 
         assert result is True
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
-
-    async def test_when_not_cache_bound_and_async_cache_hit(self):
-        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.return_value.is_nsfw = False
-        check = tanjun.checks.SfwCheck(error_message=None)
-
-        result = await check(mock_context, channel_cache=mock_cache)
-
-        assert result is True
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_called_once_with(mock_context.channel_id)
-
-    async def test_when_not_found_in_cache_and_async_cache_hit(self):
-        mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.cache.get_guild_channel.return_value = None
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.return_value.is_nsfw = None
-        check = tanjun.checks.SfwCheck(error_message=None)
-
-        result = await check(mock_context, channel_cache=mock_cache)
-
-        assert result is True
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_called_once_with(mock_context.channel_id)
-
-    async def test_when_not_cache_bound(self):
-        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
-        check = tanjun.checks.SfwCheck(error_message=None)
-
-        result = await check(mock_context, channel_cache=None)
-
-        assert result is False
-        mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
-
-    async def test_when_not_found_in_cache(self):
-        mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.cache.get_guild_channel.return_value = None
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        check = tanjun.checks.SfwCheck(error_message=None)
-
-        result = await check(mock_context, channel_cache=mock_cache)
-
-        assert result is False
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
-        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw(self):
-        mock_context = mock.Mock()
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.SfwCheck(error_message=None)
 
-        result = await check(mock_context, channel_cache=None)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            result = await check(mock_context)
 
         assert result is False
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_error(self):
         class MockException(Exception):
             def __init__(self):
                 ...
 
-        mock_context = mock.Mock()
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
+        mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.SfwCheck(error=MockException, error_message="bye")
 
-        with pytest.raises(MockException):
-            await check(mock_context, channel_cache=None)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            with pytest.raises(MockException):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_error_message(self):
         mock_context = mock.Mock()
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error_message="meow me")
 
-        with pytest.raises(tanjun.errors.CommandError, match="meow me"):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="meow me"):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_error_message_dict(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.DA
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(
             error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="moooo"):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="moooo"):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_error_message_dict_but_not_app_command(self):
         mock_context = mock.Mock(tanjun.abc.Context)
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(
             error_message={
                 hikari.Locale.BG: "oooooo",
@@ -718,36 +559,30 @@ class TestSfwCheck:
             }
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="bye bye"):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="bye bye"):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_error_message_dict_defaults(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.FR
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(
             error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="oooooo"):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="oooooo"):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_error_message_dict_explicit_default(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.FR
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(
             error_message={
                 hikari.Locale.BG: "oooooo",
@@ -757,20 +592,17 @@ class TestSfwCheck:
             }
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="oh no"):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="oh no"):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_error_message_localiser(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="oh no girl")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.DA
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(
             error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
         )
@@ -778,20 +610,17 @@ class TestSfwCheck:
             "user_menu:oh no girl:check:tanjun.SfwCheck", {hikari.Locale.DA: "real value", hikari.Locale.BG: "op"}
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="real value"):
-            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="real value"):
+                await check(mock_context, localiser=localiser)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_error_message_localiser_overridden_id(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="oh no girl")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.EN_GB
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(
             error_message={
                 hikari.Locale.BG: "oooooo",
@@ -818,20 +647,17 @@ class TestSfwCheck:
             )
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="Passing you like a summer breeze"):
-            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="Passing you like a summer breeze"):
+                await check(mock_context, localiser=localiser)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_error_message_localiser_defaults(self):
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="oh no girl")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.DE
-        mock_context.cache.get_guild_channel.return_value.is_nsfw = True
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(
             error_message={
                 hikari.Locale.JA: "years of meows",
@@ -858,27 +684,22 @@ class TestSfwCheck:
             )
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="years of meows"):
-            await check(mock_context, channel_cache=mock_cache, localiser=localiser)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.CommandError, match="years of meows"):
+                await check(mock_context, localiser=localiser)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_not_called()
-        mock_cache.get.assert_not_called()
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_halt_execution(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.cache.get_guild_channel.return_value = None
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel, is_nsfw=True)
-        mock_cache = mock.AsyncMock()
-        mock_cache.get.side_effect = tanjun.dependencies.CacheMissError
+        mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error_message="yeet", halt_execution=True)
 
-        with pytest.raises(tanjun.errors.HaltExecution):
-            await check(mock_context, channel_cache=mock_cache)
+        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
+            with pytest.raises(tanjun.errors.HaltExecution):
+                await check(mock_context)
 
-        mock_context.cache.get_guild_channel.assert_called_once_with(mock_context.channel_id)
-        mock_context.rest.fetch_channel.assert_awaited_once_with(mock_context.channel_id)
-        mock_cache.get.assert_awaited_once_with(mock_context.channel_id)
+        get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
 
 class TestDmCheck:

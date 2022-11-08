@@ -526,6 +526,9 @@ class Client(tanjun.Client):
     callbacks, prefix getters and event listeners. For more information on how
     this works see [alluka][].
 
+    When manually managing the lifetime of the client the linked rest app or
+    bot must always be started before the Tanjun client.
+
     !!! note
         By default this client includes a parser error handling hook which will
         by overwritten if you call [tanjun.Client.set_hooks][].
@@ -751,8 +754,8 @@ class Client(tanjun.Client):
             if not events:
                 raise ValueError("Client cannot be event managed without an event manager")
 
-            events.subscribe(hikari.StartingEvent, self._on_starting_event)
-            events.subscribe(hikari.StoppingEvent, self._on_stopping_event)
+            events.subscribe(hikari.StartingEvent, self._on_starting)
+            events.subscribe(hikari.StoppingEvent, self._on_stopping)
 
         (
             self.set_type_dependency(tanjun.Client, self)
@@ -959,6 +962,7 @@ class Client(tanjun.Client):
         bot: hikari.RESTBotAware,
         /,
         *,
+        bot_managed: bool = False,
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
@@ -989,6 +993,11 @@ class Client(tanjun.Client):
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
+        bot_managed
+            Whether the client should be managed by the REST bot.
+
+            A REST bot managed client will be automatically started and closed
+            based on the REST bot's startup and shutdown callbacks.
         injector
             The alluka client this should use for dependency injection.
 
@@ -1017,7 +1026,7 @@ class Client(tanjun.Client):
             If provided, a mapping of user context menu command names to the IDs
             of existing commands to update.
         """
-        return cls(
+        self = cls(
             rest=bot.rest,
             server=bot.interaction_server,
             declare_global_commands=declare_global_commands,
@@ -1028,6 +1037,12 @@ class Client(tanjun.Client):
             user_ids=user_ids,
             _stack_level=1,
         ).set_hikari_trait_injectors(bot)
+
+        if bot_managed:
+            bot.add_startup_callback(self._on_starting)
+            bot.add_shutdown_callback(self._on_stopping)
+
+        return self
 
     async def __aenter__(self) -> Client:
         await self.open()
@@ -1193,10 +1208,10 @@ class Client(tanjun.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._voice
 
-    async def _on_starting_event(self, _: hikari.StartingEvent, /) -> None:
+    async def _on_starting(self, _: typing.Union[hikari.StartingEvent, hikari.RESTBotAware], /) -> None:
         await self.open()
 
-    async def _on_stopping_event(self, _: hikari.StoppingEvent, /) -> None:
+    async def _on_stopping(self, _: typing.Union[hikari.StoppingEvent, hikari.RESTBotAware], /) -> None:
         await self.close()
 
     async def clear_application_commands(
