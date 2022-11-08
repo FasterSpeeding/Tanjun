@@ -70,6 +70,9 @@ async def get_perm_channel(client: tanjun.Client, channel_id: hikari.Snowflake, 
 
     thread_cache = client.injector.get_type_dependency(_ThreadCacheT)
     if thread_cache and (thread := await thread_cache.get(channel_id, default=None)):
+        if client.cache and (channel := client.cache.get_guild_channel(thread.parent_id)):
+            return channel
+
         channel_id = thread.parent_id
 
     channel_cache = client.injector.get_type_dependency(_ChannelCacheT, default=None)
