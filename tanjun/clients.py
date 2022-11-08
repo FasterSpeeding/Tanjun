@@ -779,7 +779,7 @@ class Client(tanjun.Client):
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         _stack_level: int = 0,
-    ) -> Self:
+    ) -> None:
         if set_global_commands:
             warnings.warn(
                 "The `set_global_commands` argument is deprecated since v2.1.1a1. "
@@ -829,8 +829,6 @@ class Client(tanjun.Client):
                     self, declare_global_commands, command_ids=command_ids, message_ids=message_ids, user_ids=user_ids
                 ),
             )
-
-        return self
 
     def _remove_task(self, task: asyncio.Task[typing.Any], /) -> None:
         self._tasks.remove(task)
