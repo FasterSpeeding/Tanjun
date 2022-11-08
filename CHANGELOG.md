@@ -18,8 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow [None][] to be passed for `attachment` and `attachments` to edit response methods.
 
 ### Fixed
-- The [ToChannel][tanjun.checks.ToChannel]/[to_channel][tanjun.checks.to_channel] converter
-  now correctly uses the registered async channel cache if set.
+- The [ToChannel][tanjun.conversion.ToChannel]/[to_channel][tanjun.conversion.to_channel]
+  converter now correctly uses the registered async channel cache if set.
 
 ### Removed
 - The project metadata dunder attributes from [tanjun][].
