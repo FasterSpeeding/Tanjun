@@ -770,7 +770,7 @@ class Client(tanjun.Client):
         return self
 
     def _schedule_startup_registers(
-        self: _ClientT,
+        self,
         set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
@@ -779,7 +779,7 @@ class Client(tanjun.Client):
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         _stack_level: int = 0,
-    ) -> _ClientT:
+    ) -> Self:
         if set_global_commands:
             warnings.warn(
                 "The `set_global_commands` argument is deprecated since v2.1.1a1. "
