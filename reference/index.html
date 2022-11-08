@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.8">
     
     
       
@@ -20,7 +20,7 @@
       <link rel="stylesheet" href="../assets/stylesheets/main.20d9efc8.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.815d1a91.min.css">
         
       
       
@@ -5130,19 +5130,17 @@ enable slash (interaction) command execution:</p>
 <span class="c1"># declare_global_commands=True instructs the client to set the global commands</span>
 <span class="c1"># for the relevant bot on first startup (this will replace any previously</span>
 <span class="c1"># declared commands).</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">#</span>
+<span class="c1"># `bot_managed=True` has to be explicitly passed here to indicate that the client</span>
+<span class="c1"># should automatically start when the linked REST bot starts.</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">bot_managed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># This will load components from modules based on loader functions.</span>
 <span class="c1"># For more information on this see [tanjun.as_loader][].</span>
 <span class="n">client</span><span class="o">.</span><span class="n">load_modules</span><span class="p">(</span><span class="s2">&quot;module.paths&quot;</span><span class="p">)</span>
 
-<span class="c1"># Note, unlike a gateway bound bot, the rest bot will not automatically start</span>
-<span class="c1"># itself due to the lack of Hikari lifetime events in this environment and</span>
-<span class="c1"># will have to be started after the Hikari client.</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-    <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="p">:</span>
-        <span class="k">await</span> <span class="n">bot</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+<span class="c1"># Thanks to `bot_managed=True`, this will also start the client.</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div>
 <p>For more extensive examples see the
 <a href="https://github.com/FasterSpeeding/Tanjun/tree/master/examples">repository's examples</a>.</p>
@@ -5803,6 +5801,8 @@ targeting the @everyone role if they have no real roles.</p>
 <p>This implementation supports dependency injection for checks, command
 callbacks, prefix getters and event listeners. For more information on how
 this works see <a class="autorefs autorefs-external" href="https://alluka.cursed.solutions/reference/#alluka">alluka</a>.</p>
+<p>When manually managing the lifetime of the client the linked rest app or
+bot must always be started before the Tanjun client.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default this client includes a parser error handling hook which will
@@ -6689,7 +6689,7 @@ of existing commands to update.</p>
   </span>
 
 <a href="#tanjun.clients.Client.from_rest_bot" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">bot_managed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -6736,6 +6736,24 @@ being per-guild if targeting a specific guild otherwise globally).</p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.SnowflakeishSequence">SnowflakeishSequence</span>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.PartialGuild">PartialGuild</span>], <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.SnowflakeishOr">SnowflakeishOr</span>[<a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.PartialGuild">PartialGuild</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>bot_managed</code></td>
+          <td class="doc-param-details">
+            <p>Whether the client should be managed by the REST bot.</p>
+<p>A REST bot managed client will be automatically started and closed
+based on the REST bot's startup and shutdown callbacks.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -21822,7 +21840,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -23317,8 +23335,8 @@ command wraps in a decorator call chain.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
@@ -25801,7 +25819,7 @@ command was executed in a DM channel.</p>
     <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.8492ddcf.min.js"></script>
+      <script src="../assets/javascripts/bundle.d6c3db9e.min.js"></script>
       
     
   </body>
