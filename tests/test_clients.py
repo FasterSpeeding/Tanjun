@@ -280,8 +280,52 @@ class TestClient:
         ...
 
     @pytest.mark.skip(reason="TODO")
+    def test_from_gateway_bot(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_from_rest_bot(self):
+        ...
+
+    def test_from_rest_bot_when_bot_managed(self):
+        mock_bot = mock.Mock()
+
+        client = tanjun.Client.from_rest_bot(mock_bot, bot_managed=True)
+
+        mock_bot.add_startup_callback.assert_called_once_with(client._on_starting)
+        mock_bot.add_shutdown_callback.assert_called_once_with(client._on_stopping)
+
+    @pytest.mark.skip(reason="TODO")
     def test___repr__(self):
         ...
+
+    @pytest.mark.asyncio()
+    async def test__on_starting(self):
+        mock_open = mock.AsyncMock()
+        mock_rest = mock.AsyncMock()
+
+        class TestClient(tanjun.Client):
+            open = mock_open
+
+        client = TestClient(mock_rest)
+
+        await client._on_starting(mock.Mock())
+
+        mock_open.assert_awaited_once_with()
+
+    @pytest.mark.asyncio()
+    async def test__on_stopping(self):
+        mock_close = mock.AsyncMock()
+        mock_rest = mock.AsyncMock()
+
+        class TestClient(tanjun.Client):
+            close = mock_close
+
+        client = TestClient(mock_rest)
+
+        await client._on_stopping(mock.Mock())
+
+        mock_close.assert_awaited_once_with()
 
     @pytest.mark.skip(reason="TODO")
     def test__schedule_startup_registers(self):
@@ -332,14 +376,6 @@ class TestClient:
 
         client._add_task(mock_task)
         assert client._tasks == []
-
-    @pytest.mark.skip(reason="TODO")
-    def test_from_gateway_bot(self):
-        ...
-
-    @pytest.mark.skip(reason="TODO")
-    def test_from_rest_bot(self):
-        ...
 
     @pytest.mark.asyncio()
     async def test_context_manager(self):

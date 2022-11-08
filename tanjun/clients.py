@@ -754,8 +754,8 @@ class Client(tanjun.Client):
             if not events:
                 raise ValueError("Client cannot be event managed without an event manager")
 
-            events.subscribe(hikari.StartingEvent, self._on_starting_event)
-            events.subscribe(hikari.StoppingEvent, self._on_stopping_event)
+            events.subscribe(hikari.StartingEvent, self._on_starting)
+            events.subscribe(hikari.StoppingEvent, self._on_stopping)
 
         (
             self.set_type_dependency(tanjun.Client, self)
@@ -1039,16 +1039,10 @@ class Client(tanjun.Client):
         ).set_hikari_trait_injectors(bot)
 
         if bot_managed:
-            bot.add_startup_callback(self._rest_open)
-            bot.add_shutdown_callback(self._rest_close)
+            bot.add_startup_callback(self._on_starting)
+            bot.add_shutdown_callback(self._on_stopping)
 
         return self
-
-    async def _rest_open(self, _: hikari.RESTBotAware, /) -> None:
-        await self.open()
-
-    async def _rest_close(self, _: hikari.RESTBotAware, /) -> None:
-        await self.close()
 
     async def __aenter__(self) -> Client:
         await self.open()
@@ -1214,10 +1208,10 @@ class Client(tanjun.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._voice
 
-    async def _on_starting_event(self, _: hikari.StartingEvent, /) -> None:
+    async def _on_starting(self, _: typing.Union[hikari.StartingEvent, hikari.RESTBotAware], /) -> None:
         await self.open()
 
-    async def _on_stopping_event(self, _: hikari.StoppingEvent, /) -> None:
+    async def _on_stopping(self, _: typing.Union[hikari.StoppingEvent, hikari.RESTBotAware], /) -> None:
         await self.close()
 
     async def clear_application_commands(

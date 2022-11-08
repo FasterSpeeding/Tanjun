@@ -61,98 +61,188 @@ async def test__get_ctx_target(resource_type: tanjun.BucketResource, mock_ctx: t
     assert await tanjun.dependencies.limiters._get_ctx_target(mock_ctx, resource_type) == expected
 
 
-@pytest.mark.parametrize(
-    ("channel", "result"),
-    [(mock.Mock(parent_id=None, id=123), 123), (mock.Mock(parent_id=54123123, id=123321), 123321)],
-)
 @pytest.mark.asyncio()
-async def test__get_ctx_target_when_parent_channel_and_cache_result(channel: mock.Mock, result: int):
+async def test__get_ctx_target_when_parent_channel_and_cache_result():
     mock_context = mock.Mock()
-    mock_context.get_channel.return_value = channel
+    mock_context.get_channel.return_value = mock.Mock(parent_id=5132, id=123321)
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
-    assert result == result
+    assert result == 5132
     mock_context.get_channel.assert_called_once_with()
     mock_context.fetch_channel.assert_not_called()
     mock_context.get_type_dependency.assert_not_called()
 
 
-@pytest.mark.parametrize(
-    ("channel", "result"),
-    [(mock.Mock(parent_id=None, id=123), 123), (mock.Mock(parent_id=54123123, id=123321), 123321)],
-)
 @pytest.mark.asyncio()
-async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_channel(channel: mock.Mock, result: int):
-    mock_cache = mock.AsyncMock()
-    mock_cache.get.return_value = channel
-    mock_context = mock.Mock(base_context.BaseContext)
-    mock_context.get_channel.return_value = None
-    mock_context.get_type_dependency.return_value = mock_cache
+async def test__get_ctx_target_when_parent_channel_and_cache_result_has_no_parent():
+    mock_context = mock.Mock()
+    mock_context.get_channel.return_value = mock.Mock(parent_id=None, id=6534234)
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
-    assert result == result
+    assert result == mock_context.guild_id
     mock_context.get_channel.assert_called_once_with()
-    mock_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
+    mock_context.fetch_channel.assert_not_called()
+    mock_context.get_type_dependency.assert_not_called()
+
+
+@pytest.mark.asyncio()
+async def test__get_ctx_target_when_parent_channel_when_async_channel_cache_returns():
+    mock_channel_cache = mock.AsyncMock()
+    mock_channel_cache.get.return_value = mock.Mock(parent_id=3421123, id=123321)
+    mock_context = mock.Mock(base_context.BaseContext)
+    mock_context.get_channel.return_value = None
+    mock_context.get_type_dependency.return_value = mock_channel_cache
+
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
+
+    assert result == 3421123
+    mock_context.get_channel.assert_called_once_with()
+    mock_channel_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
     mock_context.fetch_channel.assert_not_called()
     mock_context.get_type_dependency.assert_called_once_with(
         tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]
     )
 
 
-@pytest.mark.parametrize(
-    ("channel", "result"),
-    [
-        (mock.Mock(hikari.TextableGuildChannel, parent_id=None, id=123), 123),
-        (mock.Mock(hikari.TextableGuildChannel, parent_id=54123123, id=123321), 123321),
-    ],
-)
 @pytest.mark.asyncio()
-async def test__get_ctx_target_when_parent_channel_when_async_cache_returns_none_falls_back_to_rest(
-    channel: mock.Mock, result: int
-):
+async def test__get_ctx_target_when_parent_channel_when_async_channel_cache_returns_has_no_parent():
+    mock_channel_cache = mock.AsyncMock()
+    mock_channel_cache.get.return_value = mock.Mock(parent_id=None, id=123)
     mock_context = mock.Mock(base_context.BaseContext)
     mock_context.get_channel.return_value = None
-    mock_context.fetch_channel = mock.AsyncMock(return_value=channel)
-    mock_cache = mock.AsyncMock()
-    mock_cache.get.return_value = None
-    mock_context.get_type_dependency.return_value = mock_cache
+    mock_context.get_type_dependency.return_value = mock_channel_cache
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
-    assert result == result
+    assert result == mock_context.guild_id
     mock_context.get_channel.assert_called_once_with()
-    mock_context.fetch_channel.assert_awaited_once()
+    mock_channel_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
+    mock_context.fetch_channel.assert_not_called()
     mock_context.get_type_dependency.assert_called_once_with(
         tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]
     )
-    mock_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
 
 
-@pytest.mark.parametrize(
-    ("channel", "result"),
-    [
-        (mock.Mock(hikari.TextableGuildChannel, parent_id=None, id=123), 123),
-        (mock.Mock(hikari.TextableGuildChannel, parent_id=54123123, id=123321), 123321),
-    ],
-)
 @pytest.mark.asyncio()
-async def test__get_ctx_target_when_parent_channel_and_no_async_cache_falls_back_to_rest(
-    channel: mock.Mock, result: int
-):
+async def test__get_ctx_target_when_parent_channel_when_async_thread_cache_returns():
+    mock_channel_cache = mock.AsyncMock()
+    mock_channel_cache.get.return_value = None
+    mock_thread_cache = mock.AsyncMock()
+    mock_thread_cache.get.return_value = mock.Mock(parent_id=432453, id=123321)
     mock_context = mock.Mock(base_context.BaseContext)
     mock_context.get_channel.return_value = None
-    mock_context.fetch_channel = mock.AsyncMock(return_value=channel)
+    mock_context.get_type_dependency.side_effect = [mock_channel_cache, mock_thread_cache]
+
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
+
+    assert result == 432453
+    mock_context.get_channel.assert_called_once_with()
+    mock_channel_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
+    mock_thread_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
+    mock_context.fetch_channel.assert_not_called()
+    mock_context.get_type_dependency.assert_has_calls(
+        [
+            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]),
+            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel]),
+        ]
+    )
+
+
+@pytest.mark.asyncio()
+async def test__get_ctx_target_when_parent_channel_when_async_caches_returns_none_falls_back_to_rest():
+    mock_context = mock.Mock(base_context.BaseContext)
+    mock_context.get_channel.return_value = None
+    mock_context.fetch_channel = mock.AsyncMock(
+        return_value=mock.Mock(hikari.GuildChannel, parent_id=4365123, id=123321)
+    )
+    mock_channel_cache = mock.AsyncMock()
+    mock_channel_cache.get.return_value = None
+    mock_thread_cache = mock.AsyncMock()
+    mock_thread_cache.get.return_value = None
+    mock_context.get_type_dependency.side_effect = [mock_channel_cache, mock_thread_cache]
+
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
+
+    assert result == 4365123
+    mock_context.get_channel.assert_called_once_with()
+    mock_context.fetch_channel.assert_awaited_once()
+    mock_context.get_type_dependency.assert_has_calls(
+        [
+            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]),
+            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel]),
+        ]
+    )
+    mock_channel_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
+    mock_thread_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
+
+
+@pytest.mark.asyncio()
+async def test__get_ctx_target_when_parent_channel_when_async_caches_returns_none_falls_back_to_rest_has_no_parent():
+    mock_context = mock.Mock(base_context.BaseContext)
+    mock_context.get_channel.return_value = None
+    mock_context.fetch_channel = mock.AsyncMock(return_value=mock.Mock(hikari.GuildChannel, parent_id=None, id=123))
+    mock_channel_cache = mock.AsyncMock()
+    mock_channel_cache.get.return_value = None
+    mock_thread_cache = mock.AsyncMock()
+    mock_thread_cache.get.return_value = None
+    mock_context.get_type_dependency.side_effect = [mock_channel_cache, mock_thread_cache]
+
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
+
+    assert result == mock_context.guild_id
+    mock_context.get_channel.assert_called_once_with()
+    mock_context.fetch_channel.assert_awaited_once()
+    mock_context.get_type_dependency.assert_has_calls(
+        [
+            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]),
+            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel]),
+        ]
+    )
+    mock_channel_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
+    mock_thread_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
+
+
+@pytest.mark.asyncio()
+async def test__get_ctx_target_when_parent_channel_and_no_async_caches_falls_back_to_rest():
+    mock_context = mock.Mock(base_context.BaseContext)
+    mock_context.get_channel.return_value = None
+    mock_context.fetch_channel = mock.AsyncMock(
+        return_value=mock.Mock(hikari.GuildChannel, parent_id=1235234, id=123321)
+    )
     mock_context.get_type_dependency.return_value = alluka.abc.UNDEFINED
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
-    assert result == result
+    assert result == 1235234
     mock_context.get_channel.assert_called_once_with()
     mock_context.fetch_channel.assert_awaited_once()
-    mock_context.get_type_dependency.assert_called_once_with(
-        tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]
+    mock_context.get_type_dependency.assert_has_calls(
+        [
+            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]),
+            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel]),
+        ]
+    )
+
+
+@pytest.mark.asyncio()
+async def test__get_ctx_target_when_parent_channel_and_no_async_caches_falls_back_to_rest_has_no_parent():
+    mock_context = mock.Mock(base_context.BaseContext)
+    mock_context.get_channel.return_value = None
+    mock_context.fetch_channel = mock.AsyncMock(return_value=mock.Mock(hikari.GuildChannel, parent_id=None, id=123))
+    mock_context.get_type_dependency.return_value = alluka.abc.UNDEFINED
+
+    result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
+
+    assert result == mock_context.guild_id
+    mock_context.get_channel.assert_called_once_with()
+    mock_context.fetch_channel.assert_awaited_once()
+    mock_context.get_type_dependency.assert_has_calls(
+        [
+            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]),
+            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel]),
+        ]
     )
 
 
