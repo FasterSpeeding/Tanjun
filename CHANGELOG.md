@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for message commands to [tanjun.annotations.TheseChannels][].
 - `allowed_types` field to [tanjun.conversion.ToChannel][] to allow narrowing the allowed channel
   types for a message command option.
+- Support for toggleable case-insensitive message command name handling.
 
 ### Fixed
 - The hot reloader will no-longer retry to reload a module being targeted through a system path
@@ -184,7 +185,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `error` option to the standard checks and limiters to allow setting a callback which generates
   a custom error.
 - `AbstractSchedule.force_stop` which immediately stops the tasks without waiting and is sync.
-- Support for toggleable case-insensitive message command name handling.
 
 ### Changed
 - The cooldown limiter now uses Discord's timestamp format in its default error messages.
