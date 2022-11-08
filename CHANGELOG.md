@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bumped the minimum Hikari version to `2.0.0.dev112`.
 - `SfCache[hikari.GuildChannel]` is now `SfCache[hikari.PermissibleGuildChannel]`.
+- Allow [None][] to be passed for `attachment` and `attachments` to edit response methods. 
 
 ### Fixed
 - The [ToChannel][tanjun.checks.ToChannel]/[to_channel][tanjun.checks.to_channel] converter
