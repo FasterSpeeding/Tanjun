@@ -69,6 +69,84 @@ DM_PERMISSIONS: typing.Final[hikari.Permissions] = (
 )
 """Bitfield of the permissions which are accessibly within DM channels."""
 
+_CHANNEL_SEND_PERMS = ~(
+    hikari.Permissions.SEND_TTS_MESSAGES
+    | hikari.Permissions.EMBED_LINKS
+    | hikari.Permissions.ATTACH_FILES
+    | hikari.Permissions.MENTION_ROLES
+)
+
+
+# TODO: which threads are on channels?
+_CHANNEL_VIEW_PERMS = ~(
+    hikari.Permissions.CREATE_INSTANT_INVITE
+    | hikari.Permissions.MANAGE_CHANNELS
+    | hikari.Permissions.ADD_REACTIONS
+    | hikari.Permissions.SEND_MESSAGES
+    | hikari.Permissions.MANAGE_MESSAGES
+    | hikari.Permissions.READ_MESSAGE_HISTORY
+    | hikari.Permissions.USE_EXTERNAL_EMOJIS  # TODO: does this effect reactions???
+    # TODO: technically this is a per-channel perm but that might not be what ppl expect
+    | hikari.Permissions.MANAGE_WEBHOOKS
+    # TODO: do context menus get blocked if you can't send messages like slash commands
+    # also what about buttons?
+    | hikari.Permissions.USE_APPLICATION_COMMANDS
+    | hikari.Permissions.CREATE_PRIVATE_THREADS
+    | hikari.Permissions.USE_EXTERNAL_STICKERS
+    | hikari.Permissions.CREATE_PUBLIC_THREADS
+    | hikari.Permissions.MODERATE_MEMBERS
+    | ~_CHANNEL_SEND_PERMS
+)
+
+
+# TODO: this can't be all right?
+_MUTE_PERMISSIONS = hikari.Permissions.VIEW_CHANNEL | hikari.Permissions.READ_MESSAGE_HISTORY
+
+_THREAD_CHANNEL_TYPES = frozenset(
+    (
+        hikari.ChannelType.GUILD_NEWS_THREAD,
+        hikari.ChannelType.GUILD_PUBLIC_THREAD,
+        hikari.ChannelType.GUILD_PRIVATE_THREAD,
+    )
+)
+_MOVABLE_CHANNEL_TYPES = frozenset(
+    (*_THREAD_CHANNEL_TYPES, hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GUILD_STAGE)
+)
+
+
+def _normalise_permissions(
+    permissions: hikari.Permissions,
+    /,
+    *,
+    member: typing.Optional[hikari.Member] = None,
+    channel_type: typing.Union[hikari.ChannelType, int, None] = None,
+) -> hikari.Permissions:
+    if member and member.communication_disabled_until():
+        return permissions & _MUTE_PERMISSIONS
+
+    not_permissions = ~permissions
+    if not_permissions & hikari.Permissions.CONNECT:
+        pass
+        # permissions &= ~hikari.Permissions.MANAGE_CHANNELS
+        # TODO: what perms???
+
+    # TODO: how to handle when channel_type is None???
+
+    if not_permissions & hikari.Permissions.VIEW_CHANNEL:
+        if channel_type and channel_type not in _MOVABLE_CHANNEL_TYPES:
+            permissions &= _CHANNEL_VIEW_PERMS
+
+    else:
+        send_perm = (
+            hikari.Permissions.SEND_MESSAGES_IN_THREADS
+            if channel_type in _THREAD_CHANNEL_TYPES
+            else hikari.Permissions.SEND_MESSAGES
+        )
+        if not_permissions & send_perm:
+            permissions &= _CHANNEL_SEND_PERMS
+
+    return permissions
+
 
 def _calculate_channel_overwrites(
     channel: hikari.PermissibleGuildChannel, member: hikari.Member, permissions: hikari.Permissions, /
@@ -91,7 +169,7 @@ def _calculate_channel_overwrites(
         permissions &= ~member_overwrite.deny
         permissions |= member_overwrite.allow
 
-    return permissions
+    return _normalise_permissions(permissions, channel_type=channel.type, member=member)
 
 
 def _calculate_role_permissions(
@@ -150,7 +228,7 @@ def calculate_permissions(
         return ALL_PERMISSIONS
 
     if not channel:
-        return permissions
+        return _normalise_permissions(permissions, member=member)
 
     return _calculate_channel_overwrites(channel, member, permissions)
 
@@ -239,7 +317,7 @@ async def fetch_permissions(
         return ALL_PERMISSIONS
 
     if not channel:
-        return permissions
+        return _normalise_permissions(permissions, member=member)
 
     channel = await _fetch_channel(client, channel)
     if channel.guild_id != guild.id:
@@ -282,7 +360,7 @@ def calculate_everyone_permissions(
         permissions &= ~everyone_overwrite.deny
         permissions |= everyone_overwrite.allow
 
-    return permissions
+    return _normalise_permissions(permissions, channel_type=channel.type if channel else None)
 
 
 async def fetch_everyone_permissions(
@@ -349,4 +427,4 @@ async def fetch_everyone_permissions(
         permissions &= ~everyone_overwrite.deny
         permissions |= everyone_overwrite.allow
 
-    return permissions
+    return _normalise_permissions(permissions, channel_type=channel.type if channel else None)
