@@ -70,7 +70,6 @@ from ._internal import cache
 from ._internal import localisation
 
 if typing.TYPE_CHECKING:
-
     class _AnyCallback(typing.Protocol):
         async def __call__(
             self,
