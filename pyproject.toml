@@ -102,7 +102,7 @@ per-file-ignores = [
 [tool.isort]
 profile = "black"
 force_single_line = true
-skip = ["alluka/_internal/vendor"]
+skip = ["tanjun/_internal/vendor"]
 
 [tool.pyright]
 exclude = ["tanjun/_internal/vendor"]
