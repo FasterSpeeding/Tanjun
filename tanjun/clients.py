@@ -2942,6 +2942,7 @@ class Client(tanjun.Client):
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
+        task: asyncio.Task[typing.Any]
         try:
             if not await self.check(ctx):
                 raise errors.HaltExecution

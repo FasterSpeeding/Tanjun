@@ -33,6 +33,7 @@
 from __future__ import annotations
 
 import hikari
+import typing
 
 from .. import abc as tanjun
 from ..dependencies import async_cache
@@ -65,6 +66,7 @@ async def get_perm_channel(client: tanjun.Client, channel_id: hikari.Snowflake, 
     hikari.channels.PermissibleGuildChannel
         The permissible guild channel.
     """
+    channel: typing.Optional[hikari.PartialChannel]
     if client.cache and (channel := client.cache.get_guild_channel(channel_id)):
         return channel
 
