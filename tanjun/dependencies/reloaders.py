@@ -372,7 +372,6 @@ class HotReloader:
 
         sys_scanner.process()
         py_scanner.process()
-
         return result
 
     async def scan(self, client: tanjun.Client, /) -> None:  # TODO: maybe don't load pass the Client here?
