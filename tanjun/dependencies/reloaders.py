@@ -35,6 +35,7 @@ from __future__ import annotations
 __all__: list[str] = ["HotReloader"]
 
 import asyncio
+import dataclasses
 import datetime
 import importlib
 import itertools
@@ -68,24 +69,6 @@ class _PyPathInfo:
     def __init__(self, sys_path: pathlib.Path, /, *, last_modified_at: int = -1) -> None:
         self.sys_path = sys_path
         self.last_modified_at = last_modified_at
-
-
-def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
-    try:
-        return path.stat().st_mtime_ns
-
-    except FileNotFoundError:  # TODO: catch other errors here like perm errors
-        return None
-
-
-class _ScanResult:
-    __slots__ = ("py_paths", "removed_py_paths", "removed_sys_paths", "sys_paths")
-
-    def __init__(self) -> None:
-        self.py_paths: dict[str, _PyPathInfo] = {}
-        self.removed_py_paths: list[str] = []
-        self.removed_sys_paths: list[pathlib.Path] = []
-        self.sys_paths: dict[pathlib.Path, _PyPathInfo] = {}
 
 
 class HotReloader:
@@ -548,15 +531,29 @@ def _add_modules(
     return py_paths, sys_paths
 
 
-class _PathScanner(typing.Generic[_PathT]):
-    __slots__ = ("dead_unloads", "paths", "removed_paths")
+def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
+    try:
+        return path.stat().st_mtime_ns
 
-    def __init__(
-        self, dead_unloads: set[str | pathlib.Path], paths: dict[_PathT, _PyPathInfo], removed_paths: list[_PathT]
-    ) -> None:
-        self.dead_unloads = dead_unloads
-        self.paths = paths
-        self.removed_paths = removed_paths
+    except FileNotFoundError:  # TODO: catch other errors here like perm errors
+        return None
+
+
+class _ScanResult:
+    __slots__ = ("py_paths", "removed_py_paths", "removed_sys_paths", "sys_paths")
+
+    def __init__(self) -> None:
+        self.py_paths: dict[str, _PyPathInfo] = {}
+        self.removed_py_paths: list[str] = []
+        self.removed_sys_paths: list[pathlib.Path] = []
+        self.sys_paths: dict[pathlib.Path, _PyPathInfo] = {}
+
+
+@dataclasses.dataclass
+class _PathScanner(typing.Generic[_PathT]):
+    dead_unloads: set[str | pathlib.Path]
+    paths: dict[_PathT, _PyPathInfo]
+    removed_paths: list[_PathT]
 
     def process_directory(
         self,
@@ -584,23 +581,15 @@ class _PathScanner(typing.Generic[_PathT]):
                 self.removed_paths.append(path)
 
 
+@dataclasses.dataclass
 class _PathLoader(typing.Generic[_PathT]):
-    __slots__ = ("changed", "load_module", "paths", "unload_module", "waiting_for")
-
-    def __init__(
-        self,
-        waiting_for: dict[_PathT, int],
-        paths: dict[_PathT, _PyPathInfo],
-        load_module: collections.Callable[
-            [tanjun.Client, typing.Union[str, pathlib.Path]], typing.Coroutine[typing.Any, typing.Any, bool]
-        ],
-        unload_module: collections.Callable[[tanjun.Client, typing.Union[str, pathlib.Path]], bool],
-    ) -> None:
-        self.changed = False
-        self.load_module = load_module
-        self.paths = paths
-        self.unload_module = unload_module
-        self.waiting_for = waiting_for
+    waiting_for: dict[_PathT, int]
+    paths: dict[_PathT, _PyPathInfo]
+    load_module: collections.Callable[
+        [tanjun.Client, typing.Union[str, pathlib.Path]], typing.Coroutine[typing.Any, typing.Any, bool]
+    ]
+    unload_module: collections.Callable[[tanjun.Client, typing.Union[str, pathlib.Path]], bool]
+    changed: bool = False
 
     async def process_results(
         self, client: tanjun.Client, results: collections.Iterable[tuple[_PathT, _PyPathInfo]]
