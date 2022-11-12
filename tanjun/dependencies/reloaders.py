@@ -353,9 +353,6 @@ class HotReloader:
         sys_scanner = _PathScanner[pathlib.Path](self._dead_unloads, result.sys_paths, result.removed_sys_paths)
 
         for path, directory in self._directories.copy().items():
-            if path in self._dead_unloads:
-                continue  # There's no point trying to reload a module which cannot be unloaded.
-
             if directory[0] is None:
                 current_paths: set[pathlib.Path] = set(
                     filter(pathlib.Path.is_file, map(pathlib.Path.resolve, path.glob("*.py")))
@@ -559,6 +556,9 @@ class _PathScanner(typing.Generic[_PathT]):
         new_paths: collections.Iterable[tuple[_PathT, pathlib.Path]],
     ) -> None:
         for path, real_path in new_paths:
+            if path in self.dead_unloads:
+                continue
+
             if time := _scan_one(real_path):
                 self.paths[path] = _PyPathInfo(real_path, last_modified_at=time)
 
