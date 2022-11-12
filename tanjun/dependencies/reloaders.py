@@ -538,7 +538,7 @@ def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
         return None
 
 
-@dataclasses.dataclass()
+@dataclasses.dataclass
 class _ScanResult:
     py_paths: dict[str, _PyPathInfo] = dataclasses.field(init=False, default_factory=dict)
     removed_py_paths: list[str] = dataclasses.field(init=False, default_factory=list)

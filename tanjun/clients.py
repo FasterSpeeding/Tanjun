@@ -3080,7 +3080,7 @@ def _try_unsubscribe(
         pass
 
 
-@dataclasses.dataclass()
+@dataclasses.dataclass
 class _LoadModule:
     path: typing.Union[str, pathlib.Path]
 
@@ -3088,7 +3088,7 @@ class _LoadModule:
         return importlib.import_module(self.path) if isinstance(self.path, str) else _get_path_module(self.path)
 
 
-@dataclasses.dataclass()
+@dataclasses.dataclass
 class _ReloadModule:
     path: typing.Union[types.ModuleType, pathlib.Path]
 
