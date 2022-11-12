@@ -558,7 +558,7 @@ def _get_next(target_values: collections.Sequence[int], current_value: int) -> t
         if value > current_value:
             return value
 
-    return None
+    return None  # MyPy compat
 
 
 def _to_sequence(

@@ -1444,7 +1444,7 @@ class Client(tanjun.Client):
         _LOGGER.info("Bulk declaring %s %s application commands", len(builders), target_type)
         responses = await self._rest.set_application_commands(application, list(builders.values()), guild=guild)
 
-        for response in responses:
+        for response in responses:  # different command_ name used here for MyPy compat
             if not guild and (command_ := names_to_commands.get((response.type, response.name))):
                 command_.set_tracked_command(response)  # TODO: is this fine?
 
@@ -2192,7 +2192,7 @@ class Client(tanjun.Client):
             if ctx.content.startswith(prefix):
                 return prefix
 
-        return None
+        return None  # MyPy compat
 
     async def close(self, *, deregister_listeners: bool = True) -> None:
         """Close the client.
@@ -2936,7 +2936,7 @@ class Client(tanjun.Client):
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
-        task: asyncio.Task[typing.Any]
+        task: asyncio.Task[typing.Any]  # MyPy compat
         try:
             if not await self.check(ctx):
                 raise errors.HaltExecution

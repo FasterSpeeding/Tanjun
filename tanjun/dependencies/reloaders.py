@@ -534,7 +534,7 @@ def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
         return path.stat().st_mtime_ns
 
     except FileNotFoundError:  # TODO: catch other errors here like perm errors
-        return None
+        return None  # MyPy compat
 
 
 @dataclasses.dataclass

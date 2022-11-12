@@ -138,7 +138,7 @@ def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typ
         if content == name or content.startswith(name) and content[len(name)] == " ":
             return name
 
-    return None
+    return None  # MyPy compat
 
 
 _EMPTY_BUFFER: dict[typing.Any, typing.Any] = {}

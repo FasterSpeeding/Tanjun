@@ -146,14 +146,14 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
             assert channel is None or isinstance(channel, hikari.TextableGuildChannel)
             return channel
 
-        return None
+        return None  # MyPy compat
 
     def get_guild(self) -> typing.Optional[hikari.Guild]:
         # <<inherited docstring from tanjun.abc.Context>>.
         if self.guild_id is not None and self._client.cache:
             return self._client.cache.get_guild(self.guild_id)
 
-        return None
+        return None  # MyPy compat
 
     async def fetch_channel(self) -> hikari.TextableChannel:
         # <<inherited docstring from tanjun.abc.Context>>.
@@ -166,4 +166,4 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
         if self.guild_id is not None:
             return await self._client.rest.fetch_guild(self.guild_id)
 
-        return None
+        return None  # MyPy compat

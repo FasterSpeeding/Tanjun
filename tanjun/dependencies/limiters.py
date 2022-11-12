@@ -195,7 +195,7 @@ async def _try_get_role(
     try:
         return await cache.get(role_id)
     except async_cache.EntryNotFound:
-        return None
+        return None  # MyPy compat
 
 
 async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hikari.Snowflake:
@@ -206,7 +206,7 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
         return ctx.channel_id
 
     if type_ is BucketResource.PARENT_CHANNEL:
-        channel: typing.Optional[hikari.PartialChannel]
+        channel: typing.Optional[hikari.PartialChannel]  # MyPy compat
         if ctx.guild_id is None:
             return ctx.channel_id
 
@@ -313,7 +313,7 @@ class _Cooldown:
         if self.counter >= self.limit and self.resets_at > _now():
             return self.resets_at
 
-        return None
+        return None  # MyPy compat
 
 
 class _InnerResourceProto(typing.Protocol):
@@ -412,7 +412,7 @@ class _MemberResource(_BaseResource[_InnerResourceT]):
         if guild_mapping := self.mapping.get(ctx.guild_id):
             return guild_mapping.get(ctx.author.id)
 
-        return None
+        return None  # MyPy compat
 
     def cleanup(self) -> None:
         for guild_id, mapping in self.mapping.copy().items():
@@ -544,7 +544,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if (resource := self._buckets.get(bucket_id)) and (bucket := await resource.try_into_inner(ctx)):
             return bucket.must_wait_until()
 
-        return None
+        return None  # MyPy compat
 
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractCooldownManager>>.
@@ -650,7 +650,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         else:
             reset_after_ = reset_after
 
-        if reset_after_ <= datetime.timedelta():
+        if reset_after_ <= datetime.timedelta():  # different variable used for MyPy compat
             raise ValueError("reset_after must be greater than 0 seconds")
 
         if limit <= 0:
