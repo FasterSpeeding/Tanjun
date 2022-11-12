@@ -349,8 +349,10 @@ class HotReloader:
 
     def _scan(self) -> _ScanResult:
         result = _ScanResult()
-        py_scanner = _PathScanner[str](self._dead_unloads, result.py_paths, result.removed_py_paths)
-        sys_scanner = _PathScanner[pathlib.Path](self._dead_unloads, result.sys_paths, result.removed_sys_paths)
+        py_scanner = _PathScanner[str](self._py_paths, self._dead_unloads, result.py_paths, result.removed_py_paths)
+        sys_scanner = _PathScanner[pathlib.Path](
+            self._sys_paths, self._dead_unloads, result.sys_paths, result.removed_sys_paths
+        )
 
         for path, directory in self._directories.copy().items():
             if directory[0] is None:
@@ -545,8 +547,9 @@ class _ScanResult:
 
 @dataclasses.dataclass
 class _PathScanner(typing.Generic[_PathT]):
+    global_paths: dict[_PathT, _PyPathInfo]
     dead_unloads: set[str | pathlib.Path]
-    paths: dict[_PathT, _PyPathInfo]
+    result_paths: dict[_PathT, _PyPathInfo]
     removed_paths: list[_PathT]
 
     def process_directory(
@@ -560,19 +563,19 @@ class _PathScanner(typing.Generic[_PathT]):
                 continue
 
             if time := _scan_one(real_path):
-                self.paths[path] = _PyPathInfo(real_path, last_modified_at=time)
+                self.result_paths[path] = _PyPathInfo(real_path, last_modified_at=time)
 
             elif path in current_paths:
                 remove_path(path)
                 self.removed_paths.append(path)
 
     def process(self) -> None:
-        for path, info in self.paths.copy().items():
+        for path, info in self.global_paths.copy().items():
             if path in self.dead_unloads:
                 continue
 
             if time := _scan_one(info.sys_path):
-                self.paths[path] = _PyPathInfo(info.sys_path, last_modified_at=time)
+                self.result_paths[path] = _PyPathInfo(info.sys_path, last_modified_at=time)
 
             elif info.last_modified_at != -1:
                 self.removed_paths.append(path)
