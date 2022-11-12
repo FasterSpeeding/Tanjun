@@ -76,9 +76,7 @@ class LazyConstant(typing.Generic[_T]):
     @property
     def callback(
         self,
-    ) -> typing.Union[
-        collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]], collections.Callable[..., _T]
-    ]:
+    ) -> alluka.abc.CallbackSig[_T]:
         """Descriptor of the callback used to get this constant's initial value."""
         return self._callback
 
