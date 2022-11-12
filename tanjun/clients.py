@@ -1445,7 +1445,7 @@ class Client(tanjun.Client):
         responses = await self._rest.set_application_commands(application, list(builders.values()), guild=guild)
 
         for response in responses:
-            if not guild and (command := names_to_commands.get((response.type, response.name))):
+            if not guild and (command_ := names_to_commands.get((response.type, response.name))):
                 command_.set_tracked_command(response)  # TODO: is this fine?
 
         _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), target_type)

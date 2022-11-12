@@ -1189,6 +1189,16 @@ class SlashOption(abc.ABC):
             If the option is not a channel.
         """
 
+    @typing.overload
+    @abc.abstractmethod
+    def resolve_to_member(self) -> hikari.InteractionMember:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
+        ...
+
     @abc.abstractmethod
     def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
         """Resolve this option to a member object.
