@@ -402,49 +402,20 @@ class HotReloader:
         """
         loop = asyncio.get_running_loop()
         scan_result = await loop.run_in_executor(None, self._scan)
-        changed = False
+        py_loader = _PathLoader[str](self._waiting_for_py, self._py_paths, self._load_module, self._unload_module)
+        sys_loader = _PathLoader[pathlib.Path](
+            self._waiting_for_sys, self._sys_paths, self._load_module, self._unload_module
+        )
 
         # TODO: do we want the wait_for to be on a quicker schedule
-        for path, value in scan_result.py_paths.items():
-            if tracked_value := self._waiting_for_py.get(path):
-                if value.last_modified_at == tracked_value:
-                    del self._waiting_for_py[path]
-                    result = await self._load_module(client, path)
-                    changed = result or changed
-                    self._py_paths[path] = value
-
-                else:
-                    self._waiting_for_py[path] = value.last_modified_at
-
-            elif not (path_info := self._py_paths.get(path)) or path_info.last_modified_at != value.last_modified_at:
-                self._waiting_for_py[path] = value.last_modified_at
-
-        for path, value in scan_result.sys_paths.items():
-            if tracked_value := self._waiting_for_sys.get(path):
-                if value.last_modified_at == tracked_value:
-                    del self._waiting_for_sys[path]
-                    result = await self._load_module(client, path)
-                    changed = result or changed
-                    self._sys_paths[path] = value
-
-                else:
-                    self._waiting_for_sys[path] = tracked_value
-
-            elif self._sys_paths.get(path) != value:
-                self._waiting_for_sys[path] = value.last_modified_at
+        await py_loader.process_results(client, scan_result.py_paths.items())
+        await sys_loader.process_results(client, scan_result.sys_paths.items())
 
         if self._unload_on_delete:
-            for path in scan_result.removed_py_paths:
-                result = self._unload_module(client, path)
-                changed = result or changed
-                self._py_paths[path].last_modified_at = -1
+            py_loader.remove_results(client, scan_result.removed_py_paths)
+            sys_loader.remove_results(client, scan_result.removed_sys_paths)
 
-            for path in scan_result.removed_sys_paths:
-                result = self._unload_module(client, path)
-                changed = result or changed
-                self._sys_paths[path] = _PyPathInfo(path)
-
-        if not changed or self._redeclare_cmds_after is None:
+        if not (py_loader.changed or sys_loader.changed) or self._redeclare_cmds_after is None:
             return
 
         builders: _BuilderDict = {
@@ -611,3 +582,44 @@ class _PathScanner(typing.Generic[_PathT]):
 
             elif info.last_modified_at != -1:
                 self.removed_paths.append(path)
+
+
+class _PathLoader(typing.Generic[_PathT]):
+    __slots__ = ("changed", "load_module", "paths", "unload_module", "waiting_for")
+
+    def __init__(
+        self,
+        waiting_for: dict[_PathT, int],
+        paths: dict[_PathT, _PyPathInfo],
+        load_module: collections.Callable[
+            [tanjun.Client, typing.Union[str, pathlib.Path]], typing.Coroutine[typing.Any, typing.Any, bool]
+        ],
+        unload_module: collections.Callable[[tanjun.Client, typing.Union[str, pathlib.Path]], bool],
+    ) -> None:
+        self.changed = False
+        self.load_module = load_module
+        self.paths = paths
+        self.unload_module = unload_module
+        self.waiting_for = waiting_for
+
+    async def process_results(
+        self, client: tanjun.Client, results: collections.Iterable[tuple[_PathT, _PyPathInfo]]
+    ) -> None:
+        for path, value in results:
+            if tracked_value := self.waiting_for.get(path):
+                if value.last_modified_at == tracked_value:
+                    del self.waiting_for[path]
+                    result = await self.load_module(client, path)
+                    self.changed = result or self.changed
+                    self.paths[path] = value
+
+                else:
+                    self.waiting_for[path] = value.last_modified_at
+
+            elif not (path_info := self.paths.get(path)) or path_info.last_modified_at != value.last_modified_at:
+                self.waiting_for[path] = value.last_modified_at
+
+    def remove_results(self, client: tanjun.Client, results: collections.Iterable[_PathT]) -> None:
+        for path in results:
+            self.unload_module(client, path)
+            self.paths[path].last_modified_at = -1
