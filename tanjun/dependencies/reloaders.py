@@ -41,6 +41,7 @@ import itertools
 import logging
 import pathlib
 import typing
+from collections import abc as collections
 
 import alluka
 import hikari
@@ -52,10 +53,13 @@ from .. import errors
 if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
-_LOGGER = logging.getLogger("hikari.tanjun.reloader")
+    _BuilderDict = dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder]
+    _DirectoryEntry = typing.Union[tuple[str, set[str]], tuple[None, set[pathlib.Path]]]
 
-_BuilderDict = dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder]
-_DirectoryEntry = typing.Union[tuple[str, set[str]], tuple[None, set[pathlib.Path]]]
+
+_PathT = typing.TypeVar("_PathT", str, pathlib.Path)
+
+_LOGGER = logging.getLogger("hikari.tanjun.reloader")
 
 
 class _PyPathInfo:
@@ -81,7 +85,7 @@ class _ScanResult:
         self.py_paths: dict[str, _PyPathInfo] = {}
         self.removed_py_paths: list[str] = []
         self.removed_sys_paths: list[pathlib.Path] = []
-        self.sys_paths: dict[pathlib.Path, int] = {}
+        self.sys_paths: dict[pathlib.Path, _PyPathInfo] = {}
 
 
 class HotReloader:
@@ -180,7 +184,7 @@ class HotReloader:
         self._scheduled_builders: _BuilderDict = {}
         """State of the builders to be declared next."""
 
-        self._sys_paths: dict[pathlib.Path, int] = {}
+        self._sys_paths: dict[pathlib.Path, _PyPathInfo] = {}
         """Dict of system paths to info of files being targeted."""
 
         self._task: typing.Optional[asyncio.Task[None]] = None
@@ -222,7 +226,7 @@ class HotReloader:
         """
         py_paths, sys_paths = await asyncio.get_running_loop().run_in_executor(None, _add_modules, paths)
         self._py_paths.update(py_paths)
-        self._sys_paths.update((key, -1) for key in sys_paths)
+        self._sys_paths.update((key, _PyPathInfo(key)) for key in sys_paths)
         return self
 
     def add_modules(self, *paths: typing.Union[str, pathlib.Path]) -> Self:
@@ -245,7 +249,7 @@ class HotReloader:
         """
         py_paths, sys_paths = _add_modules(paths)
         self._py_paths.update(py_paths)
-        self._sys_paths.update((key, -1) for key in sys_paths)
+        self._sys_paths.update((key, _PyPathInfo(key)) for key in sys_paths)
         return self
 
     async def add_directory_async(
@@ -362,6 +366,9 @@ class HotReloader:
 
     def _scan(self) -> _ScanResult:
         result = _ScanResult()
+        py_scanner = _PathScanner[str](self._dead_unloads, result.py_paths, result.removed_py_paths)
+        sys_scanner = _PathScanner[pathlib.Path](self._dead_unloads, result.sys_paths, result.removed_sys_paths)
+
         for path, directory in self._directories.copy().items():
             if path in self._dead_unloads:
                 continue  # There's no point trying to reload a module which cannot be unloaded.
@@ -370,49 +377,18 @@ class HotReloader:
                 current_paths: set[pathlib.Path] = set(
                     filter(pathlib.Path.is_file, map(pathlib.Path.resolve, path.glob("*.py")))
                 )
-                for new_path in current_paths - directory[1]:
-                    if time := _scan_one(new_path):
-                        result.sys_paths[new_path] = time
-
-                    elif new_path in directory[1]:
-                        directory[1].remove(new_path)
-                        result.removed_sys_paths.append(new_path)
-
-                for old_path in directory[1] - current_paths:
-                    directory[1].remove(old_path)
-                    result.removed_sys_paths.append(old_path)
+                sys_scanner.process_directory(
+                    current_paths, current_paths.remove, ((v, v) for v in current_paths - directory[1])
+                )
 
             else:
                 str_paths = {_to_namespace(directory[0], path): path for path in path.glob("*.py") if path.is_file()}
-                for new_str_path in str_paths.keys() - directory[1]:
-                    sys_path = str_paths[new_str_path]
-                    if time := _scan_one(sys_path):
-                        result.py_paths[new_str_path] = _PyPathInfo(sys_path, last_modified_at=time)
+                py_scanner.process_directory(
+                    str_paths, str_paths.__delitem__, ((v, str_paths[v]) for v in str_paths.keys() - directory[1])
+                )
 
-                    elif new_str_path in directory[1]:
-                        result.removed_py_paths.append(new_str_path)
-                        directory[1].remove(new_str_path)
-
-                for old_path in directory[1] - str_paths.keys():
-                    directory[1].remove(old_path)
-                    result.removed_py_paths.append(old_path)
-
-        for path, old_time in self._sys_paths.copy().items():
-            if time := _scan_one(path):
-                result.sys_paths[path] = time
-
-            elif old_time != -1:
-                result.removed_sys_paths.append(path)
-
-        for path, info in self._py_paths.copy().items():
-            if path in self._dead_unloads:
-                continue
-
-            if time := _scan_one(info.sys_path):
-                result.py_paths[path] = _PyPathInfo(info.sys_path, last_modified_at=time)
-
-            elif info.last_modified_at != -1:
-                result.removed_py_paths.append(path)
+        sys_scanner.process()
+        py_scanner.process()
 
         return result
 
@@ -445,7 +421,7 @@ class HotReloader:
 
         for path, value in scan_result.sys_paths.items():
             if tracked_value := self._waiting_for_sys.get(path):
-                if value == tracked_value:
+                if value.last_modified_at == tracked_value:
                     del self._waiting_for_sys[path]
                     result = await self._load_module(client, path)
                     changed = result or changed
@@ -455,7 +431,7 @@ class HotReloader:
                     self._waiting_for_sys[path] = tracked_value
 
             elif self._sys_paths.get(path) != value:
-                self._waiting_for_sys[path] = value
+                self._waiting_for_sys[path] = value.last_modified_at
 
         if self._unload_on_delete:
             for path in scan_result.removed_py_paths:
@@ -466,7 +442,7 @@ class HotReloader:
             for path in scan_result.removed_sys_paths:
                 result = self._unload_module(client, path)
                 changed = result or changed
-                self._sys_paths[path] = -1
+                self._sys_paths[path] = _PyPathInfo(path)
 
         if not changed or self._redeclare_cmds_after is None:
             return
@@ -599,3 +575,39 @@ def _add_modules(
             py_paths[raw_path] = _PyPathInfo(path)
 
     return py_paths, sys_paths
+
+
+class _PathScanner(typing.Generic[_PathT]):
+    __slots__ = ("dead_unloads", "paths", "removed_paths")
+
+    def __init__(
+        self, dead_unloads: set[str | pathlib.Path], paths: dict[_PathT, _PyPathInfo], removed_paths: list[_PathT]
+    ) -> None:
+        self.dead_unloads = dead_unloads
+        self.paths = paths
+        self.removed_paths = removed_paths
+
+    def process_directory(
+        self,
+        current_paths: collections.Collection[_PathT],
+        remove_path: collections.Callable[[_PathT], None],
+        new_paths: collections.Iterable[tuple[_PathT, pathlib.Path]],
+    ) -> None:
+        for path, real_path in new_paths:
+            if time := _scan_one(real_path):
+                self.paths[path] = _PyPathInfo(real_path, last_modified_at=time)
+
+            elif path in current_paths:
+                remove_path(path)
+                self.removed_paths.append(path)
+
+    def process(self) -> None:
+        for path, info in self.paths.copy().items():
+            if path in self.dead_unloads:
+                continue
+
+            if time := _scan_one(info.sys_path):
+                self.paths[path] = _PyPathInfo(info.sys_path, last_modified_at=time)
+
+            elif info.last_modified_at != -1:
+                self.removed_paths.append(path)

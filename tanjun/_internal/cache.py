@@ -32,8 +32,9 @@
 """Utility classes for making cache calls."""
 from __future__ import annotations
 
-import hikari
 import typing
+
+import hikari
 
 from .. import abc as tanjun
 from ..dependencies import async_cache
