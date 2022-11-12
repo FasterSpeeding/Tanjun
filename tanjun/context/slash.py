@@ -936,6 +936,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         if ensure_result:
             return await self._interaction.fetch_initial_response()
 
+        return None
+
 
 _ATTACHMENT_TYPES: tuple[type[typing.Any], ...] = (hikari.files.Resource, *hikari.files.RAWISH_TYPES, os.PathLike)
 

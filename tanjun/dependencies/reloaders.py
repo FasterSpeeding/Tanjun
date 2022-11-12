@@ -367,7 +367,7 @@ class HotReloader:
                 continue  # There's no point trying to reload a module which cannot be unloaded.
 
             if directory[0] is None:
-                current_paths = set(filter(pathlib.Path.is_file, map(pathlib.Path.resolve, path.glob("*.py"))))
+                current_paths: set[pathlib.Path] = set(filter(pathlib.Path.is_file, map(pathlib.Path.resolve, path.glob("*.py"))))
                 for new_path in current_paths - directory[1]:
                     if time := _scan_one(new_path):
                         result.sys_paths[new_path] = time
@@ -381,19 +381,19 @@ class HotReloader:
                     result.removed_sys_paths.append(old_path)
 
             else:
-                current_paths = {
+                str_paths = {
                     _to_namespace(directory[0], path): path for path in path.glob("*.py") if path.is_file()
                 }
-                for new_path in current_paths.keys() - directory[1]:
-                    sys_path = current_paths[new_path]
+                for new_str_path in str_paths.keys() - directory[1]:
+                    sys_path = str_paths[new_str_path]
                     if time := _scan_one(sys_path):
-                        result.py_paths[new_path] = _PyPathInfo(sys_path, last_modified_at=time)
+                        result.py_paths[new_str_path] = _PyPathInfo(sys_path, last_modified_at=time)
 
-                    elif new_path in directory[1]:
-                        result.removed_py_paths.append(new_path)
-                        directory[1].remove(new_path)
+                    elif new_str_path in directory[1]:
+                        result.removed_py_paths.append(new_str_path)
+                        directory[1].remove(new_str_path)
 
-                for old_path in directory[1] - current_paths.keys():
+                for old_path in directory[1] - str_paths.keys():
                     directory[1].remove(old_path)
                     result.removed_py_paths.append(old_path)
 

@@ -134,6 +134,8 @@ class BasicLocaliser(AbstractLocaliser):
         if (tag_values := self._tags.get(identifier)) and (string := tag_values.get(tag)):
             return string.format(**kwargs)
 
+        return None
+
     def set_variants(
         self,
         identifier: str,

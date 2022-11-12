@@ -141,7 +141,7 @@ warn_redundant_casts = false
 
 # compatibility with pyright
 allow_redefinition = true
-disable_error_code = ["return-value"]
+disable_error_code = ["return-value", "type-abstract"]
 
 # Ignore vendored modules
 exclude = ["tanjun/_internal/vendor/"]

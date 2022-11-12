@@ -1054,7 +1054,7 @@ def _ensure_values(
     return typing.cast(collections.Mapping[str, _T], mapping)
 
 
-_OPTION_TYPE_TO_CONVERTERS: dict[type[typing.Any], tuple[_ConverterSig[typing.Any], ...]] = {
+_OPTION_TYPE_TO_CONVERTERS: dict[typing.Any, tuple[collections.Callable[..., typing.Any], ...]] = {
     hikari.Attachment: NotImplemented,
     bool: (conversion.to_bool,),
     hikari.PartialChannel: (conversion.to_channel,),
@@ -1068,7 +1068,7 @@ _OPTION_TYPE_TO_CONVERTERS: dict[type[typing.Any], tuple[_ConverterSig[typing.An
 }
 
 
-_MESSAGE_ID_ONLY: frozenset[type[typing.Any]] = frozenset(
+_MESSAGE_ID_ONLY: frozenset[typing.Any] = frozenset(
     [hikari.User, hikari.Role, hikari.Member, hikari.PartialChannel, _MentionableUnion]
 )
 
@@ -1211,7 +1211,7 @@ class _ArgConfig:
             self.SLASH_OPTION_ADDER[option_type](self, command, self.description)
 
     SLASH_OPTION_ADDER: dict[
-        type[typing.Any],
+        typing.Any,
         collections.Callable[[_ArgConfig, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]],
     ] = {
         hikari.Attachment: lambda self, c, d: c.add_attachment_option(

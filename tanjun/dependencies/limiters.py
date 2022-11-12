@@ -195,7 +195,7 @@ async def _try_get_role(
     try:
         return await cache.get(role_id)
     except async_cache.EntryNotFound:
-        pass
+        return None
 
 
 async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hikari.Snowflake:
@@ -312,6 +312,8 @@ class _Cooldown:
         if self.counter >= self.limit and self.resets_at > _now():
             return self.resets_at
 
+        return None
+
 
 class _InnerResourceProto(typing.Protocol):
     def has_expired(self) -> bool:
@@ -408,6 +410,8 @@ class _MemberResource(_BaseResource[_InnerResourceT]):
 
         if guild_mapping := self.mapping.get(ctx.guild_id):
             return guild_mapping.get(ctx.author.id)
+
+        return None
 
     def cleanup(self) -> None:
         for guild_id, mapping in self.mapping.copy().items():
@@ -539,6 +543,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if (resource := self._buckets.get(bucket_id)) and (bucket := await resource.try_into_inner(ctx)):
             return bucket.must_wait_until()
 
+        return None
+
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractCooldownManager>>.
         (await self._get_or_default(bucket_id).into_inner(ctx)).increment()
@@ -638,16 +644,19 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             if limit is less 0 or negative.
         """
         if not isinstance(reset_after, datetime.timedelta):
-            reset_after = datetime.timedelta(seconds=reset_after)
+            reset_after_ = datetime.timedelta(seconds=reset_after)
 
-        if reset_after <= datetime.timedelta():
+        else:
+            reset_after_ = reset_after
+
+        if reset_after_ <= datetime.timedelta():
             raise ValueError("reset_after must be greater than 0 seconds")
 
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
         bucket = self._buckets[bucket_id] = _to_bucket(
-            BucketResource(resource), lambda: _Cooldown(limit=limit, reset_after=reset_after)
+            BucketResource(resource), lambda: _Cooldown(limit=limit, reset_after=reset_after_)
         )
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
