@@ -538,14 +538,12 @@ def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
         return None
 
 
+@dataclasses.dataclass()
 class _ScanResult:
-    __slots__ = ("py_paths", "removed_py_paths", "removed_sys_paths", "sys_paths")
-
-    def __init__(self) -> None:
-        self.py_paths: dict[str, _PyPathInfo] = {}
-        self.removed_py_paths: list[str] = []
-        self.removed_sys_paths: list[pathlib.Path] = []
-        self.sys_paths: dict[pathlib.Path, _PyPathInfo] = {}
+    py_paths: dict[str, _PyPathInfo] = dataclasses.field(init=False, default_factory=dict)
+    removed_py_paths: list[str] = dataclasses.field(init=False, default_factory=list)
+    removed_sys_paths: list[pathlib.Path] = dataclasses.field(init=False, default_factory=list)
+    sys_paths: dict[pathlib.Path, _PyPathInfo] = dataclasses.field(init=False, default_factory=dict)
 
 
 @dataclasses.dataclass
@@ -588,7 +586,7 @@ class _PathLoader(typing.Generic[_PathT]):
         [tanjun.Client, typing.Union[str, pathlib.Path]], typing.Coroutine[typing.Any, typing.Any, bool]
     ]
     unload_module: collections.Callable[[tanjun.Client, typing.Union[str, pathlib.Path]], bool]
-    changed: bool = False
+    changed: bool = dataclasses.field(default=False, init=False)
 
     async def process_results(
         self, client: tanjun.Client, results: collections.Iterable[tuple[_PathT, _PyPathInfo]]
