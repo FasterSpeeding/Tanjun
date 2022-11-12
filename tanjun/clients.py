@@ -1446,7 +1446,7 @@ class Client(tanjun.Client):
 
         for response in responses:
             if not guild and (command := names_to_commands.get((response.type, response.name))):
-                command.set_tracked_command(response)  # TODO: is this fine?
+                command_.set_tracked_command(response)  # TODO: is this fine?
 
         _LOGGER.info("Successfully declared %s (top-level) %s commands", len(responses), target_type)
         if _LOGGER.isEnabledFor(logging.DEBUG):
