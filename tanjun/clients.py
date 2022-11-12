@@ -43,6 +43,7 @@ __all__: list[str] = [
 ]
 
 import asyncio
+import dataclasses
 import enum
 import functools
 import importlib
@@ -2475,7 +2476,7 @@ class Client(tanjun.Client):
                 raise errors.ModuleStateConflict(f"module {module_path} already loaded", module_path)
 
             _LOGGER.info("Loading from %s", module_path)
-            module = yield lambda: importlib.import_module(module_path)
+            module = yield _LoadModule(module_path)
 
             with _WrapLoadError(errors.FailedModuleLoad, module_path):
                 self._call_loaders(module_path, _get_loaders(module, module_path))
@@ -2487,7 +2488,7 @@ class Client(tanjun.Client):
                 raise errors.ModuleStateConflict(f"Module at {module_path} already loaded", module_path)
 
             _LOGGER.info("Loading from %s", module_path)
-            module = yield lambda: _get_path_module(module_path)
+            module = yield _LoadModule(module_path)
 
             with _WrapLoadError(errors.FailedModuleLoad, module_path):
                 self._call_loaders(module_path, _get_loaders(module, module_path))
@@ -2560,25 +2561,18 @@ class Client(tanjun.Client):
     ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
         if isinstance(module_path, str):
             old_module = self._modules.get(module_path)
-
-            def load_module() -> types.ModuleType:
-                assert old_module
-                return importlib.reload(old_module)
-
+            load_module: typing.Optional[_ReloadModule] = None
             modules_dict: dict[typing.Any, types.ModuleType] = self._modules
 
         else:
             old_module = self._path_modules.get(module_path)
-
-            def load_module() -> types.ModuleType:
-                assert isinstance(module_path, pathlib.Path)
-                return _get_path_module(module_path)
-
+            load_module = _ReloadModule(module_path)
             modules_dict = self._path_modules
 
         if not old_module:
             raise errors.ModuleStateConflict(f"Module {module_path} not loaded", module_path)
 
+        load_module = load_module or _ReloadModule(old_module)  # If this is None then its a Python path.
         _LOGGER.info("Reloading %s", module_path)
 
         old_loaders = _get_loaders(old_module, module_path)
@@ -3084,3 +3078,19 @@ def _try_unsubscribe(
     except (ValueError, LookupError):
         # TODO: add logging here
         pass
+
+
+@dataclasses.dataclass()
+class _LoadModule:
+    path: typing.Union[str, pathlib.Path]
+
+    def __call__(self) -> types.ModuleType:
+        return importlib.import_module(self.path) if isinstance(self.path, str) else _get_path_module(self.path)
+
+
+@dataclasses.dataclass()
+class _ReloadModule:
+    path: typing.Union[types.ModuleType, pathlib.Path]
+
+    def __call__(self) -> types.ModuleType:
+        return _get_path_module(self.path) if isinstance(self.path, pathlib.Path) else importlib.reload(self.path)
