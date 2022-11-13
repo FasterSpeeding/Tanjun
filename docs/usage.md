@@ -38,7 +38,7 @@ have the client automatically start when the Rest bot starts.
 
 ### Client lifetime management
 
-While Hikari's bots provide systems for stating and stopping sub-components,
+While Hikari's bots provide systems for starting and stopping sub-components,
 these aren't cross-compatible nor Tanjun friendly; Tanjun's client callbacks
 provide a cross-compatible alternative for these (which also supports dependency
 injection).
