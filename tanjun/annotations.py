@@ -1092,7 +1092,6 @@ class _ArgConfig:
         "message_name",
         "option_type",
         "range_or_slice",
-        "range_or_slice_is_finalised",
         "slash_name",
         "snowflake_converter",
     )
@@ -1122,7 +1121,6 @@ class _ArgConfig:
         if not self.range_or_slice:
             return
 
-        self.range_or_slice_is_finalised = True
         # Slice's attributes are all Any so we need to cast to int.
         if self.range_or_slice.step is None or operator.index(self.range_or_slice.step) > 0:
             min_value = operator.index(self.range_or_slice.start) if self.range_or_slice.start is not None else 0
