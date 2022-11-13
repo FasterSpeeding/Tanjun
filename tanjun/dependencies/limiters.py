@@ -268,9 +268,6 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
     raise ValueError(f"Unexpected type {type_}")
 
 
-_CooldownT = typing.TypeVar("_CooldownT", bound="_Cooldown")
-
-
 def _now() -> datetime.datetime:
     return datetime.datetime.now(tz=datetime.timezone.utc)
 
@@ -314,6 +311,17 @@ class _Cooldown:
             return self.resets_at
 
         return None  # MyPy compat
+
+
+class _MakeCooldown:
+    __slots__ = ("limit", "reset_after")
+
+    def __init__(self, *, limit: int, reset_after: datetime.timedelta) -> None:
+        self.limit = limit
+        self.reset_after = reset_after
+
+    def __call__(self) -> _Cooldown:
+        return _Cooldown(limit=self.limit, reset_after=self.reset_after)
 
 
 class _InnerResourceProto(typing.Protocol):
@@ -491,7 +499,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     def __init__(self) -> None:
         self._buckets: dict[str, _BaseResource[_Cooldown]] = {}
         self._default_bucket_template: _BaseResource[_Cooldown] = _FlatResource(
-            BucketResource.USER, lambda: _Cooldown(limit=2, reset_after=datetime.timedelta(seconds=5))
+            BucketResource.USER, _MakeCooldown(limit=2, reset_after=datetime.timedelta(seconds=5))
         )
         self._gc_task: typing.Optional[asyncio.Task[None]] = None
 
@@ -599,9 +607,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             This cooldown manager to allow for chaining.
         """
         # A limit of -1 is special cased to mean no limit and reset_after is ignored in this scenario.
-        bucket = self._buckets[bucket_id] = _GlobalResource(
-            lambda: _Cooldown(limit=-1, reset_after=datetime.timedelta(-1))
-        )
+        bucket = self._buckets[bucket_id] = _GlobalResource(_MakeCooldown(limit=-1, reset_after=datetime.timedelta(-1)))
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 
@@ -645,19 +651,19 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             if limit is less 0 or negative.
         """
         if not isinstance(reset_after, datetime.timedelta):
-            reset_after_ = datetime.timedelta(seconds=reset_after)
+            reset_after = datetime.timedelta(seconds=reset_after)
 
         else:
-            reset_after_ = reset_after
+            reset_after = reset_after
 
-        if reset_after_ <= datetime.timedelta():  # different variable used for MyPy compat
+        if reset_after <= datetime.timedelta():  # different variable used for MyPy compat
             raise ValueError("reset_after must be greater than 0 seconds")
 
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
         bucket = self._buckets[bucket_id] = _to_bucket(
-            BucketResource(resource), lambda: _Cooldown(limit=limit, reset_after=reset_after_)
+            BucketResource(resource), _MakeCooldown(limit=limit, reset_after=reset_after)
         )
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
