@@ -47,7 +47,6 @@ for path in pathlib.Path("./tanjun").glob("**/*.py"):
         GENERAL_TARGETS.append(str(path))
 
 
-PYTHON_VERSIONS = ["3.9", "3.10"]  # TODO: @nox.session(python=["3.6", "3.7", "3.8"])?
 _DEV_DEP_DIR = pathlib.Path("./dev-requirements")
 
 
