@@ -39,7 +39,7 @@ from collections import abc as collections
 
 import nox
 
-nox.options.sessions = ["reformat", "flake8", "spell-check", "slot-check", "type-check", "test", "verify-types"]  # type: ignore
+nox.options.sessions = ["reformat", "flake8", "spell-check", "slot-check", "type-check", "test", "verify-types"]
 GENERAL_TARGETS = ["./noxfile.py", "./tests"]
 _BLACKLISTED_TARGETS = re.compile("^_internal/vendor/.*\\.py")
 for path in pathlib.Path("./tanjun").glob("**/*.py"):

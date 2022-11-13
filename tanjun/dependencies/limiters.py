@@ -195,7 +195,7 @@ async def _try_get_role(
     try:
         return await cache.get(role_id)
     except async_cache.EntryNotFound:
-        pass
+        return None  # MyPy compat
 
 
 async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hikari.Snowflake:
@@ -206,6 +206,7 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
         return ctx.channel_id
 
     if type_ is BucketResource.PARENT_CHANNEL:
+        channel: typing.Optional[hikari.PartialChannel]  # MyPy compat
         if ctx.guild_id is None:
             return ctx.channel_id
 
@@ -213,12 +214,12 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
             return cached_channel.parent_id or ctx.guild_id
 
         channel_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.PermissibleGuildChannel])
-        if channel_cache and (channel_ := await channel_cache.get(ctx.channel_id, default=None)):
-            return channel_.parent_id or ctx.guild_id
+        if channel_cache and (channel := await channel_cache.get(ctx.channel_id, default=None)):
+            return channel.parent_id or ctx.guild_id
 
         thread_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.GuildThreadChannel])
-        if thread_cache and (channel_ := await thread_cache.get(ctx.channel_id, default=None)):
-            return channel_.parent_id
+        if thread_cache and (channel := await thread_cache.get(ctx.channel_id, default=None)):
+            return channel.parent_id
 
         channel = await ctx.fetch_channel()
         assert isinstance(channel, hikari.GuildChannel)
@@ -267,9 +268,6 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
     raise ValueError(f"Unexpected type {type_}")
 
 
-_CooldownT = typing.TypeVar("_CooldownT", bound="_Cooldown")
-
-
 def _now() -> datetime.datetime:
     return datetime.datetime.now(tz=datetime.timezone.utc)
 
@@ -311,6 +309,19 @@ class _Cooldown:
 
         if self.counter >= self.limit and self.resets_at > _now():
             return self.resets_at
+
+        return None  # MyPy compat
+
+
+class _MakeCooldown:
+    __slots__ = ("limit", "reset_after")
+
+    def __init__(self, *, limit: int, reset_after: datetime.timedelta) -> None:
+        self.limit = limit
+        self.reset_after = reset_after
+
+    def __call__(self) -> _Cooldown:
+        return _Cooldown(limit=self.limit, reset_after=self.reset_after)
 
 
 class _InnerResourceProto(typing.Protocol):
@@ -409,6 +420,8 @@ class _MemberResource(_BaseResource[_InnerResourceT]):
         if guild_mapping := self.mapping.get(ctx.guild_id):
             return guild_mapping.get(ctx.author.id)
 
+        return None  # MyPy compat
+
     def cleanup(self) -> None:
         for guild_id, mapping in self.mapping.copy().items():
             for bucket_id, resource in mapping.copy().items():
@@ -486,7 +499,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     def __init__(self) -> None:
         self._buckets: dict[str, _BaseResource[_Cooldown]] = {}
         self._default_bucket_template: _BaseResource[_Cooldown] = _FlatResource(
-            BucketResource.USER, lambda: _Cooldown(limit=2, reset_after=datetime.timedelta(seconds=5))
+            BucketResource.USER, _MakeCooldown(limit=2, reset_after=datetime.timedelta(seconds=5))
         )
         self._gc_task: typing.Optional[asyncio.Task[None]] = None
 
@@ -538,6 +551,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         if (resource := self._buckets.get(bucket_id)) and (bucket := await resource.try_into_inner(ctx)):
             return bucket.must_wait_until()
+
+        return None  # MyPy compat
 
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractCooldownManager>>.
@@ -592,9 +607,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             This cooldown manager to allow for chaining.
         """
         # A limit of -1 is special cased to mean no limit and reset_after is ignored in this scenario.
-        bucket = self._buckets[bucket_id] = _GlobalResource(
-            lambda: _Cooldown(limit=-1, reset_after=datetime.timedelta(-1))
-        )
+        bucket = self._buckets[bucket_id] = _GlobalResource(_MakeCooldown(limit=-1, reset_after=datetime.timedelta(-1)))
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 
@@ -640,14 +653,17 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if not isinstance(reset_after, datetime.timedelta):
             reset_after = datetime.timedelta(seconds=reset_after)
 
-        if reset_after <= datetime.timedelta():
+        else:
+            reset_after = reset_after
+
+        if reset_after <= datetime.timedelta():  # different variable used for MyPy compat
             raise ValueError("reset_after must be greater than 0 seconds")
 
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
         bucket = self._buckets[bucket_id] = _to_bucket(
-            BucketResource(resource), lambda: _Cooldown(limit=limit, reset_after=reset_after)
+            BucketResource(resource), _MakeCooldown(limit=limit, reset_after=reset_after)
         )
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()

@@ -14,7 +14,7 @@
 import dataclasses
 
 
-@dataclasses.dataclass()
+@dataclasses.dataclass
 class ExampleConfig:
     bot_token: str
     database_password: str

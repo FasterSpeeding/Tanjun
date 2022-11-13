@@ -1940,7 +1940,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             warned = False
             for choice in choices:
                 if isinstance(choice, tuple):  # type: ignore[unreachable]  # the point of this is for deprecation
-                    if not warned:  # type: ignore[unreachable]  # mypy sees `warned = True` and messes up.
+                    if not warned:
                         warnings.warn(
                             "Passing a sequence of tuples for 'choices' is deprecated since 2.1.2a1, "
                             "please pass a mapping instead.",

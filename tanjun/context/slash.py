@@ -54,6 +54,7 @@ if typing.TYPE_CHECKING:
     _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
     _T = typing.TypeVar("_T")
 
+
 _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
 _LOGGER = logging.getLogger("hikari.tanjun.context")
 
@@ -203,7 +204,9 @@ class SlashOption(tanjun.SlashOption):
     def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
         ...
 
-    def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
+    def resolve_to_member(
+        self, *, default: typing.Union[_T, _internal.NoDefault] = _internal.NO_DEFAULT
+    ) -> typing.Union[hikari.InteractionMember, _T]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
         if self._option.type is hikari.OptionType.USER:
@@ -212,7 +215,7 @@ class SlashOption(tanjun.SlashOption):
             if member := self._resolved.members.get(hikari.Snowflake(self._option.value)):
                 return member
 
-            if default is not ...:
+            if default is not _internal.NO_DEFAULT:
                 return default
 
             raise LookupError("User isn't in the current guild") from None
@@ -225,7 +228,7 @@ class SlashOption(tanjun.SlashOption):
                 return member
 
             if target_id in self._resolved.users:
-                if default is not ...:
+                if default is not _internal.NO_DEFAULT:
                     return default
 
                 raise LookupError("User isn't in the current guild")
@@ -935,6 +938,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
 
         if ensure_result:
             return await self._interaction.fetch_initial_response()
+
+        return None  # MyPy compat
 
 
 _ATTACHMENT_TYPES: tuple[type[typing.Any], ...] = (hikari.files.Resource, *hikari.files.RAWISH_TYPES, os.PathLike)

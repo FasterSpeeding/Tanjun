@@ -141,7 +141,7 @@ warn_redundant_casts = false
 
 # compatibility with pyright
 allow_redefinition = true
-disable_error_code = ["return-value"]
+disable_error_code = ["return-value", "type-abstract"]
 
 # Ignore vendored modules
 exclude = ["tanjun/_internal/vendor/"]
@@ -150,5 +150,9 @@ exclude = ["tanjun/_internal/vendor/"]
 strict-imports = true
 require-superclass = true
 require-subclass = true
-exclude-classes = """tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor) | .*Proto"""
+exclude-classes = """
+tanjun.clients:(_LoaderDescriptor|_LoadModule|_ReloadModule|_UnloaderDescriptor)
+| tanjun.dependencies.reloaders:(_PathLoader|_PathScanner|_ScanResult)
+| .*Proto
+"""
 exclude-modules = "tanjun._internal.vendor"

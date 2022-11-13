@@ -38,6 +38,7 @@ import typing
 
 import hikari
 
+from .. import _internal
 from .. import abc as tanjun
 from . import slash
 
@@ -163,14 +164,16 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
     def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
         ...
 
-    def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
+    def resolve_to_member(
+        self, *, default: typing.Union[_T, _internal.NoDefault] = _internal.NO_DEFAULT
+    ) -> typing.Union[hikari.InteractionMember, _T]:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
         if self._interaction.resolved.members:
             return next(iter(self._interaction.resolved.members.values()))
 
         if self._interaction.resolved.users:
-            if default is not ...:
+            if default is not _internal.NO_DEFAULT:
                 return default
 
             raise LookupError("User isn't in the current guild")

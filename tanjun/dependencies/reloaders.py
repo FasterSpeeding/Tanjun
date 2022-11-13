@@ -35,12 +35,14 @@ from __future__ import annotations
 __all__: list[str] = ["HotReloader"]
 
 import asyncio
+import dataclasses
 import datetime
 import importlib
 import itertools
 import logging
 import pathlib
 import typing
+from collections import abc as collections
 
 import alluka
 import hikari
@@ -52,10 +54,13 @@ from .. import errors
 if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
-_LOGGER = logging.getLogger("hikari.tanjun.reloader")
+    _BuilderDict = dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder]
+    _DirectoryEntry = typing.Union[tuple[str, set[str]], tuple[None, set[pathlib.Path]]]
 
-_BuilderDict = dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder]
-_DirectoryEntry = typing.Union[tuple[str, set[str]], tuple[None, set[pathlib.Path]]]
+
+_PathT = typing.TypeVar("_PathT", str, pathlib.Path)
+
+_LOGGER = logging.getLogger("hikari.tanjun.reloader")
 
 
 class _PyPathInfo:
@@ -64,24 +69,6 @@ class _PyPathInfo:
     def __init__(self, sys_path: pathlib.Path, /, *, last_modified_at: int = -1) -> None:
         self.sys_path = sys_path
         self.last_modified_at = last_modified_at
-
-
-def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
-    try:
-        return path.stat().st_mtime_ns
-
-    except FileNotFoundError:  # TODO: catch other errors here like perm errors
-        return None
-
-
-class _ScanResult:
-    __slots__ = ("py_paths", "removed_py_paths", "removed_sys_paths", "sys_paths")
-
-    def __init__(self) -> None:
-        self.py_paths: dict[str, _PyPathInfo] = {}
-        self.removed_py_paths: list[str] = []
-        self.removed_sys_paths: list[pathlib.Path] = []
-        self.sys_paths: dict[pathlib.Path, int] = {}
 
 
 class HotReloader:
@@ -180,7 +167,7 @@ class HotReloader:
         self._scheduled_builders: _BuilderDict = {}
         """State of the builders to be declared next."""
 
-        self._sys_paths: dict[pathlib.Path, int] = {}
+        self._sys_paths: dict[pathlib.Path, _PyPathInfo] = {}
         """Dict of system paths to info of files being targeted."""
 
         self._task: typing.Optional[asyncio.Task[None]] = None
@@ -222,7 +209,7 @@ class HotReloader:
         """
         py_paths, sys_paths = await asyncio.get_running_loop().run_in_executor(None, _add_modules, paths)
         self._py_paths.update(py_paths)
-        self._sys_paths.update((key, -1) for key in sys_paths)
+        self._sys_paths.update((key, _PyPathInfo(key)) for key in sys_paths)
         return self
 
     def add_modules(self, *paths: typing.Union[str, pathlib.Path]) -> Self:
@@ -245,7 +232,7 @@ class HotReloader:
         """
         py_paths, sys_paths = _add_modules(paths)
         self._py_paths.update(py_paths)
-        self._sys_paths.update((key, -1) for key in sys_paths)
+        self._sys_paths.update((key, _PyPathInfo(key)) for key in sys_paths)
         return self
 
     async def add_directory_async(
@@ -362,58 +349,28 @@ class HotReloader:
 
     def _scan(self) -> _ScanResult:
         result = _ScanResult()
+        py_scanner = _PathScanner[str](self._py_paths, self._dead_unloads, result.py_paths, result.removed_py_paths)
+        sys_scanner = _PathScanner[pathlib.Path](
+            self._sys_paths, self._dead_unloads, result.sys_paths, result.removed_sys_paths
+        )
+
         for path, directory in self._directories.copy().items():
-            if path in self._dead_unloads:
-                continue  # There's no point trying to reload a module which cannot be unloaded.
-
             if directory[0] is None:
-                current_paths = set(filter(pathlib.Path.is_file, map(pathlib.Path.resolve, path.glob("*.py"))))
-                for new_path in current_paths - directory[1]:
-                    if time := _scan_one(new_path):
-                        result.sys_paths[new_path] = time
-
-                    elif new_path in directory[1]:
-                        directory[1].remove(new_path)
-                        result.removed_sys_paths.append(new_path)
-
-                for old_path in directory[1] - current_paths:
-                    directory[1].remove(old_path)
-                    result.removed_sys_paths.append(old_path)
+                current_paths: set[pathlib.Path] = set(
+                    filter(pathlib.Path.is_file, map(pathlib.Path.resolve, path.glob("*.py")))
+                )
+                sys_scanner.process_directory(
+                    current_paths, current_paths.remove, ((v, v) for v in current_paths - directory[1])
+                )
 
             else:
-                current_paths = {
-                    _to_namespace(directory[0], path): path for path in path.glob("*.py") if path.is_file()
-                }
-                for new_path in current_paths.keys() - directory[1]:
-                    sys_path = current_paths[new_path]
-                    if time := _scan_one(sys_path):
-                        result.py_paths[new_path] = _PyPathInfo(sys_path, last_modified_at=time)
+                str_paths = {_to_namespace(directory[0], path): path for path in path.glob("*.py") if path.is_file()}
+                py_scanner.process_directory(
+                    str_paths, str_paths.__delitem__, ((v, str_paths[v]) for v in str_paths.keys() - directory[1])
+                )
 
-                    elif new_path in directory[1]:
-                        result.removed_py_paths.append(new_path)
-                        directory[1].remove(new_path)
-
-                for old_path in directory[1] - current_paths.keys():
-                    directory[1].remove(old_path)
-                    result.removed_py_paths.append(old_path)
-
-        for path, old_time in self._sys_paths.copy().items():
-            if time := _scan_one(path):
-                result.sys_paths[path] = time
-
-            elif old_time != -1:
-                result.removed_sys_paths.append(path)
-
-        for path, info in self._py_paths.copy().items():
-            if path in self._dead_unloads:
-                continue
-
-            if time := _scan_one(info.sys_path):
-                result.py_paths[path] = _PyPathInfo(info.sys_path, last_modified_at=time)
-
-            elif info.last_modified_at != -1:
-                result.removed_py_paths.append(path)
-
+        sys_scanner.process()
+        py_scanner.process()
         return result
 
     async def scan(self, client: tanjun.Client, /) -> None:  # TODO: maybe don't load pass the Client here?
@@ -426,49 +383,20 @@ class HotReloader:
         """
         loop = asyncio.get_running_loop()
         scan_result = await loop.run_in_executor(None, self._scan)
-        changed = False
+        py_loader = _PathLoader[str](self._waiting_for_py, self._py_paths, self._load_module, self._unload_module)
+        sys_loader = _PathLoader[pathlib.Path](
+            self._waiting_for_sys, self._sys_paths, self._load_module, self._unload_module
+        )
 
         # TODO: do we want the wait_for to be on a quicker schedule
-        for path, value in scan_result.py_paths.items():
-            if tracked_value := self._waiting_for_py.get(path):
-                if value.last_modified_at == tracked_value:
-                    del self._waiting_for_py[path]
-                    result = await self._load_module(client, path)
-                    changed = result or changed
-                    self._py_paths[path] = value
-
-                else:
-                    self._waiting_for_py[path] = value.last_modified_at
-
-            elif not (path_info := self._py_paths.get(path)) or path_info.last_modified_at != value.last_modified_at:
-                self._waiting_for_py[path] = value.last_modified_at
-
-        for path, value in scan_result.sys_paths.items():
-            if tracked_value := self._waiting_for_sys.get(path):
-                if value == tracked_value:
-                    del self._waiting_for_sys[path]
-                    result = await self._load_module(client, path)
-                    changed = result or changed
-                    self._sys_paths[path] = value
-
-                else:
-                    self._waiting_for_sys[path] = tracked_value
-
-            elif self._sys_paths.get(path) != value:
-                self._waiting_for_sys[path] = value
+        await py_loader.process_results(client, scan_result.py_paths.items())
+        await sys_loader.process_results(client, scan_result.sys_paths.items())
 
         if self._unload_on_delete:
-            for path in scan_result.removed_py_paths:
-                result = self._unload_module(client, path)
-                changed = result or changed
-                self._py_paths[path].last_modified_at = -1
+            py_loader.remove_results(client, scan_result.removed_py_paths)
+            sys_loader.remove_results(client, scan_result.removed_sys_paths)
 
-            for path in scan_result.removed_sys_paths:
-                result = self._unload_module(client, path)
-                changed = result or changed
-                self._sys_paths[path] = -1
-
-        if not changed or self._redeclare_cmds_after is None:
+        if not (py_loader.changed or sys_loader.changed) or self._redeclare_cmds_after is None:
             return
 
         builders: _BuilderDict = {
@@ -599,3 +527,88 @@ def _add_modules(
             py_paths[raw_path] = _PyPathInfo(path)
 
     return py_paths, sys_paths
+
+
+def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
+    try:
+        return path.stat().st_mtime_ns
+
+    except FileNotFoundError:  # TODO: catch other errors here like perm errors
+        return None  # MyPy compat
+
+
+@dataclasses.dataclass
+class _ScanResult:
+    py_paths: dict[str, _PyPathInfo] = dataclasses.field(init=False, default_factory=dict)
+    removed_py_paths: list[str] = dataclasses.field(init=False, default_factory=list)
+    removed_sys_paths: list[pathlib.Path] = dataclasses.field(init=False, default_factory=list)
+    sys_paths: dict[pathlib.Path, _PyPathInfo] = dataclasses.field(init=False, default_factory=dict)
+
+
+@dataclasses.dataclass
+class _PathScanner(typing.Generic[_PathT]):
+    global_paths: dict[_PathT, _PyPathInfo]
+    dead_unloads: set[str | pathlib.Path]
+    result_paths: dict[_PathT, _PyPathInfo]
+    removed_paths: list[_PathT]
+
+    def process_directory(
+        self,
+        current_paths: collections.Collection[_PathT],
+        remove_path: collections.Callable[[_PathT], None],
+        new_paths: collections.Iterable[tuple[_PathT, pathlib.Path]],
+    ) -> None:
+        for path, real_path in new_paths:
+            if path in self.dead_unloads:
+                continue
+
+            if time := _scan_one(real_path):
+                self.result_paths[path] = _PyPathInfo(real_path, last_modified_at=time)
+
+            elif path in current_paths:
+                remove_path(path)
+                self.removed_paths.append(path)
+
+    def process(self) -> None:
+        for path, info in self.global_paths.copy().items():
+            if path in self.dead_unloads:
+                continue
+
+            if time := _scan_one(info.sys_path):
+                self.result_paths[path] = _PyPathInfo(info.sys_path, last_modified_at=time)
+
+            elif info.last_modified_at != -1:
+                self.removed_paths.append(path)
+
+
+@dataclasses.dataclass
+class _PathLoader(typing.Generic[_PathT]):
+    waiting_for: dict[_PathT, int]
+    paths: dict[_PathT, _PyPathInfo]
+    load_module: collections.Callable[
+        [tanjun.Client, typing.Union[str, pathlib.Path]], typing.Coroutine[typing.Any, typing.Any, bool]
+    ]
+    unload_module: collections.Callable[[tanjun.Client, typing.Union[str, pathlib.Path]], bool]
+    changed: bool = dataclasses.field(default=False, init=False)
+
+    async def process_results(
+        self, client: tanjun.Client, results: collections.Iterable[tuple[_PathT, _PyPathInfo]]
+    ) -> None:
+        for path, value in results:
+            if tracked_value := self.waiting_for.get(path):
+                if value.last_modified_at == tracked_value:
+                    del self.waiting_for[path]
+                    result = await self.load_module(client, path)
+                    self.changed = result or self.changed
+                    self.paths[path] = value
+
+                else:
+                    self.waiting_for[path] = value.last_modified_at
+
+            elif not (path_info := self.paths.get(path)) or path_info.last_modified_at != value.last_modified_at:
+                self.waiting_for[path] = value.last_modified_at
+
+    def remove_results(self, client: tanjun.Client, results: collections.Iterable[_PathT]) -> None:
+        for path in results:
+            self.unload_module(client, path)
+            self.paths[path].last_modified_at = -1

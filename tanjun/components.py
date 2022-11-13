@@ -1235,6 +1235,8 @@ class Component(tanjun.Component):
         if command := self._slash_commands.get(ctx.interaction.command_name):
             return command.execute_autocomplete(ctx)
 
+        return None  # MyPy compat
+
     async def _execute_app(
         self,
         ctx: _AppCommandContextT,

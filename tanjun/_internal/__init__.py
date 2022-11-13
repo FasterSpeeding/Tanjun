@@ -35,6 +35,7 @@ from __future__ import annotations
 __all__: list[str] = []
 
 import asyncio
+import enum
 import functools
 import itertools
 import logging
@@ -68,6 +69,17 @@ if sys.version_info >= (3, 10):
 
 else:
     _UnionTypes = frozenset((typing.Union,))
+
+
+class _NoDefaultEnum(enum.Enum):
+    VALUE = object()
+
+
+NO_DEFAULT = _NoDefaultEnum.VALUE
+"""Internal singleton used to signify when a value wasn't provided."""
+
+NoDefault = typing.Literal[_NoDefaultEnum.VALUE]
+"""The type of `NO_DEFAULT`."""
 
 
 async def _execute_check(ctx: tanjun.Context, callback: tanjun.CheckSig, /) -> bool:
@@ -125,6 +137,8 @@ def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typ
         # inconsistently parsed.
         if content == name or content.startswith(name) and content[len(name)] == " ":
             return name
+
+    return None  # MyPy compat
 
 
 _EMPTY_BUFFER: dict[typing.Any, typing.Any] = {}

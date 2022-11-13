@@ -262,7 +262,8 @@ class ToChannel(BaseConverter):
         if ctx.cache and (channel_ := ctx.cache.get_guild_channel(channel_id)):
             return channel_
 
-        no_guild_channel = cache and thread_cache and dm_cache
+        # Ensure bool for MyPy compat
+        no_guild_channel = bool(cache and thread_cache and dm_cache)
         if cache:
             try:
                 return await cache.get(channel_id)
