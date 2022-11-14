@@ -253,7 +253,7 @@ class _ConvertedMeta(abc.ABCMeta):
         if not isinstance(converters, tuple):
             converters = (converters,)
 
-        return typing.Annotated[typing.Any, Converted(*converters)]
+        return typing.cast(type[_T], typing.Annotated[typing.Any, Converted(*converters)])
 
 
 class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
@@ -550,7 +550,7 @@ class _LengthMeta(abc.ABCMeta):
         else:
             obj = Length(*value)
 
-        return typing.Annotated[Str, obj]
+        return typing.cast(type[str], typing.Annotated[Str, obj])
 
 
 class Length(_ConfigIdentifier, metaclass=_LengthMeta):
@@ -644,9 +644,9 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
 class _MaxMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
-            return typing.Annotated[Int, Max(value)]
+            return typing.cast(type[_NumberT], typing.Annotated[Int, Max(value)])
 
-        return typing.Annotated[Float, Max(value)]
+        return typing.cast(type[_NumberT], typing.Annotated[Float, Max(value)])
 
 
 class Max(_ConfigIdentifier, metaclass=_MaxMeta):
@@ -693,9 +693,9 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
 class _MinMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
-            return typing.Annotated[Int, Min(value)]
+            return typing.cast(type[_NumberT], typing.Annotated[Int, Min(value)])
 
-        return typing.Annotated[Float, Min(value)]
+        return typing.cast(type[_NumberT], typing.Annotated[Float, Min(value)])
 
 
 class Min(_ConfigIdentifier, metaclass=_MinMeta):
@@ -813,9 +813,9 @@ class _RangedMeta(abc.ABCMeta):
         # This better matches how type checking (well pyright at least) will
         # prefer to go to float if either value is float.
         if isinstance(range_[0], float) or isinstance(range_[1], float):
-            return typing.Annotated[Float, Ranged(range_[0], range_[1])]
+            return typing.cast(type[_NumberT], typing.Annotated[Float, Ranged(range_[0], range_[1])])
 
-        return typing.Annotated[Int, Ranged(range_[0], range_[1])]
+        return typing.cast(type[_NumberT], typing.Annotated[Int, Ranged(range_[0], range_[1])])
 
 
 class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
@@ -993,7 +993,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
         if not isinstance(value, collections.Collection):
             value = (value,)
 
-        return typing.Annotated[Channel, TheseChannels(*value)]
+        return typing.cast(type[hikari.PartialChannel], typing.Annotated[Channel, TheseChannels(*value)])
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
