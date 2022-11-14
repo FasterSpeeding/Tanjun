@@ -253,7 +253,7 @@ class _ConvertedMeta(abc.ABCMeta):
         if not isinstance(converters, tuple):
             converters = (converters,)
 
-        return typing.Annotated[typing.Any, Converted(*converters)]
+        return typing.cast(type[_T], typing.Annotated[typing.Any, Converted(*converters)])
 
 
 class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):

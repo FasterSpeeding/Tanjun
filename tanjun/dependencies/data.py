@@ -276,11 +276,12 @@ class _CacheCallback(typing.Generic[_T]):
                 assert not isinstance(self._result, alluka.abc.Undefined)
                 return self._result
 
-            self._result = await ctx.call_with_async_di(self._callback, *args)
+            result = await ctx.call_with_async_di(self._callback, *args)
+            self._result = result
             self._last_called = time.monotonic()
             # This is set to None afterwards to ensure that it isn't persisted between loops.
             self._lock = None
-            return self._result
+            return result
 
 
 def cache_callback(
