@@ -76,7 +76,7 @@ def _print_tb(callback: _CallbackSigT, /) -> _CallbackSigT:
 class _ManualClock:
     def __init__(
         self,
-        freeze_time: "freezegun.api.FrozenDateTimeFactory",
+        freeze_time: freezegun.api.FrozenDateTimeFactory,
         tick_fors: list[datetime.timedelta],
         *,
         interval_ratio: int = 10,
@@ -327,6 +327,7 @@ class TestIntervalSchedule:
         interval = tanjun.schedules.IntervalSchedule(callback, 5, ignored_exceptions=[LookupError])
 
         with freezegun.freeze_time(datetime.datetime(2012, 1, 14, 12)) as frozen_time:
+            assert isinstance(frozen_time, freezegun.api.FrozenDateTimeFactory)
             interval.start(mock_client)
             # Note: these have to be at least a microsecond after the target time as
             # the unix event loop won't return the sleep until the target time has passed,
@@ -370,6 +371,7 @@ class TestIntervalSchedule:
         ).set_stop_callback(on_stop)
 
         with freezegun.freeze_time(datetime.datetime(2012, 4, 11, 12)) as frozen_time:
+            assert isinstance(frozen_time, freezegun.api.FrozenDateTimeFactory)
             interval.start(mock_client)
             # Note: these have to be at least a microsecond after the target time as
             # the unix event loop won't return the sleep until the target time has passed,
@@ -417,6 +419,7 @@ class TestIntervalSchedule:
         )
 
         with freezegun.freeze_time(datetime.datetime(2011, 4, 5, 4)) as frozen_time:
+            assert isinstance(frozen_time, freezegun.api.FrozenDateTimeFactory)
             interval.start(mock_client)
             # Note: these have to be at least a microsecond after the target time as
             # the unix event loop won't return the sleep until the target time has passed,
@@ -1669,8 +1672,8 @@ class TestTimeSchedule:
 
         schedule = tanjun.schedules.as_time_schedule(**kwargs)(callback)
 
-        frozen_time: freezegun.api.FrozenDateTimeFactory
         with freezegun.freeze_time(start, tick=False) as frozen_time:
+            assert isinstance(frozen_time, freezegun.api.FrozenDateTimeFactory)
             clock = _ManualClock(frozen_time, tick_fors)
 
             schedule.start(alluka.Client())
@@ -1706,8 +1709,8 @@ class TestTimeSchedule:
             .set_ignored_exceptions(ValueError)
         )
 
-        frozen_time: freezegun.api.FrozenDateTimeFactory
         with freezegun.freeze_time(datetime.datetime(2044, 4, 4), tick=False) as frozen_time:
+            assert isinstance(frozen_time, freezegun.api.FrozenDateTimeFactory)
             clock = _ManualClock(
                 frozen_time,
                 [
