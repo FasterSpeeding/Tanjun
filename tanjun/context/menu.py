@@ -135,8 +135,9 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
     @property
     def type(self) -> typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE]:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
-        assert self._interaction.command_type in _VALID_TYPES
-        return self._interaction.command_type
+        command_type = hikari.CommandType(self._interaction.command_type)
+        assert command_type in _VALID_TYPES
+        return command_type
 
     async def mark_not_found(self) -> None:
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.

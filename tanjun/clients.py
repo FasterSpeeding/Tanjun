@@ -2183,6 +2183,7 @@ class Client(tanjun.Client):
         )
 
     async def _check_prefix(self, ctx: tanjun.MessageContext, /) -> typing.Optional[str]:
+        prefix: str  # MyPy fubs up its introspection here so we explicitly annotate.
         if self._prefix_getter:
             for prefix in await ctx.call_with_async_di(self._prefix_getter, ctx):
                 if ctx.content.startswith(prefix):

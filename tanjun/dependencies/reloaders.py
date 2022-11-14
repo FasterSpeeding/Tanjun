@@ -150,6 +150,7 @@ class HotReloader:
             redeclare_cmds_after = float(redeclare_cmds_after)
 
         self._command_task: typing.Optional[asyncio.Task[None]] = None
+        self._commands_guild: hikari.UndefinedOr[hikari.Snowflake]  # MyPy was resolving this to object cause MyPy
         self._commands_guild = hikari.UNDEFINED if commands_guild is None else hikari.Snowflake(commands_guild)
         self._dead_unloads: set[typing.Union[str, pathlib.Path]] = set()
         """Set of modules which cannot be unloaded."""
