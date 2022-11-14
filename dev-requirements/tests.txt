@@ -10,7 +10,7 @@ coverage[toml]==6.5.0
     # via pytest-cov
 execnet==1.9.0
     # via pytest-xdist
-freezegun==1.2.1
+freezegun==1.2.2
     # via -r dev-requirements/tests.in
 iniconfig==1.1.1
     # via pytest
