@@ -2573,7 +2573,7 @@ class Client(tanjun.Client):
         if not old_module:
             raise errors.ModuleStateConflict(f"Module {module_path} not loaded", module_path)
 
-        load_module = load_module or _ReloadModule(old_module)  # If this is None then its a Python path.
+        load_module = load_module or _ReloadModule(old_module)  # If this is None then it's a Python path.
         _LOGGER.info("Reloading %s", module_path)
 
         old_loaders = _get_loaders(old_module, module_path)
