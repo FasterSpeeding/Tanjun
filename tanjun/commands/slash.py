@@ -661,6 +661,9 @@ _CHANNEL_TYPES: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
     hikari.GuildCategory: {hikari.ChannelType.GUILD_CATEGORY},
     hikari.GuildNewsChannel: {hikari.ChannelType.GUILD_NEWS},
     hikari.GuildStageChannel: {hikari.ChannelType.GUILD_STAGE},
+    hikari.GuildNewsThread: {hikari.ChannelType.GUILD_NEWS_THREAD},
+    hikari.GuildPublicThread: {hikari.ChannelType.GUILD_PUBLIC_THREAD},
+    hikari.GuildPrivateThread: {hikari.ChannelType.GUILD_PRIVATE_THREAD},
 }
 
 
@@ -671,6 +674,10 @@ for _channel_cls, _types in _CHANNEL_TYPES.copy().items():
                 _CHANNEL_TYPES[_mro_type].update(_types)
             except KeyError:
                 _CHANNEL_TYPES[_mro_type] = _types.copy()
+
+
+# This isn't a base class but it should still act like an indicator for any channel type.
+_CHANNEL_TYPES[hikari.InteractionChannel] = _CHANNEL_TYPES[hikari.PartialChannel]
 
 
 def with_channel_slash_option(

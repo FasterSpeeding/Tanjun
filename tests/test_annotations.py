@@ -3436,6 +3436,9 @@ def test_with_generic_snowflake_or():
                 hikari.ChannelType.GUILD_NEWS,
                 hikari.ChannelType.GUILD_VOICE,
                 hikari.ChannelType.GUILD_STAGE,
+                hikari.ChannelType.GUILD_NEWS_THREAD,
+                hikari.ChannelType.GUILD_PUBLIC_THREAD,
+                hikari.ChannelType.GUILD_PRIVATE_THREAD,
             },
         ),
         (
@@ -3527,10 +3530,13 @@ def test_with_generic_these_channels():
     assert option.min_value is None
     assert option.max_value is None
     assert option.channel_types
-    assert len(option.channel_types) == 5
+    assert len(option.channel_types) == 8
     assert set(option.channel_types) == {
         hikari.ChannelType.GUILD_CATEGORY,
         hikari.ChannelType.GUILD_NEWS,
+        hikari.ChannelType.GUILD_NEWS_THREAD,
+        hikari.ChannelType.GUILD_PRIVATE_THREAD,
+        hikari.ChannelType.GUILD_PUBLIC_THREAD,
         hikari.ChannelType.GUILD_STAGE,
         hikari.ChannelType.GUILD_TEXT,
         hikari.ChannelType.GUILD_VOICE,
