@@ -396,9 +396,9 @@ for _channel_cls, _types in CHANNEL_TYPES.copy().items():
             except KeyError:
                 CHANNEL_TYPES[_mro_type] = _types.copy()
 
-
 # This isn't a base class but it should still act like an indicator for any channel type.
 CHANNEL_TYPES[hikari.InteractionChannel] = CHANNEL_TYPES[hikari.PartialChannel]
+
 CHANNEL_TYPE_REPS: dict[hikari.ChannelType, str] = {
     hikari.ChannelType.GUILD_TEXT: "Text",
     hikari.ChannelType.DM: "DM",

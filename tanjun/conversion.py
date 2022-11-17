@@ -239,6 +239,7 @@ class ToChannel(BaseConverter):
             the client doesn't have a registered async cache for DMs.
         """
         self._channel_types = _internal.parse_channel_types(channel_types) if channel_types else None
+        self._include_dms = include_dms
 
         if not self._channel_types:
             self._channel_types_repr = ""
@@ -249,8 +250,6 @@ class ToChannel(BaseConverter):
         else:
             self._channel_types_repr = ", ".join(map(_internal.repr_channel, self._channel_types[:-1]))
             self._channel_types_repr += f" and {_internal.repr_channel(self._channel_types[-1])}"
-
-        self._include_dms = include_dms
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
