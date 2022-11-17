@@ -361,10 +361,7 @@ class TestToChannel:
         mock_dm_cache.get.return_value.type = hikari.ChannelType.GROUP_DM
         converter = tanjun.conversion.ToChannel(allowed_types=[hikari.ChannelType.DM])
 
-        with pytest.raises(
-            ValueError,
-            match="Only the following channel types are allowed for this argument: Text, News Thread and DM",
-        ):
+        with pytest.raises(ValueError, match="Only the following channel types are allowed for this argument: DM"):
             await converter("<#32123123>", mock_context, dm_cache=mock_dm_cache)
 
         mock_context.rest.fetch_channel.assert_not_called()
