@@ -100,10 +100,6 @@ _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
 _ChoiceUnion = typing.Union[int, float, str]
 _CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
 _CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
-_ConverterSig = typing.Union[
-    collections.Callable[[str], collections.Coroutine[typing.Any, typing.Any, _T]],
-    collections.Callable[[str], _T],
-]
 _EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
 _MentionableUnion = typing.Union[hikari.User, hikari.Role]
 _NumberT = typing.TypeVar("_NumberT", float, int)
@@ -249,7 +245,9 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
 
 class _ConvertedMeta(abc.ABCMeta):
-    def __getitem__(cls, converters: typing.Union[_ConverterSig[_T], tuple[_ConverterSig[_T]]], /) -> type[_T]:
+    def __getitem__(
+        cls, converters: typing.Union[parsing.ConverterSig[_T], tuple[parsing.ConverterSig[_T]]], /
+    ) -> type[_T]:
         if not isinstance(converters, tuple):
             converters = (converters,)
 
@@ -276,7 +274,9 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
 
     __slots__ = ("_converters",)
 
-    def __init__(self, converter: _ConverterSig[typing.Any], /, *other_converters: _ConverterSig[typing.Any]) -> None:
+    def __init__(
+        self, converter: parsing.ConverterSig[typing.Any], /, *other_converters: parsing.ConverterSig[typing.Any]
+    ) -> None:
         """Create a converted instance.
 
         Parameters
@@ -295,7 +295,7 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
         self._converters = [converter, *other_converters]
 
     @property
-    def converters(self) -> collections.Sequence[_ConverterSig[typing.Any]]:
+    def converters(self) -> collections.Sequence[parsing.ConverterSig[typing.Any]]:
         """A sequence of the converters."""
         return self._converters
 
@@ -997,10 +997,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
-    """Declare the type of channels a slash command partial channel argument can target.
-
-    This is no-op for message commands and will not restrain the argument right now.
-    """
+    """Declare the type of channels a slash command partial channel argument can target."""
 
     __slots__ = ("_channel_types",)
 
@@ -1010,7 +1007,7 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
         /,
         *other_types: _ChannelTypeIsh,
     ) -> None:
-        """Create a slash command argument channel restraint.
+        """Create a channel argument restraint.
 
         Parameters
         ----------
@@ -1055,9 +1052,9 @@ def _ensure_values(
 
 
 _OPTION_TYPE_TO_CONVERTERS: dict[typing.Any, tuple[collections.Callable[..., typing.Any], ...]] = {
-    hikari.Attachment: NotImplemented,
+    hikari.Attachment: NotImplemented,  # This isn't supported for message commands right now.
     bool: (conversion.to_bool,),
-    hikari.PartialChannel: (conversion.to_channel,),
+    hikari.PartialChannel: NotImplemented,  # This is special-cased down the line.
     float: (float,),
     int: (int,),
     hikari.Member: (conversion.to_member,),
@@ -1100,7 +1097,7 @@ class _ArgConfig:
         self.aliases: typing.Optional[collections.Sequence[str]] = None
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
-        self.converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
+        self.converters: typing.Optional[collections.Sequence[parsing.ConverterSig[typing.Any]]] = None
         self.default: typing.Any = default
         self.description: typing.Optional[str] = None
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
@@ -1148,6 +1145,9 @@ class _ArgConfig:
 
             elif (converters_ := _OPTION_TYPE_TO_CONVERTERS[self.option_type]) is not NotImplemented:
                 converters = converters_
+
+            elif self.option_type is hikari.PartialChannel:
+                converters = (conversion.ToChannel(allowed_types=self.channel_types),)
 
             else:
                 return

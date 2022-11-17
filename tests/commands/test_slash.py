@@ -454,16 +454,6 @@ def test_with_member_slash_option_with_defaults():
     )
 
 
-def test__CHANNEL_TYPES():
-    found_channel_types = {
-        attribute
-        for _, attribute in inspect.getmembers(hikari)
-        if isinstance(attribute, type) and issubclass(attribute, hikari.PartialChannel)
-    }.difference({hikari.InteractionChannel})
-    difference = found_channel_types.difference(tanjun.commands.slash._CHANNEL_TYPES)
-    assert not difference, f"Found {len(difference)}  new channel types: {', '.join(map(repr, difference))}"
-
-
 def test_with_channel_slash_option():
     mock_command = mock.MagicMock()
 

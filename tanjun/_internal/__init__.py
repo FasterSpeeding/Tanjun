@@ -371,3 +371,62 @@ def flatten_options(
         options = typing.cast("collections.Sequence[_OptionT]", first_option.options)
 
     return name, options or ()
+
+
+CHANNEL_TYPES: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
+    hikari.GuildTextChannel: {hikari.ChannelType.GUILD_TEXT},
+    hikari.DMChannel: {hikari.ChannelType.DM},
+    hikari.GuildVoiceChannel: {hikari.ChannelType.GUILD_VOICE},
+    hikari.GroupDMChannel: {hikari.ChannelType.GROUP_DM},
+    hikari.GuildCategory: {hikari.ChannelType.GUILD_CATEGORY},
+    hikari.GuildNewsChannel: {hikari.ChannelType.GUILD_NEWS},
+    hikari.GuildStageChannel: {hikari.ChannelType.GUILD_STAGE},
+    hikari.GuildNewsThread: {hikari.ChannelType.GUILD_NEWS_THREAD},
+    hikari.GuildPublicThread: {hikari.ChannelType.GUILD_PUBLIC_THREAD},
+    hikari.GuildPrivateThread: {hikari.ChannelType.GUILD_PRIVATE_THREAD},
+}
+"""Mapping of hikari channel classes to the raw channel types which are compatible for it."""
+
+
+for _channel_cls, _types in CHANNEL_TYPES.copy().items():
+    for _mro_type in _channel_cls.mro():
+        if isinstance(_mro_type, type) and issubclass(_mro_type, hikari.PartialChannel):
+            try:
+                CHANNEL_TYPES[_mro_type].update(_types)
+            except KeyError:
+                CHANNEL_TYPES[_mro_type] = _types.copy()
+
+# This isn't a base class but it should still act like an indicator for any channel type.
+CHANNEL_TYPES[hikari.InteractionChannel] = CHANNEL_TYPES[hikari.PartialChannel]
+
+CHANNEL_TYPE_REPS: dict[hikari.ChannelType, str] = {
+    hikari.ChannelType.GUILD_TEXT: "Text",
+    hikari.ChannelType.DM: "DM",
+    hikari.ChannelType.GUILD_VOICE: "Voice",
+    hikari.ChannelType.GROUP_DM: "Group DM",
+    hikari.ChannelType.GUILD_CATEGORY: "Category",
+    hikari.ChannelType.GUILD_NEWS: "News",
+    hikari.ChannelType.GUILD_STAGE: "Stage",
+    hikari.ChannelType.GUILD_NEWS_THREAD: "News Thread",
+    hikari.ChannelType.GUILD_PUBLIC_THREAD: "Public Thread",
+    hikari.ChannelType.GUILD_PRIVATE_THREAD: "Private Thread",
+}
+
+
+def repr_channel(channel_type: hikari.ChannelType, /) -> str:
+    """Get a text repr of a channel type."""
+    return CHANNEL_TYPE_REPS[channel_type]
+
+
+def parse_channel_types(
+    channel_types: collections.Collection[typing.Union[type[hikari.PartialChannel], int]], /
+) -> list[hikari.ChannelType]:
+    """Parse a channel types collection to a list of channel type integers."""
+    try:
+        types_iter = itertools.chain.from_iterable(
+            (hikari.ChannelType(type_),) if isinstance(type_, int) else CHANNEL_TYPES[type_] for type_ in channel_types
+        )
+        return list(dict.fromkeys(types_iter))
+
+    except KeyError as exc:
+        raise ValueError(f"Unknown channel type {exc.args[0]}") from exc

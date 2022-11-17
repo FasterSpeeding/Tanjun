@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for message commands to [tanjun.annotations.TheseChannels][].
+- `allowed_types` field to [tanjun.ToChannel][tanjun.conversion.ToChannel] to allow narrowing the
+  allowed channel types for a message command option.
+
 ### Fixed
 - The hot reloader will no-longer retry to reload a module being targeted through a system path
   ([pathlib.Path][]) after one of its unloaders raises or finding out it has no unloaders.
