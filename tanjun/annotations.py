@@ -88,9 +88,6 @@ from ._internal.vendor import inspect
 from .commands import message
 from .commands import slash
 
-if typing.TYPE_CHECKING:
-    from tanjun import parsing
-
 if sys.version_info >= (3, 10):
     _UnionTypes = frozenset((typing.Union, types.UnionType))
 
