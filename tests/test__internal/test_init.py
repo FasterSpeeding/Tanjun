@@ -33,9 +33,11 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
+import inspect
 import typing
 from unittest import mock
 
+import hikari
 import pytest
 
 import tanjun
@@ -154,3 +156,13 @@ class TestCastedView:
         view = _internal.CastedView[int, int, typing.Any](mock_dict, mock.Mock())
 
         assert len(view) == 43123
+
+
+def test__CHANNEL_TYPES():
+    found_channel_types = {
+        attribute
+        for _, attribute in inspect.getmembers(hikari)
+        if isinstance(attribute, type) and issubclass(attribute, hikari.PartialChannel)
+    }.difference({hikari.InteractionChannel})
+    difference = found_channel_types.difference(_internal.CHANNEL_TYPES)
+    assert not difference, f"Found {len(difference)}  new channel types: {', '.join(map(repr, difference))}"

@@ -3635,7 +3635,8 @@ def test_for_channel_option():
     assert len(command.parser.arguments) == 1
     argument = command.parser.arguments[0]
     assert argument.key == "arg"
-    assert argument.converters == [tanjun.conversion.to_channel]
+    assert len(argument.converters) == 1
+    assert isinstance(argument.converters[0], tanjun.conversion.ToChannel)
     assert argument.default is tanjun.parsing.UNDEFINED
     assert argument.is_greedy is False
     assert argument.is_multi is False
@@ -3646,7 +3647,8 @@ def test_for_channel_option():
     option = command.parser.options[0]
     assert option.key == "arg_2"
     assert option.names == ["--arg-2"]
-    assert option.converters == [tanjun.conversion.to_channel]
+    assert len(option.converters) == 1
+    assert isinstance(option.converters[0], tanjun.conversion.ToChannel)
     assert option.default == "ok"
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False

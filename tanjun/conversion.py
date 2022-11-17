@@ -86,11 +86,14 @@ from collections import abc as collections
 import alluka
 import hikari
 
+from . import _internal
 from . import abc as tanjun
 from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
     from . import parsing
+
+    _PartialChannelT = typing.TypeVar("_PartialChannelT", bound=hikari.PartialChannel)
 
 
 _ArgumentT = typing.Union[str, int, float]
@@ -213,19 +216,40 @@ class ToChannel(BaseConverter):
     For a standard instance of this see [tanjun.conversion.to_channel][].
     """
 
-    __slots__ = ("_include_dms",)
+    __slots__ = ("_channel_types", "_channel_types_repr", "_include_dms")
 
-    def __init__(self, *, include_dms: bool = True) -> None:
+    def __init__(
+        self,
+        *,
+        channel_types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
+        include_dms: bool = True,
+    ) -> None:
         """Initialise a to channel converter.
 
         Parameters
         ----------
+        channel_types
+            Collection of channel types and classes to allow.
+
+            If left as [None][] then all channel types will be allowed.
         include_dms
             Whether to include DM channels in the results.
 
             May lead to a lot of extra fallbacks to REST requests if
             the client doesn't have a registered async cache for DMs.
         """
+        self._channel_types = _internal.parse_channel_types(channel_types) if channel_types else None
+
+        if not self._channel_types:
+            self._channel_types_repr = ""
+
+        elif len(self._channel_types) == 1:
+            self._channel_types_repr = _internal.repr_channel(self._channel_types[0])
+
+        else:
+            self._channel_types_repr = ", ".join(map(_internal.repr_channel, self._channel_types[:-1]))
+            self._channel_types_repr += f" and {_internal.repr_channel(self._channel_types[-1])}"
+
         self._include_dms = include_dms
 
     @property
@@ -248,6 +272,14 @@ class ToChannel(BaseConverter):
         # <<inherited docstring from BaseConverter>>.
         return False
 
+    def _assert_type(self, channel: _PartialChannelT, /) -> _PartialChannelT:
+        if self._channel_types and channel.type not in self._channel_types:
+            raise ValueError(
+                f"Only the following channel types are allowed for this argument: {self._channel_types_repr}"
+            )
+
+        return channel
+
     async def __call__(
         self,
         argument: _ArgumentT,
@@ -260,13 +292,13 @@ class ToChannel(BaseConverter):
     ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID found")
         if ctx.cache and (channel_ := ctx.cache.get_guild_channel(channel_id)):
-            return channel_
+            return self._assert_type(channel_)
 
         # Ensure bool for MyPy compat
         no_guild_channel = bool(cache and thread_cache and dm_cache)
         if cache:
             try:
-                return await cache.get(channel_id)
+                return self._assert_type(await cache.get(channel_id))
 
             except async_cache.EntryNotFound:
                 pass
@@ -276,7 +308,7 @@ class ToChannel(BaseConverter):
 
         if thread_cache:
             try:
-                return await thread_cache.get(channel_id)
+                return self._assert_type(await thread_cache.get(channel_id))
 
             except async_cache.EntryNotFound:
                 pass
@@ -286,7 +318,7 @@ class ToChannel(BaseConverter):
 
         if dm_cache and self._include_dms:
             try:
-                return await dm_cache.get(channel_id)
+                return self._assert_type(await dm_cache.get(channel_id))
 
             except async_cache.EntryNotFound:
                 pass
@@ -298,7 +330,7 @@ class ToChannel(BaseConverter):
             try:
                 channel = await ctx.rest.fetch_channel(channel_id)
                 if self._include_dms or isinstance(channel, hikari.GuildChannel):
-                    return channel
+                    return self._assert_type(channel)
 
             except hikari.NotFoundError:
                 pass

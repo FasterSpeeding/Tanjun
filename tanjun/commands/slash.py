@@ -53,7 +53,6 @@ __all__: list[str] = [
 ]
 
 import copy
-import itertools
 import typing
 import unicodedata
 import warnings
@@ -651,33 +650,6 @@ def with_member_slash_option(
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_member_option(name, description, default=default, key=key)
-
-
-_CHANNEL_TYPES: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
-    hikari.GuildTextChannel: {hikari.ChannelType.GUILD_TEXT},
-    hikari.DMChannel: {hikari.ChannelType.DM},
-    hikari.GuildVoiceChannel: {hikari.ChannelType.GUILD_VOICE},
-    hikari.GroupDMChannel: {hikari.ChannelType.GROUP_DM},
-    hikari.GuildCategory: {hikari.ChannelType.GUILD_CATEGORY},
-    hikari.GuildNewsChannel: {hikari.ChannelType.GUILD_NEWS},
-    hikari.GuildStageChannel: {hikari.ChannelType.GUILD_STAGE},
-    hikari.GuildNewsThread: {hikari.ChannelType.GUILD_NEWS_THREAD},
-    hikari.GuildPublicThread: {hikari.ChannelType.GUILD_PUBLIC_THREAD},
-    hikari.GuildPrivateThread: {hikari.ChannelType.GUILD_PRIVATE_THREAD},
-}
-
-
-for _channel_cls, _types in _CHANNEL_TYPES.copy().items():
-    for _mro_type in _channel_cls.mro():
-        if isinstance(_mro_type, type) and issubclass(_mro_type, hikari.PartialChannel):
-            try:
-                _CHANNEL_TYPES[_mro_type].update(_types)
-            except KeyError:
-                _CHANNEL_TYPES[_mro_type] = _types.copy()
-
-
-# This isn't a base class but it should still act like an indicator for any channel type.
-_CHANNEL_TYPES[hikari.InteractionChannel] = _CHANNEL_TYPES[hikari.PartialChannel]
 
 
 def with_channel_slash_option(
@@ -2476,24 +2448,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
         """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
-        if types:
-            try:
-                types_iter = itertools.chain.from_iterable(
-                    (type_,) if isinstance(type_, int) else _CHANNEL_TYPES[type_] for type_ in types
-                )
-                channel_types = list(set(types_iter))
-
-            except KeyError as exc:
-                raise ValueError(f"Unknown channel type {exc.args[0]}") from exc
-
-        else:
-            channel_types = None
-
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
             hikari.OptionType.CHANNEL,
-            channel_types=channel_types,
+            channel_types=_internal.parse_channel_types(types) if types else None,
             default=default,
             key=key,
             pass_as_kwarg=pass_as_kwarg,

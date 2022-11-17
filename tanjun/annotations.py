@@ -997,10 +997,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
-    """Declare the type of channels a slash command partial channel argument can target.
-
-    This is no-op for message commands and will not restrain the argument right now.
-    """
+    """Declare the type of channels a slash command partial channel argument can target."""
 
     __slots__ = ("_channel_types",)
 
@@ -1010,7 +1007,7 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
         /,
         *other_types: _ChannelTypeIsh,
     ) -> None:
-        """Create a slash command argument channel restraint.
+        """Create a channel argument restraint.
 
         Parameters
         ----------
@@ -1055,9 +1052,9 @@ def _ensure_values(
 
 
 _OPTION_TYPE_TO_CONVERTERS: dict[typing.Any, tuple[collections.Callable[..., typing.Any], ...]] = {
-    hikari.Attachment: NotImplemented,
+    hikari.Attachment: NotImplemented,  # This isn't supported for message commands right now.
     bool: (conversion.to_bool,),
-    hikari.PartialChannel: (conversion.to_channel,),
+    hikari.PartialChannel: NotImplemented,  # This is special-cased down the line.
     float: (float,),
     int: (int,),
     hikari.Member: (conversion.to_member,),
@@ -1148,6 +1145,9 @@ class _ArgConfig:
 
             elif (converters_ := _OPTION_TYPE_TO_CONVERTERS[self.option_type]) is not NotImplemented:
                 converters = converters_
+
+            elif self.option_type is hikari.PartialChannel:
+                converters = (conversion.ToChannel(channel_types=self.channel_types),)
 
             else:
                 return
