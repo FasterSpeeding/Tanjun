@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow passing [hikari.channels.GuildThreadChannel][] derived types to
   [TheseChannels][tanjun.annotations.TheseChannels], and to the `types` field of
   [with_channel_slash_option][tanjun.commands.with_channel_slash_option] and
-  [SlashCommand.add_channel_option][tanjun.commands.SlashCommand.add_channel_option]. 
+  [SlashCommand.add_channel_option][tanjun.commands.SlashCommand.add_channel_option].
 
 ## [2.9.0a1] - 2022-11-08
 ### Added
