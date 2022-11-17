@@ -216,40 +216,41 @@ class ToChannel(BaseConverter):
     For a standard instance of this see [tanjun.conversion.to_channel][].
     """
 
-    __slots__ = ("_channel_types", "_channel_types_repr", "_include_dms")
+    __slots__ = ("_allowed_types", "_allowed_types_repr", "_include_dms")
 
     def __init__(
         self,
         *,
-        channel_types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
+        allowed_types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
         include_dms: bool = True,
     ) -> None:
         """Initialise a to channel converter.
 
         Parameters
         ----------
-        channel_types
+        allowed_types
             Collection of channel types and classes to allow.
 
-            If left as [None][] then all channel types will be allowed.
+            If this is empty or [None][] then all channel types will be allowed.
         include_dms
             Whether to include DM channels in the results.
 
             May lead to a lot of extra fallbacks to REST requests if
             the client doesn't have a registered async cache for DMs.
         """
-        self._channel_types = _internal.parse_channel_types(channel_types) if channel_types else None
+        allowed_types_ = _internal.parse_channel_types(allowed_types or ())
+        self._allowed_types = set(allowed_types_)
         self._include_dms = include_dms
 
-        if not self._channel_types:
-            self._channel_types_repr = ""
+        if not allowed_types_:
+            self._allowed_types_repr = ""
 
-        elif len(self._channel_types) == 1:
-            self._channel_types_repr = _internal.repr_channel(self._channel_types[0])
+        elif len(allowed_types_) == 1:
+            self._allowed_types_repr = _internal.repr_channel(allowed_types_[0])
 
         else:
-            self._channel_types_repr = ", ".join(map(_internal.repr_channel, self._channel_types[:-1]))
-            self._channel_types_repr += f" and {_internal.repr_channel(self._channel_types[-1])}"
+            self._allowed_types_repr = ", ".join(map(_internal.repr_channel, allowed_types_[:-1]))
+            self._allowed_types_repr += f" and {_internal.repr_channel(allowed_types_[-1])}"
 
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
@@ -272,9 +273,9 @@ class ToChannel(BaseConverter):
         return False
 
     def _assert_type(self, channel: _PartialChannelT, /) -> _PartialChannelT:
-        if self._channel_types and channel.type not in self._channel_types:
+        if self._allowed_types and channel.type not in self._allowed_types:
             raise ValueError(
-                f"Only the following channel types are allowed for this argument: {self._channel_types_repr}"
+                f"Only the following channel types are allowed for this argument: {self._allowed_types_repr}"
             )
 
         return channel

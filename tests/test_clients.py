@@ -1168,7 +1168,7 @@ class TestClient:
         add_listener_.assert_called_once_with(hikari.GuildAvailableEvent, mock_callback)
 
     def test_with_listener_no_provided_event(self):
-        async def callback(foo) -> None:  # type: ignore
+        async def callback(foo: typing.Any) -> None:
             ...
 
         add_listener_ = mock.Mock()

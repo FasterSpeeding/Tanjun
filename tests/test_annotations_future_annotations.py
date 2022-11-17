@@ -53,7 +53,7 @@ def test_where_no_signature():
     with pytest.raises(ValueError, match=".+"):
         inspect.Signature.from_callable(int)
 
-    command = tanjun.as_message_command("command")(
+    command: tanjun.MessageCommand[typing.Any] = tanjun.as_message_command("command")(
         tanjun.as_slash_command("command", "description")(int)  # type: ignore
     )
 
@@ -69,7 +69,7 @@ def test_where_no_signature_with_parser_already_set():
     with pytest.raises(ValueError, match=".+"):
         inspect.Signature.from_callable(int)
 
-    command = tanjun.as_message_command("command")(
+    command: tanjun.MessageCommand[typing.Any] = tanjun.as_message_command("command")(
         tanjun.as_slash_command("command", "description")(int)  # type: ignore
     ).set_parser(tanjun.ShlexParser())
 
@@ -219,7 +219,9 @@ def test_when_follow_wrapping_and_wrapping_unsupported_command():
     ) -> None:
         ...
 
-    command = tanjun.as_message_command("beep")(mock.Mock(tanjun.abc.SlashCommand, callback=mock_callback))
+    command: tanjun.MessageCommand[typing.Any] = tanjun.as_message_command("beep")(
+        mock.Mock(tanjun.abc.SlashCommand, callback=mock_callback)
+    )
     with pytest.raises(AttributeError):
         command.wrapped_command.wrapped_command  # type: ignore
 
@@ -3367,6 +3369,7 @@ def test_with_these_channels(
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context,
         foo: typing.Annotated[annotations.Channel, annotations.TheseChannels(*channel_types_), "meow"],
@@ -3375,6 +3378,9 @@ def test_with_these_channels(
         ] = None,
     ):
         ...
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
 
     assert len(command.build().options) == 2
     option = command.build().options[0]
@@ -3418,10 +3424,36 @@ def test_with_these_channels(
     assert tracked_option.name == "bar"
     assert tracked_option.type is hikari.OptionType.CHANNEL
 
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "foo"
+    assert len(argument.converters) == 1
+    assert isinstance(argument.converters[0], tanjun.conversion.ToChannel)
+    assert argument.converters[0]._allowed_types == expected_types
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "bar"
+    assert option.names == ["--bar"]
+    assert len(option.converters) == 1
+    assert isinstance(option.converters[0], tanjun.conversion.ToChannel)
+    assert option.converters[0]._allowed_types == expected_types
+    assert option.default is None
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
+
 
 def test_with_generic_these_channels():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context,
         bb: typing.Annotated[annotations.TheseChannels[hikari.GuildChannel], "nep"],
@@ -3430,6 +3462,25 @@ def test_with_generic_these_channels():
         ] = None,
     ):
         ...
+
+    expected_types_1 = {
+        hikari.ChannelType.GUILD_CATEGORY,
+        hikari.ChannelType.GUILD_NEWS,
+        hikari.ChannelType.GUILD_NEWS_THREAD,
+        hikari.ChannelType.GUILD_PRIVATE_THREAD,
+        hikari.ChannelType.GUILD_PUBLIC_THREAD,
+        hikari.ChannelType.GUILD_STAGE,
+        hikari.ChannelType.GUILD_TEXT,
+        hikari.ChannelType.GUILD_VOICE,
+    }
+    expected_types_2 = {
+        hikari.ChannelType.DM,
+        hikari.ChannelType.GROUP_DM,
+        hikari.ChannelType.GUILD_VOICE,
+    }
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
 
     assert len(command.build().options) == 2
     option = command.build().options[0]
@@ -3441,16 +3492,7 @@ def test_with_generic_these_channels():
     assert option.max_value is None
     assert option.channel_types
     assert len(option.channel_types) == 8
-    assert set(option.channel_types) == {
-        hikari.ChannelType.GUILD_CATEGORY,
-        hikari.ChannelType.GUILD_NEWS,
-        hikari.ChannelType.GUILD_NEWS_THREAD,
-        hikari.ChannelType.GUILD_PRIVATE_THREAD,
-        hikari.ChannelType.GUILD_PUBLIC_THREAD,
-        hikari.ChannelType.GUILD_STAGE,
-        hikari.ChannelType.GUILD_TEXT,
-        hikari.ChannelType.GUILD_VOICE,
-    }
+    assert set(option.channel_types) == expected_types_1
 
     option = command.build().options[1]
     assert option.type is hikari.OptionType.CHANNEL
@@ -3461,11 +3503,7 @@ def test_with_generic_these_channels():
     assert option.max_value is None
     assert option.channel_types
     assert len(option.channel_types) == 3
-    assert set(option.channel_types) == {
-        hikari.ChannelType.DM,
-        hikari.ChannelType.GROUP_DM,
-        hikari.ChannelType.GUILD_VOICE,
-    }
+    assert set(option.channel_types) == expected_types_2
 
     assert len(command._tracked_options) == 2
     tracked_option = command._tracked_options["bb"]
@@ -3485,6 +3523,31 @@ def test_with_generic_these_channels():
     assert tracked_option.key == "bat"
     assert tracked_option.name == "bat"
     assert tracked_option.type is hikari.OptionType.CHANNEL
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "bb"
+    assert len(argument.converters) == 1
+    assert isinstance(argument.converters[0], tanjun.conversion.ToChannel)
+    assert argument.converters[0]._allowed_types == expected_types_1
+    assert argument.default is tanjun.parsing.UNDEFINED
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "bat"
+    assert option.names == ["--bat"]
+    assert len(option.converters) == 1
+    assert isinstance(option.converters[0], tanjun.conversion.ToChannel)
+    assert option.converters[0]._allowed_types == expected_types_2
+    assert option.default is None
+    assert option.empty_value is tanjun.parsing.UNDEFINED
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_for_attachment_option():

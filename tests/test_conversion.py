@@ -107,7 +107,7 @@ class TestBaseConverter:
         assert obj.requires_cache is expected
 
 
-class TestChannelConverter:
+class TestToChannel:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
@@ -125,6 +125,33 @@ class TestChannelConverter:
         mock_channel_cache.get.assert_not_called()
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_hikari_cache_returns_allowed_type(self):
+        mock_context = mock.Mock()
+        mock_context.cache.get_guild_channel.return_value.type = hikari.ChannelType.GUILD_STAGE
+        converter = tanjun.conversion.ToChannel(allowed_types=[hikari.PermissibleGuildChannel])
+
+        result = await converter("54312332143", mock_context)
+
+        assert result is mock_context.cache.get_guild_channel.return_value
+        mock_context.cache.get_guild_channel.assert_called_once_with(54312332143)
+        mock_context.rest.fetch_channel.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_hikari_cache_returns_unallowed_type(self):
+        mock_context = mock.Mock()
+        mock_context.cache.get_guild_channel.return_value.type = hikari.ChannelType.GUILD_NEWS_THREAD
+        converter = tanjun.conversion.ToChannel(allowed_types=[hikari.PermissibleGuildChannel])
+
+        with pytest.raises(
+            ValueError,
+            match="Only the following channel types are allowed for this argument: Text, Voice, Category, News and Stage",
+        ):
+            await converter("54312332143", mock_context)
+
+        mock_context.cache.get_guild_channel.assert_called_once_with(54312332143)
+        mock_context.rest.fetch_channel.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached_and_no_async_cache(self):
@@ -148,6 +175,34 @@ class TestChannelConverter:
         mock_context.rest.fetch_channel.assert_awaited_once_with(222)
 
     @pytest.mark.asyncio()
+    async def test___call___when_rest_returns_allowed_type(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_context.rest.fetch_channel.return_value.type = hikari.ChannelType.GUILD_PUBLIC_THREAD
+        converter = tanjun.conversion.ToChannel(allowed_types=[hikari.GuildThreadChannel, hikari.GuildVoiceChannel])
+
+        result = await converter("<#43234123>", mock_context)
+
+        assert result is mock_context.rest.fetch_channel.return_value
+        mock_context.rest.fetch_channel.assert_awaited_once_with(43234123)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_rest_returns_unallowed_type(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_context.rest.fetch_channel.return_value.type = hikari.ChannelType.DM
+        converter = tanjun.conversion.ToChannel(allowed_types=[hikari.GuildThreadChannel, hikari.GuildVoiceChannel])
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Only the following channel types are allowed for this argument: "
+                "News Thread, Public Thread, Private Thread and Voice"
+            ),
+        ):
+            await converter("<#7645634>", mock_context)
+
+        mock_context.rest.fetch_channel.assert_awaited_once_with(7645634)
+
+    @pytest.mark.asyncio()
     async def test___call___when_not_cached_and_async_channel_cache_hit(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -165,6 +220,47 @@ class TestChannelConverter:
         mock_channel_cache.get.assert_awaited_once_with(12222)
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___async_channel_cache_returns_allowed_type(self):
+        mock_context = mock.Mock(cache=None)
+        mock_channel_cache = mock.AsyncMock()
+        mock_channel_cache.get.return_value.type = hikari.ChannelType.GUILD_NEWS_THREAD
+        converter = tanjun.conversion.ToChannel(
+            allowed_types=[
+                hikari.ChannelType.GUILD_NEWS,
+                hikari.ChannelType.GUILD_NEWS_THREAD,
+                hikari.ChannelType.GUILD_CATEGORY,
+            ]
+        )
+
+        result = await converter("<#4523>", mock_context, cache=mock_channel_cache)
+
+        assert result is mock_channel_cache.get.return_value
+        mock_channel_cache.get.assert_awaited_once_with(4523)
+        mock_context.rest.fetch_channel.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___async_channel_cache_returns_unallowed_type(self):
+        mock_context = mock.Mock(cache=None)
+        mock_channel_cache = mock.AsyncMock()
+        mock_channel_cache.get.return_value.type = hikari.ChannelType.GUILD_PUBLIC_THREAD
+        converter = tanjun.conversion.ToChannel(
+            allowed_types=[
+                hikari.ChannelType.GUILD_NEWS,
+                hikari.ChannelType.GUILD_NEWS_THREAD,
+                hikari.ChannelType.GUILD_CATEGORY,
+            ]
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="Only the following channel types are allowed for this argument: News, News Thread and Category",
+        ):
+            await converter("<#67453234>", mock_context, cache=mock_channel_cache)
+
+        mock_channel_cache.get.assert_awaited_once_with(67453234)
+        mock_context.rest.fetch_channel.assert_not_called()
 
     @pytest.mark.parametrize("side_effect", [tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound])
     @pytest.mark.asyncio()
@@ -187,6 +283,42 @@ class TestChannelConverter:
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
+    @pytest.mark.asyncio()
+    async def test___call___when_async_thread_cache_returns_allowed_type(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_thread_cache = mock.AsyncMock()
+        mock_thread_cache.get.return_value.type = hikari.ChannelType.GUILD_VOICE
+        converter = tanjun.conversion.ToChannel(
+            allowed_types=[hikari.TextableChannel, hikari.ChannelType.GUILD_CATEGORY, hikari.ChannelType.GUILD_STAGE]
+        )
+
+        result = await converter("<#432354>", mock_context, thread_cache=mock_thread_cache)
+
+        assert result is mock_thread_cache.get.return_value
+        mock_thread_cache.get.assert_awaited_once_with(432354)
+        mock_context.rest.fetch_channel.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test___call___when_async_thread_cache_returns_unallowed_type(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_thread_cache = mock.AsyncMock()
+        mock_thread_cache.get.return_value.type = hikari.ChannelType.GROUP_DM
+        converter = tanjun.conversion.ToChannel(
+            allowed_types=[hikari.TextableChannel, hikari.ChannelType.GUILD_CATEGORY, hikari.ChannelType.GUILD_STAGE]
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=(
+                "Only the following channel types are allowed for this argument: "
+                "Text, DM, Voice, News, News Thread, Public Thread, Private Thread, Category and Stage"
+            ),
+        ):
+            await converter("<#3411231>", mock_context, thread_cache=mock_thread_cache)
+
+        mock_thread_cache.get.assert_awaited_once_with(3411231)
+        mock_context.rest.fetch_channel.assert_not_called()
+
     @pytest.mark.parametrize("side_effect", [tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound])
     @pytest.mark.asyncio()
     async def test___call___when_not_cached_and_async_dm_cache_hit(self, side_effect: type[Exception]):
@@ -208,6 +340,39 @@ class TestChannelConverter:
         mock_channel_cache.get.assert_awaited_once_with(12222)
         mock_dm_cache.get.assert_awaited_once_with(12222)
         mock_thread_cache.get.assert_awaited_once_with(12222)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_async_dm_cache_returns_allowed_type(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_dm_cache = mock.AsyncMock()
+        mock_dm_cache.get.return_value.type = hikari.ChannelType.DM
+        converter = tanjun.conversion.ToChannel(
+            allowed_types=[hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS_THREAD, hikari.ChannelType.DM]
+        )
+
+        result = await converter("<#431123321>", mock_context, dm_cache=mock_dm_cache)
+
+        assert result is mock_dm_cache.get.return_value
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_dm_cache.get.assert_awaited_once_with(431123321)
+
+    @pytest.mark.asyncio()
+    async def test___call___when_async_dm_cache_returns_unallowed_type(self):
+        mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
+        mock_dm_cache = mock.AsyncMock()
+        mock_dm_cache.get.return_value.type = hikari.ChannelType.GROUP_DM
+        converter = tanjun.conversion.ToChannel(
+            allowed_types=[hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS_THREAD, hikari.ChannelType.DM]
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="Only the following channel types are allowed for this argument: Text, News Thread and DM",
+        ):
+            await converter("<#32123123>", mock_context, dm_cache=mock_dm_cache)
+
+        mock_context.rest.fetch_channel.assert_not_called()
+        mock_dm_cache.get.assert_awaited_once_with(32123123)
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached_async_cache_raises_not_found_and_not_including_dms(self):
@@ -275,7 +440,7 @@ class TestChannelConverter:
 
     @pytest.mark.parametrize("side_effect", [tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound])
     @pytest.mark.asyncio()
-    async def test___call___when_cacheless_and_async_dm_cache_hit(selff, side_effect: type[Exception]):
+    async def test___call___when_cacheless_and_async_dm_cache_hit(self, side_effect: type[Exception]):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
         mock_channel_cache = mock.AsyncMock()
@@ -474,7 +639,7 @@ class TestChannelConverter:
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
 
-class TestEmojiConverter:
+class TestToEmoji:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
@@ -571,7 +736,7 @@ class TestEmojiConverter:
         mock_cache.get.assert_awaited_once_with(123321)
 
 
-class TestGuildConverter:
+class TestToGuild:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
@@ -652,7 +817,7 @@ class TestGuildConverter:
         mock_cache.get.assert_awaited_once_with(54234)
 
 
-class TestInviteConverter:
+class TestToInvite:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
@@ -731,7 +896,7 @@ class TestInviteConverter:
         mock_cache.get.assert_awaited_once_with("sasdasd")
 
 
-class TestInviteWithMetadataConverter:
+class TestToInviteWithMetadata:
     @pytest.mark.asyncio()
     async def test___call__(self):
         mock_context = mock.Mock()
@@ -781,7 +946,7 @@ class TestInviteWithMetadataConverter:
             await tanjun.to_invite_with_metadata("asdbasd", mock_context)
 
 
-class TestMemberConverter:
+class TestToMember:
     @pytest.mark.asyncio()
     async def test___call___when_in_a_dm(self):
         mock_context = mock.Mock(guild_id=None)
@@ -919,7 +1084,7 @@ class TestMemberConverter:
         mock_context.rest.search_members.assert_not_called()
 
 
-class TestPresenceConverter:
+class TestToPresence:
     @pytest.mark.asyncio()
     async def test___call__(self):
         mock_context = mock.Mock()
@@ -986,7 +1151,7 @@ class TestPresenceConverter:
             await tanjun.to_presence("<@543123>", mock_context)
 
 
-class TestUserConverter:
+class TestToUser:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
@@ -1066,7 +1231,7 @@ class TestUserConverter:
         mock_cache.get.assert_awaited_once_with(55)
 
 
-class TestMessageConverter:
+class TestToMessage:
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
@@ -1146,7 +1311,7 @@ class TestMessageConverter:
         mock_cache.get.assert_awaited_once_with(55)
 
 
-class TestVoiceStateConverter:
+class TestToVoiceState:
     @pytest.mark.asyncio()
     async def test___call__(self):
         mock_context = mock.Mock()

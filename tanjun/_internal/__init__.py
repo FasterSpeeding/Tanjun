@@ -405,8 +405,8 @@ CHANNEL_TYPE_REPS: dict[hikari.ChannelType, str] = {
     hikari.ChannelType.GUILD_VOICE: "Voice",
     hikari.ChannelType.GROUP_DM: "Group DM",
     hikari.ChannelType.GUILD_CATEGORY: "Category",
-    hikari.ChannelType.GUILD_NEWS: "Mews",
-    hikari.ChannelType.GUILD_STAGE: "stage",
+    hikari.ChannelType.GUILD_NEWS: "News",
+    hikari.ChannelType.GUILD_STAGE: "Stage",
     hikari.ChannelType.GUILD_NEWS_THREAD: "News Thread",
     hikari.ChannelType.GUILD_PUBLIC_THREAD: "Public Thread",
     hikari.ChannelType.GUILD_PRIVATE_THREAD: "Private Thread",
@@ -426,7 +426,7 @@ def parse_channel_types(
         types_iter = itertools.chain.from_iterable(
             (hikari.ChannelType(type_),) if isinstance(type_, int) else CHANNEL_TYPES[type_] for type_ in channel_types
         )
-        return list(set(types_iter))
+        return list(dict.fromkeys(types_iter))
 
     except KeyError as exc:
         raise ValueError(f"Unknown channel type {exc.args[0]}") from exc

@@ -1147,7 +1147,7 @@ class _ArgConfig:
                 converters = converters_
 
             elif self.option_type is hikari.PartialChannel:
-                converters = (conversion.ToChannel(channel_types=self.channel_types),)
+                converters = (conversion.ToChannel(allowed_types=self.channel_types),)
 
             else:
                 return
