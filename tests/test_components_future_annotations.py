@@ -45,7 +45,7 @@ import tanjun
 
 class TestComponent:
     def test_with_listener_no_provided_event(self):
-        async def callback(foo: typing.Any) -> None:
+        async def callback(foo) -> None:  # type: ignore
             ...
 
         add_listener = mock.Mock()
