@@ -346,9 +346,7 @@ class TestToChannel:
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_dm_cache = mock.AsyncMock()
         mock_dm_cache.get.return_value.type = hikari.ChannelType.DM
-        converter = tanjun.conversion.ToChannel(
-            allowed_types=[hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS_THREAD, hikari.ChannelType.DM]
-        )
+        converter = tanjun.conversion.ToChannel(allowed_types=[hikari.ChannelType.DM])
 
         result = await converter("<#431123321>", mock_context, dm_cache=mock_dm_cache)
 
@@ -361,9 +359,7 @@ class TestToChannel:
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_dm_cache = mock.AsyncMock()
         mock_dm_cache.get.return_value.type = hikari.ChannelType.GROUP_DM
-        converter = tanjun.conversion.ToChannel(
-            allowed_types=[hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_NEWS_THREAD, hikari.ChannelType.DM]
-        )
+        converter = tanjun.conversion.ToChannel(allowed_types=[hikari.ChannelType.DM])
 
         with pytest.raises(
             ValueError,
