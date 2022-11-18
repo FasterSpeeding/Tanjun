@@ -2452,7 +2452,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
             hikari.OptionType.CHANNEL,
-            channel_types=_internal.parse_channel_types(types) if types else None,
+            channel_types=_internal.parse_channel_types(*types) if types else None,
             default=default,
             key=key,
             pass_as_kwarg=pass_as_kwarg,

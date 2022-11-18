@@ -158,11 +158,22 @@ class TestCastedView:
         assert len(view) == 43123
 
 
-def test_CHANNEL_TYPES():
-    found_channel_types = {
-        attribute
-        for _, attribute in inspect.getmembers(hikari)
-        if isinstance(attribute, type) and issubclass(attribute, hikari.PartialChannel)
-    }.difference({hikari.InteractionChannel})
-    difference = found_channel_types.difference(_internal.CHANNEL_TYPES)
-    assert not difference, f"Found {len(difference)}  new channel types: {', '.join(map(repr, difference))}"
+def test_ensure_parse_channel_types_has_every_channel_class():
+    for _, attribute in inspect.getmembers(hikari):
+        if isinstance(attribute, type) and issubclass(attribute, hikari.PartialChannel):
+            result = _internal.parse_channel_types(attribute)
+
+            assert result
+
+
+def test_ensure_repr_channel_has_every_real_channel_type():
+    for channel_type in hikari.ChannelType:
+        result = _internal.repr_channel(channel_type)
+
+        assert isinstance(result, str)
+        assert result
+        assert result != "Unknown"
+
+
+def test_ensure_repr_channel_defaults_to_unknown():
+    assert _internal.repr_channel(hikari.ChannelType(-1)) == "Unknown"
