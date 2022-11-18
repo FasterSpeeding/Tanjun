@@ -158,7 +158,7 @@ class TestCastedView:
         assert len(view) == 43123
 
 
-def test__CHANNEL_TYPES():
+def test_CHANNEL_TYPES():
     found_channel_types = {
         attribute
         for _, attribute in inspect.getmembers(hikari)
