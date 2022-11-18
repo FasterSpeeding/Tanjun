@@ -415,7 +415,11 @@ CHANNEL_TYPE_REPS: dict[hikari.ChannelType, str] = {
 
 def repr_channel(channel_type: hikari.ChannelType, /) -> str:
     """Get a text repr of a channel type."""
-    return CHANNEL_TYPE_REPS[channel_type]
+    try:
+        return CHANNEL_TYPE_REPS[channel_type]
+
+    except KeyError:
+        return "Unknown"
 
 
 def parse_channel_types(

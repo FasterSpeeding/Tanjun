@@ -166,3 +166,16 @@ def test_CHANNEL_TYPES():
     }.difference({hikari.InteractionChannel})
     difference = found_channel_types.difference(_internal.CHANNEL_TYPES)
     assert not difference, f"Found {len(difference)}  new channel types: {', '.join(map(repr, difference))}"
+
+
+def test_ensure_repr_channel_has_every_real_channel_type():
+    for channel_type in hikari.ChannelType:
+        result = _internal.repr_channel(channel_type)
+
+        assert isinstance(result, str)
+        assert result
+        assert result != "Unknown"
+
+
+def test_ensure_repr_channel_defaults_to_unknown():
+    assert _internal.repr_channel(hikari.ChannelType(-1)) == "Unknown"
