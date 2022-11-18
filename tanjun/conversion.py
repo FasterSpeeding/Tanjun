@@ -238,7 +238,7 @@ class ToChannel(BaseConverter):
             May lead to a lot of extra fallbacks to REST requests if
             the client doesn't have a registered async cache for DMs.
         """
-        allowed_types_ = _internal.parse_channel_types(allowed_types or ())
+        allowed_types_ = _internal.parse_channel_types(*allowed_types or ())
         self._allowed_types = set(allowed_types_)
         self._include_dms = include_dms
 
