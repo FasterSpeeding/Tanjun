@@ -162,7 +162,7 @@ def spell_check(session: nox.Session) -> None:
     session.run(
         "codespell",
         *GENERAL_TARGETS,
-        ".flake8",
+        ".gitattributes",
         ".gitignore",
         "LICENSE",
         "pyproject.toml",
