@@ -997,7 +997,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
-    "Restrain the type of channels a channel argument can target." ""
+    """Restrain the type of channels a channel argument can target."""
 
     __slots__ = ("_channel_types",)
 
