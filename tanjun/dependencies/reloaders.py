@@ -200,13 +200,13 @@ class HotReloader:
             client.loop.call_soon_threadsafe(self.start, client)
 
     async def add_modules_async(self, *paths: typing.Union[str, pathlib.Path]) -> Self:
-        """Asynchronous variant of [tanjun.dependencies.reloaders.HotReloader.add_modules][].
+        """Asynchronous variant of [HotReloader.add_modules][tanjun.dependencies.reloaders.HotReloader.add_modules].
 
-        Unlike [tanjun.dependencies.reloaders.HotReloader.add_modules][],
+        Unlike [HotReloader.add_modules][tanjun.dependencies.reloaders.HotReloader.add_modules],
         this method will run blocking code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [tanjun.abc.Client.load_modules][].
+        documentation for [HotReloader.add_modules][tanjun.dependencies.reloaders.HotReloader.add_modules].
         """
         py_paths, sys_paths = await asyncio.get_running_loop().run_in_executor(None, _add_modules, paths)
         self._py_paths.update(py_paths)
@@ -239,13 +239,13 @@ class HotReloader:
     async def add_directory_async(
         self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> Self:
-        """Asynchronous variant of [tanjun.dependencies.reloaders.HotReloader.add_directory][].
+        """Asynchronous variant of [HotReloader.add_directory][tanjun.dependencies.reloaders.HotReloader.add_directory].
 
-        Unlike [tanjun.dependencies.reloaders.HotReloader.add_directory][],
+        Unlike [HotReloader.add_directory][tanjun.dependencies.reloaders.HotReloader.add_directory],
         this method will run blocking code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [tanjun.dependencies.reloaders.HotReloader.add_directory][].
+        documentation for [HotReloader.add_directory][tanjun.dependencies.reloaders.HotReloader.add_directory].
         """
         path, info = await asyncio.get_running_loop().run_in_executor(None, _add_directory, directory, namespace)
         self._directories[path] = info

@@ -4709,13 +4709,13 @@ class Client(abc.ABC):
     async def load_directory_async(
         self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> None:
-        """Asynchronous variant of [tanjun.abc.Client.load_directory][].
+        """Asynchronous variant of [Client.load_directory][tanjun.abc.Client.load_directory].
 
-        Unlike [tanjun.abc.Client.load_directory][], this method will run
-        blocking code in a background thread.
+        Unlike [Client.load_directory][tanjun.abc.Client.load_directory], this
+        method will run blocking code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [tanjun.abc.Client.load_directory][].
+        documentation for [Client.load_directory][tanjun.abc.Client.load_directory].
         """
 
     @abc.abstractmethod
@@ -4779,13 +4779,13 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     async def load_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
-        """Asynchronous variant of [tanjun.abc.Client.load_modules][].
+        """Asynchronous variant of [Client.load_modules][tanjun.abc.Client.load_modules].
 
-        Unlike [tanjun.abc.Client.load_modules][], this method will run blocking
-        code in a background thread.
+        Unlike [Client.load_modules][tanjun.abc.Client.load_modules], this
+        method will run blocking code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [tanjun.abc.Client.load_modules][].
+        documentation for [Client.load_modules][tanjun.abc.Client.load_modules].
         """
 
     @abc.abstractmethod
@@ -4890,13 +4890,13 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     async def reload_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
-        """Asynchronous variant of [tanjun.abc.Client.reload_modules][].
+        """Asynchronous variant of [Client.reload_modules][tanjun.abc.Client.reload_modules].
 
-        Unlike [tanjun.abc.Client.reload_modules][], this method will run
-        blocking code in a background thread.
+        Unlike [Client.reload_modules][tanjun.abc.Client.reload_modules], this
+        method will run blocking code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [tanjun.abc.Client.reload_modules][].
+        documentation for [Client.reload_modules][tanjun.abc.Client.reload_modules].
         """
 
     @abc.abstractmethod
