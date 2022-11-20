@@ -511,7 +511,6 @@ class Client(tanjun.Client):
         "_auto_defer_after",
         "_cache",
         "_cached_application_id",
-        "_case_sensitive",
         "_checks",
         "_client_callbacks",
         "_components",
@@ -522,6 +521,7 @@ class Client(tanjun.Client):
         "_grab_mention_prefix",
         "_hooks",
         "_interaction_accepts",
+        "_is_case_sensitive",
         "_menu_hooks",
         "_menu_not_found",
         "_slash_hooks",
@@ -690,7 +690,6 @@ class Client(tanjun.Client):
         self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
-        self._case_sensitive = case_sensitive
         self._checks: list[tanjun.CheckSig] = []
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
         self._components: dict[str, tanjun.Component] = {}
@@ -701,6 +700,7 @@ class Client(tanjun.Client):
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
         self._interaction_accepts = InteractionAcceptsEnum.ALL
+        self._is_case_sensitive = case_sensitive
         self._menu_hooks: typing.Optional[tanjun.MenuHooks] = None
         self._menu_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun.SlashHooks] = None
@@ -1120,7 +1120,7 @@ class Client(tanjun.Client):
     @property
     def is_case_sensitive(self) -> bool:
         # <<inherited docstring from tanjun.abc.Client>>.
-        return self._case_sensitive
+        return self._is_case_sensitive
 
     @property
     def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
@@ -2166,7 +2166,7 @@ class Client(tanjun.Client):
     ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(
-            component.check_message_name(name) for component in self._components.values()
+            component.check_message_name(name, case_sensitive=case_sensitive) for component in self._components.values()
         )
 
     def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun.BaseSlashCommand]:

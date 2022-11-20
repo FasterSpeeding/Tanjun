@@ -158,7 +158,6 @@ class Component(tanjun.Component):
     """
 
     __slots__ = (
-        "_case_sensitive",
         "_checks",
         "_client",
         "_client_callbacks",
@@ -166,6 +165,7 @@ class Component(tanjun.Component):
         "_defaults_to_ephemeral",
         "_dms_enabled_for_app_cmds",
         "_hooks",
+        "_is_case_sensitive",
         "_listeners",
         "_loop",
         "_menu_commands",
@@ -206,7 +206,6 @@ class Component(tanjun.Component):
             When this is [True][], message command names will not be allowed to contain
             spaces and will have to be unique to one command within the component.
         """
-        self._case_sensitive = case_sensitive
         self._checks: list[tanjun.CheckSig] = []
         self._client: typing.Optional[tanjun.Client] = None
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
@@ -214,6 +213,7 @@ class Component(tanjun.Component):
         self._defaults_to_ephemeral: typing.Optional[bool] = None
         self._dms_enabled_for_app_cmds: typing.Optional[bool] = None
         self._hooks: typing.Optional[tanjun.AnyHooks] = None
+        self._is_case_sensitive = case_sensitive
         self._listeners: dict[type[hikari.Event], list[tanjun.ListenerCallbackSig]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._menu_commands: dict[tuple[hikari.CommandType, str], tanjun.MenuCommand[typing.Any, typing.Any]] = {}
@@ -235,7 +235,7 @@ class Component(tanjun.Component):
     @property
     def is_case_sensitive(self) -> typing.Optional[bool]:
         # <<inherited docstring from tanjun.abc.Component>>.
-        return self._case_sensitive
+        return self._is_case_sensitive
 
     @property
     def checks(self) -> collections.Collection[tanjun.CheckSig]:
@@ -1170,7 +1170,7 @@ class Component(tanjun.Component):
     ) -> collections.AsyncIterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         ctx.set_component(self)
         checks_run = False
-        case_sensitive = self._case_sensitive
+        case_sensitive = self._is_case_sensitive
         if case_sensitive is None:
             case_sensitive = ctx.client.is_case_sensitive
 

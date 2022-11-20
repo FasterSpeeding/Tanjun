@@ -3436,6 +3436,7 @@ class Component(abc.ABC):
         self,
         name: str,
         /,
+        *,
         case_sensitive: bool = True,
     ) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
         """Check whether a name matches any of this component's registered message commands.
@@ -4472,6 +4473,7 @@ class Client(abc.ABC):
         self,
         name: str,
         /,
+        *,
         case_sensitive: bool = True,
     ) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
         """Check whether a message command name is present in the current client.
