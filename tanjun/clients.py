@@ -662,7 +662,8 @@ class Client(tanjun.Client):
               `declare_global_commands`.
             * If `command_ids` is passed when `declare_global_commands` is `False`.
         """
-        super().__init__()  # InjectorClient.__init__
+        # InjectorClient.__init__
+        super().__init__()
         if _LOGGER.isEnabledFor(logging.INFO):
             _LOGGER.info(
                 "%s initialised with the following components: %s",
@@ -704,7 +705,8 @@ class Client(tanjun.Client):
         self._menu_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun.SlashHooks] = None
         self._slash_not_found: typing.Optional[str] = self._menu_not_found
-        self._injector = injector or alluka.Client()  # TODO: test coverage
+        # TODO: test coverage
+        self._injector = injector or alluka.Client()
         self._is_closing = False
         self._listeners: dict[
             type[hikari.Event],

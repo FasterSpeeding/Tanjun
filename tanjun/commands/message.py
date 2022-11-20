@@ -591,10 +591,9 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
             hooks.add(self._hooks)
 
-        assert ctx.component
-        case_sensitive = ctx.component.is_case_sensitive
-        if case_sensitive is None:
-            case_sensitive = ctx.client.is_case_sensitive
+        case_sensitive = ctx.client.is_case_sensitive
+        if ctx.component and ctx.component.is_case_sensitive is not None:
+            case_sensitive = ctx.component.is_case_sensitive
 
         for name, command in self._commands.find(ctx.content, case_sensitive):
             if await command.check_context(ctx):
