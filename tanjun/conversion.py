@@ -181,27 +181,58 @@ class BaseConverter(abc.ABC):
         parent_name
             The name of the converter's parent, used for warning messages.
         """
-        if not client.cache and any(
-            client.get_type_dependency(cls) is alluka.abc.UNDEFINED for cls in self.async_caches
-        ):
+        if any(client.injector.get_type_dependency(cls, default=None) is not None for cls in self.async_caches):
+            # We don't know whether async caches are being filled by other
+            # instances so we have to ignore this case.
+            return
+
+        if client.shards and (missing_intents := self.intents & ~client.shards.intents):
             if self.requires_cache:
                 _LOGGER.warning(
-                    f"Converter {self!r} registered with {parent_name} will always fail with a stateless client.",
+                    "Converter %r (registered with %s) will always fail without the following intents: %s",
+                    self,
+                    parent_name,
+                    missing_intents,
+                )
+
+            else:
+                _LOGGER.info(
+                    "Converter %r (registered with %s) may not perform as expected without the following intents: %s",
+                    self,
+                    parent_name,
+                    missing_intents,
+                )
+
+        elif not client.cache:
+            if self.requires_cache:
+                _LOGGER.warning(
+                    "Converter %r (registered with %s) will always fail with a stateless client.", self, parent_name
                 )
 
             elif self.cache_components:
-                _LOGGER.warning(
-                    f"Converter {self!r} registered with {parent_name} may not perform optimally in a stateless client.",
+                _LOGGER.info(
+                    "Converter %r (registered with %s) may not perform optimally in a stateless client.",
+                    self,
+                    parent_name,
                 )
 
-        # elif missing_components := (self.cache_components & ~client.cache.components):
-        #     _LOGGER.warning(
+        elif missing_components := (self.cache_components & ~client.cache.settings.components):
+            if self.requires_cache:
+                _LOGGER.warning(
+                    "Converter %r (registered with %s) will always fail without the following cache components: %s",
+                    self,
+                    parent_name,
+                    missing_components,
+                )
 
-        if client.shards and (missing_intents := self.intents & ~client.shards.intents):
-            _LOGGER.warning(
-                f"Converter {self!r} registered with {parent_name} may not perform as expected "
-                f"without the following intents: {missing_intents}",
-            )
+            else:
+                _LOGGER.info(
+                    "Converter %r (registered with %s) may not perform "
+                    "optimally without the following cache components: %s",
+                    self,
+                    parent_name,
+                    missing_components,
+                )
 
 
 _DmCacheT = async_cache.SfCache[hikari.DMChannel]
