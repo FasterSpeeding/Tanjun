@@ -1108,6 +1108,22 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         # <<inherited docstring from tanjun.abc.SlashCommandGroup>>.
         return self._commands.copy().values()
 
+    def bind_client(self, client: tanjun.Client, /) -> Self:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
+        super().bind_client(client)
+        for command in self._commands.values():
+            command.bind_client(client)
+
+        return self
+
+    def bind_component(self, component: tanjun.Component, /) -> Self:
+        # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
+        super().bind_component(component)
+        for command in self._commands.values():
+            command.bind_component(component)
+
+        return self
+
     def build(
         self, *, component: typing.Optional[tanjun.Component] = None
     ) -> special_endpoints_api.SlashCommandBuilder:

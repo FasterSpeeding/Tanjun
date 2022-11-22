@@ -52,7 +52,6 @@ import importlib.util as importlib_util
 import inspect
 import itertools
 import logging
-import operator
 import pathlib
 import typing
 import warnings
@@ -465,33 +464,6 @@ async def on_parser_error(ctx: tanjun.Context, error: errors.ParserError) -> Non
     This is the default message parser error hook included by [tanjun.Client][].
     """
     await ctx.respond(error.message)
-
-
-def _cmp_command(built: typing.Optional[hikari.api.CommandBuilder], cmd: hikari.PartialCommand) -> bool:
-    if not built or built.id is not hikari.UNDEFINED and built.id != cmd.id or built.type != cmd.type:
-        return False
-
-    dm_enabled = True if built.is_dm_enabled is hikari.UNDEFINED else built.is_dm_enabled
-    default_perms = built.default_member_permissions or hikari.Permissions.NONE
-    builder_default_perms = cmd.default_member_permissions or hikari.Permissions.NONE
-
-    if dm_enabled is not cmd.is_dm_enabled or default_perms != builder_default_perms:
-        return False
-
-    # name doesn't need to be checked as `builder` will be `None` if that didn't match.
-    if built.name_localizations != cmd.name_localizations:
-        return False
-
-    if isinstance(cmd, hikari.SlashCommand):
-        assert isinstance(built, hikari.api.SlashCommandBuilder)
-        if built.description != cmd.description or built.description_localizations != cmd.description_localizations:
-            return False
-
-        opts = cmd.options or ()
-
-        return len(built.options) == len(opts) and all(itertools.starmap(operator.eq, zip(built.options, opts)))
-
-    return True
 
 
 class _StartDeclarer:
@@ -1433,8 +1405,8 @@ class Client(tanjun.Client):
 
         if not force:
             registered_commands = await self._rest.fetch_application_commands(application, guild=guild)
-            if len(registered_commands) == len(builders) and all(
-                _cmp_command(builders.get((c.type, c.name)), c) for c in registered_commands
+            if len(registered_commands) == len(builders) and _internal.cmp_all_commands(
+                (c, builders.get((c.type, c.name))) for c in registered_commands
             ):
                 _LOGGER.info(
                     "Skipping bulk declare for %s application commands since they're already declared", target_type
@@ -3055,7 +3027,7 @@ class _WrapLoadError:
             and isinstance(exc, Exception)
             and not isinstance(exc, (errors.ModuleMissingLoaders, errors.ModuleMissingUnloaders))
         ):
-            raise self._error(*self._args, **self._kwargs) from exc  # noqa: R102
+            raise self._error(*self._args, **self._kwargs) from exc
 
 
 def _try_deregister_listener(
