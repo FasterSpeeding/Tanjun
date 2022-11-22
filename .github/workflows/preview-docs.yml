@@ -1,5 +1,9 @@
-name: Deploy PR previews
-concurrency: preview-${{ github.ref }}
+name: Deploy PR preview docs
+
+concurrency:
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     types:
@@ -19,30 +23,22 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up Python 3.9
-        if: github.event_name != 'closed'
+        if: github.event_type != 'closed'
         uses: actions/setup-python@v4
         with:
           python-version: 3.9
 
       - name: install prerequisites
-        if: github.event_name != 'closed'
+        if: github.event_type != 'closed'
         run: |
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./dev-requirements/nox.txt
 
       - name: Build docs
-        if: github.event_name != 'closed'
+        if: github.event_type != 'closed'
         run: |
           mkdir site
           python -m nox -s generate-docs -- -o ./site
-
-      - name: Archive docs
-        if: github.event_name != 'closed'
-        uses: actions/upload-artifact@v3
-        with:
-          name: docs
-          path: ./site
-          if-no-files-found: error
 
       - name: Deploy preview
         uses: rossjrw/pr-preview-action@v1
