@@ -628,10 +628,8 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         for name, command in self.find_command(ctx.content):
             if await command.check_context(ctx):
                 content = ctx.content[len(name) :]
-                lstripped_content = content.lstrip()
-                space_len = len(content) - len(lstripped_content)
-                ctx.set_triggering_name(ctx.triggering_name + (" " * space_len) + name)
-                ctx.set_content(lstripped_content)
+                ctx.set_triggering_name(ctx.triggering_name + " " + name)
+                ctx.set_content(content.lstrip())
                 await command.execute(ctx, hooks=hooks)
                 return
 
