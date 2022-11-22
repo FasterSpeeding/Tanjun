@@ -446,6 +446,7 @@ class HotReloader:
 
                 else:
                     self._declared_builders = builders
+                    return
 
             builders = self._scheduled_builders
             try:
