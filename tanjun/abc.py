@@ -912,11 +912,6 @@ class MessageContext(Context, abc.ABC):
     def triggering_prefix(self) -> str:
         """Prefix that triggered the context."""
 
-    @property
-    @abc.abstractmethod
-    def triggering_name(self) -> str:
-        """Command name that triggered the context."""
-
     @abc.abstractmethod
     def set_command(self, command: typing.Optional[MessageCommand[typing.Any]], /) -> Self:
         raise NotImplementedError
