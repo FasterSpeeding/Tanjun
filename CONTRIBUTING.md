@@ -89,8 +89,8 @@ This project follows [semantic versioning 2.0.0](https://semver.org/) and [PEP 4
 * [pep8](https://www.python.org/dev/peps/pep-0008/) should be followed as much as possible with notable cases where its
   ignored being that [black](https://github.com/psf/black) style may override this.
 * The maximum character count for a line is 120 characters and this may only ever be ignored for docstrings where types
-  go over this count, in which case a `# noqa: E501 - Line too long` should be added after the doc-string (on the same
-  line as its trailing `"""`.
+  go over this count, in which case a `# noqa: E501` should be added after the doc-string (on the same line as its
+  trailing `"""`.
 * All public top-level modules should be explicitly imported into `tanjun.__init__` and included in `tanjun.__init__.__all__`.
 * for type-completness with only the most important of their contents needing to be included in `tanjun.__init__.__all__`.
   Note here that star imports should not be used; import each entry you want to re-export explicitly and let isort reformat

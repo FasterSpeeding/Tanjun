@@ -203,10 +203,13 @@ def test_publish(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def reformat(session: nox.Session) -> None:
     """Reformat this project's modules to fit the standard style."""
-    install_requirements(session, *_dev_dep("reformat"))  # include_standard_requirements=False
+    install_requirements(session, *_dev_dep("flake8", "reformat"), "yesqa")  # include_standard_requirements=False
     session.run("black", *GENERAL_TARGETS, "--extend-exclude", "^/tanjun/_internal/vendor/.*$")
     session.run("isort", *GENERAL_TARGETS)
-    session.run("sort-all", *map(str, pathlib.Path("./tanjun/").glob("**/*.py")), success_codes=[0, 1])
+    py_files = [str(path) for path in pathlib.Path("./tanjun/").glob("**/*.py")]
+    test_py_files = [str(path) for path in pathlib.Path("./tanjun/").glob("**/*.py")]
+    session.run("yesqa", *py_files, *test_py_files, success_codes=[0, 1])
+    session.run("sort-all", *py_files, success_codes=[0, 1])
 
 
 @nox.session(reuse_venv=True)
