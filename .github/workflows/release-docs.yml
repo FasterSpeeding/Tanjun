@@ -28,11 +28,9 @@ jobs:
           echo "::set-output name=GIT_HASH::$(git rev-parse HEAD)"
 
       - name: Push
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: docs
-          FOLDER: ./site
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MESSAGE: "${{ steps.doc_info.outputs.GIT_HASH }} docs (${{ github.event.release.tag_name || github.event.ref }})"
-          SKIP_EMPTY_COMMITS: true
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: ./site
+          branch: docs
+          commit-message: "${{ steps.doc_info.outputs.GIT_HASH }} docs (${{ github.event.release.tag_name || github.event.ref }})"
+          clean-exclude: pr-preview
