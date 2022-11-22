@@ -29,7 +29,7 @@ jobs:
 
       - name: Push
         uses: JamesIves/github-pages-deploy-action@v4
-        env:
+        with:
           folder: ./site
           branch: docs
           commit-message: "${{ steps.doc_info.outputs.GIT_HASH }} docs (${{ github.event.release.tag_name || github.event.ref }})"
