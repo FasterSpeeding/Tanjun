@@ -3055,7 +3055,7 @@ class _WrapLoadError:
             and isinstance(exc, Exception)
             and not isinstance(exc, (errors.ModuleMissingLoaders, errors.ModuleMissingUnloaders))
         ):
-            raise self._error(*self._args, **self._kwargs)
+            raise self._error(*self._args, **self._kwargs) from exc  # noqa: R102
 
 
 def _try_deregister_listener(
