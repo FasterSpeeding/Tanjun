@@ -94,11 +94,11 @@ mr-proper==0.0.7
     # via flake8-functions
 mypy-extensions==0.4.3
     # via black
-pathspec==0.10.1
+pathspec==0.10.2
     # via black
 pbr==5.11.0
     # via stevedore
-platformdirs==2.5.2
+platformdirs==2.5.4
     # via black
 pycodestyle==2.9.1
     # via
@@ -120,10 +120,15 @@ snowballstemmer==2.2.0
     # via pydocstyle
 stdlib-list==0.8.0
     # via mr-proper
-stevedore==4.1.0
+stevedore==4.1.1
     # via bandit
 tomli==2.0.1
-    # via flake8-black
+    # via
+    #   black
+    #   flake8-black
+    #   pyproject-flake8
+typing-extensions==4.4.0
+    # via black
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

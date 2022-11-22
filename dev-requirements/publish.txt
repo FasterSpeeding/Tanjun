@@ -16,7 +16,7 @@ docutils==0.19
     # via flit
 flit==3.7.1
     # via -r dev-requirements/publish.in
-flit-core==3.7.1
+flit-core==3.8.0
     # via flit
 idna==3.4
     # via requests
@@ -31,12 +31,15 @@ pyparsing==3.0.9
 requests==2.28.1
     # via flit
 tomli==2.0.1
-    # via flit
+    # via
+    #   build
+    #   flit
+    #   pep517
 tomli-w==1.0.0
     # via flit
 urllib3==1.26.12
     # via requests
-wheel==0.37.1
+wheel==0.38.4
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
