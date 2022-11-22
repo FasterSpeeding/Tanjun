@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [TheseChannels][tanjun.annotations.TheseChannels], and to the `types` field of
   [with_channel_slash_option][tanjun.commands.with_channel_slash_option] and
   [SlashCommand.add_channel_option][tanjun.commands.SlashCommand.add_channel_option].
+- The hot reloader trying to declare commands multiple times.
 
 ## [2.9.0a1] - 2022-11-08
 ### Added
