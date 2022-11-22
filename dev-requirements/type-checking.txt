@@ -12,6 +12,8 @@ nodeenv==1.7.0
     # via pyright
 pyright==1.1.279
     # via -r dev-requirements/type-checking.in
+tomli==2.0.1
+    # via mypy
 typing-extensions==4.4.0
     # via mypy
 
