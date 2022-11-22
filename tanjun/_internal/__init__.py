@@ -471,4 +471,5 @@ def cmp_all_commands(
     ],
     /,
 ) -> bool:
+    """Compare two sets of command objects/builders."""
     return len(commands) == len(other) and all(cmp_command(c, other.get((c.type, c.name))) for c in commands)
