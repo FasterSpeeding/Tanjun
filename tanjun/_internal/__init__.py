@@ -465,12 +465,10 @@ def cmp_command(
 
 
 def cmp_all_commands(
-    commands: collections.Iterable[
-        tuple[
-            typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder],
-            typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder, None],
-        ]
+    commands: collections.Collection[typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder]],
+    other: collections.Mapping[
+        tuple[hikari.CommandType, str], typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder]
     ],
     /,
 ) -> bool:
-    return all(cmp_command(c, o) for c, o in commands)
+    return len(commands) == len(other) and all(cmp_command(c, other.get((c.type, c.name))) for c in commands)

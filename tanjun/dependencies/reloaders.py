@@ -435,9 +435,7 @@ class HotReloader:
 
                 continue
 
-            if len(builders) == len(self._declared_builders) and _internal.cmp_all_commands(
-                (c, self._declared_builders.get(key)) for key, c in builders.items()
-            ):
+            if _internal.cmp_all_commands(builders.values(), self._declared_builders):
                 return
 
             try:

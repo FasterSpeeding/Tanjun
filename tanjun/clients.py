@@ -1405,9 +1405,7 @@ class Client(tanjun.Client):
 
         if not force:
             registered_commands = await self._rest.fetch_application_commands(application, guild=guild)
-            if len(registered_commands) == len(builders) and _internal.cmp_all_commands(
-                (c, builders.get((c.type, c.name))) for c in registered_commands
-            ):
+            if len(registered_commands) == len(builders) and _internal.cmp_all_commands(registered_commands, builders):
                 _LOGGER.info(
                     "Skipping bulk declare for %s application commands since they're already declared", target_type
                 )
