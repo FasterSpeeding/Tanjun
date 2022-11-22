@@ -4381,7 +4381,7 @@ class Client(abc.ABC):
         self,
         *,
         global_only: bool = False,
-        type: typing.Literal[hikari.CommandType.MESSAGE],  # noqa: A002 - Shadowing a builtin name.
+        type: typing.Literal[hikari.CommandType.MESSAGE],  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
         ...
 
@@ -4391,7 +4391,7 @@ class Client(abc.ABC):
         self,
         *,
         global_only: bool = False,
-        type: typing.Literal[hikari.CommandType.USER],  # noqa: A002 - Shadowing a builtin name.
+        type: typing.Literal[hikari.CommandType.USER],  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
         ...
 
@@ -4401,7 +4401,7 @@ class Client(abc.ABC):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[hikari.CommandType] = None,  # noqa: A002 - Shadowing a builtin name.
+        type: typing.Optional[hikari.CommandType] = None,  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
         ...
 
@@ -4410,7 +4410,7 @@ class Client(abc.ABC):
         self,
         *,
         global_only: bool = False,
-        type: typing.Optional[hikari.CommandType] = None,  # noqa: A002 - Shadowing a builtin name.
+        type: typing.Optional[hikari.CommandType] = None,  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
         """Iterator over the menu commands registered to this client.
 

@@ -220,7 +220,7 @@ def slash_command_group(
         * If the command name doesn't fit Discord's requirements.
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
-    """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+    """  # noqa: E501
     return SlashCommandGroup(
         name,
         description,
@@ -342,7 +342,7 @@ def as_slash_command(
         * If the command name doesn't fit Discord's requirements.
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
-    """  # noqa: E501,D202
+    """  # noqa: D202, E501
 
     def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
@@ -1092,7 +1092,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         super().__init__(
             name,
             description,
@@ -1249,7 +1249,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: E501,D202
+        """  # noqa: D202, E501
 
         def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
             return self.with_command(
@@ -1307,7 +1307,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         return self.with_command(slash_command_group(name, description, default_to_ephemeral=default_to_ephemeral))
 
     def remove_command(self, command: tanjun.BaseSlashCommand, /) -> Self:
@@ -1543,7 +1543,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         super().__init__(
             name,
             description,
@@ -1796,7 +1796,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -1907,7 +1907,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `min_length` is greater than `max_length`.
             * If `min_length` is less than `0` or greater than `6000`.
             * If `max_length` is less than `1` or greater than `6000`.
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         if choices is None:
             actual_choices = None
 
@@ -2041,7 +2041,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `min_value` is greater than `max_value`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         names = localisation.MaybeLocalised("name", name)
         descriptions = localisation.MaybeLocalised("description", description)
         self._add_option(
@@ -2158,7 +2158,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If `min_value` is greater than `max_value`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         names = localisation.MaybeLocalised("name", name)
         descriptions = localisation.MaybeLocalised("description", description)
         self._add_option(
@@ -2236,7 +2236,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2306,7 +2306,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2373,7 +2373,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2447,7 +2447,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If an invalid type is passed in `types`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2512,7 +2512,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2580,7 +2580,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501 - line too long (THE LINK ALONE IS OVER 120 CHARACTERS!!!!!)
+        """  # noqa: E501
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),

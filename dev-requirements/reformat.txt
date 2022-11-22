@@ -24,3 +24,4 @@ tomli==2.0.1
     # via black
 typing-extensions==4.4.0
     # via black
+yesqa==1.4.0
