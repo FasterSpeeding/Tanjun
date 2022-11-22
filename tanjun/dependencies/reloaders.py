@@ -424,37 +424,39 @@ class HotReloader:
         await asyncio.sleep(self._redeclare_cmds_after)
 
         while True:
-            if builders == self._scheduled_builders:
-                if builders == self._declared_builders:
-                    return
-
+            if builders != self._scheduled_builders:
+                builders = self._scheduled_builders
                 try:
-                    await client.declare_application_commands(builders.values(), guild=self._commands_guild)
-
-                except (hikari.RateLimitedError, hikari.RateLimitTooLongError):
-                    _LOGGER.error("Timed out on command declare, will try again soon")
-
-                except Exception as exc:
-                    resource = f"guild ({self._command_task})" if self._commands_guild else "global"
-                    _LOGGER.error("Failed to declare %s commands", resource, exc_info=exc)
-                    self._declared_builders = builders
-                    return
+                    await asyncio.sleep(self._redeclare_cmds_after)
 
                 except BaseException:
                     self._declared_builders = builders
                     raise
 
-                else:
-                    self._declared_builders = builders
-                    return
+                continue
 
-            builders = self._scheduled_builders
+            if _internal.cmp_all_commands(builders.values(), self._declared_builders):
+                return
+
             try:
-                await asyncio.sleep(self._redeclare_cmds_after)
+                await client.declare_application_commands(builders.values(), guild=self._commands_guild)
+
+            except (hikari.RateLimitedError, hikari.RateLimitTooLongError):
+                _LOGGER.error("Timed out on command declare, will try again soon")
+
+            except Exception as exc:
+                resource = f"guild ({self._command_task})" if self._commands_guild else "global"
+                _LOGGER.error("Failed to declare %s commands", resource, exc_info=exc)
+                self._declared_builders = builders
+                return
 
             except BaseException:
                 self._declared_builders = builders
                 raise
+
+            else:
+                self._declared_builders = builders
+                return
 
     @_internal.log_task_exc("Hot reloader crashed")
     async def _loop(self, client: tanjun.Client, /) -> None:

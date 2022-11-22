@@ -39,6 +39,7 @@ import enum
 import functools
 import itertools
 import logging
+import operator
 import sys
 import types
 import typing
@@ -429,3 +430,46 @@ def parse_channel_types(*channel_types: typing.Union[type[hikari.PartialChannel]
 
     except KeyError as exc:
         raise ValueError(f"Unknown channel type {exc.args[0]}") from exc
+
+
+def cmp_command(
+    cmd: typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder],
+    other: typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder, None],
+) -> bool:
+    """Compare application command objects and command builders."""
+    if not other or other.type != cmd.type:
+        return False
+
+    dm_enabled = True if cmd.is_dm_enabled is hikari.UNDEFINED else cmd.is_dm_enabled
+    other_dm_enabled = True if other.is_dm_enabled is hikari.UNDEFINED else other.is_dm_enabled
+    default_perms = cmd.default_member_permissions or hikari.Permissions.NONE
+    other_default_perms = other.default_member_permissions or hikari.Permissions.NONE
+
+    if dm_enabled is not other_dm_enabled or default_perms != other_default_perms:
+        return False
+
+    # name doesn't need to be checked as `builder` will be `None` if that didn't match.
+    if cmd.name_localizations != other.name_localizations:
+        return False
+
+    if isinstance(cmd, (hikari.SlashCommand, hikari.api.SlashCommandBuilder)):
+        assert isinstance(other, (hikari.SlashCommand, hikari.api.SlashCommandBuilder))
+        if cmd.description != other.description or cmd.description_localizations != other.description_localizations:
+            return False
+
+        opts = cmd.options or ()
+        other_opts = other.options or ()
+        return len(opts) == len(other_opts) and all(itertools.starmap(operator.eq, zip(opts, other_opts)))
+
+    return True
+
+
+def cmp_all_commands(
+    commands: collections.Collection[typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder]],
+    other: collections.Mapping[
+        tuple[hikari.CommandType, str], typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder]
+    ],
+    /,
+) -> bool:
+    """Compare two sets of command objects/builders."""
+    return len(commands) == len(other) and all(cmp_command(c, other.get((c.type, c.name))) for c in commands)
