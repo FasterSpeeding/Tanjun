@@ -59,9 +59,9 @@ if typing.TYPE_CHECKING:
     _P = typing_extensions.ParamSpec("_P")
 
 
+_T = typing.TypeVar("_T")
 _KeyT = typing.TypeVar("_KeyT")
 _OtherT = typing.TypeVar("_OtherT")
-_T = typing.TypeVar("_T")
 _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
 
 _LOGGER = logging.getLogger("hikari.tanjun")
