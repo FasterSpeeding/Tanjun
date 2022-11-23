@@ -647,7 +647,7 @@ class MessageCommandIndex:
                 break
 
         for index, segment in reversed(segments):
-            name_parts = split[:index + 1]
+            name_parts = split[: index + 1]
             name = " ".join(name_parts)
             if case_sensitive:
                 yield from ((name, c) for n, c in segment if n == name_parts)

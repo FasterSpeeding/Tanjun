@@ -557,7 +557,6 @@ class Client(tanjun.Client):
         server: typing.Optional[hikari.api.InteractionServer] = None,
         shards: typing.Optional[hikari.ShardAware] = None,
         voice: typing.Optional[hikari.api.VoiceComponent] = None,
-        case_sensitive: bool = True,
         event_managed: bool = False,
         injector: typing.Optional[alluka.abc.Client] = None,
         mention_prefix: bool = False,
@@ -597,10 +596,6 @@ class Client(tanjun.Client):
             The Hikari shard aware client this will use if applicable.
         voice
             The Hikari voice component this will use if applicable.
-        case_sensitive
-            Whether this client's message commands should be matched case-sensitively.
-
-            This may be overridden by component specific configuration.
         event_managed
             Whether or not this client is managed by the event manager.
 
@@ -700,7 +695,7 @@ class Client(tanjun.Client):
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
         self._interaction_accepts = InteractionAcceptsEnum.ALL
-        self._is_case_sensitive = case_sensitive
+        self._is_case_sensitive = True
         self._menu_hooks: typing.Optional[tanjun.MenuHooks] = None
         self._menu_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun.SlashHooks] = None
@@ -846,7 +841,6 @@ class Client(tanjun.Client):
         bot: hikari.GatewayBotAware,
         /,
         *,
-        case_sensitive: bool = True,
         event_managed: bool = True,
         injector: typing.Optional[alluka.abc.Client] = None,
         mention_prefix: bool = False,
@@ -871,10 +865,6 @@ class Client(tanjun.Client):
             The bot client to build from.
 
             This will be used to infer the relevant Hikari clients to use.
-        case_sensitive
-            Whether this client's message commands should be matched case-sensitively.
-
-            This may be overridden by component specific configuration.
         event_managed
             Whether or not this client is managed by the event manager.
 
@@ -926,7 +916,6 @@ class Client(tanjun.Client):
                 events=bot.event_manager,
                 shards=bot,
                 voice=bot.voice,
-                case_sensitive=case_sensitive,
                 event_managed=event_managed,
                 injector=injector,
                 mention_prefix=mention_prefix,
@@ -1458,6 +1447,19 @@ class Client(tanjun.Client):
             The time in seconds to defer interaction command responses after.
         """
         self._auto_defer_after = float(time) if time is not None else None
+        return self
+
+    def set_case_sensitive(self, state: bool, /) -> Self:
+        """Set whether this client defaults to being case sensitive for message commands.
+
+        Parameters
+        ----------
+        case_sensitive
+            Whether this client's message commands should be matched case-sensitively.
+
+            This may be overridden by component specific configuration.
+        """
+        self._is_case_sensitive = state
         return self
 
     def set_default_app_command_permissions(self, permissions: typing.Union[int, hikari.Permissions], /) -> Self:

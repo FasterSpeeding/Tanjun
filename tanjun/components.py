@@ -182,19 +182,11 @@ class Component(tanjun.Component):
         "_tasks",
     )
 
-    def __init__(
-        self, *, case_sensitive: typing.Optional[bool] = None, name: typing.Optional[str] = None, strict: bool = False
-    ) -> None:
+    def __init__(self, *, name: typing.Optional[str] = None, strict: bool = False) -> None:
         """Initialise a new component.
 
         Parameters
         ----------
-        case_sensitive
-            Whether this component's message commands should be matched
-            case-sensitively.
-
-            If this is left as [None][] then the client's case-sensitive
-            setting will be used.
         name
             The component's identifier.
 
@@ -213,7 +205,7 @@ class Component(tanjun.Component):
         self._defaults_to_ephemeral: typing.Optional[bool] = None
         self._dms_enabled_for_app_cmds: typing.Optional[bool] = None
         self._hooks: typing.Optional[tanjun.AnyHooks] = None
-        self._is_case_sensitive = case_sensitive
+        self._is_case_sensitive: typing.Optional[bool] = None
         self._listeners: dict[type[hikari.Event], list[tanjun.ListenerCallbackSig]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._menu_commands: dict[tuple[hikari.CommandType, str], tanjun.MenuCommand[typing.Any, typing.Any]] = {}
@@ -426,6 +418,21 @@ class Component(tanjun.Component):
             if isinstance(value, AbstractComponentLoader):
                 value.load_into_component(self)
 
+        return self
+
+    def set_case_sensitive(self, state: typing.Optional[bool], /) -> Self:
+        """Set whether this component defaults to being case sensitive for component.
+
+        Parameters
+        ----------
+        case_sensitive
+            Whether this component's message commands should be matched
+            case-sensitively.
+
+            If this is left as [None][] then the client's case-sensitive
+            setting will be used.
+        """
+        self._is_case_sensitive = state
         return self
 
     def set_default_app_command_permissions(self, permissions: typing.Union[int, hikari.Permissions, None], /) -> Self:
