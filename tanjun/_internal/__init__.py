@@ -559,7 +559,7 @@ class MessageCommandIndex:
                 node = self.search_tree
                 # The search tree is kept case-insensitive as a check against the actual name
                 # can be used to ensure case-sensitivity.
-                for chars in name.casefold().split():
+                for chars in name.casefold().split(" "):
                     try:
                         node = node[chars]
                         assert isinstance(node, dict)
@@ -571,7 +571,7 @@ class MessageCommandIndex:
                 # A case-preserved variant of the name is stored alongside the command
                 # for case-sensitive lookup
                 # This is split into a list of words to avoid mult-spaces failing lookup.
-                name_parts = name.split()
+                name_parts = name.split(" ")
                 try:
                     node[_IndexKeys.COMMANDS].append((name_parts, command))
                 except KeyError:
@@ -634,7 +634,7 @@ class MessageCommandIndex:
 
         node = self.search_tree
         segments: list[tuple[int, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]] = []
-        split = content.split()
+        split = content.split(" ")
         for index, chars in enumerate(split):
             try:
                 node = node[chars.casefold()]
@@ -681,7 +681,7 @@ class MessageCommandIndex:
         for name in filter(None, command.names):
             nodes: list[tuple[str, _TreeT]] = []
             node = self.search_tree
-            for chars in name.casefold().split():
+            for chars in name.casefold().split(" "):
                 try:
                     node = node[chars]
                     assert isinstance(node, dict)
@@ -693,7 +693,7 @@ class MessageCommandIndex:
 
             else:
                 # If it didn't break out of the for chars loop then the command is in here.
-                name_parts = name.split()
+                name_parts = name.split(" ")
                 node[_IndexKeys.COMMANDS].remove((name_parts, command))  # Remove the command from the last node.
                 if not node[_IndexKeys.COMMANDS]:
                     del node[_IndexKeys.COMMANDS]
