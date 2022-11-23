@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [with_channel_slash_option][tanjun.commands.with_channel_slash_option] and
   [SlashCommand.add_channel_option][tanjun.commands.SlashCommand.add_channel_option].
 - The spacing in `triggering_name` is now properly normalised for message commands in groups to ensure
-  only 1 space. This also fixes cases where names were being smushed together without any spaces.
+  only 1 space. This also fixes cases where names were being smashed together without any spaces.
 - The hot reloader trying to declare commands multiple times.
 - Actually set the attached component for commands within slash-command groups.
 - Process the converters to log for client misconfiguration for converters attached to commands within
