@@ -561,7 +561,7 @@ class TestMessageCommandGroup:
 
         assert result is command_group
         assert mock_command not in command_group.commands
-        assert command_group._names_to_commands == {"dada": mock_other_command}
+        assert command_group._commands.commands == {"dada": mock_other_command}
 
     def test_with_command(self):
         add_command = mock.Mock()

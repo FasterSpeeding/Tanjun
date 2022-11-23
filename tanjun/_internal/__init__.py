@@ -618,7 +618,7 @@ class MessageCommandIndex:
 
         Yields
         ------
-        tuple[str, abc.MessageCommand[typing.Any]]
+        tuple[str, tanjun.abc.MessageCommand[typing.Any]]
             A tuple of the matching name and command.
         """
         if self.is_strict:

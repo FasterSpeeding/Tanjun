@@ -574,6 +574,11 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
         return self
 
+    def find_command(
+        self, content: str, /, *, case_sensntive: bool = True
+    ) -> collections.Iterable[tuple[str, tanjun.MessageCommand[typing.Any]]]:
+        return self._commands.find(content, case_sensntive)
+
     async def execute(
         self,
         ctx: tanjun.MessageContext,
