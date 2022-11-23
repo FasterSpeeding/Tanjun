@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.10.0a1] -  2022-11-23
+## [2.10.0a1] - 2022-11-24
 ### Added
 - Support for message commands to [tanjun.annotations.TheseChannels][].
 - `allowed_types` field to [tanjun.conversion.ToChannel][] to allow narrowing the allowed channel
