@@ -58,6 +58,11 @@ if typing.TYPE_CHECKING:
 
     _P = typing_extensions.ParamSpec("_P")
 
+    _TreeT = dict[
+        typing.Union[str, "_IndexKeys"],
+        typing.Union["_TreeT", list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]],
+    ]
+
 
 _T = typing.TypeVar("_T")
 _KeyT = typing.TypeVar("_KeyT")
@@ -476,8 +481,9 @@ def cmp_all_commands(
     return len(commands) == len(other) and all(cmp_command(c, other.get((c.type, c.name))) for c in commands)
 
 
-_COMMANDS_KEY = "comm ands"
-_PARENT_KEY = "par ent"
+class _IndexKeys(enum.Enum):
+    COMMANDS = enum.auto()
+    PARENT = enum.auto()
 
 
 class MessageCommandIndex:
@@ -492,7 +498,7 @@ class MessageCommandIndex:
         *,
         commands: typing.Optional[list[tanjun.MessageCommand[typing.Any]]] = None,
         names_to_commands: typing.Optional[dict[str, tuple[str, tanjun.MessageCommand[typing.Any]]]] = None,
-        search_tree: typing.Optional[dict[str, typing.Any]] = None,
+        search_tree: typing.Optional[_TreeT] = None,
     ) -> None:
         """Initialise a message command index.
 
@@ -536,9 +542,9 @@ class MessageCommandIndex:
             if any(" " in name for name in command.names):
                 raise ValueError("Command name cannot contain spaces for this component implementation")
 
-            names = list(command.names)
-            insensive_names = [name.casefold() for name in command.names]
-            if name_conflicts := self.names_to_commands.keys() & insensive_names:
+            names = list(filter(None, command.names))
+            insensitive_names = [name.casefold() for name in command.names]
+            if name_conflicts := self.names_to_commands.keys() & insensitive_names:
                 raise ValueError(
                     "Sub-command names must be (case-insensitively) unique in a strict component. "
                     "The following conflicts were found " + ", ".join(name_conflicts)
@@ -546,28 +552,30 @@ class MessageCommandIndex:
 
             # Case insensitive keys are used here as a subsequent check against the original
             # name can be used for case-sensitive lookup.
-            self.names_to_commands.update((key, (name, command)) for key, name in zip(insensive_names, names))
+            self.names_to_commands.update((key, (name, command)) for key, name in zip(insensitive_names, names))
 
         else:  # strict indexes avoid using the search tree all together.
             for name in filter(None, command.names):
-                node: dict[str, typing.Any] = self.search_tree
+                node = self.search_tree
                 # The search tree is kept case-insensitive as a check against the actual name
                 # can be used to ensure case-sensitivity.
                 for chars in name.casefold().split():
                     try:
                         node = node[chars]
+                        assert isinstance(node, dict)
 
                     except KeyError:
-                        node[chars] = node = {_PARENT_KEY: node}
+                        new_node: _TreeT = {_IndexKeys.PARENT: node}
+                        node[chars] = node = new_node
 
                 # A case-preserved variant of the name is stored alongside the command
                 # for case-sensitive lookup
                 # This is split into a list of words to avoid mult-spaces failing lookup.
                 name_parts = name.split()
                 try:
-                    node[_COMMANDS_KEY].append((name_parts, command))
+                    node[_IndexKeys.COMMANDS].append((name_parts, command))
                 except KeyError:
-                    node[_COMMANDS_KEY] = [(name_parts, command)]
+                    node[_IndexKeys.COMMANDS] = [(name_parts, command)]
 
         self.commands.append(command)
         return True
@@ -625,34 +633,27 @@ class MessageCommandIndex:
             return
 
         node = self.search_tree
-        segments: list[str] = []
-        for chars in content.split():
+        segments: list[tuple[int, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]] = []
+        split = content.split()
+        for index, chars in enumerate(split):
             try:
                 node = node[chars.casefold()]
-                segments.append(chars)
+                assert isinstance(node, dict)
+                if entries := node.get(_IndexKeys.COMMANDS):
+                    assert isinstance(entries, list)
+                    segments.append((index, entries))
 
             except KeyError:
                 break
 
-        if not segments:
-            return
-
-        # Prioritise longer matches first.
-        for index in range(len(segments), 0, -1):
-            commands = node.get(_COMMANDS_KEY)
-            if not commands:
-                node = node[_PARENT_KEY]
-                continue
-
-            name_parts = segments[:index]
+        for index, segment in reversed(segments):
+            name_parts = split[:index + 1]
             name = " ".join(name_parts)
             if case_sensitive:
-                yield from ((name, c) for n, c in commands if n == name_parts)
+                yield from ((name, c) for n, c in segment if n == name_parts)
 
             else:
-                yield from ((name, c) for _, c in commands)
-
-            node = node[_PARENT_KEY]
+                yield from ((name, c) for _, c in segment)
 
     def remove(self, command: tanjun.MessageCommand[typing.Any], /) -> None:
         """Remove a command from the index.
@@ -670,7 +671,7 @@ class MessageCommandIndex:
         self.commands.remove(command)
 
         if self.is_strict:
-            for name in map(str.casefold, command.names):
+            for name in map(str.casefold, filter(None, command.names)):
                 if (entry := self.names_to_commands.get(name)) and entry[1] == command:
                     del self.names_to_commands[name]
 
@@ -678,11 +679,12 @@ class MessageCommandIndex:
             return
 
         for name in filter(None, command.names):
-            nodes: list[tuple[str, dict[str, typing.Any]]] = []
+            nodes: list[tuple[str, _TreeT]] = []
             node = self.search_tree
             for chars in name.casefold().split():
                 try:
                     node = node[chars]
+                    assert isinstance(node, dict)
                     nodes.append((chars, node))
 
                 except KeyError:
@@ -692,18 +694,19 @@ class MessageCommandIndex:
             else:
                 # If it didn't break out of the for chars loop then the command is in here.
                 name_parts = name.split()
-                node[_COMMANDS_KEY].remove((name_parts, command))  # Remove the command from the last node.
-                if not node[_COMMANDS_KEY]:
-                    del node[_COMMANDS_KEY]
+                node[_IndexKeys.COMMANDS].remove((name_parts, command))  # Remove the command from the last node.
+                if not node[_IndexKeys.COMMANDS]:
+                    del node[_IndexKeys.COMMANDS]
 
                 if len(node) > 1:
                     # If the node is not empty then we're done.
                     continue
 
                 # Otherwise, we need to remove the node from the tree.
-                for char, node in reversed(nodes):
-                    parent = node.get(_PARENT_KEY)
+                for chars, node in reversed(nodes):
+                    parent = node.get(_IndexKeys.PARENT)
                     if not parent:
                         break
 
-                    del parent[char]
+                    assert isinstance(parent, dict)
+                    del parent[chars]
