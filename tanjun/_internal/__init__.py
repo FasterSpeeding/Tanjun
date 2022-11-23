@@ -698,12 +698,12 @@ class MessageCommandIndex:
                 if not node[_IndexKeys.COMMANDS]:
                     del node[_IndexKeys.COMMANDS]
 
-                if len(node) > 1:
-                    # If the node is not empty then we're done.
-                    continue
-
                 # Otherwise, we need to remove the node from the tree.
                 for chars, node in reversed(nodes):
+                    if len(node) > 1:
+                        # If the node is not empty then we're done.
+                        continue
+
                     parent = node.get(_IndexKeys.PARENT)
                     if not parent:
                         break
