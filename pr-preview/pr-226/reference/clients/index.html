@@ -640,6 +640,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tanjun.clients.Client.set_case_sensitive" class="md-nav__link">
+    set_case_sensitive()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tanjun.clients.Client.set_default_app_command_permissions" class="md-nav__link">
     set_default_app_command_permissions()
   </a>
@@ -1329,6 +1336,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tanjun.clients.Client.set_case_sensitive" class="md-nav__link">
+    set_case_sensitive()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tanjun.clients.Client.set_default_app_command_permissions" class="md-nav__link">
     set_default_app_command_permissions()
   </a>
@@ -1737,7 +1751,7 @@ by overwritten if you call <a class="autorefs autorefs-internal" href="#tanjun.c
 
 
 <a href="#tanjun.clients.Client.__init__" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">rest</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shards</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">voice</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">event_managed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_stack_level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">rest</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">events</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">shards</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">voice</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">event_managed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_stack_level</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1850,23 +1864,6 @@ events aren't being received from the event manager.</p>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
                     <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>case_sensitive</code></td>
-          <td class="doc-param-details">
-            <p>Whether this client's message commands should be matched case-sensitively.</p>
-<p>This may be overridden by component specific configuration.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>True</code>
                 </span>
             </p>
           </td>
@@ -2409,7 +2406,7 @@ prefixes.</p>
   </span>
 
 <a href="#tanjun.clients.Client.from_gateway_bot" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">case_sensitive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">event_managed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">event_managed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">injector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">set_global_commands</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">command_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2439,23 +2436,6 @@ dependency injectors for the hikari traits present in <code>bot</code>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/index.html">hikari</a>.<span title="hikari.GatewayBotAware">GatewayBotAware</span></code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>case_sensitive</code></td>
-          <td class="doc-param-details">
-            <p>Whether this client's message commands should be matched case-sensitively.</p>
-<p>This may be overridden by component specific configuration.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>True</code>
                 </span>
             </p>
           </td>
@@ -3637,6 +3617,46 @@ an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.co
           </td>
           <td class="doc-returns-details">
             <p>This client to enable method chaining.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.clients.Client.set_case_sensitive" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">set_case_sensitive</span>
+
+
+<a href="#tanjun.clients.Client.set_case_sensitive" class="headerlink" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">set_case_sensitive</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Set whether this client defaults to being case sensitive for message commands.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>case_sensitive</code></td>
+          <td class="doc-param-details">
+            <p>Whether this client's message commands should be matched case-sensitively.</p>
+<p>This may be overridden by component specific configuration.</p>
+            <p>
+            </p>
           </td>
         </tr>
     </tbody>
