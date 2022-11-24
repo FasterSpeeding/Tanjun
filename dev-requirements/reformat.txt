@@ -16,7 +16,7 @@ mccabe==0.7.0
     # via flake8
 mypy-extensions==0.4.3
     # via black
-pathspec==0.10.2
+pathspec==0.9.0
     # via black
 platformdirs==2.5.4
     # via black
@@ -36,3 +36,4 @@ typing-extensions==4.4.0
     # via black
 yesqa==1.4.0
     # via -r dev-requirements/reformat.in
+pycln==2.1.2
