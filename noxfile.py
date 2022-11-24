@@ -172,7 +172,6 @@ def spell_check(session: nox.Session) -> None:
         "CONTRIBUTING.md",
         "README.md",
         "./github",
-        ".pre-commit-config.yaml",
         "./docs",
         "--ignore-regex",
         "TimeSchedule|Nd",

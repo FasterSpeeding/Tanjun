@@ -1,0 +1,33 @@
+name: Run checks
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: install prerequisites
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install -r ./dev-requirements/nox.txt
+
+      - name: Reformat code
+        run: python -m nox -s reformat
+
+      - name: Add & Commit
+        uses: EndBug/add-and-commit@v9.1.1
+        message: "Reformat code"
