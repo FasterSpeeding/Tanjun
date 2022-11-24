@@ -751,6 +751,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tanjun.clients.Client.set_case_sensitive" class="md-nav__link">
+    set_case_sensitive()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tanjun.clients.Client.set_default_app_command_permissions" class="md-nav__link">
     set_default_app_command_permissions()
   </a>
@@ -1156,6 +1163,13 @@
           <li class="md-nav__item">
   <a href="#tanjun.components.Component.schedules" class="md-nav__link">
     schedules()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_case_sensitive" class="md-nav__link">
+    set_case_sensitive()
   </a>
   
 </li>
@@ -3232,6 +3246,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tanjun.clients.Client.set_case_sensitive" class="md-nav__link">
+    set_case_sensitive()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tanjun.clients.Client.set_default_app_command_permissions" class="md-nav__link">
     set_default_app_command_permissions()
   </a>
@@ -3637,6 +3658,13 @@
           <li class="md-nav__item">
   <a href="#tanjun.components.Component.schedules" class="md-nav__link">
     schedules()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_case_sensitive" class="md-nav__link">
+    set_case_sensitive()
   </a>
   
 </li>
@@ -7713,6 +7741,46 @@ an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.conte
 
 
 
+<h3 id="tanjun.clients.Client.set_case_sensitive" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">set_case_sensitive</span>
+
+
+<a href="#tanjun.clients.Client.set_case_sensitive" class="headerlink" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">set_case_sensitive</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Set whether this client defaults to being case sensitive for message commands.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>case_sensitive</code></td>
+          <td class="doc-param-details">
+            <p>Whether this client's message commands should be matched case-sensitively.</p>
+<p>This may be overridden by component specific configuration.</p>
+            <p>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
 <h3 id="tanjun.clients.Client.set_default_app_command_permissions" class="doc doc-heading">
         <span class="doc doc-object-name doc-function-name">set_default_app_command_permissions</span>
 
@@ -11153,6 +11221,48 @@ client by targeting the module using [tanjun.Client.load_modules][],
 
 
 
+<h3 id="tanjun.components.Component.set_case_sensitive" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">set_case_sensitive</span>
+
+
+<a href="#tanjun.components.Component.set_case_sensitive" class="headerlink" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">set_case_sensitive</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Set whether this component defaults to being case sensitive for component.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>case_sensitive</code></td>
+          <td class="doc-param-details">
+            <p>Whether this component's message commands should be matched
+case-sensitively.</p>
+<p>If this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then the client's case-sensitive
+setting will be used.</p>
+            <p>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
 <h3 id="tanjun.components.Component.set_default_app_command_permissions" class="doc doc-heading">
         <span class="doc doc-object-name doc-function-name">set_default_app_command_permissions</span>
 
@@ -14504,7 +14614,7 @@ if limit is less 0 or negative.</p>
       <p>Injected type used to hold and generate lazy constants.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.inject_lc">inject_lc</a>.</p>
+<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="#tanjun.inject_lc">inject_lc</a>.</p>
 </div>
 
 
@@ -21842,7 +21952,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -23337,8 +23447,8 @@ command wraps in a decorator call chain.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
