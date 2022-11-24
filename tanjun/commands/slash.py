@@ -37,8 +37,8 @@ __all__: list[str] = [
     "ConverterSig",
     "SlashCommand",
     "SlashCommandGroup",
-    "UNDEFINED_DEFAULT",
     "as_slash_command",
+    "UNDEFINED_DEFAULT",
     "slash_command_group",
     "with_attachment_slash_option",
     "with_bool_slash_option",
@@ -54,9 +54,10 @@ __all__: list[str] = [
 
 import copy
 import typing
+from unicodedata import east_asian_width
 import unicodedata
-import warnings
 from collections import abc as collections
+import warnings
 
 import hikari
 
@@ -1092,7 +1093,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: E501
+        """  # noqa: E501, D202
         super().__init__(
             name,
             description,
@@ -1265,14 +1266,14 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: D202, E501
+        """  # noqa: E501, D202
 
         def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
             return self.with_command(
                 as_slash_command(
                     name,
                     description,
-                    always_defer=always_defer,
+                    always_defer = always_defer,
                     default_to_ephemeral=default_to_ephemeral,
                     sort_options=sort_options,
                     validate_arg_keys=validate_arg_keys,
