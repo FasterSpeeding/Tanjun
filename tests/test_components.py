@@ -42,11 +42,10 @@ import types
 import typing
 from unittest import mock
 
-import hikari
 import pytest
+import hikari
 
 import tanjun
-from tanjun import _internal
 
 mock_global_loader_1 = mock.Mock(tanjun.components.AbstractComponentLoader)
 mock_global_loader_2 = mock.Mock(tanjun.components.AbstractComponentLoader)
