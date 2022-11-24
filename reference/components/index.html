@@ -9,7 +9,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.8">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
     
     
       
@@ -17,10 +17,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.20d9efc8.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.472b142f.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.815d1a91.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.08040f6c.min.css">
         
       
       
@@ -153,6 +153,7 @@
         
           
           
+          
           <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
           
             <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
@@ -160,6 +161,7 @@
             </label>
           
         
+          
           
           
           <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
@@ -618,6 +620,13 @@
           <li class="md-nav__item">
   <a href="#tanjun.components.Component.schedules" class="md-nav__link">
     schedules()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_case_sensitive" class="md-nav__link">
+    set_case_sensitive()
   </a>
   
 </li>
@@ -1083,6 +1092,13 @@
           <li class="md-nav__item">
   <a href="#tanjun.components.Component.schedules" class="md-nav__link">
     schedules()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.components.Component.set_case_sensitive" class="md-nav__link">
+    set_case_sensitive()
   </a>
   
 </li>
@@ -2690,6 +2706,48 @@ client by targeting the module using [tanjun.Client.load_modules][],
   <div class="doc doc-contents ">
   
       <p>Collection of the schedules registered to this component.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.components.Component.set_case_sensitive" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">set_case_sensitive</span>
+
+
+<a href="#tanjun.components.Component.set_case_sensitive" class="headerlink" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">set_case_sensitive</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Set whether this component defaults to being case sensitive for component.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>case_sensitive</code></td>
+          <td class="doc-param-details">
+            <p>Whether this component's message commands should be matched
+case-sensitively.</p>
+<p>If this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then the client's case-sensitive
+setting will be used.</p>
+            <p>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 

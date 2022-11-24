@@ -5,6 +5,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.10.0a1] - 2022-11-24
+### Added
+- Support for message commands to [tanjun.annotations.TheseChannels][].
+- `allowed_types` field to [tanjun.conversion.ToChannel][] to allow narrowing the allowed channel
+  types for a message command option.
+- Support for toggleable case-insensitive message command name handling.
+
+### Fixed
+- The hot reloader will no-longer retry to reload a module being targeted through a system path
+  ([pathlib.Path][]) after one of its unloaders raises or finding out it has no unloaders.
+- Allow passing [hikari.GuildThreadChannel][hikari.channels.GuildThreadChannel] derived types
+  (+ [hikari.InteractionChannel][hikari.interactions.command_interactions.InteractionChannel]) to
+  [TheseChannels][tanjun.annotations.TheseChannels], and to the `types` field of
+  [with_channel_slash_option][tanjun.commands.with_channel_slash_option] and
+  [SlashCommand.add_channel_option][tanjun.commands.SlashCommand.add_channel_option].
+- The spacing in `triggering_name` is now properly normalised for message commands in groups to ensure
+  only 1 space. This also fixes cases where names were being smashed together without any spaces.
+- The hot reloader trying to declare commands multiple times.
+- Actually set the attached component for commands within slash-command groups.
+- Process the converters to log for client misconfiguration for converters attached to commands within
+  slash-command groups.
+
 ## [2.9.0a1] - 2022-11-08
 ### Added
 - Added `bot_managed` argument to [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot]
@@ -18,8 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow [None][] to be passed for `attachment` and `attachments` to edit response methods.
 
 ### Fixed
-- The [ToChannel][tanjun.checks.ToChannel]/[to_channel][tanjun.checks.to_channel] converter
-  now correctly uses the registered async channel cache if set.
+- The [ToChannel][tanjun.conversion.ToChannel]/[to_channel][tanjun.conversion.to_channel]
+  converter now correctly uses the registered async channel cache if set.
 
 ### Removed
 - The project metadata dunder attributes from [tanjun][].
@@ -701,35 +724,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   callback, check (on both commands and components) and converter execution plus calls to the prefix getter functions
   (since it's limited to calls which take a Context for the initial implementation).
 - Increased test and documentation coverage.
-- Add the ability to set a custom prefix getter function.
-- Switched over to pdoc from pdoc3 for doc generation.
-- Added more extensive examples .
-- Add rest fallbacks to the standard converters where possible.
-- Fix some bugs with the standard checks.
-- Introduce a flag for setting which message commands the standard client should accept for execution.
-- Add client callback functions to allow for better integration between hikari's RESTBot and GatewayBot plus collecting
+- The ability to set a custom prefix getter function.
+- More extensive examples.
+- REST fallbacks to the standard converters where possible.
+- A flag for setting which message commands the standard client should accept for execution.
+- Client callback functions to allow for better integration between hikari's RESTBot and GatewayBot plus collecting
   runtime metadata.
-- Added proxy methods and properties to the Context abcs to allow for calls when using the base Context abc.
-- Add state tracking to Context to allow for similar functionality between the slash and message command flows when it
+- Proxy methods and properties to the Context abcs to allow for calls when using the base Context abc.
+- State tracking to Context to allow for similar functionality between the slash and message command flows when it
   comes to dealing with responses (e.g. initial and last response logic).
 - Introduced a proper nox framework for running checks and CI tasks.
-- Switched over to just importing the top level `hikari` module when possible to simplify imports.
-- Replaced MYPY with pyright as the standard type checker.
-- Switch over to relative imports.
-- Switched away from setuptools to pep 621 with flit for defining the library and it's metadata (including
-  requirements).
-- Moved the project metadata duner properties direcltly to `tanjun` (from `tanjun.about.py`).
-
-### Changed
-- Dropped support for python 3.8 in-order to switch over to using collection.abc generic classes due to this being more
-  forward compatible.
-- Move away from enforcing subclassing behaviour in-favour of builder objects ~~you can still use subclassing behaviour
-  in places but don't tell anybody I told you that~~.
-- Consistency fix by ensuring functions are always called "callback".
-- Add `error_message` and `half_execution` arguments to the standard checks to allow commands to more granularly define
+- `error_message` and `half_execution` arguments to the standard checks to allow commands to more granularly define
   the behaviour for when they fail plus default them to having them send an error message when they fail if they were
   added to a command through a decorator call as this works better with the slash command flow and is better UX (a
   response explaining why it didn't work is better than no response).
+
+### Changed
+- Move away from enforcing subclassing behaviour in-favour of builder objects ~~you can still use subclassing behaviour
+  in places but don't tell anybody I told you that~~.
+- Consistency fix by ensuring functions are always called "callback".
 - Renamed `tanjun.traits` to `tanjun.abc`.
 - Replaced strategy of inferring other hikari client traits from the first arg parsed to `Client.__init__` with having
   the init explicitly take in each trait it needs as a separate argument while having shortcut `from_gateway_bot` and
@@ -739,11 +752,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for the slash context and message context to be interchaingable under the right circumstances.
 - Made the callback signatures more generic for commands and converters to allow for implementations to introduce
   features like dependency injection.
+- Replaced MYPY with pyright as the standard type checker.
+- Switch over to relative imports.
+- Switched over to just importing the top level `hikari` module when possible to simplify imports.
+- Moved the project metadata duner properties direcltly to `tanjun` (from `tanjun.about.py`).
+- Switched over to pdoc from pdoc3 for doc generation.
+- Switched away from setuptools to pep 621 with flit for defining the library and it's metadata (including
+  requirements).
+
+### Fixed
+- Fix some bugs with the standard checks.
 
 ### Removed
-- Removed a lot of impl specific setting and with methods from the abstract interfaces to avoid
+- A lot of impl specific setting and with methods from the abstract interfaces to avoid leaking impl detail.
+- Support for python 3.8 in-order to switch over to using collection.abc generic classes due to this being more
+  forward compatible.
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.9.0a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.10.0a1...HEAD
+[2.10.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.9.0a1...v2.10.0a1
 [2.9.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.1a1...v2.9.0a1
 [2.8.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.0a1...v2.8.1a1
 [2.8.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.7.0a1...v2.8.0a1
