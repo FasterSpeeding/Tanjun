@@ -1,4 +1,3 @@
-# Remember to also update the vers in .pre-commit-config.yaml when changing reformat dependencies!!!
 black==22.10.0
 isort==5.10.1
 pycln==2.1.2
