@@ -35,6 +35,7 @@ from __future__ import annotations
 __all__: list[str] = []
 
 import asyncio
+import copy as copy_
 import enum
 import functools
 import itertools
@@ -57,10 +58,15 @@ if typing.TYPE_CHECKING:
 
     _P = typing_extensions.ParamSpec("_P")
 
+    _TreeT = dict[
+        typing.Union[str, "_IndexKeys"],
+        typing.Union["_TreeT", list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]],
+    ]
 
+
+_T = typing.TypeVar("_T")
 _KeyT = typing.TypeVar("_KeyT")
 _OtherT = typing.TypeVar("_OtherT")
-_T = typing.TypeVar("_T")
 _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
 
 _LOGGER = logging.getLogger("hikari.tanjun")
@@ -116,36 +122,10 @@ async def gather_checks(ctx: tanjun.Context, checks: collections.Iterable[tanjun
         return False
 
 
-def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typing.Optional[str]:
-    """Search for a matching name in a string.
-
-    Parameters
-    ----------
-    content
-        The string to match names against.
-    names
-        The names to search for.
-
-    Returns
-    -------
-    str | None
-        The name that matched or None if no name matched.
-    """
-    for name in names:
-        # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
-        # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit
-        # the former before the latter when triggered with the latter, leading to the command potentially being
-        # inconsistently parsed.
-        if content == name or content.startswith(name) and content[len(name)] == " ":
-            return name
-
-    return None  # MyPy compat
-
-
 _EMPTY_BUFFER: dict[typing.Any, typing.Any] = {}
 
 
-class CastedView(collections.Mapping[_KeyT, _OtherT], typing.Generic[_KeyT, _T, _OtherT]):
+class CastedView(collections.Mapping[_KeyT, _OtherT], typing.Generic[_KeyT, _OtherT]):
     """Utility class for exposing an immutable casted view of a dict."""
 
     __slots__ = ("_buffer", "_cast", "_raw_data")
@@ -473,3 +453,234 @@ def cmp_all_commands(
 ) -> bool:
     """Compare two sets of command objects/builders."""
     return len(commands) == len(other) and all(cmp_command(c, other.get((c.type, c.name))) for c in commands)
+
+
+class _IndexKeys(enum.Enum):
+    COMMANDS = enum.auto()
+    PARENT = enum.auto()
+
+
+class MessageCommandIndex:
+    """A searchable message command index."""
+
+    __slots__ = ("commands", "is_strict", "names_to_commands", "search_tree")
+
+    def __init__(
+        self,
+        strict: bool,
+        /,
+        *,
+        commands: typing.Optional[list[tanjun.MessageCommand[typing.Any]]] = None,
+        names_to_commands: typing.Optional[dict[str, tuple[str, tanjun.MessageCommand[typing.Any]]]] = None,
+        search_tree: typing.Optional[_TreeT] = None,
+    ) -> None:
+        """Initialise a message command index.
+
+        Parameters
+        ----------
+        strict
+            Whether the index should be strict about command names.
+
+            Command names must be (case-insensitively) unique in a strict index and
+            must not contain spaces.
+        """
+        self.commands = commands or []
+        self.is_strict = strict
+        self.names_to_commands = names_to_commands or {}
+        self.search_tree = search_tree or {}
+
+    def add(self, command: tanjun.MessageCommand[typing.Any], /) -> bool:
+        """Add a command to the index.
+
+        Parameters
+        ----------
+        command
+            The command to add.
+
+        Returns
+        -------
+        bool
+            Whether the command was added.
+
+            If this is [False][] then the command was already in the index.
+
+        Raises
+        ------
+        ValueError
+            If the command name is invalid or already in the index.
+        """
+        if command in self.commands:
+            return False
+
+        if self.is_strict:
+            if any(" " in name for name in command.names):
+                raise ValueError("Command name cannot contain spaces for this component implementation")
+
+            names = list(filter(None, command.names))
+            insensitive_names = [name.casefold() for name in command.names]
+            if name_conflicts := self.names_to_commands.keys() & insensitive_names:
+                raise ValueError(
+                    "Sub-command names must be (case-insensitively) unique in a strict collection. "
+                    "The following conflicts were found " + ", ".join(name_conflicts)
+                )
+
+            # Case insensitive keys are used here as a subsequent check against the original
+            # name can be used for case-sensitive lookup.
+            self.names_to_commands.update((key, (name, command)) for key, name in zip(insensitive_names, names))
+
+        else:  # strict indexes avoid using the search tree all together.
+            for name in filter(None, command.names):
+                node = self.search_tree
+                # The search tree is kept case-insensitive as a check against the actual name
+                # can be used to ensure case-sensitivity.
+                for chars in name.casefold().split(" "):
+                    try:
+                        node = node[chars]
+                        assert isinstance(node, dict)
+
+                    except KeyError:
+                        new_node: _TreeT = {_IndexKeys.PARENT: node}
+                        node[chars] = node = new_node
+
+                # A case-preserved variant of the name is stored alongside the command
+                # for case-sensitive lookup
+                # This is split into a list of words to avoid mult-spaces failing lookup.
+                name_parts = name.split(" ")
+                try:
+                    node[_IndexKeys.COMMANDS].append((name_parts, command))
+                except KeyError:
+                    node[_IndexKeys.COMMANDS] = [(name_parts, command)]
+
+        self.commands.append(command)
+        return True
+
+    def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> MessageCommandIndex:
+        """In-place copy the index and its contained commands.
+
+        Parameters
+        ----------
+        parent
+            The parent message command group of the copied index.
+
+        Returns
+        -------
+        MessageCommandIndex
+            The copied index.
+        """
+        commands = {command: command.copy(parent=parent) for command in self.commands}
+        memo = {id(command): new_command for command, new_command in commands.items()}
+        return MessageCommandIndex(
+            self.is_strict,
+            commands=list(commands.values()),
+            names_to_commands={
+                key: (name, commands[command]) for key, (name, command) in self.names_to_commands.items()
+            },
+            search_tree=copy_.deepcopy(self.search_tree, memo),
+        )
+
+    def find(
+        self, content: str, case_sensitive: bool, /
+    ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
+        """Find commands in the index.
+
+        Parameters
+        ----------
+        content
+            The content to search for.
+        case_sensitive
+            Whether the search should be case-sensitive.
+
+        Yields
+        ------
+        tuple[str, tanjun.abc.MessageCommand[typing.Any]]
+            A tuple of the matching name and command.
+        """
+        if self.is_strict:
+            name = content.split(" ", 1)[0]
+            # A case-insensitive key is used to allow for both the case-sensitive and case-insensitive
+            # cases to be covered.
+            if command := self.names_to_commands.get(name.casefold()):
+                if not case_sensitive or command[0] == name:
+                    yield name, command[1]
+
+            # strict indexes avoid using the search tree all together.
+            return
+
+        node = self.search_tree
+        segments: list[tuple[int, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]] = []
+        split = content.split(" ")
+        for index, chars in enumerate(split):
+            try:
+                node = node[chars.casefold()]
+                assert isinstance(node, dict)
+                if entries := node.get(_IndexKeys.COMMANDS):
+                    assert isinstance(entries, list)
+                    segments.append((index, entries))
+
+            except KeyError:
+                break
+
+        for index, segment in reversed(segments):
+            name_parts = split[: index + 1]
+            name = " ".join(name_parts)
+            if case_sensitive:
+                yield from ((name, c) for n, c in segment if n == name_parts)
+
+            else:
+                yield from ((name, c) for _, c in segment)
+
+    def remove(self, command: tanjun.MessageCommand[typing.Any], /) -> None:
+        """Remove a command from the index.
+
+        Parameters
+        ----------
+        command
+            The command to remove.
+
+        Raises
+        ------
+        ValueError
+            If the command is not in the index.
+        """
+        self.commands.remove(command)
+
+        if self.is_strict:
+            for name in map(str.casefold, filter(None, command.names)):
+                if (entry := self.names_to_commands.get(name)) and entry[1] == command:
+                    del self.names_to_commands[name]
+
+            # strict indexes avoid using the search tree all together.
+            return
+
+        for name in filter(None, command.names):
+            nodes: list[tuple[str, _TreeT]] = []
+            node = self.search_tree
+            for chars in name.casefold().split(" "):
+                try:
+                    node = node[chars]
+                    assert isinstance(node, dict)
+                    nodes.append((chars, node))
+
+                except KeyError:
+                    # The command is not in the index and we want to skip the "else" statement.
+                    break
+
+            else:
+                # If it didn't break out of the for chars loop then the command is in here.
+                name_parts = name.split(" ")
+                node[_IndexKeys.COMMANDS].remove((name_parts, command))  # Remove the command from the last node.
+                if not node[_IndexKeys.COMMANDS]:
+                    del node[_IndexKeys.COMMANDS]
+
+                # Otherwise, we need to remove the node from the tree.
+                for chars, node in reversed(nodes):
+                    if len(node) > 1:
+                        # If the node is not empty then we're done.
+                        continue
+
+                    parent = node.get(_IndexKeys.PARENT)
+                    if not parent:
+                        break
+
+                    assert isinstance(parent, dict)
+                    del parent[chars]

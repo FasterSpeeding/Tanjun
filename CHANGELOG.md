@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for message commands to [tanjun.annotations.TheseChannels][].
 - `allowed_types` field to [tanjun.conversion.ToChannel][] to allow narrowing the allowed channel
   types for a message command option.
+- Support for toggleable case-insensitive message command name handling.
 
 ### Fixed
 - The hot reloader will no-longer retry to reload a module being targeted through a system path

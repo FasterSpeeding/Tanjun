@@ -31,3 +31,4 @@ jobs:
           branch: task/upgrade-dev-deps
           commit-message: Upgrade dev dependencies
           title: Upgrade dev dependencies
+          token: ${{ secrets.ACTIONS_TOKEN }}

@@ -1597,7 +1597,7 @@ def test_search_user_ids():
         ("@me/1234/1234", (1234, 1234)),
     ],
 )
-def test_parse_message_id(value: typing.Union[int, str], expected: typing.Tuple[typing.Optional[int], int]):
+def test_parse_message_id(value: typing.Union[int, str], expected: tuple[typing.Optional[int], int]):
     assert tanjun.conversion.parse_message_id(value) == expected
 
 

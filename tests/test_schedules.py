@@ -1657,7 +1657,7 @@ class TestTimeSchedule:
         start: datetime.datetime,
         tick_fors: list[datetime.timedelta],
         sleep_for: datetime.timedelta,
-        expected_dates: typing.List[datetime.datetime],
+        expected_dates: list[datetime.datetime],
     ):
         # Ensure test-data integrity
         assert start < expected_dates[0], "Start must be before expected dates"

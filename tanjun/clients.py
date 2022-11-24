@@ -521,6 +521,7 @@ class Client(tanjun.Client):
         "_grab_mention_prefix",
         "_hooks",
         "_interaction_accepts",
+        "_is_case_sensitive",
         "_menu_hooks",
         "_menu_not_found",
         "_slash_hooks",
@@ -694,6 +695,7 @@ class Client(tanjun.Client):
         self._grab_mention_prefix = mention_prefix
         self._hooks: typing.Optional[tanjun.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
         self._interaction_accepts = InteractionAcceptsEnum.ALL
+        self._is_case_sensitive = True
         self._menu_hooks: typing.Optional[tanjun.MenuHooks] = None
         self._menu_not_found: typing.Optional[str] = "Command not found"
         self._slash_hooks: typing.Optional[tanjun.SlashHooks] = None
@@ -775,7 +777,6 @@ class Client(tanjun.Client):
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         _stack_level: int = 0,
     ) -> None:
-
         if set_global_commands:
             warnings.warn(
                 "The `set_global_commands` argument is deprecated since v2.1.1a1. "
@@ -1104,6 +1105,11 @@ class Client(tanjun.Client):
     def is_alive(self) -> bool:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._loop is not None
+
+    @property
+    def is_case_sensitive(self) -> bool:
+        # <<inherited docstring from tanjun.abc.Client>>.
+        return self._is_case_sensitive
 
     @property
     def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
@@ -1441,6 +1447,19 @@ class Client(tanjun.Client):
             The time in seconds to defer interaction command responses after.
         """
         self._auto_defer_after = float(time) if time is not None else None
+        return self
+
+    def set_case_sensitive(self, state: bool, /) -> Self:
+        """Set whether this client defaults to being case sensitive for message commands.
+
+        Parameters
+        ----------
+        case_sensitive
+            Whether this client's message commands should be matched case-sensitively.
+
+            This may be overridden by component specific configuration.
+        """
+        self._is_case_sensitive = state
         return self
 
     def set_default_app_command_permissions(self, permissions: typing.Union[int, hikari.Permissions], /) -> Self:
@@ -2140,10 +2159,16 @@ class Client(tanjun.Client):
 
         return itertools.chain.from_iterable(component.slash_commands for component in self.components)
 
-    def check_message_name(self, name: str, /) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
+    def check_message_name(
+        self,
+        name: str,
+        /,
+        *,
+        case_sensitive: bool = True,
+    ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(
-            component.check_message_name(name) for component in self._components.values()
+            component.check_message_name(name, case_sensitive=case_sensitive) for component in self._components.values()
         )
 
     def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun.BaseSlashCommand]:
