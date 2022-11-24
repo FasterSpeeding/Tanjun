@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.10.0a1] - 2022-11-24
 ### Added
 - Support for message commands to [tanjun.annotations.TheseChannels][].
 - `allowed_types` field to [tanjun.conversion.ToChannel][] to allow narrowing the allowed channel
@@ -20,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [with_channel_slash_option][tanjun.commands.with_channel_slash_option] and
   [SlashCommand.add_channel_option][tanjun.commands.SlashCommand.add_channel_option].
 - The spacing in `triggering_name` is now properly normalised for message commands in groups to ensure
-  only 1 space. This also fixes cases where names were being smushed together without any spaces.
+  only 1 space. This also fixes cases where names were being smashed together without any spaces.
 - The hot reloader trying to declare commands multiple times.
 - Actually set the attached component for commands within slash-command groups.
 - Process the converters to log for client misconfiguration for converters attached to commands within
@@ -766,7 +768,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for python 3.8 in-order to switch over to using collection.abc generic classes due to this being more
   forward compatible.
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.9.0a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.10.0a1...HEAD
+[2.10.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.9.0a1...v2.10.0a1
 [2.9.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.1a1...v2.9.0a1
 [2.8.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.0a1...v2.8.1a1
 [2.8.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.7.0a1...v2.8.0a1
