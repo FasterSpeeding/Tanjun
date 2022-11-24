@@ -57,7 +57,6 @@ import typing
 import unicodedata
 import warnings
 from collections import abc as collections
-from unicodedata import east_asian_width
 
 import hikari
 
