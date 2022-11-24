@@ -305,7 +305,14 @@
     Unreleased
   </a>
   
-    <nav class="md-nav" aria-label="Unreleased">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2100a1-2022-11-24" class="md-nav__link">
+    2.10.0a1 - 2022-11-24
+  </a>
+  
+    <nav class="md-nav" aria-label="2.10.0a1 - 2022-11-24">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1858,7 +1865,14 @@
     Unreleased
   </a>
   
-    <nav class="md-nav" aria-label="Unreleased">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2100a1-2022-11-24" class="md-nav__link">
+    2.10.0a1 - 2022-11-24
+  </a>
+  
+    <nav class="md-nav" aria-label="2.10.0a1 - 2022-11-24">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -3118,12 +3132,14 @@
 <p>All notable changes to this project will be documented in this file.</p>
 <p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
-<h2 id="unreleased"><a href="https://github.com/FasterSpeeding/Tanjun/compare/v2.9.0a1...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">#</a></h2>
+<h2 id="unreleased"><a href="https://github.com/FasterSpeeding/Tanjun/compare/v2.10.0a1...HEAD">Unreleased</a><a class="headerlink" href="#unreleased" title="Permanent link">#</a></h2>
+<h2 id="2100a1-2022-11-24"><a href="https://github.com/FasterSpeeding/Tanjun/compare/v2.9.0a1...v2.10.0a1">2.10.0a1</a> - 2022-11-24<a class="headerlink" href="#2100a1-2022-11-24" title="Permanent link">#</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">#</a></h3>
 <ul>
 <li>Support for message commands to <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.TheseChannels">tanjun.annotations.TheseChannels</a>.</li>
 <li><code>allowed_types</code> field to <a class="autorefs autorefs-internal" href="../reference/conversion/#tanjun.conversion.ToChannel">tanjun.conversion.ToChannel</a> to allow narrowing the allowed channel
   types for a message command option.</li>
+<li>Support for toggleable case-insensitive message command name handling.</li>
 </ul>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">#</a></h3>
 <ul>
@@ -3132,10 +3148,10 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Allow passing <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/channels.html#hikari.channels.GuildThreadChannel">hikari.GuildThreadChannel</a> derived types
   (+ <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/interactions/command_interactions.html#hikari.interactions.command_interactions.InteractionChannel">hikari.InteractionChannel</a>) to
   <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.TheseChannels">TheseChannels</a>, and to the <code>types</code> field of
-  <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.with_channel_slash_option">with_channel_slash_option</a> and
+  <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_channel_slash_option">with_channel_slash_option</a> and
   <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.SlashCommand.add_channel_option">SlashCommand.add_channel_option</a>.</li>
 <li>The spacing in <code>triggering_name</code> is now properly normalised for message commands in groups to ensure
-  only 1 space. This also fixes cases where names were being smushed together without any spaces.</li>
+  only 1 space. This also fixes cases where names were being smashed together without any spaces.</li>
 <li>The hot reloader trying to declare commands multiple times.</li>
 <li>Actually set the attached component for commands within slash-command groups.</li>
 <li>Process the converters to log for client misconfiguration for converters attached to commands within
