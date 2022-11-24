@@ -122,32 +122,6 @@ async def gather_checks(ctx: tanjun.Context, checks: collections.Iterable[tanjun
         return False
 
 
-def match_prefix_names(content: str, names: collections.Iterable[str], /) -> typing.Optional[str]:
-    """Search for a matching name in a string.
-
-    Parameters
-    ----------
-    content
-        The string to match names against.
-    names
-        The names to search for.
-
-    Returns
-    -------
-    str | None
-        The name that matched or None if no name matched.
-    """
-    for name in names:
-        # Here we enforce that a name must either be at the end of content or be followed by a space. This helps
-        # avoid issues with ambiguous naming where a command with the names "name" and "names" may sometimes hit
-        # the former before the latter when triggered with the latter, leading to the command potentially being
-        # inconsistently parsed.
-        if content == name or content.startswith(name) and content[len(name)] == " ":
-            return name
-
-    return None  # MyPy compat
-
-
 _EMPTY_BUFFER: dict[typing.Any, typing.Any] = {}
 
 
@@ -546,7 +520,7 @@ class MessageCommandIndex:
             insensitive_names = [name.casefold() for name in command.names]
             if name_conflicts := self.names_to_commands.keys() & insensitive_names:
                 raise ValueError(
-                    "Sub-command names must be (case-insensitively) unique in a strict component. "
+                    "Sub-command names must be (case-insensitively) unique in a strict collection. "
                     "The following conflicts were found " + ", ".join(name_conflicts)
                 )
 

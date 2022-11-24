@@ -443,7 +443,7 @@ class TestMessageCommandGroup:
         ...
 
     def test_add_command(self):
-        mock_command = mock.Mock()
+        mock_command = mock.Mock(names=["meow"])
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         result = command_group.add_command(mock_command)
@@ -453,7 +453,7 @@ class TestMessageCommandGroup:
         assert mock_command in command_group.commands
 
     def test_add_command_when_already_present(self):
-        mock_command = mock.Mock()
+        mock_command = mock.Mock(names=["nyaa", "echo"])
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos")
 
         result = command_group.add_command(mock_command).add_command(mock_command)
@@ -475,7 +475,7 @@ class TestMessageCommandGroup:
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
 
         with pytest.raises(
-            ValueError, match="Sub-command names may not contain spaces in a strict message command group"
+            ValueError, match="Command name cannot contain spaces for this component implementation"
         ):
             command_group.add_command(mock.Mock(names={"a space", "b"}))
 
@@ -488,8 +488,8 @@ class TestMessageCommandGroup:
 
         with pytest.raises(
             ValueError,
-            match="Sub-command names must be unique in a strict message command group. "
-            "The following conflicts were found (?:aaa, dsaasd)|(?:dsaasd, aaa)",
+            match=(r"Sub-command names must be \(case-insensitively\) unique in a strict collection. "
+            "The following conflicts were found (?:aaa, dsaasd)|(?:dsaasd, aaa)"),
         ):
             command_group.add_command(mock.Mock(names={"aaa", "dsaasd"}))
 
@@ -540,7 +540,7 @@ class TestMessageCommandGroup:
         assert result._arg_names is None
 
     def test_remove_command(self):
-        mock_command = mock.Mock()
+        mock_command = mock.Mock(names=["echo"])
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "a", "b").add_command(mock_command)
 
         result = command_group.remove_command(mock_command)
@@ -550,7 +550,7 @@ class TestMessageCommandGroup:
 
     def test_remove_command_when_strict(self):
         mock_command = mock.Mock(names={"abba", "bba", "dadaba"})
-        mock_other_command = mock.Mock(names={"dada"})
+        mock_other_command = mock.Mock(names={"me", "OwOy"})
         command_group = (
             tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "a", "b", strict=True)
             .add_command(mock_command)
@@ -561,7 +561,8 @@ class TestMessageCommandGroup:
 
         assert result is command_group
         assert mock_command not in command_group.commands
-        assert command_group._commands.commands == {"dada": mock_other_command}
+        assert command_group._commands.names_to_commands == {"me": ("me", mock_other_command), "owoy": ("OwOy", mock_other_command)}
+        assert command_group._commands.commands == [mock_other_command]
 
     def test_with_command(self):
         add_command = mock.Mock()
@@ -576,9 +577,9 @@ class TestMessageCommandGroup:
         add_command.assert_called_once_with(mock_command)
 
     def test_bind_client(self):
-        mock_command_1 = mock.Mock()
-        mock_command_2 = mock.Mock()
-        mock_command_3 = mock.Mock()
+        mock_command_1 = mock.Mock(names=["hi"])
+        mock_command_2 = mock.Mock(names=["bye"])
+        mock_command_3 = mock.Mock(names=["meow"])
         command = (
             tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "a", "b")
             .add_command(mock_command_1)
@@ -597,9 +598,9 @@ class TestMessageCommandGroup:
         mock_command_3.bind_client.assert_called_once_with(mock_client)
 
     def test_bind_component(self):
-        mock_command_1 = mock.Mock()
-        mock_command_2 = mock.Mock()
-        mock_command_3 = mock.Mock()
+        mock_command_1 = mock.Mock(names=["hi"])
+        mock_command_2 = mock.Mock(names=["bye"])
+        mock_command_3 = mock.Mock(names=["meow"])
         command = (
             tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "a", "b")
             .add_command(mock_command_1)
@@ -679,13 +680,13 @@ class TestMessageCommandGroup:
         mock_attached_hooks = mock.Mock()
         command = stub_class(
             tanjun.MessageCommandGroup[typing.Any],
-            find_command=mock.Mock(
+            args=(mock.AsyncMock(), "a", "b"),
+        ).set_hooks(mock_attached_hooks)
+        command._commands=mock.Mock(find=mock.Mock(
                 return_value=iter(
                     [("onii-chan>////<", mock_command_1), ("baka", mock_command_2), ("nope", mock_command_3)]
                 )
-            ),
-            args=(mock.AsyncMock(), "a", "b"),
-        ).set_hooks(mock_attached_hooks)
+            ))
 
         await command.execute(mock_context, hooks={typing.cast(tanjun.abc.MessageHooks, mock_hooks)})
 
@@ -710,13 +711,13 @@ class TestMessageCommandGroup:
         mock_attached_hooks = mock.Mock()
         command = stub_class(
             tanjun.MessageCommandGroup[typing.Any],
-            find_command=mock.Mock(
+            args=(mock.AsyncMock(), "a", "b"),
+        ).set_hooks(mock_attached_hooks)
+        command._commands=mock.Mock(find=mock.Mock(
                 return_value=iter(
                     [("onii-chan>////<", mock_command_1), ("baka", mock_command_2), ("nope", mock_command_3)]
                 )
-            ),
-            args=(mock.AsyncMock(), "a", "b"),
-        ).set_hooks(mock_attached_hooks)
+            ))
 
         await command.execute(mock_context)
 
@@ -740,13 +741,14 @@ class TestMessageCommandGroup:
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         command = stub_class(
             tanjun.MessageCommandGroup[typing.Any],
-            find_command=mock.Mock(
+            args=(mock.AsyncMock(), "a", "b"),
+        )
+        command._commands=mock.Mock(find=mock.Mock(
                 return_value=iter(
                     [("onii-chan>////<", mock_command_1), ("baka", mock_command_2), ("nope", mock_command_3)]
                 )
-            ),
-            args=(mock.AsyncMock(), "a", "b"),
-        )
+            ))
+
         await command.execute(mock_context)
 
         mock_context.set_content.assert_called_once_with("desu-ga hi")
@@ -769,9 +771,9 @@ class TestMessageCommandGroup:
         mock_attached_hooks = mock.Mock()
         command = stub_class(
             tanjun.MessageCommandGroup[typing.Any],
-            find_command=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)])),
             args=(mock.AsyncMock(), "a", "b"),
         ).set_hooks(mock_attached_hooks)
+        command._commands=mock.Mock(find=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)])))
 
         with mock.patch.object(tanjun.commands.MessageCommand, "execute", new=mock.AsyncMock()) as mock_execute:
             await command.execute(mock_context, hooks={typing.cast(tanjun.abc.MessageHooks, mock_hooks)})
@@ -795,9 +797,9 @@ class TestMessageCommandGroup:
         mock_attached_hooks = mock.Mock()
         command = stub_class(
             tanjun.MessageCommandGroup[typing.Any],
-            find_command=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)])),
             args=(mock.AsyncMock(), "a", "b"),
         ).set_hooks(mock_attached_hooks)
+        command._commands=mock.Mock(find=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)])))
 
         with mock.patch.object(tanjun.commands.MessageCommand, "execute", new=mock.AsyncMock()) as mock_execute:
             await command.execute(mock_context)
@@ -820,9 +822,9 @@ class TestMessageCommandGroup:
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         command = stub_class(
             tanjun.MessageCommandGroup[typing.Any],
-            find_command=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)])),
             args=(mock.AsyncMock(), "a", "b"),
         )
+        command._commands=mock.Mock(find=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)])))
 
         with mock.patch.object(tanjun.commands.MessageCommand, "execute", new=mock.AsyncMock()) as mock_execute:
             await command.execute(mock_context)

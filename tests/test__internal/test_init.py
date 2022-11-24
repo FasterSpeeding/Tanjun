@@ -97,21 +97,6 @@ async def test_gather_checks():
     )
 
 
-@pytest.mark.parametrize(
-    ("content", "prefix", "expected_result"),
-    [
-        ("no go sir", ("no", "home", "blow"), "no"),
-        ("hime", ("hi", "hime", "boomer"), "hime"),
-        ("boomer", ("boo", "boomer", "no u"), "boomer"),
-        ("ok boomer", ("no", "nani"), None),
-        ("", ("nannnnni",), None),
-        ("ok ok ok", (), None),
-    ],
-)
-def test_match_prefix_names(content: str, prefix: str, expected_result: typing.Optional[str]):
-    assert _internal.match_prefix_names(content, prefix) == expected_result
-
-
 class TestCastedView:
     def test___getitem___for_non_existant_entry(self):
         mock_cast = mock.Mock()
