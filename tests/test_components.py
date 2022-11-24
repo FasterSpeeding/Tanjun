@@ -42,8 +42,8 @@ import types
 import typing
 from unittest import mock
 
-import pytest
 import hikari
+import pytest
 
 import tanjun
 
