@@ -1,5 +1,7 @@
 # Remember to also update the vers in .pre-commit-config.yaml when changing reformat dependencies!!!
 black==22.10.0
 isort==5.10.1
+pycln==2.1.2
 sort-all==1.2.0
 yesqa==1.4.0
+-r flake8.in
