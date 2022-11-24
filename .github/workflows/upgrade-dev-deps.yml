@@ -27,6 +27,8 @@ jobs:
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
         with:
           branch: task/upgrade-dev-deps
           commit-message: Upgrade dev dependencies
