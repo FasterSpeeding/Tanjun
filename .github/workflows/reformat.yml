@@ -30,4 +30,5 @@ jobs:
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.1
-        message: "Reformat code"
+        with:
+          message: "Reformat code"
