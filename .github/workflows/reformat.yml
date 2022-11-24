@@ -1,4 +1,4 @@
-name: Run checks
+name: Reformat PR code
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -9,7 +9,7 @@ on:
     branches: [ master ]
 
 jobs:
-  lint:
+  reformat:
     runs-on: ubuntu-latest
 
     steps:
