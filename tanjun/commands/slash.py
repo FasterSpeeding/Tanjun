@@ -32,7 +32,7 @@
 """Slash command implementations."""
 from __future__ import annotations
 
-__all__: list[str] = [
+__all__ = [
     "BaseSlashCommand",
     "ConverterSig",
     "SlashCommand",
