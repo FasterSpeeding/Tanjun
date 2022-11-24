@@ -179,7 +179,7 @@ class _LoaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.updat
     def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
         self._callback(*args, **kwargs)
 
-    def load(self, client: tanjun.Client, /) -> bool:
+    def load(self, client : tanjun.Client, /) -> bool:
         if self._must_be_std:
             if not isinstance(client, Client):
                 raise ValueError("This loader requires instances of the standard Client implementation")
