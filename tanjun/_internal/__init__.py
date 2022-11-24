@@ -59,7 +59,7 @@ if typing.TYPE_CHECKING:
     _P = typing_extensions.ParamSpec("_P")
 
     _TreeT = dict[
-        typing.Union[str, "_IndexKeys"],
+          typing.Union[str, "_IndexKeys"],
         typing.Union["_TreeT", list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]],
     ]
 
