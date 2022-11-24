@@ -27,4 +27,4 @@ repos:
     rev: v1.4.0
     additional_dependencies: ["-r./dev-requirements/reformat.txt"]
     hooks:
-    -   id: yesqa
+    - id: yesqa
