@@ -35,4 +35,4 @@ jobs:
         uses: EndBug/add-and-commit@v9.1.1
         with:
           message: "Reformat code"
-          token: ${{ secrets.ACTIONS_TOKEN }}
+          github_token: ${{ secrets.ACTIONS_TOKEN }}
