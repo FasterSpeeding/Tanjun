@@ -23,3 +23,8 @@ repos:
     rev: v1.2.0
     hooks:
     - id: sort-all
+-   repo: https://github.com/asottile/yesqa
+    rev: v1.4.0
+    additional_dependencies: ["-r./dev-requirements/reformat.txt"]
+    hooks:
+    -   id: yesqa
