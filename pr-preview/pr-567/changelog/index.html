@@ -3151,11 +3151,14 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Allow passing <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/channels.html#hikari.channels.GuildThreadChannel">hikari.GuildThreadChannel</a> derived types
   (+ <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/interactions/command_interactions.html#hikari.interactions.command_interactions.InteractionChannel">hikari.InteractionChannel</a>) to
   <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.TheseChannels">TheseChannels</a>, and to the <code>types</code> field of
-  <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.with_channel_slash_option">with_channel_slash_option</a> and
+  <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_channel_slash_option">with_channel_slash_option</a> and
   <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.SlashCommand.add_channel_option">SlashCommand.add_channel_option</a>.</li>
 <li>The spacing in <code>triggering_name</code> is now properly normalised for message commands in groups to ensure
   only 1 space. This also fixes cases where names were being smushed together without any spaces.</li>
 <li>The hot reloader trying to declare commands multiple times.</li>
+<li>Actually set the attached component for commands within slash-command groups.</li>
+<li>Process the converters to log for client misconfiguration for converters attached to commands within
+  slash-command groups.</li>
 </ul>
 <h2 id="290a1-2022-11-08"><a href="https://github.com/FasterSpeeding/Tanjun/compare/v2.8.1a1...v2.9.0a1">2.9.0a1</a> - 2022-11-08<a class="headerlink" href="#290a1-2022-11-08" title="Permanent link">#</a></h2>
 <h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">#</a></h3>

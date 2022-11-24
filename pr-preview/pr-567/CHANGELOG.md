@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The spacing in `triggering_name` is now properly normalised for message commands in groups to ensure
   only 1 space. This also fixes cases where names were being smushed together without any spaces.
 - The hot reloader trying to declare commands multiple times.
+- Actually set the attached component for commands within slash-command groups.
+- Process the converters to log for client misconfiguration for converters attached to commands within
+  slash-command groups.
 
 ## [2.9.0a1] - 2022-11-08
 ### Added
