@@ -906,8 +906,12 @@ class TestComponent:
         mock_command.bind_client.assert_called_once_with(mock_client)
         mock_command.bind_component.assert_called_once_with(component)
         assert mock_command in component.message_commands
-        assert component._message_commands.names_to_commands == {"a": ("a", mock_command), "b": ("B", mock_command), "fan": ("fAn", mock_command)}
-        assert component._message_commands.commands ==  [mock_command]
+        assert component._message_commands.names_to_commands == {
+            "a": ("a", mock_command),
+            "b": ("B", mock_command),
+            "fan": ("fAn", mock_command),
+        }
+        assert component._message_commands.commands == [mock_command]
 
     def test_add_message_command_when_strict_and_space_in_a_name(self):
         component = tanjun.Component(strict=True)
@@ -960,7 +964,10 @@ class TestComponent:
         component.remove_message_command(mock_command)
 
         assert mock_command not in component.message_commands
-        assert component._message_commands.names_to_commands == {"meow": ("meow", mock_other_command), "nyaa": ("NyAa", mock_other_command)}
+        assert component._message_commands.names_to_commands == {
+            "meow": ("meow", mock_other_command),
+            "nyaa": ("NyAa", mock_other_command),
+        }
         assert component._message_commands.commands == [mock_other_command]
 
     def test_with_message_command(self):
