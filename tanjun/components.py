@@ -425,7 +425,7 @@ class Component(tanjun.Component):
 
         Parameters
         ----------
-        case_sensitive
+        state
             Whether this component's message commands should be matched
             case-sensitively.
 
