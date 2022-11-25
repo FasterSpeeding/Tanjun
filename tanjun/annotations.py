@@ -140,7 +140,18 @@ Bool = typing.Annotated[bool, _OptionMarker(bool)]
 """An argument which takes a bool-like value."""
 
 Channel = typing.Annotated[hikari.PartialChannel, _OptionMarker(hikari.PartialChannel)]
-"""An argument which takes a channel."""
+"""An argument which takes a channel.
+
+[hikari.InteractionChannel][hikari.interactions.command_interactions.InteractionChannel]
+will be passed for options typed as this when being called as a slash command.
+"""
+
+InteractionChannel = typing.Annotated[hikari.InteractionChannel, _OptionMarker(hikari.InteractionChannel)]
+"""An argument which takes a channel with interaction specific metadata.
+
+This will not work for message commands (unlike
+[annotations.Channel][tanjun.annotations.Channel]).
+"""
 
 Float = typing.Annotated[float, _OptionMarker(float)]
 """An argument which takes a floating point number."""
@@ -148,8 +159,20 @@ Float = typing.Annotated[float, _OptionMarker(float)]
 Int = typing.Annotated[int, _OptionMarker(int)]
 """An argument which takes an integer."""
 
+
 Member = typing.Annotated[hikari.Member, _OptionMarker(hikari.Member)]
-"""An argument which takes a guild member."""
+"""An argument which takes a guild member.
+
+[hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember]
+will be passed for options typed as this when being called as a slash command.
+"""
+
+InteractionMember = typing.Annotated[hikari.InteractionMember, _OptionMarker(hikari.InteractionMember)]
+"""An argument which takes a guild member with interaction specific metadata.
+
+This will not work for message commands (unlike
+[annotations.Member][tanjun.annotations.Member]).
+"""
 
 Mentionable = typing.Annotated[typing.Union[hikari.User, hikari.Role], _OptionMarker(_MentionableUnion)]
 """An argument which takes a user or role."""
@@ -1055,9 +1078,11 @@ _OPTION_TYPE_TO_CONVERTERS: dict[typing.Any, tuple[collections.Callable[..., typ
     hikari.Attachment: NotImplemented,  # This isn't supported for message commands right now.
     bool: (conversion.to_bool,),
     hikari.PartialChannel: NotImplemented,  # This is special-cased down the line.
+    hikari.InteractionChannel: NotImplemented,  # This isn't supported for message commands.
     float: (float,),
     int: (int,),
     hikari.Member: (conversion.to_member,),
+    hikari.InteractionMember: NotImplemented,  # This isn't supported for message commands.
     _MentionableUnion: (conversion.to_user, conversion.to_role),
     hikari.Role: (conversion.to_role,),
     str: (),
@@ -1081,37 +1106,37 @@ class _ArgConfig:
         "empty_value",
         "is_greedy",
         "is_positional",
-        "key",
         "min_length",
         "max_length",
         "min_value",
         "max_value",
         "message_name",
         "option_type",
+        "parameter",
         "range_or_slice",
         "slash_name",
         "snowflake_converter",
     )
 
-    def __init__(self, key: str, default: typing.Any, /) -> None:
+    def __init__(self, parameter: inspect.Parameter, /) -> None:
         self.aliases: typing.Optional[collections.Sequence[str]] = None
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
         self.converters: typing.Optional[collections.Sequence[parsing.ConverterSig[typing.Any]]] = None
-        self.default: typing.Any = default
+        self.default: typing.Any = parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
         self.description: typing.Optional[str] = None
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
         self.is_greedy: bool = False
         self.is_positional: typing.Optional[bool] = None
-        self.key: str = key
         self.min_length: typing.Optional[int] = None
         self.max_length: typing.Optional[int] = None
         self.min_value: typing.Union[float, int, None] = None
         self.max_value: typing.Union[float, int, None] = None
-        self.message_name: str = "--" + key.replace("_", "-")
+        self.message_name: str = "--" + parameter.name.replace("_", "-")
         self.option_type: typing.Optional[type[typing.Any]] = None
+        self.parameter = parameter
         self.range_or_slice: typing.Union[range, slice, None] = None
-        self.slash_name: str = key
+        self.slash_name: str = parameter.name
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
 
     def finalise_slice(self) -> None:
@@ -1150,6 +1175,11 @@ class _ArgConfig:
                 converters = (conversion.ToChannel(allowed_types=self.channel_types),)
 
             else:
+                if self.parameter.default is self.parameter.empty:
+                    raise RuntimeError(f"{self.option_type!r} is not supported for message commands")
+
+                # If there is a real default then this should just be left to always default
+                # for better interoperability.
                 return
 
         else:
@@ -1167,7 +1197,7 @@ class _ArgConfig:
 
         if self.is_positional or (self.is_positional is None and self.default is parsing.UNDEFINED):
             parser.add_argument(
-                self.key,
+                self.parameter.name,
                 converters=converters,
                 default=self.default,
                 greedy=self.is_greedy,
@@ -1179,10 +1209,10 @@ class _ArgConfig:
 
         else:
             if self.default is parsing.UNDEFINED:
-                raise ValueError(f"Flag argument {self.key!r} must have a default")
+                raise ValueError(f"Flag argument {self.parameter.name!r} must have a default")
 
             parser.add_option(
-                self.key,
+                self.parameter.name,
                 self.message_name,
                 *self.aliases or (),
                 converters=converters,
@@ -1204,7 +1234,7 @@ class _ArgConfig:
 
         if option_type:
             if not self.description:
-                raise ValueError(f"Missing description for argument {self.key!r}")
+                raise ValueError(f"Missing description for argument {self.parameter.name!r}")
 
             self.SLASH_OPTION_ADDER[option_type](self, command, self.description)
 
@@ -1213,11 +1243,13 @@ class _ArgConfig:
         collections.Callable[[_ArgConfig, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]],
     ] = {
         hikari.Attachment: lambda self, c, d: c.add_attachment_option(
-            self.slash_name, d, default=self._slash_default(), key=self.key
+            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
         ),
-        bool: lambda self, c, d: c.add_bool_option(self.slash_name, d, default=self._slash_default(), key=self.key),
+        bool: lambda self, c, d: c.add_bool_option(
+            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
+        ),
         hikari.PartialChannel: lambda self, c, d: c.add_channel_option(
-            self.slash_name, d, default=self._slash_default(), key=self.key, types=self.channel_types
+            self.slash_name, d, default=self._slash_default(), key=self.parameter.name, types=self.channel_types
         ),
         float: lambda self, c, d: c.add_float_option(
             self.slash_name,
@@ -1225,7 +1257,7 @@ class _ArgConfig:
             choices=_ensure_values("choice", float, self.choices),  # TODO: can we pass ints here as well?
             converters=self.converters or (),
             default=self._slash_default(),
-            key=self.key,
+            key=self.parameter.name,
             min_value=self.min_value,  # TODO: explicitly cast to float?
             max_value=self.max_value,
         ),
@@ -1235,18 +1267,18 @@ class _ArgConfig:
             choices=_ensure_values("choice", int, self.choices),
             converters=self.converters or (),
             default=self._slash_default(),
-            key=self.key,
+            key=self.parameter.name,
             min_value=_ensure_value("min", int, self.min_value),
             max_value=_ensure_value("max", int, self.max_value),
         ),
         hikari.Member: lambda self, c, d: c.add_member_option(
-            self.slash_name, d, default=self._slash_default(), key=self.key
+            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
         ),
         _MentionableUnion: lambda self, c, d: c.add_mentionable_option(
-            self.slash_name, d, default=self._slash_default(), key=self.key
+            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
         ),
         hikari.Role: lambda self, c, d: c.add_role_option(
-            self.slash_name, d, default=self._slash_default(), key=self.key
+            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
         ),
         str: lambda self, c, d: c.add_str_option(
             self.slash_name,
@@ -1254,14 +1286,17 @@ class _ArgConfig:
             choices=_ensure_values("choice", str, self.choices),
             converters=self.converters or (),
             default=self._slash_default(),
-            key=self.key,
+            key=self.parameter.name,
             min_length=self.min_length,
             max_length=self.max_length,
         ),
         hikari.User: lambda self, c, d: c.add_user_option(
-            self.slash_name, d, default=self._slash_default(), key=self.key
+            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
         ),
     }
+
+    SLASH_OPTION_ADDER[hikari.InteractionChannel] = SLASH_OPTION_ADDER[hikari.PartialChannel]
+    SLASH_OPTION_ADDER[hikari.InteractionMember] = SLASH_OPTION_ADDER[hikari.Member]
 
 
 def _snoop_annotation_args(type_: typing.Any) -> collections.Iterator[typing.Any]:
@@ -1302,9 +1337,7 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
         if parameter.annotation is parameter.empty:
             continue
 
-        arg_config = _ArgConfig(
-            parameter.name, parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
-        )
+        arg_config = _ArgConfig(parameter)
         for arg in _snoop_annotation_args(parameter.annotation):
             if isinstance(arg, _ConfigIdentifier):
                 arg.set_config(arg_config)
