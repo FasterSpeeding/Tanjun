@@ -1129,7 +1129,7 @@ class _ArgConfig:
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
         self.converters: typing.Optional[collections.Sequence[parsing.ConverterSig[typing.Any]]] = None
         self.default: typing.Any = parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
-        self.description: typing.Optional[str] = None
+        self.description: typing.Optional[str] = description
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
         self.is_greedy: bool = False
         self.is_positional: typing.Optional[bool] = None
@@ -1315,13 +1315,43 @@ def _snoop_annotation_args(type_: typing.Any) -> collections.Iterator[typing.Any
         yield from itertools.chain.from_iterable(map(_snoop_annotation_args, typing.get_args(type_)))
 
 
-def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False) -> _CommandUnionT:
+def parse_annotated_args(
+    command: _CommandUnionT,
+    /,
+    *,
+    descriptions: typing.Optional[typing.Mapping[str, str]] = None,
+    follow_wrapped: bool = False,
+) -> _CommandUnionT:
+    """Set a command's arguments based on its signature.
+
+    For more information on how this works see [][tanjun.annotations.with_annotated_args]
+    which acts as the decorator equivalent of this. The only difference is
+    function allows passing a mapping of argument descriptions.
+
+    Parameters
+    ----------
+    command : tanjun.SlashCommand | tanjun.MessageCommand
+        The message or slash command to set the arguments for.
+    descriptions
+        Mapping of descriptions to use for this command's slash command options.
+
+        If an option isn't included here then the
+    follow_wrapped
+        Whether this should also set the arguments on any other command objects
+        this wraps in a decorator call chain.
+
+    Returns
+    -------
+    tanjun.SlashCommand | tanjun.MessageCommand
+        The command object to enable using this as a decorator.
+    """
     try:
         signature = inspect.signature(command.callback, eval_str=True)
     except ValueError:  # If we can't inspect it then we have to assume this is a NO
         # As a note, this fails on some "signature-less" builtin functions/types like str.
         return command
 
+    descriptions = descriptions or {}
     message_commands: list[message.MessageCommand[typing.Any]] = []
     slash_commands: list[slash.SlashCommand[typing.Any]] = []
 
@@ -1347,7 +1377,7 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
             if isinstance(arg, _ConfigIdentifier):
                 arg.set_config(arg_config)
 
-            elif isinstance(arg, str):
+            elif isinstance(arg, str) and not arg_config.description:
                 arg_config.description = arg
 
             elif isinstance(arg, (range, slice)):
@@ -1476,6 +1506,6 @@ def with_annotated_args(
         The command object to enable using this as a decorator.
     """
     if not command:
-        return lambda c: _annotated_args(c, follow_wrapped=follow_wrapped)
+        return lambda c: parse_annotated_args(c, follow_wrapped=follow_wrapped)
 
-    return _annotated_args(command, follow_wrapped=follow_wrapped)
+    return parse_annotated_args(command, follow_wrapped=follow_wrapped)
