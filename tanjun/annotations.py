@@ -1123,7 +1123,7 @@ class _ArgConfig:
         "snowflake_converter",
     )
 
-    def __init__(self, parameter: inspect.Parameter, /) -> None:
+    def __init__(self, parameter: inspect.Parameter, /, *, description: typing.Optional[str]) -> None:
         self.aliases: typing.Optional[collections.Sequence[str]] = None
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
@@ -1316,12 +1316,12 @@ def _snoop_annotation_args(type_: typing.Any) -> collections.Iterator[typing.Any
 
 
 def parse_annotated_args(
-    command: _CommandUnionT,
+    command: typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]],
     /,
     *,
     descriptions: typing.Optional[typing.Mapping[str, str]] = None,
     follow_wrapped: bool = False,
-) -> _CommandUnionT:
+) -> None:
     """Set a command's arguments based on its signature.
 
     For more information on how this works see [][tanjun.annotations.with_annotated_args]
@@ -1330,7 +1330,7 @@ def parse_annotated_args(
 
     Parameters
     ----------
-    command : tanjun.SlashCommand | tanjun.MessageCommand
+    command
         The message or slash command to set the arguments for.
     descriptions
         Mapping of descriptions to use for this command's slash command options.
@@ -1339,17 +1339,12 @@ def parse_annotated_args(
     follow_wrapped
         Whether this should also set the arguments on any other command objects
         this wraps in a decorator call chain.
-
-    Returns
-    -------
-    tanjun.SlashCommand | tanjun.MessageCommand
-        The command object to enable using this as a decorator.
     """
     try:
         signature = inspect.signature(command.callback, eval_str=True)
     except ValueError:  # If we can't inspect it then we have to assume this is a NO
         # As a note, this fails on some "signature-less" builtin functions/types like str.
-        return command
+        return
 
     descriptions = descriptions or {}
     message_commands: list[message.MessageCommand[typing.Any]] = []
@@ -1372,7 +1367,7 @@ def parse_annotated_args(
         if parameter.annotation is parameter.empty:
             continue
 
-        arg_config = _ArgConfig(parameter)
+        arg_config = _ArgConfig(parameter, description=descriptions.get(parameter.name))
         for arg in _snoop_annotation_args(parameter.annotation):
             if isinstance(arg, _ConfigIdentifier):
                 arg.set_config(arg_config)
@@ -1391,7 +1386,7 @@ def parse_annotated_args(
             for message_command in message_commands:
                 arg_config.to_message_option(message_command)
 
-    return command
+    return
 
 
 @typing.overload
@@ -1506,6 +1501,12 @@ def with_annotated_args(
         The command object to enable using this as a decorator.
     """
     if not command:
-        return lambda c: parse_annotated_args(c, follow_wrapped=follow_wrapped)
 
-    return parse_annotated_args(command, follow_wrapped=follow_wrapped)
+        def decorator(command: _CommandUnionT, /) -> _CommandUnionT:
+            parse_annotated_args(command, follow_wrapped=follow_wrapped)
+            return command
+
+        return decorator
+
+    parse_annotated_args(command, follow_wrapped=follow_wrapped)
+    return command
