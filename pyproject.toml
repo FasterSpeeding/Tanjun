@@ -43,7 +43,7 @@ name = "tanjun"
 line-length = 120
 target-version = ["py39"]
 include = ".*pyi?$"
-extend-exclude = ["^/tanjun/_internal/vendor/.*"]
+extend-exclude = "^\\/tanjun\\/_internal\\/vendor\\/.*$"
 skip-magic-trailing-comma = true
 
 [tool.coverage.run]

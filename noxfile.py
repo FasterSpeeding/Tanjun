@@ -53,6 +53,17 @@ def _dev_dep(*values: str) -> collections.Iterator[str]:
     return itertools.chain.from_iterable(("-r", str(_DEV_DEP_DIR / f"{value}.txt")) for value in values)
 
 
+def _tracked_files(
+    session: nox.Session, *, ignore_vendor: bool = False
+) -> collections.Iterable[str]:
+    if ignore_vendor:
+        return (path for path in _tracked_files(session) if "tanjun/_internal/vendor/" not in path)
+
+    output = session.run("git", "ls-files", external=True, log=False, silent=True)
+    assert isinstance(output, str)
+    return output.splitlines()
+
+
 def install_requirements(session: nox.Session, *requirements: str, first_call: bool = True) -> None:
     # --no-install --no-venv leads to it trying to install in the global venv
     # as --no-install only skips "reused" venvs and global is not considered reused.
@@ -134,7 +145,8 @@ def generate_docs(session: nox.Session) -> None:
 def flake8(session: nox.Session) -> None:
     """Run this project's modules against the pre-defined flake8 linters."""
     install_requirements(session, *_dev_dep("flake8"))
-    session.run("pflake8", *GENERAL_TARGETS)
+    session.log("Running flake8")
+    session.run("pflake8", *GENERAL_TARGETS, log=False)
 
 
 @nox.session(reuse_venv=True, name="slot-check")
@@ -148,21 +160,9 @@ def slot_check(session: nox.Session) -> None:
 def spell_check(session: nox.Session) -> None:
     """Check this project's text-like files for common spelling mistakes."""
     install_requirements(session, *_dev_dep("lint"))
+    session.log("Running codespell")
     session.run(
-        "codespell",
-        *GENERAL_TARGETS,
-        ".gitattributes",
-        ".gitignore",
-        "LICENSE",
-        "pyproject.toml",
-        "CHANGELOG.md",
-        "CODE_OF_CONDUCT.md",
-        "CONTRIBUTING.md",
-        "README.md",
-        "./github",
-        "./docs",
-        "--ignore-regex",
-        "TimeSchedule|Nd",
+        "codespell", *_tracked_files(session, ignore_vendor=True), "--ignore-regex", "TimeSchedule|Nd", log=False
     )
 
 
@@ -192,11 +192,21 @@ def test_publish(session: nox.Session) -> None:
 def reformat(session: nox.Session) -> None:
     """Reformat this project's modules to fit the standard style."""
     install_requirements(session, *_dev_dep("reformat"))
-    session.run("black", *GENERAL_TARGETS, "--extend-exclude", "^/tanjun/_internal/vendor/.*$")
-    session.run("isort", *GENERAL_TARGETS)
+    session.run("black", "./tanjun", "./tests")
+    session.run("isort", "./tanjun", "./tests")
     session.run("pycln", "tanjun", "tests", "noxfile.py")
-    py_files = [str(path) for path in pathlib.Path("./tanjun/").glob("**/*.py")]
-    session.run("sort-all", *py_files, success_codes=[0, 1])
+
+    tracked_files = list(_tracked_files(session, ignore_vendor=True))
+    py_files = [path for path in tracked_files if re.fullmatch(r"^tanjun\/.+.pyi?$", path)]
+
+    session.log("Running sort-all")
+    session.run("sort-all", *py_files, success_codes=[0, 1], log=False)
+
+    session.log("Running pre_commit_hooks.end_of_file_fixer")
+    session.run("python", "-m", "pre_commit_hooks.end_of_file_fixer", *tracked_files, log=False)
+
+    session.log("Running pre_commit_hooks.trailing_whitespace")
+    session.run("python", "-m", "pre_commit_hooks.trailing_whitespace", *tracked_files, log=False)
 
 
 @nox.session(reuse_venv=True)
