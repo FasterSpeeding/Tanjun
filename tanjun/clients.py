@@ -1454,7 +1454,7 @@ class Client(tanjun.Client):
 
         Parameters
         ----------
-        case_sensitive
+        state
             Whether this client's message commands should be matched case-sensitively.
 
             This may be overridden by component specific configuration.
