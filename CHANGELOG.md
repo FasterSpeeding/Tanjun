@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only 1 space. This also fixes cases where names were being smashed together without any spaces.
 - The hot reloader trying to declare commands multiple times.
 - Actually set the attached component for commands within slash-command groups.
-- Process converters attached to commands within slash-command groups  to log for client
+- Process converters attached to commands within slash-command groups to log for client
   misconfiguration.
 
 ## [2.9.0a1] - 2022-11-08
