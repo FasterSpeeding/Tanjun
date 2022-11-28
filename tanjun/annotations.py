@@ -694,7 +694,7 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
         raise NotImplementedError
     ```
 
-    The option's type will be inferred from the passed value when using
+    The option's type is inferred from the passed value when using
     [Max][tanjun.annotations.Max] as a generic type hint (e.g. `Max[18]`).
     """
 
@@ -743,7 +743,7 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
         raise NotImplementedError
     ```
 
-    The option's type is be inferred from the passed value when using
+    The option's type is inferred from the passed value when using
     [Min][tanjun.annotations.Min] as a generic type hint (e.g. `Min[69.4]`).
     """
 
