@@ -1335,7 +1335,8 @@ def parse_annotated_args(
     descriptions
         Mapping of descriptions to use for this command's slash command options.
 
-        If an option isn't included here then the
+        If an option isn't included here then this will default back to getting
+        the description from its annotation.
     follow_wrapped
         Whether this should also set the arguments on any other command objects
         this wraps in a decorator call chain.
