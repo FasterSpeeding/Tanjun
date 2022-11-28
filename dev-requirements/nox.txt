@@ -12,14 +12,12 @@ distlib==0.3.6
     # via virtualenv
 filelock==3.8.0
     # via virtualenv
-nox==2022.8.7
+nox==2022.11.21
     # via -r dev-requirements/nox.in
 packaging==21.3
     # via nox
 platformdirs==2.5.4
     # via virtualenv
-py==1.11.0
-    # via nox
 pyparsing==3.0.9
     # via packaging
 virtualenv==20.16.7
