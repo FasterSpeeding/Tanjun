@@ -40,7 +40,7 @@ flake8==5.0.4
     #   yesqa
 flake8-bandit==4.1.1
     # via -r dev-requirements/flake8.in
-flake8-black==0.3.3
+flake8-black==0.3.5
     # via -r dev-requirements/flake8.in
 flake8-broken-line==0.6.0
     # via -r dev-requirements/flake8.in
@@ -52,7 +52,7 @@ flake8-comprehensions==3.10.1
     # via -r dev-requirements/flake8.in
 flake8-deprecated==2.0.1
     # via -r dev-requirements/flake8.in
-flake8-docstrings==1.6.0
+flake8-docstrings==1.6
     # via -r dev-requirements/flake8.in
 flake8-executable==2.1.2
     # via -r dev-requirements/flake8.in
@@ -66,7 +66,7 @@ flake8-if-statements==1.0.0
     # via -r dev-requirements/flake8.in
 flake8-isort==5.0.0
     # via -r dev-requirements/flake8.in
-flake8-mutable==1.2.0
+flake8-mutable==1.2
     # via -r dev-requirements/flake8.in
 flake8-pep3101==2.0.0
     # via -r dev-requirements/flake8.in
@@ -146,17 +146,13 @@ tokenize-rt==5.0.0
     #   sort-all
     #   yesqa
 tomli==2.0.1
-    # via
-    #   black
-    #   flake8-black
-    #   pyproject-flake8
+    # via flake8-black
 tomlkit==0.11.6
     # via pycln
 typer==0.7.0
     # via pycln
 typing-extensions==4.4.0
     # via
-    #   black
     #   libcst
     #   typing-inspect
 typing-inspect==0.8.0
