@@ -450,6 +450,20 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tanjun.annotations.InteractionChannel" class="md-nav__link">
+    InteractionChannel
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.annotations.InteractionMember" class="md-nav__link">
+    InteractionMember
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tanjun.annotations.Member" class="md-nav__link">
     Member
   </a>
@@ -1151,6 +1165,20 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tanjun.annotations.InteractionChannel" class="md-nav__link">
+    InteractionChannel
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tanjun.annotations.InteractionMember" class="md-nav__link">
+    InteractionMember
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tanjun.annotations.Member" class="md-nav__link">
     Member
   </a>
@@ -1675,6 +1703,8 @@
   <div class="doc doc-contents ">
   
       <p>An argument which takes a channel.</p>
+<p><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/interactions/command_interactions.html#hikari.interactions.command_interactions.InteractionChannel">hikari.InteractionChannel</a>
+will be passed for options typed as this when being called as a slash command.</p>
   </div>
 
 </div>
@@ -1798,6 +1828,62 @@
 
 
 
+<h2 id="tanjun.annotations.InteractionChannel" class="doc doc-heading">
+        <span class="doc doc-object-name doc-attribute-name">InteractionChannel</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#tanjun.annotations.InteractionChannel" class="headerlink" title="Permanent link">#</a></h2>
+<div class="highlight"><pre><span></span><code><span class="n">InteractionChannel</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">,</span> <span class="n">_OptionMarker</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionChannel</span><span class="p">)]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>An argument which takes a channel with interaction specific metadata.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This is only supported for slash commands and will not work for message
+commands (unlike <a class="autorefs autorefs-internal" href="#tanjun.annotations.Channel">annotations.Channel</a>).</p>
+</div>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="tanjun.annotations.InteractionMember" class="doc doc-heading">
+        <span class="doc doc-object-name doc-attribute-name">InteractionMember</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#tanjun.annotations.InteractionMember" class="headerlink" title="Permanent link">#</a></h2>
+<div class="highlight"><pre><span></span><code><span class="n">InteractionMember</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">,</span> <span class="n">_OptionMarker</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">InteractionMember</span><span class="p">)]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>An argument which takes a guild member with interaction specific metadata.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This is only supported for slash commands and will not work for message
+commands (unlike <a class="autorefs autorefs-internal" href="#tanjun.annotations.Member">annotations.Member</a>).</p>
+</div>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h2 id="tanjun.annotations.Member" class="doc doc-heading">
         <span class="doc doc-object-name doc-attribute-name">Member</span>
 
@@ -1813,6 +1899,8 @@
   <div class="doc doc-contents ">
   
       <p>An argument which takes a guild member.</p>
+<p><a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/interactions/base_interactions.html#hikari.interactions.base_interactions.InteractionMember">hikari.InteractionMember</a>
+will be passed for options typed as this when being called as a slash command.</p>
   </div>
 
 </div>
@@ -2099,7 +2187,7 @@ of <code>tuple[name, value]</code> or a sequence of choice values.</p>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;beep&quot;</span><span class="p">,</span> <span class="s2">&quot;boop&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-    <span class="n">argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">other_callback</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
+    <span class="n">argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">OtherType</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">other_callback</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
     <span class="n">other_argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Converted</span><span class="p">[</span><span class="n">callback</span><span class="p">,</span> <span class="n">other_callback</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -2824,7 +2912,7 @@ length.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>The option's type will be inferred from the passed value when using
+<p>The option's type is inferred from the passed value when using
 <a class="autorefs autorefs-internal" href="#tanjun.annotations.Max">Max</a> as a generic type hint (e.g. <code>Max[18]</code>).</p>
 
 
@@ -2944,7 +3032,7 @@ length.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>The option's type is be inferred from the passed value when using
+<p>The option's type is inferred from the passed value when using
 <a class="autorefs autorefs-internal" href="#tanjun.annotations.Min">Min</a> as a generic type hint (e.g. <code>Min[69.4]</code>).</p>
 
 
@@ -3503,8 +3591,7 @@ object each time for the following types:</p>
     <span class="n">user</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">User</span><span class="p">,</span> <span class="n">SnowflakeOr</span><span class="p">(</span><span class="n">parse_id</span><span class="o">=</span><span class="n">parse_user_id</span><span class="p">),</span> <span class="s2">&quot;The user to target.&quot;</span><span class="p">],</span>
 
     <span class="c1"># The `parse_id` callback is automatically set to the mention format for</span>
-    <span class="c1"># the specified for the passed type if applicable when using SnowflakeOr</span>
-    <span class="c1"># as a generic type-hint.</span>
+    <span class="c1"># the passed type if applicable when using SnowflakeOr as a generic type-hint.</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">SnowflakeOr</span><span class="p">[</span><span class="n">Role</span><span class="p">]],</span> <span class="s2">&quot;The role to target.&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">user_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
@@ -3830,19 +3917,24 @@ this wraps in a decorator call chain.</p>
 <p>Using any of the following types as an argument's type-hint (this may be
     as the first argument to <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#typing.Annotated">typing.Annotated</a>) will mark it as injected:</p>
 <ul>
+<li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Attachment">tanjun.annotations.Attachment</a>*</li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Bool">tanjun.annotations.Bool</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Channel">tanjun.annotations.Channel</a></li>
+<li><a class="autorefs autorefs-internal" href="#tanjun.annotations.InteractionChannel">tanjun.annotations.InteractionChannel</a>*</li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Color">tanjun.annotations.Color</a>/<a class="autorefs autorefs-internal" href="#tanjun.annotations.Colour">tanjun.annotations.Colour</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Datetime">tanjun.annotations.Datetime</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Float">tanjun.annotations.Float</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Int">tanjun.annotations.Int</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Member">tanjun.annotations.Member</a></li>
+<li><a class="autorefs autorefs-internal" href="#tanjun.annotations.InteractionMember">tanjun.annotations.InteractionMember</a>*</li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Mentionable">tanjun.annotations.Mentionable</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Role">tanjun.annotations.Role</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Snowflake">tanjun.annotations.Snowflake</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Str">tanjun.annotations.Str</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.User">tanjun.annotations.User</a></li>
 </ul>
+<p>* These types are specific to slash commands and will raise an exception
+    when set for a message command's parameter with no real default.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
