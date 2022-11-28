@@ -52,6 +52,8 @@ __all__: list[str] = [
     "Float",
     "Greedy",
     "Int",
+    "InteractionChannel",
+    "InteractionMember",
     "Length",
     "Max",
     "Member",
