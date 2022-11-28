@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- The slash command specific [tanjun.annotations.InteractionChannel][] and
+  [tanjun.annotations.InteractionMember][] types for annotation parsing.
+
+### Changed
+- [tanjun.annotations.with_annotated_args][] will now raise if a slash command-specific type is
+  used for a required message command parameter.
 
 ## [2.10.0a1] - 2022-11-24
 ### Added
