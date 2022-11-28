@@ -162,7 +162,6 @@ Float = typing.Annotated[float, _OptionMarker(float)]
 Int = typing.Annotated[int, _OptionMarker(int)]
 """An argument which takes an integer."""
 
-
 Member = typing.Annotated[hikari.Member, _OptionMarker(hikari.Member)]
 """An argument which takes a guild member.
 
