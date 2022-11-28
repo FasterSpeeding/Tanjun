@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- The slash command specific [tanjun.annotations.InteractionChannel][] and
+- Slash command specific [tanjun.annotations.InteractionChannel][] and
   [tanjun.annotations.InteractionMember][] types for annotation parsing.
 
 ### Changed
