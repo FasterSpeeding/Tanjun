@@ -75,8 +75,6 @@ import abc
 import enum
 import itertools
 import operator
-import sys
-import types
 import typing
 import warnings
 from collections import abc as collections
@@ -92,12 +90,6 @@ from .commands import slash
 
 if typing.TYPE_CHECKING:
     from typing_extensions import Self
-
-if sys.version_info >= (3, 10):
-    _UnionTypes = frozenset((typing.Union, types.UnionType))
-
-else:
-    _UnionTypes = frozenset((typing.Union,))
 
 _T = typing.TypeVar("_T")
 _ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
@@ -1311,7 +1303,7 @@ def _snoop_annotation_args(type_: typing.Any) -> collections.Iterator[typing.Any
         yield from _snoop_annotation_args(args[0])
         yield from args[1:]
 
-    elif origin in _UnionTypes:
+    elif origin in _internal.UnionTypes:
         yield from itertools.chain.from_iterable(map(_snoop_annotation_args, typing.get_args(type_)))
 
 

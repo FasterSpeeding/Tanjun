@@ -72,10 +72,10 @@ _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
 _LOGGER = logging.getLogger("hikari.tanjun")
 
 if sys.version_info >= (3, 10):
-    _UnionTypes = frozenset((typing.Union, types.UnionType))
+    UnionTypes = frozenset((typing.Union, types.UnionType))
 
 else:
-    _UnionTypes = frozenset((typing.Union,))
+    UnionTypes = frozenset((typing.Union,))
 
 
 class _NoDefaultEnum(enum.Enum):
@@ -200,7 +200,7 @@ _POSITIONAL_TYPES = {
 
 def _snoop_types(type_: typing.Any, /) -> collections.Iterator[typing.Any]:
     origin = typing.get_origin(type_)
-    if origin in _UnionTypes:
+    if origin in UnionTypes:
         yield from itertools.chain.from_iterable(map(_snoop_types, typing.get_args(type_)))
 
     elif origin is typing.Annotated:
