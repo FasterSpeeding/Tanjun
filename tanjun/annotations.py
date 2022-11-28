@@ -152,8 +152,9 @@ will be passed for options typed as this when being called as a slash command.
 InteractionChannel = typing.Annotated[hikari.InteractionChannel, _OptionMarker(hikari.InteractionChannel)]
 """An argument which takes a channel with interaction specific metadata.
 
-This will not work for message commands (unlike
-[annotations.Channel][tanjun.annotations.Channel]).
+!!! warning
+    This is only supported for slash commands and will not work for message
+    commands (unlike [annotations.Channel][tanjun.annotations.Channel]).
 """
 
 Float = typing.Annotated[float, _OptionMarker(float)]
@@ -172,8 +173,9 @@ will be passed for options typed as this when being called as a slash command.
 InteractionMember = typing.Annotated[hikari.InteractionMember, _OptionMarker(hikari.InteractionMember)]
 """An argument which takes a guild member with interaction specific metadata.
 
-This will not work for message commands (unlike
-[annotations.Member][tanjun.annotations.Member]).
+!!! warning
+    This is only supported for slash commands and will not work for message
+    commands (unlike [annotations.Member][tanjun.annotations.Member]).
 """
 
 Mentionable = typing.Annotated[typing.Union[hikari.User, hikari.Role], _OptionMarker(_MentionableUnion)]
