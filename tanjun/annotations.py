@@ -1179,10 +1179,10 @@ class _ArgConfig:
             elif self.option_type is hikari.PartialChannel:
                 converters = (conversion.ToChannel(allowed_types=self.channel_types),)
 
-            else:
-                if self.parameter.default is self.parameter.empty:
-                    raise RuntimeError(f"{self.option_type!r} is not supported for message commands")
+            elif self.parameter.default is self.parameter.empty:
+                raise RuntimeError(f"{self.option_type!r} is not supported for message commands")
 
+            else:
                 # If there is a real default then this should just be left to always default
                 # for better interoperability.
                 return
@@ -1212,10 +1212,10 @@ class _ArgConfig:
                 max_value=self.max_value,
             )
 
-        else:
-            if self.default is parsing.UNDEFINED:
-                raise ValueError(f"Flag argument {self.parameter.name!r} must have a default")
+        elif self.default is parsing.UNDEFINED:
+            raise ValueError(f"Flag argument {self.parameter.name!r} must have a default")
 
+        else:
             parser.add_option(
                 self.parameter.name,
                 self.message_name,
