@@ -3796,6 +3796,102 @@ def test_for_channel_option():
     assert tracked_option.type is hikari.OptionType.CHANNEL
 
 
+def test_for_interaction_channel_option():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("meow", "nom")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: typing.Annotated[annotations.InteractionChannel, "yeet"],
+        arg_2: typing.Annotated[typing.Union[annotations.InteractionChannel, str], "feet"] = "ok",
+    ) -> None:
+        ...
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.CHANNEL,
+            name="arg",
+            channel_types=None,
+            description="yeet",
+            is_required=True,
+            min_value=None,
+            max_value=None,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.CHANNEL,
+            name="arg_2",
+            channel_types=None,
+            description="feet",
+            is_required=False,
+            min_value=None,
+            max_value=None,
+        ),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["arg"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "arg"
+    assert tracked_option.name == "arg"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
+
+    tracked_option = command._tracked_options["arg_2"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == "ok"
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "arg_2"
+    assert tracked_option.name == "arg_2"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
+
+
+def test_for_interaction_channel_option_on_message_command():
+    @tanjun.as_message_command("command")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: annotations.InteractionChannel,
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "<class 'hikari.interactions.command_interactions.InteractionChannel'> "
+            "is not supported for message commands"
+        ),
+    ):
+        annotations.with_annotated_args(follow_wrapped=True)(command)
+
+
+def test_for_interaction_channel_option_on_message_command_with_default():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("command")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: typing.Optional[annotations.InteractionChannel] = None,
+    ) -> None:
+        ...
+
+    assert command.parser is None
+
+
+def test_for_interaction_channel_option_on_message_command_with_default_and_pre_set_parser():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.with_parser
+    @tanjun.as_message_command("command")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: typing.Optional[annotations.InteractionChannel] = None,
+    ) -> None:
+        ...
+
+    assert isinstance(command.parser, tanjun.parsing.ShlexParser)
+    assert not command.parser.options
+    assert not command.parser.arguments
+
+
 def test_for_float_option():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
@@ -4022,6 +4118,101 @@ def test_for_member_option():
     assert tracked_option.key == "arg_2"
     assert tracked_option.name == "arg_2"
     assert tracked_option.type is hikari.OptionType.USER
+
+
+def test_for_interaction_member_option():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("meow", "nom")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: typing.Annotated[annotations.InteractionMember, "yeet"],
+        arg_2: typing.Annotated[typing.Union[annotations.InteractionMember, str], "feet"] = "ok",
+    ) -> None:
+        ...
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.USER,
+            name="arg",
+            channel_types=None,
+            description="yeet",
+            is_required=True,
+            min_value=None,
+            max_value=None,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.USER,
+            name="arg_2",
+            channel_types=None,
+            description="feet",
+            is_required=False,
+            min_value=None,
+            max_value=None,
+        ),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["arg"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "arg"
+    assert tracked_option.name == "arg"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    tracked_option = command._tracked_options["arg_2"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == "ok"
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "arg_2"
+    assert tracked_option.name == "arg_2"
+    assert tracked_option.type is hikari.OptionType.USER
+
+
+def test_for_interaction_member_option_on_message_command():
+    @tanjun.as_message_command("command")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: annotations.InteractionMember,
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "<class 'hikari.interactions.base_interactions.InteractionMember'> is not supported for message commands"
+        ),
+    ):
+        annotations.with_annotated_args(follow_wrapped=True)(command)
+
+
+def test_for_interaction_member_option_on_message_command_with_default():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("command")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: typing.Optional[annotations.InteractionMember] = None,
+    ) -> None:
+        ...
+
+    assert command.parser is None
+
+
+def test_for_interaction_member_option_on_message_command_with_default_and_pre_set_parser():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.with_parser
+    @tanjun.as_message_command("command")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: typing.Optional[annotations.InteractionMember] = None,
+    ) -> None:
+        ...
+
+    assert isinstance(command.parser, tanjun.parsing.ShlexParser)
+    assert not command.parser.options
+    assert not command.parser.arguments
 
 
 def test_for_mentionable_option():

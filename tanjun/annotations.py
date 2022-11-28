@@ -1375,25 +1375,31 @@ def with_annotated_args(*, follow_wrapped: bool = False) -> collections.Callable
 def with_annotated_args(
     command: typing.Optional[_CommandUnionT] = None, /, *, follow_wrapped: bool = False
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
-    """Set a command's arguments based on its signature.
+    r"""Set a command's arguments based on its signature.
 
     To declare arguments a you will have to do one of two things:
 
     1. Using any of the following types as an argument's type-hint (this may be
         as the first argument to [typing.Annotated][]) will mark it as injected:
 
+        * [tanjun.annotations.Attachment][]\*
         * [tanjun.annotations.Bool][]
         * [tanjun.annotations.Channel][]
+        * [tanjun.annotations.InteractionChannel][]\*
         * [tanjun.annotations.Color][]/[tanjun.annotations.Colour][]
         * [tanjun.annotations.Datetime][]
         * [tanjun.annotations.Float][]
         * [tanjun.annotations.Int][]
         * [tanjun.annotations.Member][]
+        * [tanjun.annotations.InteractionMember][]\*
         * [tanjun.annotations.Mentionable][]
         * [tanjun.annotations.Role][]
         * [tanjun.annotations.Snowflake][]
         * [tanjun.annotations.Str][]
         * [tanjun.annotations.User][]
+
+        \* These types are specific to slash commands and will raise an exception
+            when set for a message command's parameter with no real default.
 
         ```py
         @tanjun.with_annotated_args(follow_wrapped=True)
