@@ -3577,8 +3577,7 @@ object each time for the following types:</p>
     <span class="n">user</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">User</span><span class="p">,</span> <span class="n">SnowflakeOr</span><span class="p">(</span><span class="n">parse_id</span><span class="o">=</span><span class="n">parse_user_id</span><span class="p">),</span> <span class="s2">&quot;The user to target.&quot;</span><span class="p">],</span>
 
     <span class="c1"># The `parse_id` callback is automatically set to the mention format for</span>
-    <span class="c1"># the specified for the passed type if applicable when using SnowflakeOr</span>
-    <span class="c1"># as a generic type-hint.</span>
+    <span class="c1"># the passed type if applicable when using SnowflakeOr as a generic type-hint.</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">SnowflakeOr</span><span class="p">[</span><span class="n">Role</span><span class="p">]],</span> <span class="s2">&quot;The role to target.&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">user_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
