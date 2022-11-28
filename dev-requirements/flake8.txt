@@ -36,7 +36,7 @@ flake8==5.0.4
     #   pyproject-flake8
 flake8-bandit==4.1.1
     # via -r dev-requirements/flake8.in
-flake8-black==0.3.3
+flake8-black==0.3.5
     # via -r dev-requirements/flake8.in
 flake8-broken-line==0.6.0
     # via -r dev-requirements/flake8.in
