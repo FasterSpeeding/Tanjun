@@ -3818,19 +3818,24 @@ formats.</p>
 <p>Using any of the following types as an argument's type-hint (this may be
     as the first argument to <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#typing.Annotated">typing.Annotated</a>) will mark it as injected:</p>
 <ul>
+<li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Attachment">tanjun.annotations.Attachment</a>*</li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Bool">tanjun.annotations.Bool</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Channel">tanjun.annotations.Channel</a></li>
+<li><a class="autorefs autorefs-internal" href="#tanjun.annotations.InteractionChannel">tanjun.annotations.InteractionChannel</a>*</li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Color">tanjun.annotations.Color</a>/<a class="autorefs autorefs-internal" href="#tanjun.annotations.Colour">tanjun.annotations.Colour</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Datetime">tanjun.annotations.Datetime</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Float">tanjun.annotations.Float</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Int">tanjun.annotations.Int</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Member">tanjun.annotations.Member</a></li>
+<li><a class="autorefs autorefs-internal" href="#tanjun.annotations.InteractionMember">tanjun.annotations.InteractionMember</a>*</li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Mentionable">tanjun.annotations.Mentionable</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Role">tanjun.annotations.Role</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Snowflake">tanjun.annotations.Snowflake</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Str">tanjun.annotations.Str</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.User">tanjun.annotations.User</a></li>
 </ul>
+<p>* These types are specific to slash commands and will raise an exception
+    when set for a message command's parameter with no real default.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
