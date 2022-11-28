@@ -291,7 +291,7 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
     @tanjun.as_slash_command("beep", "boop")
     async def command(
         ctx: tanjun.abc.SlashContext,
-        argument: Annotated[Str, Converted(callback, other_callback), "description"]
+        argument: Annotated[OtherType, Converted(callback, other_callback), "description"]
         other_argument: Annotated[Converted[callback, other_callback], "description"],
     )
     ```
