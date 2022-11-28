@@ -3032,6 +3032,7 @@ def _try_unsubscribe(
 
 @dataclasses.dataclass
 class _LoadModule:
+    __slots__ = ("path",)
     path: str | pathlib.Path
 
     def __call__(self) -> types.ModuleType:
@@ -3040,6 +3041,7 @@ class _LoadModule:
 
 @dataclasses.dataclass
 class _ReloadModule:
+    __slots__ = ("path",)
     path: types.ModuleType | pathlib.Path
 
     def __call__(self) -> types.ModuleType:

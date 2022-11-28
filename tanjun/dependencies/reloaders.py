@@ -548,6 +548,7 @@ class _ScanResult:
 
 @dataclasses.dataclass
 class _PathScanner(typing.Generic[_PathT]):
+    __slots__ = ("global_paths", "dead_unloads", "result_paths", "removed_paths")
     global_paths: dict[_PathT, _PyPathInfo]
     dead_unloads: set[str | pathlib.Path]
     result_paths: dict[_PathT, _PyPathInfo]
