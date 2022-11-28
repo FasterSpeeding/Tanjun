@@ -3552,7 +3552,6 @@ def test_with_generic_these_channels():
 
 def test_for_attachment_option():
     @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("command")
     @tanjun.as_slash_command("meow", "nom")
     async def command(
         ctx: tanjun.abc.Context,
@@ -3561,8 +3560,7 @@ def test_for_attachment_option():
     ) -> None:
         ...
 
-    assert isinstance(command.wrapped_command, tanjun.SlashCommand)
-    assert command.wrapped_command.build().options == [
+    assert command.build().options == [
         hikari.CommandOption(
             type=hikari.OptionType.ATTACHMENT,
             name="arg",
@@ -3583,10 +3581,8 @@ def test_for_attachment_option():
         ),
     ]
 
-    assert command.parser is None
-
-    assert len(command.wrapped_command._tracked_options) == 2
-    tracked_option = command.wrapped_command._tracked_options["arg"]
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["arg"]
     assert tracked_option.converters == []
     assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
     assert tracked_option.is_always_float is False
@@ -3595,7 +3591,7 @@ def test_for_attachment_option():
     assert tracked_option.name == "arg"
     assert tracked_option.type is hikari.OptionType.ATTACHMENT
 
-    tracked_option = command.wrapped_command._tracked_options["arg_2"]
+    tracked_option = command._tracked_options["arg_2"]
     assert tracked_option.converters == []
     assert tracked_option.default == "ok"
     assert tracked_option.is_always_float is False
@@ -3603,6 +3599,47 @@ def test_for_attachment_option():
     assert tracked_option.key == "arg_2"
     assert tracked_option.name == "arg_2"
     assert tracked_option.type is hikari.OptionType.ATTACHMENT
+
+
+def test_for_attachment_option_on_message_command():
+    @tanjun.as_message_command("command")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: annotations.Attachment,
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError, match="<class 'hikari.messages.Attachment'> is not supported for message commands"
+    ):
+        annotations.with_annotated_args(follow_wrapped=True)(command)
+
+
+def test_for_attachment_option_on_message_command_with_default():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("command")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: typing.Optional[annotations.Attachment] = None,
+    ) -> None:
+        ...
+
+    assert command.parser is None
+
+
+def test_for_attachment_option_on_message_command_with_default_and_pre_set_parser():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.with_parser
+    @tanjun.as_message_command("command")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: typing.Optional[annotations.Attachment] = None,
+    ) -> None:
+        ...
+
+    assert isinstance(command.parser, tanjun.parsing.ShlexParser)
+    assert not command.parser.options
+    assert not command.parser.arguments
 
 
 def test_for_bool_option():

@@ -88,6 +88,9 @@ from ._internal.vendor import inspect
 from .commands import message
 from .commands import slash
 
+if typing.TYPE_CHECKING:
+    from typing_extensions import Self
+
 if sys.version_info >= (3, 10):
     _UnionTypes = frozenset((typing.Union, types.UnionType))
 
@@ -1134,7 +1137,7 @@ class _ArgConfig:
         self.max_value: typing.Union[float, int, None] = None
         self.message_name: str = "--" + parameter.name.replace("_", "-")
         self.option_type: typing.Optional[type[typing.Any]] = None
-        self.parameter = parameter
+        self.parameter: inspect.Parameter = parameter
         self.range_or_slice: typing.Union[range, slice, None] = None
         self.slash_name: str = parameter.name
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
@@ -1240,7 +1243,7 @@ class _ArgConfig:
 
     SLASH_OPTION_ADDER: dict[
         typing.Any,
-        collections.Callable[[_ArgConfig, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]],
+        collections.Callable[[Self, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]],
     ] = {
         hikari.Attachment: lambda self, c, d: c.add_attachment_option(
             self.slash_name, d, default=self._slash_default(), key=self.parameter.name
