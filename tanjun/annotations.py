@@ -1316,7 +1316,7 @@ def parse_annotated_args(
 ) -> None:
     """Set a command's arguments based on its signature.
 
-    For more information on how this works see [][tanjun.annotations.with_annotated_args]
+    For more information on how this works see [tanjun.annotations.with_annotated_args][]
     which acts as the decorator equivalent of this. The only difference is
     function allows passing a mapping of argument descriptions.
 
