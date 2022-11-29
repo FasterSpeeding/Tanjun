@@ -121,6 +121,16 @@ class TestBaseConverter:
                 ],
             ),
             (
+                tanjun.to_message,
+                [
+                    (
+                        async_cache.SfCache[hikari.Message],
+                        hikari.api.CacheComponents.MESSAGES,
+                        hikari.Intents.GUILD_MESSAGES | hikari.Intents.DM_MESSAGES,
+                    )
+                ],
+            ),
+            (
                 tanjun.to_presence,
                 [
                     (
@@ -175,6 +185,7 @@ class TestBaseConverter:
             (tanjun.to_invite, False),
             (tanjun.to_invite_with_metadata, True),
             (tanjun.to_member, False),
+            (tanjun.to_message, False),
             (tanjun.to_presence, True),
             (tanjun.to_role, False),
             (tanjun.to_user, False),
