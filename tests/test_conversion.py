@@ -43,6 +43,7 @@ import hikari
 import pytest
 
 import tanjun
+from tanjun.dependencies import async_cache
 
 
 class TestBaseConverter:
@@ -50,43 +51,120 @@ class TestBaseConverter:
     def test_check_client(self):
         ...
 
-    @pytest.mark.parametrize(
-        ("obj", "expected"),
-        [
-            (tanjun.to_channel, hikari.api.CacheComponents.GUILD_CHANNELS),
-            (tanjun.to_emoji, hikari.api.CacheComponents.EMOJIS),
-            (tanjun.to_guild, hikari.api.CacheComponents.GUILDS),
-            (tanjun.to_invite, hikari.api.CacheComponents.INVITES),
-            (tanjun.to_invite_with_metadata, hikari.api.CacheComponents.INVITES),
-            (tanjun.to_member, hikari.api.CacheComponents.MEMBERS),
-            (tanjun.to_presence, hikari.api.CacheComponents.PRESENCES),
-            (tanjun.to_role, hikari.api.CacheComponents.ROLES),
-            (tanjun.to_user, hikari.api.CacheComponents.NONE),
-            (tanjun.to_voice_state, hikari.api.CacheComponents.VOICE_STATES),
-        ],
-    )
-    def test_cache_components_property(
-        self, obj: tanjun.conversion.BaseConverter, expected: hikari.api.CacheComponents
-    ):
-        assert obj.cache_components == expected
+    def test_async_caches_property(self):
+        assert tanjun.conversion.BaseConverter().async_caches == []
+
+    def test_cache_components_property(self):
+        assert tanjun.conversion.BaseConverter().cache_components is hikari.api.CacheComponents.NONE
 
     @pytest.mark.parametrize(
         ("obj", "expected"),
         [
-            (tanjun.to_channel, hikari.Intents.GUILDS),
-            (tanjun.to_emoji, hikari.Intents.GUILDS | hikari.Intents.GUILD_EMOJIS),
-            (tanjun.to_guild, hikari.Intents.GUILDS),
-            (tanjun.to_invite, hikari.Intents.GUILD_INVITES),
-            (tanjun.to_invite_with_metadata, hikari.Intents.GUILD_INVITES),
-            (tanjun.to_member, hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS),
-            (tanjun.to_presence, hikari.Intents.GUILDS | hikari.Intents.GUILD_PRESENCES),
-            (tanjun.to_role, hikari.Intents.GUILDS),
-            (tanjun.to_user, hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS),
-            (tanjun.to_voice_state, hikari.Intents.GUILDS | hikari.Intents.GUILD_VOICE_STATES),
+            (
+                tanjun.to_channel,
+                [
+                    (
+                        async_cache.SfCache[hikari.PermissibleGuildChannel],
+                        hikari.api.CacheComponents.GUILD_CHANNELS,
+                        hikari.Intents.GUILDS,
+                    ),
+                    (async_cache.SfCache[hikari.DMChannel], hikari.api.CacheComponents.NONE, hikari.Intents.NONE),
+                    (
+                        async_cache.SfCache[hikari.GuildThreadChannel],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS,
+                    ),
+                ],
+            ),
+            (
+                tanjun.to_emoji,
+                [
+                    (
+                        async_cache.SfCache[hikari.KnownCustomEmoji],
+                        hikari.api.CacheComponents.EMOJIS,
+                        hikari.Intents.GUILDS | hikari.Intents.GUILD_EMOJIS,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_guild,
+                [(async_cache.SfCache[hikari.Guild], hikari.api.CacheComponents.GUILDS, hikari.Intents.GUILDS)],
+            ),
+            (
+                tanjun.to_invite,
+                [
+                    (
+                        async_cache.AsyncCache[str, hikari.InviteWithMetadata],
+                        hikari.api.CacheComponents.INVITES,
+                        hikari.Intents.GUILD_INVITES,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_invite_with_metadata,
+                [
+                    (
+                        async_cache.AsyncCache[str, hikari.InviteWithMetadata],
+                        hikari.api.CacheComponents.INVITES,
+                        hikari.Intents.GUILD_INVITES,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_member,
+                [
+                    (
+                        async_cache.SfGuildBound[hikari.Member],
+                        hikari.api.CacheComponents.MEMBERS,
+                        hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_presence,
+                [
+                    (
+                        async_cache.SfGuildBound[hikari.MemberPresence],
+                        hikari.api.CacheComponents.PRESENCES,
+                        hikari.Intents.GUILDS | hikari.Intents.GUILD_PRESENCES,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_role,
+                [(async_cache.SfCache[hikari.Role], hikari.api.CacheComponents.ROLES, hikari.Intents.GUILDS)],
+            ),
+            (
+                tanjun.to_user,
+                [
+                    (
+                        async_cache.SfCache[hikari.User],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_voice_state,
+                [
+                    (
+                        async_cache.SfGuildBound[hikari.VoiceState],
+                        hikari.api.CacheComponents.VOICE_STATES,
+                        hikari.Intents.GUILDS | hikari.Intents.GUILD_VOICE_STATES,
+                    )
+                ],
+            ),
         ],
     )
-    def test_intents_property(self, obj: tanjun.conversion.BaseConverter, expected: hikari.Intents):
-        assert obj.intents == expected
+    def test_caches_property(
+        self,
+        obj: tanjun.conversion.BaseConverter,
+        expected: list[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]],
+    ):
+        assert obj.caches == expected
+
+    def test_intents_property(self):
+        assert tanjun.conversion.BaseConverter().intents is hikari.Intents.NONE
 
     @pytest.mark.parametrize(
         ("obj", "expected"),

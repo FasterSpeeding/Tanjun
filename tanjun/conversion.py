@@ -74,7 +74,6 @@ __all__: list[str] = [
     "to_voice_state",
 ]
 
-import abc
 import datetime
 import logging
 import operator
@@ -101,7 +100,7 @@ _ValueT = typing.TypeVar("_ValueT")
 _LOGGER = logging.getLogger("hikari.tanjun.conversion")
 
 
-class BaseConverter(abc.ABC):
+class BaseConverter:
     """Base class for the standard converters.
 
     !!! warning
@@ -120,45 +119,35 @@ class BaseConverter(abc.ABC):
     __slots__ = ("__weakref__",)
 
     @property
-    @abc.abstractmethod
     def async_caches(self) -> collections.Sequence[typing.Any]:
-        """Collection of the asynchronous caches that this converter relies on.
-
-        This will only be necessary if the suggested intents or cache_components
-        aren't enabled for a converter which requires cache.
-        """
+        """Deprecated property."""
+        return []
 
     @property
-    @abc.abstractmethod
     def cache_components(self) -> hikari.api.CacheComponents:
-        """Cache component(s) the converter takes advantage of.
+        """Deprecated property."""
+        return hikari.api.CacheComponents.NONE
+
+    @property
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
+        """Caches the converter takes advantage of.
+
+        This returns a tuple of async cache types and the relevant cache components
+        which will be needed if said async cache isn't implemented.
 
         !!! note
             Unless [tanjun.conversion.BaseConverter.requires_cache][] is [True][],
             these cache components aren't necessary but simply avoid the converter
             from falling back to REST requests.
-
-        This will be [hikari.api.config.CacheComponents.NONE][] if the converter doesn't
-        make cache calls.
         """
+        return []
 
     @property
-    @abc.abstractmethod
     def intents(self) -> hikari.Intents:
-        """Gateway intents this converter takes advantage of.
-
-        !!! note
-            This field is supplementary to [tanjun.conversion.BaseConverter.cache_components][]
-            and is used to detect when the relevant component might not
-            actually be being kept up to date or filled by gateway events.
-
-            Unless [tanjun.conversion.BaseConverter.requires_cache][] is [True][],
-            these intents being disabled won't stop this converter from working as
-            it'll still fall back to REST requests.
-        """
+        """Deprecated property."""
+        return hikari.Intents.NONE
 
     @property
-    @abc.abstractmethod
     def requires_cache(self) -> bool:
         """Whether this converter relies on the relevant cache stores to work.
 
@@ -167,6 +156,7 @@ class BaseConverter(abc.ABC):
         [tanjun.conversion.BaseConverter.cache_components][] isn't satisfied
         and will never fallback to REST requests.
         """
+        return False
 
     def check_client(self, client: tanjun.Client, parent_name: str, /) -> None:
         """Check that this converter will work with the given client.
@@ -181,45 +171,22 @@ class BaseConverter(abc.ABC):
         parent_name
             The name of the converter's parent, used for warning messages.
         """
-        if all(client.injector.get_type_dependency(cls, default=None) is not None for cls in self.async_caches):
-            # We don't know whether async caches are being filled by other
-            # instances so we have to ignore this case.
-            return
+        enabled_components = client.cache and client.cache.settings.components or hikari.api.CacheComponents.NONE
+        enabled_intents = client.shards.intents if client.shards else hikari.Intents.NONE
+        missing_components = hikari.api.CacheComponents.NONE
+        needed_intents = hikari.Intents.NONE
+        for cache_dep_type, component, intents in self.caches:
+            if client.injector.get_type_dependency(cache_dep_type, default=None) is not None:
+                continue
 
-        if client.shards and (missing_intents := self.intents & ~client.shards.intents):
+            needed_intents |= intents
+            if current_missing := component & ~enabled_components:
+                missing_components |= current_missing
+
+        if missing_components:
             if self.requires_cache:
                 _LOGGER.warning(
-                    "Converter %r (registered with %s) will always fail without the following intents: %s",
-                    self,
-                    parent_name,
-                    missing_intents,
-                )
-
-            else:
-                _LOGGER.info(
-                    "Converter %r (registered with %s) may not perform as expected without the following intents: %s",
-                    self,
-                    parent_name,
-                    missing_intents,
-                )
-
-        elif not client.cache:
-            if self.requires_cache:
-                _LOGGER.warning(
-                    "Converter %r (registered with %s) will always fail with a stateless client.", self, parent_name
-                )
-
-            elif self.cache_components:
-                _LOGGER.info(
-                    "Converter %r (registered with %s) may not perform optimally in a stateless client.",
-                    self,
-                    parent_name,
-                )
-
-        elif missing_components := (self.cache_components & ~client.cache.settings.components):
-            if self.requires_cache:
-                _LOGGER.warning(
-                    "Converter %r (registered with %s) will always fail without the following cache components: %s",
+                    "Converter %r (registered with %s) will fail without the following cache components: %s",
                     self,
                     parent_name,
                     missing_components,
@@ -232,6 +199,23 @@ class BaseConverter(abc.ABC):
                     self,
                     parent_name,
                     missing_components,
+                )
+
+        if missing_intents := needed_intents & ~enabled_intents:
+            if self.requires_cache:
+                _LOGGER.warning(
+                    "Converter %r (registered with %s) will fail without the following intents: %s",
+                    self,
+                    parent_name,
+                    missing_intents,
+                )
+
+            else:
+                _LOGGER.info(
+                    "Converter %r (registered with %s) may not perform as expected without the following intents: %s",
+                    self,
+                    parent_name,
+                    missing_intents,
                 )
 
 
@@ -284,19 +268,13 @@ class ToChannel(BaseConverter):
             self._allowed_types_repr += f" and {_internal.repr_channel(allowed_types_[-1])}"
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return (_GuildChannelCacheT, _DmCacheT, _ThreadCacheT)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.GUILD_CHANNELS
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILDS
+        return [
+            (_GuildChannelCacheT, hikari.api.CacheComponents.GUILD_CHANNELS, hikari.Intents.GUILDS),
+            (_DmCacheT, hikari.api.CacheComponents.NONE, hikari.Intents.NONE),
+            (_ThreadCacheT, hikari.api.CacheComponents.NONE, hikari.Intents.GUILDS),
+        ]
 
     @property
     def requires_cache(self) -> bool:
@@ -392,24 +370,9 @@ class ToEmoji(BaseConverter):
     __slots__ = ()
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return (_EmojiCacheT,)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.EMOJIS
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILD_EMOJIS | hikari.Intents.GUILDS
-
-    @property
-    def requires_cache(self) -> bool:
-        # <<inherited docstring from BaseConverter>>.
-        return False
+        return [(_EmojiCacheT, hikari.api.CacheComponents.EMOJIS, hikari.Intents.GUILD_EMOJIS | hikari.Intents.GUILDS)]
 
     async def __call__(
         self,
@@ -460,24 +423,9 @@ class ToGuild(BaseConverter):
     __slots__ = ()
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return (_GuildCacheT,)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.GUILDS
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILDS
-
-    @property
-    def requires_cache(self) -> bool:
-        # <<inherited docstring from BaseConverter>>.
-        return False
+        return [(_GuildCacheT, hikari.api.CacheComponents.GUILDS, hikari.Intents.GUILDS)]
 
     async def __call__(
         self,
@@ -522,24 +470,9 @@ class ToInvite(BaseConverter):
     __slots__ = ()
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return (_InviteCacheT,)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.INVITES
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILD_INVITES
-
-    @property
-    def requires_cache(self) -> bool:
-        # <<inherited docstring from BaseConverter>>.
-        return False
+        return [(_InviteCacheT, hikari.api.CacheComponents.INVITES, hikari.Intents.GUILD_INVITES)]
 
     async def __call__(
         self,
@@ -589,19 +522,9 @@ class ToInviteWithMetadata(BaseConverter):
     __slots__ = ()
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return (_InviteCacheT,)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.INVITES
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILD_INVITES
+        return [(_InviteCacheT, hikari.api.CacheComponents.INVITES, hikari.Intents.GUILD_INVITES)]
 
     @property
     def requires_cache(self) -> bool:
@@ -647,24 +570,11 @@ class ToMember(BaseConverter):
     __slots__ = ()
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return (_MemberCacheT,)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.MEMBERS
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILD_MEMBERS | hikari.Intents.GUILDS
-
-    @property
-    def requires_cache(self) -> bool:
-        # <<inherited docstring from BaseConverter>>.
-        return False
+        return [
+            (_MemberCacheT, hikari.api.CacheComponents.MEMBERS, hikari.Intents.GUILD_MEMBERS | hikari.Intents.GUILDS)
+        ]
 
     async def __call__(
         self,
@@ -728,19 +638,15 @@ class ToPresence(BaseConverter):
     __slots__ = ()
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return (_PresenceCacheT,)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.PRESENCES
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILD_PRESENCES | hikari.Intents.GUILDS
+        return [
+            (
+                _PresenceCacheT,
+                hikari.api.CacheComponents.PRESENCES,
+                hikari.Intents.GUILD_PRESENCES | hikari.Intents.GUILDS,
+            )
+        ]
 
     @property
     def requires_cache(self) -> bool:
@@ -783,24 +689,8 @@ class ToRole(BaseConverter):
     __slots__ = ()
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
-        # <<inherited docstring from BaseConverter>>.
-        return (_RoleCacheT,)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.ROLES
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILDS
-
-    @property
-    def requires_cache(self) -> bool:
-        # <<inherited docstring from BaseConverter>>.
-        return False
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
+        return [(_RoleCacheT, hikari.api.CacheComponents.ROLES, hikari.Intents.GUILDS)]
 
     async def __call__(
         self,
@@ -847,24 +737,9 @@ class ToUser(BaseConverter):
     __slots__ = ()
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return (_UserCacheT,)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.NONE
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS
-
-    @property
-    def requires_cache(self) -> bool:
-        # <<inherited docstring from BaseConverter>>.
-        return False
+        return [(_UserCacheT, hikari.api.CacheComponents.NONE, hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS)]
 
     async def __call__(
         self,
@@ -914,24 +789,15 @@ class ToMessage(BaseConverter):
     __slots__ = ()
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return (_MessageCacheT,)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.MESSAGES
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILD_MESSAGES | hikari.Intents.DM_MESSAGES
-
-    @property
-    def requires_cache(self) -> bool:
-        # <<inherited docstring from BaseConverter>>.
-        return False
+        return [
+            (
+                _MessageCacheT,
+                hikari.api.CacheComponents.MESSAGES,
+                hikari.Intents.GUILD_MESSAGES | hikari.Intents.DM_MESSAGES,
+            )
+        ]
 
     async def __call__(
         self,
@@ -979,19 +845,15 @@ class ToVoiceState(BaseConverter):
     __slots__ = ()
 
     @property
-    def async_caches(self) -> collections.Sequence[typing.Any]:
+    def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return (_VoiceStateCacheT,)
-
-    @property
-    def cache_components(self) -> hikari.api.CacheComponents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.api.CacheComponents.VOICE_STATES
-
-    @property
-    def intents(self) -> hikari.Intents:
-        # <<inherited docstring from BaseConverter>>.
-        return hikari.Intents.GUILD_VOICE_STATES | hikari.Intents.GUILDS
+        return [
+            (
+                _VoiceStateCacheT,
+                hikari.api.CacheComponents.VOICE_STATES,
+                hikari.Intents.GUILD_VOICE_STATES | hikari.Intents.GUILDS,
+            )
+        ]
 
     @property
     def requires_cache(self) -> bool:
