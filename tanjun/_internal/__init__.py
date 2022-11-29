@@ -354,7 +354,7 @@ def flatten_options(
     return name, options or ()
 
 
-_CHANNEL_TYPES: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
+CHANNEL_TYPES: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
     hikari.GuildTextChannel: {hikari.ChannelType.GUILD_TEXT},
     hikari.DMChannel: {hikari.ChannelType.DM},
     hikari.GuildVoiceChannel: {hikari.ChannelType.GUILD_VOICE},
@@ -369,16 +369,16 @@ _CHANNEL_TYPES: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
 """Mapping of hikari channel classes to the raw channel types which are compatible for it."""
 
 
-for _channel_cls, _types in _CHANNEL_TYPES.copy().items():
+for _channel_cls, _types in CHANNEL_TYPES.copy().items():
     for _mro_type in _channel_cls.mro():
         if isinstance(_mro_type, type) and issubclass(_mro_type, hikari.PartialChannel):
             try:
-                _CHANNEL_TYPES[_mro_type].update(_types)
+                CHANNEL_TYPES[_mro_type].update(_types)
             except KeyError:
-                _CHANNEL_TYPES[_mro_type] = _types.copy()
+                CHANNEL_TYPES[_mro_type] = _types.copy()
 
 # This isn't a base class but it should still act like an indicator for any channel type.
-_CHANNEL_TYPES[hikari.InteractionChannel] = _CHANNEL_TYPES[hikari.PartialChannel]
+CHANNEL_TYPES[hikari.InteractionChannel] = CHANNEL_TYPES[hikari.PartialChannel]
 
 _CHANNEL_TYPE_REPS: dict[hikari.ChannelType, str] = {
     hikari.ChannelType.GUILD_TEXT: "Text",
@@ -404,7 +404,7 @@ def parse_channel_types(*channel_types: typing.Union[type[hikari.PartialChannel]
     """Parse a channel types collection to a list of channel type integers."""
     try:
         types_iter = itertools.chain.from_iterable(
-            (hikari.ChannelType(type_),) if isinstance(type_, int) else _CHANNEL_TYPES[type_] for type_ in channel_types
+            (hikari.ChannelType(type_),) if isinstance(type_, int) else CHANNEL_TYPES[type_] for type_ in channel_types
         )
         return list(dict.fromkeys(types_iter))
 

@@ -43,6 +43,7 @@ import hikari
 import pytest
 
 import tanjun
+from tanjun.dependencies import async_cache
 
 
 class TestBaseConverter:
@@ -50,43 +51,131 @@ class TestBaseConverter:
     def test_check_client(self):
         ...
 
-    @pytest.mark.parametrize(
-        ("obj", "expected"),
-        [
-            (tanjun.to_channel, hikari.api.CacheComponents.GUILD_CHANNELS),
-            (tanjun.to_emoji, hikari.api.CacheComponents.EMOJIS),
-            (tanjun.to_guild, hikari.api.CacheComponents.GUILDS),
-            (tanjun.to_invite, hikari.api.CacheComponents.INVITES),
-            (tanjun.to_invite_with_metadata, hikari.api.CacheComponents.INVITES),
-            (tanjun.to_member, hikari.api.CacheComponents.MEMBERS),
-            (tanjun.to_presence, hikari.api.CacheComponents.PRESENCES),
-            (tanjun.to_role, hikari.api.CacheComponents.ROLES),
-            (tanjun.to_user, hikari.api.CacheComponents.NONE),
-            (tanjun.to_voice_state, hikari.api.CacheComponents.VOICE_STATES),
-        ],
-    )
-    def test_cache_components_property(
-        self, obj: tanjun.conversion.BaseConverter, expected: hikari.api.CacheComponents
-    ):
-        assert obj.cache_components == expected
+    def test_async_caches_property(self):
+        assert tanjun.conversion.BaseConverter().async_caches == []
+
+    def test_cache_components_property(self):
+        assert tanjun.conversion.BaseConverter().cache_components is hikari.api.CacheComponents.NONE
 
     @pytest.mark.parametrize(
         ("obj", "expected"),
         [
-            (tanjun.to_channel, hikari.Intents.GUILDS),
-            (tanjun.to_emoji, hikari.Intents.GUILDS | hikari.Intents.GUILD_EMOJIS),
-            (tanjun.to_guild, hikari.Intents.GUILDS),
-            (tanjun.to_invite, hikari.Intents.GUILD_INVITES),
-            (tanjun.to_invite_with_metadata, hikari.Intents.GUILD_INVITES),
-            (tanjun.to_member, hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS),
-            (tanjun.to_presence, hikari.Intents.GUILDS | hikari.Intents.GUILD_PRESENCES),
-            (tanjun.to_role, hikari.Intents.GUILDS),
-            (tanjun.to_user, hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS),
-            (tanjun.to_voice_state, hikari.Intents.GUILDS | hikari.Intents.GUILD_VOICE_STATES),
+            (tanjun.conversion.BaseConverter(), []),
+            (
+                tanjun.to_channel,
+                [
+                    (
+                        async_cache.SfCache[hikari.PermissibleGuildChannel],
+                        hikari.api.CacheComponents.GUILD_CHANNELS,
+                        hikari.Intents.GUILDS,
+                    ),
+                    (async_cache.SfCache[hikari.DMChannel], hikari.api.CacheComponents.NONE, hikari.Intents.NONE),
+                    (
+                        async_cache.SfCache[hikari.GuildThreadChannel],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS,
+                    ),
+                ],
+            ),
+            (
+                tanjun.to_emoji,
+                [
+                    (
+                        async_cache.SfCache[hikari.KnownCustomEmoji],
+                        hikari.api.CacheComponents.EMOJIS,
+                        hikari.Intents.GUILDS | hikari.Intents.GUILD_EMOJIS,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_guild,
+                [(async_cache.SfCache[hikari.Guild], hikari.api.CacheComponents.GUILDS, hikari.Intents.GUILDS)],
+            ),
+            (
+                tanjun.to_invite,
+                [
+                    (
+                        async_cache.AsyncCache[str, hikari.InviteWithMetadata],
+                        hikari.api.CacheComponents.INVITES,
+                        hikari.Intents.GUILD_INVITES,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_invite_with_metadata,
+                [
+                    (
+                        async_cache.AsyncCache[str, hikari.InviteWithMetadata],
+                        hikari.api.CacheComponents.INVITES,
+                        hikari.Intents.GUILD_INVITES,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_member,
+                [
+                    (
+                        async_cache.SfGuildBound[hikari.Member],
+                        hikari.api.CacheComponents.MEMBERS,
+                        hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_message,
+                [
+                    (
+                        async_cache.SfCache[hikari.Message],
+                        hikari.api.CacheComponents.MESSAGES,
+                        hikari.Intents.GUILD_MESSAGES | hikari.Intents.DM_MESSAGES,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_presence,
+                [
+                    (
+                        async_cache.SfGuildBound[hikari.MemberPresence],
+                        hikari.api.CacheComponents.PRESENCES,
+                        hikari.Intents.GUILDS | hikari.Intents.GUILD_PRESENCES,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_role,
+                [(async_cache.SfCache[hikari.Role], hikari.api.CacheComponents.ROLES, hikari.Intents.GUILDS)],
+            ),
+            (
+                tanjun.to_user,
+                [
+                    (
+                        async_cache.SfCache[hikari.User],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS | hikari.Intents.GUILD_MEMBERS,
+                    )
+                ],
+            ),
+            (
+                tanjun.to_voice_state,
+                [
+                    (
+                        async_cache.SfGuildBound[hikari.VoiceState],
+                        hikari.api.CacheComponents.VOICE_STATES,
+                        hikari.Intents.GUILDS | hikari.Intents.GUILD_VOICE_STATES,
+                    )
+                ],
+            ),
         ],
     )
-    def test_intents_property(self, obj: tanjun.conversion.BaseConverter, expected: hikari.Intents):
-        assert obj.intents == expected
+    def test_caches_property(
+        self,
+        obj: tanjun.conversion.BaseConverter,
+        expected: list[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]],
+    ):
+        assert obj.caches == expected
+
+    def test_intents_property(self):
+        assert tanjun.conversion.BaseConverter().intents is hikari.Intents.NONE
 
     @pytest.mark.parametrize(
         ("obj", "expected"),
@@ -97,6 +186,7 @@ class TestBaseConverter:
             (tanjun.to_invite, False),
             (tanjun.to_invite_with_metadata, True),
             (tanjun.to_member, False),
+            (tanjun.to_message, False),
             (tanjun.to_presence, True),
             (tanjun.to_role, False),
             (tanjun.to_user, False),
@@ -108,6 +198,104 @@ class TestBaseConverter:
 
 
 class TestToChannel:
+    @pytest.mark.parametrize(
+        ("allowed_types", "include_dms", "expected"),
+        [
+            (
+                [hikari.ChannelType.DM, hikari.ChannelType.GUILD_CATEGORY, hikari.ChannelType.GUILD_NEWS_THREAD],
+                True,
+                [
+                    (
+                        async_cache.SfCache[hikari.PermissibleGuildChannel],
+                        hikari.api.CacheComponents.GUILD_CHANNELS,
+                        hikari.Intents.GUILDS,
+                    ),
+                    (async_cache.SfCache[hikari.DMChannel], hikari.api.CacheComponents.NONE, hikari.Intents.NONE),
+                    (
+                        async_cache.SfCache[hikari.GuildThreadChannel],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS,
+                    ),
+                ],
+            ),
+            (
+                [hikari.ChannelType.GROUP_DM, hikari.ChannelType.GUILD_NEWS],
+                True,
+                [
+                    (
+                        async_cache.SfCache[hikari.PermissibleGuildChannel],
+                        hikari.api.CacheComponents.GUILD_CHANNELS,
+                        hikari.Intents.GUILDS,
+                    ),
+                    (async_cache.SfCache[hikari.DMChannel], hikari.api.CacheComponents.NONE, hikari.Intents.NONE),
+                ],
+            ),
+            (
+                [hikari.ChannelType.DM],
+                True,
+                [(async_cache.SfCache[hikari.DMChannel], hikari.api.CacheComponents.NONE, hikari.Intents.NONE)],
+            ),
+            (
+                [hikari.ChannelType.GUILD_STAGE, hikari.ChannelType.GUILD_PUBLIC_THREAD],
+                True,
+                [
+                    (
+                        async_cache.SfCache[hikari.PermissibleGuildChannel],
+                        hikari.api.CacheComponents.GUILD_CHANNELS,
+                        hikari.Intents.GUILDS,
+                    ),
+                    (
+                        async_cache.SfCache[hikari.GuildThreadChannel],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS,
+                    ),
+                ],
+            ),
+            (
+                [hikari.ChannelType.GUILD_TEXT],
+                True,
+                [
+                    (
+                        async_cache.SfCache[hikari.PermissibleGuildChannel],
+                        hikari.api.CacheComponents.GUILD_CHANNELS,
+                        hikari.Intents.GUILDS,
+                    )
+                ],
+            ),
+            (
+                [hikari.ChannelType.GUILD_PRIVATE_THREAD],
+                True,
+                [
+                    (
+                        async_cache.SfCache[hikari.GuildThreadChannel],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS,
+                    )
+                ],
+            ),
+            (
+                [hikari.ChannelType.GROUP_DM, hikari.ChannelType.GUILD_PUBLIC_THREAD],
+                True,
+                [
+                    (async_cache.SfCache[hikari.DMChannel], hikari.api.CacheComponents.NONE, hikari.Intents.NONE),
+                    (
+                        async_cache.SfCache[hikari.GuildThreadChannel],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS,
+                    ),
+                ],
+            ),
+            ([hikari.ChannelType.DM], False, []),
+        ],
+    )
+    def test_caches_property(
+        self,
+        allowed_types: list[hikari.ChannelType],
+        include_dms: bool,
+        expected: list[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]],
+    ):
+        assert tanjun.conversion.ToChannel(allowed_types=allowed_types, include_dms=include_dms).caches == expected
+
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
@@ -529,7 +717,9 @@ class TestToChannel:
     @pytest.mark.asyncio()
     async def test___call___when_not_including_dms(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel)
+        mock_context.rest.fetch_channel.return_value = mock.Mock(
+            hikari.GuildChannel, type=hikari.ChannelType.GUILD_NEWS_THREAD
+        )
         mock_context.cache.get_guild_channel.return_value = None
         mock_channel_cache = mock.AsyncMock()
         mock_channel_cache.get.side_effect = tanjun.dependencies.CacheMissError
@@ -552,7 +742,7 @@ class TestToChannel:
     @pytest.mark.asyncio()
     async def test___call___when_not_including_dms_and_rest_returns_dm_channel(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.DMChannel)
+        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.DMChannel, type=hikari.ChannelType.DM)
         mock_context.cache.get_guild_channel.return_value = None
         mock_channel_cache = mock.AsyncMock()
         mock_channel_cache.get.side_effect = tanjun.dependencies.CacheMissError
@@ -561,7 +751,7 @@ class TestToChannel:
         mock_thread_cache.get.side_effect = tanjun.dependencies.CacheMissError
         converter = tanjun.conversion.ChannelConverter(include_dms=False)
 
-        with pytest.raises(ValueError, match="Couldn't find channel"):
+        with pytest.raises(ValueError, match="Only the following channel types are allowed for this argument: .*"):
             await converter(
                 "<#12222>",
                 mock_context,
