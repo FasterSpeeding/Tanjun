@@ -13,12 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   This comes with the added functionality of letting you directly pass slash command option
   descriptions to the callback via the `descriptions` argument (instead of putting strings in
   annotations).
-- Add cache component checks to the startup logging for converter configs.
+- Add cache component checks to the startup logging for converter client config compatibility.
 
 ### Changed
 - [tanjun.annotations.with_annotated_args][] will now raise if a slash command-specific type is
   used for a required message command parameter.
-- Converter startup config logs now only use info level when REST fallback is possible.
+- Converter startup client config logs now only use info level when REST fallback is possible.
+
+### Deprecated
+- `BaseConverter.async_caches`, `BaseConverter.cache_components` and `BaseConverter.intents`.
 
 ## [2.10.0a1] - 2022-11-24
 ### Added

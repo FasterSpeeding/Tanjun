@@ -322,6 +322,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#deprecated" class="md-nav__link">
+    Deprecated
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -479,7 +486,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#deprecated" class="md-nav__link">
+  <a href="#deprecated_1" class="md-nav__link">
     Deprecated
   </a>
   
@@ -853,7 +860,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#deprecated_1" class="md-nav__link">
+  <a href="#deprecated_2" class="md-nav__link">
     Deprecated
   </a>
   
@@ -1207,7 +1214,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#deprecated_2" class="md-nav__link">
+  <a href="#deprecated_3" class="md-nav__link">
     Deprecated
   </a>
   
@@ -1255,7 +1262,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#deprecated_3" class="md-nav__link">
+  <a href="#deprecated_4" class="md-nav__link">
     Deprecated
   </a>
   
@@ -1507,7 +1514,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#deprecated_4" class="md-nav__link">
+  <a href="#deprecated_5" class="md-nav__link">
     Deprecated
   </a>
   
@@ -1902,6 +1909,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#deprecated" class="md-nav__link">
+    Deprecated
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2059,7 +2073,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#deprecated" class="md-nav__link">
+  <a href="#deprecated_1" class="md-nav__link">
     Deprecated
   </a>
   
@@ -2433,7 +2447,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#deprecated_1" class="md-nav__link">
+  <a href="#deprecated_2" class="md-nav__link">
     Deprecated
   </a>
   
@@ -2787,7 +2801,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#deprecated_2" class="md-nav__link">
+  <a href="#deprecated_3" class="md-nav__link">
     Deprecated
   </a>
   
@@ -2835,7 +2849,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#deprecated_3" class="md-nav__link">
+  <a href="#deprecated_4" class="md-nav__link">
     Deprecated
   </a>
   
@@ -3087,7 +3101,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#deprecated_4" class="md-nav__link">
+  <a href="#deprecated_5" class="md-nav__link">
     Deprecated
   </a>
   
@@ -3182,13 +3196,17 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   This comes with the added functionality of letting you directly pass slash command option
   descriptions to the callback via the <code>descriptions</code> argument (instead of putting strings in
   annotations).</li>
-<li>Add cache component checks to the startup logging for converter configs.</li>
+<li>Add cache component checks to the startup logging for converter client config compatibility.</li>
 </ul>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">#</a></h3>
 <ul>
 <li><a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.with_annotated_args">tanjun.annotations.with_annotated_args</a> will now raise if a slash command-specific type is
   used for a required message command parameter.</li>
-<li>Converter startup config logs now only use info level when REST fallback is possible.</li>
+<li>Converter startup client config logs now only use info level when REST fallback is possible.</li>
+</ul>
+<h3 id="deprecated">Deprecated<a class="headerlink" href="#deprecated" title="Permanent link">#</a></h3>
+<ul>
+<li><code>BaseConverter.async_caches</code>, <code>BaseConverter.cache_components</code> and <code>BaseConverter.intents</code>.</li>
 </ul>
 <h2 id="2100a1-2022-11-24"><a href="https://github.com/FasterSpeeding/Tanjun/compare/v2.9.0a1...v2.10.0a1">2.10.0a1</a> - 2022-11-24<a class="headerlink" href="#2100a1-2022-11-24" title="Permanent link">#</a></h2>
 <h3 id="added_1">Added<a class="headerlink" href="#added_1" title="Permanent link">#</a></h3>
@@ -3205,7 +3223,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Allow passing <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/channels.html#hikari.channels.GuildThreadChannel">hikari.GuildThreadChannel</a> derived types
   (+ <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/interactions/command_interactions.html#hikari.interactions.command_interactions.InteractionChannel">hikari.InteractionChannel</a>) to
   <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.TheseChannels">TheseChannels</a>, and to the <code>types</code> field of
-  <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.with_channel_slash_option">with_channel_slash_option</a> and
+  <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_channel_slash_option">with_channel_slash_option</a> and
   <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.SlashCommand.add_channel_option">SlashCommand.add_channel_option</a>.</li>
 <li>The spacing in <code>triggering_name</code> is now properly normalised for message commands in groups to ensure
   only 1 space. This also fixes cases where names were being smashed together without any spaces.</li>
@@ -3289,7 +3307,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li><a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Flag">tanjun.annotations.Flag</a> will no longer unset any previously set aliases.</li>
 </ul>
-<h3 id="deprecated">Deprecated<a class="headerlink" href="#deprecated" title="Permanent link">#</a></h3>
+<h3 id="deprecated_1">Deprecated<a class="headerlink" href="#deprecated_1" title="Permanent link">#</a></h3>
 <ul>
 <li><a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Flag.default">tanjun.annotations.Flag.default</a> and the <code>default</code> argument for
   <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Flag.__init__">tanjun.annotations.Flag.<strong>init</strong></a>. <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Default">tanjun.annotations.Default</a> should be used instead.</li>
@@ -3508,7 +3526,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   kept through the Alluka refactor.</li>
 <li><code>needs_injection</code> attributes.</li>
 </ul>
-<h3 id="deprecated_1">Deprecated<a class="headerlink" href="#deprecated_1" title="Permanent link">#</a></h3>
+<h3 id="deprecated_2">Deprecated<a class="headerlink" href="#deprecated_2" title="Permanent link">#</a></h3>
 <ul>
 <li><code>tanjun.injecting</code> now only consists of deprecated aliases to Alluka types, with the only
   <code>tanjun.inject</code> and <code>tanjun.injected</code> being left as not deprecated for the sake of ease of use.</li>
@@ -3775,7 +3793,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Renamed <code>OwnPermissionsCheck</code> to <code>OwnPermissionCheck</code>.</li>
 <li>Moved <code>cache_callback</code> from <code>tanjun.injecting</code> to <code>tanjun.dependencies</code>.</li>
 </ul>
-<h3 id="deprecated_2">Deprecated<a class="headerlink" href="#deprecated_2" title="Permanent link">#</a></h3>
+<h3 id="deprecated_3">Deprecated<a class="headerlink" href="#deprecated_3" title="Permanent link">#</a></h3>
 <ul>
 <li>Passing Iterable[tuple[str, value]] as choices to the slash command options has been deprecated
   in favour of Mapping[str, value].</li>
@@ -3816,7 +3834,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   pure function implementations.</li>
 <li><code>Client.load_modules</code> now errors if no loader descriptor is found.</li>
 </ul>
-<h3 id="deprecated_3">Deprecated<a class="headerlink" href="#deprecated_3" title="Permanent link">#</a></h3>
+<h3 id="deprecated_4">Deprecated<a class="headerlink" href="#deprecated_4" title="Permanent link">#</a></h3>
 <ul>
 <li>Calling set_tracked_command with a command ID.</li>
 <li>Passing command_id to <code>SlashCommand.__init__</code>, <code>SlashCommandGroup.__init__</code>, <code>as_slash_command</code> and
@@ -3986,7 +4004,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Process injected callbacks when they're first handled (passed to CallbackDescriptor) than when they're first called
   This lowers the amount of external caching needed.</li>
 </ul>
-<h3 id="deprecated_4">Deprecated<a class="headerlink" href="#deprecated_4" title="Permanent link">#</a></h3>
+<h3 id="deprecated_5">Deprecated<a class="headerlink" href="#deprecated_5" title="Permanent link">#</a></h3>
 <ul>
 <li>InjectionClient/Client .add_type_dependency and add_callback_override have been deprecated in favour of
   set_type_dependency and set_callback_override and are scheduled to be removed a month after v2.0.0a2 is released.</li>
