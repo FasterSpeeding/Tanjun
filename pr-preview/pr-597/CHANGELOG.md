@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [tanjun.annotations.with_annotated_args][] will now raise if a slash command-specific type is
   used for a required message command parameter.
 
+### Fixed
+- The hot reloader will no-longer miss command changes made while it's in the
+  middle of redeclaring commands.
+
 ## [2.10.0a1] - 2022-11-24
 ### Added
 - Support for message commands to [tanjun.annotations.TheseChannels][].
