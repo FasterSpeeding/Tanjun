@@ -60,6 +60,7 @@ class TestBaseConverter:
     @pytest.mark.parametrize(
         ("obj", "expected"),
         [
+            (tanjun.conversion.BaseConverter(), []),
             (
                 tanjun.to_channel,
                 [
