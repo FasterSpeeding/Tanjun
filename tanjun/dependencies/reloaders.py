@@ -424,7 +424,7 @@ class HotReloader:
         await asyncio.sleep(self._redeclare_cmds_after)
 
         while True:
-            if builders != self._scheduled_builders:
+            if not _internal.cmp_all_commands(builders.values(), self._scheduled_builders):
                 builders = self._scheduled_builders
                 try:
                     await asyncio.sleep(self._redeclare_cmds_after)
@@ -448,6 +448,9 @@ class HotReloader:
                 resource = f"guild ({self._command_task})" if self._commands_guild else "global"
                 _LOGGER.error("Failed to declare %s commands", resource, exc_info=exc)
                 self._declared_builders = builders
+                if not _internal.cmp_all_commands(builders.values(), self._scheduled_builders):
+                    continue
+
                 return
 
             except BaseException:
@@ -456,6 +459,9 @@ class HotReloader:
 
             else:
                 self._declared_builders = builders
+                if not _internal.cmp_all_commands(builders.values(), self._scheduled_builders):
+                    continue
+
                 return
 
     @_internal.log_task_exc("Hot reloader crashed")
