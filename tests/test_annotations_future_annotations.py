@@ -4813,3 +4813,68 @@ if sys.version_info >= (3, 10):
         assert option.is_multi is False
         assert option.min_value == 123
         assert option.max_value == 432
+
+
+def test_parse_annotated_args_with_descriptions_argument():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        *,
+        echo: annotations.Str,
+        foxy: annotations.Ranged[123, 432] = 232,
+    ) -> None:
+        raise NotImplementedError
+
+    annotations.parse_annotated_args(command, descriptions={"echo": "meow", "foxy": "x3", "unknown": "..."})
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="echo", description="meow", is_required=True),
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="foxy",
+            description="x3",
+            is_required=False,
+            min_value=123,
+            max_value=432,
+        ),
+    ]
+
+
+def test_parse_annotated_args_with_descriptions_argument_overrides_annotation_strings():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        *,
+        uwu: typing.Annotated[annotations.Str, "ignore me pls"],
+        boxy: typing.Annotated[annotations.Float, "aaaaaaaaaaa"] = 232,
+    ) -> None:
+        raise NotImplementedError
+
+    annotations.parse_annotated_args(command, descriptions={"uwu": "meower", "boxy": "nuzzle", "unknown": "..."})
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="uwu", description="meower", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.FLOAT, name="boxy", description="nuzzle", is_required=False),
+    ]
+
+
+def test_parse_annotated_args_with_descriptions_argument_for_wrapped_slash_command():
+    @tanjun.as_message_command("ignore me")
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        *,
+        ruby: typing.Annotated[annotations.User, "not h"],
+        rebecca: annotations.Str = "h",
+    ) -> None:
+        raise NotImplementedError
+
+    annotations.parse_annotated_args(
+        command, descriptions={"ruby": "shining", "rebecca": "cool gal", "unknown": "..."}, follow_wrapped=True
+    )
+
+    assert isinstance(command.wrapped_command, tanjun.SlashCommand)
+    assert command.wrapped_command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.USER, name="ruby", description="shining", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="rebecca", description="cool gal", is_required=False),
+    ]

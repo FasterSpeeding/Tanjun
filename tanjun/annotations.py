@@ -75,8 +75,6 @@ import abc
 import enum
 import itertools
 import operator
-import sys
-import types
 import typing
 import warnings
 from collections import abc as collections
@@ -92,12 +90,6 @@ from .commands import slash
 
 if typing.TYPE_CHECKING:
     from typing_extensions import Self
-
-if sys.version_info >= (3, 10):
-    _UnionTypes = frozenset((typing.Union, types.UnionType))
-
-else:
-    _UnionTypes = frozenset((typing.Union,))
 
 _T = typing.TypeVar("_T")
 _ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
@@ -1123,13 +1115,13 @@ class _ArgConfig:
         "snowflake_converter",
     )
 
-    def __init__(self, parameter: inspect.Parameter, /) -> None:
+    def __init__(self, parameter: inspect.Parameter, /, *, description: typing.Optional[str]) -> None:
         self.aliases: typing.Optional[collections.Sequence[str]] = None
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
         self.converters: typing.Optional[collections.Sequence[parsing.ConverterSig[typing.Any]]] = None
         self.default: typing.Any = parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
-        self.description: typing.Optional[str] = None
+        self.description: typing.Optional[str] = description
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
         self.is_greedy: bool = False
         self.is_positional: typing.Optional[bool] = None
@@ -1311,17 +1303,43 @@ def _snoop_annotation_args(type_: typing.Any) -> collections.Iterator[typing.Any
         yield from _snoop_annotation_args(args[0])
         yield from args[1:]
 
-    elif origin in _UnionTypes:
+    elif origin in _internal.UnionTypes:
         yield from itertools.chain.from_iterable(map(_snoop_annotation_args, typing.get_args(type_)))
 
 
-def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False) -> _CommandUnionT:
+def parse_annotated_args(
+    command: typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]],
+    /,
+    *,
+    descriptions: typing.Optional[typing.Mapping[str, str]] = None,
+    follow_wrapped: bool = False,
+) -> None:
+    """Set a command's arguments based on its signature.
+
+    For more information on how this works see [tanjun.annotations.with_annotated_args][]
+    which acts as the decorator equivalent of this. The only difference is
+    function allows passing a mapping of argument descriptions.
+
+    Parameters
+    ----------
+    command
+        The message or slash command to set the arguments for.
+    descriptions
+        Mapping of descriptions to use for this command's slash command options.
+
+        If an option isn't included here then this will default back to getting
+        the description from its annotation.
+    follow_wrapped
+        Whether this should also set the arguments on any other command objects
+        this wraps in a decorator call chain.
+    """
     try:
         signature = inspect.signature(command.callback, eval_str=True)
     except ValueError:  # If we can't inspect it then we have to assume this is a NO
         # As a note, this fails on some "signature-less" builtin functions/types like str.
-        return command
+        return
 
+    descriptions = descriptions or {}
     message_commands: list[message.MessageCommand[typing.Any]] = []
     slash_commands: list[slash.SlashCommand[typing.Any]] = []
 
@@ -1342,12 +1360,12 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
         if parameter.annotation is parameter.empty:
             continue
 
-        arg_config = _ArgConfig(parameter)
+        arg_config = _ArgConfig(parameter, description=descriptions.get(parameter.name))
         for arg in _snoop_annotation_args(parameter.annotation):
             if isinstance(arg, _ConfigIdentifier):
                 arg.set_config(arg_config)
 
-            elif isinstance(arg, str):
+            elif isinstance(arg, str) and not arg_config.description:
                 arg_config.description = arg
 
             elif isinstance(arg, (range, slice)):
@@ -1361,7 +1379,7 @@ def _annotated_args(command: _CommandUnionT, /, *, follow_wrapped: bool = False)
             for message_command in message_commands:
                 arg_config.to_message_option(message_command)
 
-    return command
+    return
 
 
 @typing.overload
@@ -1476,6 +1494,12 @@ def with_annotated_args(
         The command object to enable using this as a decorator.
     """
     if not command:
-        return lambda c: _annotated_args(c, follow_wrapped=follow_wrapped)
 
-    return _annotated_args(command, follow_wrapped=follow_wrapped)
+        def decorator(command: _CommandUnionT, /) -> _CommandUnionT:
+            parse_annotated_args(command, follow_wrapped=follow_wrapped)
+            return command
+
+        return decorator
+
+    parse_annotated_args(command, follow_wrapped=follow_wrapped)
+    return command

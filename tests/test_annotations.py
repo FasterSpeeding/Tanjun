@@ -245,7 +245,7 @@ def test_with_nested_message_command_and_incompatible_parser_set():
     command.set_parser(mock_parser)
 
     with pytest.raises(TypeError, match="Expected parser to be an instance of tanjun.parsing.AbstractOptionParser"):
-        annotations.with_annotated_args(follow_wrapped=True)(command)
+        annotations.parse_annotated_args(command, follow_wrapped=True)
 
 
 def test_with_no_annotations():
@@ -363,7 +363,7 @@ def test_when_follow_wrapping_and_wrapping_unsupported_command():
     with pytest.raises(AttributeError):
         command.wrapped_command.wrapped_command  # type: ignore
 
-    annotations.with_annotated_args(follow_wrapped=True)(command)
+    annotations.parse_annotated_args(command, follow_wrapped=True)
 
     assert isinstance(command.parser, tanjun.ShlexParser)
     assert len(command.parser.arguments) == 1
@@ -2141,7 +2141,7 @@ def test_with_max_when_float_for_int():
         ...
 
     with pytest.raises(ValueError, match="Max value of type float is not valid for a int argument"):
-        annotations.with_annotated_args(follow_wrapped=True)(callback)
+        annotations.parse_annotated_args(callback, follow_wrapped=True)
 
 
 def test_with_max_when_int_for_float():
@@ -2396,7 +2396,7 @@ def test_with_min_when_float_for_int():
         ...
 
     with pytest.raises(ValueError, match="Min value of type float is not valid for a int argument"):
-        annotations.with_annotated_args(follow_wrapped=True)(callback)
+        annotations.parse_annotated_args(callback, follow_wrapped=True)
 
 
 def test_with_min_when_int_for_float():
@@ -3702,7 +3702,7 @@ def test_for_attachment_option_on_message_command():
     with pytest.raises(
         RuntimeError, match="<class 'hikari.messages.Attachment'> is not supported for message commands"
     ):
-        annotations.with_annotated_args(follow_wrapped=True)(command)
+        annotations.parse_annotated_args(command, follow_wrapped=True)
 
 
 def test_for_attachment_option_on_message_command_with_default():
@@ -3952,7 +3952,7 @@ def test_for_interaction_channel_option_on_message_command():
             "is not supported for message commands"
         ),
     ):
-        annotations.with_annotated_args(follow_wrapped=True)(command)
+        annotations.parse_annotated_args(command, follow_wrapped=True)
 
 
 def test_for_interaction_channel_option_on_message_command_with_default():
@@ -4275,7 +4275,7 @@ def test_for_interaction_member_option_on_message_command():
             "<class 'hikari.interactions.base_interactions.InteractionMember'> is not supported for message commands"
         ),
     ):
-        annotations.with_annotated_args(follow_wrapped=True)(command)
+        annotations.parse_annotated_args(command, follow_wrapped=True)
 
 
 def test_for_interaction_member_option_on_message_command_with_default():
@@ -4903,3 +4903,68 @@ if sys.version_info >= (3, 10):
         assert option.is_multi is False
         assert option.min_value == 123
         assert option.max_value == 432
+
+
+def test_parse_annotated_args_with_descriptions_argument():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        *,
+        echo: annotations.Str,
+        foxy: annotations.Ranged[123, 432] = 232,
+    ) -> None:
+        raise NotImplementedError
+
+    annotations.parse_annotated_args(command, descriptions={"echo": "meow", "foxy": "x3", "unknown": "..."})
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="echo", description="meow", is_required=True),
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="foxy",
+            description="x3",
+            is_required=False,
+            min_value=123,
+            max_value=432,
+        ),
+    ]
+
+
+def test_parse_annotated_args_with_descriptions_argument_overrides_annotation_strings():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        *,
+        uwu: typing.Annotated[annotations.Str, "ignore me pls"],
+        boxy: typing.Annotated[annotations.Float, "aaaaaaaaaaa"] = 232,
+    ) -> None:
+        raise NotImplementedError
+
+    annotations.parse_annotated_args(command, descriptions={"uwu": "meower", "boxy": "nuzzle", "unknown": "..."})
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="uwu", description="meower", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.FLOAT, name="boxy", description="nuzzle", is_required=False),
+    ]
+
+
+def test_parse_annotated_args_with_descriptions_argument_for_wrapped_slash_command():
+    @tanjun.as_message_command("ignore me")
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        *,
+        ruby: typing.Annotated[annotations.User, "not h"],
+        rebecca: annotations.Str = "h",
+    ) -> None:
+        raise NotImplementedError
+
+    annotations.parse_annotated_args(
+        command, descriptions={"ruby": "shining", "rebecca": "cool gal", "unknown": "..."}, follow_wrapped=True
+    )
+
+    assert isinstance(command.wrapped_command, tanjun.SlashCommand)
+    assert command.wrapped_command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.USER, name="ruby", description="shining", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="rebecca", description="cool gal", is_required=False),
+    ]
