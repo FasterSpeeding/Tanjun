@@ -181,7 +181,7 @@ class BaseConverter(abc.ABC):
         parent_name
             The name of the converter's parent, used for warning messages.
         """
-        if any(client.injector.get_type_dependency(cls, default=None) is not None for cls in self.async_caches):
+        if all(client.injector.get_type_dependency(cls, default=None) is not None for cls in self.async_caches):
             # We don't know whether async caches are being filled by other
             # instances so we have to ignore this case.
             return
