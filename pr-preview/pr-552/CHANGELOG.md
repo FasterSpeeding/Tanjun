@@ -6,10 +6,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Add cache component checks to the startup logging for converter configs.
+- Slash command specific [tanjun.annotations.InteractionChannel][] and
+  [tanjun.annotations.InteractionMember][] types for annotation parsing.
+- Exposed non-decorator version of [with_annotated_args][tanjun.annotations.with_annotated_args]
+  at [tanjun.annotations.parse_annotated_args][].
+  This comes with the added functionality of letting you directly pass slash command option
+  descriptions to the callback via the `descriptions` argument (instead of putting strings in
+  annotations).
+- Add cache component checks to the startup logging for converter client config compatibility.
 
 ### Changed
-- Converter startup config logs now only use info level when REST fallback is possible.
+- [tanjun.annotations.with_annotated_args][] will now raise if a slash command-specific type is
+  used for a required message command parameter.
+- Converter startup client config logs now only use info level when REST fallback is possible.
+- `allowed_types=[]` is now treated as allowing no channel types (rather than any) when passed to
+  [tanjun.conversion.ToChannel.__init__][]
+
+### Deprecated
+- `BaseConverter.async_caches`, `BaseConverter.cache_components` and `BaseConverter.intents`.
+
+### Fixed
+- The hot reloader will no-longer miss command changes made while it's in the
+  middle of redeclaring commands.
 
 ## [2.10.0a1] - 2022-11-24
 ### Added
@@ -30,8 +48,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   only 1 space. This also fixes cases where names were being smashed together without any spaces.
 - The hot reloader trying to declare commands multiple times.
 - Actually set the attached component for commands within slash-command groups.
-- Process the converters to log for client misconfiguration for converters attached to commands within
-  slash-command groups.
+- Process converters attached to commands within slash-command groups to log for client
+  misconfiguration.
 
 ## [2.9.0a1] - 2022-11-08
 ### Added

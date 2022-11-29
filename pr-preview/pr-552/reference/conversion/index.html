@@ -752,6 +752,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tanjun.conversion.BaseConverter.caches" class="md-nav__link">
+    caches()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tanjun.conversion.BaseConverter.check_client" class="md-nav__link">
     check_client()
   </a>
@@ -1318,6 +1325,13 @@
           <li class="md-nav__item">
   <a href="#tanjun.conversion.BaseConverter.cache_components" class="md-nav__link">
     cache_components()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.conversion.BaseConverter.caches" class="md-nav__link">
+    caches()
   </a>
   
 </li>
@@ -3165,8 +3179,6 @@ making any cache or REST calls then you can just use the relevant
 
 
   <div class="doc doc-contents ">
-      <p class="doc doc-class-bases">
-        Bases: <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/abc.html#module-abc">abc</a>.<a class="autorefs autorefs-external" title="abc.ABC" href="https://docs.python.org/3.9/library/abc.html#abc.ABC">ABC</a></code></p>
 
   
       <p>Base class for the standard converters.</p>
@@ -3205,7 +3217,6 @@ this class introduces some niceties around stuff like state warnings.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
@@ -3215,9 +3226,7 @@ this class introduces some niceties around stuff like state warnings.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Collection of the asynchronous caches that this converter relies on.</p>
-<p>This will only be necessary if the suggested intents or cache_components
-aren't enabled for a converter which requires cache.</p>
+      <p>Deprecated property.</p>
 
   </div>
 
@@ -3232,7 +3241,6 @@ aren't enabled for a converter which requires cache.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
@@ -3242,15 +3250,39 @@ aren't enabled for a converter which requires cache.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Cache component(s) the converter takes advantage of.</p>
+      <p>Deprecated property.</p>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="tanjun.conversion.BaseConverter.caches" class="doc doc-heading">
+        <span class="doc doc-object-name doc-function-name">caches</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.conversion.BaseConverter.caches" class="headerlink" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">caches</span><span class="p">()</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Caches the converter takes advantage of.</p>
+<p>This returns a tuple of async cache types and the relevant cache components
+which will be needed if said async cache isn't implemented.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Unless <a class="autorefs autorefs-internal" href="#tanjun.conversion.BaseConverter.requires_cache">tanjun.conversion.BaseConverter.requires_cache</a> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>,
 these cache components aren't necessary but simply avoid the converter
 from falling back to REST requests.</p>
 </div>
-<p>This will be <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/api/config.html#hikari.api.config.CacheComponents.NONE">hikari.api.config.CacheComponents.NONE</a> if the converter doesn't
-make cache calls.</p>
 
   </div>
 
@@ -3322,7 +3354,6 @@ is not compatible with the given client.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
@@ -3332,16 +3363,7 @@ is not compatible with the given client.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Gateway intents this converter takes advantage of.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This field is supplementary to <a class="autorefs autorefs-internal" href="#tanjun.conversion.BaseConverter.cache_components">tanjun.conversion.BaseConverter.cache_components</a>
-and is used to detect when the relevant component might not
-actually be being kept up to date or filled by gateway events.</p>
-<p>Unless <a class="autorefs autorefs-internal" href="#tanjun.conversion.BaseConverter.requires_cache">tanjun.conversion.BaseConverter.requires_cache</a> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>,
-these intents being disabled won't stop this converter from working as
-it'll still fall back to REST requests.</p>
-</div>
+      <p>Deprecated property.</p>
 
   </div>
 
@@ -3356,7 +3378,6 @@ it'll still fall back to REST requests.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
@@ -3445,7 +3466,7 @@ and will never fallback to REST requests.</p>
           <td><code>allowed_types</code></td>
           <td class="doc-param-details">
             <p>Collection of channel types and classes to allow.</p>
-<p>If this is empty or <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then all channel types will be allowed.</p>
+<p>If this is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then all channel types will be allowed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>

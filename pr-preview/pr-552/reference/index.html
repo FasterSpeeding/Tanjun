@@ -7762,11 +7762,15 @@ an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.conte
     </thead>
     <tbody>
         <tr>
-          <td><code>case_sensitive</code></td>
+          <td><code>state</code></td>
           <td class="doc-param-details">
             <p>Whether this client's message commands should be matched case-sensitively.</p>
 <p>This may be overridden by component specific configuration.</p>
             <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
             </p>
           </td>
         </tr>
@@ -11242,13 +11246,17 @@ client by targeting the module using [tanjun.Client.load_modules][],
     </thead>
     <tbody>
         <tr>
-          <td><code>case_sensitive</code></td>
+          <td><code>state</code></td>
           <td class="doc-param-details">
             <p>Whether this component's message commands should be matched
 case-sensitively.</p>
 <p>If this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then the client's case-sensitive
 setting will be used.</p>
             <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>]</code>
+                </span>
             </p>
           </td>
         </tr>
@@ -21952,7 +21960,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -23323,7 +23331,7 @@ command wraps in a decorator call chain.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 
