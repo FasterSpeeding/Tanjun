@@ -75,6 +75,7 @@ __all__: list[str] = [
 ]
 
 import datetime
+import functools
 import logging
 import operator
 import re
@@ -121,11 +122,14 @@ class BaseConverter:
     @property
     def async_caches(self) -> collections.Sequence[typing.Any]:
         """Deprecated property."""
-        return []
+        return list({v[0] for v in self.caches})
 
     @property
     def cache_components(self) -> hikari.api.CacheComponents:
         """Deprecated property."""
+        if self.caches:
+            return functools.reduce(operator.ior, (v[1] for v in self.caches))
+
         return hikari.api.CacheComponents.NONE
 
     @property
@@ -145,6 +149,9 @@ class BaseConverter:
     @property
     def intents(self) -> hikari.Intents:
         """Deprecated property."""
+        if self.caches:
+            return functools.reduce(operator.ior, (v[2] for v in self.caches))
+
         return hikari.Intents.NONE
 
     @property
@@ -231,7 +238,7 @@ class ToChannel(BaseConverter):
     For a standard instance of this see [tanjun.conversion.to_channel][].
     """
 
-    __slots__ = ("_allowed_types", "_allowed_types_repr", "_include_dms")
+    __slots__ = ("_allowed_types", "_allowed_types_repr", "_dms_enabled", "_guilds_enabled", "_threads_enabled")
 
     def __init__(
         self,
@@ -246,7 +253,7 @@ class ToChannel(BaseConverter):
         allowed_types
             Collection of channel types and classes to allow.
 
-            If this is empty or [None][] then all channel types will be allowed.
+            If this is [None][] then all channel types will be allowed.
         include_dms
             Whether to include DM channels in the results.
 
@@ -254,8 +261,30 @@ class ToChannel(BaseConverter):
             the client doesn't have a registered async cache for DMs.
         """
         allowed_types_ = _internal.parse_channel_types(*allowed_types or ())
-        self._allowed_types = set(allowed_types_)
-        self._include_dms = include_dms
+        dm_types = _internal.CHANNEL_TYPES[hikari.PrivateChannel]
+
+        if not include_dms:
+            if allowed_types is None:
+                allowed_types = _internal.CHANNEL_TYPES[hikari.PartialChannel].difference(dm_types)
+                allowed_types_ = list(allowed_types)
+
+            else:
+                for channel_type in dm_types:
+                    try:
+                        allowed_types_.remove(channel_type)
+                    except ValueError:
+                        pass
+
+        self._allowed_types = set(allowed_types_) if allowed_types is not None else None
+        self._dms_enabled = include_dms and (
+            self._allowed_types is None or any(map(self._allowed_types.__contains__, dm_types))
+        )
+        self._guilds_enabled = self._allowed_types is None or any(
+            map(self._allowed_types.__contains__, _internal.CHANNEL_TYPES[hikari.PermissibleGuildChannel])
+        )
+        self._threads_enabled = self._allowed_types is None or any(
+            map(self._allowed_types.__contains__, _internal.CHANNEL_TYPES[hikari.GuildThreadChannel])
+        )
 
         if not allowed_types_:
             self._allowed_types_repr = ""
@@ -270,11 +299,18 @@ class ToChannel(BaseConverter):
     @property
     def caches(self) -> collections.Sequence[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]]:
         # <<inherited docstring from BaseConverter>>.
-        return [
-            (_GuildChannelCacheT, hikari.api.CacheComponents.GUILD_CHANNELS, hikari.Intents.GUILDS),
-            (_DmCacheT, hikari.api.CacheComponents.NONE, hikari.Intents.NONE),
-            (_ThreadCacheT, hikari.api.CacheComponents.NONE, hikari.Intents.GUILDS),
-        ]
+        results: list[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]] = []
+
+        if self._guilds_enabled:
+            results.append((_GuildChannelCacheT, hikari.api.CacheComponents.GUILD_CHANNELS, hikari.Intents.GUILDS))
+
+        if self._dms_enabled:
+            results.append((_DmCacheT, hikari.api.CacheComponents.NONE, hikari.Intents.NONE))
+
+        if self._threads_enabled:
+            results.append((_ThreadCacheT, hikari.api.CacheComponents.NONE, hikari.Intents.GUILDS))
+
+        return results
 
     @property
     def requires_cache(self) -> bool:
@@ -282,7 +318,7 @@ class ToChannel(BaseConverter):
         return False
 
     def _assert_type(self, channel: _PartialChannelT, /) -> _PartialChannelT:
-        if self._allowed_types and channel.type not in self._allowed_types:
+        if self._allowed_types is not None and channel.type not in self._allowed_types:
             raise ValueError(
                 f"Only the following channel types are allowed for this argument: {self._allowed_types_repr}"
             )
@@ -304,7 +340,11 @@ class ToChannel(BaseConverter):
             return self._assert_type(channel_)
 
         # Ensure bool for MyPy compat
-        no_guild_channel = bool(cache and thread_cache and dm_cache)
+        no_guild_channel = bool(
+            (cache or not self._guilds_enabled)
+            and (thread_cache or not self._threads_enabled)
+            and (dm_cache or not self._dms_enabled)
+        )
         if cache:
             try:
                 return self._assert_type(await cache.get(channel_id))
@@ -315,7 +355,7 @@ class ToChannel(BaseConverter):
             except async_cache.CacheMissError:
                 no_guild_channel = False
 
-        if thread_cache:
+        if thread_cache and self._threads_enabled:
             try:
                 return self._assert_type(await thread_cache.get(channel_id))
 
@@ -325,7 +365,7 @@ class ToChannel(BaseConverter):
             except async_cache.CacheMissError:
                 no_guild_channel = False
 
-        if dm_cache and self._include_dms:
+        if dm_cache and self._dms_enabled:
             try:
                 return self._assert_type(await dm_cache.get(channel_id))
 
@@ -337,9 +377,7 @@ class ToChannel(BaseConverter):
 
         if not no_guild_channel:
             try:
-                channel = await ctx.rest.fetch_channel(channel_id)
-                if self._include_dms or isinstance(channel, hikari.GuildChannel):
-                    return self._assert_type(channel)
+                return self._assert_type(await ctx.rest.fetch_channel(channel_id))
 
             except hikari.NotFoundError:
                 pass

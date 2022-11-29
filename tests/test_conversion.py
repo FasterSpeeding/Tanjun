@@ -198,6 +198,104 @@ class TestBaseConverter:
 
 
 class TestToChannel:
+    @pytest.mark.parametrize(
+        ("allowed_types", "include_dms", "expected"),
+        [
+            (
+                [hikari.ChannelType.DM, hikari.ChannelType.GUILD_CATEGORY, hikari.ChannelType.GUILD_NEWS_THREAD],
+                True,
+                [
+                    (
+                        async_cache.SfCache[hikari.PermissibleGuildChannel],
+                        hikari.api.CacheComponents.GUILD_CHANNELS,
+                        hikari.Intents.GUILDS,
+                    ),
+                    (async_cache.SfCache[hikari.DMChannel], hikari.api.CacheComponents.NONE, hikari.Intents.NONE),
+                    (
+                        async_cache.SfCache[hikari.GuildThreadChannel],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS,
+                    ),
+                ],
+            ),
+            (
+                [hikari.ChannelType.GROUP_DM, hikari.ChannelType.GUILD_NEWS],
+                True,
+                [
+                    (
+                        async_cache.SfCache[hikari.PermissibleGuildChannel],
+                        hikari.api.CacheComponents.GUILD_CHANNELS,
+                        hikari.Intents.GUILDS,
+                    ),
+                    (async_cache.SfCache[hikari.DMChannel], hikari.api.CacheComponents.NONE, hikari.Intents.NONE),
+                ],
+            ),
+            (
+                [hikari.ChannelType.DM],
+                True,
+                [(async_cache.SfCache[hikari.DMChannel], hikari.api.CacheComponents.NONE, hikari.Intents.NONE)],
+            ),
+            (
+                [hikari.ChannelType.GUILD_STAGE, hikari.ChannelType.GUILD_PUBLIC_THREAD],
+                True,
+                [
+                    (
+                        async_cache.SfCache[hikari.PermissibleGuildChannel],
+                        hikari.api.CacheComponents.GUILD_CHANNELS,
+                        hikari.Intents.GUILDS,
+                    ),
+                    (
+                        async_cache.SfCache[hikari.GuildThreadChannel],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS,
+                    ),
+                ],
+            ),
+            (
+                [hikari.ChannelType.GUILD_TEXT],
+                True,
+                [
+                    (
+                        async_cache.SfCache[hikari.PermissibleGuildChannel],
+                        hikari.api.CacheComponents.GUILD_CHANNELS,
+                        hikari.Intents.GUILDS,
+                    )
+                ],
+            ),
+            (
+                [hikari.ChannelType.GUILD_PRIVATE_THREAD],
+                True,
+                [
+                    (
+                        async_cache.SfCache[hikari.GuildThreadChannel],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS,
+                    )
+                ],
+            ),
+            (
+                [hikari.ChannelType.GROUP_DM, hikari.ChannelType.GUILD_PUBLIC_THREAD],
+                True,
+                [
+                    (async_cache.SfCache[hikari.DMChannel], hikari.api.CacheComponents.NONE, hikari.Intents.NONE),
+                    (
+                        async_cache.SfCache[hikari.GuildThreadChannel],
+                        hikari.api.CacheComponents.NONE,
+                        hikari.Intents.GUILDS,
+                    ),
+                ],
+            ),
+            ([hikari.ChannelType.DM], False, []),
+        ],
+    )
+    def test_caches_property(
+        self,
+        allowed_types: list[hikari.ChannelType],
+        include_dms: bool,
+        expected: list[tuple[typing.Any, hikari.api.CacheComponents, hikari.Intents]],
+    ):
+        assert tanjun.conversion.ToChannel(allowed_types=allowed_types, include_dms=include_dms).caches == expected
+
     @pytest.mark.asyncio()
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
@@ -619,7 +717,9 @@ class TestToChannel:
     @pytest.mark.asyncio()
     async def test___call___when_not_including_dms(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.GuildChannel)
+        mock_context.rest.fetch_channel.return_value = mock.Mock(
+            hikari.GuildChannel, type=hikari.ChannelType.GUILD_NEWS_THREAD
+        )
         mock_context.cache.get_guild_channel.return_value = None
         mock_channel_cache = mock.AsyncMock()
         mock_channel_cache.get.side_effect = tanjun.dependencies.CacheMissError
@@ -642,7 +742,7 @@ class TestToChannel:
     @pytest.mark.asyncio()
     async def test___call___when_not_including_dms_and_rest_returns_dm_channel(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
-        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.DMChannel)
+        mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.DMChannel, type=hikari.ChannelType.DM)
         mock_context.cache.get_guild_channel.return_value = None
         mock_channel_cache = mock.AsyncMock()
         mock_channel_cache.get.side_effect = tanjun.dependencies.CacheMissError
@@ -651,7 +751,7 @@ class TestToChannel:
         mock_thread_cache.get.side_effect = tanjun.dependencies.CacheMissError
         converter = tanjun.conversion.ChannelConverter(include_dms=False)
 
-        with pytest.raises(ValueError, match="Couldn't find channel"):
+        with pytest.raises(ValueError, match="Only the following channel types are allowed for this argument: .*"):
             await converter(
                 "<#12222>",
                 mock_context,
