@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Slash command specific [tanjun.annotations.InteractionChannel][] and
   [tanjun.annotations.InteractionMember][] types for annotation parsing.
+- Exposed non-decorator version of [with_annotated_args][tanjun.annotations.with_annotated_args][]
+  at [tanjun.annotations.parse_annotated_args][].
+  This comes with the added functionality of letting you directly pass slash command option
+  descriptions to the callback via the `descriptions` argument (instead of putting strings in
+  annotations).
 
 ### Changed
 - [tanjun.annotations.with_annotated_args][] will now raise if a slash command-specific type is
