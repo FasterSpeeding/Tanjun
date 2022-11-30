@@ -1050,7 +1050,7 @@ def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any]
     if value is None or isinstance(value, type_):
         return value
 
-    raise ValueError(
+    raise TypeError(
         f"{name.capitalize()} value of type {type(value).__name__} is not valid for a {type_.__name__} argument"
     )
 

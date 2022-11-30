@@ -1035,7 +1035,7 @@ class TestTimeSchedule:
         ],
     )
     def test_init_when_float_passed(self, kwargs: dict[str, typing.Any], expected_message: str):
-        with pytest.raises(ValueError, match=expected_message):
+        with pytest.raises(TypeError, match=expected_message):
             tanjun.schedules.TimeSchedule(mock.Mock(), **kwargs)
 
     @pytest.mark.asyncio()

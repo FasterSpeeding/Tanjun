@@ -587,7 +587,7 @@ def _to_sequence(
     else:
         values = sorted(values)
         if any(isinstance(value, float) for value in values):
-            raise ValueError(f"Cannot pass floats for {name}")
+            raise TypeError(f"Cannot pass floats for {name}")
 
     first_entry = values[0]
     last_entry = values[-1]

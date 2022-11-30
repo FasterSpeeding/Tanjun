@@ -1017,7 +1017,7 @@ class TestToInvite:
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
 
-        with pytest.raises(ValueError, match="`123` is not a valid invite code"):
+        with pytest.raises(TypeError, match="`123` is not a valid invite code"):
             await tanjun.to_invite(123, mock_context, cache=mock_cache)
 
         mock_context.cache.get_invite.assert_not_called()
@@ -1104,7 +1104,7 @@ class TestToInviteWithMetadata:
 
     @pytest.mark.asyncio()
     async def test___call___when_not_str(self):
-        with pytest.raises(ValueError, match="`432123` is not a valid invite code"):
+        with pytest.raises(TypeError, match="`432123` is not a valid invite code"):
             await tanjun.to_invite_with_metadata(432123, mock.Mock())
 
     @pytest.mark.asyncio()
@@ -1943,7 +1943,7 @@ def test_to_color_when_str_of_space_separated_digits():
 
 
 def test_to_color_when_str_of_space_separated_non_digits():
-    with pytest.raises(ValueError, match="Not a valid color representation"):
+    with pytest.raises(TypeError, match="Not a valid color representation"):
         tanjun.to_color("54 23 aye")
 
 

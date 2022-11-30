@@ -181,7 +181,7 @@ class _LoaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.updat
     def load(self, client: tanjun.Client, /) -> bool:
         if self._must_be_std:
             if not isinstance(client, Client):
-                raise ValueError("This loader requires instances of the standard Client implementation")
+                raise TypeError("This loader requires instances of the standard Client implementation")
 
             self._callback(client)
 
@@ -221,7 +221,7 @@ class _UnloaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.upd
     def unload(self, client: tanjun.Client, /) -> bool:
         if self._must_be_std:
             if not isinstance(client, Client):
-                raise ValueError("This unloader requires instances of the standard Client implementation")
+                raise TypeError("This unloader requires instances of the standard Client implementation")
 
             self._callback(client)
 

@@ -536,7 +536,7 @@ class TestComponent:
         )()
 
         with pytest.raises(
-            ValueError,
+            TypeError,
             match=(
                 "Unexpected object passed, expected a MenuCommand, MessageCommand"
                 f" or BaseSlashCommand but got {type(mock_command)}"
@@ -595,7 +595,7 @@ class TestComponent:
         )()
 
         with pytest.raises(
-            ValueError,
+            TypeError,
             match=f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(mock_command)}",
         ):
             component.remove_command(mock_command)

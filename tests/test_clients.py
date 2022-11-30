@@ -130,7 +130,7 @@ class TestLoaderDescriptor:
         typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
-        with pytest.raises(ValueError, match="This loader requires instances of the standard Client implementation"):
+        with pytest.raises(TypeError, match="This loader requires instances of the standard Client implementation"):
             descriptor.load(mock.Mock())
 
         mock_callback.assert_not_called()
@@ -243,7 +243,7 @@ class TestUnloaderDescriptor:
         typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
-        with pytest.raises(ValueError, match="This unloader requires instances of the standard Client implementation"):
+        with pytest.raises(TypeError, match="This unloader requires instances of the standard Client implementation"):
             descriptor.unload(mock.Mock())
 
         mock_callback.assert_not_called()

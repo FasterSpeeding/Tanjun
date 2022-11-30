@@ -673,7 +673,7 @@ def test_choices_and_mixed_values(
         ...
 
     with pytest.raises(
-        ValueError, match=f"Choice of type {mismatched_type.__name__} is not valid for a {type_repr.__name__} argument"
+        TypeError, match=f"Choice of type {mismatched_type.__name__} is not valid for a {type_repr.__name__} argument"
     ):
         annotations.with_annotated_args(callback)
 
@@ -955,7 +955,7 @@ def test_with_generic_choices_when_enum_has_no_other_base():
     class Choices(enum.Enum):
         ...
 
-    with pytest.raises(ValueError, match="Enum must be a subclsas of str, float or int"):
+    with pytest.raises(TypeError, match="Enum must be a subclass of str, float or int"):
         annotations.Choices[Choices]
 
 
@@ -963,7 +963,7 @@ def test_with_generic_choices_when_enum_isnt_int_str_or_float():
     class Choices(bytes, enum.Enum):
         ...
 
-    with pytest.raises(ValueError, match="Enum must be a subclsas of str, float or int"):
+    with pytest.raises(TypeError, match="Enum must be a subclass of str, float or int"):
         annotations.Choices[Choices]
 
 
@@ -2032,7 +2032,7 @@ def test_with_max_when_float_for_int():
     ) -> None:
         ...
 
-    with pytest.raises(ValueError, match="Max value of type float is not valid for a int argument"):
+    with pytest.raises(TypeError, match="Max value of type float is not valid for a int argument"):
         annotations.with_annotated_args(follow_wrapped=True)(callback)
 
 
@@ -2295,7 +2295,7 @@ def test_with_min_when_float_for_int():
     ) -> None:
         ...
 
-    with pytest.raises(ValueError, match="Min value of type float is not valid for a int argument"):
+    with pytest.raises(TypeError, match="Min value of type float is not valid for a int argument"):
         annotations.with_annotated_args(follow_wrapped=True)(callback)
 
 
