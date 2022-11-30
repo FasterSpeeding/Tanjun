@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -200,7 +199,7 @@ class _ChoicesMeta(abc.ABCMeta):
             choices = Choices(enum_.__members__)
 
         else:
-            raise ValueError("Enum must be a subclsas of str, float or int")
+            raise TypeError("Enum must be a subclass of str, float or int")
 
         # TODO: do we want to wrap the convert callback to give better failed parse messages?
         return typing.cast(type[_EnumT], typing.Annotated[enum_, choices, Converted(enum_), _TypeOverride(type_)])
@@ -1064,7 +1063,7 @@ def _ensure_values(
 
     for value in mapping.values():
         if not isinstance(value, type_):
-            raise ValueError(
+            raise TypeError(
                 f"{name.capitalize()} of type {type(value).__name__} is not valid for a {type_.__name__} argument"
             )
 
@@ -1311,7 +1310,7 @@ def parse_annotated_args(
     command: typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]],
     /,
     *,
-    descriptions: typing.Optional[typing.Mapping[str, str]] = None,
+    descriptions: typing.Optional[collections.Mapping[str, str]] = None,
     follow_wrapped: bool = False,
 ) -> None:
     """Set a command's arguments based on its signature.

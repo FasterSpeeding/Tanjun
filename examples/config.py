@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # Tanjun Examples - A collection of examples for Tanjun.
 # Written in 2021 by Lucina Lucina@lmbyrne.dev
 #

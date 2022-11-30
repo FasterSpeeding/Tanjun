@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -248,9 +247,7 @@ def type_check(session: nox.Session) -> None:
     """Statically analyse and veirfy this project using Pyright."""
     install_requirements(session, ".", *_dev_dep("nox", "tests", "type-checking"))
     _run_pyright(session)
-    # session.run("python", "-m", "mypy", "--version")
-    # Right now MyPy is allowed to fail without failing CI as the alternative is to let MyPy bugs block releases.
-    # session.run("python", "-m", "mypy", "tanjun", "--show-error-codes", success_codes=[0, 1])
+    # TODO: add allowed to fail MyPy call once it stops giving an insane amount of false-positives
 
 
 @nox.session(name="verify-types", reuse_venv=True)

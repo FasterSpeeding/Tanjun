@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -779,7 +778,7 @@ class Component(tanjun.Component):
             self.add_menu_command(command)
 
         else:
-            raise ValueError(
+            raise TypeError(
                 "Unexpected object passed, expected a MenuCommand, "
                 f"MessageCommand or BaseSlashCommand but got {type(command)}"
             )
@@ -806,7 +805,7 @@ class Component(tanjun.Component):
             self.remove_slash_command(command)
 
         else:
-            raise ValueError(
+            raise TypeError(
                 f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(command)}"
             )
 

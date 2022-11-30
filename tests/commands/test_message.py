@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -52,7 +51,7 @@ _T = typing.TypeVar("_T")
 
 
 def stub_class(
-    cls: typing.Type[_T],
+    cls: type[_T],
     /,
     args: collections.Sequence[typing.Any] = (),
     kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,

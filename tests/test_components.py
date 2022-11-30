@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -136,10 +135,10 @@ class TestComponent:
         # this is to silence warnings about these variables being "unused" which
         # we ignore in this case as we're testing that detect_command can deal with
         # ignoring variable noise.
-        baz = 1  # type: ignore  # noqa: F841
+        mock_value_1 = 1  # type: ignore  # noqa: F841
         mock_loader_1 = mock.Mock(tanjun.components.AbstractComponentLoader)
-        foo = None  # type: ignore  # noqa: F841
-        bar = object()  # type: ignore  # noqa: F841
+        mock_value_2 = None  # type: ignore  # noqa: F841
+        mock_value_3 = object()  # type: ignore  # noqa: F841
         mock_loader_2 = mock.Mock(tanjun.components.AbstractComponentLoader)
         mock_loader_3 = mock.Mock(tanjun.components.AbstractComponentLoader)
 
@@ -157,13 +156,13 @@ class TestComponent:
         # this is to silence warnings about these variables being "unused" which
         # we ignore in this case as we're testing that detect_command can deal with
         # ignoring variable noise.
-        baz = 1  # type: ignore  # noqa: F841
+        mock_value_1 = 1  # type: ignore  # noqa: F841
         mock_loader_1 = mock.Mock(tanjun.components.AbstractComponentLoader)
-        foo = None  # type: ignore  # noqa: F841
+        mock_value_2 = None  # type: ignore  # noqa: F841
         mock_loader_2 = mock.Mock(tanjun.components.AbstractComponentLoader)
         mock_owned_slash_command = mock.Mock(tanjun.abc.SlashCommand)  # type: ignore  # noqa: F841
         mock_loader_3 = mock.Mock(tanjun.components.AbstractComponentLoader)
-        bar = object()  # type: ignore  # noqa: F841
+        mock_value_3 = object()  # type: ignore  # noqa: F841
 
         component = tanjun.Component()
 
@@ -214,12 +213,11 @@ class TestComponent:
     def test_load_from_scope_when_stack_inspection_not_supported(self):
         component = tanjun.Component()
 
-        with mock.patch.object(inspect, "currentframe", return_value=None):
-            with pytest.raises(
-                RuntimeError,
-                match="Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`.",
-            ):
-                component.load_from_scope()
+        with pytest.raises(
+            RuntimeError,
+            match="Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`.",
+        ), mock.patch.object(inspect, "currentframe", return_value=None):
+            component.load_from_scope()
 
     def test_set_default_app_command_permissions(self):
         component = tanjun.Component().set_default_app_command_permissions(3123)
@@ -255,7 +253,7 @@ class TestComponent:
         assert result is component
         assert component.hooks is mock_hooks
 
-    def test_set_hooks_when_None(self):
+    def test_set_hooks_when_none(self):
         component = tanjun.Component().set_hooks(mock.Mock())
 
         result = component.set_hooks(None)
@@ -272,7 +270,7 @@ class TestComponent:
         assert result is component
         assert component.menu_hooks is mock_hooks
 
-    def test_set_menu_hooks_when_None(self):
+    def test_set_menu_hooks_when_none(self):
         component = tanjun.Component().set_menu_hooks(mock.Mock())
 
         result = component.set_menu_hooks(None)
@@ -289,7 +287,7 @@ class TestComponent:
         assert result is component
         assert component.message_hooks is mock_hooks
 
-    def test_set_message_hooks_when_None(self):
+    def test_set_message_hooks_when_none(self):
         component = tanjun.Component().set_message_hooks(mock.Mock())
 
         result = component.set_message_hooks(None)
@@ -306,7 +304,7 @@ class TestComponent:
         assert result is component
         assert component.slash_hooks is mock_hooks
 
-    def test_set_slash_hooks_when_None(self):
+    def test_set_slash_hooks_when_none(self):
         component = tanjun.Component().set_slash_hooks(mock.Mock())
 
         result = component.set_slash_hooks(None)

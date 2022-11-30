@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -521,7 +520,7 @@ class ToInvite(BaseConverter):
         cache: alluka.Injected[typing.Optional[_InviteCacheT]] = None,
     ) -> hikari.Invite:
         if not isinstance(argument, str):
-            raise ValueError(f"`{argument}` is not a valid invite code")
+            raise TypeError(f"`{argument}` is not a valid invite code")
 
         if ctx.cache and (invite := ctx.cache.get_invite(argument)):
             return invite
@@ -578,7 +577,7 @@ class ToInviteWithMetadata(BaseConverter):
         cache: alluka.Injected[typing.Optional[_InviteCacheT]] = None,
     ) -> hikari.InviteWithMetadata:
         if not isinstance(argument, str):
-            raise ValueError(f"`{argument}` is not a valid invite code")
+            raise TypeError(f"`{argument}` is not a valid invite code")
 
         if ctx.cache and (invite := ctx.cache.get_invite(argument)):
             return invite
@@ -1477,7 +1476,7 @@ def to_color(argument: _ArgumentT, /) -> hikari.Color:
         if len(values) == 1:
             return hikari.Color.of(values[0])
 
-        raise ValueError("Not a valid color representation")
+        raise TypeError("Not a valid color representation")
 
     return hikari.Color.of(argument)
 

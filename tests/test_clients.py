@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -68,7 +67,7 @@ class TestMessageAcceptsEnum:
         assert value.get_event_type() == expected_type
 
 
-class Test_LoaderDescriptor:
+class TestLoaderDescriptor:
     def test_has_load_property(self):
         loader = tanjun.as_loader(mock.Mock())
         assert isinstance(loader, tanjun.clients._LoaderDescriptor)
@@ -171,7 +170,7 @@ class Test_LoaderDescriptor:
         mock_callback.assert_not_called()
 
 
-class Test_UnloaderDescriptor:
+class TestUnloaderDescriptor:
     def test_has_load_property(self):
         loader = tanjun.as_unloader(mock.Mock())
         assert isinstance(loader, tanjun.clients._UnloaderDescriptor)
@@ -305,7 +304,7 @@ class TestClient:
         mock_rest = mock.AsyncMock()
 
         class TestClient(tanjun.Client):
-            open = mock_open
+            open = mock_open  # noqa: VNE003
 
         client = TestClient(mock_rest)
 
@@ -383,7 +382,7 @@ class TestClient:
         close_ = mock.AsyncMock()
 
         class MockClient(tanjun.Client):
-            open = open_
+            open = open_  # noqa: VNE003
             close = close_
 
         async with MockClient(mock.Mock()):
@@ -400,7 +399,7 @@ class TestClient:
 
         class StudClient(tanjun.Client):
             __slots__ = ()
-            open = open_
+            open = open_  # noqa: VNE003
             close = close_
 
         client = StudClient(mock.Mock())
@@ -904,15 +903,15 @@ class TestClient:
         mock_check_1 = mock.Mock()
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
-        mocK_exception = Exception("test")
+        mock_exception = Exception("test")
         mock_context = mock.Mock()
-        mock_context.call_with_async_di = mock.AsyncMock(side_effect=[True, mocK_exception, False])
+        mock_context.call_with_async_di = mock.AsyncMock(side_effect=[True, mock_exception, False])
         client = tanjun.Client(mock.Mock()).add_check(mock_check_1).add_check(mock_check_2).add_check(mock_check_3)
 
         with pytest.raises(Exception, match="test") as exc:
             await client.check(mock_context)
 
-        assert exc.value is mocK_exception
+        assert exc.value is mock_exception
 
         mock_context.call_with_async_di.assert_has_awaits(
             [
@@ -2050,18 +2049,18 @@ class TestClient:
             shutil.rmtree(temp_dir)
 
     @pytest.fixture()
-    def file(self) -> collections.Iterator[typing.IO[str]]:
+    def temp_file(self) -> collections.Iterator[typing.IO[str]]:
         # A try, finally is used to delete the file rather than relying on delete=True behaviour
         # as on Windows the file cannot be accessed by other processes if delete is True.
-        file = tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False)
+        temp_file_ = tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False)
         try:
-            with file:
-                yield file
+            with temp_file_:
+                yield temp_file_
 
         finally:
-            pathlib.Path(file.name).unlink(missing_ok=False)
+            pathlib.Path(temp_file_.name).unlink(missing_ok=False)
 
-    def test__load_modules_with_system_path(self, file: typing.IO[str]):
+    def test__load_modules_with_system_path(self, temp_file: typing.IO[str]):
         add_component_ = mock.Mock()
         add_client_callback_ = mock.Mock()
 
@@ -2071,7 +2070,7 @@ class TestClient:
             add_client_callback = add_client_callback_
 
         client = MockClient(mock.AsyncMock())
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 import tanjun
@@ -2102,9 +2101,9 @@ class TestClient:
                 """
             )
         )
-        file.flush()
+        temp_file.flush()
 
-        generator = client._load_module(pathlib.Path(file.name))
+        generator = client._load_module(pathlib.Path(temp_file.name))
         module = next(generator)()
         try:
             generator.send(module)
@@ -2118,7 +2117,7 @@ class TestClient:
         add_component_.assert_has_calls([mock.call(5533), mock.call(123)])
         add_client_callback_.assert_has_calls([mock.call(554444), mock.call(4312)])
 
-    def test__load_modules_with_system_path_respects_all(self, file: typing.IO[str]):
+    def test__load_modules_with_system_path_respects_all(self, temp_file: typing.IO[str]):
         add_component_ = mock.Mock()
         add_client_callback_ = mock.Mock()
 
@@ -2128,7 +2127,7 @@ class TestClient:
             add_client_callback = add_client_callback_
 
         client = MockClient(mock.AsyncMock())
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 __all__ = ["FullMetal", "load_module", "_priv_load", "bar", "foo","easy", "tanjun", "missing"]
@@ -2164,9 +2163,9 @@ class TestClient:
                 """
             )
         )
-        file.flush()
+        temp_file.flush()
 
-        generator = client._load_module(pathlib.Path(file.name))
+        generator = client._load_module(pathlib.Path(temp_file.name))
         module = next(generator)()
         try:
             generator.send(module)
@@ -2180,7 +2179,7 @@ class TestClient:
         add_component_.assert_has_calls([mock.call(123), mock.call(777), mock.call(5432)])
         add_client_callback_.assert_has_calls([mock.call(4312), mock.call(778), mock.call(6543456)])
 
-    def test__load_modules_with_system_path_when_all_and_no_loaders_found(self, file: typing.IO[str]):
+    def test__load_modules_with_system_path_when_all_and_no_loaders_found(self, temp_file: typing.IO[str]):
         add_component_ = mock.Mock()
         add_client_callback_ = mock.Mock()
 
@@ -2190,7 +2189,7 @@ class TestClient:
             add_client_callback = add_client_callback_
 
         client = MockClient(mock.AsyncMock())
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 __all__ = ["tanjun", "foo", "missing", "bar", "load_module", "FullMetal"]
@@ -2214,14 +2213,14 @@ class TestClient:
                 """
             )
         )
-        file.flush()
-        generator = client._load_module(pathlib.Path(file.name))
+        temp_file.flush()
+        generator = client._load_module(pathlib.Path(temp_file.name))
         module = next(generator)()
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
             generator.send(module)
 
-    def test__load_modules_with_system_path_when_no_loaders_found(self, file: typing.IO[str]):
+    def test__load_modules_with_system_path_when_no_loaders_found(self, temp_file: typing.IO[str]):
         add_component_ = mock.Mock()
         add_client_callback_ = mock.Mock()
 
@@ -2231,7 +2230,7 @@ class TestClient:
             add_client_callback = add_client_callback_
 
         client = MockClient(mock.AsyncMock())
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 import tanjun
@@ -2249,14 +2248,14 @@ class TestClient:
                 """
             )
         )
-        file.flush()
-        generator = client._load_module(pathlib.Path(file.name))
+        temp_file.flush()
+        generator = client._load_module(pathlib.Path(temp_file.name))
         module = next(generator)()
 
         with pytest.raises(tanjun.ModuleMissingLoaders):
             generator.send(module)
 
-    def test__load_modules_with_system_path_when_loader_raises(self, file: typing.IO[str]):
+    def test__load_modules_with_system_path_when_loader_raises(self, temp_file: typing.IO[str]):
         add_component_ = mock.Mock()
         add_client_callback_ = mock.Mock()
 
@@ -2266,7 +2265,7 @@ class TestClient:
             add_client_callback = add_client_callback_
 
         client = MockClient(mock.AsyncMock())
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 import tanjun
@@ -2283,8 +2282,8 @@ class TestClient:
                 """
             )
         )
-        file.flush()
-        generator = client._load_module(pathlib.Path(file.name))
+        temp_file.flush()
+        generator = client._load_module(pathlib.Path(temp_file.name))
         module = next(generator)()
 
         with pytest.raises(tanjun.FailedModuleLoad) as exc_info:
@@ -2293,13 +2292,13 @@ class TestClient:
         assert isinstance(exc_info.value.__cause__, RuntimeError)
         assert exc_info.value.__cause__.args == ("Mummy uwu",)
 
-    def test__load_modules_with_system_path_when_already_loaded(self, file: typing.IO[str]):
+    def test__load_modules_with_system_path_when_already_loaded(self, temp_file: typing.IO[str]):
         client = tanjun.Client(mock.AsyncMock())
-        file.write(textwrap.dedent("""raise NotImplementedError("This shouldn't ever be imported")"""))
-        file.flush()
-        path = pathlib.Path(file.name)
+        temp_file.write(textwrap.dedent("""raise NotImplementedError("This shouldn't ever be imported")"""))
+        temp_file.flush()
+        path = pathlib.Path(temp_file.name)
         client._path_modules[path] = mock.Mock()
-        generator = client._load_module(pathlib.Path(file.name))
+        generator = client._load_module(pathlib.Path(temp_file.name))
 
         with pytest.raises(tanjun.ModuleStateConflict):
             next(generator)
@@ -3130,7 +3129,7 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert client._modules["waifus"] is old_module
 
-    def test__reload_modules_with_system_path(self, file: typing.IO[str]):
+    def test__reload_modules_with_system_path(self, temp_file: typing.IO[str]):
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(unload=False)),
@@ -3140,8 +3139,8 @@ class TestClient:
             _priv_loader=old_priv_loader,
         )
         client = tanjun.Client(mock.AsyncMock())
-        path = pathlib.Path(file.name)
-        file.write(
+        path = pathlib.Path(temp_file.name)
+        temp_file.write(
             textwrap.dedent(
                 """
                 from unittest import mock
@@ -3156,7 +3155,7 @@ class TestClient:
                 """
             )
         )
-        file.flush()
+        temp_file.flush()
 
         client._path_modules[path] = old_module
 
@@ -3186,7 +3185,7 @@ class TestClient:
         new_module._priv_loader.load.assert_not_called()
         new_module._priv_loader.unload.assert_not_called()
 
-    def test__reload_modules_with_system_path_when_no_unloaders_found(self, file: typing.IO[str]):
+    def test__reload_modules_with_system_path_when_no_unloaders_found(self, temp_file: typing.IO[str]):
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             load=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=True), has_unload=False),
@@ -3195,7 +3194,7 @@ class TestClient:
             _priv_loader=priv_loader,
         )
         client = tanjun.Client(mock.AsyncMock())
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 from unittest import mock
@@ -3209,8 +3208,8 @@ class TestClient:
                 """
             )
         )
-        file.flush()
-        path = pathlib.Path(file.name)
+        temp_file.flush()
+        path = pathlib.Path(temp_file.name)
         client._path_modules[path] = old_module
         generator = client._reload_module(path)
 
@@ -3221,7 +3220,7 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert client._path_modules[path] is old_module
 
-    def test__reload_modules_with_system_path_when_no_loaders_found_in_new_module(self, file: typing.IO[str]):
+    def test__reload_modules_with_system_path_when_no_loaders_found_in_new_module(self, temp_file: typing.IO[str]):
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             loader=mock.Mock(tanjun.abc.ClientLoader),
@@ -3231,9 +3230,9 @@ class TestClient:
             _priv_loader=old_priv_loader,
         )
         client = tanjun.Client(mock.AsyncMock())
-        path = pathlib.Path(file.name)
+        path = pathlib.Path(temp_file.name)
         client._path_modules[path] = old_module
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 from unittest import mock
@@ -3247,7 +3246,7 @@ class TestClient:
                 """
             )
         )
-        file.flush()
+        temp_file.flush()
         generator = client._reload_module(path)
         module = next(generator)()
 
@@ -3262,7 +3261,7 @@ class TestClient:
         old_priv_loader.unload.assert_not_called()
         assert client._path_modules[path] is old_module
 
-    def test__reload_modules_with_system_path_when_all(self, file: typing.IO[str]):
+    def test__reload_modules_with_system_path_when_all(self, temp_file: typing.IO[str]):
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             loader=mock.Mock(tanjun.abc.ClientLoader),
@@ -3273,9 +3272,9 @@ class TestClient:
             __all__=["loader", "other_loader", "ok", "_priv_loader"],
         )
         client = tanjun.Client(mock.AsyncMock())
-        path = pathlib.Path(file.name)
+        path = pathlib.Path(temp_file.name)
         client._path_modules[path] = old_module
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 from unittest import mock
@@ -3291,7 +3290,7 @@ class TestClient:
                 """
             )
         )
-        file.flush()
+        temp_file.flush()
 
         generator = client._reload_module(path)
         module = next(generator)()
@@ -3317,7 +3316,7 @@ class TestClient:
         new_module._priv_loader.load.assert_called_once_with(client)
         new_module._priv_loader.unload.assert_not_called()
 
-    def test__reload_modules_with_system_path_when_all_and_no_unloaders_found(self, file: typing.IO[str]):
+    def test__reload_modules_with_system_path_when_all_and_no_unloaders_found(self, temp_file: typing.IO[str]):
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             loader=mock.Mock(tanjun.abc.ClientLoader, has_unload=False),
@@ -3328,9 +3327,9 @@ class TestClient:
             __all__=["naye", "loader", "ok"],
         )
         client = tanjun.Client(mock.AsyncMock())
-        path = pathlib.Path(file.name)
+        path = pathlib.Path(temp_file.name)
         client._path_modules[path] = old_module
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 from unittest import mock
@@ -3346,7 +3345,7 @@ class TestClient:
                 """
             )
         )
-        file.flush()
+        temp_file.flush()
         generator = client._reload_module(path)
 
         with pytest.raises(tanjun.ModuleMissingUnloaders):
@@ -3357,7 +3356,9 @@ class TestClient:
         old_module.other_loader.unload.assert_not_called()
         assert client._path_modules[path] is old_module
 
-    def test__reload_modules_with_system_path_when_all_and_no_loaders_found_in_new_module(self, file: typing.IO[str]):
+    def test__reload_modules_with_system_path_when_all_and_no_loaders_found_in_new_module(
+        self, temp_file: typing.IO[str]
+    ):
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
@@ -3369,9 +3370,9 @@ class TestClient:
             __all__=["loader", "ok", "naye"],
         )
         client = tanjun.Client(mock.AsyncMock())
-        path = pathlib.Path(file.name)
+        path = pathlib.Path(temp_file.name)
         client._path_modules[path] = old_module
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 from unittest import mock
@@ -3394,7 +3395,7 @@ class TestClient:
                 """
             )
         )
-        file.flush()
+        temp_file.flush()
         generator = client._reload_module(path)
         module = next(generator)()
 
@@ -3443,7 +3444,7 @@ class TestClient:
         old_module.other_loader.unload.assert_not_called()
         assert random_path in client._path_modules
 
-    def test__reload_modules_with_system_path_rolls_back_when_new_module_loader_raises(self, file: typing.IO[str]):
+    def test__reload_modules_with_system_path_rolls_back_when_new_module_loader_raises(self, temp_file: typing.IO[str]):
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         priv_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=False))
         old_module = mock.Mock(
@@ -3454,9 +3455,9 @@ class TestClient:
             _priv_loader=old_priv_loader,
         )
         client = tanjun.Client(mock.AsyncMock())
-        path = pathlib.Path(file.name)
+        path = pathlib.Path(temp_file.name)
         client._path_modules[path] = old_module
-        file.write(
+        temp_file.write(
             textwrap.dedent(
                 """
                 from unittest import mock
@@ -3474,7 +3475,7 @@ class TestClient:
                 """
             )
         )
-        file.flush()
+        temp_file.flush()
         generator = client._reload_module(path)
         module = next(generator)()
 

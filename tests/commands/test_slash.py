@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -536,7 +535,7 @@ def test_with_mentionable_slash_option_with_defaults():
     )
 
 
-class Test_TrackedOption:
+class TestTrackedOption:
     def test_init(self):
         mock_converter = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(
@@ -612,7 +611,7 @@ class Test_TrackedOption:
 
 
 @pytest.mark.skip(reason="TODO")
-class Test_SlashCommandBuilder:
+class TestSlashCommandBuilder:
     ...
 
 

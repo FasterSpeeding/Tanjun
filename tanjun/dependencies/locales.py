@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -117,6 +116,11 @@ class BasicLocaliser(AbstractLocaliser):
         # <<inherited docstring from AbstractLocaliser>>.
         try:
             results = self._tags[identifier]
+
+        except KeyError:
+            return {}
+
+        else:
             if kwargs:
                 results = {name: value.format(**kwargs) for name, value in results.items()}
 
@@ -125,9 +129,6 @@ class BasicLocaliser(AbstractLocaliser):
 
             results.pop("default", None)
             return results
-
-        except KeyError:
-            return {}
 
     def localise(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
         # <<inherited docstring from AbstractLocaliser>>.
