@@ -240,7 +240,6 @@ def infer_listener_types(
         raise ValueError("Missing event type") from None
 
     parameter = next(iter(signature.parameters.values()), None)
-
     if not parameter or parameter.kind not in _POSITIONAL_TYPES:
         raise ValueError("Missing positional event argument") from None
 
