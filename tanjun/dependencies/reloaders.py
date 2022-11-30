@@ -448,10 +448,8 @@ class HotReloader:
                 resource = f"guild ({self._command_task})" if self._commands_guild else "global"
                 _LOGGER.error("Failed to declare %s commands", resource, exc_info=exc)
                 self._declared_builders = builders
-                if not _internal.cmp_all_commands(builders.values(), self._scheduled_builders):
-                    continue
-
-                return
+                if _internal.cmp_all_commands(builders.values(), self._scheduled_builders):
+                    return
 
             except BaseException:
                 self._declared_builders = builders
@@ -459,10 +457,8 @@ class HotReloader:
 
             else:
                 self._declared_builders = builders
-                if not _internal.cmp_all_commands(builders.values(), self._scheduled_builders):
-                    continue
-
-                return
+                if _internal.cmp_all_commands(builders.values(), self._scheduled_builders):
+                    return
 
     @_internal.log_task_exc("Hot reloader crashed")
     async def _loop(self, client: tanjun.Client, /) -> None:
