@@ -139,7 +139,6 @@ flake8-variables-names==0.0.5
 flake8-comments==0.1.2
 flake8-eradicate==1.4
 tryceratops==1.1
-# flake8-type-checking==2.3
 flake8-future-annotations==1
 
 # The following packages are considered to be unsafe in a requirements file:
