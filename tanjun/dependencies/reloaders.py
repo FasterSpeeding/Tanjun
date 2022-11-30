@@ -302,7 +302,7 @@ class HotReloader:
                 return False
 
             except errors.ModuleMissingLoaders:
-                _LOGGER.error("Cannot load module `%s` with no loaders", path)  # noqa: TC400
+                _LOGGER.exception("Cannot load module `%s` with no loaders", path)  # TODO: lower to error level
                 return False
 
             except errors.FailedModuleUnload as exc:
