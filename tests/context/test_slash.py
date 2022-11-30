@@ -915,7 +915,10 @@ class TestAppCommandContext:
             args=(mock_client, mock_interaction, mock_register_task),
         )
 
-        with (pytest.raises(ValueError, match="This interaction will have expired before delete_after is reached"), mock.patch.object(asyncio, "create_task") as create_task):
+        with (
+            pytest.raises(ValueError, match="This interaction will have expired before delete_after is reached"),
+            mock.patch.object(asyncio, "create_task") as create_task,
+        ):
             await context.edit_initial_response("bye", delete_after=delete_after)
 
         mock_delete_initial_response_after.assert_not_called()
