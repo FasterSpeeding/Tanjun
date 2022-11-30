@@ -158,7 +158,7 @@ def slot_check(session: nox.Session) -> None:
 @nox.session(reuse_venv=True, name="spell-check")
 def spell_check(session: nox.Session) -> None:
     """Check this project's text-like files for common spelling mistakes."""
-    install_requirements(session, *_dev_dep("lint"))  # include_standard_requirements=False
+    install_requirements(session, *_dev_dep("lint"))
     session.run(
         "codespell",
         *GENERAL_TARGETS,
@@ -202,14 +202,12 @@ def test_publish(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def reformat(session: nox.Session) -> None:
     """Reformat this project's modules to fit the standard style."""
-    install_requirements(session, *_dev_dep("reformat"), "yesqa")  # include_standard_requirements=False
+    install_requirements(session, *_dev_dep("reformat"))
     session.run("black", *GENERAL_TARGETS, "--extend-exclude", "^/tanjun/_internal/vendor/.*$")
     session.run("isort", *GENERAL_TARGETS)
     session.run("pycln", "tanjun", "tests", "noxfile.py")
     py_files = [str(path) for path in pathlib.Path("./tanjun/").glob("**/*.py")]
-    test_py_files = [str(path) for path in pathlib.Path("./tanjun/").glob("**/*.py")]
     session.run("sort-all", *py_files, success_codes=[0, 1])
-    session.run("yesqa", *py_files, *test_py_files, success_codes=[0, 1])
 
 
 @nox.session(reuse_venv=True)

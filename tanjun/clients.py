@@ -2972,7 +2972,9 @@ class Client(tanjun.Client):
         self,
         ctx: typing.Union[context.SlashContext, context.MenuContext],
         loop: asyncio.AbstractEventLoop,
-        future: asyncio.Future[typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]],
+        future: asyncio.Future[
+            typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+        ],
     ) -> typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]:
         task = loop.create_task(ctx.mark_not_found(), name=f"{ctx.interaction.id} not found")
         task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
