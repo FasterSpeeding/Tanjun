@@ -95,7 +95,7 @@ if typing.TYPE_CHECKING:
     _PartialChannelT = typing.TypeVar("_PartialChannelT", bound=hikari.PartialChannel)
 
 
-_ArgumentT = typing.Union[str, int, float]
+_SnowflakeIsh = typing.Union[str, int]
 _ValueT = typing.TypeVar("_ValueT")
 _LOGGER = logging.getLogger("hikari.tanjun.conversion")
 
@@ -326,7 +326,7 @@ class ToChannel(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: _SnowflakeIsh,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
@@ -413,7 +413,7 @@ class ToEmoji(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: _SnowflakeIsh,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
@@ -466,7 +466,7 @@ class ToGuild(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: _SnowflakeIsh,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
@@ -513,15 +513,12 @@ class ToInvite(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: str,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
         cache: alluka.Injected[typing.Optional[_InviteCacheT]] = None,
     ) -> hikari.Invite:
-        if not isinstance(argument, str):
-            raise TypeError(f"`{argument}` is not a valid invite code")
-
         if ctx.cache and (invite := ctx.cache.get_invite(argument)):
             return invite
 
@@ -570,15 +567,12 @@ class ToInviteWithMetadata(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: str,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
         cache: alluka.Injected[typing.Optional[_InviteCacheT]] = None,
     ) -> hikari.InviteWithMetadata:
-        if not isinstance(argument, str):
-            raise TypeError(f"`{argument}` is not a valid invite code")
-
         if ctx.cache and (invite := ctx.cache.get_invite(argument)):
             return invite
 
@@ -615,7 +609,7 @@ class ToMember(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: _SnowflakeIsh,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
@@ -692,7 +686,7 @@ class ToPresence(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: _SnowflakeIsh,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
@@ -731,7 +725,7 @@ class ToRole(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: _SnowflakeIsh,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
@@ -780,7 +774,7 @@ class ToUser(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: _SnowflakeIsh,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
@@ -838,7 +832,7 @@ class ToMessage(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: _SnowflakeIsh,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
@@ -899,7 +893,7 @@ class ToVoiceState(BaseConverter):
 
     async def __call__(
         self,
-        argument: _ArgumentT,
+        argument: _SnowflakeIsh,
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
@@ -924,12 +918,12 @@ VoiceStateConverter = ToVoiceState
 
 
 class _IDMatcherSigProto(typing.Protocol):
-    def __call__(self, value: _ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
+    def __call__(self, value: _SnowflakeIsh, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         raise NotImplementedError
 
 
 def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSigProto:
-    def parse(value: _ArgumentT, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
+    def parse(value: _SnowflakeIsh, /, *, message: str = "No valid mention or ID found") -> hikari.Snowflake:
         """Parse a snowflake from a string or int value.
 
         !!! note
@@ -962,13 +956,7 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSigProto:
                 result = hikari.Snowflake(capture.groups()[0]) if capture else None
 
         else:
-            try:
-                # Technically passing a float here is invalid (typing wise)
-                # but we handle that by catching TypeError
-                result = hikari.Snowflake(operator.index(typing.cast(int, value)))
-
-            except (TypeError, ValueError):
-                pass
+            result = hikari.Snowflake(value)
 
         # We should also range check the provided ID.
         if result is not None and _range_check(result):
@@ -979,7 +967,7 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSigProto:
     return parse
 
 
-_IDSearcherSig = collections.Callable[[_ArgumentT], list[hikari.Snowflake]]
+_IDSearcherSig = collections.Callable[[_SnowflakeIsh], list[hikari.Snowflake]]
 
 
 def _range_check(snowflake: hikari.Snowflake, /) -> bool:
@@ -987,7 +975,7 @@ def _range_check(snowflake: hikari.Snowflake, /) -> bool:
 
 
 def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
-    def parse(value: _ArgumentT, /) -> list[hikari.Snowflake]:
+    def parse(value: _SnowflakeIsh, /) -> list[hikari.Snowflake]:
         """Get the snowflakes in a string.
 
         !!! note
@@ -1013,11 +1001,9 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
             return [*results, *filter(_range_check, map(hikari.Snowflake, filter(str.isdigit, value.split())))]
 
         try:
-            # Technically passing a float here is invalid (typing wise)
-            # but we handle that by catching TypeError
-            result = hikari.Snowflake(operator.index(typing.cast(int, value)))
+            result = hikari.Snowflake(value)
 
-        except (TypeError, ValueError):
+        except ValueError:
             return []
 
         if _range_check(result):
@@ -1218,7 +1204,7 @@ _MESSAGE_LINK_REGEX = re.compile(r"(\d+|@me)/(\d+)/(\d+)")
 
 
 def parse_message_id(
-    value: _ArgumentT,
+    value: _SnowflakeIsh,
     /,
     *,
     message: str = "No valid message link or ID found",
@@ -1257,11 +1243,9 @@ def parse_message_id(
 
     else:
         try:
-            # Technically passing a float here is invalid (typing wise)
-            # but we handle that by catching TypeError
-            message_id = hikari.Snowflake(operator.index(typing.cast(int, value)))
+            message_id = hikari.Snowflake(value)
 
-        except (TypeError, ValueError):
+        except ValueError:
             pass
 
     # We should also range check the provided ID.
@@ -1463,7 +1447,7 @@ def to_bool(value: str, /) -> bool:
     raise ValueError(f"Invalid bool value `{value}`")
 
 
-def to_color(argument: _ArgumentT, /) -> hikari.Color:
+def to_color(argument: _SnowflakeIsh, /) -> hikari.Color:
     """Convert user input to a [hikari.colors.Color][] object."""
     if isinstance(argument, str):
         values = argument.split(" ")
@@ -1476,7 +1460,7 @@ def to_color(argument: _ArgumentT, /) -> hikari.Color:
         if len(values) == 1:
             return hikari.Color.of(values[0])
 
-        raise TypeError("Not a valid color representation")
+        raise ValueError("Not a valid color representation")  # noqa: TC004
 
     return hikari.Color.of(argument)
 
@@ -1500,7 +1484,7 @@ def override_type(cls: parsing.ConverterSig[typing.Any], /) -> parsing.Converter
 to_channel: typing.Final[ToChannel] = ToChannel()
 """Convert user input to a [hikari.channels.PartialChannel][] object."""
 
-to_colour: typing.Final[collections.Callable[[_ArgumentT], hikari.Color]] = to_color
+to_colour: typing.Final[collections.Callable[[_SnowflakeIsh], hikari.Color]] = to_color
 """Convert user input to a [hikari.colors.Color][] object."""
 
 to_emoji: typing.Final[ToEmoji] = ToEmoji()
@@ -1532,7 +1516,7 @@ to_presence: typing.Final[ToPresence] = ToPresence()
 to_role: typing.Final[ToRole] = ToRole()
 """Convert user input to a [hikari.guilds.Role][] object."""
 
-to_snowflake: typing.Final[collections.Callable[[_ArgumentT], hikari.Snowflake]] = parse_snowflake
+to_snowflake: typing.Final[collections.Callable[[_SnowflakeIsh], hikari.Snowflake]] = parse_snowflake
 """Convert user input to a [hikari.snowflakes.Snowflake][].
 
 !!! note

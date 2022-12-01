@@ -1013,18 +1013,6 @@ class TestToInvite:
         mock_cache.get.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test___call___when_not_str(self):
-        mock_context = mock.Mock()
-        mock_cache = mock.AsyncMock()
-
-        with pytest.raises(TypeError, match="`123` is not a valid invite code"):
-            await tanjun.to_invite(123, mock_context, cache=mock_cache)
-
-        mock_context.cache.get_invite.assert_not_called()
-        mock_context.rest.fetch_invite.assert_not_called()
-        mock_cache.get.assert_not_called()
-
-    @pytest.mark.asyncio()
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_invite.return_value = None
@@ -1101,11 +1089,6 @@ class TestToInviteWithMetadata:
         assert result is mock_cache.get.return_value
         mock_context.cache.get_invite.assert_called_once_with("asdbasd")
         mock_cache.get.assert_awaited_once_with("asdbasd")
-
-    @pytest.mark.asyncio()
-    async def test___call___when_not_str(self):
-        with pytest.raises(TypeError, match="`432123` is not a valid invite code"):
-            await tanjun.to_invite_with_metadata(432123, mock.Mock())
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached(self):
@@ -1589,7 +1572,6 @@ def test_parse_snowflake(value: typing.Union[str, int], result: int):
 @pytest.mark.parametrize(
     "value",
     [
-        123.321,
         TOO_LARGE_SF,
         TOO_SMALL_SF,
         str(TOO_SMALL_SF),
@@ -1606,7 +1588,7 @@ def test_parse_snowflake(value: typing.Union[str, int], result: int):
         "",
     ],
 )
-def test_parse_snowflake_with_invalid_value(value: typing.Union[float, int, str]):
+def test_parse_snowflake_with_invalid_value(value: typing.Union[int, str]):
     with pytest.raises(ValueError, match="abcas"):
         tanjun.conversion.parse_snowflake(value, message="abcas")
 
@@ -1641,12 +1623,11 @@ def test_parse_channel_id(value: typing.Union[str, int], result: int):
         f"<#{TOO_SMALL_SF}>",
         TOO_LARGE_SF,
         TOO_SMALL_SF,
-        123.321,
         str(TOO_LARGE_SF),
         str(TOO_SMALL_SF),
     ],
 )
-def test_parse_channel_id_with_invalid_data(value: typing.Union[str, int, float]):
+def test_parse_channel_id_with_invalid_data(value: typing.Union[str, int]):
     with pytest.raises(ValueError, match="a message"):
         tanjun.conversion.parse_channel_id(value, message="a message")
 
@@ -1683,7 +1664,7 @@ def test_parse_emoji_id(value: typing.Union[str, int], result: int):
         "<@!43123>",
     ],
 )
-def test_parse_emoji_id_with_invalid_values(value: typing.Union[str, int, float]):
+def test_parse_emoji_id_with_invalid_values(value: typing.Union[str, int]):
     with pytest.raises(ValueError, match="a messages"):
         tanjun.conversion.parse_emoji_id(value, message="a messages")
 
@@ -1724,7 +1705,7 @@ def test_parse_role_id(value: typing.Union[str, int], result: int):
         "<a:name:432123>",
     ],
 )
-def test_parse_role_id_with_invalid_values(value: typing.Union[float, int, str]):
+def test_parse_role_id_with_invalid_values(value: typing.Union[int, str]):
     with pytest.raises(ValueError, match="a messaged"):
         tanjun.conversion.parse_role_id(value, message="a messaged")
 

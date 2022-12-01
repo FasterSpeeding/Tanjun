@@ -804,6 +804,9 @@ class Component(tanjun.Component):
         elif isinstance(command, tanjun.BaseSlashCommand):
             self.remove_slash_command(command)
 
+        elif isinstance(command, tanjun.MenuCommand):
+            self.remove_menu_command(command)
+
         else:
             raise TypeError(
                 f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(command)}"
