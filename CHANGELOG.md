@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   used for a required message command parameter.
 - Converter startup client config logs now only use info level when REST fallback is possible.
 - `allowed_types=[]` is now treated as allowing no channel types (rather than any) when passed to
-  [tanjun.conversion.ToChannel.__init__][]
+  [tanjun.conversion.ToChannel.\_\_init\_\_][tanjun.conversion.ToChannel.__init__]
 - [tanjun.annotations.Choices][] now raises a [TypeError][] instead of [ValueError][] if an enum
   class which isn't a subclass of [int][], [float][] or [str][] is passed to it as a type variable
   (e.g `Choices[Enum]`).
@@ -33,11 +33,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Component.with_command][tanjun.components.Component.with_command] now raise [TypeError][]
   instead of [ValueError][] if the object isn't a message, menu or slash command.
 - The standard converters in [tanjun.conversion][] no-longer allow [float][] to be passed.
-- [to_invite][tanjun.to_invite], [ToInvite.__call__][tanjun.conversion.ToInvite],
+- [to_invite][tanjun.to_invite], [ToInvite.\_\_call\_\_][tanjun.conversion.ToInvite],
   [to_invite_with_metadata][tanjun.to_invite_with_metadata] and
-  [ToInviteWithMetadata.__call__][tanjun.conversion.ToInviteWithMetadata] no-longer allows
+  [ToInviteWithMetadata.\_\_call\_\_][tanjun.conversion.ToInviteWithMetadata] no-longer allows
   [int][] nor [float][] to be passed.
-- [TimeSchedule.__init__][tanjun.schedules.TimeSchedule.__init__] and [tanjun.as_time_schedule][] now
+- [TimeSchedule.\_\_init\_\_][tanjun.schedules.TimeSchedule.__init__] and [tanjun.as_time_schedule][] now
   raise a [TypeError][] instead of [ValueError][] when a float is passed in or for any of its arguments.
 
 ### Deprecated
@@ -136,7 +136,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 - [tanjun.annotations.Flag.default][] and the `default` argument for
-  [tanjun.annotations.Flag.__init__][]. [tanjun.annotations.Default][] should be used instead.
+  [tanjun.annotations.Flag.\_\_init\_\_][tanjun.annotations.Flag.__init__][].
+  [tanjun.annotations.Default][] should be used instead.
 
 ### Fixed
 - Don't ignore parameter annotations when the top-level type-hint is a union.
