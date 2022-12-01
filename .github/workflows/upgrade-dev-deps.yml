@@ -23,7 +23,7 @@ jobs:
           python -m pip install -r ./dev-requirements/nox.txt
 
       - name: Upgrade dev dependencies
-        run: python -m nox -s upgrade-dev-deps
+        run: python -m nox -s freeze-dev-deps
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
