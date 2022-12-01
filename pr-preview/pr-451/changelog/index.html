@@ -3237,10 +3237,11 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a> nor <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#float">float</a> to be passed.</li>
 <li><a class="autorefs autorefs-internal" href="../reference/schedules/#tanjun.schedules.TimeSchedule.__init__">TimeSchedule.__init__</a> and <a class="autorefs autorefs-internal" href="../reference/#tanjun.as_time_schedule">tanjun.as_time_schedule</a> now
   raise a <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#TypeError">TypeError</a> instead of <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a> when a float is passed in or for any of its arguments.</li>
-<li>The arguments for <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.on_parser_error">tanjun.clients.on_parser_error</a>, <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client.set_human_only">Client.set_human_only</a>
-  and <a class="autorefs autorefs-internal" href="../reference/parsing/#tanjun.parsing.Parameter">tanjun.parsing.Parameter</a> are now positional-only.</li>
-<li>The first three arguments for <a class="autorefs autorefs-internal" href="../reference/permissions/#tanjun.permissions.calculate_permissions">tanjun.permissions.calculate_permissions</a> are now positional-only.</li>
-<li>The <code>errors</code> argument for <a class="autorefs autorefs-internal" href="../reference/errors/#tanjun.errors.ConversionError">tanjun.errors.ConversionError</a> is now keyword-only.</li>
+<li>The arguments for <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.on_parser_error">tanjun.clients.on_parser_error</a> and
+  <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client.set_human_only">Client.set_human_only</a>.</li>
+<li>The signatures of several internally used but publicly exported functions have been fixed to ensure
+  they better follow the library's rules for positional and keyword arguments.
+  For more information see &lt;&gt;.</li>
 </ul>
 <h3 id="deprecated">Deprecated<a class="headerlink" href="#deprecated" title="Permanent link">#</a></h3>
 <ul>
