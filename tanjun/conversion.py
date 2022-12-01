@@ -1476,7 +1476,7 @@ to_emoji: typing.Final[ToEmoji] = ToEmoji()
 """Convert user input to a cached [hikari.emojis.KnownCustomEmoji][] object.
 
 !!! note
-    If you just want to convert inpute to a [hikari.emojis.Emoji][],
+    If you just want to convert input to a [hikari.emojis.Emoji][],
     [hikari.emojis.CustomEmoji][] or [hikari.emojis.UnicodeEmoji][] without
     making any cache or REST calls then you can just use the relevant
     [hikari.emojis.Emoji.parse][], [hikari.emojis.CustomEmoji.parse][] or

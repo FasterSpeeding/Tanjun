@@ -40,11 +40,11 @@ Changelog = "https://github.com/FasterSpeeding/tanjun/blob/master/CHANGELOG.md"
 name = "tanjun"
 
 [tool.black]
-line-length = 120
-target-version = ["py39"]
+extend-exclude = "^\\/tanjun\\/_internal\\/vendor\\/.*$"
 include = ".*pyi?$"
-extend-exclude = ["^/tanjun/_internal/vendor/.*"]
+line-length = 120
 skip-magic-trailing-comma = true
+target-version = ["py39"]
 
 [tool.coverage.run]
 concurrency = ["multiprocessing"]
