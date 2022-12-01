@@ -947,16 +947,12 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSigProto:
             If the value cannot be parsed.
         """
         result: typing.Optional[hikari.Snowflake] = None
-        if isinstance(value, str):
-            if value.isdigit():
-                result = hikari.Snowflake(value)
-
-            else:
-                capture = next(regex.finditer(value), None)
-                result = hikari.Snowflake(capture.groups()[0]) if capture else None
+        if isinstance(value, int) or value.isdigit():
+            result = hikari.Snowflake(value)
 
         else:
-            result = hikari.Snowflake(value)
+            capture = next(regex.finditer(value), None)
+            result = hikari.Snowflake(capture.groups()[0]) if capture else None
 
         # We should also range check the provided ID.
         if result is not None and _range_check(result):
@@ -1231,22 +1227,14 @@ def parse_message_id(
     channel_id: typing.Optional[hikari.Snowflake] = None
     message_id: typing.Optional[hikari.Snowflake] = None
 
-    if isinstance(value, str):
-        if value.isdigit():
-            message_id = hikari.Snowflake(value)
-
-        else:
-            capture = next(_MESSAGE_LINK_REGEX.finditer(value), None)
-            if capture:
-                channel_id = hikari.Snowflake(capture[2])
-                message_id = hikari.Snowflake(capture[3])
+    if isinstance(value, int) or value.isdigit():
+        message_id = hikari.Snowflake(value)
 
     else:
-        try:
-            message_id = hikari.Snowflake(value)
-
-        except ValueError:
-            pass
+        capture = next(_MESSAGE_LINK_REGEX.finditer(value), None)
+        if capture:
+            channel_id = hikari.Snowflake(capture[2])
+            message_id = hikari.Snowflake(capture[3])
 
     # We should also range check the provided ID.
     if channel_id is not None and not _range_check(channel_id):
