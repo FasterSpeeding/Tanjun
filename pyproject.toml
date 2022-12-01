@@ -188,6 +188,6 @@ require-superclass = true
 require-subclass = true
 exclude-classes = """
 tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)
-| tanjun.dependencies.reloaders:_ScanResult
+| tanjun.dependencies.reloaders:(_PathLoader|_ScanResult)
 | .*Proto
 """
