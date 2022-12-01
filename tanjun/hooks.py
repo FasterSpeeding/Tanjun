@@ -286,8 +286,8 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     async def trigger_error(
         self,
         ctx: _ContextT_contra,
-        /,
         exception: Exception,
+        /,
         *,
         hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
     ) -> int:

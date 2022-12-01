@@ -75,6 +75,7 @@ if typing.TYPE_CHECKING:
             self,
             ctx: tanjun.Context,
             /,
+            *,
             localiser: typing.Optional[dependencies.AbstractLocaliser] = None,
         ) -> bool:
             raise NotImplementedError
@@ -183,7 +184,9 @@ class OwnerCheck(_Check):
     async def __call__(
         self,
         ctx: tanjun.Context,
+        /,
         dependency: alluka.Injected[dependencies.AbstractOwners],
+        *,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
         return self._handle_result(ctx, await dependency.check_ownership(ctx.client, ctx.author), localiser)
@@ -341,6 +344,7 @@ class DmCheck(_Check):
         self,
         ctx: tanjun.Context,
         /,
+        *,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
         return self._handle_result(ctx, ctx.guild_id is None, localiser)
@@ -391,6 +395,7 @@ class GuildCheck(_Check):
         self,
         ctx: tanjun.Context,
         /,
+        *,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
         return self._handle_result(ctx, ctx.guild_id is not None, localiser)
@@ -449,6 +454,7 @@ class AuthorPermissionCheck(_Check):
         self,
         ctx: tanjun.Context,
         /,
+        *,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
         if not ctx.member:
@@ -1082,6 +1088,7 @@ class _AnyChecks(_Check):
         self,
         ctx: tanjun.Context,
         /,
+        *,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
         for check in self._checks:

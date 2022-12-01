@@ -2681,10 +2681,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
 
     @abc.abstractmethod
     async def execute_autocomplete(
-        self,
-        ctx: AutocompleteContext,
-        /,
-        option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
+        self, ctx: AutocompleteContext, /, option: typing.Optional[hikari.AutocompleteInteractionOption] = None
     ) -> None:
         ...
 

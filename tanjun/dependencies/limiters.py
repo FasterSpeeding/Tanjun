@@ -699,6 +699,7 @@ class CooldownPreExecution:
     async def __call__(
         self,
         ctx: tanjun.Context,
+        /,
         cooldowns: alluka.Injected[AbstractCooldownManager],
         *,
         localiser: typing.Optional[locales.AbstractLocaliser] = None,
@@ -1043,7 +1044,9 @@ class ConcurrencyPreExecution:
     async def __call__(
         self,
         ctx: tanjun.Context,
+        /,
         limiter: alluka.Injected[AbstractConcurrencyLimiter],
+        *,
         localiser: typing.Optional[locales.AbstractLocaliser] = None,
     ) -> None:
         if not await limiter.try_acquire(self._bucket_id, ctx):
@@ -1076,11 +1079,7 @@ class ConcurrencyPostExecution:
         """
         self._bucket_id = bucket_id
 
-    async def __call__(
-        self,
-        ctx: tanjun.Context,
-        limiter: alluka.Injected[AbstractConcurrencyLimiter],
-    ) -> None:
+    async def __call__(self, ctx: tanjun.Context, /, limiter: alluka.Injected[AbstractConcurrencyLimiter]) -> None:
         await limiter.release(self._bucket_id, ctx)
 
 
