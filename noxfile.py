@@ -192,9 +192,7 @@ def test_publish(session: nox.Session) -> None:
 def reformat(session: nox.Session) -> None:
     """Reformat this project's modules to fit the standard style."""
     install_requirements(session, *_dev_dep("reformat"))
-    session.run(
-        "black", *GENERAL_TARGETS, "--extend-exclude", "^/tanjun/_internal/vendor/.*$", "--skip-magic-trailing-comma"
-    )
+    session.run("black", *GENERAL_TARGETS, "--extend-exclude", "^/tanjun/_internal/vendor/.*$")
     session.run("isort", *GENERAL_TARGETS)
     session.run("pycln", "tanjun", "tests", "noxfile.py")
     py_files = [str(path) for path in pathlib.Path("./tanjun/").glob("**/*.py")]
