@@ -203,10 +203,10 @@ def reformat(session: nox.Session) -> None:
     session.run("sort-all", *py_files, success_codes=[0, 1], log=False)
 
     session.log("Running pre_commit_hooks.end_of_file_fixer")
-    session.run("python", "-m", "pre_commit_hooks.end_of_file_fixer", *tracked_files, log=False)
+    session.run("python", "-m", "pre_commit_hooks.end_of_file_fixer", *tracked_files, success_codes=[0, 1], log=False)
 
-    session.log("Running pre_commit_hooks.trailing_whitespace")
-    session.run("python", "-m", "pre_commit_hooks.trailing_whitespace", *tracked_files, log=False)
+    session.log("Running pre_commit_hooks.trailing_whitespace_fixer")
+    session.run("python", "-m", "pre_commit_hooks.trailing_whitespace_fixer", *tracked_files, success_codes=[0, 1], log=False)
 
 
 @nox.session(reuse_venv=True)
