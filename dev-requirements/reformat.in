@@ -2,5 +2,3 @@ black==22.10.0
 isort==5.10.1
 pycln==2.1.2
 sort-all==1.2.0
-yesqa==1.4.0
--r flake8.in

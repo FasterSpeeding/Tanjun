@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -262,7 +261,8 @@ class SlashOption(tanjun.SlashOption):
             return self._resolved.roles[hikari.Snowflake(self._option.value)]
 
         if self._option.type is hikari.OptionType.MENTIONABLE and self._resolved:
-            if role := self._resolved.roles.get(hikari.Snowflake(self.value)):
+            role = self._resolved.roles.get(hikari.Snowflake(self.value))
+            if role:
                 return role
 
         raise TypeError(f"Cannot resolve non-role option type {self._option.type} to a role")

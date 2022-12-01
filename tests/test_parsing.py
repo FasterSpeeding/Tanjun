@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -56,7 +55,7 @@ class TestUndefinedT:
 
 
 @pytest.mark.skip(reason="TODO")
-class Test_ShlexTokenizer:
+class TestShlexTokenizer:
     ...
 
 
@@ -66,7 +65,7 @@ def test__covert_option_or_empty():
 
 
 @pytest.mark.skip(reason="TODO")
-class Test_SemanticShlex:
+class TestSemanticShlex:
     ...
 
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -165,12 +164,7 @@ class BucketResource(int, enum.Enum):
     this'll be per-guild.
     """
 
-    # CATEGORY = 4
-    # """A per-category resource bucket.
-
-    # For DM channels this will be per-DM, for guild channels with no parent
-    # category this'll be per-guild.
-    # """
+    # TODO: CATEGORY = 4
 
     TOP_ROLE = 5
     """A per-highest role resource bucket.
@@ -224,19 +218,6 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
         channel = await ctx.fetch_channel()
         assert isinstance(channel, hikari.GuildChannel)
         return channel.parent_id or ctx.guild_id
-
-    # if type_ is BucketResource.CATEGORY:
-    #     if ctx.guild_id is None:
-    #         return ctx.channel_id
-
-    #     # This resource doesn't include threads so we can safely assume that the parent is a category
-    #     if channel := ctx.get_channel():
-    #         return channel.parent_id or channel.guild_id
-
-    #     # TODO: threads
-    #     channel = await ctx.fetch_channel()  # TODO: couldn't this lead to two requests per command? seems bad
-    #     assert isinstance(channel, hikari.TextableGuildChannel)
-    #     return channel.parent_id or channel.guild_id
 
     if type_ is BucketResource.TOP_ROLE:
         if not ctx.guild_id:

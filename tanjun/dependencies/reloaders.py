@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -294,17 +293,16 @@ class HotReloader:
         for method in (client.reload_modules_async, client.load_modules_async):
             try:
                 await method(path)
-                return True
 
             except errors.ModuleStateConflict:
                 pass
 
             except errors.FailedModuleLoad as exc:
-                _LOGGER.error("Failed to load module `%s`", path, exc_info=exc.__cause__)
+                _LOGGER.exception("Failed to load module `%s`", path, exc_info=exc.__cause__)
                 return False
 
             except errors.ModuleMissingLoaders:
-                _LOGGER.error("Cannot load module `%s` with no loaders", path)
+                _LOGGER.error("Cannot load module `%s` with no loaders", path)  # noqa: TC400
                 return False
 
             except errors.FailedModuleUnload as exc:
@@ -323,12 +321,14 @@ class HotReloader:
                 )
                 return False
 
+            else:
+                return True
+
         return False
 
     def _unload_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> bool:
         try:
             client.unload_modules(path)
-            return True
 
         except errors.ModuleStateConflict:
             return True
@@ -344,6 +344,9 @@ class HotReloader:
             _LOGGER.exception(
                 "Cannot unload module `%s` with no unloaders; hot reloading is now disabled for this module", path
             )
+
+        else:
+            return True
 
         self._dead_unloads.add(path)
         return False
@@ -441,12 +444,12 @@ class HotReloader:
             try:
                 await client.declare_application_commands(builders.values(), guild=self._commands_guild)
 
-            except (hikari.RateLimitedError, hikari.RateLimitTooLongError):
-                _LOGGER.error("Timed out on command declare, will try again soon")
+            except (hikari.RateLimitedError, hikari.RateLimitTooLongError) as exc:
+                _LOGGER.exception("Timed out on command declare, will try again soon", exc_info=exc)
 
             except Exception as exc:
                 resource = f"guild ({self._command_task})" if self._commands_guild else "global"
-                _LOGGER.error("Failed to declare %s commands", resource, exc_info=exc)
+                _LOGGER.exception("Failed to declare %s commands", resource, exc_info=exc)
                 self._declared_builders = builders
                 if _internal.cmp_all_commands(builders.values(), self._scheduled_builders):
                     return
@@ -592,7 +595,7 @@ class _PathLoader(typing.Generic[_PathT]):
     waiting_for: dict[_PathT, int]
     paths: dict[_PathT, _PyPathInfo]
     load_module: collections.Callable[
-        [tanjun.Client, typing.Union[str, pathlib.Path]], typing.Coroutine[typing.Any, typing.Any, bool]
+        [tanjun.Client, typing.Union[str, pathlib.Path]], collections.Coroutine[typing.Any, typing.Any, bool]
     ]
     unload_module: collections.Callable[[tanjun.Client, typing.Union[str, pathlib.Path]], bool]
     changed: bool = dataclasses.field(default=False, init=False)

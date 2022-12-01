@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -574,7 +573,7 @@ def _to_sequence(
         return [values]
 
     if isinstance(values, float):
-        raise ValueError(f"{name} value must be an integer, not a float")
+        raise TypeError(f"{name} value must be an integer, not a float")
 
     if isinstance(values, range):
         if values.step < 0:
@@ -588,7 +587,7 @@ def _to_sequence(
     else:
         values = sorted(values)
         if any(isinstance(value, float) for value in values):
-            raise ValueError(f"Cannot pass floats for {name}")
+            raise TypeError(f"Cannot pass floats for {name}")
 
     first_entry = values[0]
     last_entry = values[-1]

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -51,7 +50,7 @@ _T = typing.TypeVar("_T")
 
 
 def stub_class(
-    cls: typing.Type[_T],
+    cls: type[_T],
     /,
     args: collections.Sequence[typing.Any] = (),
     kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
@@ -916,9 +915,11 @@ class TestAppCommandContext:
             args=(mock_client, mock_interaction, mock_register_task),
         )
 
-        with mock.patch.object(asyncio, "create_task") as create_task:
-            with pytest.raises(ValueError, match="This interaction will have expired before delete_after is reached"):
-                await context.edit_initial_response("bye", delete_after=delete_after)
+        with (
+            pytest.raises(ValueError, match="This interaction will have expired before delete_after is reached"),
+            mock.patch.object(asyncio, "create_task") as create_task,
+        ):
+            await context.edit_initial_response("bye", delete_after=delete_after)
 
         mock_delete_initial_response_after.assert_not_called()
         create_task.assert_not_called()

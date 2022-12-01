@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -182,7 +181,7 @@ class _LoaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.updat
     def load(self, client: tanjun.Client, /) -> bool:
         if self._must_be_std:
             if not isinstance(client, Client):
-                raise ValueError("This loader requires instances of the standard Client implementation")
+                raise TypeError("This loader requires instances of the standard Client implementation")
 
             self._callback(client)
 
@@ -222,7 +221,7 @@ class _UnloaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.upd
     def unload(self, client: tanjun.Client, /) -> bool:
         if self._must_be_std:
             if not isinstance(client, Client):
-                raise ValueError("This unloader requires instances of the standard Client implementation")
+                raise TypeError("This unloader requires instances of the standard Client implementation")
 
             self._callback(client)
 
@@ -455,7 +454,7 @@ async def _wrap_client_callback(
         await client.injector.call_with_async_di(callback, *args)
 
     except Exception as exc:
-        _LOGGER.error("Client callback raised exception", exc_info=exc)
+        _LOGGER.exception("Client callback raised exception", exc_info=exc)
 
 
 async def on_parser_error(ctx: tanjun.Context, error: errors.ParserError) -> None:
@@ -2801,7 +2800,8 @@ class Client(tanjun.Client):
 
         try:
             if not await self.check(ctx):
-                raise errors.HaltExecution
+                await _mark_not_found_event(ctx)
+                return
 
             for component in self._components.values():
                 # This is set on each iteration to ensure that any component
@@ -2831,10 +2831,7 @@ class Client(tanjun.Client):
                 ctx.cancel_defer()
             return
 
-        try:
-            await ctx.mark_not_found()
-        finally:
-            ctx.cancel_defer()
+        await _mark_not_found_event(ctx)
 
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
         """Handle a gateway interaction create event.
@@ -2851,10 +2848,12 @@ class Client(tanjun.Client):
                 assert isinstance(event.interaction, hikari.CommandInteraction)
                 return await self.on_gateway_command_create(event.interaction)
 
-        elif event.interaction.type is hikari.InteractionType.AUTOCOMPLETE:
-            if self._interaction_accepts & InteractionAcceptsEnum.AUTOCOMPLETE:
-                assert isinstance(event.interaction, hikari.AutocompleteInteraction)
-                return await self.on_gateway_autocomplete_create(event.interaction)
+        elif (
+            event.interaction.type is hikari.InteractionType.AUTOCOMPLETE
+            and self._interaction_accepts & InteractionAcceptsEnum.AUTOCOMPLETE
+        ):
+            assert isinstance(event.interaction, hikari.AutocompleteInteraction)
+            return await self.on_gateway_autocomplete_create(event.interaction)
 
     async def on_autocomplete_interaction_request(
         self, interaction: hikari.AutocompleteInteraction, /
@@ -2935,7 +2934,7 @@ class Client(tanjun.Client):
         task: asyncio.Task[typing.Any]  # MyPy compat
         try:
             if not await self.check(ctx):
-                raise errors.HaltExecution
+                return await self._mark_not_found_request(ctx, loop, future)
 
             for component in self._components.values():
                 # This is set on each iteration to ensure that any component
@@ -2967,10 +2966,28 @@ class Client(tanjun.Client):
             self._add_task(task)
             return await future
 
-        task = loop.create_task(ctx.mark_not_found(), name=f"{interaction.id} not found")
+        return await self._mark_not_found_request(ctx, loop, future)
+
+    async def _mark_not_found_request(
+        self,
+        ctx: typing.Union[context.SlashContext, context.MenuContext],
+        loop: asyncio.AbstractEventLoop,
+        future: asyncio.Future[
+            typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+        ],
+    ) -> typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]:
+        task = loop.create_task(ctx.mark_not_found(), name=f"{ctx.interaction.id} not found")
         task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
         self._add_task(task)
         return await future
+
+
+async def _mark_not_found_event(ctx: typing.Union[context.SlashContext, context.MenuContext]) -> None:
+    try:
+        await ctx.mark_not_found()
+
+    finally:
+        ctx.cancel_defer()
 
 
 def _scan_directory(path: pathlib.Path, namespace: typing.Optional[str]) -> list[typing.Union[pathlib.Path, str]]:

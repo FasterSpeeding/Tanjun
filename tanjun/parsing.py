@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -1661,9 +1660,8 @@ class Parameter:
         return self._key
 
     def _add_converter(self, converter: ConverterSig[typing.Any], /) -> None:
-        if isinstance(converter, conversion.BaseConverter):
-            if self._client:
-                converter.check_client(self._client, f"{self._key} parameter")
+        if isinstance(converter, conversion.BaseConverter) and self._client:
+            converter.check_client(self._client, f"{self._key} parameter")
 
         # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
         converter = conversion.override_type(converter)
@@ -1679,22 +1677,22 @@ class Parameter:
         self._component = component
 
     def _validate(self, value: typing.Any, /) -> None:
-        # assert value >= self._min_value
+        # asserts value >= self._min_value
         if self._min_value is not None and self._min_value > value:
             raise errors.ConversionError(
                 f"{self._key!r} must be greater than or equal to {self._min_value!r}", self._key
             )
 
-        # assert value <= self._max_value
+        # asserts value <= self._max_value
         if self._max_value is not None and self._max_value < value:
             raise errors.ConversionError(f"{self._key!r} must be less than or equal to {self._max_value!r}", self._key)
 
         length: typing.Optional[int] = None
-        # assert that len(value) >= self._min_length
+        # asserts that len(value) >= self._min_length
         if self._min_length is not None and self._min_length > (length := len(value)):
             raise errors.ConversionError(f"{self._key!r} must be longer than {self._min_length - 1}", self._key)
 
-        # assert that len(value) <= self._max_length
+        # asserts that len(value) <= self._max_length
         if self._max_length is not None and self._max_length < (len(value) if length is None else length):
             raise errors.ConversionError(f"{self._key!r} can't be longer than {self._max_length}", self._key)
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -1008,7 +1007,7 @@ class _AllChecks:
         self._checks = checks
 
     async def __call__(self, ctx: tanjun.Context, /) -> bool:
-        for check in self._checks:
+        for check in self._checks:  # noqa: SIM111
             if not await ctx.call_with_async_di(check, ctx):
                 return False
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -382,7 +381,7 @@ async def test__get_ctx_target_when_unexpected_type():
         await tanjun.dependencies.limiters._get_ctx_target(mock.Mock(), tanjun.BucketResource.MEMBER)
 
 
-class Test_Cooldown:
+class TestCooldown:
     def test_has_expired_property(self):
         with freezegun.freeze_time(auto_tick_seconds=3):
             cooldown = tanjun.dependencies.limiters._Cooldown(limit=1, reset_after=datetime.timedelta(seconds=60))
@@ -480,7 +479,7 @@ class Test_Cooldown:
         assert cooldown.must_wait_until() is None
 
 
-class Test_FlatResource:
+class TestFlatResource:
     @pytest.mark.asyncio()
     async def test_try_into_inner(self):
         mock_resource_maker = mock.Mock()
@@ -572,7 +571,7 @@ class Test_FlatResource:
         assert new_bucket.mapping == {}
 
 
-class Test_MemberResource:
+class TestMemberResource:
     @pytest.mark.asyncio()
     async def test_into_inner(self) -> None:
         mock_resource_maker = mock.Mock()
@@ -770,7 +769,7 @@ class Test_MemberResource:
         assert new_bucket.dm_fallback == {}
 
 
-class Test_GlobalResource:
+class TestGlobalResource:
     @pytest.mark.asyncio()
     async def test_into_inner(self):
         mock_resource_maker = mock.Mock()
@@ -821,11 +820,11 @@ class TestInMemoryCooldownManager:
         mock_error = Exception("test")
 
         with mock.patch.object(asyncio, "sleep", side_effect=[None, None, mock_error]) as sleep:
-            with pytest.raises(Exception) as exc_info:  # noqa: PT011, PT012
+            with pytest.raises(Exception, match=".*") as exc_info:
                 await asyncio.wait_for(manager._gc(), timeout=0.5)
 
-                assert exc_info.value is mock_error
-                sleep.assert_has_awaits([mock.call(10), mock.call(10), mock.call(10)])
+            assert exc_info.value is mock_error
+            sleep.assert_has_awaits([mock.call(10), mock.call(10), mock.call(10)])
 
         mock_bucket_1.cleanup.assert_has_calls([mock.call(), mock.call()])
         mock_bucket_2.cleanup.assert_has_calls([mock.call(), mock.call()])
@@ -836,7 +835,7 @@ class TestInMemoryCooldownManager:
         mock_open = mock.Mock()
 
         class StubManager(tanjun.dependencies.InMemoryCooldownManager):
-            open = mock_open
+            open = mock_open  # noqa: VNE003
 
         manager = StubManager()
         manager.add_to_client(mock_client)
@@ -854,7 +853,7 @@ class TestInMemoryCooldownManager:
         mock_open = mock.Mock()
 
         class StubManager(tanjun.dependencies.InMemoryCooldownManager):
-            open = mock_open
+            open = mock_open  # noqa: VNE003
 
         manager = StubManager()
         manager.add_to_client(mock_client)
@@ -1674,7 +1673,7 @@ def test_with_cooldown_when_follow_wrapping_and_wrapping_unsupported_command():
         mock_command.wrapped_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
 
 
-class Test_ConcurrencyLimit:
+class TestConcurrencyLimit:
     def test_acquire(self):
         limit = tanjun.dependencies.limiters._ConcurrencyLimit(2)
 
@@ -1747,11 +1746,11 @@ class TestInMemoryConcurrencyLimiter:
         mock_error = Exception("test")
 
         with mock.patch.object(asyncio, "sleep", side_effect=[None, None, mock_error]) as sleep:
-            with pytest.raises(Exception) as exc_info:  # noqa: PT011, PT012
+            with pytest.raises(Exception, match=".*") as exc_info:
                 await asyncio.wait_for(manager._gc(), timeout=0.5)
 
-                assert exc_info.value is mock_error
-                sleep.assert_has_awaits([mock.call(10), mock.call(10), mock.call(10)])
+            assert exc_info.value is mock_error
+            sleep.assert_has_awaits([mock.call(10), mock.call(10), mock.call(10)])
 
         mock_bucket_1.cleanup.assert_has_calls([mock.call(), mock.call()])
         mock_bucket_2.cleanup.assert_has_calls([mock.call(), mock.call()])
@@ -1762,7 +1761,7 @@ class TestInMemoryConcurrencyLimiter:
         mock_open = mock.Mock()
 
         class StubManager(tanjun.dependencies.InMemoryConcurrencyLimiter):
-            open = mock_open
+            open = mock_open  # noqa: VNE003
 
         manager = StubManager()
         manager.add_to_client(mock_client)
@@ -1780,7 +1779,7 @@ class TestInMemoryConcurrencyLimiter:
         mock_open = mock.Mock()
 
         class StubManager(tanjun.dependencies.InMemoryConcurrencyLimiter):
-            open = mock_open
+            open = mock_open  # noqa: VNE003
 
         manager = StubManager()
         manager.add_to_client(mock_client)

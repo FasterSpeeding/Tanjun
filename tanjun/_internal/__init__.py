@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -90,8 +89,7 @@ NoDefault = typing.Literal[_NoDefaultEnum.VALUE]
 
 
 async def _execute_check(ctx: tanjun.Context, callback: tanjun.CheckSig, /) -> bool:
-    foo = ctx.call_with_async_di(callback, ctx)
-    if result := await foo:
+    if result := await ctx.call_with_async_di(callback, ctx):
         return result
 
     raise errors.FailedCheck
@@ -114,12 +112,14 @@ async def gather_checks(ctx: tanjun.Context, checks: collections.Iterable[tanjun
     """
     try:
         await asyncio.gather(*(_execute_check(ctx, check) for check in checks))
-        # InjectableCheck will raise FailedCheck if a false is received so if
-        # we get this far then it's True.
-        return True
 
     except errors.FailedCheck:
         return False
+
+    else:
+        # InjectableCheck will raise FailedCheck if a false is received so if
+        # we get this far then it's True.
+        return True
 
 
 _EMPTY_BUFFER: dict[typing.Any, typing.Any] = {}
@@ -239,12 +239,7 @@ def infer_listener_types(
     except ValueError:  # Callback has no signature
         raise ValueError("Missing event type") from None
 
-    try:
-        parameter = next(iter(signature.parameters.values()))
-
-    except StopIteration:
-        parameter = None
-
+    parameter = next(iter(signature.parameters.values()), None)
     if not parameter or parameter.kind not in _POSITIONAL_TYPES:
         raise ValueError("Missing positional event argument") from None
 
@@ -402,10 +397,11 @@ def repr_channel(channel_type: hikari.ChannelType, /) -> str:
 
 def parse_channel_types(*channel_types: typing.Union[type[hikari.PartialChannel], int]) -> list[hikari.ChannelType]:
     """Parse a channel types collection to a list of channel type integers."""
+    types_iter = itertools.chain.from_iterable(
+        (hikari.ChannelType(type_),) if isinstance(type_, int) else CHANNEL_TYPES[type_] for type_ in channel_types
+    )
+
     try:
-        types_iter = itertools.chain.from_iterable(
-            (hikari.ChannelType(type_),) if isinstance(type_, int) else CHANNEL_TYPES[type_] for type_ in channel_types
-        )
         return list(dict.fromkeys(types_iter))
 
     except KeyError as exc:
@@ -599,9 +595,9 @@ class MessageCommandIndex:
             name = content.split(" ", 1)[0]
             # A case-insensitive key is used to allow for both the case-sensitive and case-insensitive
             # cases to be covered.
-            if command := self.names_to_commands.get(name.casefold()):
-                if not case_sensitive or command[0] == name:
-                    yield name, command[1]
+            command = self.names_to_commands.get(name.casefold())
+            if command and (not case_sensitive or command[0] == name):
+                yield name, command[1]
 
             # strict indexes avoid using the search tree all together.
             return

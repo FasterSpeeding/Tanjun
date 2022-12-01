@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -298,9 +297,10 @@ class TestNsfwCheck:
         mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.NsfwCheck(error=MockException, error_message="nye")
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=None)) as get_perm_channel:
-            with pytest.raises(MockException):
-                await check(mock_context)
+        with pytest.raises(MockException), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=None)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -309,9 +309,10 @@ class TestNsfwCheck:
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error_message="meow me")
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="meow me"):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.CommandError, match="meow me"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -323,9 +324,10 @@ class TestNsfwCheck:
             error_message={hikari.Locale.DE: "oh", hikari.Locale.HU: "no", hikari.Locale.EN_GB: "meow"}
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="no"):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.CommandError, match="no"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -341,9 +343,10 @@ class TestNsfwCheck:
             }
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="defaulted"):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.CommandError, match="defaulted"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -359,9 +362,10 @@ class TestNsfwCheck:
             }
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="default default default"):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.CommandError, match="default default default"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -378,9 +382,10 @@ class TestNsfwCheck:
             }
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="real default"):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.CommandError, match="real default"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -401,9 +406,10 @@ class TestNsfwCheck:
             {hikari.Locale.CS: "n", hikari.Locale.EN_GB: "override", hikari.Locale.FI: "i'm finished"},
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="override"):
-                await check(mock_context, localiser=localiser)
+        with pytest.raises(tanjun.errors.CommandError, match="override"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
+        ) as get_perm_channel:
+            await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -429,9 +435,10 @@ class TestNsfwCheck:
             .set_variants("cthulhu calls", {hikari.Locale.EN_GB: "wowzer Fred, I'm gay", hikari.Locale.CS: "meow"})
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="wowzer Fred, I'm gay"):
-                await check(mock_context, localiser=localiser)
+        with pytest.raises(tanjun.errors.CommandError, match="wowzer Fred, I'm gay"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
+        ) as get_perm_channel:
+            await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -456,9 +463,10 @@ class TestNsfwCheck:
             .set_variants("cthulhu calls", {hikari.Locale.EN_GB: "wowzer Fred, I'm gay", hikari.Locale.CS: "meow"})
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="default default default"):
-                await check(mock_context, localiser=localiser)
+        with pytest.raises(tanjun.errors.CommandError, match="default default default"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
+        ) as get_perm_channel:
+            await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -467,9 +475,10 @@ class TestNsfwCheck:
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error_message="yeet", halt_execution=True)
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.HaltExecution):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.HaltExecution), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -516,9 +525,10 @@ class TestSfwCheck:
         mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.SfwCheck(error=MockException, error_message="bye")
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
-            with pytest.raises(MockException):
-                await check(mock_context)
+        with pytest.raises(MockException), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -527,9 +537,10 @@ class TestSfwCheck:
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error_message="meow me")
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="meow me"):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.CommandError, match="meow me"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -541,9 +552,10 @@ class TestSfwCheck:
             error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="moooo"):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.CommandError, match="moooo"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -559,9 +571,10 @@ class TestSfwCheck:
             }
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="bye bye"):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.CommandError, match="bye bye"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -573,9 +586,10 @@ class TestSfwCheck:
             error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="oooooo"):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.CommandError, match="oooooo"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -592,9 +606,10 @@ class TestSfwCheck:
             }
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="oh no"):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.CommandError, match="oh no"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -610,9 +625,10 @@ class TestSfwCheck:
             "user_menu:oh no girl:check:tanjun.SfwCheck", {hikari.Locale.DA: "real value", hikari.Locale.BG: "op"}
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="real value"):
-                await check(mock_context, localiser=localiser)
+        with pytest.raises(tanjun.errors.CommandError, match="real value"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
+        ) as get_perm_channel:
+            await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -647,9 +663,10 @@ class TestSfwCheck:
             )
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="Passing you like a summer breeze"):
-                await check(mock_context, localiser=localiser)
+        with pytest.raises(tanjun.errors.CommandError, match="Passing you like a summer breeze"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
+        ) as get_perm_channel:
+            await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -684,9 +701,10 @@ class TestSfwCheck:
             )
         )
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.CommandError, match="years of meows"):
-                await check(mock_context, localiser=localiser)
+        with pytest.raises(tanjun.errors.CommandError, match="years of meows"), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
+        ) as get_perm_channel:
+            await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
@@ -695,9 +713,10 @@ class TestSfwCheck:
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error_message="yeet", halt_execution=True)
 
-        with mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel:
-            with pytest.raises(tanjun.errors.HaltExecution):
-                await check(mock_context)
+        with pytest.raises(tanjun.errors.HaltExecution), mock.patch.object(
+            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
+        ) as get_perm_channel:
+            await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 

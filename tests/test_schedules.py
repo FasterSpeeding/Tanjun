@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# cython: language_level=3
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2022, Faster Speeding
@@ -93,6 +92,21 @@ class _ManualClock:
         self._tick_fors = tick_fors
         self._tick_sleep_count = tick_sleep_count
 
+    def spawn_ticker(self) -> "_ManualClock":
+        if self._is_ticking and self._keep_ticking:
+            raise RuntimeError("Already ticking")
+
+        if self._is_ticking:
+            self._keep_ticking = True
+            return self
+
+        self._is_ticking = True
+        self._tasks.append(asyncio.get_running_loop().create_task(_print_tb(self._next_tick)()))
+        return self
+
+    def stop_ticker(self) -> None:
+        self._tasks[-1].cancel()
+
     async def _next_tick(self) -> None:
         index = self._index + 1
         if len(self._tick_fors) == index:
@@ -123,21 +137,6 @@ class _ManualClock:
             return await self._next_tick()
 
         self._is_ticking = False
-
-    def spawn_ticker(self) -> "_ManualClock":
-        if self._is_ticking and self._keep_ticking:
-            raise RuntimeError("Already ticking")
-
-        if self._is_ticking:
-            self._keep_ticking = True
-            return self
-
-        self._is_ticking = True
-        self._tasks.append(asyncio.get_running_loop().create_task(_print_tb(self._next_tick)()))
-        return self
-
-    def stop_ticker(self) -> None:
-        self._tasks[-1].cancel()
 
 
 def test_as_interval():
@@ -1036,7 +1035,7 @@ class TestTimeSchedule:
         ],
     )
     def test_init_when_float_passed(self, kwargs: dict[str, typing.Any], expected_message: str):
-        with pytest.raises(ValueError, match=expected_message):
+        with pytest.raises(TypeError, match=expected_message):
             tanjun.schedules.TimeSchedule(mock.Mock(), **kwargs)
 
     @pytest.mark.asyncio()
@@ -1289,58 +1288,8 @@ class TestTimeSchedule:
                 ],
                 id="Start of each section weekly",
             ),
-            # pytest.param(
-            #     {
-            #         "months": [11, 12],  # This also tests that out-of-month-range date handling works.
-            #         "days": 31,
-            #         "hours": 23,
-            #         "minutes": 59,
-            #         "seconds": 59,
-            #     },
-            #     datetime.datetime(2015, 10, 5, 23, 1, 1),
-            #     [
-            #         datetime.timedelta(days=87, minutes=58, seconds=58, microseconds=500001),
-            #         datetime.timedelta(days=366),
-            #         datetime.timedelta(days=1),
-            #     ],
-            #     datetime.timedelta(days=453, minutes=58, seconds=58, microseconds=500001),
-            #     [
-            #         datetime.datetime(2015, 12, 31, 23, 59, 59, 500001),
-            #         datetime.datetime(2016, 12, 31, 23, 59, 59, 500001),
-            #     ],
-            #     id="End of each section",
-            # ),
-            # pytest.param(
-            #     {
-            #         "months": [11, 12],
-            #         "weekly": True,
-            #         "days": 31,
-            #         "hours": 23,
-            #         "minutes": 59,
-            #         "seconds": 59,
-            #     },
-            #     datetime.datetime(2066, 12, 31, 23, 59, 59),
-            #     [
-            #         datetime.timedelta(days=2, seconds=1, microseconds=500001),
-            #         *(datetime.timedelta(days=7),) * 4,
-            #         datetime.timedelta(days=336),
-            #         *(datetime.timedelta(days=7),) * 4,
-            #     ],
-            #     datetime.timedelta(days=394, seconds=2, microseconds=500001),
-            #     [
-            #         datetime.datetime(2067, 1, 3, 0, 0, 0, 500001),
-            #         datetime.datetime(2067, 1, 10, 0, 0, 0, 500001),
-            #         datetime.datetime(2067, 1, 17, 0, 0, 0, 500001),
-            #         datetime.datetime(2067, 1, 24, 0, 0, 0, 500001),
-            #         datetime.datetime(2067, 1, 31, 0, 0, 0, 500001),
-            #         datetime.datetime(2068, 1, 2, 0, 0, 0, 500001),
-            #         datetime.datetime(2068, 1, 9, 0, 0, 0, 500001),
-            #         datetime.datetime(2068, 1, 16, 0, 0, 0, 500001),
-            #         datetime.datetime(2068, 1, 23, 0, 0, 0, 500001),
-            #         datetime.datetime(2068, 1, 30, 0, 0, 0, 500001),
-            #     ],
-            #     id="End of each section weekly",
-            # ),
+            # TODO: End of each section  see histpry for test data
+            # TODO: End of each section weekly  see history for test data
             pytest.param(
                 {},
                 datetime.datetime(2011, 1, 4, 11, 57, 10),
@@ -1571,82 +1520,51 @@ class TestTimeSchedule:
                 ],
                 id="specific months, days, hours and minutes weekly",
             ),
-            # pytest.param(
-            #     {
-            #         "months": 8,
-            #         "days": range(4, 2, -1),  # [4, 3]
-            #         "hours": 3,
-            #         "seconds": range(5, 9, 2),  # [5, 7]
-            #     },
-            #     datetime.datetime(3222, 1, 2, 3, microsecond=500001),
-            #     [
-            #         datetime.timedelta(days=213, seconds=5),
-            #         *(datetime.timedelta(seconds=2), datetime.timedelta(seconds=58)) * 115,
-            #         datetime.timedelta(seconds=2),
-            #         datetime.timedelta(hours=23, minutes=1, seconds=58),
-            #         *(datetime.timedelta(seconds=2), datetime.timedelta(seconds=58)) * 115,
-            #         datetime.timedelta(seconds=2),
-            #         datetime.timedelta(days=363, hours=23, minutes=1, seconds=58),
-            #         *(datetime.timedelta(seconds=2), datetime.timedelta(seconds=58)) * 115,
-            #         datetime.timedelta(seconds=2),
-            #     ],
-            #     datetime.timedelta(days=578, minutes=58, seconds=7, microseconds=500001),
-            #     [
-            #         *(
-            #             datetime.datetime(3222, 8, day, 3, minute, second, 500001)
-            #             for day, minute, second in itertools.product([3, 4], range(0, 59), [5, 7])
-            #         ),
-            #         *(
-            #             datetime.datetime(3223, 8, 3, 3, minute, second, 500001)
-            #             for minute, second in itertools.product(range(0, 59), [5, 7])
-            #         ),
-            #     ],
-            #     id="specific months, days, hours and seconds",
-            # ),
-            # ("kwargs", "start", "tick_fors", "sleep_for", "expected_dates")  # TODO: test timezone behaviour
+            # TODO: specific months, days, hours and seconds  See history for test data
+            # kwargs, start, tick_fors, sleep_for, expected_dates  TODO: test timezone behaviour
             # needs to be singled: days, days weekly, minutes, seconds
-            # pytest.param(id="specific months, days, hours and seconds weekly"),  #  backwards range days and seconds
-            # pytest.param(id="specific months, days, minutes and seconds"),   # backwards range days
-            # pytest.param(id="specific months, days, minutes and seconds weekly"),
-            # pytest.param(id="specific months, hours, minutes and seconds"),
-            # pytest.param(id="specific months, days and hours"),
-            # pytest.param(id="specific months, days and hours weekly"),
-            # pytest.param(id="specific months, days and minutes"),
-            # pytest.param(id="specific months, days and minutes weekly"),
-            # pytest.param(id="specific months, days and seconds"),
-            # pytest.param(id="specific months, days and seconds weekly"),
-            # pytest.param(id="specific months, hours and minutes"),
-            # pytest.param(id="specific months, hours and seconds"),
-            # pytest.param(id="specific months, minutes and seconds"),
-            # pytest.param(id="specific months and days"),
-            # pytest.param(id="specific months and days weekly"),
-            # pytest.param(id="specific months and hours"),
-            # pytest.param(id="specific months and minutes"),
-            # pytest.param(id="specific months and seconds"),
-            # pytest.param(id="specific months"),
-            # pytest.param(id="specific days, hours minutes and seconds"),
-            # pytest.param(id="specific days, hours minutes and seconds weekly"),
-            # pytest.param(id="specific days, hours and minutes"),
-            # pytest.param(id="specific days, hours and minutes weekly"),
-            # pytest.param(id="specific days, hours and seconds"),
-            # pytest.param(id="specific days, hours and seconds weekly"),
-            # pytest.param(id="specific days, minutes and seconds"),
-            # pytest.param(id="specific days, minutes and seconds weekly"),
-            # pytest.param(id="specific days and hours"),
-            # pytest.param(id="specific days and hours weekly"),
-            # pytest.param(id="specific days and minutes"),
-            # pytest.param(id="specific days and minutes weekly"),
-            # pytest.param(id="specific days and seconds"),
-            # pytest.param(id="specific days and seconds weekly"),
-            # pytest.param(id="specific days"),
-            # pytest.param(id="specific days weekly"),
-            # pytest.param(id="specific hours, minutes and seconds"),
-            # pytest.param(id="specific hours and minutes"),
-            # pytest.param(id="specific hours and seconds"),
-            # pytest.param(id="specific hours"),
-            # pytest.param(id="specific minutes and seconds"),
-            # pytest.param(id="specific minutes"),
-            # pytest.param(id="specific seconds"),
+            # TODO: specific months, days, hours and seconds weekly  #  backwards range days and seconds
+            # TODO: specific months, days, minutes and seconds   # backwards range days
+            # TODO: specific months, days, minutes and seconds weekly
+            # TODO: specific months, hours, minutes and seconds
+            # TODO: specific months, days and hours
+            # TODO: specific months, days and hours weekly
+            # TODO: specific months, days and minutes
+            # TODO: specific months, days and minutes weekly
+            # TODO: specific months, days and seconds
+            # TODO: specific months, days and seconds weekly
+            # TODO: specific months, hours and minutes
+            # TODO: specific months, hours and seconds
+            # TODO: specific months, minutes and seconds
+            # TODO: specific months and days
+            # TODO: specific months and days weekly
+            # TODO: specific months and hours
+            # TODO: specific months and minutes
+            # TODO: specific months and seconds
+            # TODO: specific months
+            # TODO: specific days, hours minutes and seconds
+            # TODO: specific days, hours minutes and seconds weekly
+            # TODO: specific days, hours and minutes
+            # TODO: specific days, hours and minutes weekly
+            # TODO: specific days, hours and seconds
+            # TODO: specific days, hours and seconds weekly
+            # TODO: specific days, minutes and seconds
+            # TODO: specific days, minutes and seconds weekly
+            # TODO: specific days and hours
+            # TODO: specific days and hours weekly
+            # TODO: specific days and minutes
+            # TODO: specific days and minutes weekly
+            # TODO: specific days and seconds
+            # TODO: specific days and seconds weekly
+            # TODO: specific days
+            # TODO: specific days weekly
+            # TODO: specific hours, minutes and seconds
+            # TODO: specific hours and minutes
+            # TODO: specific hours and seconds
+            # TODO: specific hours
+            # TODO: specific minutes and seconds
+            # TODO: specific minutes
+            # TODO: specific seconds
         ],
     )
     @pytest.mark.timeout(_TIMEOUT)
