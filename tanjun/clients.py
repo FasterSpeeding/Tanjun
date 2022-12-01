@@ -39,6 +39,7 @@ __all__: list[str] = [
     "PrefixGetterSig",
     "as_loader",
     "as_unloader",
+    "on_parser_error",
 ]
 
 import asyncio
