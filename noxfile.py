@@ -40,6 +40,7 @@ import nox
 
 nox.options.sessions = ["reformat", "flake8", "spell-check", "slot-check", "type-check", "test", "verify-types"]
 GENERAL_TARGETS = ["./noxfile.py", "./tests"]
+TOP_LEVEL_TARGETS = ["./tanjun", "./tests", "./noxfile.py"]
 _BLACKLISTED_TARGETS = re.compile("^_internal/vendor/.*\\.py")
 for path in pathlib.Path("./tanjun").glob("**/*.py"):
     if not _BLACKLISTED_TARGETS.match(str(path.relative_to("./tanjun")).replace("\\", "/")):
@@ -53,9 +54,7 @@ def _dev_dep(*values: str) -> collections.Iterator[str]:
     return itertools.chain.from_iterable(("-r", str(_DEV_DEP_DIR / f"{value}.txt")) for value in values)
 
 
-def _tracked_files(
-    session: nox.Session, *, ignore_vendor: bool = False
-) -> collections.Iterable[str]:
+def _tracked_files(session: nox.Session, *, ignore_vendor: bool = False) -> collections.Iterable[str]:
     if ignore_vendor:
         return (path for path in _tracked_files(session) if "tanjun/_internal/vendor/" not in path)
 
@@ -192,9 +191,9 @@ def test_publish(session: nox.Session) -> None:
 def reformat(session: nox.Session) -> None:
     """Reformat this project's modules to fit the standard style."""
     install_requirements(session, *_dev_dep("reformat"))
-    session.run("black", "./tanjun", "./tests")
-    session.run("isort", "./tanjun", "./tests")
-    session.run("pycln", "tanjun", "tests", "noxfile.py")
+    session.run("black", *TOP_LEVEL_TARGETS)
+    session.run("isort", *TOP_LEVEL_TARGETS)
+    session.run("pycln", *TOP_LEVEL_TARGETS)
 
     tracked_files = list(_tracked_files(session, ignore_vendor=True))
     py_files = [path for path in tracked_files if re.fullmatch(r"^tanjun\/.+.pyi?$", path)]
@@ -206,7 +205,9 @@ def reformat(session: nox.Session) -> None:
     session.run("python", "-m", "pre_commit_hooks.end_of_file_fixer", *tracked_files, success_codes=[0, 1], log=False)
 
     session.log("Running pre_commit_hooks.trailing_whitespace_fixer")
-    session.run("python", "-m", "pre_commit_hooks.trailing_whitespace_fixer", *tracked_files, success_codes=[0, 1], log=False)
+    session.run(
+        "python", "-m", "pre_commit_hooks.trailing_whitespace_fixer", *tracked_files, success_codes=[0, 1], log=False
+    )
 
 
 @nox.session(reuse_venv=True)
