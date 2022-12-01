@@ -46,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - The hot reloader will no-longer miss command changes made while it's in the
   middle of redeclaring commands.
-- [Component.remove_command][tanjun.components.Component.remove_command] now support menu commands.
+- [Component.remove_command][tanjun.components.Component.remove_command] now supports menu commands.
 
 ## [2.10.0a1] - 2022-11-24
 ### Added
