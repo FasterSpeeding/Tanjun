@@ -1924,7 +1924,7 @@ def test_to_color_when_str_of_space_separated_digits():
 
 
 def test_to_color_when_str_of_space_separated_non_digits():
-    with pytest.raises(TypeError, match="Not a valid color representation"):
+    with pytest.raises(ValueError, match="Not a valid color representation"):
         tanjun.to_color("54 23 aye")
 
 
