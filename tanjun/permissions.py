@@ -110,6 +110,7 @@ def calculate_permissions(
     member: hikari.Member,
     guild: hikari.Guild,
     roles: collections.Mapping[hikari.Snowflake, hikari.Role],
+    /,
     *,
     channel: typing.Optional[hikari.PermissibleGuildChannel] = None,
 ) -> hikari.Permissions:

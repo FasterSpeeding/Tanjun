@@ -1696,7 +1696,7 @@ class Parameter:
         if self._max_length is not None and self._max_length < (len(value) if length is None else length):
             raise errors.ConversionError(f"{self._key!r} can't be longer than {self._max_length}", self._key)
 
-    async def convert(self, ctx: tanjun.Context, value: str) -> typing.Any:
+    async def convert(self, ctx: tanjun.Context, value: str, /) -> typing.Any:
         """Convert the given value to the type of this parameter."""
         if not self._converters:
             self._validate(value)
@@ -1715,7 +1715,7 @@ class Parameter:
                 return result
 
         parameter_type = "option" if isinstance(self, Option) else "argument"
-        raise errors.ConversionError(f"Couldn't convert {parameter_type} '{self._key}'", self._key, sources)
+        raise errors.ConversionError(f"Couldn't convert {parameter_type} '{self._key}'", self._key, errors=sources)
 
     def copy(self) -> Self:
         """Copy the parameter.
@@ -1896,7 +1896,7 @@ class Option(Parameter):
             raise ValueError("All option names must start with `-`")
 
         self._empty_value = empty_value
-        self._names = [name, *names]
+        self._names: list[str] = [name, *names]
         super().__init__(
             key,
             converters=converters,

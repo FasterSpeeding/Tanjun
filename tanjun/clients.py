@@ -298,7 +298,9 @@ def as_loader(
     if callback:
         return _LoaderDescriptor(callback, standard_impl)
 
-    def decorator(callback: collections.Callable[[tanjun.Client], None]) -> collections.Callable[[tanjun.Client], None]:
+    def decorator(
+        callback: collections.Callable[[tanjun.Client], None], /
+    ) -> collections.Callable[[tanjun.Client], None]:
         return _LoaderDescriptor(callback, standard_impl)
 
     return decorator
@@ -373,7 +375,9 @@ def as_unloader(
     if callback:
         return _UnloaderDescriptor(callback, standard_impl)
 
-    def decorator(callback: collections.Callable[[tanjun.Client], None]) -> collections.Callable[[tanjun.Client], None]:
+    def decorator(
+        callback: collections.Callable[[tanjun.Client], None], /
+    ) -> collections.Callable[[tanjun.Client], None]:
         return _UnloaderDescriptor(callback, standard_impl)
 
     return decorator
@@ -457,7 +461,7 @@ async def _wrap_client_callback(
         _LOGGER.exception("Client callback raised exception", exc_info=exc)
 
 
-async def on_parser_error(ctx: tanjun.Context, error: errors.ParserError) -> None:
+async def on_parser_error(ctx: tanjun.Context, error: errors.ParserError, /) -> None:
     """Handle message parser errors.
 
     This is the default message parser error hook included by [tanjun.Client][].
@@ -1092,9 +1096,7 @@ class Client(tanjun.Client):
         return self._events
 
     @property
-    def listeners(
-        self,
-    ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
+    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
         return _internal.CastedView(
             self._listeners,
             lambda x: [callback.callback for callback in x.values()],
@@ -2464,7 +2466,7 @@ class Client(tanjun.Client):
             raise errors.ModuleMissingUnloaders(f"Didn't find any unloaders in {module_path}", module_path)
 
     def _load_module(
-        self, module_path: typing.Union[str, pathlib.Path]
+        self, module_path: typing.Union[str, pathlib.Path], /
     ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
         if isinstance(module_path, str):
             if module_path in self._modules:
@@ -2552,7 +2554,7 @@ class Client(tanjun.Client):
         return self
 
     def _reload_module(
-        self, module_path: typing.Union[str, pathlib.Path]
+        self, module_path: typing.Union[str, pathlib.Path], /
     ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
         if isinstance(module_path, str):
             old_module = self._modules.get(module_path)
@@ -2740,12 +2742,12 @@ class Client(tanjun.Client):
 
         return hooks
 
-    async def _on_menu_not_found(self, ctx: tanjun.MenuContext) -> None:
+    async def _on_menu_not_found(self, ctx: tanjun.MenuContext, /) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.MENU_COMMAND_NOT_FOUND, ctx)
         if self._menu_not_found and not ctx.has_responded:
             await ctx.create_initial_response(self._menu_not_found)
 
-    async def _on_slash_not_found(self, ctx: tanjun.SlashContext) -> None:
+    async def _on_slash_not_found(self, ctx: tanjun.SlashContext, /) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         if self._slash_not_found and not ctx.has_responded:
             await ctx.create_initial_response(self._slash_not_found)

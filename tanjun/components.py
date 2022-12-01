@@ -115,7 +115,7 @@ def _with_command(
     return decorator(maybe_command) if maybe_command else decorator
 
 
-def _filter_scope(scope: collections.Mapping[str, typing.Any]) -> collections.Iterator[typing.Any]:
+def _filter_scope(scope: collections.Mapping[str, typing.Any], /) -> collections.Iterator[typing.Any]:
     return (value for key, value in scope.items() if not key.startswith("_"))
 
 
@@ -303,9 +303,7 @@ class Component(tanjun.Component):
         return self._message_commands.commands.copy()
 
     @property
-    def listeners(
-        self,
-    ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
+    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return _internal.CastedView(self._listeners, lambda x: x.copy())
 
@@ -626,10 +624,7 @@ class Component(tanjun.Component):
         return check
 
     def add_client_callback(
-        self,
-        name: typing.Union[str, tanjun.ClientCallbackNames],
-        callback: tanjun.MetaEventSig,
-        /,
+        self, name: typing.Union[str, tanjun.ClientCallbackNames], callback: tanjun.MetaEventSig, /
     ) -> Self:
         """Add a client callback.
 
@@ -1022,7 +1017,7 @@ class Component(tanjun.Component):
         self, *event_types: type[hikari.Event]
     ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
         # <<inherited docstring from tanjun.abc.Component>>.
-        def decorator(callback: _ListenerCallbackSigT) -> _ListenerCallbackSigT:
+        def decorator(callback: _ListenerCallbackSigT, /) -> _ListenerCallbackSigT:
             for event_type in event_types or _internal.infer_listener_types(callback):
                 self.add_listener(event_type, callback)
 
@@ -1211,9 +1206,7 @@ class Component(tanjun.Component):
             yield command
 
     def execute_autocomplete(
-        self,
-        ctx: tanjun.AutocompleteContext,
-        /,
+        self, ctx: tanjun.AutocompleteContext, /
     ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         if command := self._slash_commands.get(ctx.interaction.command_name):

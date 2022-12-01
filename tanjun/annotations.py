@@ -1020,12 +1020,7 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
 
     __slots__ = ("_channel_types",)
 
-    def __init__(
-        self,
-        channel_type: _ChannelTypeIsh,
-        /,
-        *other_types: _ChannelTypeIsh,
-    ) -> None:
+    def __init__(self, channel_type: _ChannelTypeIsh, /, *other_types: _ChannelTypeIsh) -> None:
         """Create a channel argument restraint.
 
         Parameters

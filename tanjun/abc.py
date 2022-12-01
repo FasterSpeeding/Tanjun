@@ -2679,6 +2679,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         raise NotImplementedError
         ...
 
+    @abc.abstractmethod
     async def execute_autocomplete(
         self,
         ctx: AutocompleteContext,
@@ -3483,11 +3484,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def execute_autocomplete(
-        self,
-        ctx: AutocompleteContext,
-        /,
-    ) -> typing.Optional[_CoroT[None]]:
+    def execute_autocomplete(self, ctx: AutocompleteContext, /) -> typing.Optional[_CoroT[None]]:
         """Execute an autocomplete context.
 
         !!! note
@@ -4469,11 +4466,7 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def check_message_name(
-        self,
-        name: str,
-        /,
-        *,
-        case_sensitive: bool = True,
+        self, name: str, /, *, case_sensitive: bool = True
     ) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
         """Check whether a message command name is present in the current client.
 

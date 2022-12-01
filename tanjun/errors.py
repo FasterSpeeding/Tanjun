@@ -349,7 +349,7 @@ class ConversionError(ParserError):
     parameter: str
     """Name of the parameter this error was raised for."""
 
-    def __init__(self, message: str, parameter: str, /, errors: collections.Iterable[ValueError] = ()) -> None:
+    def __init__(self, message: str, parameter: str, /, *, errors: collections.Iterable[ValueError] = ()) -> None:
         """Initialise a conversion error.
 
         Parameters

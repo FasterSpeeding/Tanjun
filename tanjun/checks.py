@@ -1015,9 +1015,7 @@ class _AllChecks:
 
 
 def all_checks(
-    check: tanjun.CheckSig,
-    /,
-    *checks: tanjun.CheckSig,
+    check: tanjun.CheckSig, /, *checks: tanjun.CheckSig
 ) -> collections.Callable[[tanjun.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
     """Combine multiple check callbacks into a check which will only pass if all the callbacks pass.
 
@@ -1040,10 +1038,7 @@ def all_checks(
 
 
 def with_all_checks(
-    check: tanjun.CheckSig,
-    /,
-    *checks: tanjun.CheckSig,
-    follow_wrapped: bool = False,
+    check: tanjun.CheckSig, /, *checks: tanjun.CheckSig, follow_wrapped: bool = False
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a check which will pass if all the provided checks pass through a decorator call.
 
