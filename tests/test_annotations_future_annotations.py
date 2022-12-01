@@ -212,9 +212,7 @@ def test_when_wrapping_message_but_not_follow_wrapped_parser_already_set():
 
 def test_when_follow_wrapping_and_wrapping_unsupported_command():
     async def mock_callback(
-        ctx: tanjun.abc.MessageContext,
-        value: annotations.Str,
-        other_value: annotations.Bool = False,
+        ctx: tanjun.abc.MessageContext, value: annotations.Str, other_value: annotations.Bool = False
     ) -> None:
         ...
 
@@ -1489,10 +1487,7 @@ def test_with_positional():
 def test_with_greedy():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        meep: typing.Annotated[annotations.Int, annotations.Greedy()],
-    ):
+    async def callback(ctx: tanjun.abc.Context, meep: typing.Annotated[annotations.Int, annotations.Greedy()]):
         ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
@@ -1510,10 +1505,7 @@ def test_with_greedy():
 def test_with_generic_greedy():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        meep: annotations.Greedy[annotations.Str],
-    ):
+    async def callback(ctx: tanjun.abc.Context, meep: annotations.Greedy[annotations.Str]):
         ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
@@ -3602,10 +3594,7 @@ def test_for_attachment_option():
 
 def test_for_attachment_option_on_message_command():
     @tanjun.as_message_command("command")
-    async def command(
-        ctx: tanjun.abc.Context,
-        arg: annotations.Attachment,
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, arg: annotations.Attachment) -> None:
         ...
 
     with pytest.raises(
@@ -3617,10 +3606,7 @@ def test_for_attachment_option_on_message_command():
 def test_for_attachment_option_on_message_command_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def command(
-        ctx: tanjun.abc.Context,
-        arg: typing.Optional[annotations.Attachment] = None,
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.Attachment] = None) -> None:
         ...
 
     assert command.parser is None
@@ -3630,10 +3616,7 @@ def test_for_attachment_option_on_message_command_with_default_and_pre_set_parse
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.with_parser
     @tanjun.as_message_command("command")
-    async def command(
-        ctx: tanjun.abc.Context,
-        arg: typing.Optional[annotations.Attachment] = None,
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.Attachment] = None) -> None:
         ...
 
     assert isinstance(command.parser, tanjun.parsing.ShlexParser)
@@ -3848,10 +3831,7 @@ def test_for_interaction_channel_option():
 
 def test_for_interaction_channel_option_on_message_command():
     @tanjun.as_message_command("command")
-    async def command(
-        ctx: tanjun.abc.Context,
-        arg: annotations.InteractionChannel,
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, arg: annotations.InteractionChannel) -> None:
         ...
 
     with pytest.raises(
@@ -3867,10 +3847,7 @@ def test_for_interaction_channel_option_on_message_command():
 def test_for_interaction_channel_option_on_message_command_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def command(
-        ctx: tanjun.abc.Context,
-        arg: typing.Optional[annotations.InteractionChannel] = None,
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionChannel] = None) -> None:
         ...
 
     assert command.parser is None
@@ -3880,10 +3857,7 @@ def test_for_interaction_channel_option_on_message_command_with_default_and_pre_
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.with_parser
     @tanjun.as_message_command("command")
-    async def command(
-        ctx: tanjun.abc.Context,
-        arg: typing.Optional[annotations.InteractionChannel] = None,
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionChannel] = None) -> None:
         ...
 
     assert isinstance(command.parser, tanjun.parsing.ShlexParser)
@@ -4172,10 +4146,7 @@ def test_for_interaction_member_option():
 
 def test_for_interaction_member_option_on_message_command():
     @tanjun.as_message_command("command")
-    async def command(
-        ctx: tanjun.abc.Context,
-        arg: annotations.InteractionMember,
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, arg: annotations.InteractionMember) -> None:
         ...
 
     with pytest.raises(
@@ -4190,10 +4161,7 @@ def test_for_interaction_member_option_on_message_command():
 def test_for_interaction_member_option_on_message_command_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def command(
-        ctx: tanjun.abc.Context,
-        arg: typing.Optional[annotations.InteractionMember] = None,
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionMember] = None) -> None:
         ...
 
     assert command.parser is None
@@ -4203,10 +4171,7 @@ def test_for_interaction_member_option_on_message_command_with_default_and_pre_s
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.with_parser
     @tanjun.as_message_command("command")
-    async def command(
-        ctx: tanjun.abc.Context,
-        arg: typing.Optional[annotations.InteractionMember] = None,
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionMember] = None) -> None:
         ...
 
     assert isinstance(command.parser, tanjun.parsing.ShlexParser)
@@ -4817,10 +4782,7 @@ if sys.version_info >= (3, 10):
 def test_parse_annotated_args_with_descriptions_argument():
     @tanjun.as_slash_command("name", "description")
     async def command(
-        ctx: tanjun.abc.Context,
-        *,
-        echo: annotations.Str,
-        foxy: annotations.Ranged[123, 432] = 232,
+        ctx: tanjun.abc.Context, *, echo: annotations.Str, foxy: annotations.Ranged[123, 432] = 232
     ) -> None:
         raise NotImplementedError
 
@@ -4861,10 +4823,7 @@ def test_parse_annotated_args_with_descriptions_argument_for_wrapped_slash_comma
     @tanjun.as_message_command("ignore me")
     @tanjun.as_slash_command("name", "description")
     async def command(
-        ctx: tanjun.abc.Context,
-        *,
-        ruby: typing.Annotated[annotations.User, "not h"],
-        rebecca: annotations.Str = "h",
+        ctx: tanjun.abc.Context, *, ruby: typing.Annotated[annotations.User, "not h"], rebecca: annotations.Str = "h"
     ) -> None:
         raise NotImplementedError
 
