@@ -79,10 +79,7 @@ def mock_component() -> tanjun.abc.Component:
 
 class TestBaseContext:
     @pytest.fixture()
-    def context(
-        self,
-        mock_client: mock.Mock,
-    ) -> base_context.BaseContext:
+    def context(self, mock_client: mock.Mock) -> base_context.BaseContext:
         return stub_class(base_context.BaseContext, args=(mock_client,))
 
     def test_cache_property(self, context: tanjun.abc.Context, mock_client: mock.Mock):

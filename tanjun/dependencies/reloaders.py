@@ -566,6 +566,7 @@ class _PathScanner(typing.Generic[_PathT]):
         current_paths: collections.Collection[_PathT],
         remove_path: collections.Callable[[_PathT], None],
         new_paths: collections.Iterable[tuple[_PathT, pathlib.Path]],
+        /,
     ) -> None:
         for path, real_path in new_paths:
             if path in self.dead_unloads:
@@ -601,7 +602,7 @@ class _PathLoader(typing.Generic[_PathT]):
     changed: bool = dataclasses.field(default=False, init=False)
 
     async def process_results(
-        self, client: tanjun.Client, results: collections.Iterable[tuple[_PathT, _PyPathInfo]]
+        self, client: tanjun.Client, results: collections.Iterable[tuple[_PathT, _PyPathInfo]], /
     ) -> None:
         for path, value in results:
             if tracked_value := self.waiting_for.get(path):
@@ -617,7 +618,7 @@ class _PathLoader(typing.Generic[_PathT]):
             elif not (path_info := self.paths.get(path)) or path_info.last_modified_at != value.last_modified_at:
                 self.waiting_for[path] = value.last_modified_at
 
-    def remove_results(self, client: tanjun.Client, results: collections.Iterable[_PathT]) -> None:
+    def remove_results(self, client: tanjun.Client, results: collections.Iterable[_PathT], /) -> None:
         for path in results:
             self.unload_module(client, path)
             self.paths[path].last_modified_at = -1

@@ -50,11 +50,7 @@ class TestBasicLocaliser:
     def test_get_all_variants(self):
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "yeet",
-            {
-                hikari.Locale.BG: "BIGGIE CHEESE",
-                hikari.Locale.CS: "COMPUTER SENTIENT",
-                hikari.Locale.EN_GB: "no",
-            },
+            {hikari.Locale.BG: "BIGGIE CHEESE", hikari.Locale.CS: "COMPUTER SENTIENT", hikari.Locale.EN_GB: "no"},
             DE="yeet",
             boom="NO",
         )

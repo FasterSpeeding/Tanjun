@@ -251,12 +251,8 @@ class _CacheCallback(typing.Generic[_T]):
             not self._last_called or self._expire_after <= (time.monotonic() - self._last_called)
         )
 
-    async def __call__(
-        self,
-        # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
-        *args: typing.Any,
-        ctx: alluka.Injected[alluka.abc.Context],
-    ) -> _T:
+    # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
+    async def __call__(self, *args: typing.Any, ctx: alluka.Injected[alluka.abc.Context]) -> _T:
         if self._result is not alluka.abc.UNDEFINED and not self._has_expired:
             assert not isinstance(self._result, alluka.abc.Undefined)
             return self._result

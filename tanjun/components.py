@@ -343,10 +343,7 @@ class Component(tanjun.Component):
         ...
 
     def load_from_scope(
-        self,
-        *,
-        include_globals: bool = False,
-        scope: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+        self, *, include_globals: bool = False, scope: typing.Optional[collections.Mapping[str, typing.Any]] = None
     ) -> Self:
         """Load entries such as top-level commands into the component from the calling scope.
 
@@ -1191,11 +1188,7 @@ class Component(tanjun.Component):
         ctx.set_component(None)
 
     def check_message_name(
-        self,
-        content: str,
-        /,
-        *,
-        case_sensitive: bool = True,
+        self, content: str, /, *, case_sensitive: bool = True
     ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return self._message_commands.find(content, case_sensitive)
@@ -1244,11 +1237,7 @@ class Component(tanjun.Component):
     # a match is found the public function is kept sync to avoid yielding
     # to the event loop until after this is set.
     def execute_menu(
-        self,
-        ctx: tanjun.MenuContext,
-        /,
-        *,
-        hooks: typing.Optional[collections.MutableSet[tanjun.MenuHooks]] = None,
+        self, ctx: tanjun.MenuContext, /, *, hooks: typing.Optional[collections.MutableSet[tanjun.MenuHooks]] = None
     ) -> collections.Coroutine[
         typing.Any, typing.Any, typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]
     ]:
@@ -1267,11 +1256,7 @@ class Component(tanjun.Component):
     # a match is found the public function is kept sync to avoid yielding
     # to the event loop until after this is set.
     def execute_slash(
-        self,
-        ctx: tanjun.SlashContext,
-        /,
-        *,
-        hooks: typing.Optional[collections.MutableSet[tanjun.SlashHooks]] = None,
+        self, ctx: tanjun.SlashContext, /, *, hooks: typing.Optional[collections.MutableSet[tanjun.SlashHooks]] = None
     ) -> collections.Coroutine[
         typing.Any, typing.Any, typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]
     ]:

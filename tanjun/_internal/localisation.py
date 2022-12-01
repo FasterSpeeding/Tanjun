@@ -213,13 +213,7 @@ _FieldType = typing.Union[_NamedFields, _UnnamedFields]
 
 
 @typing.overload
-def to_localise_id(
-    command_type: _CommandTypes,
-    command_name: str,
-    field_type: _NamedFields,
-    field_name: str,
-    /,
-) -> str:
+def to_localise_id(command_type: _CommandTypes, command_name: str, field_type: _NamedFields, field_name: str, /) -> str:
     ...
 
 
@@ -235,11 +229,7 @@ def to_localise_id(
 
 
 def to_localise_id(
-    command_type: _CommandTypes,
-    command_name: str,
-    field_type: _FieldType,
-    field_name: typing.Optional[str] = None,
-    /,
+    command_type: _CommandTypes, command_name: str, field_type: _FieldType, field_name: typing.Optional[str] = None, /
 ) -> str:
     """Generate an ID for a localised field.
 

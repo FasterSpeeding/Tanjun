@@ -590,20 +590,10 @@ def test_choices(
 
     assert callback.build().options == [
         hikari.CommandOption(
-            type=option_type,
-            name="nope",
-            channel_types=None,
-            description="default",
-            is_required=True,
-            choices=result,
+            type=option_type, name="nope", channel_types=None, description="default", is_required=True, choices=result
         ),
         hikari.CommandOption(
-            type=option_type,
-            name="boo",
-            channel_types=None,
-            description="be",
-            is_required=False,
-            choices=result,
+            type=option_type, name="boo", channel_types=None, description="be", is_required=False, choices=result
         ),
     ]
 
@@ -985,18 +975,10 @@ def test_with_converted():
 
     assert command.build().options == [
         hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="boo",
-            channel_types=None,
-            description="description",
-            is_required=True,
+            type=hikari.OptionType.STRING, name="boo", channel_types=None, description="description", is_required=True
         ),
         hikari.CommandOption(
-            type=hikari.OptionType.INTEGER,
-            name="bam",
-            channel_types=None,
-            description="nom",
-            is_required=False,
+            type=hikari.OptionType.INTEGER, name="bam", channel_types=None, description="nom", is_required=False
         ),
     ]
 
@@ -1064,18 +1046,10 @@ def test_with_generic_converted():
 
     assert command.build().options == [
         hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="boo",
-            channel_types=None,
-            description="description",
-            is_required=True,
+            type=hikari.OptionType.STRING, name="boo", channel_types=None, description="description", is_required=True
         ),
         hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="bam",
-            channel_types=None,
-            description="nom",
-            is_required=False,
+            type=hikari.OptionType.STRING, name="bam", channel_types=None, description="nom", is_required=False
         ),
     ]
 
@@ -1134,11 +1108,7 @@ def test_with_default():
 
     assert command.build().options == [
         hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="argument",
-            channel_types=None,
-            description="meow",
-            is_required=False,
+            type=hikari.OptionType.STRING, name="argument", channel_types=None, description="meow", is_required=False
         )
     ]
 
@@ -1179,11 +1149,7 @@ def test_with_generic_default():
 
     assert command.build().options == [
         hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="argument",
-            channel_types=None,
-            description="meow",
-            is_required=False,
+            type=hikari.OptionType.STRING, name="argument", channel_types=None, description="meow", is_required=False
         )
     ]
 
@@ -1224,11 +1190,7 @@ def test_with_default_overriding_signature_default():
 
     assert command.build().options == [
         hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="argument",
-            channel_types=None,
-            description="meow",
-            is_required=False,
+            type=hikari.OptionType.STRING, name="argument", channel_types=None, description="meow", is_required=False
         )
     ]
 
@@ -1268,11 +1230,7 @@ def test_with_default_unsetting_signature_default():
 
     assert command.build().options == [
         hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="argument",
-            channel_types=None,
-            description="meow",
-            is_required=True,
+            type=hikari.OptionType.STRING, name="argument", channel_types=None, description="meow", is_required=True
         )
     ]
 
@@ -1341,18 +1299,10 @@ def test_with_flag():
 
     assert callback.wrapped_command.build().options == [
         hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="meep",
-            channel_types=None,
-            description="bb",
-            is_required=False,
+            type=hikari.OptionType.STRING, name="meep", channel_types=None, description="bb", is_required=False
         ),
         hikari.CommandOption(
-            type=hikari.OptionType.INTEGER,
-            name="eep",
-            channel_types=None,
-            description="b",
-            is_required=False,
+            type=hikari.OptionType.INTEGER, name="eep", channel_types=None, description="b", is_required=False
         ),
     ]
     assert len(callback.wrapped_command._tracked_options) == 2
@@ -1386,11 +1336,7 @@ def test_with_flag_and_deprecated_default():
 
     assert callback.wrapped_command.build().options == [
         hikari.CommandOption(
-            type=hikari.OptionType.INTEGER,
-            name="eep",
-            channel_types=None,
-            description="b",
-            is_required=False,
+            type=hikari.OptionType.INTEGER, name="eep", channel_types=None, description="b", is_required=False
         )
     ]
     assert len(callback.wrapped_command._tracked_options) == 1
@@ -1424,11 +1370,7 @@ def test_with_flag_and_default():
 
     assert callback.wrapped_command.build().options == [
         hikari.CommandOption(
-            type=hikari.OptionType.INTEGER,
-            name="eep",
-            channel_types=None,
-            description="a",
-            is_required=False,
+            type=hikari.OptionType.INTEGER, name="eep", channel_types=None, description="a", is_required=False
         )
     ]
     assert len(callback.wrapped_command._tracked_options) == 1
@@ -1472,11 +1414,7 @@ def test_with_positional():
 
     assert callback.wrapped_command.build().options == [
         hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="beep",
-            channel_types=None,
-            description="eat",
-            is_required=True,
+            type=hikari.OptionType.STRING, name="beep", channel_types=None, description="eat", is_required=True
         )
     ]
     assert len(callback.wrapped_command._tracked_options) == 1
@@ -3464,11 +3402,7 @@ def test_with_generic_these_channels():
         hikari.ChannelType.GUILD_TEXT,
         hikari.ChannelType.GUILD_VOICE,
     }
-    expected_types_2 = {
-        hikari.ChannelType.DM,
-        hikari.ChannelType.GROUP_DM,
-        hikari.ChannelType.GUILD_VOICE,
-    }
+    expected_types_2 = {hikari.ChannelType.DM, hikari.ChannelType.GROUP_DM, hikari.ChannelType.GUILD_VOICE}
 
     assert isinstance(command.wrapped_command, tanjun.MessageCommand)
     assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
@@ -4496,12 +4430,7 @@ def test_when_annotated_not_top_level():
         raise NotImplementedError
 
     assert command.build().options == [
-        hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="value",
-            description="nyaa",
-            is_required=False,
-        ),
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="nyaa", is_required=False),
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="other_value",
@@ -4571,12 +4500,7 @@ if sys.version_info >= (3, 10):
             raise NotImplementedError
 
         assert command.build().options == [
-            hikari.CommandOption(
-                type=hikari.OptionType.STRING,
-                name="value",
-                description="nyaa",
-                is_required=False,
-            ),
+            hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="nyaa", is_required=False),
             hikari.CommandOption(
                 type=hikari.OptionType.INTEGER,
                 name="other_value",
@@ -4644,12 +4568,7 @@ def test_when_annotated_handles_unions():
         raise NotImplementedError
 
     assert command.build().options == [
-        hikari.CommandOption(
-            type=hikari.OptionType.STRING,
-            name="value",
-            description="nyaa",
-            is_required=False,
-        ),
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="nyaa", is_required=False),
         hikari.CommandOption(
             type=hikari.OptionType.INTEGER,
             name="other_value",
@@ -4719,12 +4638,7 @@ if sys.version_info >= (3, 10):
             raise NotImplementedError
 
         assert command.build().options == [
-            hikari.CommandOption(
-                type=hikari.OptionType.STRING,
-                name="value",
-                description="nyaa",
-                is_required=False,
-            ),
+            hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="nyaa", is_required=False),
             hikari.CommandOption(
                 type=hikari.OptionType.INTEGER,
                 name="other_value",

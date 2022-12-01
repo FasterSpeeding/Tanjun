@@ -130,7 +130,7 @@ class CastedView(collections.Mapping[_KeyT, _OtherT], typing.Generic[_KeyT, _Oth
 
     __slots__ = ("_buffer", "_cast", "_raw_data")
 
-    def __init__(self, raw_data: dict[_KeyT, _T], cast: collections.Callable[[_T], _OtherT]) -> None:
+    def __init__(self, raw_data: dict[_KeyT, _T], cast: collections.Callable[[_T], _OtherT], /) -> None:
         self._buffer: dict[_KeyT, _OtherT] = {} if raw_data else _EMPTY_BUFFER
         self._cast = cast
         self._raw_data = raw_data
@@ -157,7 +157,7 @@ class CastedView(collections.Mapping[_KeyT, _OtherT], typing.Generic[_KeyT, _Oth
 _KEYWORD_TYPES = {inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD}
 
 
-def get_kwargs(callback: collections.Callable[..., typing.Any]) -> list[str] | None:
+def get_kwargs(callback: collections.Callable[..., typing.Any], /) -> list[str] | None:
     """Get a list of the keyword argument names for a callback.
 
     Parameters
@@ -288,7 +288,7 @@ class _WrappedProto(typing.Protocol):
     wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]]
 
 
-def _has_wrapped(value: typing.Any) -> typing_extensions.TypeGuard[_WrappedProto]:
+def _has_wrapped(value: typing.Any, /) -> typing_extensions.TypeGuard[_WrappedProto]:
     try:
         value.wrapped_command
 
@@ -298,7 +298,7 @@ def _has_wrapped(value: typing.Any) -> typing_extensions.TypeGuard[_WrappedProto
     return True
 
 
-def collect_wrapped(command: tanjun.ExecutableCommand[typing.Any]) -> list[tanjun.ExecutableCommand[typing.Any]]:
+def collect_wrapped(command: tanjun.ExecutableCommand[typing.Any], /) -> list[tanjun.ExecutableCommand[typing.Any]]:
     """Collect all the commands a command object has wrapped in decorator calls.
 
     Parameters
@@ -411,6 +411,7 @@ def parse_channel_types(*channel_types: typing.Union[type[hikari.PartialChannel]
 def cmp_command(
     cmd: typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder],
     other: typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder, None],
+    /,
 ) -> bool:
     """Compare application command objects and command builders."""
     if not other or other.type != cmd.type:

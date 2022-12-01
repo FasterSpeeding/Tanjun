@@ -31,12 +31,7 @@
 """Dependency used for managing localising strings around interactions commands."""
 from __future__ import annotations
 
-__all__: list[str] = [
-    "AbstractLocaliser",
-    "AbstractLocalizer",
-    "BasicLocaliser",
-    "BasicLocalizer",
-]
+__all__: list[str] = ["AbstractLocaliser", "AbstractLocalizer", "BasicLocaliser", "BasicLocalizer"]
 
 import abc
 import typing
@@ -138,11 +133,7 @@ class BasicLocaliser(AbstractLocaliser):
         return None  # MyPy compat
 
     def set_variants(
-        self,
-        identifier: str,
-        variants: typing.Optional[collections.Mapping[str, str]] = None,
-        /,
-        **other_variants: str,
+        self, identifier: str, variants: typing.Optional[collections.Mapping[str, str]] = None, /, **other_variants: str
     ) -> Self:
         """Set the variants for a localised field.
 

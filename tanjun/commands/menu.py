@@ -67,6 +67,8 @@ _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 def _as_menu(
     name: typing.Union[str, collections.Mapping[str, str]],
     type_: _MenuTypeT,
+    /,
+    *,
     always_defer: bool = False,
     default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
@@ -315,9 +317,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
     @typing.overload
     def __init__(
         self,
-        callback: _CommandT[
-            _MenuCommandCallbackSigT,
-        ],
+        callback: _CommandT[_MenuCommandCallbackSigT],
         type_: _MenuTypeT,
         name: typing.Union[str, collections.Mapping[str, str]],
         /,

@@ -127,11 +127,7 @@ class TestOwnerCheck:
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock(tanjun.abc.Context)
         check = tanjun.checks.OwnerCheck(
-            error_message={
-                hikari.Locale.CS: "meow",
-                "default": "meep",
-                hikari.Locale.FI: "eep",
-            }
+            error_message={hikari.Locale.CS: "meow", "default": "meep", hikari.Locale.FI: "eep"}
         )
 
         with pytest.raises(tanjun.errors.CommandError, match="meep"):
@@ -1180,11 +1176,7 @@ class TestAuthorPermissionCheck:
         mock_context = mock.Mock()
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message=None)
 
-        with mock.patch.object(
-            tanjun.permissions,
-            "fetch_permissions",
-            return_value=actual_perms,
-        ) as fetch_permissions:
+        with mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions:
             result = await check(mock_context)
 
         assert result is False
@@ -2441,11 +2433,7 @@ def test_with_dm_check_with_keyword_arguments(command: mock.Mock):
 
         assert result is command
         command.add_check.assert_called_once_with(dm_check.return_value)
-        dm_check.assert_called_once_with(
-            error=mock_error_callback,
-            error_message="message",
-            halt_execution=True,
-        )
+        dm_check.assert_called_once_with(error=mock_error_callback, error_message="message", halt_execution=True)
         command.wrapped_command.add_check.assert_not_called()
 
 
@@ -2776,11 +2764,9 @@ def test_with_owner_check_with_keyword_arguments(command: mock.Mock):
     mock_error_callback = mock.Mock()
     mock_check = object()
     with mock.patch.object(tanjun.checks, "OwnerCheck", return_value=mock_check) as owner_check:
-        result = tanjun.checks.with_owner_check(
-            error=mock_error_callback,
-            error_message="dango",
-            halt_execution=True,
-        )(command)
+        result = tanjun.checks.with_owner_check(error=mock_error_callback, error_message="dango", halt_execution=True)(
+            command
+        )
         assert result is command
 
         command.add_check.assert_called_once_with(owner_check.return_value)

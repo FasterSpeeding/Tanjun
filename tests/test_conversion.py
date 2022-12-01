@@ -866,10 +866,7 @@ class TestToEmoji:
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
 
-        result = await tanjun.to_emoji(
-            "<a:name:7623421>",
-            mock_context,
-        )
+        result = await tanjun.to_emoji("<a:name:7623421>", mock_context)
 
         assert result is mock_context.rest.fetch_emoji.return_value
         mock_context.rest.fetch_emoji.assert_awaited_once_with(mock_context.guild_id, 7623421)

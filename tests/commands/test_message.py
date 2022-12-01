@@ -87,9 +87,7 @@ def test_as_message_command():
 )
 def test_as_message_command_when_wrapping_command(
     other_command: typing.Union[
-        tanjun.SlashCommand[typing.Any],
-        tanjun.MessageCommand[typing.Any],
-        tanjun.MenuCommand[typing.Any, typing.Any],
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MenuCommand[typing.Any, typing.Any]
     ]
 ):
     command = tanjun.as_message_command("a", "b")(other_command)
@@ -118,9 +116,7 @@ def test_as_message_command_group():
 )
 def test_as_message_command_group_when_wrapping_command(
     other_command: typing.Union[
-        tanjun.SlashCommand[typing.Any],
-        tanjun.MessageCommand[typing.Any],
-        tanjun.MenuCommand[typing.Any, typing.Any],
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MenuCommand[typing.Any, typing.Any],
     ]
 ):
     command = tanjun.as_message_command_group("c", "b", strict=True)(other_command)
@@ -141,8 +137,7 @@ class TestMessageCommand:
     def test___init___when_command_object(
         self,
         inner_command: typing.Union[
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig],
-            tanjun.MenuCommand[typing.Any, typing.Any],
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MenuCommand[typing.Any, typing.Any],
         ],
     ):
         assert tanjun.MessageCommand(inner_command, "woow").callback is inner_command.callback
@@ -680,10 +675,9 @@ class TestMessageCommandGroup:
         mock_hooks = mock.Mock()
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
-        command = stub_class(
-            tanjun.MessageCommandGroup[typing.Any],
-            args=(mock.AsyncMock(), "a", "b"),
-        ).set_hooks(mock_attached_hooks)
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b")).set_hooks(
+            mock_attached_hooks
+        )
         command._commands = mock.Mock(
             find=mock.Mock(
                 return_value=iter(
@@ -713,10 +707,9 @@ class TestMessageCommandGroup:
         mock_command_3.check_context.return_value = True
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
-        command = stub_class(
-            tanjun.MessageCommandGroup[typing.Any],
-            args=(mock.AsyncMock(), "a", "b"),
-        ).set_hooks(mock_attached_hooks)
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b")).set_hooks(
+            mock_attached_hooks
+        )
         command._commands = mock.Mock(
             find=mock.Mock(
                 return_value=iter(
@@ -745,10 +738,7 @@ class TestMessageCommandGroup:
         mock_command_3 = mock.AsyncMock()
         mock_command_3.check_context.return_value = True
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
-        command = stub_class(
-            tanjun.MessageCommandGroup[typing.Any],
-            args=(mock.AsyncMock(), "a", "b"),
-        )
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b"))
         command._commands = mock.Mock(
             find=mock.Mock(
                 return_value=iter(
@@ -777,10 +767,9 @@ class TestMessageCommandGroup:
         mock_hooks = mock.Mock()
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
-        command = stub_class(
-            tanjun.MessageCommandGroup[typing.Any],
-            args=(mock.AsyncMock(), "a", "b"),
-        ).set_hooks(mock_attached_hooks)
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b")).set_hooks(
+            mock_attached_hooks
+        )
         command._commands = mock.Mock(
             find=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)]))
         )
@@ -805,10 +794,9 @@ class TestMessageCommandGroup:
         mock_command_2.check_context.return_value = False
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
-        command = stub_class(
-            tanjun.MessageCommandGroup[typing.Any],
-            args=(mock.AsyncMock(), "a", "b"),
-        ).set_hooks(mock_attached_hooks)
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b")).set_hooks(
+            mock_attached_hooks
+        )
         command._commands = mock.Mock(
             find=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)]))
         )
@@ -832,10 +820,7 @@ class TestMessageCommandGroup:
         mock_command_2 = mock.AsyncMock()
         mock_command_2.check_context.return_value = False
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
-        command = stub_class(
-            tanjun.MessageCommandGroup[typing.Any],
-            args=(mock.AsyncMock(), "a", "b"),
-        )
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b"))
         command._commands = mock.Mock(
             find=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)]))
         )

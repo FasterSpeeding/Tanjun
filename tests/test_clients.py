@@ -1330,12 +1330,7 @@ class TestClient:
         result = client.with_listener()(callback)
 
         assert result is callback
-        add_listener_.assert_has_calls(
-            [
-                mock.call(hikari.RoleEvent, callback),
-                mock.call(hikari.GuildEvent, callback),
-            ]
-        )
+        add_listener_.assert_has_calls([mock.call(hikari.RoleEvent, callback), mock.call(hikari.GuildEvent, callback)])
 
     def test_with_listener_with_type_hint_union_nested_annotated(self):
         async def callback(
@@ -1386,18 +1381,13 @@ class TestClient:
 
             assert result is callback
             add_listener_.assert_has_calls(
-                [
-                    mock.call(hikari.ShardEvent, callback),
-                    mock.call(hikari.VoiceEvent, callback),
-                ]
+                [mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)]
             )
 
         def test_with_listener_with_type_hint_310_union_nested_annotated(self):
             async def callback(
                 event: typing.Annotated[
-                    typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent,
-                    True,
-                    "meow",
+                    typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
                 ]
             ) -> None:
                 ...
@@ -1910,11 +1900,7 @@ class TestClient:
 
             assert exc.value is mock_exc
             mock_load_modules.assert_has_calls(
-                [
-                    mock.call("trans.pride.So"),
-                    mock.call("trans.pride.in"),
-                ],
-                any_order=True,
+                [mock.call("trans.pride.So"), mock.call("trans.pride.in")], any_order=True
             )
 
         finally:
@@ -2038,11 +2024,7 @@ class TestClient:
 
             assert exc.value is mock_exc
             mock_load_modules.assert_has_awaits(
-                [
-                    mock.call("trans.pride.So"),
-                    mock.call("trans.pride.in"),
-                ],
-                any_order=True,
+                [mock.call("trans.pride.So"), mock.call("trans.pride.in")], any_order=True
             )
 
         finally:
@@ -2875,11 +2857,7 @@ class TestClient:
             other_loader=mock.Mock(tanjun.abc.ClientLoader),
             _priv_loader=old_priv_loader,
         )
-        new_module = mock.Mock(
-            ok=123,
-            naye=object(),
-            _priv_loader=priv_loader,
-        )
+        new_module = mock.Mock(ok=123, naye=object(), _priv_loader=priv_loader)
         client = tanjun.Client(mock.AsyncMock())
 
         with mock.patch.object(importlib, "import_module", return_value=old_module):
@@ -6595,8 +6573,7 @@ class TestClient:
         )
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock(), execute_menu=mock.AsyncMock(return_value=None))
         mock_component_2 = mock.AsyncMock(
-            bind_client=mock.Mock(),
-            execute_menu=mock.Mock(side_effect=execution_callback),
+            bind_client=mock.Mock(), execute_menu=mock.Mock(side_effect=execution_callback)
         )
         (
             command_dispatch_client.set_menu_ctx_maker(mock_ctx_maker)

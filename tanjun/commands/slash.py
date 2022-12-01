@@ -1361,8 +1361,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         self,
         ctx: tanjun.SlashContext,
         /,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
         hooks: typing.Optional[collections.MutableSet[tanjun.SlashHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
@@ -1389,6 +1389,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         self,
         ctx: tanjun.AutocompleteContext,
         /,
+        *,
         option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
     ) -> None:
         if not option and ctx.interaction.options:
@@ -1407,7 +1408,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         await command.execute_autocomplete(ctx, option=option)
 
 
-def _assert_in_range(name: str, value: typing.Optional[int], min_value: int, max_value: int) -> None:
+def _assert_in_range(name: str, value: typing.Optional[int], min_value: int, max_value: int, /) -> None:
     if value is None:
         return
 
@@ -2905,8 +2906,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         self,
         ctx: tanjun.SlashContext,
         /,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
         hooks: typing.Optional[collections.MutableSet[tanjun.SlashHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
@@ -2948,6 +2949,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         self,
         ctx: tanjun.AutocompleteContext,
         /,
+        *,
         option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.

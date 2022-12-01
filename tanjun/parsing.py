@@ -588,7 +588,7 @@ class _SemanticShlex(_ShlexTokenizer):
 
         return values
 
-    async def __process_argument(self, argument: Argument) -> typing.Any:
+    async def __process_argument(self, argument: Argument, /) -> typing.Any:
         if argument.is_greedy and (value := " ".join(self.iter_raw_arguments())):
             return await argument.convert(self.__ctx, value)
 
@@ -606,7 +606,7 @@ class _SemanticShlex(_ShlexTokenizer):
         raise errors.NotEnoughArgumentsError(f"Missing value for required argument '{argument.key}'", argument.key)
 
     async def __process_option(
-        self, option: Option, raw_options: collections.Mapping[str, collections.Sequence[typing.Optional[str]]]
+        self, option: Option, raw_options: collections.Mapping[str, collections.Sequence[typing.Optional[str]]], /
     ) -> typing.Any:
         values_iter = itertools.chain.from_iterable(raw_options[name] for name in option.names if name in raw_options)
         if option.is_multi and (values := list(values_iter)):
@@ -825,11 +825,7 @@ def with_argument(
 
 @typing.overload
 def with_greedy_argument(
-    key: str,
-    /,
-    converters: _MaybeIterable[ConverterSig[typing.Any]],
-    *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    key: str, /, converters: _MaybeIterable[ConverterSig[typing.Any]], *, default: _UndefinedOr[typing.Any] = UNDEFINED
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -996,11 +992,7 @@ def with_greedy_argument(
 
 @typing.overload
 def with_multi_argument(
-    key: str,
-    /,
-    converters: _MaybeIterable[ConverterSig[typing.Any]],
-    *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    key: str, /, converters: _MaybeIterable[ConverterSig[typing.Any]], *, default: _UndefinedOr[typing.Any] = UNDEFINED
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 

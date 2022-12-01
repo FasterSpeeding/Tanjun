@@ -722,9 +722,7 @@ class TestMemberResource:
                 hikari.Snowflake(4321123): mock.Mock(has_expired=mock.Mock(return_value=True)),
                 hikari.Snowflake(54123): mock_cooldown_2,
             },
-            hikari.Snowflake(666): {
-                hikari.Snowflake(4321123): mock.Mock(has_expired=mock.Mock(return_value=True)),
-            },
+            hikari.Snowflake(666): {hikari.Snowflake(4321123): mock.Mock(has_expired=mock.Mock(return_value=True))},
             hikari.Snowflake(6512312): {
                 hikari.Snowflake(222): mock.Mock(has_expired=mock.Mock(return_value=True)),
                 hikari.Snowflake(654124): mock_cooldown_3,
@@ -2162,11 +2160,7 @@ class TestConcurrencyPreExecution:
         mock_limiter.try_acquire.return_value = False
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "message_menu:epic flintstones:check:tanjun.concurrency",
-            {
-                hikari.Locale.DA: "multiple messages",
-                hikari.Locale.EN_GB: "ear",
-                hikari.Locale.BG: "neat",
-            },
+            {hikari.Locale.DA: "multiple messages", hikari.Locale.EN_GB: "ear", hikari.Locale.BG: "neat"},
         )
         hook = tanjun.dependencies.ConcurrencyPreExecution(
             "bucket catgirls",

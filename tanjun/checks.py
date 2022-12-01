@@ -72,11 +72,7 @@ if typing.TYPE_CHECKING:
 
     class _AnyCallback(typing.Protocol):
         async def __call__(
-            self,
-            ctx: tanjun.Context,
-            /,
-            *,
-            localiser: typing.Optional[dependencies.AbstractLocaliser] = None,
+            self, ctx: tanjun.Context, /, *, localiser: typing.Optional[dependencies.AbstractLocaliser] = None
         ) -> bool:
             raise NotImplementedError
 
@@ -95,9 +91,7 @@ def _add_to_command(command: _CommandT, check: tanjun.CheckSig, follow_wrapped: 
 
 
 def _optional_kwargs(
-    command: typing.Optional[_CommandT],
-    check: tanjun.CheckSig,
-    follow_wrapped: bool,
+    command: typing.Optional[_CommandT], check: tanjun.CheckSig, follow_wrapped: bool, /
 ) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
     if command:
         return _add_to_command(command, check, follow_wrapped)

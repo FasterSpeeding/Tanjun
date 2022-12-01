@@ -184,7 +184,7 @@ class BucketResource(int, enum.Enum):
 
 
 async def _try_get_role(
-    cache: async_cache.SfCache[hikari.Role], role_id: hikari.Snowflake
+    cache: async_cache.SfCache[hikari.Role], role_id: hikari.Snowflake, /
 ) -> typing.Optional[hikari.Role]:
     try:
         return await cache.get(role_id)
@@ -316,7 +316,7 @@ _InnerResourceT = typing.TypeVar("_InnerResourceT", bound=_InnerResourceProto)
 class _BaseResource(abc.ABC, typing.Generic[_InnerResourceT]):
     __slots__ = ("make_resource",)
 
-    def __init__(self, make_resource: _InnerResourceSig[_InnerResourceT]) -> None:
+    def __init__(self, make_resource: _InnerResourceSig[_InnerResourceT], /) -> None:
         self.make_resource = make_resource
 
     @abc.abstractmethod
@@ -342,7 +342,7 @@ _InnerResourceSig = collections.Callable[[], _InnerResourceT]
 class _FlatResource(_BaseResource[_InnerResourceT]):
     __slots__ = ("mapping", "resource")
 
-    def __init__(self, resource: BucketResource, make_resource: _InnerResourceSig[_InnerResourceT]) -> None:
+    def __init__(self, resource: BucketResource, make_resource: _InnerResourceSig[_InnerResourceT], /) -> None:
         super().__init__(make_resource)
         self.mapping: dict[hikari.Snowflake, _InnerResourceT] = {}
         self.resource = resource
@@ -370,7 +370,7 @@ class _FlatResource(_BaseResource[_InnerResourceT]):
 class _MemberResource(_BaseResource[_InnerResourceT]):
     __slots__ = ("dm_fallback", "mapping")
 
-    def __init__(self, make_resource: _InnerResourceSig[_InnerResourceT]) -> None:
+    def __init__(self, make_resource: _InnerResourceSig[_InnerResourceT], /) -> None:
         super().__init__(make_resource)
         self.dm_fallback: dict[hikari.Snowflake, _InnerResourceT] = {}
         self.mapping: dict[hikari.Snowflake, dict[hikari.Snowflake, _InnerResourceT]] = {}
@@ -423,7 +423,7 @@ class _MemberResource(_BaseResource[_InnerResourceT]):
 class _GlobalResource(_BaseResource[_InnerResourceT]):
     __slots__ = ("bucket",)
 
-    def __init__(self, make_resource: _InnerResourceSig[_InnerResourceT]) -> None:
+    def __init__(self, make_resource: _InnerResourceSig[_InnerResourceT], /) -> None:
         super().__init__(make_resource)
         self.bucket = make_resource()
 
@@ -441,7 +441,7 @@ class _GlobalResource(_BaseResource[_InnerResourceT]):
 
 
 def _to_bucket(
-    resource: BucketResource, make_resource: _InnerResourceSig[_InnerResourceT]
+    resource: BucketResource, make_resource: _InnerResourceSig[_InnerResourceT], /
 ) -> _BaseResource[_InnerResourceT]:
     if resource is BucketResource.MEMBER:
         return _MemberResource(make_resource)
@@ -793,7 +793,7 @@ def with_cooldown(
 class _ConcurrencyLimit:
     __slots__ = ("counter", "limit")
 
-    def __init__(self, limit: int) -> None:
+    def __init__(self, limit: int, /) -> None:
         self.counter = 0
         self.limit = limit
 
@@ -853,7 +853,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         self._acquiring_ctxs: dict[tuple[str, tanjun.Context], _ConcurrencyLimit] = {}
         self._buckets: dict[str, _BaseResource[_ConcurrencyLimit]] = {}
         self._default_bucket_template: _BaseResource[_ConcurrencyLimit] = _FlatResource(
-            BucketResource.USER, lambda: _ConcurrencyLimit(limit=1)
+            BucketResource.USER, lambda: _ConcurrencyLimit(1)
         )
         self._gc_task: typing.Optional[asyncio.Task[None]] = None
 
@@ -953,7 +953,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         Self
             This concurrency manager to allow for chaining.
         """
-        bucket = self._buckets[bucket_id] = _GlobalResource(lambda: _ConcurrencyLimit(limit=-1))
+        bucket = self._buckets[bucket_id] = _GlobalResource(lambda: _ConcurrencyLimit(-1))
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 
@@ -989,7 +989,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
-        bucket = self._buckets[bucket_id] = _to_bucket(BucketResource(resource), lambda: _ConcurrencyLimit(limit=limit))
+        bucket = self._buckets[bucket_id] = _to_bucket(BucketResource(resource), lambda: _ConcurrencyLimit(limit))
         if bucket_id == "default":
             self._default_bucket_template = bucket.copy()
 

@@ -139,12 +139,7 @@ class TestComponent:
         result = component.with_listener()(callback)
 
         assert result is callback
-        add_listener.assert_has_calls(
-            [
-                mock.call(hikari.RoleEvent, callback),
-                mock.call(hikari.GuildEvent, callback),
-            ]
-        )
+        add_listener.assert_has_calls([mock.call(hikari.RoleEvent, callback), mock.call(hikari.GuildEvent, callback)])
 
     def test_with_listener_with_type_hint_union_nested_annotated(self):
         async def callback(
@@ -191,18 +186,13 @@ class TestComponent:
 
             assert result is callback
             add_listener.assert_has_calls(
-                [
-                    mock.call(hikari.ShardEvent, callback),
-                    mock.call(hikari.VoiceEvent, callback),
-                ]
+                [mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)]
             )
 
         def test_with_listener_with_type_hint_310_union_nested_annotated(self):
             async def callback(
                 event: typing.Annotated[
-                    typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent,
-                    True,
-                    "meow",
+                    typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
                 ]
             ) -> None:
                 ...

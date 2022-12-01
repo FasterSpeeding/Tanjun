@@ -2316,8 +2316,8 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
     async def trigger_error(
         self,
         ctx: _ContextT_contra,
-        /,
         exception: Exception,
+        /,
         *,
         hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
     ) -> int:
@@ -2325,31 +2325,19 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
     @abc.abstractmethod
     async def trigger_post_execution(
-        self,
-        ctx: _ContextT_contra,
-        /,
-        *,
-        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
+        self, ctx: _ContextT_contra, /, *, hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_pre_execution(
-        self,
-        ctx: _ContextT_contra,
-        /,
-        *,
-        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
+        self, ctx: _ContextT_contra, /, *, hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_success(
-        self,
-        ctx: _ContextT_contra,
-        /,
-        *,
-        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
+        self, ctx: _ContextT_contra, /, *, hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None
     ) -> None:
         raise NotImplementedError
 
@@ -2672,8 +2660,8 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         self,
         ctx: SlashContext,
         /,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
         hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
     ) -> None:
         raise NotImplementedError
@@ -2681,7 +2669,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
 
     @abc.abstractmethod
     async def execute_autocomplete(
-        self, ctx: AutocompleteContext, /, option: typing.Optional[hikari.AutocompleteInteractionOption] = None
+        self, ctx: AutocompleteContext, /, *, option: typing.Optional[hikari.AutocompleteInteractionOption] = None
     ) -> None:
         ...
 
@@ -3430,11 +3418,7 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     def check_message_name(
-        self,
-        name: str,
-        /,
-        *,
-        case_sensitive: bool = True,
+        self, name: str, /, *, case_sensitive: bool = True
     ) -> collections.Iterator[tuple[str, MessageCommand[typing.Any]]]:
         """Check whether a name matches any of this component's registered message commands.
 
@@ -3506,11 +3490,7 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     async def execute_menu(
-        self,
-        ctx: MenuContext,
-        /,
-        *,
-        hooks: typing.Optional[collections.MutableSet[MenuHooks]] = None,
+        self, ctx: MenuContext, /, *, hooks: typing.Optional[collections.MutableSet[MenuHooks]] = None
     ) -> typing.Optional[_CoroT[None]]:
         """Execute a menu context.
 
@@ -3542,11 +3522,7 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     async def execute_slash(
-        self,
-        ctx: SlashContext,
-        /,
-        *,
-        hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
+        self, ctx: SlashContext, /, *, hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None
     ) -> typing.Optional[_CoroT[None]]:
         """Execute a slash context.
 
@@ -4387,39 +4363,27 @@ class Client(abc.ABC):
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self,
-        *,
-        global_only: bool = False,
-        type: typing.Literal[hikari.CommandType.MESSAGE],  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.MESSAGE]  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self,
-        *,
-        global_only: bool = False,
-        type: typing.Literal[hikari.CommandType.USER],  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.USER]  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
         ...
 
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self,
-        *,
-        global_only: bool = False,
-        type: typing.Optional[hikari.CommandType] = None,  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
         ...
 
     @abc.abstractmethod
     def iter_menu_commands(
-        self,
-        *,
-        global_only: bool = False,
-        type: typing.Optional[hikari.CommandType] = None,  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
         """Iterator over the menu commands registered to this client.
 
@@ -4504,11 +4468,7 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def load_directory(
-        self,
-        directory: typing.Union[str, pathlib.Path],
-        /,
-        *,
-        namespace: typing.Optional[str] = None,
+        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> Self:
         """Load entities into this client from the modules in a directory.
 

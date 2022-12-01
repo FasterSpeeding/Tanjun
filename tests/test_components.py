@@ -344,9 +344,7 @@ class TestComponent:
     def test_with_check(self):
         add_check = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent",
-            (tanjun.Component,),
-            exec_body=lambda ns: ns.update({"add_check": add_check}),
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_check": add_check})
         )()
         mock_check = mock.Mock()
 
@@ -795,9 +793,7 @@ class TestComponent:
         mock_command = mock.Mock()
         add_menu_command = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent",
-            (tanjun.Component,),
-            exec_body=lambda ns: ns.update({"add_menu_command": add_menu_command}),
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_menu_command": add_menu_command})
         )()
 
         result = component.with_menu_command(mock_command)
@@ -810,9 +806,7 @@ class TestComponent:
         mock_command = mock.Mock()
         add_menu_command = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent",
-            (tanjun.Component,),
-            exec_body=lambda ns: ns.update({"add_menu_command": add_menu_command}),
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_menu_command": add_menu_command})
         )()
 
         result = component.with_menu_command(copy=True)(mock_command)
@@ -1299,12 +1293,7 @@ class TestComponent:
         result = component.with_listener()(callback)
 
         assert result is callback
-        add_listener.assert_has_calls(
-            [
-                mock.call(hikari.RoleEvent, callback),
-                mock.call(hikari.GuildEvent, callback),
-            ]
-        )
+        add_listener.assert_has_calls([mock.call(hikari.RoleEvent, callback), mock.call(hikari.GuildEvent, callback)])
 
     def test_with_listener_with_type_hint_union_nested_annotated(self):
         async def callback(
@@ -1351,18 +1340,13 @@ class TestComponent:
 
             assert result is callback
             add_listener.assert_has_calls(
-                [
-                    mock.call(hikari.ShardEvent, callback),
-                    mock.call(hikari.VoiceEvent, callback),
-                ]
+                [mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)]
             )
 
         def test_with_listener_with_type_hint_310_union_nested_annotated(self):
             async def callback(
                 event: typing.Annotated[
-                    typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent,
-                    True,
-                    "meow",
+                    typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
                 ]
             ) -> None:
                 ...
@@ -1662,9 +1646,7 @@ class TestComponent:
     def test_with_schedule(self):
         add_schedule = mock.Mock()
         component: tanjun.Component = types.new_class(
-            "StubComponent",
-            (tanjun.Component,),
-            exec_body=lambda ns: ns.update({"add_schedule": add_schedule}),
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_schedule": add_schedule})
         )()
         mock_schedule = mock.Mock()
 
