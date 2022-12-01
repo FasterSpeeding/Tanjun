@@ -105,30 +105,19 @@ def cleanup(session: nox.Session) -> None:
             session.log(f"[  OK  ] Removed '{raw_path}'")
 
 
-def _pip_compile(session: nox.Session, /, *args: str) -> None:
+@nox.session(name="freeze-dev-deps", reuse_venv=True)
+def freeze_dev_deps(session: nox.Session) -> None:
+    """Upgrade the dev dependencies."""
     install_requirements(session, *_dev_dep("publish"))
     for path in pathlib.Path("./dev-requirements/").glob("*.in"):
         session.run(
-            "pip-compile",
-            str(path),
-            "--output-file",
+            "pip-compile-cross-platform",
+            "-o",
             str(path.with_name(path.name.removesuffix(".in") + ".txt")),
-            *args,
-            "--resolver=backtracking",
-            # "--generate-hashes",
+            "--min-python-version",
+            "3.9",
+            str(path),
         )
-
-
-@nox.session(name="freeze-dev-deps", reuse_venv=True)
-def freeze_dev_deps(session: nox.Session) -> None:
-    """Freeze the dev dependencies."""
-    _pip_compile(session)
-
-
-@nox.session(name="upgrade-dev-deps", reuse_venv=True)
-def upgrade_dev_deps(session: nox.Session) -> None:
-    """Upgrade the dev dependencies."""
-    _pip_compile(session, "--upgrade")
 
 
 @nox.session(name="generate-docs", reuse_venv=True)
