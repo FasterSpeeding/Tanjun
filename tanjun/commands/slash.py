@@ -110,7 +110,7 @@ _VALID_NAME_UNICODE_CATEGORIES = frozenset(
 _VALID_NAME_CHARACTERS = frozenset(("-", "_"))
 
 
-def _check_name_char(character: str) -> bool:
+def _check_name_char(character: str, /) -> bool:
     # `^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`
     # * `-_`` is just `-` and `_`
     # * L (All letter characters so "Lu", "Ll", "Lt", "Lm" and "Lo")
@@ -126,7 +126,7 @@ def _check_name_char(character: str) -> bool:
     )
 
 
-def _validate_name(name: str) -> bool:
+def _validate_name(name: str, /) -> bool:
     return all(map(_check_name_char, name))
 
 
@@ -831,7 +831,7 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         self._options_dict[option.name] = option
         return self
 
-    def get_option(self, name: str) -> typing.Optional[hikari.CommandOption]:
+    def get_option(self, name: str, /) -> typing.Optional[hikari.CommandOption]:
         return self._options_dict.get(name)
 
     def sort(self) -> Self:
@@ -850,7 +850,7 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         return self
 
     # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
-    def copy(self, /) -> _SlashCommandBuilder:
+    def copy(self) -> _SlashCommandBuilder:
         builder = _SlashCommandBuilder(
             self.name,
             self.name_localizations,
@@ -1361,8 +1361,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         self,
         ctx: tanjun.SlashContext,
         /,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
         hooks: typing.Optional[collections.MutableSet[tanjun.SlashHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
@@ -1389,6 +1389,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         self,
         ctx: tanjun.AutocompleteContext,
         /,
+        *,
         option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
     ) -> None:
         if not option and ctx.interaction.options:
@@ -1407,7 +1408,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         await command.execute_autocomplete(ctx, option=option)
 
 
-def _assert_in_range(name: str, value: typing.Optional[int], min_value: int, max_value: int) -> None:
+def _assert_in_range(name: str, value: typing.Optional[int], min_value: int, max_value: int, /) -> None:
     if value is None:
         return
 
@@ -2905,8 +2906,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         self,
         ctx: tanjun.SlashContext,
         /,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
         *,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
         hooks: typing.Optional[collections.MutableSet[tanjun.SlashHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
@@ -2948,6 +2949,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         self,
         ctx: tanjun.AutocompleteContext,
         /,
+        *,
         option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.

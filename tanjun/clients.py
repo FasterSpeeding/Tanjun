@@ -39,6 +39,7 @@ __all__: list[str] = [
     "PrefixGetterSig",
     "as_loader",
     "as_unloader",
+    "on_parser_error",
 ]
 
 import asyncio
@@ -298,7 +299,9 @@ def as_loader(
     if callback:
         return _LoaderDescriptor(callback, standard_impl)
 
-    def decorator(callback: collections.Callable[[tanjun.Client], None]) -> collections.Callable[[tanjun.Client], None]:
+    def decorator(
+        callback: collections.Callable[[tanjun.Client], None], /
+    ) -> collections.Callable[[tanjun.Client], None]:
         return _LoaderDescriptor(callback, standard_impl)
 
     return decorator
@@ -373,7 +376,9 @@ def as_unloader(
     if callback:
         return _UnloaderDescriptor(callback, standard_impl)
 
-    def decorator(callback: collections.Callable[[tanjun.Client], None]) -> collections.Callable[[tanjun.Client], None]:
+    def decorator(
+        callback: collections.Callable[[tanjun.Client], None], /
+    ) -> collections.Callable[[tanjun.Client], None]:
         return _UnloaderDescriptor(callback, standard_impl)
 
     return decorator
@@ -445,11 +450,7 @@ def _check_human(ctx: tanjun.Context, /) -> bool:
     return ctx.is_human
 
 
-async def _wrap_client_callback(
-    client: Client,
-    callback: tanjun.MetaEventSig,
-    args: tuple[str, ...],
-) -> None:
+async def _wrap_client_callback(client: Client, callback: tanjun.MetaEventSig, args: tuple[str, ...], /) -> None:
     try:
         await client.injector.call_with_async_di(callback, *args)
 
@@ -457,7 +458,7 @@ async def _wrap_client_callback(
         _LOGGER.exception("Client callback raised exception", exc_info=exc)
 
 
-async def on_parser_error(ctx: tanjun.Context, error: errors.ParserError) -> None:
+async def on_parser_error(ctx: tanjun.Context, error: errors.ParserError, /) -> None:
     """Handle message parser errors.
 
     This is the default message parser error hook included by [tanjun.Client][].
@@ -759,7 +760,7 @@ class Client(tanjun.Client):
             _stack_level=_stack_level,
         )
 
-    def _maybe_set_type_dep(self, type_: type[_T], value: typing.Optional[_T]) -> Self:
+    def _maybe_set_type_dep(self, type_: type[_T], value: typing.Optional[_T], /) -> Self:
         if value is not None:
             self.set_type_dependency(type_, value)
 
@@ -1092,13 +1093,8 @@ class Client(tanjun.Client):
         return self._events
 
     @property
-    def listeners(
-        self,
-    ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
-        return _internal.CastedView(
-            self._listeners,
-            lambda x: [callback.callback for callback in x.values()],
-        )
+    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
+        return _internal.CastedView(self._listeners, lambda x: [callback.callback for callback in x.values()])
 
     @property
     def is_alive(self) -> bool:
@@ -1312,12 +1308,7 @@ class Client(tanjun.Client):
                 options = hikari.UNDEFINED
 
             response = await self._rest.edit_application_command(
-                application,
-                command_id,
-                guild=guild,
-                name=builder.name,
-                description=description,
-                options=options,
+                application, command_id, guild=guild, name=builder.name, description=description, options=options
             )
 
         else:
@@ -1746,7 +1737,7 @@ class Client(tanjun.Client):
         self._make_slash_context = maker
         return self
 
-    def set_human_only(self, value: bool = True) -> Self:
+    def set_human_only(self, value: bool = True, /) -> Self:
         """Set whether or not message commands execution should be limited to "human" users.
 
         !!! note
@@ -2104,36 +2095,24 @@ class Client(tanjun.Client):
 
     @typing.overload
     def iter_menu_commands(
-        self,
-        *,
-        global_only: bool = False,
-        type: typing.Literal[hikari.CommandType.MESSAGE],  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.MESSAGE]  # noqa: A002
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
         ...
 
     @typing.overload
     def iter_menu_commands(
-        self,
-        *,
-        global_only: bool = False,
-        type: typing.Literal[hikari.CommandType.USER],  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.USER]  # noqa: A002
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
         ...
 
     @typing.overload
     def iter_menu_commands(
-        self,
-        *,
-        global_only: bool = False,
-        type: typing.Optional[hikari.CommandType] = None,  # noqa: A002.
+        self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002.
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Any]]:
         ...
 
     def iter_menu_commands(
-        self,
-        *,
-        global_only: bool = False,
-        type: typing.Optional[hikari.CommandType] = None,  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Any]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         if global_only:
@@ -2159,11 +2138,7 @@ class Client(tanjun.Client):
         return itertools.chain.from_iterable(component.slash_commands for component in self.components)
 
     def check_message_name(
-        self,
-        name: str,
-        /,
-        *,
-        case_sensitive: bool = True,
+        self, name: str, /, *, case_sensitive: bool = True
     ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         return itertools.chain.from_iterable(
@@ -2408,11 +2383,7 @@ class Client(tanjun.Client):
         return self
 
     def load_directory(
-        self,
-        directory: typing.Union[str, pathlib.Path],
-        /,
-        *,
-        namespace: typing.Optional[str] = None,
+        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         paths = _scan_directory(pathlib.Path(directory), namespace)
@@ -2464,7 +2435,7 @@ class Client(tanjun.Client):
             raise errors.ModuleMissingUnloaders(f"Didn't find any unloaders in {module_path}", module_path)
 
     def _load_module(
-        self, module_path: typing.Union[str, pathlib.Path]
+        self, module_path: typing.Union[str, pathlib.Path], /
     ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
         if isinstance(module_path, str):
             if module_path in self._modules:
@@ -2552,7 +2523,7 @@ class Client(tanjun.Client):
         return self
 
     def _reload_module(
-        self, module_path: typing.Union[str, pathlib.Path]
+        self, module_path: typing.Union[str, pathlib.Path], /
     ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
         if isinstance(module_path, str):
             old_module = self._modules.get(module_path)
@@ -2740,12 +2711,12 @@ class Client(tanjun.Client):
 
         return hooks
 
-    async def _on_menu_not_found(self, ctx: tanjun.MenuContext) -> None:
+    async def _on_menu_not_found(self, ctx: tanjun.MenuContext, /) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.MENU_COMMAND_NOT_FOUND, ctx)
         if self._menu_not_found and not ctx.has_responded:
             await ctx.create_initial_response(self._menu_not_found)
 
-    async def _on_slash_not_found(self, ctx: tanjun.SlashContext) -> None:
+    async def _on_slash_not_found(self, ctx: tanjun.SlashContext, /) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         if self._slash_not_found and not ctx.has_responded:
             await ctx.create_initial_response(self._slash_not_found)
@@ -2975,6 +2946,7 @@ class Client(tanjun.Client):
         future: asyncio.Future[
             typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
         ],
+        /,
     ) -> typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]:
         task = loop.create_task(ctx.mark_not_found(), name=f"{ctx.interaction.id} not found")
         task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
@@ -2982,7 +2954,7 @@ class Client(tanjun.Client):
         return await future
 
 
-async def _mark_not_found_event(ctx: typing.Union[context.SlashContext, context.MenuContext]) -> None:
+async def _mark_not_found_event(ctx: typing.Union[context.SlashContext, context.MenuContext], /) -> None:
     try:
         await ctx.mark_not_found()
 
@@ -2990,14 +2962,14 @@ async def _mark_not_found_event(ctx: typing.Union[context.SlashContext, context.
         ctx.cancel_defer()
 
 
-def _scan_directory(path: pathlib.Path, namespace: typing.Optional[str]) -> list[typing.Union[pathlib.Path, str]]:
+def _scan_directory(path: pathlib.Path, namespace: typing.Optional[str], /) -> list[typing.Union[pathlib.Path, str]]:
     if namespace:
         return [namespace + "." + path.name.removesuffix(".py") for path in path.glob("*.py") if path.is_file()]
 
     return [path for path in path.glob("*.py") if path.is_file()]
 
 
-def _normalize_path(path: pathlib.Path) -> pathlib.Path:
+def _normalize_path(path: pathlib.Path, /) -> pathlib.Path:
     try:  # TODO: test behaviour around this
         path = path.expanduser()
     except RuntimeError:
@@ -3042,13 +3014,7 @@ def _get_path_module(module_path: pathlib.Path, /) -> types.ModuleType:
 class _WrapLoadError:
     __slots__ = ("_args", "_error", "_kwargs")
 
-    def __init__(
-        self,
-        error: collections.Callable[_P, Exception],
-        /,
-        *args: _P.args,
-        **kwargs: _P.kwargs,
-    ) -> None:
+    def __init__(self, error: collections.Callable[_P, Exception], /, *args: _P.args, **kwargs: _P.kwargs) -> None:
         self._args = args
         self._error = error
         self._kwargs = kwargs
@@ -3076,6 +3042,7 @@ def _try_deregister_listener(
     callback: collections.Callable[
         ..., collections.Coroutine[typing.Any, typing.Any, hikari.api.InteractionResponseBuilder]
     ],
+    /,
 ) -> None:
     if interaction_server.get_listener(interaction_type) is callback:
         interaction_server.set_listener(interaction_type, None)
@@ -3085,6 +3052,7 @@ def _try_unsubscribe(
     event_manager: hikari.api.EventManager,
     event_type: type[hikari.Event],
     callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]],
+    /,
 ) -> None:
     try:
         event_manager.unsubscribe(event_type, callback)

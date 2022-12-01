@@ -39,6 +39,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [int][] nor [float][] to be passed.
 - [TimeSchedule.\_\_init\_\_][tanjun.schedules.TimeSchedule.__init__] and [tanjun.as_time_schedule][] now
   raise a [TypeError][] instead of [ValueError][] when a float is passed in or for any of its arguments.
+- The arguments for [tanjun.clients.on_parser_error][] and
+  [Client.set_human_only][tanjun.Client.set_human_only].
+- The signatures of several internally used but publicly exported functions have been fixed to ensure
+  they better follow the library's rules for positional and keyword arguments.
+  For more information see <>.
 
 ### Deprecated
 - `BaseConverter.async_caches`, `BaseConverter.cache_components` and `BaseConverter.intents`.

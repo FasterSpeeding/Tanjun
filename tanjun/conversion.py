@@ -1200,10 +1200,7 @@ _MESSAGE_LINK_REGEX = re.compile(r"(\d+|@me)/(\d+)/(\d+)")
 
 
 def parse_message_id(
-    value: _SnowflakeIsh,
-    /,
-    *,
-    message: str = "No valid message link or ID found",
+    value: _SnowflakeIsh, /, *, message: str = "No valid message link or ID found"
 ) -> tuple[typing.Optional[hikari.Snowflake], hikari.Snowflake]:
     """Parse a user ID from a string or int value.
 

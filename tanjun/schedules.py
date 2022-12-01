@@ -186,11 +186,7 @@ def as_interval(
         positional arguments, returns [None][] and may use dependency injection.
     """
     return lambda callback: IntervalSchedule(
-        callback,
-        interval,
-        fatal_exceptions=fatal_exceptions,
-        ignored_exceptions=ignored_exceptions,
-        max_runs=max_runs,
+        callback, interval, fatal_exceptions=fatal_exceptions, ignored_exceptions=ignored_exceptions, max_runs=max_runs
     )
 
 
@@ -552,7 +548,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         return self
 
 
-def _get_next(target_values: collections.Sequence[int], current_value: int) -> typing.Optional[int]:
+def _get_next(target_values: collections.Sequence[int], current_value: int, /) -> typing.Optional[int]:
     for value in target_values:
         if value > current_value:
             return value
@@ -561,7 +557,7 @@ def _get_next(target_values: collections.Sequence[int], current_value: int) -> t
 
 
 def _to_sequence(
-    values: typing.Union[int, collections.Sequence[int], None], min_: int, max_: int, name: str
+    values: typing.Union[int, collections.Sequence[int], None], min_: int, max_: int, name: str, /
 ) -> typing.Optional[collections.Sequence[int]]:
     if values is None:
         return None
@@ -617,7 +613,7 @@ class _Datetime:
 
     __slots__ = ("_config", "_date")
 
-    def __init__(self, config: _TimeScheduleConfig, date: datetime.datetime) -> None:
+    def __init__(self, config: _TimeScheduleConfig, date: datetime.datetime, /) -> None:
         """Initialise the class.
 
         Parameters

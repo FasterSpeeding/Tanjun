@@ -52,7 +52,7 @@ if typing.TYPE_CHECKING:
 _LOGGER = logging.getLogger("hikari.tanjun.context")
 
 
-def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int]) -> float:
+def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int], /) -> float:
     return delete_after.total_seconds() if isinstance(delete_after, datetime.timedelta) else float(delete_after)
 
 
@@ -336,7 +336,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         raise LookupError("No responses found for this context")
 
     @staticmethod
-    async def _delete_after(delete_after: float, message: hikari.Message) -> None:
+    async def _delete_after(delete_after: float, message: hikari.Message, /) -> None:
         await asyncio.sleep(delete_after)
         try:
             await message.delete()

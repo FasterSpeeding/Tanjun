@@ -1020,12 +1020,7 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
 
     __slots__ = ("_channel_types",)
 
-    def __init__(
-        self,
-        channel_type: _ChannelTypeIsh,
-        /,
-        *other_types: _ChannelTypeIsh,
-    ) -> None:
+    def __init__(self, channel_type: _ChannelTypeIsh, /, *other_types: _ChannelTypeIsh) -> None:
         """Create a channel argument restraint.
 
         Parameters
@@ -1046,7 +1041,7 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
         config.channel_types = self._channel_types
 
 
-def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any]) -> typing.Optional[_T]:
+def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any], /) -> typing.Optional[_T]:
     if value is None or isinstance(value, type_):
         return value
 
@@ -1235,8 +1230,7 @@ class _ArgConfig:
             self.SLASH_OPTION_ADDER[option_type](self, command, self.description)
 
     SLASH_OPTION_ADDER: dict[
-        typing.Any,
-        collections.Callable[[Self, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]],
+        typing.Any, collections.Callable[[Self, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]]
     ] = {
         hikari.Attachment: lambda self, c, d: c.add_attachment_option(
             self.slash_name, d, default=self._slash_default(), key=self.parameter.name
@@ -1295,7 +1289,7 @@ class _ArgConfig:
     SLASH_OPTION_ADDER[hikari.InteractionMember] = SLASH_OPTION_ADDER[hikari.Member]
 
 
-def _snoop_annotation_args(type_: typing.Any) -> collections.Iterator[typing.Any]:
+def _snoop_annotation_args(type_: typing.Any, /) -> collections.Iterator[typing.Any]:
     origin = typing.get_origin(type_)
     if origin is typing.Annotated:
         args = typing.get_args(type_)

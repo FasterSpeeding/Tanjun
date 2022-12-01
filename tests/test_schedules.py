@@ -888,14 +888,10 @@ class TestTimeSchedule:
                 id="Months range out of range",
             ),
             pytest.param(
-                {"days": 0},
-                r"days value must be \(inclusively\) between 1 and 31, not 0",
-                id="Single day too small",
+                {"days": 0}, r"days value must be \(inclusively\) between 1 and 31, not 0", id="Single day too small"
             ),
             pytest.param(
-                {"days": 32},
-                r"days value must be \(inclusively\) between 1 and 31, not 32",
-                id="Single day too large",
+                {"days": 32}, r"days value must be \(inclusively\) between 1 and 31, not 32", id="Single day too large"
             ),
             pytest.param(
                 {"days": [-1, 0, 4, 5]},
@@ -1236,13 +1232,7 @@ class TestTimeSchedule:
         ("kwargs", "start", "tick_fors", "sleep_for", "expected_dates"),
         [
             pytest.param(
-                {
-                    "months": 1,
-                    "days": 1,
-                    "hours": 0,
-                    "minutes": 0,
-                    "seconds": 0,
-                },
+                {"months": 1, "days": 1, "hours": 0, "minutes": 0, "seconds": 0},
                 datetime.datetime(2020, 12, 31, 23, 59, 59),
                 [
                     datetime.timedelta(seconds=1, microseconds=500001),
@@ -1258,14 +1248,7 @@ class TestTimeSchedule:
                 id="Start of each section",
             ),
             pytest.param(
-                {
-                    "months": 1,
-                    "weekly": True,
-                    "days": 1,
-                    "hours": 0,
-                    "minutes": 0,
-                    "seconds": 0,
-                },
+                {"months": 1, "weekly": True, "days": 1, "hours": 0, "minutes": 0, "seconds": 0},
                 datetime.datetime(2066, 12, 31, 23, 59, 59),
                 [
                     datetime.timedelta(days=2, seconds=1, microseconds=500001),
@@ -1321,13 +1304,7 @@ class TestTimeSchedule:
                 id="default timing bumps year",
             ),
             pytest.param(
-                {
-                    "months": [7, 4],
-                    "days": [14, 7],
-                    "hours": [17, 12],
-                    "minutes": [55, 22],
-                    "seconds": [30, 10],
-                },
+                {"months": [7, 4], "days": [14, 7], "hours": [17, 12], "minutes": [55, 22], "seconds": [30, 10]},
                 datetime.datetime(2016, 3, 4, 10, 40, 30),
                 _chain(
                     (
@@ -1364,14 +1341,7 @@ class TestTimeSchedule:
                 id="all time fields specified",
             ),
             pytest.param(
-                {
-                    "months": [1, 5, 9],
-                    "weekly": True,
-                    "days": [3, 5],
-                    "hours": [5],
-                    "minutes": [45],
-                    "seconds": [10],
-                },
+                {"months": [1, 5, 9], "weekly": True, "days": [3, 5], "hours": [5], "minutes": [45], "seconds": [10]},
                 datetime.datetime(2069, 3, 5, 5, 45, 10),
                 [
                     datetime.timedelta(days=57, microseconds=500001),
@@ -1418,20 +1388,10 @@ class TestTimeSchedule:
                 id="all time fields specified weekly",
             ),
             pytest.param(
-                {
-                    "months": range(11, 13),
-                    "days": [1, 15],
-                    "hours": range(7, 5, -1),
-                    "minutes": range(3, 1, -1),
-                },
+                {"months": range(11, 13), "days": [1, 15], "hours": range(7, 5, -1), "minutes": range(3, 1, -1)},
                 datetime.datetime(2016, 7, 15, 12, 22, 10, 500001),
                 _chain(
-                    (
-                        d,
-                        datetime.timedelta(minutes=1),
-                        datetime.timedelta(minutes=59),
-                        datetime.timedelta(minutes=1),
-                    )
+                    (d, datetime.timedelta(minutes=1), datetime.timedelta(minutes=59), datetime.timedelta(minutes=1))
                     for d in (
                         datetime.timedelta(days=108, hours=17, minutes=39, seconds=50),
                         datetime.timedelta(days=13, hours=22, minutes=59),

@@ -173,7 +173,7 @@ class TestConversionError:
     def test__init__(self):
         mock_error = mock.Mock()
 
-        error = tanjun.ConversionError("bankettete", "aye", [mock_error])
+        error = tanjun.ConversionError("bankettete", "aye", errors=[mock_error])
 
         assert error.message == "bankettete"
         assert error.parameter == "aye"

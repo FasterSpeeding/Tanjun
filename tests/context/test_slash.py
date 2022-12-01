@@ -999,9 +999,7 @@ class TestSlashContext:
         mock_option_2 = mock.Mock()
         mock_option_2.name = "bye"
         context = tanjun.context.SlashContext(
-            mock_client,
-            mock.Mock(options=[mock_option_1, mock_option_2]),
-            mock.Mock(),
+            mock_client, mock.Mock(options=[mock_option_1, mock_option_2]), mock.Mock()
         )
 
         assert len(context.options) == 2

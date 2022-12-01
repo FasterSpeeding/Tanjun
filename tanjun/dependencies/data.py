@@ -73,9 +73,7 @@ class LazyConstant(typing.Generic[_T]):
         self._value: typing.Optional[_T] = None
 
     @property
-    def callback(
-        self,
-    ) -> alluka.abc.CallbackSig[_T]:
+    def callback(self) -> alluka.abc.CallbackSig[_T]:
         """Descriptor of the callback used to get this constant's initial value."""
         return self._callback
 
@@ -155,9 +153,7 @@ def make_lc_resolver(
 
     async def resolve(
         *,
-        # TODO: switch to using Injected here, the type var currently breaks pyright compat cause pyright bug.
-        # This bug is caused by both this module and alluka.Injected using a typevar called "_T"
-        ctx: alluka.abc.Context = alluka.inject(type=alluka.abc.Context),
+        ctx: alluka.Injected[alluka.abc.Context],
         # LazyConstant gets type arguments at runtime and Injected can't be used here as that'd fail to
         # resolve.
         constant: LazyConstant[_T] = alluka.inject(type=LazyConstant[type_]),
@@ -255,14 +251,8 @@ class _CacheCallback(typing.Generic[_T]):
             not self._last_called or self._expire_after <= (time.monotonic() - self._last_called)
         )
 
-    async def __call__(
-        self,
-        # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
-        *args: typing.Any,
-        # TODO: switch to using Injected here, the type var currently breaks pyright compat cause pyright bug.
-        # This bug is caused by both this module and alluka.Injected using a typevar called "_T"
-        ctx: alluka.abc.Context = alluka.inject(type=alluka.abc.Context),
-    ) -> _T:
+    # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
+    async def __call__(self, *args: typing.Any, ctx: alluka.Injected[alluka.abc.Context]) -> _T:
         if self._result is not alluka.abc.UNDEFINED and not self._has_expired:
             assert not isinstance(self._result, alluka.abc.Undefined)
             return self._result

@@ -70,7 +70,7 @@ DM_PERMISSIONS: typing.Final[hikari.Permissions] = (
 
 
 def _calculate_channel_overwrites(
-    channel: hikari.PermissibleGuildChannel, member: hikari.Member, permissions: hikari.Permissions
+    channel: hikari.PermissibleGuildChannel, member: hikari.Member, permissions: hikari.Permissions, /
 ) -> hikari.Permissions:
     if everyone_overwrite := channel.permission_overwrites.get(member.guild_id):
         permissions &= ~everyone_overwrite.deny
@@ -94,7 +94,7 @@ def _calculate_channel_overwrites(
 
 
 def _calculate_role_permissions(
-    roles: collections.Mapping[hikari.Snowflake, hikari.Role], member: hikari.Member
+    roles: collections.Mapping[hikari.Snowflake, hikari.Role], member: hikari.Member, /
 ) -> hikari.Permissions:
     permissions = roles[member.guild_id].permissions
 
@@ -110,6 +110,7 @@ def calculate_permissions(
     member: hikari.Member,
     guild: hikari.Guild,
     roles: collections.Mapping[hikari.Snowflake, hikari.Role],
+    /,
     *,
     channel: typing.Optional[hikari.PermissibleGuildChannel] = None,
 ) -> hikari.Permissions:
@@ -154,7 +155,7 @@ def calculate_permissions(
 
 
 async def _fetch_channel(
-    client: tanjun.Client, channel: hikari.SnowflakeishOr[hikari.GuildChannel]
+    client: tanjun.Client, channel: hikari.SnowflakeishOr[hikari.GuildChannel], /
 ) -> hikari.PermissibleGuildChannel:
     if isinstance(channel, hikari.PermissibleGuildChannel):
         return channel
@@ -247,10 +248,7 @@ async def fetch_permissions(
 
 
 def calculate_everyone_permissions(
-    everyone_role: hikari.Role,
-    /,
-    *,
-    channel: typing.Optional[hikari.PermissibleGuildChannel] = None,
+    everyone_role: hikari.Role, /, *, channel: typing.Optional[hikari.PermissibleGuildChannel] = None
 ) -> hikari.Permissions:
     """Calculate a guild's default permissions within the guild or for a specific channel.
 

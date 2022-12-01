@@ -164,12 +164,7 @@ def as_message_command_group(
             wrapped_command = None
 
         return MessageCommandGroup(
-            callback,
-            name,
-            *names,
-            strict=strict,
-            validate_arg_keys=validate_arg_keys,
-            _wrapped_command=wrapped_command,
+            callback, name, *names, strict=strict, validate_arg_keys=validate_arg_keys, _wrapped_command=wrapped_command
         )
 
     return decorator

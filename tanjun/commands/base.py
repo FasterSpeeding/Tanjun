@@ -114,7 +114,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         self.add_check(check)
         return check
 
-    def bind_client(self, client: tanjun.Client, /) -> Self:
+    def bind_client(self, _: tanjun.Client, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self
 

@@ -58,7 +58,7 @@ _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(min
 _LOGGER = logging.getLogger("hikari.tanjun.context")
 
 
-def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int]) -> float:
+def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int], /) -> float:
     return delete_after.total_seconds() if isinstance(delete_after, datetime.timedelta) else float(delete_after)
 
 
@@ -390,7 +390,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             self._defer_task.cancel()
 
     def _get_flags(
-        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED
+        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED, /
     ) -> typing.Union[int, hikari.MessageFlag]:
         if flags is hikari.UNDEFINED:
             return hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
@@ -457,7 +457,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                     hikari.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags
                 )
 
-    def _validate_delete_after(self, delete_after: typing.Union[float, int, datetime.timedelta]) -> float:
+    def _validate_delete_after(self, delete_after: typing.Union[float, int, datetime.timedelta], /) -> float:
         delete_after = _delete_after_to_float(delete_after)
         time_left = (
             _INTERACTION_LIFETIME - (datetime.datetime.now(tz=datetime.timezone.utc) - self.created_at)
@@ -467,7 +467,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
 
         return delete_after
 
-    async def _delete_followup_after(self, delete_after: float, message: hikari.Message) -> None:
+    async def _delete_followup_after(self, delete_after: float, message: hikari.Message, /) -> None:
         await asyncio.sleep(delete_after)
         try:
             await self._interaction.delete_message(message)
@@ -565,7 +565,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 flags=flags,
             )
 
-    async def _delete_initial_response_after(self, delete_after: float) -> None:
+    async def _delete_initial_response_after(self, delete_after: float, /) -> None:
         await asyncio.sleep(delete_after)
         try:
             await self.delete_initial_response()
@@ -951,6 +951,7 @@ def _to_list(
     other: typing.Any,
     type_: typing.Union[type[typing.Any], tuple[type[typing.Any], ...]],
     name: str,
+    /,
 ) -> list[_T]:
     if singular is not hikari.UNDEFINED and plural is not hikari.UNDEFINED:
         raise ValueError(f"Only one of {name} or {name}s may be passed")

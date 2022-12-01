@@ -72,10 +72,7 @@ if typing.TYPE_CHECKING:
 
     class _AnyCallback(typing.Protocol):
         async def __call__(
-            self,
-            ctx: tanjun.Context,
-            /,
-            localiser: typing.Optional[dependencies.AbstractLocaliser] = None,
+            self, ctx: tanjun.Context, /, *, localiser: typing.Optional[dependencies.AbstractLocaliser] = None
         ) -> bool:
             raise NotImplementedError
 
@@ -94,9 +91,7 @@ def _add_to_command(command: _CommandT, check: tanjun.CheckSig, follow_wrapped: 
 
 
 def _optional_kwargs(
-    command: typing.Optional[_CommandT],
-    check: tanjun.CheckSig,
-    follow_wrapped: bool,
+    command: typing.Optional[_CommandT], check: tanjun.CheckSig, follow_wrapped: bool, /
 ) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
     if command:
         return _add_to_command(command, check, follow_wrapped)
@@ -183,7 +178,9 @@ class OwnerCheck(_Check):
     async def __call__(
         self,
         ctx: tanjun.Context,
+        /,
         dependency: alluka.Injected[dependencies.AbstractOwners],
+        *,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
         return self._handle_result(ctx, await dependency.check_ownership(ctx.client, ctx.author), localiser)
@@ -341,6 +338,7 @@ class DmCheck(_Check):
         self,
         ctx: tanjun.Context,
         /,
+        *,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
         return self._handle_result(ctx, ctx.guild_id is None, localiser)
@@ -391,6 +389,7 @@ class GuildCheck(_Check):
         self,
         ctx: tanjun.Context,
         /,
+        *,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
         return self._handle_result(ctx, ctx.guild_id is not None, localiser)
@@ -449,6 +448,7 @@ class AuthorPermissionCheck(_Check):
         self,
         ctx: tanjun.Context,
         /,
+        *,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
         if not ctx.member:
@@ -1015,9 +1015,7 @@ class _AllChecks:
 
 
 def all_checks(
-    check: tanjun.CheckSig,
-    /,
-    *checks: tanjun.CheckSig,
+    check: tanjun.CheckSig, /, *checks: tanjun.CheckSig
 ) -> collections.Callable[[tanjun.Context], collections.Coroutine[typing.Any, typing.Any, bool]]:
     """Combine multiple check callbacks into a check which will only pass if all the callbacks pass.
 
@@ -1040,10 +1038,7 @@ def all_checks(
 
 
 def with_all_checks(
-    check: tanjun.CheckSig,
-    /,
-    *checks: tanjun.CheckSig,
-    follow_wrapped: bool = False,
+    check: tanjun.CheckSig, /, *checks: tanjun.CheckSig, follow_wrapped: bool = False
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a check which will pass if all the provided checks pass through a decorator call.
 
@@ -1087,6 +1082,7 @@ class _AnyChecks(_Check):
         self,
         ctx: tanjun.Context,
         /,
+        *,
         localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
     ) -> bool:
         for check in self._checks:
