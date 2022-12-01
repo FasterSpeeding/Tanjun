@@ -3219,7 +3219,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Converter startup client config logs now only use info level when REST fallback is possible.</li>
 <li><code>allowed_types=[]</code> is now treated as allowing no channel types (rather than any) when passed to
   <a class="autorefs autorefs-internal" href="../reference/conversion/#tanjun.conversion.ToChannel.__init__">tanjun.conversion.ToChannel.<strong>init</strong></a></li>
-<li><a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Choices">tanjun.annotations.Choices</a> now raises a <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#TypeError">TypeError</a> instead of <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a>  if an enum
+<li><a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Choices">tanjun.annotations.Choices</a> now raises a <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#TypeError">TypeError</a> instead of <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a> if an enum
   class which isn't a subclass of <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#float">float</a> or <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a> is passed to it as a type variable
   (e.g <code>Choices[Enum]</code>).</li>
 <li>[tanjun.annotations.with_annotated_args] Raise <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#TypeError">TypeError</a> instead of [ValueError] if a value
@@ -3263,7 +3263,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Allow passing <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/channels.html#hikari.channels.GuildThreadChannel">hikari.GuildThreadChannel</a> derived types
   (+ <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/interactions/command_interactions.html#hikari.interactions.command_interactions.InteractionChannel">hikari.InteractionChannel</a>) to
   <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.TheseChannels">TheseChannels</a>, and to the <code>types</code> field of
-  <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.with_channel_slash_option">with_channel_slash_option</a> and
+  <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_channel_slash_option">with_channel_slash_option</a> and
   <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.SlashCommand.add_channel_option">SlashCommand.add_channel_option</a>.</li>
 <li>The spacing in <code>triggering_name</code> is now properly normalised for message commands in groups to ensure
   only 1 space. This also fixes cases where names were being smashed together without any spaces.</li>
