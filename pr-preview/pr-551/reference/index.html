@@ -5328,7 +5328,7 @@ that cover making a bot from scratch through to advanced concepts like Dependenc
   </span>
 
 <a href="#tanjun.to_colour" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">to_colour</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_color</span>
+<div class="highlight"><pre><span></span><code><span class="n">to_colour</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SnowflakeIsh</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_color</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -5543,7 +5543,7 @@ making any cache or REST calls then you can just use the relevant
   </span>
 
 <a href="#tanjun.to_snowflake" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">to_snowflake</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_ArgumentT</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span> <span class="o">=</span> <span class="n">parse_snowflake</span>
+<div class="highlight"><pre><span></span><code><span class="n">to_snowflake</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Final</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[[</span><span class="n">_SnowflakeIsh</span><span class="p">],</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">]]</span> <span class="o">=</span> <span class="n">parse_snowflake</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -7762,11 +7762,15 @@ an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.conte
     </thead>
     <tbody>
         <tr>
-          <td><code>case_sensitive</code></td>
+          <td><code>state</code></td>
           <td class="doc-param-details">
             <p>Whether this client's message commands should be matched case-sensitively.</p>
 <p>This may be overridden by component specific configuration.</p>
             <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
             </p>
           </td>
         </tr>
@@ -11242,13 +11246,17 @@ client by targeting the module using [tanjun.Client.load_modules][],
     </thead>
     <tbody>
         <tr>
-          <td><code>case_sensitive</code></td>
+          <td><code>state</code></td>
           <td class="doc-param-details">
             <p>Whether this component's message commands should be matched
 case-sensitively.</p>
 <p>If this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then the client's case-sensitive
 setting will be used.</p>
             <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>]</code>
+                </span>
             </p>
           </td>
         </tr>
@@ -23447,8 +23455,8 @@ command wraps in a decorator call chain.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
