@@ -3218,7 +3218,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   used for a required message command parameter.</li>
 <li>Converter startup client config logs now only use info level when REST fallback is possible.</li>
 <li><code>allowed_types=[]</code> is now treated as allowing no channel types (rather than any) when passed to
-  <a class="autorefs autorefs-internal" href="../reference/conversion/#tanjun.conversion.ToChannel.__init__">tanjun.conversion.ToChannel.<strong>init</strong></a></li>
+  <a class="autorefs autorefs-internal" href="../reference/conversion/#tanjun.conversion.ToChannel.__init__">tanjun.conversion.ToChannel.__init__</a></li>
 <li><a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Choices">tanjun.annotations.Choices</a> now raises a <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#TypeError">TypeError</a> instead of <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a> if an enum
   class which isn't a subclass of <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#float">float</a> or <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a> is passed to it as a type variable
   (e.g <code>Choices[Enum]</code>).</li>
@@ -3231,11 +3231,11 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   <a class="autorefs autorefs-internal" href="../reference/components/#tanjun.components.Component.with_command">Component.with_command</a> now raise <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#TypeError">TypeError</a>
   instead of <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a> if the object isn't a message, menu or slash command.</li>
 <li>The standard converters in <a class="autorefs autorefs-internal" href="../reference/conversion/#tanjun.conversion">tanjun.conversion</a> no-longer allow <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#float">float</a> to be passed.</li>
-<li><a class="autorefs autorefs-internal" href="../reference/#tanjun.to_invite">to_invite</a>, <a class="autorefs autorefs-internal" href="../reference/conversion/#tanjun.conversion.ToInvite">ToInvite.<strong>call</strong></a>,
+<li><a class="autorefs autorefs-internal" href="../reference/#tanjun.to_invite">to_invite</a>, <a class="autorefs autorefs-internal" href="../reference/conversion/#tanjun.conversion.ToInvite">ToInvite.__call__</a>,
   <a class="autorefs autorefs-internal" href="../reference/#tanjun.to_invite_with_metadata">to_invite_with_metadata</a> and
-  <a class="autorefs autorefs-internal" href="../reference/conversion/#tanjun.conversion.ToInviteWithMetadata">ToInviteWithMetadata.<strong>call</strong></a> no-longer allows
+  <a class="autorefs autorefs-internal" href="../reference/conversion/#tanjun.conversion.ToInviteWithMetadata">ToInviteWithMetadata.__call__</a> no-longer allows
   <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a> nor <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#float">float</a> to be passed.</li>
-<li><a class="autorefs autorefs-internal" href="../reference/schedules/#tanjun.schedules.TimeSchedule.__init__">TimeSchedule.<strong>init</strong></a> and <a class="autorefs autorefs-internal" href="../reference/#tanjun.as_time_schedule">tanjun.as_time_schedule</a> now
+<li><a class="autorefs autorefs-internal" href="../reference/schedules/#tanjun.schedules.TimeSchedule.__init__">TimeSchedule.__init__</a> and <a class="autorefs autorefs-internal" href="../reference/#tanjun.as_time_schedule">tanjun.as_time_schedule</a> now
   raise a <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#TypeError">TypeError</a> instead of <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a> when a float is passed in or for any of its arguments.</li>
 </ul>
 <h3 id="deprecated">Deprecated<a class="headerlink" href="#deprecated" title="Permanent link">#</a></h3>
@@ -3263,7 +3263,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Allow passing <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/channels.html#hikari.channels.GuildThreadChannel">hikari.GuildThreadChannel</a> derived types
   (+ <a class="autorefs autorefs-external" href="https://hikari-py.github.io/hikari/hikari/interactions/command_interactions.html#hikari.interactions.command_interactions.InteractionChannel">hikari.InteractionChannel</a>) to
   <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.TheseChannels">TheseChannels</a>, and to the <code>types</code> field of
-  <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.with_channel_slash_option">with_channel_slash_option</a> and
+  <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_channel_slash_option">with_channel_slash_option</a> and
   <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.SlashCommand.add_channel_option">SlashCommand.add_channel_option</a>.</li>
 <li>The spacing in <code>triggering_name</code> is now properly normalised for message commands in groups to ensure
   only 1 space. This also fixes cases where names were being smashed together without any spaces.</li>
@@ -3350,7 +3350,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <h3 id="deprecated_1">Deprecated<a class="headerlink" href="#deprecated_1" title="Permanent link">#</a></h3>
 <ul>
 <li><a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Flag.default">tanjun.annotations.Flag.default</a> and the <code>default</code> argument for
-  <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Flag.__init__">tanjun.annotations.Flag.<strong>init</strong></a>. <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Default">tanjun.annotations.Default</a> should be used instead.</li>
+  <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Flag.__init__">tanjun.annotations.Flag.__init__</a>[].
+  <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Default">tanjun.annotations.Default</a> should be used instead.</li>
 </ul>
 <h3 id="fixed_4">Fixed<a class="headerlink" href="#fixed_4" title="Permanent link">#</a></h3>
 <ul>
