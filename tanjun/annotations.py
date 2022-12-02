@@ -32,8 +32,9 @@
 
 Community Resources:
 
-* An alternative implementation for slash commands (which relies more on
-  documentation parsing) can be found at <https://github.com/thesadru/tanchi>.
+* An extended implementation of this which parses callback docstrings to get the
+  descriptions for slash commands and their options can be found at
+  <https://github.com/FasterSpeeding/Tan-chan>.
 """
 from __future__ import annotations
 
