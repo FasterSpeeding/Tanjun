@@ -33,7 +33,7 @@
 Community Resources:
 
 * An extended implementation of this which parses callback docstrings to get the
-  descriptions for slash commands and their options can be found at
+  descriptions for slash commands and their options can be found in
   <https://github.com/FasterSpeeding/Tan-chan>.
 """
 from __future__ import annotations
