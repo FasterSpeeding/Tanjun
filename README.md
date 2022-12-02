@@ -33,4 +33,4 @@ and the [usage guide](https://tanjun.cursed.solutions/usage/).
 
 Before contributing you should read through the
 [contributing guidelines](https://github.com/FasterSpeeding/Tanjun/blob/master/CONTRIBUTING.md) and
-the [code of conduct](https://github.com/FasterSpeeding/Tanjun/blob/master/CODE_OF_CONDUCT.md)
+the [code of conduct](https://github.com/FasterSpeeding/Tanjun/blob/master/CODE_OF_CONDUCT.md).

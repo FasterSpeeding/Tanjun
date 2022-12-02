@@ -147,7 +147,7 @@ def slash_command_group(
         be callable functions themselves.
 
     !!! warning
-        `default_member_permissions`, "dm_enabled" and `is_global` are
+        `default_member_permissions`, `dm_enabled` and `is_global` are
         ignored for command groups within other slash command groups.
 
     !!! note
@@ -264,7 +264,7 @@ def as_slash_command(
         or when `declare_global_commands` is True
 
     !!! warning
-        `default_member_permissions`, "dm_enabled" and `is_global` are
+        `default_member_permissions`, `dm_enabled` and `is_global` are
         ignored for commands within slash command groups.
 
     !!! note
@@ -1051,7 +1051,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             or when `declare_global_commands` is True
 
         !!! warning
-            `default_member_permissions`, "dm_enabled" and `is_global` are
+            `default_member_permissions`, `dm_enabled` and `is_global` are
             ignored for commands groups within another slash command groups.
 
         Parameters
@@ -1497,7 +1497,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             or when `declare_global_commands` is True
 
         !!! warning
-            `default_member_permissions`, "dm_enabled" and `is_global` are
+            `default_member_permissions`, `dm_enabled` and `is_global` are
             ignored for commands within slash command groups.
 
         !!! note
