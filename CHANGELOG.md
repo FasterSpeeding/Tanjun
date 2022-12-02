@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   used for a required message command parameter.
 - Converter startup client config logs now only use info level when REST fallback is possible.
 - `allowed_types=[]` is now treated as allowing no channel types (rather than any) when passed to
-  [tanjun.conversion.ToChannel.\_\_init\_\_][tanjun.conversion.ToChannel.__init__]
+  [tanjun.conversion.ToChannel.\_\_init\_\_][tanjun.conversion.ToChannel.__init__].
 - [tanjun.annotations.Choices][] now raises a [TypeError][] instead of [ValueError][] if an enum
   class which isn't a subclass of [int][], [float][] or [str][] is passed to it as a type variable
   (e.g `Choices[Enum]`).
