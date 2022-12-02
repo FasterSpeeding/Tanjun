@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [Client.set_human_only][tanjun.Client.set_human_only].
 - The signatures of several internally used but publicly exported functions have been fixed to ensure
   they better follow the library's rules for positional and keyword arguments.
-  For more information see <>.
+  For more information see <https://github.com/FasterSpeeding/Tanjun/commit/a06b43d6bedb87c1c8e19eef3745127b40479a24>.
 
 ### Deprecated
 - `BaseConverter.async_caches`, `BaseConverter.cache_components` and `BaseConverter.intents`.
