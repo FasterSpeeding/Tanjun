@@ -21,7 +21,7 @@ and the [usage guide](https://tanjun.cursed.solutions/usage/).
 
 * A general utility library for Tanjun. This includes a command annotation parsing extension
   which parses docstrings to get the descriptions of slash commands and their options and can
-  be found at <https://github.com/FasterSpeeding/Tan-chan/tree/master>.
+  be found at <https://github.com/FasterSpeeding/Tan-chan>.
 * Redis based implementations of the async cache dependency can be found in
   [hikari-sake](https://github.com/FasterSpeeding/Sake) \>=v1.0.1a1 (exposed by
   [sake.redis.ResourceClient.add_to_tanjun][]).
