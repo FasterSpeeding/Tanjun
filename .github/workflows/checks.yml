@@ -30,6 +30,9 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./dev-requirements/nox.txt
 
+      - name: Lint markup
+        run: python -m nox -s verify-markup
+
       - name: Lint with flake8
         run: python -m nox -s flake8
 

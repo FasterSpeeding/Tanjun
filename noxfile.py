@@ -38,7 +38,16 @@ from collections import abc as collections
 
 import nox
 
-nox.options.sessions = ["reformat", "flake8", "spell-check", "slot-check", "type-check", "test", "verify-types"]
+nox.options.sessions = [
+    "reformat",
+    "verify-markup",
+    "flake8",
+    "spell-check",
+    "slot-check",
+    "type-check",
+    "test",
+    "verify-types",
+]
 GENERAL_TARGETS = ["./noxfile.py", "./tests"]
 TOP_LEVEL_TARGETS = ["./tanjun", "./tests", "./noxfile.py"]
 _BLACKLISTED_TARGETS = re.compile("^_internal/vendor/.*\\.py")
@@ -171,6 +180,33 @@ def build(session: nox.Session) -> None:
     install_requirements(session, *_dev_dep("publish"))
     session.log("Starting build")
     session.run("flit", "build")
+
+
+@nox.session(name="verify-markup", reuse_venv=True)
+def verify_markup(session: nox.Session):
+    """Verify the syntax of the repo's markup files."""
+    install_requirements(session, ".", *_dev_dep("lint"))
+    tracked_files = list(_tracked_files(session))
+
+    session.log("Running pre_commit_hooks.check_toml")
+    session.run(
+        "python",
+        "-m",
+        "pre_commit_hooks.check_toml",
+        *(path for path in tracked_files if path.endswith(".toml")),
+        success_codes=[0, 1],
+        log=False,
+    )
+
+    session.log("Running pre_commit_hooks.check_yaml")
+    session.run(
+        "python",
+        "-m",
+        "pre_commit_hooks.check_yaml",
+        *(path for path in tracked_files if path.endswith(".yml") or path.endswith(".yaml")),
+        success_codes=[0, 1],
+        log=False,
+    )
 
 
 @nox.session(reuse_venv=True)
