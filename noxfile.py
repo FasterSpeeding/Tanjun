@@ -150,7 +150,7 @@ def freeze_dev_deps(session: nox.Session) -> None:
     assert isinstance(deps, str)
 
     with pathlib.Path("./dev-requirements/constraints.in", "w+").open() as file:
-        file.write("\n".join(EXTRA_PATTEN.sub("", line) for line in deps.splitlines()))
+        file.write("\n".join(EXTRA_PATTEN.sub("", line) for line in deps.splitlines()) + "\n")
 
     for path in pathlib.Path("./dev-requirements/").glob("*.in"):
         session.run(
