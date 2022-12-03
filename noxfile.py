@@ -35,6 +35,7 @@ import pathlib
 import re
 import shutil
 from collections import abc as collections
+import tomli
 
 import nox
 
@@ -132,25 +133,17 @@ def cleanup(session: nox.Session) -> None:
             session.log(f"[  OK  ] Removed '{raw_path}'")
 
 
-EXTRA_PATTEN = re.compile("; +extra.+;?")
-
-
 @nox.session(name="freeze-dev-deps", reuse_venv=True)
 def freeze_dev_deps(session: nox.Session) -> None:
     """Upgrade the dev dependencies."""
-    install_requirements(session, *_dev_dep("publish"), "--force-reinstall", "--no-dependencies", ".")
-    deps = session.run(
-        "python",
-        "-c",
-        r'print("\n".join(__import__("importlib.metadata").metadata.'
-        'distribution("hikari-tanjun").metadata.get_all("Requires-Dist")))',
-        log=False,
-        silent=True,
-    )
-    assert isinstance(deps, str)
+    install_requirements(session, *_dev_dep("publish"))
 
-    with pathlib.Path("./dev-requirements/constraints.in", "w+").open() as file:
-        file.write("\n".join(EXTRA_PATTEN.sub("", line) for line in deps.splitlines()) + "\n")
+    with pathlib.Path("./pyproject.toml").open("rb") as file:
+        project = tomli.load(file)["project"]
+        deps = [*(project.get("dependencies") or ()), *(project.get("optional-dependencies") or ())]
+
+    with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
+        file.write("\n".join(deps) + "\n")
 
     for path in pathlib.Path("./dev-requirements/").glob("*.in"):
         session.run(
