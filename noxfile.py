@@ -37,6 +37,7 @@ import shutil
 from collections import abc as collections
 
 import nox
+import tomli
 
 nox.options.sessions = [
     "reformat",
@@ -59,8 +60,16 @@ for path in pathlib.Path("./tanjun").glob("**/*.py"):
 _DEV_DEP_DIR = pathlib.Path("./dev-requirements")
 
 
+def _dev_path(value: str) -> str:
+    return str(_DEV_DEP_DIR / f"{value}.txt")
+
+
+def _constrained() -> list[str]:
+    return ["-c", _dev_path("constraints")]
+
+
 def _dev_dep(*values: str) -> collections.Iterator[str]:
-    return itertools.chain.from_iterable(("-r", str(_DEV_DEP_DIR / f"{value}.txt")) for value in values)
+    return itertools.chain.from_iterable(("-r", _dev_path(value)) for value in values)
 
 
 def _tracked_files(session: nox.Session, *, ignore_vendor: bool = False) -> collections.Iterable[str]:
@@ -128,13 +137,23 @@ def cleanup(session: nox.Session) -> None:
 def freeze_dev_deps(session: nox.Session) -> None:
     """Upgrade the dev dependencies."""
     install_requirements(session, *_dev_dep("publish"))
+
+    with pathlib.Path("./pyproject.toml").open("rb") as file:
+        project = tomli.load(file)["project"]
+        deps = project.get("dependencies") or []
+        if optional := project.get("optional-dependencies"):
+            deps.extend(itertools.chain(*optional.values()))
+
+    with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
+        file.write("\n".join(deps) + "\n")
+
     for path in pathlib.Path("./dev-requirements/").glob("*.in"):
         session.run(
             "pip-compile-cross-platform",
             "-o",
             str(path.with_name(path.name.removesuffix(".in") + ".txt")),
             "--min-python-version",
-            "3.9",
+            "3.9,<3.12",
             str(path),
         )
 
@@ -160,7 +179,7 @@ def flake8(session: nox.Session) -> None:
 @nox.session(reuse_venv=True, name="slot-check")
 def slot_check(session: nox.Session) -> None:
     """Check this project's slotted classes for common mistakes."""
-    install_requirements(session, ".", *_dev_dep("lint"))
+    install_requirements(session, ".", *_constrained(), *_dev_dep("lint"))
     session.run("slotscheck", "-m", "tanjun")
 
 
@@ -185,7 +204,7 @@ def build(session: nox.Session) -> None:
 @nox.session(name="verify-markup", reuse_venv=True)
 def verify_markup(session: nox.Session):
     """Verify the syntax of the repo's markup files."""
-    install_requirements(session, ".", *_dev_dep("lint"))
+    install_requirements(session, ".", *_constrained(), *_dev_dep("lint"))
     tracked_files = list(_tracked_files(session))
 
     session.log("Running pre_commit_hooks.check_toml")
@@ -213,7 +232,7 @@ def verify_markup(session: nox.Session):
 def publish(session: nox.Session, env: dict[str, str] | None = None) -> None:
     """Publish this project to pypi."""
     install_requirements(session, *_dev_dep("publish"))
-    install_requirements(session, ".", first_call=False)
+    install_requirements(session, ".", *_constrained(), first_call=False)
     session.run("flit", "publish", env=env)
 
 
@@ -249,7 +268,7 @@ def reformat(session: nox.Session) -> None:
 @nox.session(reuse_venv=True)
 def test(session: nox.Session) -> None:
     """Run this project's tests using pytest."""
-    install_requirements(session, ".", *_dev_dep("tests"))
+    install_requirements(session, ".", *_constrained(), *_dev_dep("tests"))
     # TODO: can import-mode be specified in the config.
     session.run("pytest", "-n", "auto", "--import-mode", "importlib")
 
@@ -257,7 +276,7 @@ def test(session: nox.Session) -> None:
 @nox.session(name="test-coverage", reuse_venv=True)
 def test_coverage(session: nox.Session) -> None:
     """Run this project's tests while recording test coverage."""
-    install_requirements(session, ".", *_dev_dep("tests"))
+    install_requirements(session, ".", *_constrained(), *_dev_dep("tests"))
     # TODO: can import-mode be specified in the config.
     # https://github.com/nedbat/coveragepy/issues/1002
     session.run(
@@ -266,12 +285,6 @@ def test_coverage(session: nox.Session) -> None:
 
 
 def _run_pyright(session: nox.Session, *args: str) -> None:
-    if _try_find_option(session, "--force-env", when_empty="True"):
-        session.env["PYRIGHT_PYTHON_GLOBAL_NODE"] = "off"
-
-    if version := _try_find_option(session, "--pyright-version"):
-        session.env["PYRIGHT_PYTHON_FORCE_VERSION"] = version
-
     session.run("python", "-m", "pyright", "--version")
     session.run("python", "-m", "pyright", *args)
 
@@ -279,7 +292,7 @@ def _run_pyright(session: nox.Session, *args: str) -> None:
 @nox.session(name="type-check", reuse_venv=True)
 def type_check(session: nox.Session) -> None:
     """Statically analyse and veirfy this project using Pyright."""
-    install_requirements(session, ".", *_dev_dep("nox", "tests", "type-checking"))
+    install_requirements(session, ".", *_constrained(), *_dev_dep("nox", "tests", "type-checking"))
     _run_pyright(session)
     # TODO: add allowed to fail MyPy call once it stops giving an insane amount of false-positives
 
@@ -287,5 +300,5 @@ def type_check(session: nox.Session) -> None:
 @nox.session(name="verify-types", reuse_venv=True)
 def verify_types(session: nox.Session) -> None:
     """Verify the "type completeness" of types exported by the library using Pyright."""
-    install_requirements(session, ".", *_dev_dep("type-checking"))
-    _run_pyright(session, "--verifytypes", "tanjun")
+    install_requirements(session, ".", *_constrained(), *_dev_dep("type-checking"))
+    _run_pyright(session, "--verifytypes", "tanjun", "--ignoreexternal")

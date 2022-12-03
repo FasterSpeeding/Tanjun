@@ -43,10 +43,10 @@ jobs:
         run: python -m nox -s spell-check
 
       - name: Run type checker
-        run: python -m nox -s type-check -- --force-env
+        run: python -m nox -s type-check
 
       - name: Run verify types
-        run: python -m nox -s verify-types -- --force-env
+        run: python -m nox -s verify-types
 
   test:
     strategy:
