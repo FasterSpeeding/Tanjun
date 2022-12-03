@@ -141,7 +141,8 @@ def freeze_dev_deps(session: nox.Session) -> None:
     with pathlib.Path("./pyproject.toml").open("rb") as file:
         project = tomli.load(file)["project"]
         deps = project.get("dependencies") or []
-        deps = deps.extend(itertools.chain.from_iterable((project.get("optional-dependencies") or {}).values()))
+        if optional := project.get("optional-dependencies"):
+            deps.extend(itertools.chain(*optional.values()))
 
     with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
         file.write("\n".join(deps) + "\n")
