@@ -35,9 +35,9 @@ import pathlib
 import re
 import shutil
 from collections import abc as collections
-import tomli
 
 import nox
+import tomli
 
 nox.options.sessions = [
     "reformat",
@@ -140,7 +140,10 @@ def freeze_dev_deps(session: nox.Session) -> None:
 
     with pathlib.Path("./pyproject.toml").open("rb") as file:
         project = tomli.load(file)["project"]
-        deps = [*(project.get("dependencies") or ()), *(project.get("optional-dependencies") or ())]
+        deps = [
+            *(project.get("dependencies") or ()),
+            *itertools.chain.from_iterable(project.get("optional-dependencies") or ()),
+        ]
 
     with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
         file.write("\n".join(deps) + "\n")
