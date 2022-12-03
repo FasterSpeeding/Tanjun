@@ -37,7 +37,6 @@ import shutil
 from collections import abc as collections
 
 import nox
-import tomli
 
 nox.options.sessions = [
     "reformat",
@@ -136,6 +135,8 @@ def cleanup(session: nox.Session) -> None:
 @nox.session(name="freeze-dev-deps", reuse_venv=True)
 def freeze_dev_deps(session: nox.Session) -> None:
     """Upgrade the dev dependencies."""
+    import tomli
+
     install_requirements(session, *_dev_dep("publish"))
 
     with pathlib.Path("./pyproject.toml").open("rb") as file:
