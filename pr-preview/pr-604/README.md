@@ -19,8 +19,9 @@ and the [usage guide](https://tanjun.cursed.solutions/usage/).
 
 # Community Resources
 
-* An alternative implementation of command signature parsing for slash commands (which relies more
-  on documentation parsing) can be found at <https://github.com/thesadru/tanchi>.
+* [Tan-chan](https://github.com/FasterSpeeding/Tan-chan) is a general utility library for
+  Tanjun. It includes a command annotation parsing extension which parses docstrings to
+  get the descriptions of slash commands and their options.
 * Redis based implementations of the async cache dependency can be found in
   [hikari-sake](https://github.com/FasterSpeeding/Sake) \>=v1.0.1a1 (exposed by
   [sake.redis.ResourceClient.add_to_tanjun][]).
@@ -33,4 +34,4 @@ and the [usage guide](https://tanjun.cursed.solutions/usage/).
 
 Before contributing you should read through the
 [contributing guidelines](https://github.com/FasterSpeeding/Tanjun/blob/master/CONTRIBUTING.md) and
-the [code of conduct](https://github.com/FasterSpeeding/Tanjun/blob/master/CODE_OF_CONDUCT.md)
+the [code of conduct](https://github.com/FasterSpeeding/Tanjun/blob/master/CODE_OF_CONDUCT.md).
