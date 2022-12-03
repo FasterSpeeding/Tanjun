@@ -301,4 +301,4 @@ def type_check(session: nox.Session) -> None:
 def verify_types(session: nox.Session) -> None:
     """Verify the "type completeness" of types exported by the library using Pyright."""
     install_requirements(session, ".", *_constrained(), *_dev_dep("type-checking"))
-    _run_pyright(session, "--verifytypes", "tanjun")
+    _run_pyright(session, "--verifytypes", "tanjun", "--ignoreexternal")
