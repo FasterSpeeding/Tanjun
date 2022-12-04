@@ -12,6 +12,8 @@ on:
       - synchronize
       - closed
 
+permissions: write-all
+
 jobs:
   deploy-docs-preview:
     runs-on: ubuntu-latest
