@@ -1,19 +1,18 @@
-attrs==22.1.0 ; python_version >= "3.7"
-colorama==0.4.6 ; sys_platform == "win32" and python_version >= "3.7"
-coverage==6.5.0 ; python_version >= "3.7"
-exceptiongroup==1.0.4 ; python_version < "3.11" and python_version >= "3.7"
-execnet==1.9.0 ; python_version >= "3.6"
+attrs==22.1.0
+coverage[toml]==6.5.0
+exceptiongroup==1.0.4
+execnet==1.9.0
 freezegun==1.2.2
-iniconfig==1.1.1 ; python_version >= "3.7"
-packaging==21.3 ; python_version >= "3.7"
-pluggy==1.0.0 ; python_version >= "3.7"
-pyparsing==3.0.9 ; python_version >= "3.7"
+iniconfig==1.1.1
+packaging==21.3
+pluggy==1.0.0
+pyparsing==3.0.9
+pytest==7.2.0
 pytest-asyncio==0.20.2
 pytest-cov==4.0.0
 pytest-timeout==2.1.0
-pytest-xdist==3.0.2
-pytest==7.2.0
-python-dateutil==2.8.2 ; python_version >= "3.6"
-six==1.16.0 ; python_version >= "3.6"
-tomli==2.0.1 ; python_version < "3.11" and python_version >= "3.7" or python_full_version <= "3.11.0a6" and python_version >= "3.7"
+pytest-xdist==3.1.0
+python-dateutil==2.8.2
+six==1.16.0
+tomli==2.0.1
 typing-extensions==4.4.0
