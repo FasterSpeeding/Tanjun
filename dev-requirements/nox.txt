@@ -2,10 +2,10 @@ argcomplete==2.0.0 ; python_version >= "3.7"
 colorama==0.4.6 ; sys_platform == "win32" and python_version >= "3.7"
 colorlog==6.7.0 ; python_version >= "3.7"
 distlib==0.3.6 ; python_version >= "3.7"
-filelock==3.8.0 ; python_version >= "3.7"
+filelock==3.8.1 ; python_version >= "3.7"
 nox==2022.11.21
 packaging==21.3 ; python_version >= "3.7"
 platformdirs==2.5.4 ; python_version >= "3.7"
 pyparsing==3.0.9 ; python_version >= "3.7"
 tomli==2.0.1
-virtualenv==20.16.7 ; python_version >= "3.7"
+virtualenv==20.17.0 ; python_version >= "3.7"
