@@ -145,18 +145,15 @@ def freeze_dev_deps(session: nox.Session) -> None:
         if optional := project.get("optional-dependencies"):
             deps.extend(itertools.chain(*optional.values()))
 
-    with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
+    constraint_path = pathlib.Path("./dev-requirements/constraints.in")
+    constraint_path.unlink(missing_ok=True)
+    with constraint_path.open("w+") as file:
         file.write("\n".join(deps) + "\n")
 
     for path in pathlib.Path("./dev-requirements/").glob("*.in"):
-        session.run(
-            "pip-compile-cross-platform",
-            "-o",
-            str(path.with_name(path.name.removesuffix(".in") + ".txt")),
-            "--min-python-version",
-            "3.9,<3.12",
-            str(path),
-        )
+        target = path.with_name(path.name.removesuffix(".in") + ".txt")
+        target.unlink(missing_ok=True)
+        session.run("pip-compile-cross-platform", "-o", str(target), "--min-python-version", "3.9,<3.12", str(path))
 
 
 @nox.session(name="generate-docs", reuse_venv=True)
