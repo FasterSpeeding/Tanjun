@@ -145,9 +145,7 @@ def freeze_dev_deps(session: nox.Session) -> None:
         if optional := project.get("optional-dependencies"):
             deps.extend(itertools.chain(*optional.values()))
 
-    constraint_path = pathlib.Path("./dev-requirements/constraints.in")
-    constraint_path.unlink(missing_ok=True)
-    with constraint_path.open("w+") as file:
+    with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
         file.write("\n".join(deps) + "\n")
 
     for path in pathlib.Path("./dev-requirements/").glob("*.in"):
