@@ -1,3 +1,6 @@
+# This is run to avoid an edge case where the latest version of a (probably sub)
+# dependency being yanked leads to pip failing to backtrack the dep.
+# This happened with `cachecontrol==0.12.12 ; python_version >= "3.7" and python_version < "4.0"`.
 name: Verify frozen dev deps
 
 concurrency:
