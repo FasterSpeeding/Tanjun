@@ -15,7 +15,6 @@ on:
 jobs:
   freeze-pr-dep-changes:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip freeze]')"
 
     steps:
       - uses: actions/checkout@v3
@@ -48,4 +47,4 @@ jobs:
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.1
         with:
-          message: "Upgrade PR dev dep changes [skip freeze]"
+          message: "Upgrade PR dev dep changes"
