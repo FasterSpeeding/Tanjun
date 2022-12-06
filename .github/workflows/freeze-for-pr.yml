@@ -1,4 +1,4 @@
-name: Freeze the dev dep changes in a PR
+name: Freeze PR dev dep changes
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -14,6 +14,7 @@ on:
 
 jobs:
   freeze-pr-dep-changes:
+    if: ${{ !contains(github.event.head_commit.message, "Upgrade PR dev dep changes") }}
     runs-on: ubuntu-latest
 
     steps:
@@ -47,4 +48,4 @@ jobs:
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.1
         with:
-          message: "Reformat code"
+          message: "Upgrade PR dev dep changes"
