@@ -169,7 +169,7 @@ def verify_dev_deps(session: nox.Session) -> None:
 
     for path in pathlib.Path("./dev-requirements/").glob("*.txt"):
         if valid_urls and path.resolve() in valid_urls:
-            session.install("--dry-run", "r", str(path))
+            session.install("--dry-run", "-r", str(path))
 
 
 @nox.session(name="generate-docs", reuse_venv=True)

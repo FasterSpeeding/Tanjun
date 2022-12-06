@@ -40,5 +40,5 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./dev-requirements/nox.txt
 
-      - name: Upgrade dev dependencies
+      - name: Verify dev dependencies
         run: python -m nox -s verify-dev-deps -- ${{ steps.changes.outputs.ini_files_files}}
