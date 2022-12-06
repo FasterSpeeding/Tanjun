@@ -80,6 +80,9 @@ def _tracked_files(session: nox.Session, *, ignore_vendor: bool = False) -> coll
     return output.splitlines()
 
 
+_SELF_INSTALL_REGEX = re.compile(r"^\.\[.+\]$")
+
+
 def install_requirements(session: nox.Session, *requirements: str, first_call: bool = True) -> None:
     # --no-install --no-venv leads to it trying to install in the global venv
     # as --no-install only skips "reused" venvs and global is not considered reused.
@@ -89,7 +92,7 @@ def install_requirements(session: nox.Session, *requirements: str, first_call: b
 
         session.install("--upgrade", *map(str, requirements))
 
-    elif "." in requirements:
+    elif any(map(_SELF_INSTALL_REGEX.fullmatch, requirements)):
         session.install("--upgrade", "--force-reinstall", "--no-dependencies", ".")
 
 
