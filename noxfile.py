@@ -163,7 +163,7 @@ def freeze_dev_deps(session: nox.Session) -> None:
             )
 
 
-@nox.session("verify-dev-deps", reuse_venv=True)
+@nox.session(name="verify-dev-deps", reuse_venv=True)
 def verify_dev_deps(session: nox.Session) -> None:
     """Verify the dev deps by installing them."""
     valid_urls = _to_valid_urls(session)
