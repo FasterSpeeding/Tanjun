@@ -21,7 +21,7 @@ flake8-executable==2.1.2
 flake8-fixme==1.1.1
 flake8-functions==0.0.7
 flake8-future-annotations==1
-flake8-html==0.4.2
+flake8-html==0.4.3
 flake8-if-statements==1
 flake8-implicit-str-concat==0.3
 flake8-isort==5.0.3
