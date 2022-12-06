@@ -139,20 +139,21 @@ def freeze_dev_deps(session: nox.Session) -> None:
 
     install_requirements(session, *_dev_dep("publish"))
 
-    with pathlib.Path("./pyproject.toml").open("rb") as file:
-        project = tomli.load(file)["project"]
-        deps = project.get("dependencies") or []
-        if optional := project.get("optional-dependencies"):
-            deps.extend(itertools.chain(*optional.values()))
-
-    with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
-        file.write("\n".join(deps) + "\n")
-
     if session.posargs:
         valid_urls = set(map(pathlib.Path.resolve, map(pathlib.Path, session.posargs)))
 
     else:
         valid_urls = None
+
+    if not valid_urls:
+        with pathlib.Path("./pyproject.toml").open("rb") as file:
+            project = tomli.load(file)["project"]
+            deps = project.get("dependencies") or []
+            if optional := project.get("optional-dependencies"):
+                deps.extend(itertools.chain(*optional.values()))
+
+        with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
+            file.write("\n".join(deps) + "\n")
 
     for path in pathlib.Path("./dev-requirements/").glob("*.in"):
         if valid_urls and path.resolve() not in valid_urls:
