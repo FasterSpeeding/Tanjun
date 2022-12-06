@@ -132,18 +132,17 @@ def cleanup(session: nox.Session) -> None:
             session.log(f"[  OK  ] Removed '{raw_path}'")
 
 
+def _to_valid_urls(session: nox.Session) -> set[pathlib.Path] | None:
+    if session.posargs:
+        return set(map(pathlib.Path.resolve, map(pathlib.Path, session.posargs)))
+
 @nox.session(name="freeze-dev-deps", reuse_venv=True)
 def freeze_dev_deps(session: nox.Session) -> None:
     """Upgrade the dev dependencies."""
     import tomli
 
     install_requirements(session, *_dev_dep("publish"))
-
-    if session.posargs:
-        valid_urls = set(map(pathlib.Path.resolve, map(pathlib.Path, session.posargs)))
-
-    else:
-        valid_urls = None
+    valid_urls = _to_valid_urls(session)
 
     if not valid_urls:
         with pathlib.Path("./pyproject.toml").open("rb") as file:
@@ -156,12 +155,22 @@ def freeze_dev_deps(session: nox.Session) -> None:
             file.write("\n".join(deps) + "\n")
 
     for path in pathlib.Path("./dev-requirements/").glob("*.in"):
-        if valid_urls and path.resolve() not in valid_urls:
-            continue
+        if valid_urls and path.resolve() in valid_urls:
+            target = path.with_name(path.name.removesuffix(".in") + ".txt")
+            target.unlink(missing_ok=True)
+            session.run(
+                "pip-compile-cross-platform", "-o", str(target), "--min-python-version", "3.9,<3.12", str(path)
+            )
 
-        target = path.with_name(path.name.removesuffix(".in") + ".txt")
-        target.unlink(missing_ok=True)
-        session.run("pip-compile-cross-platform", "-o", str(target), "--min-python-version", "3.9,<3.12", str(path))
+
+@nox.session("verify-dev-deps", reuse_venv=True)
+def verify_dev_deps(session: nox.Session) -> None:
+    """Verify the dev deps by installing them."""
+    valid_urls = _to_valid_urls(session)
+
+    for path in pathlib.Path("./dev-requirements/").glob("*.txt"):
+        if valid_urls and path.resolve() in valid_urls:
+            session.install("--dry-run", "r", str(path))
 
 
 @nox.session(name="generate-docs", reuse_venv=True)
