@@ -1,4 +1,4 @@
-cachecontrol==0.12.12 ; python_version >= "3.7" and python_version < "4.0"
+cachecontrol==0.12.11 ; python_version >= "3.7" and python_version < "4.0"
 cachy==0.3.0 ; python_version >= "3.7" and python_version < "4.0"
 certifi==2022.9.24 ; python_version >= "3.7" and python_version < "4"
 cffi==1.15.1 ; python_version >= "3.7" and python_version < "4.0" and sys_platform == "linux"
