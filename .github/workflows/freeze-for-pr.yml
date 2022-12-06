@@ -1,4 +1,4 @@
-name: Reformat PR code
+name: Freeze PR dev dep changes
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -8,9 +8,12 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - "dev-requirements/*.in"
+      - "!dev-requirements/constraints.in"
 
 jobs:
-  reformat:
+  freeze-pr-dep-changes:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,6 +22,14 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
           token: ${{ secrets.ACTIONS_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            ini_files:
+              - "dev-requirements/!(constraints).in"
+          list-files: escape
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
@@ -30,10 +41,10 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./dev-requirements/nox.txt
 
-      - name: Reformat code
-        run: python -m nox -s reformat
+      - name: Upgrade dev dependencies
+        run: python -m nox -s freeze-dev-deps -- ${{ steps.changes.outputs.ini_files_files}}
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.1
         with:
-          message: "Reformat code"
+          message: "Upgrade PR dev dep changes"

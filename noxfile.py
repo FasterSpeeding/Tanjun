@@ -132,26 +132,44 @@ def cleanup(session: nox.Session) -> None:
             session.log(f"[  OK  ] Removed '{raw_path}'")
 
 
+def _to_valid_urls(session: nox.Session) -> set[pathlib.Path] | None:
+    if session.posargs:
+        return set(map(pathlib.Path.resolve, map(pathlib.Path, session.posargs)))
+
+
 @nox.session(name="freeze-dev-deps", reuse_venv=True)
 def freeze_dev_deps(session: nox.Session) -> None:
     """Upgrade the dev dependencies."""
     import tomli
 
     install_requirements(session, *_dev_dep("publish"))
+    valid_urls = _to_valid_urls(session)
 
-    with pathlib.Path("./pyproject.toml").open("rb") as file:
-        project = tomli.load(file)["project"]
-        deps = project.get("dependencies") or []
-        if optional := project.get("optional-dependencies"):
-            deps.extend(itertools.chain(*optional.values()))
+    if not valid_urls:
+        with pathlib.Path("./pyproject.toml").open("rb") as file:
+            project = tomli.load(file)["project"]
+            deps = project.get("dependencies") or []
+            if optional := project.get("optional-dependencies"):
+                deps.extend(itertools.chain(*optional.values()))
 
-    with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
-        file.write("\n".join(deps) + "\n")
+        with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
+            file.write("\n".join(deps) + "\n")
 
     for path in pathlib.Path("./dev-requirements/").glob("*.in"):
-        target = path.with_name(path.name.removesuffix(".in") + ".txt")
-        target.unlink(missing_ok=True)
-        session.run("pip-compile-cross-platform", "-o", str(target), "--min-python-version", "3.9,<3.12", str(path))
+        if not valid_urls or path.resolve() in valid_urls:
+            target = path.with_name(path.name.removesuffix(".in") + ".txt")
+            target.unlink(missing_ok=True)
+            session.run("pip-compile-cross-platform", "-o", str(target), "--min-python-version", "3.9,<3.12", str(path))
+
+
+@nox.session(name="verify-dev-deps", reuse_venv=True)
+def verify_dev_deps(session: nox.Session) -> None:
+    """Verify the dev deps by installing them."""
+    valid_urls = _to_valid_urls(session)
+
+    for path in pathlib.Path("./dev-requirements/").glob("*.txt"):
+        if not valid_urls or path.resolve() in valid_urls:
+            session.install("--dry-run", "-r", str(path))
 
 
 @nox.session(name="generate-docs", reuse_venv=True)

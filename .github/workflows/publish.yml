@@ -3,7 +3,8 @@ name: Publish a new release
 on:
   release:
     # Only use the types keyword to narrow down the activity types that will trigger your workflow.
-    types: [published]
+    types:
+      - published
 
 jobs:
   publish-docs:
