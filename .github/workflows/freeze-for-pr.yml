@@ -5,9 +5,7 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    branches:
-      -master
+  pull_request:
     paths:
       - "dev-requirements/*.in"
       - "!dev-requirements/constraints.in"
