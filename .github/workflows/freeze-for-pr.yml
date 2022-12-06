@@ -12,6 +12,10 @@ on:
       - "dev-requirements/*.in"
       - "!dev-requirements/constraints.in"
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   freeze-pr-dep-changes:
     runs-on: ubuntu-latest
