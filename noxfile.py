@@ -136,6 +136,7 @@ def _to_valid_urls(session: nox.Session) -> set[pathlib.Path] | None:
     if session.posargs:
         return set(map(pathlib.Path.resolve, map(pathlib.Path, session.posargs)))
 
+
 @nox.session(name="freeze-dev-deps", reuse_venv=True)
 def freeze_dev_deps(session: nox.Session) -> None:
     """Upgrade the dev dependencies."""
@@ -158,9 +159,7 @@ def freeze_dev_deps(session: nox.Session) -> None:
         if valid_urls and path.resolve() in valid_urls:
             target = path.with_name(path.name.removesuffix(".in") + ".txt")
             target.unlink(missing_ok=True)
-            session.run(
-                "pip-compile-cross-platform", "-o", str(target), "--min-python-version", "3.9,<3.12", str(path)
-            )
+            session.run("pip-compile-cross-platform", "-o", str(target), "--min-python-version", "3.9,<3.12", str(path))
 
 
 @nox.session(name="verify-dev-deps", reuse_venv=True)
