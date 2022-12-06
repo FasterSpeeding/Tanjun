@@ -148,7 +148,16 @@ def freeze_dev_deps(session: nox.Session) -> None:
     with pathlib.Path("./dev-requirements/constraints.in").open("w+") as file:
         file.write("\n".join(deps) + "\n")
 
+    if session.posargs:
+        valid_urls = set(map(pathlib.Path.resolve, map(pathlib.Path, session.posargs)))
+
+    else:
+        valid_urls = None
+
     for path in pathlib.Path("./dev-requirements/").glob("*.in"):
+        if valid_urls and path.resolve() not in valid_urls:
+            continue
+
         target = path.with_name(path.name.removesuffix(".in") + ".txt")
         target.unlink(missing_ok=True)
         session.run("pip-compile-cross-platform", "-o", str(target), "--min-python-version", "3.9,<3.12", str(path))
