@@ -1679,7 +1679,7 @@ of commands concurrently.</p>
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 will manage the concurrency limits for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_bucket">Limiter.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to at most 2 concurrent executions per user,
@@ -1704,7 +1704,7 @@ linked limiter).</p>
 to mark these commands as using the <code>"main_commands"</code> concurrency limit bucket;
 buckets share their limits for a resource across all the commands under it. For
 more information on the resources concurrency can be limited by see
-<a class="autorefs autorefs-internal" href="../reference/#tanjun.BucketResource">BucketResource</a>.</p>
+<a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.BucketResource">BucketResource</a>.</p>
 <h3 id="cooldowns">Cooldowns<a class="headerlink" href="#cooldowns" title="Permanent link">#</a></h3>
 <p>Cooldowns limit how often a group of commands can be called.</p>
 <div class="highlight"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
@@ -1715,7 +1715,7 @@ more information on the resources concurrency can be limited by see
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
 will manage the cooldowns for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager.set_bucket">Manager.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to 5 calls per user every 60 seconds,
@@ -1736,11 +1736,11 @@ only have 1 linked cooldown manager).</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_cooldown">with_cooldown</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_cooldown">with_cooldown</a>
 to mark these commands as using the <code>"main_commands"</code> cooldown bucket;
 buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
-<a class="autorefs autorefs-internal" href="../reference/#tanjun.BucketResource">BucketResource</a>.</p>
+<a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.BucketResource">BucketResource</a>.</p>
 <h2 id="localisation">Localisation<a class="headerlink" href="#localisation" title="Permanent link">#</a></h2>
 <p><a href="https://en.wikipedia.org/wiki/Language_localisation">Localisation</a> allows for
 tailoring the declarations and responses of slash commands and context menu
