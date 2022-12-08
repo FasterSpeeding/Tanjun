@@ -34,10 +34,10 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./dev-requirements/nox.txt
 
-      - name: Reformat code
+      - name: Reformat
         run: python -m nox -s reformat
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.1
         with:
-          message: "Reformat code"
+          message: "Reformat"

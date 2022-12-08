@@ -78,9 +78,7 @@ async def _fetch_info(database: protos.DatabaseProto = tanjun.inject(type=protos
 
 
 # Since this is being used as an injected callback, we can also ask for an injected type here.
-async def _fetch_cachable_info(
-    database: protos.DatabaseProto = tanjun.inject(type=protos.DatabaseProto),
-) -> typing.Any:
+async def _fetch_cachable_info(database: protos.DatabaseProto = tanjun.inject(type=protos.DatabaseProto)) -> typing.Any:
     raise NotImplementedError  # This is an example callback and doesn't provide an implementation.
 
 

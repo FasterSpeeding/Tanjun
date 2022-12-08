@@ -48,12 +48,7 @@ nox.options.sessions = [
     "test",
     "verify-types",
 ]
-GENERAL_TARGETS = ["./noxfile.py", "./tests"]
-TOP_LEVEL_TARGETS = ["./tanjun", "./tests", "./noxfile.py"]
-_BLACKLISTED_TARGETS = re.compile("^_internal/vendor/.*\\.py")
-for path in pathlib.Path("./tanjun").glob("**/*.py"):
-    if not _BLACKLISTED_TARGETS.match(str(path.relative_to("./tanjun")).replace("\\", "/")):
-        GENERAL_TARGETS.append(str(path))
+TOP_LEVEL_TARGETS = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 
 
 _DEV_DEP_DIR = pathlib.Path("./dev-requirements")
@@ -190,7 +185,7 @@ def flake8(session: nox.Session) -> None:
     """Run this project's modules against the pre-defined flake8 linters."""
     install_requirements(session, *_dev_dep("flake8"))
     session.log("Running flake8")
-    session.run("pflake8", *GENERAL_TARGETS, log=False)
+    session.run("pflake8", *TOP_LEVEL_TARGETS, log=False)
 
 
 @nox.session(reuse_venv=True, name="slot-check")
