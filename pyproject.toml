@@ -166,9 +166,26 @@ default_sessions = [
     "test",
     "verify-types",
 ]
+extra_test_installs = ["."]
 path_ignore = "tanjun\\/_internal\\/vendor\\/|piped"
 project_name = "tanjun"
 top_level_targets = ["./examples", "./tanjun", "./tests"]
+
+[tool.piped.github_actions.freeze_for_pr]
+[tool.piped.github_actions.lint]
+[tool.piped.github_actions.pr_docs]
+[tool.piped.github_actions.publish]
+[tool.piped.github_actions.py_lint]
+[tool.piped.github_actions.py_test]
+codeclimate_token = "117363998d7c6b4bab4ac57348026e1089767e142ccca3eb8cc37da6cf4cc8b9"
+python_versions = "[3.9, 3.10.5, 3.11]"
+
+[tool.piped.github_actions.reformat]
+[tool.piped.github_actions.release_docs]
+[tool.piped.github_actions.type_check]
+[tool.piped.github_actions.upgrade_dev_deps]
+[tool.piped.github_actions.verify_frozen_deps]
+[tool.piped.github_actions.verify_types]
 
 [tool.slotscheck]
 strict-imports = true

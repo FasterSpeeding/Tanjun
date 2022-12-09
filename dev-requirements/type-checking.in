@@ -1,0 +1,4 @@
+-r ./tests.in
+-r ../piped/python/base-requirements/nox.in
+-r ../piped/python/base-requirements/type-checking.in
+-r ./constraints.in

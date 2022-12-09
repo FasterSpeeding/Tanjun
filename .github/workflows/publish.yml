@@ -1,1 +1,31 @@
-../../piped/actions/publish.yml
+name: Publish a new release
+
+on:
+  release:
+    # Only use the types keyword to narrow down the activity types that will trigger your workflow.
+    types:
+      - published
+
+jobs:
+  publish-docs:
+    uses: ./.github/workflows/release-docs.yml
+
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install prerequisites
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install -r ./dev-requirements/nox.txt
+
+      - name: publish
+        run: python -m nox -s publish
+        env:
+          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}

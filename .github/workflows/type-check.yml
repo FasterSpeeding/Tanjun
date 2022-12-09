@@ -1,28 +1,26 @@
-name: Reformat PR code
+name: Lint
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     branches:
       - master
-
-permissions:
-  contents: write
-  pull-requests: write
+  schedule:
+    - cron: "0 12 * * 6"
+  workflow_dispatch:
 
 jobs:
-  reformat:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
-          token: ${{ secrets.ACTIONS_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
@@ -34,10 +32,5 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./dev-requirements/nox.txt
 
-      - name: Reformat
-        run: python -m nox -s reformat
-
-      - name: Add & Commit
-        uses: EndBug/add-and-commit@v9.1.1
-        with:
-          message: "Reformat"
+      - name: Run type checker
+        run: python -m nox -s type-check
