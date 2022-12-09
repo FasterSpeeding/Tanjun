@@ -1,0 +1,3 @@
+[submodule "piped"]
+	path = piped
+	url = https://github.com/FasterSpeeding/Piped.git

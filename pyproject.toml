@@ -155,6 +155,21 @@ disable_error_code = ["type-abstract"]
 # Ignore vendored modules
 exclude = ["tanjun/_internal/vendor/"]
 
+[tool.piped]
+default_sessions = [
+    "reformat",
+    "verify-markup",
+    "flake8",
+    "spell-check",
+    "slot-check",
+    "type-check",
+    "test",
+    "verify-types",
+]
+path_ignore = "tanjun\\/_internal\\/vendor\\/|piped"
+project_name = "tanjun"
+top_level_targets = ["./examples", "./tanjun", "./tests"]
+
 [tool.slotscheck]
 strict-imports = true
 require-superclass = true
