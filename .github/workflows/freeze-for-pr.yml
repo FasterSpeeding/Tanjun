@@ -27,14 +27,6 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           token: ${{ secrets.ACTIONS_TOKEN || secrets.GITHUB_TOKEN }}
 
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            ini_files:
-              - "dev-requirements/!(constraints).in"
-          list-files: escape
-
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
@@ -43,10 +35,10 @@ jobs:
       - name: install prerequisites
         run: |
           python -m pip install --upgrade pip wheel
-          python -m pip install -r ./dev-requirements/nox.txt
+          python -m pip install -r ./piped/python/base-requirements/nox.txt
 
       - name: Upgrade dev dependencies
-        run: python -m nox -s freeze-dev-deps -- ${{ steps.changes.outputs.ini_files_files}}
+        run: python -m nox -s freeze-dev-deps
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.1
