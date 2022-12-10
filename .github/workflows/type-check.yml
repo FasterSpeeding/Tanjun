@@ -1,4 +1,4 @@
-name: Lint
+name: Type check
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
