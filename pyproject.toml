@@ -182,6 +182,7 @@ python_versions = "[3.9, 3.10.5, 3.11]"
 
 [tool.piped.github_actions.reformat]
 [tool.piped.github_actions.release_docs]
+[tool.piped.github_actions.resync_piped]
 [tool.piped.github_actions.type_check]
 [tool.piped.github_actions.upgrade_dev_deps]
 [tool.piped.github_actions.verify_frozen_deps]

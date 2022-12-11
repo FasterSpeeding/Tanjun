@@ -1,4 +1,4 @@
-name: Freeze PR dev dep changes
+name: Resync piped
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -9,15 +9,10 @@ on:
     branches:
       - master
     paths:
-      - "dev-requirements/*.in"
-      - "!dev-requirements/constraints.in"
-
-permissions:
-  contents: write
-  pull-requests: write
+      - "piped"
 
 jobs:
-  freeze-pr-dep-changes:
+  resync-piped:
     runs-on: ubuntu-latest
 
     steps:
@@ -37,10 +32,10 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./piped/python/base-requirements/nox.txt
 
-      - name: Upgrade dev dependencies
-        run: python -m nox -s freeze-dev-deps
+      - name: Resync Piped
+        run: python -m nox -s resync-piped
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.1
         with:
-          message: "Upgrade PR dev dep changes"
+          message: "Resync piped"
