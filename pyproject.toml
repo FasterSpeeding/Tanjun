@@ -156,6 +156,7 @@ disable_error_code = ["type-abstract"]
 exclude = ["tanjun/_internal/vendor/"]
 
 [tool.piped]
+codespell_ignore = "TimeSchedule|Nd"
 default_sessions = [
     "reformat",
     "verify-markup",
