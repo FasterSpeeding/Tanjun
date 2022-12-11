@@ -167,7 +167,7 @@ default_sessions = [
     "verify-types",
 ]
 extra_test_installs = ["."]
-path_ignore = "tanjun\\/_internal\\/vendor\\/|piped"
+path_ignore = "tanjun\\/_internal\\/vendor\\/"
 project_name = "tanjun"
 top_level_targets = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 
