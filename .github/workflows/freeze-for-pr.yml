@@ -11,6 +11,8 @@ on:
     paths:
       - "dev-requirements/*.in"
       - "!dev-requirements/constraints.in"
+      - "python/base-requirements/*.in"
+      - "!python/base-requirements/constraints.in"
 
 permissions:
   contents: write
