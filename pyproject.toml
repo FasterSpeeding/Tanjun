@@ -102,8 +102,8 @@ ignore = [
     "E231",    # missing whitespace after ','
 ]
 per-file-ignores = [
-    "examples/*.py: D101, D103, E800, FA100, FA101",
-    "noxfile.py: D100, D101, D103, INP001",
+    "examples/*.py: D100, D101, D103, E800, FA100, FA101, F401, F403, INP001",
+    "noxfile.py: D100, FA101, F401, F403, INP001",
     "tanjun/py.typed: D100",
     "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101"
 ]
@@ -169,7 +169,7 @@ default_sessions = [
 extra_test_installs = ["."]
 path_ignore = "tanjun\\/_internal\\/vendor\\/|piped"
 project_name = "tanjun"
-top_level_targets = ["./examples", "./tanjun", "./tests"]
+top_level_targets = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 
 [tool.piped.github_actions.freeze_for_pr]
 [tool.piped.github_actions.lint]
