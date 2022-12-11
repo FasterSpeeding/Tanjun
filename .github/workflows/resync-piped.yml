@@ -9,7 +9,7 @@ on:
     branches:
       - master
     paths:
-      - "piped"
+      - piped
 
 jobs:
   resync-piped:
@@ -33,9 +33,12 @@ jobs:
           python -m pip install -r ./piped/python/base-requirements/nox.txt
 
       - name: Resync Piped
-        run: python -m nox -s sync-piped
+        run: python -m nox -s copy-actions
+
+      - name: Freeze dependency locks
+        run: python -m nox -s freeze-locks
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.1
         with:
-          message: "Resync piped"
+          message: Resync piped

@@ -105,7 +105,7 @@ per-file-ignores = [
     "examples/*.py: D100, D101, D103, E800, FA100, FA101, F401, F403, INP001",
     "noxfile.py: D100, FA101, F401, F403, INP001",
     "tanjun/py.typed: D100",
-    "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101"
+    "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101",
 ]
 
 [tool.isort]
@@ -184,8 +184,8 @@ python_versions = "[3.9, 3.10.5, 3.11]"
 [tool.piped.github_actions.release_docs]
 [tool.piped.github_actions.resync_piped]
 [tool.piped.github_actions.type_check]
-[tool.piped.github_actions.upgrade_dev_deps]
-[tool.piped.github_actions.verify_frozen_deps]
+[tool.piped.github_actions.upgrade_locks]
+[tool.piped.github_actions.verify_locks]
 [tool.piped.github_actions.verify_types]
 
 [tool.slotscheck]

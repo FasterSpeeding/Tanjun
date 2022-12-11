@@ -1,4 +1,4 @@
-name: Freeze PR dev dep changes
+name: Freeze PR dependency changes
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -8,11 +8,7 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - "dev-requirements/*.in"
-      - "!dev-requirements/constraints.in"
-      - "python/base-requirements/*.in"
-      - "!python/base-requirements/constraints.in"
+    paths: ["dev-requirements/*.in", "!dev-requirements/constraints.in"]
 
 permissions:
   contents: write
@@ -39,10 +35,10 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./piped/python/base-requirements/nox.txt
 
-      - name: Upgrade dev dependencies
-        run: python -m nox -s freeze-dev-deps
+      - name: Upgrade dependency locks
+        run: python -m nox -s freeze-locks
 
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.1
         with:
-          message: "Upgrade PR dev dep changes"
+          message: Upgrade PR dependency locks

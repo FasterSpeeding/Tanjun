@@ -1,7 +1,7 @@
 # This is run to avoid an edge case where the latest version of a (probably sub)
 # dependency being yanked leads to pip failing to backtrack the dep.
 # This happened with `cachecontrol==0.12.12 ; python_version >= "3.7" and python_version < "4.0"`.
-name: Verify frozen dev deps
+name: Verify dependency locks
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -35,5 +35,5 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./piped/python/base-requirements/nox.txt
 
-      - name: Verify dev dependencies
-        run: python -m nox -s verify-dev-deps
+      - name: Verify dependency locks
+        run: python -m nox -s verify-deps

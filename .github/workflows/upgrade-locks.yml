@@ -1,4 +1,4 @@
-name: Upgrade dev dependencies
+name: Upgrade dependency locks
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  upgrade-dev-deps:
+  upgrade-deps:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,13 +24,13 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./piped/python/base-requirements/nox.txt
 
-      - name: Upgrade dev dependencies
-        run: python -m nox -s freeze-dev-deps
+      - name: Upgrade dependency locks
+        run: python -m nox -s freeze-locks
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          branch: task/upgrade-dev-deps
-          commit-message: Upgrade dev dependencies
-          title: Upgrade dev dependencies
+          branch: task/upgrade-deps
+          commit-message: Upgrade dependency locks
+          title: Upgrade dependency locks
           token: ${{ secrets.ACTIONS_TOKEN }}
