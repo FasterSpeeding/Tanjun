@@ -113,28 +113,6 @@ profile = "black"
 force_single_line = true
 skip = ["tanjun/_internal/vendor"]
 
-[tool.pyright]
-exclude = ["tanjun/_internal/vendor"]
-include = ["examples", "tanjun", "noxfile.py", "tests"]
-
-pythonVersion = "3.9"
-typeCheckingMode = "strict"
-reportMissingModuleSource = "error"
-reportMissingTypeStubs = "error"
-
-reportIncompatibleMethodOverride = "warning"    # This relies on ordering for key-word only arguments
-                                                # which is more annoying than it's worth
-reportUnknownMemberType = "warning"             # This messes with instance checking generic objects
-reportUnknownArgumentType = "warning"           # Pretty much the same as reportUnknownMemberType
-reportUnknownLambdaType = "warning"
-reportImportCycles = "warning"                  # This isn't necessarily an issue if it's type checking only.
-reportUnknownVariableType = "warning"           # Lotta false-positives, might fix/change later.
-
-[tool.pytest.ini_options]
-asyncio_mode = "strict"
-testpaths = ["tests"]
-required_plugins = ["pytest-asyncio", "pytest-timeout"]
-
 [tool.mypy]
 # some good strict settings
 python_version = 3.9
@@ -188,6 +166,28 @@ python_versions = "[3.9, 3.10.5, 3.11]"
 [tool.piped.github_actions.upgrade_locks]
 [tool.piped.github_actions.verify_locks]
 [tool.piped.github_actions.verify_types]
+
+[tool.pyright]
+exclude = ["tanjun/_internal/vendor"]
+include = ["examples", "tanjun", "noxfile.py", "tests"]
+
+pythonVersion = "3.9"
+typeCheckingMode = "strict"
+reportMissingModuleSource = "error"
+reportMissingTypeStubs = "error"
+
+reportIncompatibleMethodOverride = "warning"    # This relies on ordering for key-word only arguments
+                                                # which is more annoying than it's worth
+reportUnknownMemberType = "warning"             # This messes with instance checking generic objects
+reportUnknownArgumentType = "warning"           # Pretty much the same as reportUnknownMemberType
+reportUnknownLambdaType = "warning"
+reportImportCycles = "warning"                  # This isn't necessarily an issue if it's type checking only.
+reportUnknownVariableType = "warning"           # Lotta false-positives, might fix/change later.
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+testpaths = ["tests"]
+required_plugins = ["pytest-asyncio", "pytest-timeout"]
 
 [tool.slotscheck]
 strict-imports = true
