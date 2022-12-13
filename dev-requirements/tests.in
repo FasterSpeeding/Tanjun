@@ -1,4 +1,5 @@
 -r ../piped/python/base-requirements/tests.in
+-r ./constraints.in
 
 freezegun==1.2.2
 pytest==7.2.0
