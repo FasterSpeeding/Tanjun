@@ -1,6 +1,6 @@
 attrs==22.1.0 ; python_version >= "3.7"
 colorama==0.4.6 ; sys_platform == "win32" and python_version >= "3.7"
-coverage==6.5.0 ; python_version >= "3.7"
+coverage==7.0.0 ; python_version >= "3.7"
 exceptiongroup==1.0.4 ; python_version < "3.11" and python_version >= "3.7"
 execnet==1.9.0 ; python_version >= "3.7"
 freezegun==1.2.2
