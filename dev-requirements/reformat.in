@@ -1,5 +1,5 @@
 black==22.10.0
-isort==5.10.1
+isort==5.11.3
 pre-commit-hooks==4.4.0
 pycln==2.1.2
 sort-all==1.2.0
