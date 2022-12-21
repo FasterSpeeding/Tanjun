@@ -511,7 +511,7 @@ class MessageCommandIndex:
 
         if self.is_strict:
             if any(" " in name for name in command.names):
-                raise ValueError("Command name cannot contain spaces for this configuration.")
+                raise ValueError("Command name cannot contain spaces in a strict collection")
 
             names = list(filter(None, command.names))
             insensitive_names = [name.casefold() for name in command.names]
