@@ -957,7 +957,7 @@ class TestComponent:
         component = tanjun.Component(strict=True)
         mock_command = mock.Mock(names=("a b",))
 
-        with pytest.raises(ValueError, match="Command name cannot contain spaces for this component implementation"):
+        with pytest.raises(ValueError, match="Command name cannot contain spaces in a strict collection"):
             component.add_message_command(mock_command)
 
         mock_command.bind_client.assert_not_called()

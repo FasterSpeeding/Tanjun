@@ -468,7 +468,7 @@ class TestMessageCommandGroup:
     def test_add_command_when_strict_and_space_in_any_name(self):
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
 
-        with pytest.raises(ValueError, match="Command name cannot contain spaces for this component implementation"):
+        with pytest.raises(ValueError, match="Command name cannot contain spaces in a strict collection"):
             command_group.add_command(mock.Mock(names={"a space", "b"}))
 
     def test_add_command_when_strict_and_conflicts_found(self):
