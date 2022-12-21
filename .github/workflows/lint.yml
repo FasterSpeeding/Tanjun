@@ -27,7 +27,7 @@ jobs:
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: "3.9"
 
       - name: install prerequisites
         run: |
@@ -39,3 +39,9 @@ jobs:
 
       - name: Check spelling
         run: python -m nox -s spell-check
+
+      - name: Lint with flake8
+        run: python -m nox -s flake8
+
+      - name: Check slotting
+        run: python -m nox -s slot-check

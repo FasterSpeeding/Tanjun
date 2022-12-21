@@ -9,10 +9,6 @@ on:
     branches:
       - master
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   reformat:
     runs-on: ubuntu-latest
@@ -21,13 +17,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           submodules: "true"
-          token: ${{ secrets.ACTIONS_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: "3.9"
 
       - name: install prerequisites
         run: |
@@ -35,9 +31,12 @@ jobs:
           python -m pip install -r ./piped/python/base-requirements/nox.txt
 
       - name: Reformat
-        run: python -m nox -s reformat
+        run: python -m nox -s reformat bot-package-diff
 
-      - name: Add & Commit
-        uses: EndBug/add-and-commit@v9.1.1
+      - uses: actions/upload-artifact@v3
         with:
-          message: Reformat
+          name: gogo.patch
+          path: gogo.patch
+
+      - name: Check diff file
+        run: python -m nox -s is-diff-file-empty

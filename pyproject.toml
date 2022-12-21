@@ -154,7 +154,6 @@ top_level_targets = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 [tool.piped.github_actions.lint]
 [tool.piped.github_actions.pr_docs]
 [tool.piped.github_actions.publish]
-[tool.piped.github_actions.py_lint]
 [tool.piped.github_actions.py_test]
 codeclimate_token = "117363998d7c6b4bab4ac57348026e1089767e142ccca3eb8cc37da6cf4cc8b9"
 python_versions = "[3.9, 3.10.5, 3.11]"
