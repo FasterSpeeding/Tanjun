@@ -1,4 +1,4 @@
-name: Freeze PR dev dep changes
+name: Freeze PR dependency changes
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -8,13 +8,7 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - "dev-requirements/*.in"
-      - "!dev-requirements/constraints.in"
-
-permissions:
-  contents: write
-  pull-requests: write
+    paths: ["piped", "dev-requirements/*.in", "!dev-requirements/constraints.in"]
 
 jobs:
   freeze-pr-dep-changes:
@@ -23,32 +17,27 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
-          token: ${{ secrets.ACTIONS_TOKEN || secrets.GITHUB_TOKEN }}
-
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            ini_files:
-              - "dev-requirements/!(constraints).in"
-          list-files: escape
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          submodules: "true"
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: "3.9"
 
       - name: install prerequisites
         run: |
           python -m pip install --upgrade pip wheel
-          python -m pip install -r ./dev-requirements/nox.txt
+          python -m pip install -r ./piped/python/base-requirements/nox.txt
 
-      - name: Upgrade dev dependencies
-        run: python -m nox -s freeze-dev-deps -- ${{ steps.changes.outputs.ini_files_files}}
+      - name: Upgrade dependency locks
+        run: python -m nox -s freeze-locks bot-package-diff
 
-      - name: Add & Commit
-        uses: EndBug/add-and-commit@v9.1.1
+      - uses: actions/upload-artifact@v3
         with:
-          message: "Upgrade PR dev dep changes"
+          name: gogo.patch
+          path: gogo.patch
+
+      - name: Check diff file
+        run: python -m nox -s is-diff-file-empty

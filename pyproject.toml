@@ -102,16 +102,69 @@ ignore = [
     "E231",    # missing whitespace after ','
 ]
 per-file-ignores = [
-    "examples/*.py: D101, D103, E800, FA100, FA101",
-    "noxfile.py: D100, D101, D103, INP001",
+    "examples/*.py: D100, D101, D103, E800, FA100, FA101, F401, F403, INP001",
+    "noxfile.py: D100, FA101, F401, F403, INP001",
     "tanjun/py.typed: D100",
-    "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101"
+    "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101",
 ]
 
 [tool.isort]
 profile = "black"
 force_single_line = true
 skip = ["tanjun/_internal/vendor"]
+
+[tool.mypy]
+# some good strict settings
+python_version = 3.9
+strict = true
+warn_unreachable = true
+
+# more narrow type ignores
+show_error_codes = true
+
+# these are used by pyright
+warn_unused_ignores = false
+warn_redundant_casts = false
+
+# compatibility with pyright
+allow_redefinition = true
+disable_error_code = ["type-abstract"]
+
+# Ignore vendored modules
+exclude = ["tanjun/_internal/vendor/"]
+
+[tool.piped]
+codespell_ignore = "TimeSchedule|Nd"
+default_sessions = [
+    "reformat",
+    "verify-markup",
+    "flake8",
+    "spell-check",
+    "slot-check",
+    "type-check",
+    "test",
+    "verify-types",
+]
+extra_test_installs = ["."]
+path_ignore = "tanjun\\/_internal\\/vendor\\/"
+project_name = "tanjun"
+top_level_targets = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
+
+[tool.piped.github_actions.freeze_for_pr]
+[tool.piped.github_actions.lint]
+[tool.piped.github_actions.pr_docs]
+[tool.piped.github_actions.publish]
+[tool.piped.github_actions.py_test]
+codeclimate_token = "117363998d7c6b4bab4ac57348026e1089767e142ccca3eb8cc37da6cf4cc8b9"
+python_versions = "[3.9, 3.10.5, 3.11]"
+
+[tool.piped.github_actions.reformat]
+[tool.piped.github_actions.release_docs]
+[tool.piped.github_actions.resync_piped]
+[tool.piped.github_actions.type_check]
+[tool.piped.github_actions.upgrade_locks]
+[tool.piped.github_actions.verify_locks]
+[tool.piped.github_actions.verify_types]
 
 [tool.pyright]
 exclude = ["tanjun/_internal/vendor"]
@@ -134,26 +187,6 @@ reportUnknownVariableType = "warning"           # Lotta false-positives, might f
 asyncio_mode = "strict"
 testpaths = ["tests"]
 required_plugins = ["pytest-asyncio", "pytest-timeout"]
-
-[tool.mypy]
-# some good strict settings
-python_version = 3.9
-strict = true
-warn_unreachable = true
-
-# more narrow type ignores
-show_error_codes = true
-
-# these are used by pyright
-warn_unused_ignores = false
-warn_redundant_casts = false
-
-# compatibility with pyright
-allow_redefinition = true
-disable_error_code = ["type-abstract"]
-
-# Ignore vendored modules
-exclude = ["tanjun/_internal/vendor/"]
 
 [tool.slotscheck]
 strict-imports = true

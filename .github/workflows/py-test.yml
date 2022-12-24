@@ -1,4 +1,4 @@
-name: Run checks
+name: Run tests
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,57 +16,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-
-      - name: install prerequisites
-        run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install -r ./dev-requirements/nox.txt
-
-      - name: Lint markup
-        run: python -m nox -s verify-markup
-
-      - name: Lint with flake8
-        run: python -m nox -s flake8
-
-      - name: Check slotting
-        run: python -m nox -s slot-check
-
-      - name: Check spelling
-        run: python -m nox -s spell-check
-
-      - name: Run type checker
-        run: python -m nox -s type-check
-
-      - name: Run verify types
-        run: python -m nox -s verify-types
-
-  test:
+  py-test:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-        python-version:
-          - 3.9
-          - "3.10.5"
-          - 3.11
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.9, 3.10.5, 3.11]
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: "true"
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
@@ -76,7 +38,7 @@ jobs:
       - name: install prerequisites
         run: |
           python -m pip install --upgrade pip wheel
-          python -m pip install -r ./dev-requirements/nox.txt
+          python -m pip install -r ./piped/python/base-requirements/nox.txt
 
       - name: Run tests
         run: |
@@ -90,16 +52,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: "true"
 
-      - name: Set up Python 3.9  # 10
+      - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"  # 10
+          python-version: "3.9"
 
       - name: install prerequisites
         run: |
           python -m pip install --upgrade pip wheel
-          python -m pip install -r ./dev-requirements/nox.txt
+          python -m pip install -r ./piped/python/base-requirements/nox.txt
 
       - name: Record coverage
         run: |

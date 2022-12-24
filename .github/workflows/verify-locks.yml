@@ -1,7 +1,7 @@
 # This is run to avoid an edge case where the latest version of a (probably sub)
 # dependency being yanked leads to pip failing to backtrack the dep.
 # This happened with `cachecontrol==0.12.12 ; python_version >= "3.7" and python_version < "4.0"`.
-name: Verify frozen dev deps
+name: Verify dependency locks
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -11,8 +11,7 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - "dev-requirements/*.txt"
+    paths: ["dev-requirements/*.txt"]
 
 jobs:
   verify-pr-dep-changes:
@@ -21,27 +20,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
-          token: ${{ secrets.ACTIONS_TOKEN || secrets.GITHUB_TOKEN }}
-
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            ini_files:
-              - "dev-requirements/*.txt"
-          list-files: escape
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          submodules: "true"
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: "3.9"
 
       - name: install prerequisites
         run: |
           python -m pip install --upgrade pip wheel
-          python -m pip install -r ./dev-requirements/nox.txt
+          python -m pip install -r ./piped/python/base-requirements/nox.txt
 
-      - name: Verify dev dependencies
-        run: python -m nox -s verify-dev-deps -- ${{ steps.changes.outputs.ini_files_files}}
+      - name: Verify dependency locks
+        run: python -m nox -s verify-deps

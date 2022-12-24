@@ -1,23 +1,27 @@
-name: Reformat PR code
+name: Verify type-completeness
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     branches:
       - master
+  schedule:
+    - cron: "0 12 * * 6"
+  workflow_dispatch:
 
 jobs:
-  reformat:
+  verify-types:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
           submodules: "true"
 
       - name: Set up Python 3.9
@@ -30,13 +34,5 @@ jobs:
           python -m pip install --upgrade pip wheel
           python -m pip install -r ./piped/python/base-requirements/nox.txt
 
-      - name: Reformat
-        run: python -m nox -s reformat bot-package-diff
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: gogo.patch
-          path: gogo.patch
-
-      - name: Check diff file
-        run: python -m nox -s is-diff-file-empty
+      - name: Run verify types
+        run: python -m nox -s verify-types
