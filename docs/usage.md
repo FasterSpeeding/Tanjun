@@ -813,7 +813,7 @@ For more information on the resources cooldowns can be set for see
 
 [Localisation](https://en.wikipedia.org/wiki/Language_localisation) allows for
 tailoring the declarations and responses of slash commands and context menu
-commands to match specific regions through by providing multiple translations
+commands to match specific regions by providing multiple translations
 of a field. Localisation on Discord is limited to the locales Discord supports
 (listed at [hikari.locales.Locale][]).
 
