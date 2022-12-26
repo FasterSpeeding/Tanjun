@@ -33,4 +33,4 @@ jobs:
           branch: task/upgrade-deps
           commit-message: Upgrade dependency locks
           title: Upgrade dependency locks
-          token: ${{ secrets.ACTIONS_TOKEN }}
+          token: ${{ secrets.ACTIONS_TOKEN || secrets.GITHUB_TOKEN }}
