@@ -8,7 +8,7 @@ on:
   pull_request:
     branches:
       - master
-    paths: ["piped", "dev-requirements/*.in", "!dev-requirements/constraints.in"]
+    paths: ["piped", "dev-requirements/*.in", "!dev-requirements/constraints.in", ]
 
 jobs:
   freeze-pr-dep-changes:
