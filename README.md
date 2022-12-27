@@ -12,16 +12,15 @@ python -m pip install -U hikari-tanjun
 
 # Quick Usage
 
-For usage see the [documentation](https://tanjun.cursed.solutions/)
-and the [examples](https://github.com/FasterSpeeding/Tanjun/tree/master/examples)
-or [tutorials and articles](https://patchwork.systems/programming/hikari-discord-bot/index.html)
-and the [usage guide](https://tanjun.cursed.solutions/usage/).
+For usage see the [documentation](https://tanjun.cursed.solutions/),
+[usage guide](https://tanjun.cursed.solutions/usage/), and
+[tutorials and articles](https://patchwork.systems/programming/hikari-discord-bot/index.html).
 
 # Community Resources
 
-* A general utility library for Tanjun. This includes a command annotation parsing extension
-  which parses docstrings to get the descriptions of slash commands and their options and can
-  be found at <https://github.com/FasterSpeeding/Tan-chan>.
+* [Tan-chan](https://github.com/FasterSpeeding/Tan-chan) is a general utility library for
+  Tanjun. It includes a command annotation parsing extension which parses docstrings to
+  get the descriptions of slash commands and their options.
 * Redis based implementations of the async cache dependency can be found in
   [hikari-sake](https://github.com/FasterSpeeding/Sake) \>=v1.0.1a1 (exposed by
   [sake.redis.ResourceClient.add_to_tanjun][]).
