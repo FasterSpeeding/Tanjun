@@ -1413,7 +1413,7 @@ def with_annotated_args(
         * [tanjun.annotations.User][]
 
         \* These types are specific to slash commands and will raise an exception
-            when set for a message command's parameter with no real default.
+            when set for a message command's parameter which has no real default.
 
         ```py
         @tanjun.with_annotated_args(follow_wrapped=True)
