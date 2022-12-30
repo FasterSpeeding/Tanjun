@@ -2424,7 +2424,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
 
         Parameters
         ----------
-        checks
+        *checks
             The checks to add.
 
         Returns
