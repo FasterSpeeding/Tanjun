@@ -12,10 +12,9 @@ python -m pip install -U hikari-tanjun
 
 # Quick Usage
 
-For usage see the [documentation](https://tanjun.cursed.solutions/)
-and the [examples](https://github.com/FasterSpeeding/Tanjun/tree/master/examples)
-or [tutorials and articles](https://patchwork.systems/programming/hikari-discord-bot/index.html)
-and the [usage guide](https://tanjun.cursed.solutions/usage/).
+For usage see the [documentation](https://tanjun.cursed.solutions/),
+[usage guide](https://tanjun.cursed.solutions/usage/), and
+[tutorials and articles](https://patchwork.systems/programming/hikari-discord-bot/index.html).
 
 # Community Resources
 
