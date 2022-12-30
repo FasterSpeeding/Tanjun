@@ -570,7 +570,7 @@ class Component(tanjun.Component):
 
         Parameters
         ----------
-        checks
+        *checks
             The checks to add.
 
         Returns
@@ -632,7 +632,7 @@ class Component(tanjun.Component):
             The name this callback is being registered to.
 
             This is case-insensitive.
-        callbacks
+        *callbacks
             The callbacks to register.
 
             These may be sync or async and must return None. The positional and
@@ -1038,7 +1038,7 @@ class Component(tanjun.Component):
 
         Parameters
         ----------
-        callbacks
+        *callbacks
             The close callbacks to add to this component.
 
             This should take no positional arguments, return [None][] and may
@@ -1086,7 +1086,7 @@ class Component(tanjun.Component):
 
         Parameters
         ----------
-        callbacks
+        *callbacks
             The open callbacks to add to this component.
 
             These should take no positional arguments, return [None][] and may
