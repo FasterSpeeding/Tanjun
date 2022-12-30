@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 name = "hikari-tanjun"
 version = "2.11.2"
 readme = "README.md"
-requires-python = ">=3.9.0,<3.12"
+requires-python = ">=3.10.0,<3.13"
 license = {file = "LICENSE"}
 authors = [ {name = "Faster Speeding", email="lucina@lmbyrne.dev"} ]
 keywords = ["hikari"]
@@ -156,7 +156,7 @@ top_level_targets = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 [tool.piped.github_actions.publish]
 [tool.piped.github_actions.py_test]
 codeclimate_token = "117363998d7c6b4bab4ac57348026e1089767e142ccca3eb8cc37da6cf4cc8b9"
-python_versions = ["3.9", "3.10", "3.11"]
+python_versions = ["3.10", "3.11", "3.12"]
 
 [tool.piped.github_actions.reformat]
 [tool.piped.github_actions.release_docs]
