@@ -329,6 +329,16 @@ class TestComponent:
         assert list(component.checks).count(mock_check) == 1
         assert result is component
 
+    def test_add_check_with_multiple_checks(self):
+        mock_check_1 = mock.Mock()
+        mock_check_2 = mock.Mock()
+        mock_check_3 = mock.Mock()
+        component = tanjun.Component().add_check(mock_check_2)
+
+        assert component.add_check(mock_check_3, mock_check_2, mock_check_1) is component
+
+        assert component.checks == [mock_check_2, mock_check_3, mock_check_1]
+
     def test_remove_check(self):
         component = tanjun.Component().add_check(mock.Mock())
 
@@ -382,6 +392,22 @@ class TestComponent:
         assert result is component
         assert component.get_client_callbacks("aye") == [mock_callback]
         mock_client.add_client_callback.assert_called_once_with("aye", mock_callback)
+
+    def test_add_client_callback_for_multiple_callbacks(self):
+        mock_callback_1 = mock.Mock()
+        mock_callback_2 = mock.Mock()
+        mock_callback_3 = mock.Mock()
+        mock_client = mock.Mock()
+        component = tanjun.Component().bind_client(mock_client).add_client_callback("aye", mock_callback_2)
+        mock_client.add_client_callback.reset_mock()
+
+        result = component.add_client_callback("aye", mock_callback_3, mock_callback_2, mock_callback_1)
+
+        assert result is component
+        assert component.get_client_callbacks("aye") == [mock_callback_2, mock_callback_3, mock_callback_1]
+        mock_client.add_client_callback.assert_has_calls(
+            [mock.call("aye", mock_callback_3), mock.call("aye", mock_callback_1)]
+        )
 
     def test_remove_client_callback(self):
         mock_callback = mock.Mock()
@@ -1082,6 +1108,22 @@ class TestComponent:
         assert list(component.listeners[hikari.MessageCreateEvent]).count(mock_listener) == 1
         mock_client.add_listener.assert_not_called()
 
+    def test_add_listener_for_multiple_listeners(self):
+        mock_listener_1 = mock.Mock()
+        mock_listener_2 = mock.Mock()
+        mock_listener_3 = mock.Mock()
+        mock_client = mock.Mock()
+        component = tanjun.Component().bind_client(mock_client).add_listener(hikari.GuildEvent, mock_listener_2)
+        mock_client.add_listener.reset_mock()
+
+        result = component.add_listener(hikari.GuildEvent, mock_listener_1, mock_listener_2, mock_listener_3)
+
+        assert result is component
+        assert component.listeners[hikari.GuildEvent] == [mock_listener_2, mock_listener_1, mock_listener_3]
+        mock_client.add_listener.assert_has_calls(
+            [mock.call(hikari.GuildEvent, mock_listener_1), mock.call(hikari.GuildEvent, mock_listener_3)]
+        )
+
     def test_remove_listener(self):
         mock_callback = mock.Mock()
         component = (
@@ -1376,6 +1418,17 @@ class TestComponent:
         assert result is component
         assert list(component._on_close) == [mock_callback]
 
+    def test_add_on_close_for_multiple_callbacks(self):
+        mock_callback_1 = mock.Mock()
+        mock_callback_2 = mock.Mock()
+        mock_callback_3 = mock.Mock()
+        component = tanjun.Component()
+
+        result = component.add_on_close(mock_callback_2, mock_callback_3, mock_callback_1)
+
+        assert result is component
+        assert list(component._on_close) == [mock_callback_2, mock_callback_3, mock_callback_1]
+
     def test_with_on_close(self):
         mock_add_on_close = mock.Mock()
         mock_callback = mock.Mock()
@@ -1398,6 +1451,17 @@ class TestComponent:
 
         assert result is component
         assert list(component._on_open) == [mock_callback]
+
+    def test_add_on_open_for_multiple_callbacks(self):
+        mock_callback_1 = mock.Mock()
+        mock_callback_2 = mock.Mock()
+        mock_callback_3 = mock.Mock()
+        component = tanjun.Component()
+
+        result = component.add_on_open(mock_callback_3, mock_callback_2, mock_callback_1)
+
+        assert result is component
+        assert list(component._on_open) == [mock_callback_3, mock_callback_2, mock_callback_1]
 
     def test_with_on_open(self):
         mock_add_on_open = mock.Mock()

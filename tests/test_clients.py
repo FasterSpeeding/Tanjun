@@ -824,6 +824,16 @@ class TestClient:
         assert result is client
         assert list(client.checks).count(mock_check) == 1
 
+    def test_add_check_with_multiple_checks(self):
+        mock_check_1 = mock.Mock()
+        mock_check_2 = mock.Mock()
+        mock_check_3 = mock.Mock()
+        client = tanjun.Client(mock.Mock()).add_check(mock_check_2)
+
+        assert client.add_check(mock_check_3, mock_check_2, mock_check_1) is client
+
+        assert client.checks == [mock_check_2, mock_check_3, mock_check_1]
+
     def test_remove_check(self):
         mock_check = mock.Mock()
         client = tanjun.Client(mock.Mock()).add_check(mock_check)
@@ -1012,6 +1022,10 @@ class TestClient:
     def test_add_client_callback_when_already_present(self):
         ...
 
+    @pytest.mark.skip(reason="TODO")
+    def test_add_client_callback_for_multiple_callbacks(self):
+        ...
+
     @pytest.mark.asyncio()
     async def test_dispatch_client_callback(self):
         ...
@@ -1065,6 +1079,10 @@ class TestClient:
 
     @pytest.mark.skip(reason="TODO")
     def test_add_listener_when_already_present(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
+    def test_add_listener_for_multiple_callbacks(self):
         ...
 
     @pytest.mark.skip(reason="TODO")
