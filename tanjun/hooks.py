@@ -28,7 +28,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Standard implementation of Tanjun's command execution hook models."""
+"""Standard implementation otf Tanjun's command execution hook models."""
 from __future__ import annotations
 
 __all__: list[str] = ["AnyHooks", "Hooks", "MenuHooks", "MessageHooks", "SlashHooks"]
