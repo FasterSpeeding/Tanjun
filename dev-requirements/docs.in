@@ -1,3 +1,0 @@
--r ../piped/python/base-requirements/docs.in
-# Temp frozen cause bug
-griffe==0.24.1
