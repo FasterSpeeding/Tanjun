@@ -1364,7 +1364,17 @@ def to_datetime(value: str, /) -> datetime.datetime:
 _VALID_DATETIME_STYLES = frozenset(("t", "T", "d", "D", "f", "F", "R"))
 
 
+@typing.overload
+def from_datetime(value: datetime.timedelta, /) -> str:
+    ...
+
+
+@typing.overload
 def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
+    ...
+
+
+def from_datetime(value: typing.Union[datetime.datetime, datetime.timedelta], /, *, style: str = "f") -> str:
     """Format a datetime as Discord's datetime format.
 
     More information on this format can be found at
@@ -1374,11 +1384,16 @@ def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
     ----------
     value
         The datetime to format.
+
+        If a timedelta is passed here then this is treated as a date that's
+        relative to the current time.
     style
         The style to use.
 
         The valid styles can be found at
         <https://discord.com/developers/docs/reference#message-formatting-formats>.
+
+        This is always "R" when `value` is a [datetime.timedelta][].
 
     Returns
     -------
@@ -1391,6 +1406,9 @@ def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
         If the provided datetime is timezone naive.
         If an invalid style is provided.
     """
+    if isinstance(value, datetime.timedelta):
+        return from_datetime(datetime.datetime.now(tz=datetime.timezone.utc) + value, style="R")
+
     if style not in _VALID_DATETIME_STYLES:
         raise ValueError(f"Invalid style: {style}")
 
