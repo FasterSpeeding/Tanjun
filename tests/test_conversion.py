@@ -38,6 +38,7 @@ import typing
 import urllib.parse
 from unittest import mock
 
+import freezegun
 import hikari
 import pytest
 
@@ -1853,6 +1854,13 @@ def test_from_datetime_for_invalid_style():
 
     with pytest.raises(ValueError, match="Invalid style: granddad"):
         tanjun.conversion.from_datetime(date, style="granddad")
+
+
+def test_from_datetime_for_time_delta():
+    with freezegun.freeze_time(datetime.datetime(2022, 12, 30, 6, 33, 47, 52643, tzinfo=datetime.timezone.utc)):
+        result = tanjun.conversion.from_datetime(datetime.timedelta(days=21, hours=23, minutes=32, seconds=34))
+
+    assert result == "<t:1674281181:R>"
 
 
 @pytest.mark.parametrize(
