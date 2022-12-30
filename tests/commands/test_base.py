@@ -122,6 +122,15 @@ class TestPartialCommand:
 
         assert list(command.checks).count(mock_check) == 1
 
+    def test_add_check_with_multiple_checks(self, command: base_command.PartialCommand[typing.Any]):
+        mock_check_1 = mock.Mock()
+        mock_check_2 = mock.Mock()
+        mock_check_3 = mock.Mock()
+
+        assert command.add_check(mock_check_2).add_check(mock_check_3, mock_check_2, mock_check_1) is command
+
+        assert command.checks == [mock_check_2, mock_check_3, mock_check_1]
+
     def test_remove_check(self, command: base_command.PartialCommand[typing.Any]):
         def mock_check() -> bool:
             raise NotImplementedError

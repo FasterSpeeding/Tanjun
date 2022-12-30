@@ -2419,13 +2419,13 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
         """
 
     @abc.abstractmethod
-    def add_check(self, check: CheckSig, /) -> Self:  # TODO: remove or add with_check?
+    def add_check(self, *checks: CheckSig) -> Self:  # TODO: remove or add with_check?
         """Add a check to the command.
 
         Parameters
         ----------
-        check
-            The check to add.
+        checks
+            The checks to add.
 
         Returns
         -------
@@ -3343,15 +3343,15 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_listener(self, event: type[hikari.Event], listener: ListenerCallbackSig, /) -> Self:
+    def add_listener(self, event: type[hikari.Event], /, *callbacks: ListenerCallbackSig) -> Self:
         """Add a listener to this component.
 
         Parameters
         ----------
         event
             The event to listen for.
-        listener
-            The listener to add.
+        *callbacks
+            The callbacks to add.
 
         Returns
         -------
@@ -4143,7 +4143,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_client_callback(self, name: typing.Union[str, ClientCallbackNames], callback: MetaEventSig, /) -> Self:
+    def add_client_callback(self, name: typing.Union[str, ClientCallbackNames], /, *callbacks: MetaEventSig) -> Self:
         """Add a client callback.
 
         Parameters
@@ -4152,10 +4152,10 @@ class Client(abc.ABC):
             The name this callback is being registered to.
 
             This is case-insensitive.
-        callback
-            The callback to register.
+        *callbacks
+            The callbacks to register.
 
-            This may be sync or async and must return None. The positional and
+            These may be sync or async and must return None. The positional and
             keyword arguments a callback should expect depend on implementation
             detail around the `name` being subscribed to.
 
@@ -4263,20 +4263,19 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_listener(self, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> Self:
+    def add_listener(self, event_type: type[hikari.Event], /, *callbacks: ListenerCallbackSig) -> Self:
         """Add a listener to the client.
 
         Parameters
         ----------
         event_type
             The event type to add a listener for.
-        callback
-            The callback to register as a listener.
+        *callbacks
+            The callbacks to register as a listener.
 
-            This callback must be a coroutine function which returns [None][]
-            and always takes one positional arg of type
-            [hikari.events.base_events.Event][] regardless of client
-            implementation detail.
+            These callbacks must be coroutine functions which returns [None][]
+            and always takes one positional arg of the event type passed for
+            `event_type` regardless of client implementation detail.
 
         Returns
         -------

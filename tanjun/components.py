@@ -565,21 +565,22 @@ class Component(tanjun.Component):
         self._slash_hooks = hooks
         return self
 
-    def add_check(self, check: tanjun.CheckSig, /) -> Self:
+    def add_check(self, *checks: tanjun.CheckSig) -> Self:
         """Add a command check to this component to be used for all its commands.
 
         Parameters
         ----------
-        check
-            The check to add.
+        checks
+            The checks to add.
 
         Returns
         -------
         Self
             This component to enable method chaining.
         """
-        if check not in self._checks:
-            self._checks.append(check)
+        for check in checks:
+            if check not in self._checks:
+                self._checks.append(check)
 
         return self
 
@@ -621,7 +622,7 @@ class Component(tanjun.Component):
         return check
 
     def add_client_callback(
-        self, name: typing.Union[str, tanjun.ClientCallbackNames], callback: tanjun.MetaEventSig, /
+        self, name: typing.Union[str, tanjun.ClientCallbackNames], /, *callbacks: tanjun.MetaEventSig
     ) -> Self:
         """Add a client callback.
 
@@ -631,10 +632,10 @@ class Component(tanjun.Component):
             The name this callback is being registered to.
 
             This is case-insensitive.
-        callback
-            The callback to register.
+        callbacks
+            The callbacks to register.
 
-            This may be sync or async and must return None. The positional and
+            These may be sync or async and must return None. The positional and
             keyword arguments a callback should expect depend on implementation
             detail around the `name` being subscribed to.
 
@@ -644,16 +645,19 @@ class Component(tanjun.Component):
             The client instance to enable chained calls.
         """
         name = name.lower()
-        try:
-            if callback in self._client_callbacks[name]:
-                return self
+        for callback in callbacks:
+            try:
+                if callback in self._client_callbacks[name]:
+                    continue
 
-            self._client_callbacks[name].append(callback)
-        except KeyError:
-            self._client_callbacks[name] = [callback]
+            except KeyError:
+                self._client_callbacks[name] = [callback]
 
-        if self._client:
-            self._client.add_client_callback(name, callback)
+            else:
+                self._client_callbacks[name].append(callback)
+
+            if self._client:
+                self._client.add_client_callback(name, callback)
 
         return self
 
@@ -982,19 +986,21 @@ class Component(tanjun.Component):
         # <<inherited docstring from tanjun.abc.Component>>.
         return _with_command(self.add_message_command, command, copy=copy)
 
-    def add_listener(self, event: type[hikari.Event], listener: tanjun.ListenerCallbackSig, /) -> Self:
+    def add_listener(self, event: type[hikari.Event], /, *callbacks: tanjun.ListenerCallbackSig) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
-        try:
-            if listener in self._listeners[event]:
-                return self
+        for listener in callbacks:
+            try:
+                if listener in self._listeners[event]:
+                    continue
 
-            self._listeners[event].append(listener)
+            except KeyError:
+                self._listeners[event] = [listener]
 
-        except KeyError:
-            self._listeners[event] = [listener]
+            else:
+                self._listeners[event].append(listener)
 
-        if self._client:
-            self._client.add_listener(event, listener)
+            if self._client:
+                self._client.add_listener(event, listener)
 
         return self
 
@@ -1022,7 +1028,7 @@ class Component(tanjun.Component):
 
         return decorator
 
-    def add_on_close(self, callback: OnCallbackSig, /) -> Self:
+    def add_on_close(self, *callbacks: OnCallbackSig) -> Self:
         """Add a close callback to this component.
 
         !!! note
@@ -1032,8 +1038,8 @@ class Component(tanjun.Component):
 
         Parameters
         ----------
-        callback
-            The close callback to add to this component.
+        callbacks
+            The close callbacks to add to this component.
 
             This should take no positional arguments, return [None][] and may
             take use injected dependencies.
@@ -1043,7 +1049,7 @@ class Component(tanjun.Component):
         Self
             The component object to enable call chaining.
         """
-        self._on_close.append(callback)
+        self._on_close.extend(callbacks)
         return self
 
     def with_on_close(self, callback: _OnCallbackSigT, /) -> _OnCallbackSigT:
@@ -1060,7 +1066,7 @@ class Component(tanjun.Component):
             The close callback to add to this component.
 
             This should take no positional arguments, return [None][] and may
-            take use injected dependencies.
+            request injected dependencies.
 
         Returns
         -------
@@ -1070,7 +1076,7 @@ class Component(tanjun.Component):
         self.add_on_close(callback)
         return callback
 
-    def add_on_open(self, callback: OnCallbackSig, /) -> Self:
+    def add_on_open(self, *callbacks: OnCallbackSig) -> Self:
         """Add a open callback to this component.
 
         !!! note
@@ -1080,18 +1086,18 @@ class Component(tanjun.Component):
 
         Parameters
         ----------
-        callback
-            The open callback to add to this component.
+        callbacks
+            The open callbacks to add to this component.
 
-            This should take no positional arguments, return [None][] and may
-            take use injected dependencies.
+            These should take no positional arguments, return [None][] and may
+            request injected dependencies.
 
         Returns
         -------
         Self
             The component object to enable call chaining.
         """
-        self._on_open.append(callback)
+        self._on_open.extend(callbacks)
         return self
 
     def with_on_open(self, callback: _OnCallbackSigT, /) -> _OnCallbackSigT:
