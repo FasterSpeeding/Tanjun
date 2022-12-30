@@ -1770,7 +1770,7 @@ class Client(tanjun.Client):
 
         Parameters
         ----------
-        checks
+        *checks
             The checks to add. These may be either synchronous or asynchronous
             and must take one positional argument of type [tanjun.abc.Context][]
             with dependency injection being supported for its keyword arguments.
