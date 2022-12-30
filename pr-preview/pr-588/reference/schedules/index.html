@@ -571,7 +571,14 @@
         
           <li class="md-nav__item">
   <a href="#tanjun.schedules.AbstractSchedule.callback" class="md-nav__link">
-    callback()
+    callback
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.schedules.AbstractSchedule.is_alive" class="md-nav__link">
+    is_alive
   </a>
   
 </li>
@@ -586,13 +593,6 @@
           <li class="md-nav__item">
   <a href="#tanjun.schedules.AbstractSchedule.force_stop" class="md-nav__link">
     force_stop()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tanjun.schedules.AbstractSchedule.is_alive" class="md-nav__link">
-    is_alive()
   </a>
   
 </li>
@@ -625,15 +625,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#tanjun.schedules.IntervalSchedule.__init__" class="md-nav__link">
-    __init__()
+  <a href="#tanjun.schedules.IntervalSchedule.interval" class="md-nav__link">
+    interval
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#tanjun.schedules.IntervalSchedule.interval" class="md-nav__link">
-    interval()
+  <a href="#tanjun.schedules.IntervalSchedule.__init__" class="md-nav__link">
+    __init__()
   </a>
   
 </li>
@@ -805,7 +805,14 @@
         
           <li class="md-nav__item">
   <a href="#tanjun.schedules.AbstractSchedule.callback" class="md-nav__link">
-    callback()
+    callback
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tanjun.schedules.AbstractSchedule.is_alive" class="md-nav__link">
+    is_alive
   </a>
   
 </li>
@@ -820,13 +827,6 @@
           <li class="md-nav__item">
   <a href="#tanjun.schedules.AbstractSchedule.force_stop" class="md-nav__link">
     force_stop()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tanjun.schedules.AbstractSchedule.is_alive" class="md-nav__link">
-    is_alive()
   </a>
   
 </li>
@@ -859,15 +859,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#tanjun.schedules.IntervalSchedule.__init__" class="md-nav__link">
-    __init__()
+  <a href="#tanjun.schedules.IntervalSchedule.interval" class="md-nav__link">
+    interval
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#tanjun.schedules.IntervalSchedule.interval" class="md-nav__link">
-    interval()
+  <a href="#tanjun.schedules.IntervalSchedule.__init__" class="md-nav__link">
+    __init__()
   </a>
   
 </li>
@@ -1034,14 +1034,12 @@
 
 
 
-
-
-<div class="doc doc-object doc-function">
+<div class="doc doc-object doc-attribute">
 
 
 
 <h3 id="tanjun.schedules.AbstractSchedule.callback" class="doc doc-heading">
-        <span class="doc doc-object-name doc-function-name">callback</span>
+        <span class="doc doc-object-name doc-attribute-name">callback</span>
 
   
   <span class="doc doc-labels">
@@ -1050,7 +1048,7 @@
   </span>
 
 <a href="#tanjun.schedules.AbstractSchedule.callback" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">callback</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="n">callback</span><span class="p">:</span> <span class="n">_CallbackSig</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1058,10 +1056,35 @@
       <p>Return the callback attached to the schedule.</p>
 <p>This will be an asynchronous function which takes zero positional
 arguments, returns <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> and may be relying on dependency injection.</p>
-
   </div>
 
 </div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tanjun.schedules.AbstractSchedule.is_alive" class="doc doc-heading">
+        <span class="doc doc-object-name doc-attribute-name">is_alive</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+  </span>
+
+<a href="#tanjun.schedules.AbstractSchedule.is_alive" class="headerlink" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">is_alive</span><span class="p">:</span> <span class="nb">bool</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Whether the schedule is alive.</p>
+  </div>
+
+</div>
+
+
 
 <div class="doc doc-object doc-function">
 
@@ -1178,31 +1201,6 @@ arguments, returns <a class="autorefs autorefs-external" href="https://docs.pyth
 
 
 
-<h3 id="tanjun.schedules.AbstractSchedule.is_alive" class="doc doc-heading">
-        <span class="doc doc-object-name doc-function-name">is_alive</span>
-
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
-  </span>
-
-<a href="#tanjun.schedules.AbstractSchedule.is_alive" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">is_alive</span><span class="p">()</span>
-</code></pre></div>
-
-  <div class="doc doc-contents ">
-  
-      <p>Whether the schedule is alive.</p>
-
-  </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-
 <h3 id="tanjun.schedules.AbstractSchedule.start" class="doc doc-heading">
         <span class="doc doc-object-name doc-function-name">start</span>
 
@@ -1294,8 +1292,8 @@ If the current or provided event loop isn't running.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.schedules.AbstractSchedule.stop" class="headerlink" title="Permanent link">#</a></h3>
@@ -1373,6 +1371,29 @@ will be started and stopped with the linked tanjun client.</p>
 
 
 
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="tanjun.schedules.IntervalSchedule.interval" class="doc doc-heading">
+        <span class="doc doc-object-name doc-attribute-name">interval</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.schedules.IntervalSchedule.interval" class="headerlink" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">interval</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>The interval between scheduled callback calls.</p>
+  </div>
+
+</div>
 
 
 
@@ -1478,30 +1499,6 @@ callback, start callback or stop callback.</p>
         </tr>
     </tbody>
   </table>
-
-  </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-
-<h3 id="tanjun.schedules.IntervalSchedule.interval" class="doc doc-heading">
-        <span class="doc doc-object-name doc-function-name">interval</span>
-
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-  </span>
-
-<a href="#tanjun.schedules.IntervalSchedule.interval" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">interval</span><span class="p">()</span>
-</code></pre></div>
-
-  <div class="doc doc-contents ">
-  
-      <p>The interval between scheduled callback calls.</p>
 
   </div>
 
