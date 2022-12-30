@@ -1763,15 +1763,15 @@ class Client(tanjun.Client):
 
         return self
 
-    def add_check(self, check: tanjun.CheckSig, /) -> Self:
+    def add_check(self, *checks: tanjun.CheckSig) -> Self:
         """Add a generic check to this client.
 
         This will be applied to both message and slash command execution.
 
         Parameters
         ----------
-        check
-            The check to add. This may be either synchronous or asynchronous
+        *checks
+            The checks to add. These may be either synchronous or asynchronous
             and must take one positional argument of type [tanjun.abc.Context][]
             with dependency injection being supported for its keyword arguments.
 
@@ -1780,8 +1780,9 @@ class Client(tanjun.Client):
         Self
             The client instance to enable chained calls.
         """
-        if check not in self._checks:
-            self._checks.append(check)
+        for check in checks:
+            if check not in self._checks:
+                self._checks.append(check)
 
         return self
 
@@ -1884,17 +1885,20 @@ class Client(tanjun.Client):
         return self.remove_component(self._components[name])
 
     def add_client_callback(
-        self, name: typing.Union[str, tanjun.ClientCallbackNames], callback: tanjun.MetaEventSig, /
+        self, name: typing.Union[str, tanjun.ClientCallbackNames], /, *callbacks: tanjun.MetaEventSig
     ) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
-        try:
-            if callback in self._client_callbacks[name]:
-                return self
+        for callback in callbacks:
+            try:
+                if callback in self._client_callbacks[name]:
+                    continue
 
-            self._client_callbacks[name].append(callback)
-        except KeyError:
-            self._client_callbacks[name] = [callback]
+            except KeyError:
+                self._client_callbacks[name] = [callback]
+
+            else:
+                self._client_callbacks[name].append(callback)
 
         return self
 
@@ -1938,20 +1942,22 @@ class Client(tanjun.Client):
 
         return decorator
 
-    def add_listener(self, event_type: type[hikari.Event], callback: tanjun.ListenerCallbackSig, /) -> Self:
+    def add_listener(self, event_type: type[hikari.Event], /, *callbacks: tanjun.ListenerCallbackSig) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
-        injected = self.injector.as_async_self_injecting(callback)
-        try:
-            if callback in self._listeners[event_type]:
-                return self
+        for callback in callbacks:
+            injected = self.injector.as_async_self_injecting(callback)
+            try:
+                if callback in self._listeners[event_type]:
+                    continue
 
-            self._listeners[event_type][callback] = injected
+            except KeyError:
+                self._listeners[event_type] = {callback: injected}
 
-        except KeyError:
-            self._listeners[event_type] = {callback: injected}
+            else:
+                self._listeners[event_type][callback] = injected
 
-        if self._loop and self._events:
-            self._events.subscribe(event_type, injected.__call__)
+            if self._loop and self._events:
+                self._events.subscribe(event_type, injected.__call__)
 
         return self
 

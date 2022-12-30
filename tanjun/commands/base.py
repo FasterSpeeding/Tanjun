@@ -98,10 +98,11 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         self._metadata[key] = value
         return self
 
-    def add_check(self, check: tanjun.CheckSig, /) -> Self:
+    def add_check(self, *checks: tanjun.CheckSig) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
-        if check not in self._checks:
-            self._checks.append(check)
+        for check in checks:
+            if check not in self._checks:
+                self._checks.append(check)
 
         return self
 
