@@ -5,7 +5,6 @@
 import enum
 import sys
 import types
-from _typeshed import Self
 from collections import OrderedDict
 from collections.abc import Awaitable, Callable, Generator, Mapping, Sequence, Set as AbstractSet
 from types import (
@@ -28,7 +27,7 @@ if sys.version_info >= (3, 7):
     from types import ClassMethodDescriptorType, WrapperDescriptorType, MemberDescriptorType, MethodDescriptorType
 
 from typing import Any, ClassVar, Coroutine, NamedTuple, Protocol, TypeVar, Union
-from typing_extensions import Literal, ParamSpec, TypeGuard
+from typing_extensions import Literal, ParamSpec, Self, TypeGuard
 
 _P = ParamSpec("_P")
 _T_cont = TypeVar("_T_cont", contravariant=True)
@@ -172,11 +171,11 @@ class Signature:
     def bind(self, *args: Any, **kwargs: Any) -> BoundArguments: ...
     def bind_partial(self, *args: Any, **kwargs: Any) -> BoundArguments: ...
     def replace(
-        self: Self, *, parameters: Sequence[Parameter] | type[_void] | None = ..., return_annotation: Any = ...
+        self, *, parameters: Sequence[Parameter] | type[_void] | None = ..., return_annotation: Any = ...
     ) -> Self: ...
     @classmethod
     def from_callable(
-        cls: type[Self],
+        cls,
         obj: Callable[..., Any],
         *,
         follow_wrapped: bool = ...,
@@ -223,7 +222,7 @@ class Parameter:
     @property
     def annotation(self) -> Any: ...
     def replace(
-        self: Self,
+        self,
         *,
         name: str | type[_void] = ...,
         kind: _ParameterKind | type[_void] = ...,
