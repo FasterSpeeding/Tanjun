@@ -704,6 +704,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#tanjun.dependencies.data.LazyConstant.callback" class="md-nav__link">
+    callback
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tanjun.dependencies.data.LazyConstant.__init__" class="md-nav__link">
     __init__()
   </a>
@@ -713,13 +720,6 @@
           <li class="md-nav__item">
   <a href="#tanjun.dependencies.data.LazyConstant.acquire" class="md-nav__link">
     acquire()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tanjun.dependencies.data.LazyConstant.callback" class="md-nav__link">
-    callback()
   </a>
   
 </li>
@@ -1690,6 +1690,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#tanjun.dependencies.data.LazyConstant.callback" class="md-nav__link">
+    callback
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#tanjun.dependencies.data.LazyConstant.__init__" class="md-nav__link">
     __init__()
   </a>
@@ -1699,13 +1706,6 @@
           <li class="md-nav__item">
   <a href="#tanjun.dependencies.data.LazyConstant.acquire" class="md-nav__link">
     acquire()
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tanjun.dependencies.data.LazyConstant.callback" class="md-nav__link">
-    callback()
   </a>
   
 </li>
@@ -3777,6 +3777,29 @@ client is not bound to a Bot token.</p>
 
 
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="tanjun.dependencies.data.LazyConstant.callback" class="doc doc-heading">
+        <span class="doc doc-object-name doc-attribute-name">callback</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#tanjun.dependencies.data.LazyConstant.callback" class="headerlink" title="Permanent link">#</a></h4>
+<div class="highlight"><pre><span></span><code><span class="n">callback</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">CallbackSig</span><span class="p">[</span><span class="n">_T</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Descriptor of the callback used to get this constant's initial value.</p>
+  </div>
+
+</div>
+
 
 
 <div class="doc doc-object doc-function">
@@ -3863,30 +3886,6 @@ has been called.</p>
         </tr>
     </tbody>
   </table>
-
-  </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-
-<h4 id="tanjun.dependencies.data.LazyConstant.callback" class="doc doc-heading">
-        <span class="doc doc-object-name doc-function-name">callback</span>
-
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-  </span>
-
-<a href="#tanjun.dependencies.data.LazyConstant.callback" class="headerlink" title="Permanent link">#</a></h4>
-<div class="highlight"><pre><span></span><code><span class="n">callback</span><span class="p">()</span>
-</code></pre></div>
-
-  <div class="doc doc-contents ">
-  
-      <p>Descriptor of the callback used to get this constant's initial value.</p>
 
   </div>
 
@@ -4249,7 +4248,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="../#tanjun.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -4342,7 +4341,7 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="../#tanjun.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -6108,7 +6107,7 @@ if limit is less 0 or negative.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 

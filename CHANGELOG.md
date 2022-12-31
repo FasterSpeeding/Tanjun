@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### [2.11.0] - 2022-12-31
+### Added
+- Support for passing relative timedeltas to [tanjun.conversion.from_datetime][].
+- Support for passing multiple callbacks to `add_check`, `add_client_callback`, `add_listener`,
+  `add_on_close` and `add_on_open`.
+- Support for creating modals in response to Slash and Context menu commands.
+
+### Changed
+- Bumped the minimum Hikari version to `hikari~=2.0.0.dev113`.
+
 ## [2.10.1a1] - 2022-12-02
 ### Added
 - Slash command specific [tanjun.annotations.InteractionChannel][] and
@@ -817,7 +827,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for python 3.8 in-order to switch over to using collection.abc generic classes due to this being more
   forward compatible.
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.10.1a1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.11.0...HEAD
+[2.11.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.10.1a1...2.11.0
 [2.10.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.10.0a1...v2.10.1a1
 [2.10.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.9.0a1...v2.10.0a1
 [2.9.0a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.8.1a1...v2.9.0a1
