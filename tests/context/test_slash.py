@@ -974,6 +974,11 @@ class TestAppCommandContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
+    async def test_create_initial_response(self, context: tanjun.context.slash.AppCommandContext):
+        ...
+
+    @pytest.mark.skip(reason="not implemented")
+    @pytest.mark.asyncio()
     async def test_respond(self, context: tanjun.context.slash.AppCommandContext):
         ...
 

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for passing relative timedeltas to [tanjun.conversion.from_datetime][].
 - Support for passing multiple callbacks to `add_check`, `add_client_callback`, `add_listener`,
   `add_on_close` and `add_on_open`.
+- Support for creating modals in response to Slash and Context menu commands.
+
+### Changed
+- Bumped the minimum Hikari version to `hikari~=2.0.0.dev113`.
 
 ## [2.10.1a1] - 2022-12-02
 ### Added

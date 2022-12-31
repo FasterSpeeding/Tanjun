@@ -50,7 +50,9 @@ if typing.TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+    _ResponseTypeT = typing.Union[
+        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
+    ]
     _T = typing.TypeVar("_T")
 
 
@@ -823,6 +825,33 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             return await self.fetch_initial_response()
 
         raise LookupError("Context has no previous known responses")
+
+    async def create_modal_response(
+        self,
+        title: str,
+        custom_id: str,
+        /,
+        *,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+    ) -> None:
+        # <<inherited docstring from tanjun.abc.AppCommandContext>>.
+        async with self._response_lock:
+            if self._has_responded or self._has_been_deferred:
+                raise RuntimeError("Initial response has already been created")
+
+            if self._response_future:
+                components = _to_list(component, components, None, hikari.api.ComponentBuilder, "component")
+
+                response = hikari.impl.InteractionModalBuilder(title, custom_id, components)
+                self._response_future.set_result(response)
+
+            else:
+                await self._interaction.create_modal_response(
+                    title, custom_id, component=component, components=components
+                )
+
+            self._has_responded = True
 
     @typing.overload
     async def respond(
