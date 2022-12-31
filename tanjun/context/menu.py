@@ -48,7 +48,9 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _T = typing.TypeVar("_T")
-    _ResponseTypeT = typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
+    _ResponseTypeT = typing.Union[
+        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
+    ]
 
 
 _VALID_TYPES: frozenset[typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE]] = frozenset(

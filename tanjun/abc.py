@@ -1650,6 +1650,59 @@ class AppCommandContext(Context, abc.ABC):
             If an internal error occurs on Discord while handling the request.
         """
 
+    @abc.abstractmethod
+    async def create_modal_response(
+        self,
+        title: str,
+        custom_id: str,
+        /,
+        *,
+        component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
+        components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
+    ) -> None:
+        """Send a modal as the initial response for this context.
+
+        !!! warning
+            This must be called as the first response to a context before any
+            deferring.
+
+        Parameters
+        ----------
+        title
+            The title that will show up in the modal.
+        custom_id
+            Developer set custom ID used for identifying interactions with this modal.
+        component
+            A component builder to send in this modal.
+        components
+            A sequence of component builders to send in this modal.
+
+        Raises
+        ------
+        ValueError
+            If both `component` and `components` are specified or if none are specified.
+        hikari.BadRequestError
+            When the requests' data is outside Discord's accept ranges/validation.
+        hikari.UnauthorizedError
+            If you are unauthorized to make the request (invalid/missing token).
+        hikari.NotFoundError
+            If the interaction is not found or if the interaction's initial
+            response has already been created or deferred.
+        hikari.RateLimitTooLongError
+            Raised in the event that a rate limit occurs that is
+            longer than `max_rate_limit` when making a request.
+        hikari.RateLimitedError
+            Usually, Hikari will handle and retry on hitting
+            rate-limits automatically. This includes most bucket-specific
+            rate-limits and global rate-limits. In some rare edge cases,
+            however, Discord implements other undocumented rules for
+            rate-limiting, such as limits per attribute. These cannot be
+            detected or handled normally by Hikari due to their undocumented
+            nature, and will trigger this exception if they occur.
+        hikari.InternalServerError
+            If an internal error occurs on Discord while handling the request.
+        """
+
 
 class MenuContext(AppCommandContext, abc.ABC):
     """Interface of a menu command context."""

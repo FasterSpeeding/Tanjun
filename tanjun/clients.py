@@ -76,6 +76,9 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
+    _AppCmdResponse = typing.Union[
+        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
+    ]
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig)
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun.MetaEventSig)
     _PrefixGetterSigT = typing.TypeVar("_PrefixGetterSigT", bound="PrefixGetterSig")
@@ -100,11 +103,7 @@ if typing.TYPE_CHECKING:
             register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
             *,
             default_to_ephemeral: bool = False,
-            future: typing.Optional[
-                asyncio.Future[
-                    typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
-                ]
-            ] = None,
+            future: typing.Optional[asyncio.Future[_AppCmdResponse]] = None,
             on_not_found: typing.Optional[
                 collections.Callable[[tanjun.MenuContext], collections.Awaitable[None]]
             ] = None,
@@ -132,11 +131,7 @@ if typing.TYPE_CHECKING:
             register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
             *,
             default_to_ephemeral: bool = False,
-            future: typing.Optional[
-                asyncio.Future[
-                    typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
-                ]
-            ] = None,
+            future: typing.Optional[asyncio.Future[_AppCmdResponse]] = None,
             on_not_found: typing.Optional[
                 collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]
             ] = None,
@@ -2862,7 +2857,9 @@ class Client(tanjun.Client):
 
     async def on_command_interaction_request(
         self, interaction: hikari.CommandInteraction, /
-    ) -> typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]:
+    ) -> typing.Union[
+        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
+    ]:
         """Execute an app command based on received REST requests.
 
         Parameters
@@ -2872,13 +2869,11 @@ class Client(tanjun.Client):
 
         Returns
         -------
-        hikari.api.InteractionMessageBuilder | hikari.api.InteractionDeferredBuilder
+        hikari.api.InteractionMessageBuilder | hikari.api.InteractionDeferredBuilder | hikari.api.InteractionModalBuilder
             The initial response to send back to Discord.
         """
         loop = asyncio.get_running_loop()
-        future: asyncio.Future[
-            typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
-        ] = loop.create_future()
+        future: asyncio.Future[_AppCmdResponse] = loop.create_future()
 
         if interaction.command_type is hikari.CommandType.SLASH:
             ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
@@ -2949,11 +2944,9 @@ class Client(tanjun.Client):
         self,
         ctx: typing.Union[context.SlashContext, context.MenuContext],
         loop: asyncio.AbstractEventLoop,
-        future: asyncio.Future[
-            typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]
-        ],
+        future: asyncio.Future[_AppCmdResponse],
         /,
-    ) -> typing.Union[hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder]:
+    ) -> _AppCmdResponse:
         task = loop.create_task(ctx.mark_not_found(), name=f"{ctx.interaction.id} not found")
         task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
         self._add_task(task)
