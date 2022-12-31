@@ -4,14 +4,14 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "hikari-tanjun"
-version = "2.10.1a1"
+version = "2.11.0"
 readme = "README.md"
 requires-python = ">=3.9.0,<3.12"
 license = {file = "LICENSE"}
 authors = [ {name = "Faster Speeding", email="lucina@lmbyrne.dev"} ]
 keywords = ["hikari"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: BSD License",
     "Intended Audience :: Developers",
     "Natural Language :: English",
