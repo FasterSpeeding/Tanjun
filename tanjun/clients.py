@@ -47,8 +47,8 @@ import dataclasses
 import enum
 import functools
 import importlib
-import importlib.abc as importlib_abc
-import importlib.util as importlib_util
+import importlib.abc
+import importlib.util
 import inspect
 import itertools
 import logging
@@ -59,7 +59,7 @@ from collections import abc as collections
 
 import alluka
 import hikari
-from hikari import traits as hikari_traits
+import hikari.traits
 
 from . import _internal
 from . import abc as tanjun
@@ -1524,7 +1524,7 @@ class Client(tanjun.Client):
         bot
             The hikari client to set dependency injectors for.
         """
-        for _, member in inspect.getmembers(hikari_traits):
+        for _, member in inspect.getmembers(hikari.traits):
             if inspect.isclass(member) and isinstance(bot, member):
                 self.set_type_dependency(member, bot)
 
@@ -2999,13 +2999,13 @@ def _get_loaders(
 
 def _get_path_module(module_path: pathlib.Path, /) -> types.ModuleType:
     module_name = module_path.name.rsplit(".", 1)[0]
-    spec = importlib_util.spec_from_file_location(module_name, module_path)
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
 
     # https://github.com/python/typeshed/issues/2793
-    if not spec or not isinstance(spec.loader, importlib_abc.Loader):
+    if not spec or not isinstance(spec.loader, importlib.abc.Loader):
         raise ModuleNotFoundError(f"Module not found at {module_path}", name=module_name, path=str(module_path))
 
-    module = importlib_util.module_from_spec(spec)
+    module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
