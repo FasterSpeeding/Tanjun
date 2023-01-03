@@ -30,7 +30,9 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
+          author: "always-on-duty[bot] <120557446+always-on-duty[bot]@users.noreply.github.com>"
           branch: task/upgrade-deps
           commit-message: Upgrade dependency locks
+          committer: "always-on-duty[bot] <120557446+always-on-duty[bot]@users.noreply.github.com>"
           title: Upgrade dependency locks
           token: ${{ secrets.ACTIONS_TOKEN || secrets.GITHUB_TOKEN }}
