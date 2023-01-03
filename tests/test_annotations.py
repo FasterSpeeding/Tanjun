@@ -3490,6 +3490,7 @@ def test_with_generic_these_channels():
         hikari.ChannelType.GUILD_STAGE,
         hikari.ChannelType.GUILD_TEXT,
         hikari.ChannelType.GUILD_VOICE,
+        hikari.ChannelType.GUILD_FORUM,
     }
     expected_types_2 = {hikari.ChannelType.DM, hikari.ChannelType.GROUP_DM, hikari.ChannelType.GUILD_VOICE}
 
@@ -3505,7 +3506,7 @@ def test_with_generic_these_channels():
     assert option.min_value is None
     assert option.max_value is None
     assert option.channel_types
-    assert len(option.channel_types) == 8
+    assert len(option.channel_types) == 9
     assert set(option.channel_types) == expected_types_1
 
     option = command.build().options[1]
