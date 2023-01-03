@@ -33,7 +33,9 @@ jobs:
       - name: Push
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: ./site
           branch: docs
           commit-message: "${{ steps.doc_info.outputs.GIT_HASH }} docs (${{ github.event.release.tag_name || github.event.ref }})"
           clean-exclude: pr-preview
+          folder: ./site
+          git-config-email: "120557446+always-on-duty[bot]@users.noreply.github.com"
+          git-config-name: "always-on-duty[bot]"
