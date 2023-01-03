@@ -47,7 +47,7 @@ jobs:
           python -m nox -s generate-docs -- -o ./site
 
       - name: Deploy preview
-        uses: FasterSpeeding/pr-preview-action@task/override-committer
+        uses: FasterSpeeding/pr-preview-action@ddfa7dc4b5f8fa02675fe5da02ae15c9722367f0
         with:
           git-config-email: "120557446+always-on-duty[bot]@users.noreply.github.com"
           git-config-name: "always-on-duty[bot]"
