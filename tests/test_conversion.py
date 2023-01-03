@@ -334,7 +334,10 @@ class TestToChannel:
 
         with pytest.raises(
             ValueError,
-            match="Only the following channel types are allowed for this argument: Text, Voice, Category, News and Stage",
+            match=(
+                "Only the following channel types are allowed for this "
+                "argument: Text, Voice, Category, News, Stage and Forum"
+            ),
         ):
             await converter("54312332143", mock_context)
 

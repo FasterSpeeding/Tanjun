@@ -813,8 +813,8 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
         super().__init__(
-            name,
-            description,
+            name=name,
+            description=description,
             description_localizations=description_localizations,  # pyright: ignore [ reportGeneralTypeIssues ]
             id=id_,  # pyright: ignore [ reportGeneralTypeIssues ]
             name_localizations=name_localizations,  # pyright: ignore [ reportGeneralTypeIssues ]

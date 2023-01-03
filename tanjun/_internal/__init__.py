@@ -360,6 +360,7 @@ CHANNEL_TYPES: dict[type[hikari.PartialChannel], set[hikari.ChannelType]] = {
     hikari.GuildNewsThread: {hikari.ChannelType.GUILD_NEWS_THREAD},
     hikari.GuildPublicThread: {hikari.ChannelType.GUILD_PUBLIC_THREAD},
     hikari.GuildPrivateThread: {hikari.ChannelType.GUILD_PRIVATE_THREAD},
+    hikari.GuildForumChannel: {hikari.ChannelType.GUILD_FORUM},
 }
 """Mapping of hikari channel classes to the raw channel types which are compatible for it."""
 
@@ -375,25 +376,6 @@ for _channel_cls, _types in CHANNEL_TYPES.copy().items():
 # This isn't a base class but it should still act like an indicator for any channel type.
 CHANNEL_TYPES[hikari.InteractionChannel] = CHANNEL_TYPES[hikari.PartialChannel]
 
-_CHANNEL_TYPE_REPS: dict[hikari.ChannelType, str] = {
-    hikari.ChannelType.GUILD_TEXT: "Text",
-    hikari.ChannelType.DM: "DM",
-    hikari.ChannelType.GUILD_VOICE: "Voice",
-    hikari.ChannelType.GROUP_DM: "Group DM",
-    hikari.ChannelType.GUILD_CATEGORY: "Category",
-    hikari.ChannelType.GUILD_NEWS: "News",
-    hikari.ChannelType.GUILD_STAGE: "Stage",
-    hikari.ChannelType.GUILD_NEWS_THREAD: "News Thread",
-    hikari.ChannelType.GUILD_PUBLIC_THREAD: "Public Thread",
-    hikari.ChannelType.GUILD_PRIVATE_THREAD: "Private Thread",
-}
-_UNKNOWN_CHANNEL_REPR = "Unknown"
-
-
-def repr_channel(channel_type: hikari.ChannelType, /) -> str:
-    """Get a text repr of a channel type."""
-    return _CHANNEL_TYPE_REPS.get(channel_type, _UNKNOWN_CHANNEL_REPR)
-
 
 def parse_channel_types(*channel_types: typing.Union[type[hikari.PartialChannel], int]) -> list[hikari.ChannelType]:
     """Parse a channel types collection to a list of channel type integers."""
@@ -406,6 +388,27 @@ def parse_channel_types(*channel_types: typing.Union[type[hikari.PartialChannel]
 
     except KeyError as exc:
         raise ValueError(f"Unknown channel type {exc.args[0]}") from exc
+
+
+_CHANNEL_TYPE_REPS: dict[hikari.ChannelType, str] = {
+    hikari.ChannelType.GUILD_TEXT: "Text",
+    hikari.ChannelType.DM: "DM",
+    hikari.ChannelType.GUILD_VOICE: "Voice",
+    hikari.ChannelType.GROUP_DM: "Group DM",
+    hikari.ChannelType.GUILD_CATEGORY: "Category",
+    hikari.ChannelType.GUILD_NEWS: "News",
+    hikari.ChannelType.GUILD_STAGE: "Stage",
+    hikari.ChannelType.GUILD_NEWS_THREAD: "News Thread",
+    hikari.ChannelType.GUILD_PUBLIC_THREAD: "Public Thread",
+    hikari.ChannelType.GUILD_PRIVATE_THREAD: "Private Thread",
+    hikari.ChannelType.GUILD_FORUM: "Forum",
+}
+_UNKNOWN_CHANNEL_REPR = "Unknown"
+
+
+def repr_channel(channel_type: hikari.ChannelType, /) -> str:
+    """Get a text repr of a channel type."""
+    return _CHANNEL_TYPE_REPS.get(channel_type, _UNKNOWN_CHANNEL_REPR)
 
 
 def cmp_command(
@@ -533,11 +536,12 @@ class MessageCommandIndex:
                 for chars in name.casefold().split(" "):
                     try:
                         node = node[chars]
-                        assert isinstance(node, dict)
 
                     except KeyError:
                         new_node: _TreeT = {_IndexKeys.PARENT: node}
                         node[chars] = node = new_node
+
+                    assert isinstance(node, dict)
 
                 # A case-preserved variant of the name is stored alongside the command
                 # for case-sensitive lookup
