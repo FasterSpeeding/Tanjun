@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for specifying Guild Forum channels for the constraints of a channel command option.
 
+### Changed
+- Bumped the minimum Hikari version to `2.0.0.dev115`.
+
 ### [2.11.0] - 2022-12-31
 ### Added
 - Support for passing relative timedeltas to [tanjun.conversion.from_datetime][].
