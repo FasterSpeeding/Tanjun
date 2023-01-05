@@ -125,7 +125,7 @@ async def gather_checks(ctx: tanjun.Context, checks: collections.Iterable[tanjun
 _EMPTY_BUFFER: dict[typing.Any, typing.Any] = {}
 
 
-class CastedView(collections.Mapping[_KeyT, _OtherT], typing.Generic[_KeyT, _OtherT]):
+class CastedView(collections.Mapping[_KeyT, _OtherT]):
     """Utility class for exposing an immutable casted view of a dict."""
 
     __slots__ = ("_buffer", "_cast", "_raw_data")
