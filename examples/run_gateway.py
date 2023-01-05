@@ -47,6 +47,7 @@ def run() -> None:
         # by a gateway bot bound client
         .load_modules("examples.message_commands")
         .load_modules("examples.slash_commands")
+        .load_modules("examples.injection")
         .add_prefix(loaded_config.prefix)
         .set_prefix_getter(get_prefix)
         .set_type_dependency(config.ExampleConfig, loaded_config)
