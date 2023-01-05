@@ -43,11 +43,11 @@ def run() -> None:
     database = impls.DatabaseImpl()
     (
         tanjun.Client.from_gateway_bot(bot)
-        .load_modules("examples.complex_component")
         # Both slash commands and message commands can be automatically executed
         # by a gateway bot bound client
-        .load_modules("examples.message_component")
-        .load_modules("examples.slash_component")
+        .load_modules("examples.message_commands")
+        .load_modules("examples.slash_commands")
+        .load_modules("examples.injection")
         .add_prefix(loaded_config.prefix)
         .set_prefix_getter(get_prefix)
         .set_type_dependency(config.ExampleConfig, loaded_config)
