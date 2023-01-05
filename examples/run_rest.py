@@ -38,6 +38,7 @@ async def run() -> None:
         # Unlike a gateway bot bound client, only slash commands will be automatically
         # executed by a client that's bound to a rest bot.
         .load_modules("examples.slash_commands")
+        .load_modules("examples.injection")
         .set_type_dependency(config.ExampleConfig, loaded_config)
         .set_type_dependency(protos.DatabaseProto, database)
         # Here we use client callbacks to manage the database, STOPPING can also be used to stop it.
