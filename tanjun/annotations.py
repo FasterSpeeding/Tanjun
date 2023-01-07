@@ -287,11 +287,12 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
         ctx: tanjun.abc.SlashContext,
         argument: Annotated[OtherType, Converted(callback, other_callback), "description"]
         other_argument: Annotated[Converted[callback, other_callback], "description"],
-    )
+    ) -> None:
+        raise NotImplementedError
     ```
-    """
 
-    # Where `Converted[...]` follows the same semantics as Converted's `__init__`.
+    Where `Converted[...]` follows the same semantics as Converted's `__init__`.
+    """
 
     __slots__ = ("_converters",)
 
@@ -360,7 +361,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
         argument: Annotated[Str, Default(""), "description"],
         other_argument: Annotated[Default[Str, ""], "description"],
     ) -> None:
-        ...
+        raise NotImplementedError
     ```
 
     ```py
@@ -371,7 +372,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
         required_argument: Annotated[Default[Str], "description"] = "yeet",
         other_required: Annotated[Int, Default(), "description"] = 123,
     ) -> None:
-        ...
+        raise NotImplementedError
     ```
 
     Passing an empty [Default][tanjun.annotations.Default] allows you to mark
@@ -1471,7 +1472,7 @@ def with_annotated_args(
         converted: Converted[Type.from_str],
         enable: typing.Optional[Bool] = None,
     ) -> None:
-        ...
+        raise NotImplementedError
     ```
 
     Parameters
