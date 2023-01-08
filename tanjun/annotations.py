@@ -72,6 +72,7 @@ __all__: list[str] = [
 ]
 
 import abc
+import datetime
 import enum
 import itertools
 import operator
@@ -325,16 +326,16 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
         config.converters = self._converters
 
 
-Color = Converted[conversion.to_color]
+Color = typing.Annotated[hikari.Color, Converted(conversion.to_color)]
 """An argument which takes a color."""
 
 Colour = Color
 """An argument which takes a colour."""
 
-Datetime = Converted[conversion.to_datetime]
+Datetime = typing.Annotated[datetime.datetime, Converted(conversion.to_datetime)]
 """An argument which takes a datetime."""
 
-Snowflake = Converted[conversion.parse_snowflake]
+Snowflake = typing.Annotated[hikari.Snowflake, Converted(conversion.parse_snowflake)]
 """An argument which takes a snowflake."""
 
 
