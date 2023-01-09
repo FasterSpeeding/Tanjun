@@ -39,6 +39,7 @@ from noxfile import *
 import noxfile
 
 
+@nox.session(name="generate-docs", reuse_venv=True)
 def generate_docs(session: nox.Session) -> None:
     """Generate docs for this project using Mkdoc."""
     noxfile._install_deps(session, *noxfile._deps("docs"))
