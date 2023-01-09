@@ -35,3 +35,12 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).parent / "piped" / "python"))
 
 from noxfile import *
+import noxfile
+
+
+def generate_docs(session: nox.Session) -> None:
+    """Generate docs for this project using Mkdoc."""
+    noxfile._install_deps(session, *noxfile._deps("docs"))
+    output_directory = noxfile._try_find_option(session, "-o", "--output") or "./site"
+    session.run("mkdocs", "build", "-d", output_directory)
+    session.log("No copy")
