@@ -34,6 +34,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).parent / "piped" / "python"))
 
+import nox
 from noxfile import *
 import noxfile
 
