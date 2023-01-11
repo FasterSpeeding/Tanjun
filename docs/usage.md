@@ -2,6 +2,9 @@
 
 This guide is not a conclusive list of the features in Tanjun.
 
+You'll want to have some basic understanding of Hikari before you start
+using Tanjun. A basic guide Hikari guide can be found at <>.
+
 ## Starting with Hikari
 
 Tanjun supports both REST server-based application command execution and
