@@ -652,8 +652,6 @@ class Client(tanjun.Client):
               `declare_global_commands`.
             * If `command_ids` is passed when `declare_global_commands` is `False`.
         """
-        # InjectorClient.__init__
-        super().__init__()
         if _LOGGER.isEnabledFor(logging.INFO):
             _LOGGER.info(
                 "%s initialised with the following components: %s",
@@ -1676,7 +1674,7 @@ class Client(tanjun.Client):
         return self
 
     def set_message_ctx_maker(self, maker: _MessageContextMakerProto = context.MessageContext, /) -> Self:
-        """Set the message context maker to use when creating context for a message.
+        r"""Set the message context maker to use when creating context for a message.
 
         !!! warning
             The caller must return an instance of [tanjun.context.MessageContext][]
@@ -1690,8 +1688,8 @@ class Client(tanjun.Client):
             The message context maker to use.
 
             This is a callback which should match the signature of
-            [tanjun.context.MessageContext.__init__][] and return an instance
-            of [tanjun.context.MessageContext][].
+            [tanjun.context.MessageContext.\_\_init\_\_][tanjun.context.MessageContext.__init__]
+            and return an instance of [tanjun.context.MessageContext][].
 
         Returns
         -------
@@ -1707,7 +1705,7 @@ class Client(tanjun.Client):
         return self
 
     def set_slash_ctx_maker(self, maker: _SlashContextMakerProto = context.SlashContext, /) -> Self:
-        """Set the slash context maker to use when creating context for a slash command.
+        r"""Set the slash context maker to use when creating context for a slash command.
 
         !!! warning
             The caller must return an instance of [tanjun.context.SlashContext][]
@@ -1721,8 +1719,8 @@ class Client(tanjun.Client):
             The slash context maker to use.
 
             This is a callback which should match the signature of
-            [tanjun.context.SlashContext.__init__][] and return an instance
-            of [tanjun.context.SlashContext][].
+            [tanjun.context.SlashContext.\_\_init\_\_][tanjun.context.SlashContext.__init__]
+            and return an instance of [tanjun.context.SlashContext][].
 
         Returns
         -------
@@ -2210,10 +2208,10 @@ class Client(tanjun.Client):
         self._is_closing = False
 
     async def open(self, *, register_listeners: bool = True) -> None:
-        """Start the client.
+        r"""Start the client.
 
-        If `mention_prefix` was passed to [tanjun.Client.__init__][] or
-        [tanjun.Client.from_gateway_bot][] then this function may make a fetch request
+        If `mention_prefix` was passed to [tanjun.Client.\_\_init\_\_][tanjun.Client.__init__]
+        or [tanjun.Client.from_gateway_bot][] then this function may make a fetch request
         to Discord if it cannot get the current user from the cache.
 
         Raises
