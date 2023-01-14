@@ -115,12 +115,12 @@ class HotReloader:
         redeclare_cmds_after: typing.Union[int, float, datetime.timedelta, None] = datetime.timedelta(seconds=10),
         unload_on_delete: bool = True,
     ) -> None:
-        """Initialise a hot reloader.
+        r"""Initialise a hot reloader.
 
         !!! warning
             `redeclare_cmds_after` is not aware of commands declared outside of
             the reloader and will lead to commands being redeclared on startup
-            when mixed with [tanjun.clients.Client.__init__][]'s
+            when mixed with [tanjun.clients.Client.\_\_init\_\_][tanjun.clients.Client.__init__]'s
             `declare_global_commands` argument when it is not [None][].
 
         Parameters

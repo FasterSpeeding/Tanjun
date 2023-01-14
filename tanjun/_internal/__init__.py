@@ -613,13 +613,15 @@ class MessageCommandIndex:
         for index, chars in enumerate(split):
             try:
                 node = node[chars.casefold()]
+
+            except KeyError:
+                break
+
+            else:
                 assert isinstance(node, dict)
                 if entries := node.get(_IndexKeys.COMMANDS):
                     assert isinstance(entries, list)
                     segments.append((index, entries))
-
-            except KeyError:
-                break
 
         for index, segment in reversed(segments):
             name_parts = split[: index + 1]
@@ -659,12 +661,14 @@ class MessageCommandIndex:
             for chars in name.casefold().split(" "):
                 try:
                     node = node[chars]
-                    assert isinstance(node, dict)
-                    nodes.append((chars, node))
 
                 except KeyError:
                     # The command is not in the index and we want to skip the "else" statement.
                     break
+
+                else:
+                    assert isinstance(node, dict)
+                    nodes.append((chars, node))
 
             else:
                 # If it didn't break out of the for chars loop then the command is in here.
