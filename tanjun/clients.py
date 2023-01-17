@@ -1745,10 +1745,10 @@ class Client(tanjun.Client):
             Passing [True][] here will prevent message commands from being executed
             based on webhook and bot messages.
         """
-        if value:
+        if value and _check_human not in self._checks:
             self.add_check(_check_human)
 
-        else:
+        elif not value:
             try:
                 self.remove_check(_check_human)
             except ValueError:
