@@ -806,6 +806,34 @@ class TestClient:
     async def test_declare_global_commands(self):
         ...
 
+    def test_set_human_only(self):
+        client = tanjun.Client(mock.Mock()).set_human_only(False)
+
+        result = client.set_human_only(True)
+
+        assert result is client
+        assert client.is_human_only is True
+        assert tanjun.clients._check_human in client.checks
+
+    def test_set_human_only_when_false(self):
+        client = tanjun.Client(mock.Mock()).set_human_only(True).set_human_only(True)
+
+        result = client.set_human_only(False)
+
+        assert result is client
+        assert client.is_human_only is False
+        assert tanjun.clients._check_human not in client.checks
+
+    def test_set_human_only_with_dupped_true_calls(self):
+        client = tanjun.Client(mock.Mock()).set_human_only(False)
+
+        client.set_human_only(True)
+        client.set_human_only(True)
+        client.set_human_only(True)
+
+        assert client.is_human_only is True
+        assert list(client.checks).count(tanjun.clients._check_human) == 1
+
     def test_add_check(self):
         mock_check = mock.Mock()
         client = tanjun.Client(mock.Mock())
