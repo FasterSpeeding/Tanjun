@@ -140,7 +140,7 @@ if typing.TYPE_CHECKING:
 
 
     class _GatewayBotProto(hikari.EventManagerAware, hikari.RESTAware, hikari.ShardAware, typing.Protocol):
-        """A cacheless Gateway bot impl."""
+        """Protocol of a cacheless Hikari Gateway bot."""
 
 
 PrefixGetterSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]]]
