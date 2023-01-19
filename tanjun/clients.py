@@ -139,6 +139,10 @@ if typing.TYPE_CHECKING:
             raise NotImplementedError
 
 
+    class _GatewayBotProto(hikari.EventManagerAware, hikari.RESTAware, hikari.ShardAware, typing.Protocol):
+        """A cacheless Gateway bot impl."""
+
+
 PrefixGetterSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]]]
 """Type hint of a callable used to get the prefix(es) for a specific guild.
 
@@ -831,7 +835,7 @@ class Client(tanjun.Client):
     @classmethod
     def from_gateway_bot(
         cls,
-        bot: hikari.GatewayBotAware,
+        bot: _GatewayBotProto,
         /,
         *,
         event_managed: bool = True,
@@ -845,16 +849,15 @@ class Client(tanjun.Client):
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
-        """Build a [tanjun.Client][] from a [hikari.traits.GatewayBotAware][] instance.
+        """Build a [tanjun.Client][] from a gateway bot.
 
         !!! note
             This defaults the client to human only mode and sets type
-            dependency injectors for the hikari traits present in `bot`
-            (including [hikari.traits.GatewayBotAware][]).
+            dependency injectors for the hikari traits present in `bot`.
 
         Parameters
         ----------
-        bot
+        bot : hikari.shards.ShardAware & hikari.shards.GatewayBot
             The bot client to build from.
 
             This will be used to infer the relevant Hikari clients to use.
@@ -905,7 +908,7 @@ class Client(tanjun.Client):
         return (
             cls(
                 rest=bot.rest,
-                cache=bot.cache,
+                cache=bot.cache if isinstance(bot, hikari.CacheAware) else None,
                 events=bot.event_manager,
                 shards=bot,
                 voice=bot.voice,
