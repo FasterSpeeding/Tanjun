@@ -138,7 +138,6 @@ if typing.TYPE_CHECKING:
         ) -> context.SlashContext:
             raise NotImplementedError
 
-
     class _GatewayBotProto(hikari.EventManagerAware, hikari.RESTAware, hikari.ShardAware, typing.Protocol):
         """Protocol of a cacheless Hikari Gateway bot."""
 
