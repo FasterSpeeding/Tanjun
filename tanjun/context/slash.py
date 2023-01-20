@@ -112,8 +112,8 @@ class SlashOption(tanjun.SlashOption):
     def value(self) -> typing.Union[str, int, hikari.Snowflake, bool, float]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # This is asserted in __init__
+        assert self._option.value is not None
         if self._option.type in _SnowflakeOptions:
-            assert self._option.value is not None
             return hikari.Snowflake(self._option.value)
 
         return self._option.value
