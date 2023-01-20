@@ -856,7 +856,7 @@ class Client(tanjun.Client):
 
         Parameters
         ----------
-        bot : hikari.traits.ShardAware & hikari.traits.GatewayBot
+        bot : hikari.traits.ShardAware & hikari.traits.RESTAware & hikari.traits.EventManagerAware
             The bot client to build from.
 
             This will be used to infer the relevant Hikari clients to use.
