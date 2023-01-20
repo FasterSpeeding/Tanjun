@@ -283,6 +283,10 @@ class TestClient:
         ...
 
     @pytest.mark.skip(reason="TODO")
+    def test_from_gateway_bot_when_cache_aware(self):
+        ...
+
+    @pytest.mark.skip(reason="TODO")
     def test_from_rest_bot(self):
         ...
 
