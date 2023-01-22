@@ -84,9 +84,17 @@ if typing.TYPE_CHECKING:
 
     _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
-    _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound="CommandCallbackSig")
-    _ErrorHookSigT = typing.TypeVar("_ErrorHookSigT", bound="ErrorHookSig")
-    _HookSigT = typing.TypeVar("_HookSigT", bound="HookSig")
+
+    _AnyErrorHookSigT = typing.TypeVar("_AnyErrorHookSigT", bound="ErrorHookSig[typing.Any]")
+    _MenuErrorHookSigT = typing.TypeVar("_MenuErrorHookSigT", bound="ErrorHookSig[MenuContext]")
+    _MessageErrorHookSigT = typing.TypeVar("_MessageErrorHookSigT", bound="ErrorHookSig[MessageContext]")
+    _SlashErrorHookSigT = typing.TypeVar("_SlashErrorHookSigT", bound="ErrorHookSig[SlashContext]")
+
+    _AnyHookSigT = typing.TypeVar("_AnyHookSigT", bound="HookSig[typing.Any]")
+    _MenuHookSigT = typing.TypeVar("_MenuHookSigT", bound="HookSig[MenuContext]")
+    _MessageHookSigT = typing.TypeVar("_MessageHookSigT", bound="HookSig[MessageContext]")
+    _SlashHookSigT = typing.TypeVar("_SlashHookSigT", bound="HookSig[SlashContext]")
+
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound="ListenerCallbackSig")
     _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="MenuCommand[typing.Any, typing.Any]")
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
@@ -133,12 +141,14 @@ MessageCheckSig = _CheckSig["MessageContext", ...]
 SlashCheckSig = _CheckSig["SlashContext", ...]
 
 
-_CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], collections.Coroutine[typing.Any, typing.Any, None]]
+_CommandCallbackSig = collections.Callable[
+    typing_extensions.Concatenate[_ContextT_contra, _P], collections.Coroutine[typing.Any, typing.Any, None]
+]
 
-_MenuValueT = typing.TypeVar("_MenuValueT", hikari.User, hikari.InteractionMember)
+_MenuValueT = typing.TypeVar("_MenuValueT", hikari.Message, hikari.InteractionMember)
 _ManuCallbackSig = collections.Callable[
     typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P],
-    collections.Coroutine[typing.Any, typing.Any, None]
+    collections.Coroutine[typing.Any, typing.Any, None],
 ]
 MenuCallbackSig = _ManuCallbackSig["MenuContext", _MenuValueT, ...]
 """Type hint of a context menu command callback.
@@ -2155,8 +2165,23 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The hook object to enable method chaining.
         """
 
+    @typing.overload
     @abc.abstractmethod
-    def with_on_error(self, callback: _ErrorHookSigT, /) -> _ErrorHookSigT:
+    def with_on_error(self: MenuHooks, callback: _MenuErrorHookSigT, /) -> _MenuErrorHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_on_error(self: MessageHooks, callback: _MessageErrorHookSigT, /) -> _MessageErrorHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_on_error(self: SlashHooks, callback: _SlashErrorHookSigT, /) -> _SlashErrorHookSigT:
+        ...
+
+    @abc.abstractmethod
+    def with_on_error(self, callback: _AnyErrorHookSigT, /) -> _AnyErrorHookSigT:
         """Add an error callback to this hook object through a decorator call.
 
         !!! note
@@ -2219,8 +2244,23 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The hook object to enable method chaining.
         """
 
+    @typing.overload
     @abc.abstractmethod
-    def with_on_parser_error(self, callback: _HookSigT, /) -> _HookSigT:
+    def with_on_parser_error(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_on_parser_error(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_on_parser_error(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
+        ...
+
+    @abc.abstractmethod
+    def with_on_parser_error(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
         """Add a parser error callback to this hook object through a decorator call.
 
         Examples
@@ -2267,8 +2307,23 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The hook object to enable method chaining.
         """
 
+    @typing.overload
     @abc.abstractmethod
-    def with_post_execution(self, callback: _HookSigT, /) -> _HookSigT:
+    def with_post_execution(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_post_execution(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_post_execution(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
+        ...
+
+    @abc.abstractmethod
+    def with_post_execution(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
         """Add a post-execution callback to this hook object through a decorator call.
 
         Examples
@@ -2315,8 +2370,23 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The hook object to enable method chaining.
         """
 
+    @typing.overload
     @abc.abstractmethod
-    def with_pre_execution(self, callback: _HookSigT, /) -> _HookSigT:
+    def with_pre_execution(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_pre_execution(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_pre_execution(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
+        ...
+
+    @abc.abstractmethod
+    def with_pre_execution(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
         """Add a pre-execution callback to this hook object through a decorator call.
 
         Examples
@@ -2363,8 +2433,23 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The hook object to enable method chaining.
         """
 
+    @typing.overload
     @abc.abstractmethod
-    def with_on_success(self, callback: _HookSigT, /) -> _HookSigT:
+    def with_on_success(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_on_success(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_on_success(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
+        ...
+
+    @abc.abstractmethod
+    def with_on_success(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
         """Add a success callback to this hook object through a decorator call.
 
         Examples

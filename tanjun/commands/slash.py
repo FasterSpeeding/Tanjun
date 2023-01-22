@@ -77,8 +77,7 @@ if typing.TYPE_CHECKING:
     _AnyBaseSlashCommandT = typing.TypeVar("_AnyBaseSlashCommandT", bound="tanjun.BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
     _AnyCommandT = typing.Union[
-        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_AnyCallbackSigT"]
+        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any], tanjun.MessageCommand["_AnyCallbackSigT"]
     ]
     _CallbackishT = typing.Union["_AnyCallbackSigT", _AnyCommandT["_AnyCallbackSigT"]]
 

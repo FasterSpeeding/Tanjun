@@ -50,8 +50,7 @@ if typing.TYPE_CHECKING:
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=tanjun.CommandCallbackSig)
     _AnyCommandT = typing.Union[
-        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
-        tanjun.SlashCommand["_AnyCallbackSigT"]
+        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any], tanjun.SlashCommand["_AnyCallbackSigT"]
     ]
     _CallbackishT = typing.Union[_AnyCommandT["_AnyCallbackSigT"], "_AnyCallbackSigT"]
 
@@ -67,11 +66,12 @@ class _ResultProto(typing.Protocol):
         ...
 
     @typing.overload
-    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]:
+    def __call__(self, _: tanjun.MessageCommand[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
         ...
 
-    def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
-        raise NotImplementedError
+    @typing.overload
+    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]:
+        ...
 
 
 def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True) -> _ResultProto:
@@ -102,10 +102,17 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
         ...
 
     @typing.overload
+    def decorator(callback: tanjun.MessageCommand[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
+        ...
+
+    @typing.overload
     def decorator(callback: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]:
         ...
 
-    def decorator(callback: _CallbackishT[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
+    # TODO: make ExecutableCommand generic and simplify
+    def decorator(
+        callback: typing.Union[tanjun.ExecutableCommand[typing.Any], _MessageCallbackSigT], /
+    ) -> MessageCommand[typing.Any]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -169,10 +176,17 @@ def as_message_command_group(
         ...
 
     @typing.overload
+    def decorator(callback: tanjun.MessageCommand[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
+        ...
+
+    @typing.overload
     def decorator(callback: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]:
         ...
 
-    def decorator(callback: _CallbackishT[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
+    # TODO: make executable command generic and simplify
+    def decorator(
+        callback: typing.Union[tanjun.ExecutableCommand[typing.Any], _MessageCallbackSigT], /
+    ) -> MessageCommandGroup[typing.Any]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -516,7 +530,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         """
 
         def decorator(
-            callback: typing.Union[_OtherCallbackSigT, _CommandT[_OtherCallbackSigT]], /
+            callback: typing.Union[_OtherCallbackSigT, _AnyCommandT[_OtherCallbackSigT]], /
         ) -> MessageCommand[_OtherCallbackSigT]:
             return self.with_command(as_message_command(name, *names, validate_arg_keys=validate_arg_keys)(callback))
 

@@ -55,7 +55,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
     __slots__ = ("_checks", "_component", "_hooks", "_metadata")
 
     def __init__(self) -> None:
-        self._checks: list[tanjun.AnyCheckSig] = []
+        self._checks: list[tanjun.CheckSig[_ContextT]] = []
         self._component: typing.Optional[tanjun.Component] = None
         self._hooks: typing.Optional[tanjun.Hooks[_ContextT]] = None
         self._metadata: dict[typing.Any, typing.Any] = {}
@@ -98,7 +98,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         self._metadata[key] = value
         return self
 
-    def add_check(self, *checks: tanjun.AnyCheckSig) -> Self:
+    def add_check(self, *checks: tanjun.CheckSig[_ContextT]) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         for check in checks:
             if check not in self._checks:
@@ -106,7 +106,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
 
         return self
 
-    def remove_check(self, check: tanjun.AnyCheckSig, /) -> Self:
+    def remove_check(self, check: tanjun.CheckSig[_ContextT], /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._checks.remove(check)
         return self

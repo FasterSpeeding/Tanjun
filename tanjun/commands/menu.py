@@ -48,79 +48,45 @@ if typing.TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound="tanjun.CommandCallbackSig")
-    _AnyCommandT = typing.Union[
-        tanjun.MessageCommand["_AnyCallbackSigT"],
-        tanjun.SlashCommand["_AnyCallbackSigT"],
-    ]
+    _AnyCallbackSigT = typing.TypeVar(
+        "_AnyCallbackSigT", bound=collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
+    )
+    _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound="tanjun.MenuCallbackSig[hikari.Message]")
+    _UserCallbackSigT = typing.TypeVar("_UserCallbackSigT", bound="tanjun.MenuCallbackSig[hikari.InteractionMember]")
+
+    _AnyCommandT = typing.Union[tanjun.MessageCommand["_AnyCallbackSigT"], tanjun.SlashCommand["_AnyCallbackSigT"],]
     _CallbackishT = typing.Union["_AnyCallbackSigT", _AnyCommandT["_AnyCallbackSigT"]]
 
 import hikari
 
-_MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound="tanjun.MenuCallbackSig[typing.Any]")
+_AnyMenuCallbackSigT = typing.TypeVar("_AnyMenuCallbackSigT", bound="tanjun.MenuCallbackSig[typing.Any]")
 _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
-class _ResultProto(typing.Protocol[_MenuTypeT]):
+class _MessageResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _AnyCommandT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
+    def __call__(
+        self, _: _AnyCommandT[_MessageCallbackSigT], /
+    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
         ...
 
     @typing.overload
-    def __call__(self, _: tanjun.MenuCommand[_AnyCallbackSigT, typing.Any], /)  -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
+    def __call__(
+        self, _: tanjun.MenuCommand[_MessageCallbackSigT, typing.Any], /
+    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
         ...
 
     @typing.overload
-    def __call__(self, _: _MenuCommandCallbackSigT, /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
+    def __call__(
+        self, _: _MessageCallbackSigT, /
+    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
         ...
 
     # def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
     #     raise NotImplementedError
-
-
-def _as_menu(
-    name: typing.Union[str, collections.Mapping[str, str]],
-    type_: _MenuTypeT,
-    /,
-    *,
-    always_defer: bool = False,
-    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
-    default_to_ephemeral: typing.Optional[bool] = None,
-    dm_enabled: typing.Optional[bool] = None,
-    is_global: bool = True,
-) -> _ResultProto[_MenuTypeT]:
-    @typing.overload
-    def decorator(callback: _AnyCommandT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
-        ...
-
-    @typing.overload
-    def decorator(callback: _MenuCommandCallbackSigT, /) -> MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]:
-        ...
-
-    def decorator(callback: _CallbackishT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
-            wrapped_command = callback
-            callback = callback.callback
-
-        else:
-            wrapped_command = None
-
-        return MenuCommand(
-            callback,
-            type_,
-            name,
-            always_defer=always_defer,
-            default_member_permissions=default_member_permissions,
-            default_to_ephemeral=default_to_ephemeral,
-            dm_enabled=dm_enabled,
-            is_global=is_global,
-            _wrapped_command=wrapped_command,
-        )
-
-    return decorator
 
 
 def as_message_menu(
@@ -132,7 +98,7 @@ def as_message_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
-) -> _ResultProto[typing.Literal[hikari.CommandType.MESSAGE]]:
+) -> _MessageResultProto:
     """Build a message [tanjun.MenuCommand][] by decorating a function.
 
     !!! note
@@ -200,15 +166,65 @@ def as_message_menu(
         * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
-    return _as_menu(
-        name,
-        hikari.CommandType.MESSAGE,
-        always_defer=always_defer,
-        default_member_permissions=default_member_permissions,
-        default_to_ephemeral=default_to_ephemeral,
-        dm_enabled=dm_enabled,
-        is_global=is_global,
-    )
+
+    @typing.overload
+    def decorator(
+        callback: _AnyCommandT[_MessageCallbackSigT], /
+    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
+        ...
+
+    @typing.overload
+    def decorator(
+        callback: _MessageCallbackSigT, /
+    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
+        ...
+
+    def decorator(
+        callback: _CallbackishT[_MessageCallbackSigT], /
+    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
+        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+            wrapped_command = callback
+            callback = callback.callback
+
+        else:
+            wrapped_command = None
+
+        return MenuCommand(
+            callback,
+            hikari.CommandType.MESSAGE,
+            name,
+            always_defer=always_defer,
+            default_member_permissions=default_member_permissions,
+            default_to_ephemeral=default_to_ephemeral,
+            dm_enabled=dm_enabled,
+            is_global=is_global,
+            _wrapped_command=wrapped_command,
+        )
+
+    return decorator
+
+
+class _UserResultProto(typing.Protocol):
+    @typing.overload
+    def __call__(
+        self, _: _AnyCommandT[_UserCallbackSigT], /
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
+        ...
+
+    @typing.overload
+    def __call__(
+        self, _: tanjun.MenuCommand[_UserCallbackSigT, typing.Any], /
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
+        ...
+
+    @typing.overload
+    def __call__(
+        self, _: _UserCallbackSigT, /
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
+        ...
+
+    # def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
+    #     raise NotImplementedError
 
 
 def as_user_menu(
@@ -220,7 +236,7 @@ def as_user_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
-) -> _ResultProto[typing.Literal[hikari.CommandType.USER]]:
+) -> _UserResultProto:
     """Build a user [tanjun.MenuCommand][] by decorating a function.
 
     !!! note
@@ -290,21 +306,54 @@ def as_user_menu(
         * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
-    return _as_menu(
-        name,
-        hikari.CommandType.USER,
-        always_defer=always_defer,
-        default_member_permissions=default_member_permissions,
-        default_to_ephemeral=default_to_ephemeral,
-        dm_enabled=dm_enabled,
-        is_global=is_global,
-    )
+
+    @typing.overload
+    def decorator(
+        callback: _AnyCommandT[_UserCallbackSigT], /
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
+        ...
+
+    @typing.overload
+    def decorator(
+        callback: tanjun.MenuCommand[_UserCallbackSigT, typing.Any], /
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
+        ...
+
+    @typing.overload
+    def decorator(
+        callback: _UserCallbackSigT, /
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
+        ...
+
+    def decorator(
+        callback: _CallbackishT[_UserCallbackSigT], /
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
+        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+            wrapped_command = callback
+            callback = callback.callback
+
+        else:
+            wrapped_command = None
+
+        return MenuCommand(
+            callback,
+            hikari.CommandType.USER,
+            name,
+            always_defer=always_defer,
+            default_member_permissions=default_member_permissions,
+            default_to_ephemeral=default_to_ephemeral,
+            dm_enabled=dm_enabled,
+            is_global=is_global,
+            _wrapped_command=wrapped_command,
+        )
+
+    return decorator
 
 
 _VALID_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
 
-class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_MenuCommandCallbackSigT, _MenuTypeT]):
+class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_AnyMenuCallbackSigT, _MenuTypeT]):
     """Base class used for the standard menu command implementations."""
 
     __slots__ = (
@@ -342,7 +391,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
     @typing.overload
     def __init__(
         self,
-        callback: _MenuCommandCallbackSigT,
+        callback: _AnyMenuCallbackSigT,
         type_: _MenuTypeT,
         name: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -451,7 +500,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             default_member_permissions = hikari.Permissions(default_member_permissions)
 
         self._always_defer = always_defer
-        self._callback: _MenuCommandCallbackSigT = callback
+        self._callback: _AnyMenuCallbackSigT = callback
         self._default_member_permissions = default_member_permissions
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_dm_enabled = dm_enabled
@@ -463,7 +512,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         self._wrapped_command = _wrapped_command
 
     if typing.TYPE_CHECKING:
-        __call__: _MenuCommandCallbackSigT
+        __call__: _AnyMenuCallbackSigT
 
     else:
 
@@ -471,7 +520,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             await self._callback(*args, **kwargs)
 
     @property
-    def callback(self) -> _MenuCommandCallbackSigT:
+    def callback(self) -> _AnyMenuCallbackSigT:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         return self._callback
 

@@ -51,13 +51,11 @@ if typing.TYPE_CHECKING:
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound=tanjun.ExecutableCommand[tanjun.SlashContext])
 
     _AnyErrorHookSigT = typing.TypeVar("_AnyErrorHookSigT", bound=tanjun.ErrorHookSig[typing.Any])
-    _ErrorHookSigT = typing.TypeVar("_ErrorHookSigT", bound=tanjun.ErrorHookSig[tanjun.Context])
     _MenuErrorHookSigT = typing.TypeVar("_MenuErrorHookSigT", bound=tanjun.ErrorHookSig[tanjun.MenuContext])
     _MessageErrorHookSigT = typing.TypeVar("_MessageErrorHookSigT", bound=tanjun.ErrorHookSig[tanjun.MessageContext])
     _SlashErrorHookSigT = typing.TypeVar("_SlashErrorHookSigT", bound=tanjun.ErrorHookSig[tanjun.SlashContext])
 
     _AnyHookSigT = typing.TypeVar("_AnyHookSigT", bound=tanjun.HookSig[typing.Any])
-    _HookSigT = typing.TypeVar("_HookSigT", bound=tanjun.HookSig[tanjun.Context])
     _MenuHookSigT = typing.TypeVar("_MenuHookSigT", bound=tanjun.HookSig[tanjun.MenuContext])
     _MessageHookSigT = typing.TypeVar("_MessageHookSigT", bound=tanjun.HookSig[tanjun.MessageContext])
     _SlashHookSigT = typing.TypeVar("_SlashHookSigT", bound=tanjun.HookSig[tanjun.SlashContext])
