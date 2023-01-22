@@ -482,10 +482,10 @@ pydantic==1.10.4 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:f2f7eb6273dd12472d7f218e1fef6f7c7c2f00ac2e1ecde4db8824c457300416 \
     --hash=sha256:fdf88ab63c3ee282c76d652fc86518aacb737ff35796023fae56a65ced1a5978 \
     --hash=sha256:fdf8d759ef326962b4678d89e275ffc55b7ce59d917d9f72233762061fd04a2d
-pyright==1.1.291 ; python_full_version >= "3.9.0" and python_version < "3.12" \
-    --hash=sha256:2dbd133ee400e81ff319d0701bc47545a7ab1cd7dcfcf46c7de37d9b0fbbb76f \
-    --hash=sha256:3946f43f1a99f8e438eee1738ad0649d8bd7ac36dded25849245993ab02671bd
-pytest-asyncio==0.20.3 ; python_full_version >= "3.9.0" and python_version < "3.12" \
+pyright==1.1.290 ; python_full_version >= "3.9.0" and python_version < "3.12" \
+    --hash=sha256:956d8efc70eb5a54da54c82feef842affd3a81719c8864769cd196e211961e3a \
+    --hash=sha256:c1a57ad812f740fc7fb6bb416cd7e3f46f4e88384c723192402a77e2e756b550
+pytest-asyncio==0.20.3 ; python_full_version >= "3.10.0" and python_version < "3.12" \
     --hash=sha256:83cbf01169ce3e8eb71c6c278ccb0574d1a7a3bb8eaaf5e50e0ad342afb33b36 \
     --hash=sha256:f129998b209d04fcc65c96fc85c11e5316738358909a8399e93be553d7656442
 pytest-cov==4.0.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
@@ -506,9 +506,9 @@ pytest==7.2.1 ; python_full_version >= "3.9.0" and python_version < "3.12" \
 python-dateutil==2.8.2 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
     --hash=sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9
-setuptools==67.0.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
-    --hash=sha256:883131c5b6efa70b9101c7ef30b2b7b780a4283d5fc1616383cdf22c83cbefe6 \
-    --hash=sha256:9d790961ba6219e9ff7d9557622d2fe136816a264dd01d5997cfc057d804853d
+setuptools==66.1.1 ; python_full_version >= "3.9.0" and python_version < "3.12" \
+    --hash=sha256:6f590d76b713d5de4e49fe4fbca24474469f53c83632d5d0fd056f7ff7e8112b \
+    --hash=sha256:ac4008d396bc9cd983ea483cb7139c0240a07bbc74ffb6232fceffedc6cf03a8
 six==1.16.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
