@@ -32,6 +32,7 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "AnyCheckSig",
     "AnyHooks",
     "AppCommand",
     "AppCommandContext",
@@ -42,7 +43,6 @@ __all__: list[str] = [
     "Client",
     "ClientCallbackNames",
     "ClientLoader",
-    "CommandCallbackSig",
     "Component",
     "Context",
     "ErrorHookSig",
@@ -95,7 +95,7 @@ if typing.TYPE_CHECKING:
     _MessageHookSigT = typing.TypeVar("_MessageHookSigT", bound="HookSig[MessageContext]")
     _SlashHookSigT = typing.TypeVar("_SlashHookSigT", bound="HookSig[SlashContext]")
 
-    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound="ListenerCallbackSig")
+    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound="ListenerCallbackSig[typing.Any]")
     _MenuCommandT = typing.TypeVar("_MenuCommandT", bound="MenuCommand[typing.Any, typing.Any]")
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound="MetaEventSig")
@@ -106,6 +106,7 @@ _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandCon
 _ContextT_co = typing.TypeVar("_ContextT_co", covariant=True, bound="Context")
 _ContextT_contra = typing.TypeVar("_ContextT_contra", bound="Context", contravariant=True)
 _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
+_MenuValueT = typing.TypeVar("_MenuValueT", hikari.Message, hikari.InteractionMember)
 _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
@@ -124,59 +125,61 @@ autocomplete type), returns [None][] and may use dependency injection.
 
 _CheckSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], bool]
 CheckSig = _CheckSig[_ContextT_contra, ...]
-"""Type hint of a general context check used with Tanjun [tanjun.abc.ExecutableCommand][] classes.
+"""Type hint of a generic context check used with Tanjun [tanjun.abc.ExecutableCommand][] classes.
 
 This may be registered with a [tanjun.abc.ExecutableCommand][] to add a rule
-which decides whether it should execute for each context passed to it. This
-should take one positional argument of type [tanjun.abc.Context][] and may
-either be a synchronous or asynchronous callback which returns [bool][] where
-returning [False][] or raising [tanjun.FailedCheck][] will indicate that the
+which decides whether it should execute for each context passed to it.
+
+This should take one positional argument of type [tanjun.abc.Context][] and may
+either be a synchronous or asynchronous callback which returns [bool][].
+Returning [False][] or raising [tanjun.FailedCheck][] will indicate that the
 current context shouldn't lead to an execution.
 """
 
 AnyCheckSig = _CheckSig["Context", ...]
+"""Type hint of a check callback for any command type."""
 
-MessageCheckSig = _CheckSig["MessageContext", ...]
+CommandCallbackSig = collections.Callable[..., _CoroT[None]]
+"""Deprecated type hint used to represent any command callback."""
 
-SlashCheckSig = _CheckSig["SlashContext", ...]
+_CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], _CoroT[None]]
 
-
-_CommandCallbackSig = collections.Callable[
-    typing_extensions.Concatenate[_ContextT_contra, _P], collections.Coroutine[typing.Any, typing.Any, None]
-]
-
-_MenuValueT = typing.TypeVar("_MenuValueT", hikari.Message, hikari.InteractionMember)
-_ManuCallbackSig = collections.Callable[
-    typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P],
-    collections.Coroutine[typing.Any, typing.Any, None],
-]
+_ManuCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P], _CoroT[None],]
 MenuCallbackSig = _ManuCallbackSig["MenuContext", _MenuValueT, ...]
 """Type hint of a context menu command callback.
 
 This is guaranteed two positional; arguments of type [tanjun.abc.MenuContext][]
 and either `hikari.User | hikari.InteractionMember` and/or
-[hikari.messages.Message][] dependent on the type(s) of menu this is.
+[hikari.messages.Message][] dependent on the type(s) of menu this is,
+and may use dependency injection.
+
+This must be asynchronous and return [None][].
 """
+
+MenuCommandCallbackSig = MenuCallbackSig
+"""Deprecated alias of [tanjun.abc.MenuCallbackSig][]."""
 
 _MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound="MenuCallbackSig[typing.Any]")
 
 MessageCallbackSig = _CommandCallbackSig["MessageContext", ...]
+"""Type hint of a message command callback.
+
+This is guaranteed one positional argument of type [tanjun.abc.MessageContext][] and
+may use dependency injection.
+
+This must be asynchronous and return [None][].
+"""
 _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=MessageCallbackSig)
 
 SlashCallbackSig = _CommandCallbackSig["SlashContext", ...]
-_SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=SlashCallbackSig)
+"""Type hint of a slash command callback.
 
-CommandCallbackSig = _CommandCallbackSig["Context", ...]
-"""Type hint of the callback a callable [tanjun.abc.ExecutableCommand][] instance will operate on.
+This is guaranteed one positional argument of type [tanjun.abc.SlashContext][] and
+may use dependency injection.
 
-This will be called when executing a command and will need to take one
-positional argument of type [tanjun.abc.Context][] where any other required or
-optional keyword arguments will be based on the parser instance for the command
-if applicable and dependency injection.
-
-!!! note
-    This will have to be asynchronous.
+This must be asynchronous and return [None][].
 """
+_SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=SlashCallbackSig)
 
 _ErrorHookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, Exception, _P], typing.Optional[bool]]
 
@@ -205,9 +208,10 @@ HookSig = _HookSig[_ContextT_contra, ...]
     are passed dependent on the type of hook this is being registered as.
 """
 
-_ListenerCallbackSig = collections.Callable[typing_extensions.Concatenate[Exception, _P], _CoroT[None]]
+_EventT = typing.TypeVar("_EventT", bound=hikari.Event)
+_ListenerCallbackSig = collections.Callable[typing_extensions.Concatenate[_EventT, _P], _CoroT[None]]
 
-ListenerCallbackSig = _ListenerCallbackSig[...]
+ListenerCallbackSig = _ListenerCallbackSig[_EventT, ...]
 """Type hint of a hikari event manager callback.
 
 This is guaranteed one positional arg of type [hikari.events.base_events.Event][]
@@ -3286,7 +3290,9 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
+    def listeners(
+        self,
+    ) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig[typing.Any]]]:
         """Mapping of event types to the listeners registered for them in this component."""
 
     @property
@@ -3508,12 +3514,12 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_listener(self, event: type[hikari.Event], /, *callbacks: ListenerCallbackSig) -> Self:
+    def add_listener(self, event: type[_EventT], /, *callbacks: ListenerCallbackSig[_EventT]) -> Self:
         """Add a listener to this component.
 
         Parameters
         ----------
-        event
+        event : type[hikari.events.base_events.Event]
             The event to listen for.
         *callbacks
             The callbacks to add.
@@ -3525,12 +3531,12 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_listener(self, event: type[hikari.Event], listener: ListenerCallbackSig, /) -> Self:
+    def remove_listener(self, event: type[_EventT], listener: ListenerCallbackSig[_EventT], /) -> Self:
         """Remove a listener from this component.
 
         Parameters
         ----------
-        event
+        event : type[hikari.events.base_events.Event]
             The event to listen for.
         listener
             The listener to remove.
@@ -3931,7 +3937,9 @@ class Client(abc.ABC):
 
     @property  # TODO: switch over to a mapping of event to collection cause convenience
     @abc.abstractmethod
-    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig]]:
+    def listeners(
+        self,
+    ) -> collections.Mapping[type[hikari.Event], collections.Collection[ListenerCallbackSig[typing.Any]]]:
         """Mapping of event types to the listeners registered in this client."""
 
     @property
@@ -4428,12 +4436,12 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_listener(self, event_type: type[hikari.Event], /, *callbacks: ListenerCallbackSig) -> Self:
+    def add_listener(self, event_type: type[_EventT], /, *callbacks: ListenerCallbackSig[_EventT]) -> Self:
         """Add a listener to the client.
 
         Parameters
         ----------
-        event_type
+        event_type : type[hikari.events.base_events.Event]
             The event type to add a listener for.
         *callbacks
             The callbacks to register as a listener.
@@ -4449,12 +4457,12 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_listener(self, event_type: type[hikari.Event], callback: ListenerCallbackSig, /) -> Self:
+    def remove_listener(self, event_type: type[_EventT], callback: ListenerCallbackSig[_EventT], /) -> Self:
         """Remove a listener from the client.
 
         Parameters
         ----------
-        event_type
+        event_type : type[hikari.events.base_events.Event]
             The event type to remove a listener for.
         callback
             The callback to remove.

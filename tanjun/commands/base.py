@@ -61,7 +61,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         self._metadata: dict[typing.Any, typing.Any] = {}
 
     @property
-    def checks(self) -> collections.Collection[tanjun.AnyCheckSig]:
+    def checks(self) -> collections.Collection[tanjun.CheckSig[_ContextT]]:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._checks.copy()
 

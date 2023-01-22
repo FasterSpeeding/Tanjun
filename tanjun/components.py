@@ -56,7 +56,8 @@ if typing.TYPE_CHECKING:
     _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound=tanjun.AppCommandContext)
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound=tanjun.BaseSlashCommand)
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
-    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig)
+    _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
+    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig[typing.Any])
     _MenuCommandT = typing.TypeVar("_MenuCommandT", bound=tanjun.MenuCommand[typing.Any, typing.Any])
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=tanjun.MessageCommand[typing.Any])
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun.MetaEventSig)
@@ -205,7 +206,7 @@ class Component(tanjun.Component):
         self._dms_enabled_for_app_cmds: typing.Optional[bool] = None
         self._hooks: typing.Optional[tanjun.AnyHooks] = None
         self._is_case_sensitive: typing.Optional[bool] = None
-        self._listeners: dict[type[hikari.Event], list[tanjun.ListenerCallbackSig]] = {}
+        self._listeners: dict[type[hikari.Event], list[tanjun.ListenerCallbackSig[typing.Any]]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._menu_commands: dict[tuple[hikari.CommandType, str], tanjun.MenuCommand[typing.Any, typing.Any]] = {}
         self._menu_hooks: typing.Optional[tanjun.MenuHooks] = None
@@ -303,7 +304,9 @@ class Component(tanjun.Component):
         return self._message_commands.commands.copy()
 
     @property
-    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
+    def listeners(
+        self,
+    ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return _internal.CastedView(self._listeners, lambda x: x.copy())
 
@@ -986,7 +989,7 @@ class Component(tanjun.Component):
         # <<inherited docstring from tanjun.abc.Component>>.
         return _with_command(self.add_message_command, command, copy=copy)
 
-    def add_listener(self, event: type[hikari.Event], /, *callbacks: tanjun.ListenerCallbackSig) -> Self:
+    def add_listener(self, event: type[_EventT], /, *callbacks: tanjun.ListenerCallbackSig[_EventT]) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
         for listener in callbacks:
             try:
@@ -1004,7 +1007,7 @@ class Component(tanjun.Component):
 
         return self
 
-    def remove_listener(self, event: type[hikari.Event], listener: tanjun.ListenerCallbackSig, /) -> Self:
+    def remove_listener(self, event: type[_EventT], listener: tanjun.ListenerCallbackSig[_EventT], /) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
         self._listeners[event].remove(listener)
         if not self._listeners[event]:
@@ -1015,7 +1018,6 @@ class Component(tanjun.Component):
 
         return self
 
-    # TODO: make event optional?
     def with_listener(
         self, *event_types: type[hikari.Event]
     ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:

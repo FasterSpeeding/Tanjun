@@ -79,7 +79,8 @@ if typing.TYPE_CHECKING:
     _AppCmdResponse = typing.Union[
         hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
     ]
-    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig)
+    _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
+    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig[typing.Any])
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun.MetaEventSig)
     _PrefixGetterSigT = typing.TypeVar("_PrefixGetterSigT", bound="PrefixGetterSig")
     _T = typing.TypeVar("_T")
@@ -699,7 +700,10 @@ class Client(tanjun.Client):
         self._is_closing = False
         self._listeners: dict[
             type[hikari.Event],
-            dict[tanjun.ListenerCallbackSig, alluka.abc.AsyncSelfInjecting[tanjun.ListenerCallbackSig]],
+            dict[
+                tanjun.ListenerCallbackSig[typing.Any],
+                alluka.abc.AsyncSelfInjecting[tanjun.ListenerCallbackSig[typing.Any]],
+            ],
         ] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
@@ -1086,7 +1090,9 @@ class Client(tanjun.Client):
         return self._events
 
     @property
-    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
+    def listeners(
+        self,
+    ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig[typing.Any]]]:
         return _internal.CastedView(self._listeners, lambda x: [callback.callback for callback in x.values()])
 
     @property
@@ -1935,7 +1941,7 @@ class Client(tanjun.Client):
 
         return decorator
 
-    def add_listener(self, event_type: type[hikari.Event], /, *callbacks: tanjun.ListenerCallbackSig) -> Self:
+    def add_listener(self, event_type: type[_EventT], /, *callbacks: tanjun.ListenerCallbackSig[_EventT]) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         for callback in callbacks:
             injected = self.injector.as_async_self_injecting(callback)
@@ -1954,7 +1960,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def remove_listener(self, event_type: type[hikari.Event], callback: tanjun.ListenerCallbackSig, /) -> Self:
+    def remove_listener(self, event_type: type[_EventT], callback: tanjun.ListenerCallbackSig[_EventT], /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         callbacks = self._listeners[event_type]
 
