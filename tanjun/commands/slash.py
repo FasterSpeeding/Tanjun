@@ -72,16 +72,17 @@ if typing.TYPE_CHECKING:
     from hikari.api import special_endpoints as special_endpoints_api
     from typing_extensions import Self
 
-    _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=tanjun.CommandCallbackSig)
+    _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
     _AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=tanjun.AutocompleteCallbackSig)
     _AnyBaseSlashCommandT = typing.TypeVar("_AnyBaseSlashCommandT", bound="tanjun.BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
     _AnyCommandT = typing.Union[
-        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any], tanjun.MessageCommand["_AnyCallbackSigT"]
+        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
+        tanjun.MessageCommand["_AnyCallbackSigT"],
+        tanjun.SlashCommand["_AnyCallbackSigT"],
     ]
-    _CallbackishT = typing.Union["_AnyCallbackSigT", _AnyCommandT["_AnyCallbackSigT"]]
+    _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
 
-_CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
 _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=tanjun.SlashCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
@@ -90,6 +91,7 @@ ConverterSig = typing.Union[
     collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]],
     collections.Callable[..., typing.Any],
 ]
+"""Type hint of a slash command option converter."""
 
 
 _SCOMMAND_NAME_REG: typing.Final[str] = r"^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$"
@@ -232,11 +234,7 @@ def slash_command_group(
 
 class _ResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _AnyCommandT[_AnyCallbackSigT], /) -> SlashCommand[_AnyCallbackSigT]:
-        ...
-
-    @typing.overload
-    def __call__(self, _: tanjun.SlashCommand[_AnyCallbackSigT], /) -> SlashCommand[_AnyCallbackSigT]:
+    def __call__(self, _: _AnyCommandT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
         ...
 
     @typing.overload
@@ -326,7 +324,7 @@ def as_slash_command(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
+    collections.abc.Callable[[tanjun.abc.SlashCallbackSig], SlashCommand]
         The decorator callback used to make a [tanjun.SlashCommand][].
 
         This can either wrap a raw command callback or another callable command instance
@@ -344,15 +342,7 @@ def as_slash_command(
         * If the description is over 100 characters long.
     """  # noqa: D202, E501
 
-    @typing.overload
-    def decorator(callback: _AnyCommandT[_AnyCallbackSigT], /) -> SlashCommand[_AnyCallbackSigT]:
-        ...
-
-    @typing.overload
-    def decorator(callback: _SlashCallbackSigT, /) -> SlashCommand[_SlashCallbackSigT]:
-        ...
-
-    def decorator(callback: _CallbackishT[_AnyCallbackSigT], /) -> SlashCommand[_AnyCallbackSigT]:
+    def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -406,7 +396,7 @@ def with_attachment_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda command: command.add_attachment_option(
@@ -444,7 +434,7 @@ def with_str_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_str_option(
@@ -492,7 +482,7 @@ def with_int_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_int_option(
@@ -541,7 +531,7 @@ def with_float_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_float_option(
@@ -585,7 +575,7 @@ def with_bool_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_bool_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -621,7 +611,7 @@ def with_user_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_user_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -654,7 +644,7 @@ def with_member_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_member_option(name, description, default=default, key=key)
@@ -689,7 +679,7 @@ def with_channel_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_channel_option(
@@ -722,7 +712,7 @@ def with_role_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_role_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -757,7 +747,7 @@ def with_mentionable_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_mentionable_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -1259,7 +1249,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
         Returns
         -------
-        collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
+        collections.abc.Callable[[tanjun.abc.SlashCallbackSig], SlashCommand]
             The decorator callback used to make a sub-command.
 
             This can either wrap a raw command callback or another callable command instance
@@ -1275,7 +1265,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the description is over 100 characters long.
         """  # noqa: D202, E501
 
-        def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
+        def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
             return self.with_command(
                 as_slash_command(
                     name,
@@ -1444,49 +1434,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         "_wrapped_command",
     )
 
-    @typing.overload
-    def __init__(
-        self: SlashCommand[_AnyCallbackSigT],
-        callback: _AnyCommandT[_AnyCallbackSigT],
-        name: typing.Union[str, collections.Mapping[str, str]],
-        description: typing.Union[str, collections.Mapping[str, str]],
-        /,
-        *,
-        always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
-        default_to_ephemeral: typing.Optional[bool] = None,
-        dm_enabled: typing.Optional[bool] = None,
-        is_global: bool = True,
-        sort_options: bool = True,
-        validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
-
-    @typing.overload
     def __init__(
         self,
-        callback: _SlashCallbackSigT,
-        name: typing.Union[str, collections.Mapping[str, str]],
-        description: typing.Union[str, collections.Mapping[str, str]],
-        /,
-        *,
-        always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
-        default_to_ephemeral: typing.Optional[bool] = None,
-        dm_enabled: typing.Optional[bool] = None,
-        is_global: bool = True,
-        sort_options: bool = True,
-        validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
-
-    def __init__(
-        self,
-        callback: _CallbackishT[_AnyCallbackSigT],
-        name: typing.Union[str, collections.Mapping[str, str]],
-        description: typing.Union[str, collections.Mapping[str, str]],
+        callback: _CallbackishT[_SlashCallbackSigT],
+        name: str | collections.Mapping[str, str],
+        description: str | collections.Mapping[str, str],
         /,
         *,
         always_defer: bool = False,

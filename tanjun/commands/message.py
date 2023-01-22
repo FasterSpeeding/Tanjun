@@ -48,25 +48,23 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
-    _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=tanjun.CommandCallbackSig)
+    _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
     _AnyCommandT = typing.Union[
-        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any], tanjun.SlashCommand["_AnyCallbackSigT"]
+        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
+        tanjun.MessageCommand[_AnyCallbackSigT],
+        tanjun.SlashCommand["_AnyCallbackSigT"],
     ]
-    _CallbackishT = typing.Union[_AnyCommandT["_AnyCallbackSigT"], "_AnyCallbackSigT"]
+    _CallbackishT = typing.Union[_AnyCommandT["_MessageCallbackSigT"], "_MessageCallbackSigT"]
 
 _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=tanjun.MessageCallbackSig)
-_OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.CommandCallbackSig)
+_OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.MessageCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
 class _ResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _AnyCommandT[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
-        ...
-
-    @typing.overload
-    def __call__(self, _: tanjun.MessageCommand[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
+    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
         ...
 
     @typing.overload
@@ -88,7 +86,7 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
+    collections.abc.Callable[[tanjun.abc.MessageCallbackSig], MessageCommand]
         The decorator callback used to make a [tanjun.MessageCommand][].
 
         This can either wrap a raw command callback or another callable command instance
@@ -97,22 +95,7 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
         [tanjun.Component.load_from_scope][].
     """
 
-    @typing.overload
-    def decorator(callback: _AnyCommandT[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
-        ...
-
-    @typing.overload
-    def decorator(callback: tanjun.MessageCommand[_AnyCallbackSigT], /) -> MessageCommand[_AnyCallbackSigT]:
-        ...
-
-    @typing.overload
-    def decorator(callback: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]:
-        ...
-
-    # TODO: make ExecutableCommand generic and simplify
-    def decorator(
-        callback: typing.Union[tanjun.ExecutableCommand[typing.Any], _MessageCallbackSigT], /
-    ) -> MessageCommand[typing.Any]:
+    def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommand[typing.Any]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -129,11 +112,7 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
 
 class _GroupResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _AnyCommandT[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
-        ...
-
-    @typing.overload
-    def __call__(self, _: tanjun.MessageCommand[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
+    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:
         ...
 
     @typing.overload
@@ -162,7 +141,7 @@ def as_message_command_group(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
+    collections.abc.Callable[[tanjun.abc.MessageCallbackSig], MessageCommand]
         The decorator callback used to make a [tanjun.MessageCommandGroup][].
 
         This can either wrap a raw command callback or another callable command instance
@@ -171,22 +150,7 @@ def as_message_command_group(
         [tanjun.Component.load_from_scope][].
     """
 
-    @typing.overload
-    def decorator(callback: _AnyCommandT[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
-        ...
-
-    @typing.overload
-    def decorator(callback: tanjun.MessageCommand[_AnyCallbackSigT], /) -> MessageCommandGroup[_AnyCallbackSigT]:
-        ...
-
-    @typing.overload
-    def decorator(callback: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]:
-        ...
-
-    # TODO: make executable command generic and simplify
-    def decorator(
-        callback: typing.Union[tanjun.ExecutableCommand[typing.Any], _MessageCallbackSigT], /
-    ) -> MessageCommandGroup[typing.Any]:
+    def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommandGroup[typing.Any]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -206,33 +170,9 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
 
     __slots__ = ("_arg_names", "_callback", "_names", "_parent", "_parser", "_wrapped_command")
 
-    @typing.overload
-    def __init__(
-        self: MessageCommand[_AnyCallbackSigT],
-        callback: _AnyCommandT[_AnyCallbackSigT],
-        name: str,
-        /,
-        *names: str,
-        validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
-
-    @typing.overload
     def __init__(
         self,
-        callback: _MessageCallbackSigT,
-        name: str,
-        /,
-        *names: str,
-        validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
-
-    def __init__(
-        self: MessageCommand[_AnyCallbackSigT],
-        callback: _CallbackishT[_AnyCallbackSigT],
+        callback: _CallbackishT[_MessageCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -405,35 +345,9 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
 
     __slots__ = ("_commands",)
 
-    @typing.overload
-    def __init__(
-        self: MessageCommandGroup[_AnyCallbackSigT],
-        callback: _AnyCommandT[_AnyCallbackSigT],
-        name: str,
-        /,
-        *names: str,
-        strict: bool = False,
-        validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
-
-    @typing.overload
     def __init__(
         self,
-        callback: _MessageCallbackSigT,
-        name: str,
-        /,
-        *names: str,
-        strict: bool = False,
-        validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
-
-    def __init__(
-        self: MessageCommandGroup[_AnyCallbackSigT],
-        callback: _CallbackishT[_AnyCallbackSigT],
+        callback: _CallbackishT[_MessageCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -522,7 +436,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
 
         Returns
         -------
-        collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
+        collections.abc.Callable[[tanjun.abc.MessageCallbackSig], MessageCommand]
             The decorator callback used to make a sub-command.
 
             This can either wrap a raw command callback or another callable command instance
@@ -557,16 +471,14 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
 
         Returns
         -------
-        collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
+        collections.abc.Callable[[tanjun.abc.MessageCallbackSig], MessageCommand]
             The decorator callback used to make a sub-command group.
 
             This can either wrap a raw command callback or another callable command instance
             (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]).
         """
 
-        def decorator(
-            callback: typing.Union[_OtherCallbackSigT, _CommandT[_OtherCallbackSigT]], /
-        ) -> MessageCommandGroup[_OtherCallbackSigT]:
+        def decorator(callback: _CallbackishT[_OtherCallbackSigT], /) -> MessageCommandGroup[_OtherCallbackSigT]:
             return self.with_command(
                 as_message_command_group(name, *names, strict=strict, validate_arg_keys=validate_arg_keys)(callback)
             )

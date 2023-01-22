@@ -54,7 +54,11 @@ if typing.TYPE_CHECKING:
     _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound="tanjun.MenuCallbackSig[hikari.Message]")
     _UserCallbackSigT = typing.TypeVar("_UserCallbackSigT", bound="tanjun.MenuCallbackSig[hikari.InteractionMember]")
 
-    _AnyCommandT = typing.Union[tanjun.MessageCommand["_AnyCallbackSigT"], tanjun.SlashCommand["_AnyCallbackSigT"],]
+    _AnyCommandT = typing.Union[
+        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
+        tanjun.MessageCommand["_AnyCallbackSigT"],
+        tanjun.SlashCommand["_AnyCallbackSigT"],
+    ]
     _CallbackishT = typing.Union["_AnyCallbackSigT", _AnyCommandT["_AnyCallbackSigT"]]
 
 import hikari
@@ -75,18 +79,9 @@ class _MessageResultProto(typing.Protocol):
 
     @typing.overload
     def __call__(
-        self, _: tanjun.MenuCommand[_MessageCallbackSigT, typing.Any], /
-    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
-        ...
-
-    @typing.overload
-    def __call__(
         self, _: _MessageCallbackSigT, /
     ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
         ...
-
-    # def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
-    #     raise NotImplementedError
 
 
 def as_message_menu(
@@ -150,7 +145,7 @@ def as_message_menu(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.abc.MenuCommandCallbackSig], MenuCommand]
+    collections.abc.Callable[[tanjun.abc.MenuCallbackSig], MenuCommand]
         The decorator callback used to make a [tanjun.MenuCommand][].
 
         This can either wrap a raw command callback or another callable command instance
@@ -166,18 +161,6 @@ def as_message_menu(
         * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
-
-    @typing.overload
-    def decorator(
-        callback: _AnyCommandT[_MessageCallbackSigT], /
-    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
-        ...
-
-    @typing.overload
-    def decorator(
-        callback: _MessageCallbackSigT, /
-    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
-        ...
 
     def decorator(
         callback: _CallbackishT[_MessageCallbackSigT], /
@@ -213,18 +196,9 @@ class _UserResultProto(typing.Protocol):
 
     @typing.overload
     def __call__(
-        self, _: tanjun.MenuCommand[_UserCallbackSigT, typing.Any], /
-    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
-        ...
-
-    @typing.overload
-    def __call__(
         self, _: _UserCallbackSigT, /
     ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
         ...
-
-    # def __call__(self, _: _CallbackishT[_AnyCallbackSigT], /) -> MenuCommand[_AnyCallbackSigT, _MenuTypeT]:
-    #     raise NotImplementedError
 
 
 def as_user_menu(
@@ -290,7 +264,7 @@ def as_user_menu(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.abc.MenuCommandCallbackSig], MenuCommand]
+    collections.abc.Callable[[tanjun.abc.MenuCallbackSig], MenuCommand]
         The decorator callback used to make a [tanjun.MenuCommand][].
 
         This can either wrap a raw command callback or another callable command instance
@@ -306,24 +280,6 @@ def as_user_menu(
         * If the command name isn't in the length range of 1 to 32.
         * If the command name has uppercase characters.
     """
-
-    @typing.overload
-    def decorator(
-        callback: _AnyCommandT[_UserCallbackSigT], /
-    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
-        ...
-
-    @typing.overload
-    def decorator(
-        callback: tanjun.MenuCommand[_UserCallbackSigT, typing.Any], /
-    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
-        ...
-
-    @typing.overload
-    def decorator(
-        callback: _UserCallbackSigT, /
-    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
-        ...
 
     def decorator(
         callback: _CallbackishT[_UserCallbackSigT], /
@@ -373,9 +329,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
 
     @typing.overload
     def __init__(
-        self: MenuCommand[_AnyCallbackSigT, _MenuTypeT],
-        callback: _AnyCommandT[_AnyCallbackSigT,],
-        type_: _MenuTypeT,
+        self: MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]],
+        callback: _CallbackishT[_UserCallbackSigT],
+        type_: typing.Literal[hikari.CommandType.USER],
         name: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
@@ -390,9 +346,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
 
     @typing.overload
     def __init__(
-        self,
-        callback: _AnyMenuCallbackSigT,
-        type_: _MenuTypeT,
+        self: MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]],
+        callback: _CallbackishT[_MessageCallbackSigT],
+        type_: typing.Literal[hikari.CommandType.MESSAGE],
         name: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
@@ -406,8 +362,8 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         ...
 
     def __init__(
-        self: MenuCommand[_AnyCallbackSigT, _MenuTypeT],
-        callback: _CallbackishT[_AnyCallbackSigT],
+        self,
+        callback: _CallbackishT[_AnyMenuCallbackSigT],
         type_: _MenuTypeT,
         name: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -471,7 +427,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
 
         Returns
         -------
-        collections.abc.Callable[[tanjun.abc.MenuCommandCallbackSig], MenuCommand]
+        collections.abc.Callable[[tanjun.abc.MenuCallbackSig], MenuCommand]
             The decorator callback used to make a [tanjun.MenuCommand][].
 
             This can either wrap a raw command callback or another callable command instance
