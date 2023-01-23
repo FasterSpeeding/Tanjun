@@ -1,0 +1,2 @@
+-r ../piped/python/base-requirements/library-flake8.in
+flake8-new-union-types>=0.4.1, <1
