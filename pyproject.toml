@@ -142,7 +142,7 @@ project_name = "tanjun"
 top_level_targets = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 
 [tool.piped.github_actions."*"]
-default_py_ver = "3.10"
+default_py_ver = "3.10.5"
 
 [tool.piped.github_actions.freeze_for_pr]
 [tool.piped.github_actions.lint]
