@@ -1086,7 +1086,9 @@ def test_with_converted():
     async def command(
         ctx: tanjun.abc.Context,
         boo: typing.Annotated[annotations.Str, annotations.Converted(mock_callback_1, mock_callback_2), "description"],
-        bam: typing.Annotated[typing.Optional[annotations.Int], annotations.Converted(mock_callback_3), "nom"] = None,
+        bam: typing.Annotated[
+            typing.Optional[annotations.Int], annotations.Converted(mock_callback_3), "nom"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -1578,7 +1580,9 @@ def test_with_length():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Str, annotations.Length(123), "nom"],
-        other_value: typing.Annotated[typing.Optional[annotations.Str], annotations.Length(5544), "meow"] = None,
+        other_value: typing.Annotated[
+            typing.Optional[annotations.Str], annotations.Length(5544), "meow"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -1658,7 +1662,9 @@ def test_with_length_when_min_specificed():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Str, annotations.Length(43, 5444), "nom"],
-        other_value: typing.Annotated[typing.Optional[annotations.Str], annotations.Length(32, 4343), "meow"] = None,
+        other_value: typing.Annotated[
+            typing.Optional[annotations.Str], annotations.Length(32, 4343), "meow"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -1738,7 +1744,7 @@ def test_with_generic_length():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Length[123], "nom"],
-        other_value: typing.Annotated[typing.Optional[annotations.Length[5544]], "meow"] = None,
+        other_value: typing.Annotated[typing.Optional[annotations.Length[5544]], "meow"] = None,  # noqa: NU002
     ) -> None:
         ...
 
@@ -1818,7 +1824,7 @@ def test_with_generic_length_when_min_specificed():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Length[43, 5444], "nom"],
-        other_value: typing.Annotated[typing.Optional[annotations.Length[32, 4343]], "meow"] = None,
+        other_value: typing.Annotated[typing.Optional[annotations.Length[32, 4343]], "meow"] = None,  # noqa: NU002
     ) -> None:
         ...
 
@@ -1907,7 +1913,7 @@ def test_with_max(
     async def callback(
         ctx: tanjun.abc.Context,
         bee: typing.Annotated[type_, annotations.Max(value), "eee"],
-        yeet_no: typing.Annotated[typing.Union[type_, None], annotations.Max(value), "eep"] = None,
+        yeet_no: typing.Annotated[typing.Union[type_, None], annotations.Max(value), "eep"] = None,  # noqa: NU001
     ):
         ...
 
@@ -2073,7 +2079,9 @@ def test_with_max_when_int_for_float():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Float, annotations.Max(432), "description"],
-        other_value: typing.Annotated[typing.Union[annotations.Float, bool], annotations.Max(5431), "meow"] = False,
+        other_value: typing.Annotated[
+            typing.Union[annotations.Float, bool], annotations.Max(5431), "meow"  # noqa: NU001
+        ] = False,
     ) -> None:
         ...
 
@@ -2323,7 +2331,9 @@ def test_with_min_when_int_for_float():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Float, annotations.Min(12333), "description"],
-        other_value: typing.Annotated[typing.Union[annotations.Float, bool], annotations.Min(44444), "meow"] = False,
+        other_value: typing.Annotated[
+            typing.Union[annotations.Float, bool], annotations.Min(44444), "meow"  # noqa: NU001
+        ] = False,
     ) -> None:
         ...
 
@@ -2817,7 +2827,9 @@ def test_with_snowflake_or():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Role, annotations.SnowflakeOr(parse_id=mock_callback), "se"],
-        value_2: typing.Annotated[typing.Optional[annotations.User], annotations.SnowflakeOr(), "x"] = None,
+        value_2: typing.Annotated[
+            typing.Optional[annotations.User], annotations.SnowflakeOr(), "x"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -2893,7 +2905,9 @@ def test_with_generic_snowflake_or_for_channel():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.SnowflakeOr[annotations.Channel], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Channel]], "x"] = None,
+        value_2: typing.Annotated[
+            annotations.SnowflakeOr[typing.Optional[annotations.Channel]], "x"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -2969,7 +2983,9 @@ def test_with_generic_snowflake_or_for_member():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.SnowflakeOr[annotations.Member], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Member]], "x"] = None,
+        value_2: typing.Annotated[
+            annotations.SnowflakeOr[typing.Optional[annotations.Member]], "x"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -3045,7 +3061,9 @@ def test_with_generic_snowflake_or_for_mentionable():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.SnowflakeOr[annotations.Mentionable], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Mentionable]], "x"] = None,
+        value_2: typing.Annotated[
+            annotations.SnowflakeOr[typing.Optional[annotations.Mentionable]], "x"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -3121,7 +3139,9 @@ def test_with_generic_snowflake_or_for_role():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.SnowflakeOr[annotations.Role], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Role]], "x"] = None,
+        value_2: typing.Annotated[
+            annotations.SnowflakeOr[typing.Optional[annotations.Role]], "x"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -3197,7 +3217,9 @@ def test_with_generic_snowflake_or_for_user():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.SnowflakeOr[annotations.User], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.User]], "x"] = None,
+        value_2: typing.Annotated[
+            annotations.SnowflakeOr[typing.Optional[annotations.User]], "x"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -3273,7 +3295,9 @@ def test_with_generic_snowflake_or():
     async def callback(
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.SnowflakeOr[annotations.Bool], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Bool]], "x"] = None,
+        value_2: typing.Annotated[
+            annotations.SnowflakeOr[typing.Optional[annotations.Bool]], "x"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -3378,7 +3402,7 @@ def test_with_these_channels(
         ctx: tanjun.abc.Context,
         foo: typing.Annotated[annotations.Channel, annotations.TheseChannels(*channel_types), "meow"],
         bar: typing.Annotated[
-            typing.Optional[annotations.Channel], annotations.TheseChannels(*channel_types), "boom"
+            typing.Optional[annotations.Channel], annotations.TheseChannels(*channel_types), "boom"  # noqa: NU002
         ] = None,
     ):
         ...
@@ -3462,7 +3486,8 @@ def test_with_generic_these_channels():
         ctx: tanjun.abc.Context,
         bb: typing.Annotated[annotations.TheseChannels[hikari.GuildChannel], "nep"],
         bat: typing.Annotated[
-            typing.Optional[annotations.TheseChannels[hikari.GuildVoiceChannel, hikari.PrivateChannel]], "bip"
+            typing.Optional[annotations.TheseChannels[hikari.GuildVoiceChannel, hikari.PrivateChannel]],  # noqa: NU002
+            "bip",
         ] = None,
     ):
         ...
@@ -3557,7 +3582,7 @@ def test_for_attachment_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Attachment, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.Attachment, str], "feet"] = "ok",
+        arg_2: typing.Annotated[typing.Union[annotations.Attachment, str], "feet"] = "ok",  # noqa: NU001
     ) -> None:
         ...
 
@@ -3616,7 +3641,9 @@ def test_for_attachment_option_on_message_command():
 def test_for_attachment_option_on_message_command_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.Attachment] = None) -> None:
+    async def command(
+        ctx: tanjun.abc.Context, arg: typing.Optional[annotations.Attachment] = None  # noqa: NU002
+    ) -> None:
         ...
 
     assert command.parser is None
@@ -3626,7 +3653,9 @@ def test_for_attachment_option_on_message_command_with_default_and_pre_set_parse
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.with_parser
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.Attachment] = None) -> None:
+    async def command(
+        ctx: tanjun.abc.Context, arg: typing.Optional[annotations.Attachment] = None  # noqa: NU002
+    ) -> None:
         ...
 
     assert isinstance(command.parser, tanjun.parsing.ShlexParser)
@@ -3641,7 +3670,7 @@ def test_for_bool_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Bool, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.Bool, str], "feet"] = "ok",
+        arg_2: typing.Annotated[typing.Union[annotations.Bool, str], "feet"] = "ok",  # noqa: NU001
     ) -> None:
         ...
 
@@ -3717,7 +3746,7 @@ def test_for_channel_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Channel, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.Channel, str], "feet"] = "ok",
+        arg_2: typing.Annotated[typing.Union[annotations.Channel, str], "feet"] = "ok",  # noqa: NU001
     ) -> None:
         ...
 
@@ -3794,7 +3823,7 @@ def test_for_interaction_channel_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.InteractionChannel, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.InteractionChannel, str], "feet"] = "ok",
+        arg_2: typing.Annotated[typing.Union[annotations.InteractionChannel, str], "feet"] = "ok",  # noqa: NU001
     ) -> None:
         ...
 
@@ -3857,7 +3886,9 @@ def test_for_interaction_channel_option_on_message_command():
 def test_for_interaction_channel_option_on_message_command_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionChannel] = None) -> None:
+    async def command(
+        ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionChannel] = None  # noqa: NU002
+    ) -> None:
         ...
 
     assert command.parser is None
@@ -3867,7 +3898,9 @@ def test_for_interaction_channel_option_on_message_command_with_default_and_pre_
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.with_parser
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionChannel] = None) -> None:
+    async def command(
+        ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionChannel] = None  # noqa: NU002
+    ) -> None:
         ...
 
     assert isinstance(command.parser, tanjun.parsing.ShlexParser)
@@ -3882,7 +3915,7 @@ def test_for_float_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Float, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.Float, str], "feet"] = "ok",
+        arg_2: typing.Annotated[typing.Union[annotations.Float, str], "feet"] = "ok",  # noqa: NU001
     ) -> None:
         ...
 
@@ -3958,7 +3991,7 @@ def test_for_int_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Int, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.Int, str], "feet"] = "ok",
+        arg_2: typing.Annotated[typing.Union[annotations.Int, str], "feet"] = "ok",  # noqa: NU001
     ) -> None:
         ...
 
@@ -4034,7 +4067,7 @@ def test_for_member_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Member, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.Member, str], "feet"] = "ok",
+        arg_2: typing.Annotated[typing.Union[annotations.Member, str], "feet"] = "ok",  # noqa: NU001
     ) -> None:
         ...
 
@@ -4109,7 +4142,7 @@ def test_for_interaction_member_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.InteractionMember, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.InteractionMember, str], "feet"] = "ok",
+        arg_2: typing.Annotated[typing.Union[annotations.InteractionMember, str], "feet"] = "ok",  # noqa: NU001
     ) -> None:
         ...
 
@@ -4171,7 +4204,9 @@ def test_for_interaction_member_option_on_message_command():
 def test_for_interaction_member_option_on_message_command_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionMember] = None) -> None:
+    async def command(
+        ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionMember] = None  # noqa: NU002
+    ) -> None:
         ...
 
     assert command.parser is None
@@ -4181,7 +4216,9 @@ def test_for_interaction_member_option_on_message_command_with_default_and_pre_s
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.with_parser
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionMember] = None) -> None:
+    async def command(
+        ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionMember] = None  # noqa: NU002
+    ) -> None:
         ...
 
     assert isinstance(command.parser, tanjun.parsing.ShlexParser)
@@ -4196,7 +4233,7 @@ def test_for_mentionable_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Mentionable, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.Mentionable, str], "feet"] = "ok",
+        arg_2: typing.Annotated[typing.Union[annotations.Mentionable, str], "feet"] = "ok",  # noqa: NU001
     ) -> None:
         ...
 
@@ -4272,7 +4309,7 @@ def test_for_role_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Role, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.Role, str], "feet"] = "ok",
+        arg_2: typing.Annotated[typing.Union[annotations.Role, str], "feet"] = "ok",  # noqa: NU001
     ) -> None:
         ...
 
@@ -4348,7 +4385,7 @@ def test_for_str_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Str, "yeet"],
-        arg_2: typing.Annotated[typing.Union[bool, annotations.Str], "feet"] = False,
+        arg_2: typing.Annotated[typing.Union[bool, annotations.Str], "feet"] = False,  # noqa: NU001
     ) -> None:
         ...
 
@@ -4424,7 +4461,7 @@ def test_for_user_option():
     async def command(
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.User, "yeet"],
-        arg_2: typing.Annotated[typing.Union[str, annotations.User], "feet"] = "bye",
+        arg_2: typing.Annotated[typing.Union[str, annotations.User], "feet"] = "bye",  # noqa: NU001
     ) -> None:
         ...
 
@@ -4500,8 +4537,10 @@ def test_when_annotated_not_top_level():
     async def command(
         ctx: tanjun.abc.Context,
         *,
-        value: typing.Union[typing.Annotated[annotations.Positional[annotations.Str], "nyaa"], bool] = False,
-        other_value: typing.Optional[typing.Annotated[annotations.Ranged[123, 432], "meow"]] = None,
+        value: typing.Union[
+            typing.Annotated[annotations.Positional[annotations.Str], "nyaa"], bool  # noqa: NU001
+        ] = False,
+        other_value: typing.Optional[typing.Annotated[annotations.Ranged[123, 432], "meow"]] = None,  # noqa: NU002
     ) -> None:
         raise NotImplementedError
 
@@ -4636,8 +4675,10 @@ def test_when_annotated_handles_unions():
     async def command(
         ctx: tanjun.abc.Context,
         *,
-        value: typing.Annotated[typing.Union[annotations.Positional[annotations.Str], bool], "nyaa"] = False,
-        other_value: typing.Annotated[typing.Optional[annotations.Ranged[123, 432]], "meow"] = None,
+        value: typing.Annotated[
+            typing.Union[annotations.Positional[annotations.Str], bool], "nyaa"  # noqa: NU001
+        ] = False,
+        other_value: typing.Annotated[typing.Optional[annotations.Ranged[123, 432]], "meow"] = None,  # noqa: NU002
     ) -> None:
         raise NotImplementedError
 

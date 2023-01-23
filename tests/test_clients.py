@@ -1366,7 +1366,9 @@ class TestClient:
         add_listener_.assert_called_once_with(hikari.BanEvent, callback)
 
     def test_with_listener_with_type_hint_union(self):
-        async def callback(event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]) -> None:
+        async def callback(
+            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]  # noqa: NU003
+        ) -> None:
             ...
 
         add_listener_ = mock.Mock()
@@ -1384,8 +1386,10 @@ class TestClient:
     def test_with_listener_with_type_hint_union_nested_annotated(self):
         async def callback(
             event: typing.Annotated[
-                typing.Union[
-                    typing.Annotated[typing.Union[hikari.RoleEvent, hikari.ReactionDeleteEvent], 123, 321],
+                typing.Union[  # noqa: NU001
+                    typing.Annotated[
+                        typing.Union[hikari.RoleEvent, hikari.ReactionDeleteEvent], 123, 321  # noqa: NU001
+                    ],
                     hikari.GuildEvent,
                 ],
                 True,

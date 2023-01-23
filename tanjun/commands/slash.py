@@ -75,12 +75,12 @@ if typing.TYPE_CHECKING:
     _AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=tanjun.AutocompleteCallbackSig)
     _AnyBaseSlashCommandT = typing.TypeVar("_AnyBaseSlashCommandT", bound="tanjun.BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
-    _CommandT = typing.Union[
-        tanjun.MenuCommand["_CommandCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_CommandCallbackSigT"],
-        tanjun.SlashCommand["_CommandCallbackSigT"],
-    ]
-    _CallbackishT = typing.Union["_CommandCallbackSigT", _CommandT["_CommandCallbackSigT"]]
+    _CommandT = (
+        tanjun.MenuCommand["_CommandCallbackSigT", typing.Any]
+        | tanjun.MessageCommand["_CommandCallbackSigT"]
+        | tanjun.SlashCommand["_CommandCallbackSigT"]
+    )
+    _CallbackishT: typing.TypeAlias = "_CommandCallbackSigT | _CommandT[_CommandCallbackSigT]"
 
 _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}

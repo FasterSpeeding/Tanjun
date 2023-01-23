@@ -35,6 +35,8 @@ __all__: list[str] = ["MenuCommand", "as_message_menu", "as_user_menu"]
 
 import typing
 
+import hikari
+
 from .. import _internal
 from .. import abc as tanjun
 from .. import components
@@ -53,9 +55,8 @@ if typing.TYPE_CHECKING:
         | tanjun.MessageCommand["_MenuCommandCallbackSigT"]
         | tanjun.SlashCommand["_MenuCommandCallbackSigT"]
     )
-    _CallbackishT = typing.Union["_MenuCommandCallbackSigT", _CommandT["_MenuCommandCallbackSigT"]]
+    _CallbackishT: typing.TypeAlias = "_MenuCommandCallbackSigT | _CommandT[_MenuCommandCallbackSigT]"
 
-import hikari
 
 _MenuCommandCallbackSigT = typing.TypeVar("_MenuCommandCallbackSigT", bound="tanjun.MenuCommandCallbackSig")
 _MenuTypeT = typing.TypeVar(
