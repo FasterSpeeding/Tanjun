@@ -150,7 +150,7 @@ default_py_ver = "3.10.5"
 [tool.piped.github_actions.publish]
 [tool.piped.github_actions.py_test]
 codeclimate_token = "117363998d7c6b4bab4ac57348026e1089767e142ccca3eb8cc37da6cf4cc8b9"
-python_versions = ["3.9", "3.10", "3.11"]
+python_versions = ["3.10", "3.11"]
 
 [tool.piped.github_actions.reformat]
 [tool.piped.github_actions.release_docs]
