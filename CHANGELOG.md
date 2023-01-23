@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### [2.11.2] - 2023-01-23
 ### Changed
 - [tanjun.clients.Client.from_gateway_bot][] can now also take cache-less `ShardAware` bots.
 
@@ -841,7 +842,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for python 3.8 in-order to switch over to using collection.abc generic classes due to this being more
   forward compatible.
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.11.1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.11.2...HEAD
+[2.11.2]: https://github.com/FasterSpeeding/Tanjun/compare/v2.11.1...v2.11.2
 [2.11.1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.11.0...v2.11.1
 [2.11.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.10.1a1...v2.11.0
 [2.10.1a1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.10.0a1...v2.10.1a1
