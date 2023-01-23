@@ -141,6 +141,9 @@ extra_test_installs = ["."]
 project_name = "tanjun"
 top_level_targets = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 
+[tool.piped.github_actions."*"]
+default_py_ver = "3.10"
+
 [tool.piped.github_actions.freeze_for_pr]
 [tool.piped.github_actions.lint]
 [tool.piped.github_actions.pr_docs]
