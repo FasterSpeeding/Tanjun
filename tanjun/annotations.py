@@ -93,13 +93,13 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
 _T = typing.TypeVar("_T")
-_ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
+_ChannelTypeIsh = type[hikari.PartialChannel] | int
 _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
-_ChoiceUnion = typing.Union[int, float, str]
-_CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
+_ChoiceUnion = int | float | str
+_CommandUnion = slash.SlashCommand[typing.Any] | message.MessageCommand[typing.Any]
 _CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
 _EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
-_MentionableUnion = typing.Union[hikari.User, hikari.Role]
+_MentionableUnion = hikari.User | hikari.Role
 _NumberT = typing.TypeVar("_NumberT", float, int)
 
 
@@ -173,7 +173,7 @@ InteractionMember = typing.Annotated[hikari.InteractionMember, _OptionMarker(hik
     commands (unlike [annotations.Member][tanjun.annotations.Member]).
 """
 
-Mentionable = typing.Annotated[typing.Union[hikari.User, hikari.Role], _OptionMarker(_MentionableUnion)]
+Mentionable = typing.Annotated[hikari.User | hikari.Role, _OptionMarker(_MentionableUnion)]
 """An argument which takes a user or role."""
 
 Role = typing.Annotated[hikari.Role, _OptionMarker(hikari.Role)]
@@ -231,11 +231,9 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
     def __init__(
         self,
-        mapping: typing.Union[
-            collections.Mapping[str, _ChoiceT],
-            collections.Sequence[tuple[str, _ChoiceT]],
-            collections.Sequence[_ChoiceT],
-        ] = (),
+        mapping: collections.Mapping[str, _ChoiceT] |
+            collections.Sequence[tuple[str, _ChoiceT]]|
+            collections.Sequence[_ChoiceT] = (),
         /,
         **kwargs: _ChoiceT,
     ) -> None:
@@ -268,7 +266,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
 class _ConvertedMeta(abc.ABCMeta):
     def __getitem__(
-        cls, converters: typing.Union[parsing.ConverterSig[_T], tuple[parsing.ConverterSig[_T]]], /
+        cls, converters: parsing.ConverterSig[_T] | tuple[parsing.ConverterSig[_T]], /
     ) -> type[_T]:
         if not isinstance(converters, tuple):
             converters = (converters,)
@@ -340,7 +338,7 @@ Snowflake = typing.Annotated[hikari.Snowflake, Converted(conversion.parse_snowfl
 
 
 class _DefaultMeta(abc.ABCMeta):
-    def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], _T]], /) -> type[_T]:
+    def __getitem__(cls, value: type[_T] | tuple[type[_T], _T], /) -> type[_T]:
         if isinstance(value, tuple):
             type_ = value[0]
             return typing.cast(type[_T], typing.Annotated[type_, Default(value[1])])
@@ -382,7 +380,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
 
     __slots__ = ("_default",)
 
-    def __init__(self, default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED, /) -> None:
+    def __init__(self, default: typing.Any | parsing.UndefinedT = parsing.UNDEFINED, /) -> None:
         """Initialise a default.
 
         Parameters
@@ -396,7 +394,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
         self._default = default
 
     @property
-    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
+    def default(self) -> typing.Any | parsing.UndefinedT:
         """The option's default.
 
         This will override the default in the signature for this parameter.
@@ -433,8 +431,8 @@ class Flag(_ConfigIdentifier):
         self,
         *,
         aliases: typing.Optional[collections.Sequence[str]] = None,
-        default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED,
-        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
+        default: typing.Any | parsing.UndefinedT = parsing.UNDEFINED,
+        empty_value: parsing.UndefinedT | typing.Any = parsing.UNDEFINED,
     ) -> None:
         """Create a flag instance.
 
@@ -471,7 +469,7 @@ class Flag(_ConfigIdentifier):
         return self._aliases
 
     @property
-    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
+    def default(self) -> typing.Any | parsing.UndefinedT:
         """The flag's default.
 
         If not specified then the default in the signature for this argument
@@ -481,7 +479,7 @@ class Flag(_ConfigIdentifier):
         return self._default
 
     @property
-    def empty_value(self) -> typing.Union[parsing.UndefinedT, typing.Any]:
+    def empty_value(self) -> parsing.UndefinedT | typing.Any:
         """The value to pass for the argument if the flag is provided without a value.
 
         If this is undefined then a value will always need to be passed for the flag.
@@ -566,7 +564,7 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
 
 
 class _LengthMeta(abc.ABCMeta):
-    def __getitem__(cls, value: typing.Union[int, tuple[int, int]], /) -> type[str]:
+    def __getitem__(cls, value: int | tuple[int, int], /) -> type[str]:
         if isinstance(value, int):
             obj = Length(value)
 
@@ -694,7 +692,7 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
 
     __slots__ = ("_value",)
 
-    def __init__(self, value: typing.Union[int, float], /) -> None:
+    def __init__(self, value: int | float, /) -> None:
         """Create an argument maximum value.
 
         Parameters
@@ -705,7 +703,7 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
         self._value = value
 
     @property
-    def value(self) -> typing.Union[int, float]:
+    def value(self) -> int | float:
         """The maximum allowed value."""
         return self._value
 
@@ -743,7 +741,7 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
 
     __slots__ = ("_value",)
 
-    def __init__(self, value: typing.Union[int, float], /) -> None:
+    def __init__(self, value: int | float, /) -> None:
         """Create an argument minimum value.
 
         Parameters
@@ -754,7 +752,7 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
         self._value = value
 
     @property
-    def value(self) -> typing.Union[int, float]:
+    def value(self) -> int | float:
         """The minimum allowed  value."""
         return self._value
 
@@ -881,7 +879,7 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
 
     __slots__ = ("_max_value", "_min_value")
 
-    def __init__(self, min_value: typing.Union[int, float], max_value: typing.Union[int, Float], /) -> None:
+    def __init__(self, min_value: int | float, max_value: int | Float, /) -> None:
         """Create an argument range limit.
 
         Parameters
@@ -895,12 +893,12 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
         self._min_value = min_value
 
     @property
-    def max_value(self) -> typing.Union[int, float]:
+    def max_value(self) -> int | float:
         """The maximum allowed value for this argument."""
         return self._max_value
 
     @property
-    def min_value(self) -> typing.Union[int, float]:
+    def min_value(self) -> int | float:
         """The minimum allowed value for this argument."""
         return self._min_value
 
@@ -919,7 +917,7 @@ _SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Sn
 
 
 class _SnowflakeOrMeta(abc.ABCMeta):
-    def __getitem__(cls, type_: type[_T], /) -> type[typing.Union[hikari.Snowflake, _T]]:
+    def __getitem__(cls, type_: type[_T], /) -> type[hikari.Snowflake | _T]:
         for entry in _snoop_annotation_args(type_):
             if not isinstance(entry, _OptionMarker):
                 continue
@@ -938,8 +936,8 @@ class _SnowflakeOrMeta(abc.ABCMeta):
             descriptor = SnowflakeOr()
 
         return typing.cast(
-            type[typing.Union[hikari.Snowflake, _T]],
-            typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor],
+            type[hikari.Snowflake | _T],
+            typing.Annotated[hikari.Snowflake | type_, descriptor],
         )
 
 
@@ -1010,7 +1008,7 @@ class _TypeOverride(_ConfigIdentifier):
 
 class _TheseChannelsMeta(abc.ABCMeta):
     def __getitem__(
-        cls, value: typing.Union[_ChannelTypeIsh, collections.Collection[_ChannelTypeIsh]], /
+        cls, value: _ChannelTypeIsh | collections.Collection[_ChannelTypeIsh], /
     ) -> type[hikari.PartialChannel]:
         if not isinstance(value, collections.Collection):
             value = (value,)
@@ -1119,17 +1117,17 @@ class _ArgConfig:
         self.converters: typing.Optional[collections.Sequence[parsing.ConverterSig[typing.Any]]] = None
         self.default: typing.Any = parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
         self.description: typing.Optional[str] = description
-        self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
+        self.empty_value: parsing.UndefinedT | typing.Any = parsing.UNDEFINED
         self.is_greedy: bool = False
         self.is_positional: typing.Optional[bool] = None
         self.min_length: typing.Optional[int] = None
         self.max_length: typing.Optional[int] = None
-        self.min_value: typing.Union[float, int, None] = None
-        self.max_value: typing.Union[float, int, None] = None
+        self.min_value: float | int | None = None
+        self.max_value: float | int | None = None
         self.message_name: str = "--" + parameter.name.replace("_", "-")
         self.option_type: typing.Optional[type[typing.Any]] = None
         self.parameter: inspect.Parameter = parameter
-        self.range_or_slice: typing.Union[range, slice, None] = None
+        self.range_or_slice: range | slice | None = None
         self.slash_name: str = parameter.name
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
 
@@ -1304,7 +1302,7 @@ def _snoop_annotation_args(type_: typing.Any, /) -> collections.Iterator[typing.
 
 
 def parse_annotated_args(
-    command: typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]],
+    command: slash.SlashCommand[typing.Any] | message.MessageCommand[typing.Any],
     /,
     *,
     descriptions: typing.Optional[collections.Mapping[str, str]] = None,
@@ -1390,7 +1388,7 @@ def with_annotated_args(*, follow_wrapped: bool = False) -> collections.Callable
 
 def with_annotated_args(
     command: typing.Optional[_CommandUnionT] = None, /, *, follow_wrapped: bool = False
-) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
+) -> _CommandUnionT | collections.Callable[[_CommandUnionT], _CommandUnionT]:
     r"""Set a command's arguments based on its signature.
 
     To declare arguments a you will have to do one of two things:

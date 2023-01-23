@@ -54,7 +54,7 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _BuilderDict = dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder]
-    _DirectoryEntry = typing.Union[tuple[str, set[str]], tuple[None, set[pathlib.Path]]]
+    _DirectoryEntry = tuple[str, set[str]] | tuple[None, set[pathlib.Path]]
 
 
 _PathT = typing.TypeVar("_PathT", str, pathlib.Path)
@@ -111,8 +111,8 @@ class HotReloader:
         self,
         *,
         commands_guild: typing.Optional[hikari.SnowflakeishOr[hikari.PartialGuild]] = None,
-        interval: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(microseconds=500000),
-        redeclare_cmds_after: typing.Union[int, float, datetime.timedelta, None] = datetime.timedelta(seconds=10),
+        interval: int | float | datetime.timedelta = datetime.timedelta(microseconds=500000),
+        redeclare_cmds_after: int | float | datetime.timedelta | None = datetime.timedelta(seconds=10),
         unload_on_delete: bool = True,
     ) -> None:
         r"""Initialise a hot reloader.
@@ -151,7 +151,7 @@ class HotReloader:
         self._command_task: typing.Optional[asyncio.Task[None]] = None
         self._commands_guild: hikari.UndefinedOr[hikari.Snowflake]  # MyPy was resolving this to object cause MyPy
         self._commands_guild = hikari.UNDEFINED if commands_guild is None else hikari.Snowflake(commands_guild)
-        self._dead_unloads: set[typing.Union[str, pathlib.Path]] = set()
+        self._dead_unloads: set[str | pathlib.Path] = set()
         """Set of modules which cannot be unloaded."""
         self._declared_builders: _BuilderDict = {}
         """State of the last declared builders."""
@@ -198,7 +198,7 @@ class HotReloader:
         if client.is_alive and client.loop:
             client.loop.call_soon_threadsafe(self.start, client)
 
-    async def add_modules_async(self, *paths: typing.Union[str, pathlib.Path]) -> Self:
+    async def add_modules_async(self, *paths: str | pathlib.Path) -> Self:
         """Asynchronous variant of [tanjun.dependencies.reloaders.HotReloader.add_modules][].
 
         Unlike [tanjun.dependencies.reloaders.HotReloader.add_modules][],
@@ -212,7 +212,7 @@ class HotReloader:
         self._sys_paths.update((key, _PyPathInfo(key)) for key in sys_paths)
         return self
 
-    def add_modules(self, *paths: typing.Union[str, pathlib.Path]) -> Self:
+    def add_modules(self, *paths: str | pathlib.Path) -> Self:
         """Add modules for this hot reloader to track.
 
         Parameters
@@ -236,7 +236,7 @@ class HotReloader:
         return self
 
     async def add_directory_async(
-        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
+        self, directory: str | pathlib.Path, /, *, namespace: typing.Optional[str] = None
     ) -> Self:
         """Asynchronous variant of [tanjun.dependencies.reloaders.HotReloader.add_directory][].
 
@@ -251,7 +251,7 @@ class HotReloader:
         return self
 
     def add_directory(
-        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
+        self, directory: str | pathlib.Path, /, *, namespace: typing.Optional[str] = None
     ) -> Self:
         """Add a directory for this hot reloader to track.
 
@@ -289,7 +289,7 @@ class HotReloader:
         self._directories[path] = info
         return self
 
-    async def _load_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> bool:
+    async def _load_module(self, client: tanjun.Client, path: str | pathlib.Path, /) -> bool:
         for method in (client.reload_modules_async, client.load_modules_async):
             try:
                 await method(path)
@@ -326,7 +326,7 @@ class HotReloader:
 
         return False
 
-    def _unload_module(self, client: tanjun.Client, path: typing.Union[str, pathlib.Path], /) -> bool:
+    def _unload_module(self, client: tanjun.Client, path: str | pathlib.Path, /) -> bool:
         try:
             client.unload_modules(path)
 
@@ -502,7 +502,7 @@ def _to_namespace(namespace: str, path: pathlib.Path, /) -> str:
 
 
 def _add_directory(
-    directory: typing.Union[str, pathlib.Path], namespace: typing.Optional[str], /
+    directory: str | pathlib.Path, namespace: typing.Optional[str], /
 ) -> tuple[pathlib.Path, _DirectoryEntry]:
     directory = pathlib.Path(directory)
     if not directory.exists():
@@ -512,7 +512,7 @@ def _add_directory(
 
 
 def _add_modules(
-    paths: tuple[typing.Union[str, pathlib.Path], ...], /
+    paths: tuple[str | pathlib.Path, ...], /
 ) -> tuple[dict[str, _PyPathInfo], list[pathlib.Path]]:
     py_paths: dict[str, _PyPathInfo] = {}
     sys_paths: list[pathlib.Path] = []
@@ -596,9 +596,9 @@ class _PathLoader(typing.Generic[_PathT]):
     waiting_for: dict[_PathT, int]
     paths: dict[_PathT, _PyPathInfo]
     load_module: collections.Callable[
-        [tanjun.Client, typing.Union[str, pathlib.Path]], collections.Coroutine[typing.Any, typing.Any, bool]
+        [tanjun.Client, str | pathlib.Path], collections.Coroutine[typing.Any, typing.Any, bool]
     ]
-    unload_module: collections.Callable[[tanjun.Client, typing.Union[str, pathlib.Path]], bool]
+    unload_module: collections.Callable[[tanjun.Client, str | pathlib.Path], bool]
     changed: bool = dataclasses.field(default=False, init=False)
 
     async def process_results(

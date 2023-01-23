@@ -211,7 +211,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
 
     async def set_choices(
         self,
-        choices: typing.Union[collections.Mapping[str, _ValueT], collections.Iterable[tuple[str, _ValueT]]] = (),
+        choices: collections.Mapping[str, _ValueT] | collections.Iterable[tuple[str, _ValueT]] = (),
         /,
         **kwargs: _ValueT,
     ) -> None:

@@ -83,16 +83,14 @@ if typing.TYPE_CHECKING:
 
 _T = typing.TypeVar("_T")
 
-ConverterSig = typing.Union[
-    collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]], collections.Callable[..., _T]
-]
+ConverterSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]] | collections.Callable[..., _T]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
 [str][], argument and returns the resultant value.
 """
 
-_MaybeIterable = typing.Union[collections.Iterable[_T], _T]
+_MaybeIterable = collections.Iterable[_T] | _T
 
 
 class UndefinedT:
@@ -124,7 +122,7 @@ UNDEFINED = UndefinedT()
 UNDEFINED_DEFAULT = UNDEFINED
 """Deprecated alias of [UNDEFINED][tanjun.parsing.UNDEFINED]."""
 
-_UndefinedOr = typing.Union[UndefinedT, _T]
+_UndefinedOr = UndefinedT | _T
 
 
 class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
@@ -516,7 +514,7 @@ class _ShlexTokenizer:
 
     def __seek_shlex(
         self,
-    ) -> typing.Union[tuple[typing.Literal[0], str], tuple[typing.Literal[1], tuple[str, typing.Optional[str]]], None]:
+    ) -> tuple[typing.Literal[0], str] | tuple[typing.Literal[1], tuple[str, typing.Optional[str]]] | None:
         option_name = self.__last_name
 
         try:

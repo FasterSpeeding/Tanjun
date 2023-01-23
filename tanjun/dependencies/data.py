@@ -227,12 +227,12 @@ class _CacheCallback(typing.Generic[_T]):
         callback: alluka.abc.CallbackSig[_T],
         /,
         *,
-        expire_after: typing.Union[int, float, datetime.timedelta, None],
+        expire_after: int | float | datetime.timedelta | None,
     ) -> None:
         self._callback = callback
         self._last_called: typing.Optional[float] = None
         self._lock: typing.Optional[asyncio.Lock] = None
-        self._result: typing.Union[_T, alluka.abc.Undefined] = alluka.abc.UNDEFINED
+        self._result: _T | alluka.abc.Undefined = alluka.abc.UNDEFINED
         if expire_after is None:
             pass
         elif isinstance(expire_after, datetime.timedelta):
@@ -274,7 +274,7 @@ class _CacheCallback(typing.Generic[_T]):
 
 
 def cache_callback(
-    callback: alluka.abc.CallbackSig[_T], /, *, expire_after: typing.Union[int, float, datetime.timedelta, None] = None
+    callback: alluka.abc.CallbackSig[_T], /, *, expire_after: int | float | datetime.timedelta | None = None
 ) -> collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]]:
     """Cache the result of a callback within a dependency injection context.
 
@@ -306,7 +306,7 @@ def cache_callback(
 
 
 def cached_inject(
-    callback: alluka.abc.CallbackSig[_T], /, *, expire_after: typing.Union[float, int, datetime.timedelta, None] = None
+    callback: alluka.abc.CallbackSig[_T], /, *, expire_after: float | int | datetime.timedelta | None = None
 ) -> _T:
     """Inject a callback with caching.
 

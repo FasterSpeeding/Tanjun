@@ -65,7 +65,7 @@ good references for how projects should be type-hinted to be `type-complete`.
 **NOTES**
 
 * This project deviates from the common convention of importing types from the typing module and instead
-  imports the typing module itself to use generics and types in it like `typing.Union` and `typing.Optional`.
+  imports the typing module itself to use generics and types in it.
 * Since this project supports python 3.9+, the `typing` types which were deprecated by
   [PEP 585](https://www.python.org/dev/peps/pep-0585/) should be avoided in favour of their `collections.abc`,
   builtin, `re` and `contextlib` equivalents.
@@ -98,5 +98,4 @@ This project follows [semantic versioning 2.0.0](https://semver.org/) and [PEP 4
 * When an abstract class is defined outside of `tanjun.abc` (meaning that its not a part of the standard interface),
   its name should be prefixed with `Abstract`.
 * `collections.abc.Awaitable` is generally preferred over `collections.abc.Coroutine` for interfaces and types.
-* Explicit `|` unions are preferred over using generic union shorthands (e.g. `UndefinedOr`, `Optional`, `SnowflakeishOr`)
-  in documentation.
+* Explicit `|` unions are preferred over using generic union shorthands (e.g. `UndefinedOr`, `Optional`, `SnowflakeishOr`).

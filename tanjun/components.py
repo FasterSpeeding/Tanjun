@@ -69,9 +69,7 @@ _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.A
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
 _WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
 
-OnCallbackSig = typing.Union[
-    collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]], collections.Callable[..., None]
-]
+OnCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]] | collections.Callable[..., None]
 """Type hint of a on_open or on_close component callback.
 
 These support dependency injection, should expect no positional arguments and
@@ -429,7 +427,7 @@ class Component(tanjun.Component):
         self._is_case_sensitive = state
         return self
 
-    def set_default_app_command_permissions(self, permissions: typing.Union[int, hikari.Permissions, None], /) -> Self:
+    def set_default_app_command_permissions(self, permissions: int | hikari.Permissions | None, /) -> Self:
         """Set the default member permissions needed for this component's commands.
 
         !!! warning
@@ -622,7 +620,7 @@ class Component(tanjun.Component):
         return check
 
     def add_client_callback(
-        self, name: typing.Union[str, tanjun.ClientCallbackNames], /, *callbacks: tanjun.MetaEventSig
+        self, name: str | tanjun.ClientCallbackNames, /, *callbacks: tanjun.MetaEventSig
     ) -> Self:
         """Add a client callback.
 
@@ -662,7 +660,7 @@ class Component(tanjun.Component):
         return self
 
     def get_client_callbacks(
-        self, name: typing.Union[str, tanjun.ClientCallbackNames], /
+        self, name: str | tanjun.ClientCallbackNames, /
     ) -> collections.Collection[tanjun.MetaEventSig]:
         """Get a collection of the callbacks registered for a specific name.
 
@@ -714,7 +712,7 @@ class Component(tanjun.Component):
             self._client.remove_client_callback(name, callback)
 
     def with_client_callback(
-        self, name: typing.Union[str, tanjun.ClientCallbackNames], /
+        self, name: str | tanjun.ClientCallbackNames, /
     ) -> collections.Callable[[_MetaEventSigT], _MetaEventSigT]:
         """Add a client callback through a decorator call.
 

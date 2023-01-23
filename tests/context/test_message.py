@@ -308,7 +308,7 @@ class TestMessageContext:
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=123), 123, 123.0])
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_delete_after(
-        self, delete_after: typing.Union[datetime.timedelta, float, int], mock_client: mock.Mock
+        self, delete_after: datetime.timedelta | float | int, mock_client: mock.Mock
     ):
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
@@ -385,7 +385,7 @@ class TestMessageContext:
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=654), 654, 654.0])
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_delete_after(
-        self, mock_client: mock.Mock, delete_after: typing.Union[datetime.timedelta, int, float]
+        self, mock_client: mock.Mock, delete_after: datetime.timedelta | int| float
     ):
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
@@ -526,7 +526,7 @@ class TestMessageContext:
 
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=123), 123, 123.0])
     @pytest.mark.asyncio()
-    async def test_respond_when_delete_after(self, delete_after: typing.Union[int, float, datetime.timedelta]):
+    async def test_respond_when_delete_after(self, delete_after: int | float | datetime.timedelta):
         mock_delete_after = mock.Mock()
         mock_register_task = mock.Mock()
         context = stub_class(

@@ -48,10 +48,9 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _T = typing.TypeVar("_T")
-    _ResponseTypeT = typing.Union[
-        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
-    ]
-
+    _ResponseTypeT = (
+        hikari.api.InteractionMessageBuilder | hikari.api.InteractionDeferredBuilder | hikari.api.InteractionModalBuilder
+    )
 
 _VALID_TYPES: frozenset[typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE]] = frozenset(
     [hikari.CommandType.USER, hikari.CommandType.MESSAGE]
@@ -114,7 +113,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         return next(iter(mapping.keys()))
 
     @property
-    def target(self) -> typing.Union[hikari.InteractionMember, hikari.User, hikari.Message]:
+    def target(self) -> hikari.InteractionMember | hikari.User | hikari.Message:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
         mapping = (
@@ -163,12 +162,12 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         ...
 
     @typing.overload
-    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
+    def resolve_to_member(self, *, default: _T) -> hikari.InteractionMember | _T:
         ...
 
     def resolve_to_member(
-        self, *, default: typing.Union[_T, _internal.NoDefault] = _internal.NO_DEFAULT
-    ) -> typing.Union[hikari.InteractionMember, _T]:
+        self, *, default: _T | _internal.NoDefault = _internal.NO_DEFAULT
+    ) -> hikari.InteractionMember | _T:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
         if self._interaction.resolved.members:
@@ -190,7 +189,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
 
         raise TypeError("Cannot resolve user menu context to a message")
 
-    def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
+    def resolve_to_user(self) -> hikari.User | hikari.Member:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
         return self.resolve_to_member(default=None) or next(iter(self._interaction.resolved.users.values()))

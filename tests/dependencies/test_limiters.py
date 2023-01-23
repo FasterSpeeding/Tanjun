@@ -1128,7 +1128,7 @@ class TestInMemoryCooldownManager:
 
     @pytest.mark.parametrize("reset_after", [datetime.timedelta(seconds=69), 69, 69.0])
     def test_set_bucket_handles_different_reset_after_types(
-        self, reset_after: typing.Union[datetime.timedelta, int, float]
+        self, reset_after: datetime.timedelta | int | float
     ):
         manager = tanjun.dependencies.InMemoryCooldownManager()
 
@@ -1207,7 +1207,7 @@ class TestInMemoryCooldownManager:
             assert cooldown.reset_after == datetime.timedelta(seconds=666)
 
     @pytest.mark.parametrize("reset_after", [datetime.timedelta(seconds=-42), -431, -0.123])
-    def test_set_bucket_when_reset_after_is_negative(self, reset_after: typing.Union[datetime.timedelta, float, int]):
+    def test_set_bucket_when_reset_after_is_negative(self, reset_after: datetime.timedelta | float| int):
         manager = tanjun.dependencies.InMemoryCooldownManager()
 
         with pytest.raises(ValueError, match="reset_after must be greater than 0 seconds"):

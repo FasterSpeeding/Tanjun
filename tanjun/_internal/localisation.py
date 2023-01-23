@@ -55,7 +55,7 @@ class MaybeLocalised:
     def __init__(
         self,
         field_name: str,
-        field: typing.Union[str, collections.Mapping[str, str], collections.Iterable[tuple[str, str]]],
+        field: str | collections.Mapping[str, str] | collections.Iterable[tuple[str, str]],
         /,
     ) -> None:
         """Initialise an instance of MaybeLocalised.
@@ -209,7 +209,7 @@ _TYPE_TO_STR: dict[hikari.CommandType, _CommandTypes] = {
 }
 _NamedFields = typing.Literal["check", "option.description", "option.name"]
 _UnnamedFields = typing.Literal["description", "name"]
-_FieldType = typing.Union[_NamedFields, _UnnamedFields]
+_FieldType = _NamedFields | _UnnamedFields
 
 
 @typing.overload

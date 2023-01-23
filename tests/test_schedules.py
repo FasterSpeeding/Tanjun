@@ -172,7 +172,7 @@ class TestIntervalSchedule:
     @pytest.mark.parametrize(
         "interval", [datetime.timedelta(days=7, hours=13, minutes=8, seconds=54), 652134, 652134.0]
     )
-    def test_interval_property(self, interval: typing.Union[int, float, datetime.timedelta]):
+    def test_interval_property(self, interval: int | float | datetime.timedelta):
         interval_ = tanjun.schedules.IntervalSchedule(mock.Mock(), interval)
 
         assert interval_.interval == datetime.timedelta(days=7, hours=13, minutes=8, seconds=54)

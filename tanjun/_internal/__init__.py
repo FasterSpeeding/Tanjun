@@ -372,7 +372,7 @@ for _channel_cls, _types in CHANNEL_TYPES.copy().items():
 CHANNEL_TYPES[hikari.InteractionChannel] = CHANNEL_TYPES[hikari.PartialChannel]
 
 
-def parse_channel_types(*channel_types: typing.Union[type[hikari.PartialChannel], int]) -> list[hikari.ChannelType]:
+def parse_channel_types(*channel_types: type[hikari.PartialChannel] | int) -> list[hikari.ChannelType]:
     """Parse a channel types collection to a list of channel type integers."""
     types_iter = itertools.chain.from_iterable(
         (hikari.ChannelType(type_),) if isinstance(type_, int) else CHANNEL_TYPES[type_] for type_ in channel_types
@@ -407,8 +407,8 @@ def repr_channel(channel_type: hikari.ChannelType, /) -> str:
 
 
 def cmp_command(
-    cmd: typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder],
-    other: typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder, None],
+    cmd: hikari.PartialCommand | hikari.api.CommandBuilder,
+    other: hikari.PartialCommand | hikari.api.CommandBuilder | None,
     /,
 ) -> bool:
     """Compare application command objects and command builders."""
@@ -440,9 +440,9 @@ def cmp_command(
 
 
 def cmp_all_commands(
-    commands: collections.Collection[typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder]],
+    commands: collections.Collection[hikari.PartialCommand | hikari.api.CommandBuilder],
     other: collections.Mapping[
-        tuple[hikari.CommandType, str], typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder]
+        tuple[hikari.CommandType, str], hikari.PartialCommand | hikari.api.CommandBuilder
     ],
     /,
 ) -> bool:

@@ -140,7 +140,7 @@ class _ComponentProto(typing.Protocol):
 
 
 def as_interval(
-    interval: typing.Union[int, float, datetime.timedelta],
+    interval: int | float | datetime.timedelta,
     /,
     *,
     fatal_exceptions: collections.Sequence[type[Exception]] = (),
@@ -217,7 +217,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
     def __init__(
         self,
         callback: _CallbackSigT,
-        interval: typing.Union[datetime.timedelta, int, float],
+        interval: datetime.timedelta | int | float,
         /,
         *,
         fatal_exceptions: collections.Sequence[type[Exception]] = (),
@@ -557,7 +557,7 @@ def _get_next(target_values: collections.Sequence[int], current_value: int, /) -
 
 
 def _to_sequence(
-    values: typing.Union[int, collections.Sequence[int], None], min_: int, max_: int, name: str, /
+    values: int | collections.Sequence[int] | None, min_: int, max_: int, name: str, /
 ) -> typing.Optional[collections.Sequence[int]]:
     if values is None:
         return None
@@ -798,12 +798,12 @@ class _Datetime:
 
 def as_time_schedule(
     *,
-    months: typing.Union[int, collections.Sequence[int]] = (),
+    months: int | collections.Sequence[int] = (),
     weekly: bool = False,
-    days: typing.Union[int, collections.Sequence[int]] = (),
-    hours: typing.Union[int, collections.Sequence[int]] = (),
-    minutes: typing.Union[int, collections.Sequence[int]] = (),
-    seconds: typing.Union[int, collections.Sequence[int]] = 0,
+    days: int | collections.Sequence[int] = (),
+    hours: int | collections.Sequence[int] = (),
+    minutes: int | collections.Sequence[int] = (),
+    seconds: int | collections.Sequence[int] = 0,
     fatal_exceptions: collections.Sequence[type[Exception]] = (),
     ignored_exceptions: collections.Sequence[type[Exception]] = (),
     timezone: typing.Optional[datetime.timezone] = None,
@@ -927,12 +927,12 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         callback: _CallbackSigT,
         /,
         *,
-        months: typing.Union[int, collections.Sequence[int]] = (),
+        months: int | collections.Sequence[int] = (),
         weekly: bool = False,
-        days: typing.Union[int, collections.Sequence[int]] = (),
-        hours: typing.Union[int, collections.Sequence[int]] = (),
-        minutes: typing.Union[int, collections.Sequence[int]] = (),
-        seconds: typing.Union[int, collections.Sequence[int]] = 0,
+        days: int | collections.Sequence[int] = (),
+        hours: int | collections.Sequence[int] = (),
+        minutes: int | collections.Sequence[int] = (),
+        seconds: int | collections.Sequence[int] = 0,
         fatal_exceptions: collections.Sequence[type[Exception]] = (),
         ignored_exceptions: collections.Sequence[type[Exception]] = (),
         timezone: typing.Optional[datetime.timezone] = None,

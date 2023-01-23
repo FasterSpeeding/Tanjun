@@ -52,7 +52,7 @@ if typing.TYPE_CHECKING:
 _LOGGER = logging.getLogger("hikari.tanjun.context")
 
 
-def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int], /) -> float:
+def _delete_after_to_float(delete_after: datetime.timedelta | float | int, /) -> float:
     return delete_after.total_seconds() if isinstance(delete_after, datetime.timedelta) else float(delete_after)
 
 
@@ -238,7 +238,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        delete_after: datetime.timedelta | float  | int | None = None,
         attachment: hikari.UndefinedNoneOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedNoneOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -246,12 +246,8 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole]  | bool | hikari.UndefinedType = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
@@ -281,7 +277,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedNoneOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedNoneOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -289,12 +285,8 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
@@ -348,7 +340,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = True,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -356,15 +348,11 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        reply: typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType] = False,
+        reply: bool | hikari.SnowflakeishOr[hikari.PartialMessage] | hikari.UndefinedType = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         mentions_reply: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None

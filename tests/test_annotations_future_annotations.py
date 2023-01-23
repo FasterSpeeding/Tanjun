@@ -642,9 +642,9 @@ def test_choices(
 def test_choices_and_mixed_values(
     type_: type[_ChoiceT],
     type_repr: type[_ChoiceT],
-    choices: typing.Union[
-        collections.Sequence[_ChoiceT], collections.Sequence[tuple[str, _ChoiceT]], collections.Mapping[str, _ChoiceT]
-    ],
+    choices: (
+        collections.Sequence[_ChoiceT] | collections.Sequence[tuple[str, _ChoiceT]] | collections.Mapping[str, _ChoiceT]
+    ),
     mismatched_type: type[typing.Any],
 ):
     global choices_
@@ -1785,8 +1785,8 @@ def test_with_generic_length_when_min_specificed():
     ],
 )
 def test_with_max(
-    type_: type[typing.Union[int, float]],
-    value: typing.Union[int, float],
+    type_: type[int | float],
+    value: int | float,
     raw_type: type[typing.Any],
     option_type: hikari.OptionType,
 ):
@@ -1874,7 +1874,7 @@ def test_with_max(
     [(543, int, hikari.OptionType.INTEGER), (234.432, float, hikari.OptionType.FLOAT)],
 )
 def test_with_generic_max(
-    value: typing.Union[int, float], converter: typing.Union[type[int], type[float]], option_type: hikari.OptionType
+    value: int | float, converter: type[int] | type[float], option_type: hikari.OptionType
 ):
     global value_
     value_ = value
@@ -2048,10 +2048,10 @@ def test_with_max_when_int_for_float():
     ],
 )
 def test_with_min(
-    type_: type[typing.Union[int, float]],
-    raw_type: type[typing.Union[int, float]],
+    type_: type[int  | float],
+    raw_type: type[int | float],
     option_type: hikari.OptionType,
-    value: typing.Union[int, float],
+    value: int | float,
 ):
     global type__
     global value_
@@ -2137,7 +2137,7 @@ def test_with_min(
     [(123, int, hikari.OptionType.INTEGER), (123.321, float, hikari.OptionType.FLOAT)],
 )
 def test_with_generic_min(
-    value: typing.Union[int, float], converter: typing.Union[type[int], type[float]], option_type: hikari.OptionType
+    value: int | float, converter: type[int] | type[float], option_type: hikari.OptionType
 ):
     global value_
     value_ = value
@@ -2644,9 +2644,9 @@ def test_with_ranged():
     ],
 )
 def test_with_generic_ranged(
-    min_value: typing.Union[float, int],
-    max_value: typing.Union[float, int],
-    converter: typing.Union[type[float], type[int]],
+    min_value: float | int,
+    max_value: float | int,
+    converter: type[float] | type[int],
     option_type: hikari.OptionType,
 ):
     global min_value_
@@ -3289,7 +3289,7 @@ def test_with_generic_snowflake_or():
     ],
 )
 def test_with_these_channels(
-    channel_types: collections.Sequence[typing.Union[hikari.ChannelType, type[hikari.PartialChannel]]],
+    channel_types: collections.Sequence[hikari.ChannelType | type[hikari.PartialChannel]],
     expected_types: set[hikari.ChannelType],
 ):
     global channel_types_

@@ -499,7 +499,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         """
 
         def decorator(
-            callback: typing.Union[_OtherCallbackSigT, _CommandT[_OtherCallbackSigT]], /
+            callback: _OtherCallbackSigT | _CommandT[_OtherCallbackSigT], /
         ) -> MessageCommand[_OtherCallbackSigT]:
             return self.with_command(as_message_command(name, *names, validate_arg_keys=validate_arg_keys)(callback))
 
@@ -534,7 +534,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         """
 
         def decorator(
-            callback: typing.Union[_OtherCallbackSigT, _CommandT[_OtherCallbackSigT]], /
+            callback: _OtherCallbackSigT | _CommandT[_OtherCallbackSigT], /
         ) -> MessageCommandGroup[_OtherCallbackSigT]:
             return self.with_command(
                 as_message_command_group(name, *names, strict=strict, validate_arg_keys=validate_arg_keys)(callback)

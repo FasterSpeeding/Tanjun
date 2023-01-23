@@ -48,11 +48,11 @@ if typing.TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    _CommandT = typing.Union[
-        tanjun.MenuCommand["_MenuCommandCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_MenuCommandCallbackSigT"],
-        tanjun.SlashCommand["_MenuCommandCallbackSigT"],
-    ]
+    _CommandT = (
+        tanjun.MenuCommand["_MenuCommandCallbackSigT", typing.Any] |
+        tanjun.MessageCommand["_MenuCommandCallbackSigT"] |
+        tanjun.SlashCommand["_MenuCommandCallbackSigT"]
+    )
     _CallbackishT = typing.Union["_MenuCommandCallbackSigT", _CommandT["_MenuCommandCallbackSigT"]]
 
 import hikari
@@ -65,12 +65,12 @@ _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
 def _as_menu(
-    name: typing.Union[str, collections.Mapping[str, str]],
+    name: str | collections.Mapping[str, str],
     type_: _MenuTypeT,
     /,
     *,
     always_defer: bool = False,
-    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+    default_member_permissions: hikari.Permissions | int | None = None,
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
@@ -116,11 +116,11 @@ class _ResultProto(typing.Protocol[_MenuTypeT]):
 
 
 def as_message_menu(
-    name: typing.Union[str, collections.Mapping[str, str]],
+    name: str | collections.Mapping[str, str],
     /,
     *,
     always_defer: bool = False,
-    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+    default_member_permissions: hikari.Permissions | int | None = None,
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
@@ -204,11 +204,11 @@ def as_message_menu(
 
 
 def as_user_menu(
-    name: typing.Union[str, collections.Mapping[str, str]],
+    name: str | collections.Mapping[str, str],
     /,
     *,
     always_defer: bool = False,
-    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+    default_member_permissions: hikari.Permissions | int | None = None,
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
@@ -319,11 +319,11 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         self,
         callback: _CommandT[_MenuCommandCallbackSigT],
         type_: _MenuTypeT,
-        name: typing.Union[str, collections.Mapping[str, str]],
+        name: str | collections.Mapping[str, str],
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+        default_member_permissions: hikari.Permissions | int | None = None,
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
@@ -336,11 +336,11 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         self,
         callback: _MenuCommandCallbackSigT,
         type_: _MenuTypeT,
-        name: typing.Union[str, collections.Mapping[str, str]],
+        name: str | collections.Mapping[str, str],
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+        default_member_permissions: hikari.Permissions | int | None = None,
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
@@ -352,11 +352,11 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
         self,
         callback: _CallbackishT[_MenuCommandCallbackSigT],
         type_: _MenuTypeT,
-        name: typing.Union[str, collections.Mapping[str, str]],
+        name: str | collections.Mapping[str, str],
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+        default_member_permissions: hikari.Permissions | int | None = None,
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
@@ -591,7 +591,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_M
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
 
             if self._type is hikari.CommandType.USER:
-                value: typing.Union[hikari.Message, hikari.User] = ctx.resolve_to_user()
+                value: hikari.Message | hikari.User = ctx.resolve_to_user()
 
             else:
                 value = ctx.resolve_to_message()

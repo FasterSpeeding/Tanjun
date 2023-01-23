@@ -16,7 +16,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
@@ -42,7 +41,7 @@ name = "tanjun"
 include = ".*pyi?$"
 line-length = 120
 skip-magic-trailing-comma = true
-target-version = ["py39"]
+target-version = ["py310"]
 
 [tool.coverage.run]
 concurrency = ["multiprocessing"]
@@ -73,7 +72,7 @@ max-complexity = 20
 max-function-length = 100
 # Technically this is 120, but black has a policy of "1 or 2 over is fine if it is tidier", so we have to raise this.
 max-line-length = 130
-min_python_version = "3.9"
+min_python_version = "3.10"
 pep585-activation = "always"
 show_source = false
 statistics = false
@@ -111,7 +110,7 @@ force_single_line = true
 
 [tool.mypy]
 # some good strict settings
-python_version = 3.9
+python_version = 3.10
 strict = true
 warn_unreachable = true
 

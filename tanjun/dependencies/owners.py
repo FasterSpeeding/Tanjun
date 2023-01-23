@@ -127,7 +127,7 @@ class Owners(AbstractOwners):
     def __init__(
         self,
         *,
-        expire_after: typing.Union[datetime.timedelta, int, float] = datetime.timedelta(minutes=5),
+        expire_after: datetime.timedelta | int | float = datetime.timedelta(minutes=5),
         fallback_to_application: bool = True,
         owners: typing.Optional[hikari.SnowflakeishSequence[hikari.User]] = None,
     ) -> None:

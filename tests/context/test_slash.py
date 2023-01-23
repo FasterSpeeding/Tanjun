@@ -878,7 +878,7 @@ class TestAppCommandContext:
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=545), 545, 545.0])
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_delete_after(
-        self, mock_client: mock.Mock, delete_after: typing.Union[datetime.timedelta, int, float]
+        self, mock_client: mock.Mock, delete_after: datetime.timedelta | int | float
     ):
         mock_delete_initial_response_after = mock.Mock()
         mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
@@ -902,7 +902,7 @@ class TestAppCommandContext:
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=901), 901, 901.0])
     @pytest.mark.asyncio()
     async def test_edit_initial_response_when_delete_after_will_have_expired(
-        self, mock_client: mock.Mock, delete_after: typing.Union[datetime.timedelta, int, float]
+        self, mock_client: mock.Mock, delete_after: datetime.timedelta | int | float
     ):
         mock_delete_initial_response_after = mock.Mock()
         mock_register_task = mock.Mock()

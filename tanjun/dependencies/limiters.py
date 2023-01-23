@@ -599,7 +599,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         bucket_id: str,
         resource: BucketResource,
         limit: int,
-        reset_after: typing.Union[int, float, datetime.timedelta],
+        reset_after: int | float | datetime.timedelta,
         /,
     ) -> Self:
         """Set the cooldown for a specific bucket.
@@ -664,9 +664,7 @@ class CooldownPreExecution:
         /,
         *,
         error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
-        error_message: typing.Union[
-            str, collections.Mapping[str, str]
-        ] = "This command is currently in cooldown. Try again {cooldown}.",
+        error_message: str | collections.Mapping[str, str] = "This command is currently in cooldown. Try again {cooldown}.",
         owners_exempt: bool = True,
     ) -> None:
         """Initialise a pre-execution cooldown command hook.
@@ -727,9 +725,7 @@ def with_cooldown(
     /,
     *,
     error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
-    error_message: typing.Union[
-        str, collections.Mapping[str, str]
-    ] = "This command is currently in cooldown. Try again {cooldown}.",
+    error_message: str | collections.Mapping[str, str] = "This command is currently in cooldown. Try again {cooldown}.",
     follow_wrapped: bool = False,
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -1014,9 +1010,7 @@ class ConcurrencyPreExecution:
         /,
         *,
         error: typing.Optional[collections.Callable[[str], Exception]] = None,
-        error_message: typing.Union[
-            str, collections.Mapping[str, str]
-        ] = "This resource is currently busy; please try again later.",
+        error_message: str | collections.Mapping[str, str] = "This resource is currently busy; please try again later.",
     ) -> None:
         """Initialise a concurrency pre-execution hook.
 
@@ -1088,9 +1082,7 @@ def with_concurrency_limit(
     /,
     *,
     error: typing.Optional[collections.Callable[[str], Exception]] = None,
-    error_message: typing.Union[
-        str, collections.Mapping[str, str]
-    ] = "This resource is currently busy; please try again later.",
+    error_message: str | collections.Mapping[str, str] = "This resource is currently busy; please try again later.",
     follow_wrapped: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.

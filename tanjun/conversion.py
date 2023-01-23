@@ -95,7 +95,7 @@ if typing.TYPE_CHECKING:
     _PartialChannelT = typing.TypeVar("_PartialChannelT", bound=hikari.PartialChannel)
 
 
-_SnowflakeIsh = typing.Union[str, int]
+_SnowflakeIsh = str | int
 _ValueT = typing.TypeVar("_ValueT")
 _LOGGER = logging.getLogger("hikari.tanjun.conversion")
 
@@ -242,7 +242,7 @@ class ToChannel(BaseConverter):
     def __init__(
         self,
         *,
-        allowed_types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
+        allowed_types: typing.Optional[collections.Collection[type[hikari.PartialChannel] | int]] = None,
         include_dms: bool = True,
     ) -> None:
         """Initialise a to channel converter.
@@ -1374,7 +1374,7 @@ def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
     ...
 
 
-def from_datetime(value: typing.Union[datetime.datetime, datetime.timedelta], /, *, style: str = "f") -> str:
+def from_datetime(value: datetime.datetime | datetime.timedelta, /, *, style: str = "f") -> str:
     """Format a datetime as Discord's datetime format.
 
     More information on this format can be found at
