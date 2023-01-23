@@ -51,7 +51,9 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _ResponseTypeT = (
-        hikari.api.InteractionMessageBuilder | hikari.api.InteractionDeferredBuilder | hikari.api.InteractionModalBuilder
+        hikari.api.InteractionMessageBuilder
+        | hikari.api.InteractionDeferredBuilder
+        | hikari.api.InteractionModalBuilder
     )
     _T = typing.TypeVar("_T")
 
@@ -80,9 +82,7 @@ class SlashOption(tanjun.SlashOption):
 
     __slots__ = ("_option", "_resolved")
 
-    def __init__(
-        self, resolved: typing.Optional[hikari.ResolvedOptionData], option: hikari.CommandInteractionOption, /
-    ):
+    def __init__(self, resolved: hikari.ResolvedOptionData | None, option: hikari.CommandInteractionOption, /):
         """Initialise a slash option.
 
         Parameters
@@ -307,15 +307,15 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
         *,
         default_to_ephemeral: bool = False,
-        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
+        future: asyncio.Future[_ResponseTypeT] | None = None,
     ) -> None:
         super().__init__(client)
         self._defaults_to_ephemeral = default_to_ephemeral
-        self._defer_task: typing.Optional[asyncio.Task[None]] = None
+        self._defer_task: asyncio.Task[None] | None = None
         self._has_been_deferred = False
         self._has_responded = False
         self._interaction = interaction
-        self._last_response_id: typing.Optional[hikari.Snowflake] = None
+        self._last_response_id: hikari.Snowflake | None = None
         self._register_task = register_task
         self._response_future = future
         self._response_lock = asyncio.Lock()
@@ -352,7 +352,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         return self.created_at + _INTERACTION_LIFETIME
 
     @property
-    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
+    def guild_id(self) -> hikari.Snowflake | None:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._interaction.guild_id
 
@@ -372,7 +372,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         return True
 
     @property
-    def member(self) -> typing.Optional[hikari.InteractionMember]:
+    def member(self) -> hikari.InteractionMember | None:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._interaction.member
 
@@ -426,10 +426,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         return self
 
     async def defer(
-        self,
-        *,
-        flags: hikari.UndefinedType | int | hikari.MessageFlag = hikari.UNDEFINED,
-        ephemeral: bool = False,
+        self, *, flags: hikari.UndefinedType | int | hikari.MessageFlag = hikari.UNDEFINED, ephemeral: bool = False
     ) -> None:
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         if ephemeral:
@@ -577,7 +574,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool| hikari.UndefinedType = hikari.UNDEFINED,
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
         role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
         flags: int | hikari.MessageFlag | hikari.UndefinedType = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -863,7 +860,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
         role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-    ) -> typing.Optional[hikari.Message]:
+    ) -> hikari.Message | None:
         ...
 
     async def respond(
@@ -871,7 +868,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        delete_after: datetime.timedelta | float | int| None = None,
+        delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -881,7 +878,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
         role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-    ) -> typing.Optional[hikari.Message]:
+    ) -> hikari.Message | None:
         # <<inherited docstring from tanjun.abc.Context>>.
         async with self._response_lock:
             if self._has_responded:
@@ -972,8 +969,8 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
         *,
         default_to_ephemeral: bool = False,
-        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        on_not_found: typing.Optional[collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]] = None,
+        future: asyncio.Future[_ResponseTypeT] | None = None,
+        on_not_found: collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]] | None = None,
     ) -> None:
         """Initialise a slash command context.
 
@@ -997,14 +994,14 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         self._marked_not_found = False
         self._on_not_found = on_not_found
 
-        self._command: typing.Optional[tanjun.BaseSlashCommand] = None
+        self._command: tanjun.BaseSlashCommand | None = None
         command_name, options = _internal.flatten_options(interaction.command_name, interaction.options)
         self._command_name = command_name
         self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
         (self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(SlashContext, self))
 
     @property
-    def command(self) -> typing.Optional[tanjun.BaseSlashCommand]:
+    def command(self) -> tanjun.BaseSlashCommand | None:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._command
 
@@ -1030,7 +1027,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
             self._marked_not_found = True
             await self._on_not_found(self)
 
-    def set_command(self, command: typing.Optional[tanjun.BaseSlashCommand], /) -> Self:
+    def set_command(self, command: tanjun.BaseSlashCommand | None, /) -> Self:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         self._assert_not_final()
         if command:

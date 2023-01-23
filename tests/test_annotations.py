@@ -776,7 +776,7 @@ def test_choices_and_mixed_values(
     type_: type[_ChoiceT],
     type_repr: type[_ChoiceT],
     choices: (
-        collections.Sequence[_ChoiceT] | collections.Sequence[tuple[str, _ChoiceT]]  | collections.Mapping[str, _ChoiceT]
+        collections.Sequence[_ChoiceT] | collections.Sequence[tuple[str, _ChoiceT]] | collections.Mapping[str, _ChoiceT]
     ),
     mismatched_type: type[typing.Any],
 ):
@@ -1899,10 +1899,7 @@ def test_with_generic_length_when_min_specificed():
     ],
 )
 def test_with_max(
-    type_: type[int | float],
-    value: int | float,
-    raw_type: type[typing.Any],
-    option_type: hikari.OptionType,
+    type_: type[int | float], value: int | float, raw_type: type[typing.Any], option_type: hikari.OptionType
 ):
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
@@ -1982,9 +1979,7 @@ def test_with_max(
     ("value", "converter", "option_type"),
     [(543, int, hikari.OptionType.INTEGER), (234.432, float, hikari.OptionType.FLOAT)],
 )
-def test_with_generic_max(
-    value: int | float, converter: type[int] | type[float], option_type: hikari.OptionType
-):
+def test_with_generic_max(value: int | float, converter: type[int] | type[float], option_type: hikari.OptionType):
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
@@ -2154,10 +2149,7 @@ def test_with_max_when_int_for_float():
     ],
 )
 def test_with_min(
-    type_: type[int | float],
-    raw_type: type[int | float],
-    option_type: hikari.OptionType,
-    value: int | float,
+    type_: type[int | float], raw_type: type[int | float], option_type: hikari.OptionType, value: int | float
 ):
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
@@ -2237,9 +2229,7 @@ def test_with_min(
     ("value", "converter", "option_type"),
     [(123, int, hikari.OptionType.INTEGER), (123.321, float, hikari.OptionType.FLOAT)],
 )
-def test_with_generic_min(
-    value: int | float, converter: type[int]| type[float], option_type: hikari.OptionType
-):
+def test_with_generic_min(value: int | float, converter: type[int] | type[float], option_type: hikari.OptionType):
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")
     @tanjun.as_message_command("command")
@@ -2742,10 +2732,7 @@ def test_with_ranged():
     ],
 )
 def test_with_generic_ranged(
-    min_value: float | int,
-    max_value: float | int,
-    converter: type[float]  | type[int],
-    option_type: hikari.OptionType,
+    min_value: float | int, max_value: float | int, converter: type[float] | type[int], option_type: hikari.OptionType
 ):
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("command", "description")

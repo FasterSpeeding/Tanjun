@@ -99,7 +99,7 @@ class CommandError(TanjunError):
     mentions_everyone: hikari.UndefinedOr[bool]
     """Whether or not the response should be allowed to mention `@everyone`/`@here`."""
 
-    user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool  | hikari.UndefinedType
+    user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType
     """Configuration for the response's allowed user mentions.
 
     If this is a sequence then the response will only be allowed to mention
@@ -223,10 +223,10 @@ class CommandError(TanjunError):
         ...
 
     @typing.overload
-    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> typing.Optional[hikari.Message]:
+    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> hikari.Message | None:
         ...
 
-    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> typing.Optional[hikari.Message]:
+    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> hikari.Message | None:
         """Send this error as a command response.
 
         Parameters
@@ -310,7 +310,7 @@ class ParserError(TanjunError, ValueError):
         This may be used as a command response message.
     """
 
-    parameter: typing.Optional[str]
+    parameter: str | None
     """Name of the this was raised for.
 
     !!! note
@@ -318,7 +318,7 @@ class ParserError(TanjunError, ValueError):
         provided message content.
     """
 
-    def __init__(self, message: str, parameter: typing.Optional[str], /) -> None:
+    def __init__(self, message: str, parameter: str | None, /) -> None:
         """Initialise a parser error.
 
         Parameters

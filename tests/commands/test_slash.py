@@ -56,7 +56,7 @@ def stub_class(
     cls: type[_T],
     /,
     args: collections.Sequence[typing.Any] = (),
-    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    kwargs: collections.Mapping[str, typing.Any] | None = None,
     **namespace: typing.Any,
 ) -> _T:
     namespace["__slots__"] = ()
@@ -1324,9 +1324,9 @@ class TestSlashCommand:
     def test___init___when_command_object(
         self,
         inner_command: (
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig] |
-            tanjun.MessageCommand[tanjun.abc.CommandCallbackSig] |
-            tanjun.MenuCommand[typing.Any, typing.Any]
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig]
+            | tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
+            | tanjun.MenuCommand[typing.Any, typing.Any]
         ),
     ):
         assert tanjun.SlashCommand(inner_command, "woow", "no").callback is inner_command.callback
@@ -2887,7 +2887,7 @@ class TestSlashCommand:
         self,
         command: tanjun.SlashCommand[typing.Any],
         classes: list[type[hikari.PartialChannel] | int],
-        int_types: typing.Optional[list[int]],
+        int_types: list[int] | None,
     ):
         command.add_channel_option("channel", "chaaa", types=classes)
 

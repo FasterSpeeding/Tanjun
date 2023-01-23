@@ -62,7 +62,7 @@ class TestMessageAcceptsEnum:
             (tanjun.MessageAcceptsEnum.NONE, None),
         ],
     )
-    def test_get_event_type(self, value: tanjun.MessageAcceptsEnum, expected_type: typing.Optional[hikari.Event]):
+    def test_get_event_type(self, value: tanjun.MessageAcceptsEnum, expected_type: hikari.Event | None):
         assert value.get_event_type() == expected_type
 
 
@@ -5489,7 +5489,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5553,7 +5553,7 @@ class TestClient:
     ):
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5615,7 +5615,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5734,7 +5734,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5795,7 +5795,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5859,7 +5859,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6350,7 +6350,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6414,7 +6414,7 @@ class TestClient:
     ):
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6476,7 +6476,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6595,7 +6595,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6656,7 +6656,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6720,7 +6720,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value

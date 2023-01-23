@@ -102,10 +102,10 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
             raise ValueError("Cannot spawn context with a content-less message.")
 
         super().__init__(client)
-        self._command: typing.Optional[tanjun.MessageCommand[typing.Any]] = None
+        self._command: tanjun.MessageCommand[typing.Any] | None = None
         self._content = content
-        self._initial_response_id: typing.Optional[hikari.Snowflake] = None
-        self._last_response_id: typing.Optional[hikari.Snowflake] = None
+        self._initial_response_id: hikari.Snowflake | None = None
+        self._last_response_id: hikari.Snowflake | None = None
         self._register_task = register_task
         self._response_lock = asyncio.Lock()
         self._message = message
@@ -127,7 +127,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         return self._message.channel_id
 
     @property
-    def command(self) -> typing.Optional[tanjun.MessageCommand[typing.Any]]:
+    def command(self) -> tanjun.MessageCommand[typing.Any] | None:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._command
 
@@ -142,7 +142,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         return self._message.created_at
 
     @property
-    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
+    def guild_id(self) -> hikari.Snowflake | None:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._message.guild_id
 
@@ -157,7 +157,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         return not self._message.author.is_bot and self._message.webhook_id is None
 
     @property
-    def member(self) -> typing.Optional[hikari.Member]:
+    def member(self) -> hikari.Member | None:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._message.member
 
@@ -176,7 +176,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         return self._triggering_prefix
 
-    def set_command(self, command: typing.Optional[tanjun.MessageCommand[typing.Any]], /) -> Self:
+    def set_command(self, command: tanjun.MessageCommand[typing.Any] | None, /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
         if command:
@@ -238,7 +238,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: datetime.timedelta | float  | int | None = None,
+        delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedNoneOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedNoneOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -247,7 +247,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole]  | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None

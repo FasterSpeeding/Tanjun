@@ -53,7 +53,7 @@ def stub_class(
     cls: type[_T],
     /,
     args: collections.Sequence[typing.Any] = (),
-    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    kwargs: collections.Mapping[str, typing.Any] | None = None,
     **namespace: typing.Any,
 ) -> _T:
     namespace["__slots__"] = ()
@@ -990,7 +990,7 @@ class TestSlashContext:
 
     @pytest.mark.parametrize("raw_options", [None, []])
     def test_options_property_when_no_options(
-        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
+        self, mock_client: mock.Mock, raw_options: list[hikari.OptionType] | None
     ):
         context = tanjun.context.SlashContext(
             mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options), mock.Mock()
@@ -1039,7 +1039,7 @@ class TestSlashContext:
 
     @pytest.mark.parametrize("raw_options", [None, []])
     def test_options_property_for_command_group_with_no_sub_option(
-        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
+        self, mock_client: mock.Mock, raw_options: list[hikari.OptionType] | None
     ):
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         context = tanjun.context.SlashContext(mock_client, mock.Mock(options=[group_option]), mock.Mock())
@@ -1068,7 +1068,7 @@ class TestSlashContext:
 
     @pytest.mark.parametrize("raw_options", [None, []])
     def test_options_property_for_sub_command_group_with_no_sub_option(
-        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
+        self, mock_client: mock.Mock, raw_options: list[hikari.OptionType] | None
     ):
         sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])

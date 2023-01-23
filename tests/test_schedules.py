@@ -352,7 +352,7 @@ class TestIntervalSchedule:
         mock_client = alluka.Client()
         call_times: list[int] = []
         close_event = asyncio.Event()
-        close_time: typing.Optional[int] = None
+        close_time: int | None = None
 
         @_print_tb
         async def callback():

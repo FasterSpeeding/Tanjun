@@ -53,7 +53,7 @@ def stub_class(
     cls: type[_T],
     /,
     args: collections.Sequence[typing.Any] = (),
-    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    kwargs: collections.Mapping[str, typing.Any] | None = None,
     **namespace: typing.Any,
 ) -> _T:
     namespace["__slots__"] = ()
@@ -385,7 +385,7 @@ class TestMessageContext:
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=654), 654, 654.0])
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_delete_after(
-        self, mock_client: mock.Mock, delete_after: datetime.timedelta | int| float
+        self, mock_client: mock.Mock, delete_after: datetime.timedelta | int | float
     ):
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()

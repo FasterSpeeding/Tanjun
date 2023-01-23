@@ -53,10 +53,7 @@ class MaybeLocalised:
     __slots__ = ("default_value", "_field_name", "id", "localised_values")
 
     def __init__(
-        self,
-        field_name: str,
-        field: str | collections.Mapping[str, str] | collections.Iterable[tuple[str, str]],
-        /,
+        self, field_name: str, field: str | collections.Mapping[str, str] | collections.Iterable[tuple[str, str]], /
     ) -> None:
         """Initialise an instance of MaybeLocalised.
 
@@ -85,7 +82,7 @@ class MaybeLocalised:
         self._field_name = field_name
         if isinstance(field, str):
             self.default_value = field
-            self.id: typing.Optional[str] = None
+            self.id: str | None = None
             self.localised_values: dict[str, str] = {}
 
         else:
@@ -106,7 +103,7 @@ class MaybeLocalised:
     def localise(
         self,
         ctx: tanjun.Context,
-        localiser: typing.Optional[dependencies.AbstractLocaliser],
+        localiser: dependencies.AbstractLocaliser | None,
         field_type: _NamedFields,
         field_name: str,
         /,
@@ -229,7 +226,7 @@ def to_localise_id(
 
 
 def to_localise_id(
-    command_type: _CommandTypes, command_name: str, field_type: _FieldType, field_name: typing.Optional[str] = None, /
+    command_type: _CommandTypes, command_name: str, field_type: _FieldType, field_name: str | None = None, /
 ) -> str:
     """Generate an ID for a localised field.
 

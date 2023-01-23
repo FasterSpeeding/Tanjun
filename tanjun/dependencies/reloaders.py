@@ -110,7 +110,7 @@ class HotReloader:
     def __init__(
         self,
         *,
-        commands_guild: typing.Optional[hikari.SnowflakeishOr[hikari.PartialGuild]] = None,
+        commands_guild: hikari.SnowflakeishOr[hikari.PartialGuild] | None = None,
         interval: int | float | datetime.timedelta = datetime.timedelta(microseconds=500000),
         redeclare_cmds_after: int | float | datetime.timedelta | None = datetime.timedelta(seconds=10),
         unload_on_delete: bool = True,
@@ -148,7 +148,7 @@ class HotReloader:
         else:
             redeclare_cmds_after = float(redeclare_cmds_after)
 
-        self._command_task: typing.Optional[asyncio.Task[None]] = None
+        self._command_task: asyncio.Task[None] | None = None
         self._commands_guild: hikari.UndefinedOr[hikari.Snowflake]  # MyPy was resolving this to object cause MyPy
         self._commands_guild = hikari.UNDEFINED if commands_guild is None else hikari.Snowflake(commands_guild)
         self._dead_unloads: set[str | pathlib.Path] = set()
@@ -170,7 +170,7 @@ class HotReloader:
         self._sys_paths: dict[pathlib.Path, _PyPathInfo] = {}
         """Dict of system paths to info of files being targeted."""
 
-        self._task: typing.Optional[asyncio.Task[None]] = None
+        self._task: asyncio.Task[None] | None = None
         self._unload_on_delete = unload_on_delete
 
         self._waiting_for_py: dict[str, int] = {}
@@ -235,9 +235,7 @@ class HotReloader:
         self._sys_paths.update((key, _PyPathInfo(key)) for key in sys_paths)
         return self
 
-    async def add_directory_async(
-        self, directory: str | pathlib.Path, /, *, namespace: typing.Optional[str] = None
-    ) -> Self:
+    async def add_directory_async(self, directory: str | pathlib.Path, /, *, namespace: str | None = None) -> Self:
         """Asynchronous variant of [tanjun.dependencies.reloaders.HotReloader.add_directory][].
 
         Unlike [tanjun.dependencies.reloaders.HotReloader.add_directory][],
@@ -250,9 +248,7 @@ class HotReloader:
         self._directories[path] = info
         return self
 
-    def add_directory(
-        self, directory: str | pathlib.Path, /, *, namespace: typing.Optional[str] = None
-    ) -> Self:
+    def add_directory(self, directory: str | pathlib.Path, /, *, namespace: str | None = None) -> Self:
         """Add a directory for this hot reloader to track.
 
         !!! note
@@ -501,9 +497,7 @@ def _to_namespace(namespace: str, path: pathlib.Path, /) -> str:
     return namespace + "." + path.name.removesuffix(".py")
 
 
-def _add_directory(
-    directory: str | pathlib.Path, namespace: typing.Optional[str], /
-) -> tuple[pathlib.Path, _DirectoryEntry]:
+def _add_directory(directory: str | pathlib.Path, namespace: str | None, /) -> tuple[pathlib.Path, _DirectoryEntry]:
     directory = pathlib.Path(directory)
     if not directory.exists():
         raise FileNotFoundError(f"{directory} does not exist")
@@ -511,9 +505,7 @@ def _add_directory(
     return directory.resolve(), (namespace, set()) if namespace is None else (namespace, set())
 
 
-def _add_modules(
-    paths: tuple[str | pathlib.Path, ...], /
-) -> tuple[dict[str, _PyPathInfo], list[pathlib.Path]]:
+def _add_modules(paths: tuple[str | pathlib.Path, ...], /) -> tuple[dict[str, _PyPathInfo], list[pathlib.Path]]:
     py_paths: dict[str, _PyPathInfo] = {}
     sys_paths: list[pathlib.Path] = []
 
@@ -538,7 +530,7 @@ def _add_modules(
     return py_paths, sys_paths
 
 
-def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
+def _scan_one(path: pathlib.Path, /) -> int | None:
     try:
         return path.stat().st_mtime_ns
 

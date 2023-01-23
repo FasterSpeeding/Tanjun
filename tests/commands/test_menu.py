@@ -250,9 +250,9 @@ class TestMenuCommand:
     def test___init___when_command_object(
         self,
         inner_command: (
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig]|
-            tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]  |
-            tanjun.MenuCommand[typing.Any, typing.Any]
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig]
+            | tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
+            | tanjun.MenuCommand[typing.Any, typing.Any]
         ),
     ):
         assert tanjun.MenuCommand(inner_command, hikari.CommandType.MESSAGE, "woow").callback is inner_command.callback

@@ -33,8 +33,6 @@ from __future__ import annotations
 
 __all__: list[str] = ["fetch_my_user"]
 
-import typing
-
 import alluka
 import hikari
 
@@ -45,7 +43,7 @@ from . import async_cache
 async def fetch_my_user(
     client: alluka.Injected[tanjun.Client],
     *,
-    me_cache: alluka.Injected[typing.Optional[async_cache.SingleStoreCache[hikari.OwnUser]]] = None,
+    me_cache: alluka.Injected[async_cache.SingleStoreCache[hikari.OwnUser] | None] = None,
 ) -> hikari.OwnUser:
     """Fetch the current user from the client's cache or rest client.
 

@@ -231,9 +231,9 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
     def __init__(
         self,
-        mapping: collections.Mapping[str, _ChoiceT] |
-            collections.Sequence[tuple[str, _ChoiceT]]|
-            collections.Sequence[_ChoiceT] = (),
+        mapping: collections.Mapping[str, _ChoiceT]
+        | collections.Sequence[tuple[str, _ChoiceT]]
+        | collections.Sequence[_ChoiceT] = (),
         /,
         **kwargs: _ChoiceT,
     ) -> None:
@@ -265,9 +265,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
 
 class _ConvertedMeta(abc.ABCMeta):
-    def __getitem__(
-        cls, converters: parsing.ConverterSig[_T] | tuple[parsing.ConverterSig[_T]], /
-    ) -> type[_T]:
+    def __getitem__(cls, converters: parsing.ConverterSig[_T] | tuple[parsing.ConverterSig[_T]], /) -> type[_T]:
         if not isinstance(converters, tuple):
             converters = (converters,)
 
@@ -430,7 +428,7 @@ class Flag(_ConfigIdentifier):
     def __init__(
         self,
         *,
-        aliases: typing.Optional[collections.Sequence[str]] = None,
+        aliases: collections.Sequence[str] | None = None,
         default: typing.Any | parsing.UndefinedT = parsing.UNDEFINED,
         empty_value: parsing.UndefinedT | typing.Any = parsing.UNDEFINED,
     ) -> None:
@@ -461,7 +459,7 @@ class Flag(_ConfigIdentifier):
         self._empty_value = empty_value
 
     @property
-    def aliases(self) -> typing.Optional[collections.Sequence[str]]:
+    def aliases(self) -> collections.Sequence[str] | None:
         """The aliases set for this flag.
 
         These do not override the flag's name.
@@ -625,7 +623,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     def __init__(self, min_length: int, max_length: int, /) -> None:
         ...
 
-    def __init__(self, min_or_max_length: int, max_length: typing.Optional[int] = None, /) -> None:
+    def __init__(self, min_or_max_length: int, max_length: int | None = None, /) -> None:
         """Initialise a length constraint.
 
         Parameters
@@ -779,14 +777,7 @@ class Name(_ConfigIdentifier):
 
     __slots__ = ("_message_name", "_slash_name")
 
-    def __init__(
-        self,
-        both: typing.Optional[str] = None,
-        /,
-        *,
-        message: typing.Optional[str] = None,
-        slash: typing.Optional[str] = None,
-    ) -> None:
+    def __init__(self, both: str | None = None, /, *, message: str | None = None, slash: str | None = None) -> None:
         """Create an argument name override.
 
         Parameters
@@ -815,12 +806,12 @@ class Name(_ConfigIdentifier):
         self._slash_name = slash or both
 
     @property
-    def message_name(self) -> typing.Optional[str]:
+    def message_name(self) -> str | None:
         """The name to use for this option in message commands."""
         return self._message_name
 
     @property
-    def slash_name(self) -> typing.Optional[str]:
+    def slash_name(self) -> str | None:
         """The name to use for this option in slash commands."""
         return self._slash_name
 
@@ -935,10 +926,7 @@ class _SnowflakeOrMeta(abc.ABCMeta):
         else:
             descriptor = SnowflakeOr()
 
-        return typing.cast(
-            type[hikari.Snowflake | _T],
-            typing.Annotated[hikari.Snowflake | type_, descriptor],
-        )
+        return typing.cast(type[hikari.Snowflake | _T], typing.Annotated[hikari.Snowflake | type_, descriptor])
 
 
 class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
@@ -1042,7 +1030,7 @@ class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
         config.channel_types = self._channel_types
 
 
-def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any], /) -> typing.Optional[_T]:
+def _ensure_value(name: str, type_: type[_T], value: typing.Any | None, /) -> _T | None:
     if value is None or isinstance(value, type_):
         return value
 
@@ -1052,8 +1040,8 @@ def _ensure_value(name: str, type_: type[_T], value: typing.Optional[typing.Any]
 
 
 def _ensure_values(
-    name: str, type_: type[_T], mapping: typing.Optional[collections.Mapping[str, typing.Any]], /
-) -> typing.Optional[collections.Mapping[str, _T]]:
+    name: str, type_: type[_T], mapping: collections.Mapping[str, typing.Any] | None, /
+) -> collections.Mapping[str, _T] | None:
     if not mapping:
         return None
 
@@ -1110,26 +1098,26 @@ class _ArgConfig:
         "snowflake_converter",
     )
 
-    def __init__(self, parameter: inspect.Parameter, /, *, description: typing.Optional[str]) -> None:
-        self.aliases: typing.Optional[collections.Sequence[str]] = None
-        self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
-        self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
-        self.converters: typing.Optional[collections.Sequence[parsing.ConverterSig[typing.Any]]] = None
+    def __init__(self, parameter: inspect.Parameter, /, *, description: str | None) -> None:
+        self.aliases: collections.Sequence[str] | None = None
+        self.channel_types: collections.Sequence[_ChannelTypeIsh] | None = None
+        self.choices: collections.Mapping[str, _ChoiceUnion] | None = None
+        self.converters: collections.Sequence[parsing.ConverterSig[typing.Any]] | None = None
         self.default: typing.Any = parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
-        self.description: typing.Optional[str] = description
+        self.description: str | None = description
         self.empty_value: parsing.UndefinedT | typing.Any = parsing.UNDEFINED
         self.is_greedy: bool = False
-        self.is_positional: typing.Optional[bool] = None
-        self.min_length: typing.Optional[int] = None
-        self.max_length: typing.Optional[int] = None
+        self.is_positional: bool | None = None
+        self.min_length: int | None = None
+        self.max_length: int | None = None
         self.min_value: float | int | None = None
         self.max_value: float | int | None = None
         self.message_name: str = "--" + parameter.name.replace("_", "-")
-        self.option_type: typing.Optional[type[typing.Any]] = None
+        self.option_type: type[typing.Any] | None = None
         self.parameter: inspect.Parameter = parameter
         self.range_or_slice: range | slice | None = None
         self.slash_name: str = parameter.name
-        self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
+        self.snowflake_converter: collections.Callable[[str], hikari.Snowflake] | None = None
 
     def finalise_slice(self) -> None:
         if not self.range_or_slice:
@@ -1305,7 +1293,7 @@ def parse_annotated_args(
     command: slash.SlashCommand[typing.Any] | message.MessageCommand[typing.Any],
     /,
     *,
-    descriptions: typing.Optional[collections.Mapping[str, str]] = None,
+    descriptions: collections.Mapping[str, str] | None = None,
     follow_wrapped: bool = False,
 ) -> None:
     """Set a command's arguments based on its signature.
@@ -1387,7 +1375,7 @@ def with_annotated_args(*, follow_wrapped: bool = False) -> collections.Callable
 
 
 def with_annotated_args(
-    command: typing.Optional[_CommandUnionT] = None, /, *, follow_wrapped: bool = False
+    command: _CommandUnionT | None = None, /, *, follow_wrapped: bool = False
 ) -> _CommandUnionT | collections.Callable[[_CommandUnionT], _CommandUnionT]:
     r"""Set a command's arguments based on its signature.
 
@@ -1469,7 +1457,7 @@ def with_annotated_args(
         ctx: tanjun.abc.MessageContext,
         name: Str,
         converted: Converted[Type.from_str],
-        enable: typing.Optional[Bool] = None,
+        enable: bool | None = None,
     ) -> None:
         raise NotImplementedError
     ```

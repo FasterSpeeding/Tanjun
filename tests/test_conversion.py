@@ -1706,7 +1706,7 @@ def test_parse_role_id(value: str | int, result: int):
         "<a:name:432123>",
     ],
 )
-def test_parse_role_id_with_invalid_values(value: int| str):
+def test_parse_role_id_with_invalid_values(value: int | str):
     with pytest.raises(ValueError, match="a messaged"):
         tanjun.conversion.parse_role_id(value, message="a messaged")
 
@@ -1768,7 +1768,7 @@ def test_search_user_ids():
         ("@me/1234/1234", (1234, 1234)),
     ],
 )
-def test_parse_message_id(value: int | str, expected: tuple[typing.Optional[int], int]):
+def test_parse_message_id(value: int | str, expected: tuple[int | None, int]):
     assert tanjun.conversion.parse_message_id(value) == expected
 
 

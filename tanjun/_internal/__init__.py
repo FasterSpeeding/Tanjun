@@ -280,7 +280,7 @@ def log_task_exc(
 
 
 class _WrappedProto(typing.Protocol):
-    wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]]
+    wrapped_command: tanjun.ExecutableCommand[typing.Any] | None
 
 
 def _has_wrapped(value: typing.Any, /) -> typing_extensions.TypeGuard[_WrappedProto]:
@@ -323,7 +323,7 @@ SUB_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset
 
 
 def flatten_options(
-    name: str, options: typing.Optional[collections.Sequence[_OptionT]], /
+    name: str, options: collections.Sequence[_OptionT] | None, /
 ) -> tuple[str, collections.Sequence[_OptionT]]:
     """Flatten the options of a slash/autocomplete interaction.
 
@@ -441,9 +441,7 @@ def cmp_command(
 
 def cmp_all_commands(
     commands: collections.Collection[hikari.PartialCommand | hikari.api.CommandBuilder],
-    other: collections.Mapping[
-        tuple[hikari.CommandType, str], hikari.PartialCommand | hikari.api.CommandBuilder
-    ],
+    other: collections.Mapping[tuple[hikari.CommandType, str], hikari.PartialCommand | hikari.api.CommandBuilder],
     /,
 ) -> bool:
     """Compare two sets of command objects/builders."""
@@ -465,9 +463,9 @@ class MessageCommandIndex:
         strict: bool,
         /,
         *,
-        commands: typing.Optional[list[tanjun.MessageCommand[typing.Any]]] = None,
-        names_to_commands: typing.Optional[dict[str, tuple[str, tanjun.MessageCommand[typing.Any]]]] = None,
-        search_tree: typing.Optional[_TreeT] = None,
+        commands: list[tanjun.MessageCommand[typing.Any]] | None = None,
+        names_to_commands: dict[str, tuple[str, tanjun.MessageCommand[typing.Any]]] | None = None,
+        search_tree: _TreeT | None = None,
     ) -> None:
         """Initialise a message command index.
 
@@ -550,7 +548,7 @@ class MessageCommandIndex:
         self.commands.append(command)
         return True
 
-    def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> MessageCommandIndex:
+    def copy(self, *, parent: tanjun.MessageCommandGroup[typing.Any] | None = None) -> MessageCommandIndex:
         """In-place copy the index and its contained commands.
 
         Parameters

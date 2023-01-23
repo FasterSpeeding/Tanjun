@@ -9,8 +9,6 @@
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
 """Examples of how hooks may be used within a bot with a focus on error handling."""
-import typing
-
 import hikari
 
 import tanjun
@@ -23,7 +21,7 @@ hooks = tanjun.AnyHooks()
 
 
 @hooks.with_on_error
-async def on_error(ctx: tanjun.abc.Context, exc: Exception) -> typing.Optional[bool]:
+async def on_error(ctx: tanjun.abc.Context, exc: Exception) -> bool | None:
     """General error handler.
 
     This will be called on all errors raised during execution except errors
@@ -43,7 +41,7 @@ async def on_error(ctx: tanjun.abc.Context, exc: Exception) -> typing.Optional[b
 
     Returns
     -------
-    typing.Optional[bool]
+    bool | None
         The return type indicates whether this hook wants the error to be
         suppressed where `True` indicates that it should be suppressed,
         `False` indicates that it should be re-raised and `None` indicates
