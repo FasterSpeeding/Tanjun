@@ -56,7 +56,7 @@ if typing.TYPE_CHECKING:
 
     _P = typing_extensions.ParamSpec("_P")
 
-    _TreeT = dict["str | _IndexKeys", "_TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]",]
+    _TreeT = dict["str | _IndexKeys", "_TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]"]
 
 
 _T = typing.TypeVar("_T")

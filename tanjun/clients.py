@@ -1015,7 +1015,7 @@ class Client(tanjun.Client):
         self,
         exc_type: type[BaseException] | None,
         exc: BaseException | None,
-        exc_traceback: type[types.TracebackType] | None,
+        exc_tb: types.TracebackType | None,
     ) -> None:
         await self.close()
 
@@ -2996,7 +2996,7 @@ class _WrapLoadError:
         pass
 
     def __exit__(
-        self, exc_type: type[BaseException] | None, exc: BaseException | None, exc_tb: type[types.TracebackType] | None
+        self, exc_type: type[BaseException] | None, exc: BaseException | None, exc_tb: types.TracebackType | None
     ) -> None:
         if (
             exc
