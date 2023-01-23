@@ -68,8 +68,17 @@ def stub_class(
     return typing.cast(type[_T], new_cls)(*args, **kwargs or {})
 
 
-def test_as_message_command():
-    mock_callback = mock.Mock()
+@pytest.fixture()
+def mock_callback():
+    # Unfortunately since 3.10.6 inspect.signature now errors when a mock
+    # object is passed to it so we have to use a real callback.
+    async def mock_callback_(ctx: tanjun.abc.MessageContext) -> None:
+        raise NotImplementedError
+
+    return mock_callback_
+
+
+def test_as_message_command(mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]):
     command = tanjun.as_message_command("a", "b")(mock_callback)
 
     assert command.names == ["a", "b"]
@@ -96,8 +105,7 @@ def test_as_message_command_when_wrapping_command(
     assert command.callback is other_command.callback
 
 
-def test_as_message_command_group():
-    mock_callback = mock.Mock()
+def test_as_message_command_group(mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]):
     command = tanjun.as_message_command_group("c", "b", strict=True)(mock_callback)
 
     assert command.names == ["c", "b"]
@@ -148,16 +156,19 @@ class TestMessageCommand:
 
     @pytest.mark.asyncio()
     async def test___call__(self):
-        mock_callback = mock.AsyncMock()
-        command = tanjun.MessageCommand[typing.Any](mock_callback, "yee", "nsoosos")
+        callback = mock.AsyncMock()
+
+        # Unfortunately since 3.10.6 inspect.signature now errors when a mock
+        # object is passed to it so we have to wrap this with a real callback.
+        @tanjun.as_message_command(callback, "yee", "nsoosos")
+        async def command(*args: typing.Any, **kwargs: typing.Any) -> None:
+            await callback(*args, **kwargs)
 
         await command(65123, "okokok", a="odoosd", gf=435123)  # type: ignore
 
-        mock_callback.assert_awaited_once_with(65123, "okokok", a="odoosd", gf=435123)
+        callback.assert_awaited_once_with(65123, "okokok", a="odoosd", gf=435123)
 
-    def test_callback_property(self):
-        mock_callback = mock.Mock()
-
+    def test_callback_property(self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]):
         assert tanjun.MessageCommand(mock_callback, "yee", "nsoosos").callback is mock_callback
 
     def test_names_property(self):
@@ -365,20 +376,20 @@ class TestMessageCommand:
 
     @pytest.mark.asyncio()
     async def test_check_context(self):
-        mock_callback = mock.Mock()
-        mock_other_callback = mock.Mock()
+        mock_check = mock.Mock()
+        mock_other_check = mock.Mock()
         mock_context = mock.Mock()
 
         command = (
             tanjun.MessageCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
-            .add_check(mock_callback)
-            .add_check(mock_other_callback)
+            .add_check(mock_check)
+            .add_check(mock_other_check)
         )
 
         with mock.patch.object(_internal, "gather_checks", new=mock.AsyncMock()) as gather_checks:
             result = await command.check_context(mock_context)
 
-            gather_checks.assert_awaited_once_with(mock_context, [mock_callback, mock_other_callback])
+            gather_checks.assert_awaited_once_with(mock_context, [mock_check, mock_other_check])
 
         assert result is gather_checks.return_value
         mock_context.set_command.assert_has_calls([mock.call(command), mock.call(None)])
@@ -487,45 +498,45 @@ class TestMessageCommandGroup:
         ):
             command_group.add_command(mock.Mock(names={"aaa", "dsaasd"}))
 
-    def test_as_sub_command(self):
-        async def mock_callback(ctx: tanjun.abc.MessageContext) -> None:
-            raise NotImplementedError
+    def test_as_sub_command(self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]):
+        async def other_mock_callback(ctx: tanjun.abc.Context) -> None:
+            ...
 
-        command_group = tanjun.MessageCommandGroup(mock.Mock(), "meow")
+        command_group = tanjun.MessageCommandGroup(other_mock_callback, "meow")
 
         result = command_group.as_sub_command("neco")(mock_callback)
 
+        assert result.callback is mock_callback
         assert result.names == ["neco"]
         assert result._arg_names is not None
 
-    def test_as_sub_command_with_optional_args(self):
-        async def mock_callback(ctx: tanjun.abc.MessageContext) -> None:
-            raise NotImplementedError
-
-        command_group = tanjun.MessageCommandGroup(mock.Mock(), "meow")
+    def test_as_sub_command_with_optional_args(
+        self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]
+    ):
+        command_group = tanjun.MessageCommandGroup(mock_callback, "meow")
 
         result = command_group.as_sub_command("neco", "nyan", validate_arg_keys=False)(mock_callback)
 
         assert result.names == ["neco", "nyan"]
         assert result._arg_names is None
 
-    def test_as_sub_group(self):
-        async def mock_callback(ctx: tanjun.abc.MessageContext) -> None:
-            raise NotImplementedError
+    def test_as_sub_group(self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]):
+        async def other_mock_callback(ctx: tanjun.abc.Context) -> None:
+            ...
 
-        command_group = tanjun.MessageCommandGroup(mock.Mock(), "meow")
+        command_group = tanjun.MessageCommandGroup(other_mock_callback, "meow")
 
         result = command_group.as_sub_group("n")(mock_callback)
 
+        assert result.callback is mock_callback
         assert result.names == ["n"]
         assert result.is_strict is False
         assert result._arg_names is not None
 
-    def test_as_sub_group_with_optional_args(self):
-        async def mock_callback(ctx: tanjun.abc.MessageContext) -> None:
-            raise NotImplementedError
-
-        command_group = tanjun.MessageCommandGroup(mock.Mock(), "meow")
+    def test_as_sub_group_with_optional_args(
+        self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]
+    ):
+        command_group = tanjun.MessageCommandGroup(mock_callback, "meow")
 
         result = command_group.as_sub_group("now", "viet", "namm", strict=True, validate_arg_keys=False)(mock_callback)
 
@@ -659,13 +670,18 @@ class TestMessageCommandGroup:
     async def test_execute_no_message_content(self):
         mock_context = mock.Mock()
         mock_context.message.content = None
-        command_group = tanjun.MessageCommandGroup[typing.Any](mock.AsyncMock(), "hi", "nsoosos")
+
+        # Unfortunately since 3.10.6 inspect.signature now errors when a mock
+        # object is passed to it so we have to use a real callback.
+        @tanjun.as_message_command_group("hi", "nsoosos")
+        async def command_group(ctx: tanjun.abc.MessageContext) -> None:
+            raise NotImplementedError
 
         with pytest.raises(ValueError, match="Cannot execute a command with a content-less message"):
             await command_group.execute(mock_context)
 
     @pytest.mark.asyncio()
-    async def test_execute(self):
+    async def test_execute(self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]):
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
         mock_command_2 = mock.AsyncMock()
@@ -675,7 +691,7 @@ class TestMessageCommandGroup:
         mock_hooks = mock.Mock()
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
-        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b")).set_hooks(
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock_callback, "a", "b")).set_hooks(
             mock_attached_hooks
         )
         command._commands = mock.Mock(
@@ -698,7 +714,9 @@ class TestMessageCommandGroup:
         mock_command_3.execute.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_execute_no_pass_through_hooks(self):
+    async def test_execute_no_pass_through_hooks(
+        self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]
+    ):
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
         mock_command_2 = mock.AsyncMock()
@@ -707,7 +725,7 @@ class TestMessageCommandGroup:
         mock_command_3.check_context.return_value = True
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
-        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b")).set_hooks(
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock_callback, "a", "b")).set_hooks(
             mock_attached_hooks
         )
         command._commands = mock.Mock(
@@ -730,7 +748,7 @@ class TestMessageCommandGroup:
         mock_command_3.execute.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_execute_no_hooks(self):
+    async def test_execute_no_hooks(self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]):
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
         mock_command_2 = mock.AsyncMock()
@@ -738,7 +756,7 @@ class TestMessageCommandGroup:
         mock_command_3 = mock.AsyncMock()
         mock_command_3.check_context.return_value = True
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
-        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b"))
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock_callback, "a", "b"))
         command._commands = mock.Mock(
             find=mock.Mock(
                 return_value=iter(
@@ -759,7 +777,9 @@ class TestMessageCommandGroup:
         mock_command_3.execute.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_execute_falls_back_to_own_callback(self):
+    async def test_execute_falls_back_to_own_callback(
+        self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]
+    ):
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
         mock_command_2 = mock.AsyncMock()
@@ -767,7 +787,7 @@ class TestMessageCommandGroup:
         mock_hooks = mock.Mock()
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
-        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b")).set_hooks(
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock_callback, "a", "b")).set_hooks(
             mock_attached_hooks
         )
         command._commands = mock.Mock(
@@ -787,14 +807,17 @@ class TestMessageCommandGroup:
         mock_command_2.execute.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_execute_falls_back_to_own_callback_no_pass_through_hooks(self):
+    async def test_execute_falls_back_to_own_callback_no_pass_through_hooks(
+        self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]
+    ):
+
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
         mock_command_2 = mock.AsyncMock()
         mock_command_2.check_context.return_value = False
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
         mock_attached_hooks = mock.Mock()
-        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b")).set_hooks(
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock_callback, "a", "b")).set_hooks(
             mock_attached_hooks
         )
         command._commands = mock.Mock(
@@ -814,13 +837,15 @@ class TestMessageCommandGroup:
         mock_command_2.execute.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_execute_falls_back_to_own_callback_no_hooks(self):
+    async def test_execute_falls_back_to_own_callback_no_hooks(
+        self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]
+    ):
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
         mock_command_2 = mock.AsyncMock()
         mock_command_2.check_context.return_value = False
         mock_context = mock.Mock(content="baka desu-ga hi", triggering_name="go home")
-        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock.AsyncMock(), "a", "b"))
+        command = stub_class(tanjun.MessageCommandGroup[typing.Any], args=(mock_callback, "a", "b"))
         command._commands = mock.Mock(
             find=mock.Mock(return_value=iter([("onii-chan>////<", mock_command_1), ("baka", mock_command_2)]))
         )

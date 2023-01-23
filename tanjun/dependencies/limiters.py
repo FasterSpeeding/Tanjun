@@ -246,7 +246,7 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
     if type_ is BucketResource.GUILD:
         return ctx.guild_id or ctx.channel_id
 
-    raise ValueError(f"Unexpected type {type_}")
+    raise ValueError(f"Unexpected type {type_!s}")
 
 
 def _now() -> datetime.datetime:
