@@ -2627,12 +2627,11 @@ prefixes.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Build a <a class="autorefs autorefs-internal" href="../#tanjun.Client">tanjun.Client</a> from a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.GatewayBotAware">hikari.traits.GatewayBotAware</a> instance.</p>
+      <p>Build a <a class="autorefs autorefs-internal" href="../#tanjun.Client">tanjun.Client</a> from a gateway bot.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This defaults the client to human only mode and sets type
-dependency injectors for the hikari traits present in <code>bot</code>
-(including <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.GatewayBotAware">hikari.traits.GatewayBotAware</a>).</p>
+dependency injectors for the hikari traits present in <code>bot</code>.</p>
 </div>
 
   <table>
@@ -2651,7 +2650,7 @@ dependency injectors for the hikari traits present in <code>bot</code>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<a class="autorefs autorefs-external" title="hikari.traits.GatewayBotAware" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.GatewayBotAware">GatewayBotAware</a></code>
+                    <code><a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.traits">traits</span>.<a class="autorefs autorefs-external" title="hikari.traits.ShardAware" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.ShardAware">ShardAware</a></code>
                 </span>
             </p>
           </td>
@@ -3341,8 +3340,8 @@ of existing commands to update.</p>
   <div class="doc doc-contents ">
   
       <p>Start the client.</p>
-<p>If <code>mention_prefix</code> was passed to <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.__init__">tanjun.Client.<strong>init</strong></a> or
-<a class="autorefs autorefs-internal" href="#tanjun.clients.Client.from_gateway_bot">tanjun.Client.from_gateway_bot</a> then this function may make a fetch request
+<p>If <code>mention_prefix</code> was passed to <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.__init__">tanjun.Client.__init__</a>
+or <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.from_gateway_bot">tanjun.Client.from_gateway_bot</a> then this function may make a fetch request
 to Discord if it cannot get the current user from the cache.</p>
 
   <table>
@@ -4509,8 +4508,8 @@ this client relying on implementation detail of
           <td class="doc-param-details">
             <p>The message context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext.__init__">tanjun.context.MessageContext.<strong>init</strong></a> and return an instance
-of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext">tanjun.context.MessageContext</a>.</p>
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext.__init__">tanjun.context.MessageContext.__init__</a>
+and return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext">tanjun.context.MessageContext</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -4724,8 +4723,8 @@ this client relying on implementation detail of
           <td class="doc-param-details">
             <p>The slash context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext.__init__">tanjun.context.SlashContext.<strong>init</strong></a> and return an instance
-of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext">tanjun.context.SlashContext</a>.</p>
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext.__init__">tanjun.context.SlashContext.__init__</a>
+and return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext">tanjun.context.SlashContext</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
