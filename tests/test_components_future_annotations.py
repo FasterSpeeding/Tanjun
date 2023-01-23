@@ -31,7 +31,6 @@
 from __future__ import annotations
 
 import inspect
-import sys
 import types
 import typing
 from unittest import mock
@@ -182,9 +181,7 @@ class TestComponent:
         result = component.with_listener()(callback)
 
         assert result is callback
-        add_listener.assert_has_calls(
-            [mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)]
-        )
+        add_listener.assert_has_calls([mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)])
 
     def test_with_listener_with_type_hint_310_union_nested_annotated(self):
         async def callback(

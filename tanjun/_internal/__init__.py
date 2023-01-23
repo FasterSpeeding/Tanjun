@@ -37,11 +37,11 @@ import asyncio
 import copy as copy_
 import enum
 import functools
+import inspect
 import itertools
 import logging
 import operator
 import types
-import inspect
 import typing
 from collections import abc as collections
 

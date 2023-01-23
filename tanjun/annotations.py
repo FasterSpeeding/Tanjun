@@ -74,9 +74,9 @@ __all__: list[str] = [
 import abc
 import datetime
 import enum
+import inspect
 import itertools
 import operator
-import inspect
 import typing
 import warnings
 from collections import abc as collections

@@ -33,7 +33,6 @@ from __future__ import annotations as _
 import enum
 import inspect
 import re
-import sys
 import typing
 from collections import abc as collections
 from unittest import mock

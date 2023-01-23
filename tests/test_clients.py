@@ -38,7 +38,6 @@ import importlib
 import inspect
 import pathlib
 import shutil
-import sys
 import tempfile
 import textwrap
 import typing
@@ -1427,9 +1426,7 @@ class TestClient:
         result = client.with_listener()(callback)
 
         assert result is callback
-        add_listener_.assert_has_calls(
-            [mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)]
-        )
+        add_listener_.assert_has_calls([mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)])
 
     def test_with_listener_with_type_hint_310_union_nested_annotated(self):
         async def callback(
