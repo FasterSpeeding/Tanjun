@@ -401,6 +401,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tanjun.abc.AutocompleteSig" class="md-nav__link">
+    AutocompleteSig
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tanjun.abc.CheckSig" class="md-nav__link">
     CheckSig
   </a>
@@ -2815,6 +2822,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#tanjun.abc.AutocompleteSig" class="md-nav__link">
+    AutocompleteSig
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#tanjun.abc.CheckSig" class="md-nav__link">
     CheckSig
   </a>
@@ -5058,7 +5072,30 @@
   </span>
 
 <a href="#tanjun.abc.AutocompleteCallbackSig" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">AutocompleteCallbackSig</span> <span class="o">=</span> <span class="n">_AutocompleteCallbackSig</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">AutocompleteCallbackSig</span> <span class="o">=</span> <span class="n">AutocompleteSig</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Deprecated alias of <a class="autorefs autorefs-internal" href="#tanjun.abc.AutocompleteSig">tanjun.abc.AutocompleteSig</a></p>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="tanjun.abc.AutocompleteSig" class="doc doc-heading">
+        <span class="doc doc-object-name doc-attribute-name">AutocompleteSig</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+<a href="#tanjun.abc.AutocompleteSig" class="headerlink" title="Permanent link">#</a></h2>
+<div class="highlight"><pre><span></span><code><span class="n">AutocompleteSig</span> <span class="o">=</span> <span class="n">_AutocompleteSig</span><span class="p">[</span><span class="n">_AutocompleteValueT</span><span class="p">,</span> <span class="bp">Ellipsis</span><span class="p">]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -5066,7 +5103,7 @@
       <p>Type hint of the callback an autocomplete callback should have.</p>
 <p>This will be called when handling autocomplete and should be an asynchronous
 callback which two positional arguments of type <a class="autorefs autorefs-internal" href="#tanjun.abc.AutocompleteContext">tanjun.abc.AutocompleteContext</a> and
-<code>str | int | float</code> (with the 2nd argument type being decided by the
+<code>str</code> or <code>int</code> or <code>float</code> (with the 2nd argument type being decided by the
 autocomplete type), returns <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> and may use dependency injection.</p>
   </div>
 
@@ -18785,7 +18822,7 @@ user isn't in the current guild.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="tanjun.commands.MenuCommand" href="../#tanjun.MenuCommand">MenuCommand</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-internal" title="tanjun.commands.MenuCommand" href="../commands/#tanjun.commands.menu.MenuCommand">MenuCommand</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a>]]</code>
                 </span>
             </p>
           </td>
@@ -20351,7 +20388,7 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
   </span>
 
 <a href="#tanjun.abc.SlashCommand.float_autocompletes" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">float_autocompletes</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AutocompleteCallbackSig</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">float_autocompletes</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AutocompleteSig</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -20375,7 +20412,7 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
   </span>
 
 <a href="#tanjun.abc.SlashCommand.int_autocompletes" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">int_autocompletes</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AutocompleteCallbackSig</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">int_autocompletes</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AutocompleteSig</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -20399,7 +20436,7 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
   </span>
 
 <a href="#tanjun.abc.SlashCommand.str_autocompletes" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">str_autocompletes</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AutocompleteCallbackSig</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">str_autocompletes</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AutocompleteSig</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
