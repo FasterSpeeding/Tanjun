@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [tanjun.clients.Client.set_human_only][] no longer registers the internal check multiple
   times when called with [True][] multiple times.
 
+### Removed
+- Support for Python 3.9.
+  Because of https://github.com/python/typing_extensions/issues/48.
+
 ### [2.11.1] - 2023-01-07
 ### Added
 - Support for specifying Guild Forum channels for the constraints of a channel command option.

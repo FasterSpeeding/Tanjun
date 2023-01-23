@@ -40,15 +40,14 @@ import functools
 import itertools
 import logging
 import operator
-import sys
 import types
+import inspect
 import typing
 from collections import abc as collections
 
 import hikari
 
 from .. import errors
-from .vendor import inspect
 
 if typing.TYPE_CHECKING:
     import typing_extensions
@@ -70,11 +69,7 @@ _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
 
 _LOGGER = logging.getLogger("hikari.tanjun")
 
-if sys.version_info >= (3, 10):
-    UnionTypes = frozenset((typing.Union, types.UnionType))
-
-else:
-    UnionTypes = frozenset((typing.Union,))
+UnionTypes = frozenset((typing.Union, types.UnionType))
 
 
 class _NoDefaultEnum(enum.Enum):

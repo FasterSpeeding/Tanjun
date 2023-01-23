@@ -76,6 +76,7 @@ import datetime
 import enum
 import itertools
 import operator
+import inspect
 import typing
 import warnings
 from collections import abc as collections
@@ -85,7 +86,6 @@ import hikari
 from . import _internal
 from . import conversion
 from . import parsing
-from ._internal.vendor import inspect
 from .commands import message
 from .commands import slash
 
