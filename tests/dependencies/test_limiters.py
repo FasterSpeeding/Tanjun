@@ -377,7 +377,7 @@ async def test__get_ctx_target_when_top_role_when_no_roles_or_only_1_role(role_i
 
 @pytest.mark.asyncio()
 async def test__get_ctx_target_when_unexpected_type():
-    with pytest.raises(ValueError, match="Unexpected type 1"):
+    with pytest.raises(ValueError, match="Unexpected type BucketResource.MEMBER"):
         await tanjun.dependencies.limiters._get_ctx_target(mock.Mock(), tanjun.BucketResource.MEMBER)
 
 
