@@ -108,7 +108,7 @@ def _with_command(
         add_command(target_command)
         if follow_wrapped and not _recursing:
             for wrapped in _internal.collect_wrapped(target_command):
-                decorator(typing.cast(_CommandT, wrapped), _recursing=True)
+                decorator(typing.cast("_CommandT", wrapped), _recursing=True)
 
         return command
 
