@@ -14623,7 +14623,7 @@ if limit is less 0 or negative.</p>
       <p>Injected type used to hold and generate lazy constants.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.inject_lc">inject_lc</a>.</p>
+<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="#tanjun.inject_lc">inject_lc</a>.</p>
 </div>
 
 
@@ -23322,7 +23322,7 @@ command wraps in a decorator call chain.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 
@@ -23446,8 +23446,8 @@ command wraps in a decorator call chain.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
