@@ -36,8 +36,8 @@ __all__: list[str] = [
     "AnyHooks",
     "AppCommand",
     "AppCommandContext",
-    "AutocompleteCallbackSig",
     "AutocompleteContext",
+    "AutocompleteSig",
     "BaseSlashCommand",
     "CheckSig",
     "Client",
@@ -82,7 +82,6 @@ if typing.TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
 
     _AnyErrorHookSigT = typing.TypeVar("_AnyErrorHookSigT", bound="ErrorHookSig[typing.Any]")
@@ -112,16 +111,24 @@ _MenuTypeT = typing.TypeVar(
 )
 
 _MaybeAwaitable = typing.Union[collections.Callable[_P, _CoroT[_T]], collections.Callable[_P, _T]]
-_AutocompleteCallbackSig = collections.Callable[typing_extensions.Concatenate["AutocompleteContext", _P], _CoroT[None]]
 
-AutocompleteCallbackSig = _AutocompleteCallbackSig[...]
+
+_AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
+_AutocompleteSig = collections.Callable[
+    typing_extensions.Concatenate["AutocompleteContext", _AutocompleteValueT, _P], _CoroT[None]
+]
+
+AutocompleteSig = _AutocompleteSig[_AutocompleteValueT, ...]
 """Type hint of the callback an autocomplete callback should have.
 
 This will be called when handling autocomplete and should be an asynchronous
 callback which two positional arguments of type [tanjun.abc.AutocompleteContext][] and
-`str | int | float` (with the 2nd argument type being decided by the
+`str` or `int` or `float` (with the 2nd argument type being decided by the
 autocomplete type), returns [None][] and may use dependency injection.
 """
+
+AutocompleteCallbackSig = AutocompleteSig
+"""Deprecated alias of [tanjun.abc.AutocompleteSig][]"""
 
 _CheckSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], bool]
 CheckSig = _CheckSig[_ContextT_contra, ...]
@@ -2855,17 +2862,17 @@ class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[_SlashCallbackSigT]
 
     @property
     @abc.abstractmethod
-    def float_autocompletes(self) -> collections.Mapping[str, AutocompleteCallbackSig]:
+    def float_autocompletes(self) -> collections.Mapping[str, AutocompleteSig[float]]:
         """Collection of the float option autocompletes."""
 
     @property
     @abc.abstractmethod
-    def int_autocompletes(self) -> collections.Mapping[str, AutocompleteCallbackSig]:
+    def int_autocompletes(self) -> collections.Mapping[str, AutocompleteSig[int]]:
         """Collection of the integer option autocompletes."""
 
     @property
     @abc.abstractmethod
-    def str_autocompletes(self) -> collections.Mapping[str, AutocompleteCallbackSig]:
+    def str_autocompletes(self) -> collections.Mapping[str, AutocompleteSig[str]]:
         """Collection of the string option autocompletes."""
 
 

@@ -56,6 +56,8 @@ import shlex
 import typing
 from collections import abc as collections
 
+import typing_extensions
+
 from . import abc as tanjun
 from . import conversion
 from . import errors
@@ -82,10 +84,13 @@ if typing.TYPE_CHECKING:
 
 
 _T = typing.TypeVar("_T")
-
-ConverterSig = typing.Union[
-    collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]], collections.Callable[..., _T]
+_P = typing_extensions.ParamSpec("_P")
+_ConverterSig = typing.Union[
+    collections.Callable[typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, _T]],
+    collections.Callable[typing_extensions.Concatenate[str, _P], _T],
 ]
+
+ConverterSig = _ConverterSig[..., _T]  # TODO: is this correct?
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position

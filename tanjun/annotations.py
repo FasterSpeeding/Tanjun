@@ -90,7 +90,19 @@ from .commands import message
 from .commands import slash
 
 if typing.TYPE_CHECKING:
+    import typing_extensions
     from typing_extensions import Self
+
+    _P = typing_extensions.ParamSpec("_P")
+    _ConverterValueT = typing.TypeVar("_ConverterValueT", bound=typing.Union[int, str, float])
+    __ConverterSig = typing.Union[
+        collections.Callable[
+            typing_extensions.Concatenate[_ConverterValueT, _P],
+            collections.Coroutine[typing.Any, typing.Any, typing.Any],
+        ],
+        collections.Callable[typing_extensions.Concatenate[_ConverterValueT, _P], typing.Any],
+    ]
+    _ConverterSig = __ConverterSig[_ConverterValueT, ...]
 
 _T = typing.TypeVar("_T")
 _ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
@@ -268,12 +280,12 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
 class _ConvertedMeta(abc.ABCMeta):
     def __getitem__(
-        cls, converters: typing.Union[parsing.ConverterSig[_T], tuple[parsing.ConverterSig[_T]]], /
-    ) -> type[_T]:
+        cls, converters: typing.Union[_ConverterSig[_ConverterValueT], tuple[_ConverterSig[_ConverterValueT]]], /
+    ) -> type[_ConverterValueT]:
         if not isinstance(converters, tuple):
             converters = (converters,)
 
-        return typing.cast(type[_T], typing.Annotated[typing.Any, Converted(*converters)])
+        return typing.cast("type[_ConverterValueT]", typing.Annotated[typing.Any, Converted(*converters)])
 
 
 class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
@@ -297,9 +309,7 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
 
     __slots__ = ("_converters",)
 
-    def __init__(
-        self, converter: parsing.ConverterSig[typing.Any], /, *other_converters: parsing.ConverterSig[typing.Any]
-    ) -> None:
+    def __init__(self, converter: _ConverterSig[typing.Any], /, *other_converters: _ConverterSig[typing.Any]) -> None:
         """Create a converted instance.
 
         Parameters
@@ -318,7 +328,7 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
         self._converters = [converter, *other_converters]
 
     @property
-    def converters(self) -> collections.Sequence[parsing.ConverterSig[typing.Any]]:
+    def converters(self) -> collections.Sequence[_ConverterSig[typing.Any]]:
         """A sequence of the converters."""
         return self._converters
 
@@ -1116,7 +1126,7 @@ class _ArgConfig:
         self.aliases: typing.Optional[collections.Sequence[str]] = None
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
-        self.converters: typing.Optional[collections.Sequence[parsing.ConverterSig[typing.Any]]] = None
+        self.converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
         self.default: typing.Any = parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
         self.description: typing.Optional[str] = description
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED

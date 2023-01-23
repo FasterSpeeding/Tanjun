@@ -489,6 +489,32 @@ class _StartDeclarer:
         )
 
 
+def _log_clients(
+    cache: typing.Optional[hikari.api.Cache],
+    events: typing.Optional[hikari.api.EventManager],
+    server: typing.Optional[hikari.api.InteractionServer],
+    rest: hikari.api.RESTClient,
+    shards: typing.Optional[hikari.ShardAware],
+    event_managed: bool,
+    /,
+) -> None:
+    _LOGGER.info(
+        "%s initialised with the following components: %s",
+        "Event-managed client" if event_managed else "Client",
+        ", ".join(
+            name
+            for name, value in [
+                ("cache", cache),
+                ("event manager", events),
+                ("interaction server", server),
+                ("rest", rest),
+                ("shard manager", shards),
+            ]
+            if value
+        ),
+    )
+
+
 class Client(tanjun.Client):
     """Tanjun's standard [tanjun.abc.Client][] implementation.
 
@@ -655,21 +681,7 @@ class Client(tanjun.Client):
             * If `command_ids` is passed when `declare_global_commands` is `False`.
         """
         if _LOGGER.isEnabledFor(logging.INFO):
-            _LOGGER.info(
-                "%s initialised with the following components: %s",
-                "Event-managed client" if event_managed else "Client",
-                ", ".join(
-                    name
-                    for name, value in [
-                        ("cache", cache),
-                        ("event manager", events),
-                        ("interaction server", server),
-                        ("rest", rest),
-                        ("shard manager", shards),
-                    ]
-                    if value
-                ),
-            )
+            _log_clients(cache, events, server, rest, shards, event_managed)
 
         if not events and not server:
             _LOGGER.warning(
