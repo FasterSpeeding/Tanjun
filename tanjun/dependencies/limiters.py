@@ -68,8 +68,8 @@ from . import owners
 if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
-    _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
-    _OtherCommandT = typing.TypeVar("_OtherCommandT", bound="tanjun.ExecutableCommand[typing.Any]")
+    _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
+    _OtherCommandT = typing.TypeVar("_OtherCommandT", bound=tanjun.ExecutableCommand[typing.Any])
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
 

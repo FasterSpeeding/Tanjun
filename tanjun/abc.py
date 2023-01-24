@@ -151,7 +151,7 @@ CommandCallbackSig = collections.Callable[..., _CoroT[None]]
 
 _CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], _CoroT[None]]
 
-_ManuCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P], _CoroT[None],]
+_ManuCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P], _CoroT[None]]
 MenuCallbackSig = _ManuCallbackSig["MenuContext", _MenuValueT, ...]
 """Type hint of a context menu command callback.
 
@@ -166,7 +166,7 @@ This must be asynchronous and return [None][].
 MenuCommandCallbackSig = MenuCallbackSig
 """Deprecated alias of [tanjun.abc.MenuCallbackSig][]."""
 
-_MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound="MenuCallbackSig[typing.Any]")
+_MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound=MenuCallbackSig[typing.Any])
 
 MessageCallbackSig = _CommandCallbackSig["MessageContext", ...]
 """Type hint of a message command callback.

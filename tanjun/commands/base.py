@@ -46,7 +46,7 @@ if typing.TYPE_CHECKING:
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
 
 
-_ContextT = typing.TypeVar("_ContextT", bound="tanjun.Context")
+_ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
 
 
 class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractComponentLoader):

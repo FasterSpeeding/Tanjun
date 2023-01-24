@@ -63,7 +63,7 @@ if typing.TYPE_CHECKING:
 
 import hikari
 
-_AnyMenuCallbackSigT = typing.TypeVar("_AnyMenuCallbackSigT", bound="tanjun.MenuCallbackSig[typing.Any]")
+_AnyMenuCallbackSigT = typing.TypeVar("_AnyMenuCallbackSigT", bound=tanjun.MenuCallbackSig[typing.Any])
 _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )

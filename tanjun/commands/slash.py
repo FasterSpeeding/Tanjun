@@ -74,7 +74,7 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
-    _AnyBaseSlashCommandT = typing.TypeVar("_AnyBaseSlashCommandT", bound="tanjun.BaseSlashCommand")
+    _AnyBaseSlashCommandT = typing.TypeVar("_AnyBaseSlashCommandT", bound=tanjun.BaseSlashCommand)
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
     _AnyCommandT = (
         tanjun.MenuCommand[_AnyCallbackSigT, typing.Any]

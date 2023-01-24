@@ -96,7 +96,7 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
         [tanjun.Component.load_from_scope][].
     """
 
-    def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommand[typing.Any]:
+    def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -151,7 +151,7 @@ def as_message_command_group(
         [tanjun.Component.load_from_scope][].
     """
 
-    def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommandGroup[typing.Any]:
+    def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback

@@ -77,6 +77,11 @@ if typing.TYPE_CHECKING:
         ) -> bool:
             raise NotImplementedError
 
+    _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
+    _CallbackReturnT = _CommandT | collections.Callable[[_CommandT], _CommandT]
+    _MenuCommandT = typing.TypeVar("_MenuCommandT", bound=tanjun.MenuCommand[typing.Any, typing.Any])
+    _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=tanjun.MessageCommand[typing.Any])
+    _SlashCommandT = typing.TypeVar("_SlashCommandT", bound=tanjun.BaseSlashCommand)
 
 
 _ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)

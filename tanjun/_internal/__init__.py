@@ -60,7 +60,7 @@ if typing.TYPE_CHECKING:
 
     _ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
     _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
-    _TreeT = dict["str | _IndexKeys", "_TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]",]
+    _TreeT = dict["str | _IndexKeys", "_TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]"]
 
 
 _KeyT = typing.TypeVar("_KeyT")

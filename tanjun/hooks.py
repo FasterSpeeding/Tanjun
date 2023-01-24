@@ -190,10 +190,6 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     def with_on_error(self: SlashHooks, callback: _SlashErrorHookSigT, /) -> _SlashErrorHookSigT:
         ...
 
-    # @typing.overload
-    # def with_on_error(self: AnyHooks, callback: _ErrorHookSigT, /) -> _ErrorHookSigT:
-    #     ...
-
     def with_on_error(self, callback: _AnyErrorHookSigT, /) -> _AnyErrorHookSigT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         self.add_on_error(callback)
@@ -240,10 +236,6 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     def with_on_parser_error(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
         ...
 
-    # @typing.overload
-    # def with_on_parser_error(self: AnyHooks, callback: _HookSigT, /) -> _HookSigT:
-    #     ...
-
     def with_on_parser_error(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         self.add_on_parser_error(callback)
@@ -286,10 +278,6 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     @typing.overload
     def with_post_execution(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
         ...
-
-    # @typing.overload
-    # def with_post_execution(self: AnyHooks, callback: _HookSigT, /) -> _HookSigT:
-    #     ...
 
     def with_post_execution(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
@@ -334,10 +322,6 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     def with_pre_execution(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
         ...
 
-    # @typing.overload
-    # def with_pre_execution(self: AnyHooks, callback: _HookSigT, /) -> _HookSigT:
-    #     ...
-
     def with_pre_execution(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         self.add_pre_execution(callback)
@@ -380,10 +364,6 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     @typing.overload
     def with_on_success(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
         ...
-
-    # @typing.overload
-    # def with_on_success(self: AnyHooks, callback: _HookSigT, /) -> _HookSigT:
-    #     ...
 
     def with_on_success(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
