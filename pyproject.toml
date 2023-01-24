@@ -194,8 +194,8 @@ strict-imports = true
 require-superclass = true
 require-subclass = true
 exclude-classes = """
-tanjun.clients:(_LoaderDescriptor|_LoadModule|_ReloadModule|_UnloaderDescriptor)
-| tanjun.dependencies.reloaders:(_PathLoader|_PathScanner|_ScanResult)
+tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)
+| tanjun.dependencies.reloaders:(_PathLoader|_ScanResult)
 | .*Proto
 """
 exclude-modules = "tanjun._internal.vendor"
