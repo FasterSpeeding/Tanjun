@@ -70,20 +70,6 @@ _MenuTypeT = typing.TypeVar(
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
-class _MessageResultProto(typing.Protocol):
-    @typing.overload
-    def __call__(
-        self, _: _AnyCommandT[_MessageCallbackSigT], /
-    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
-        ...
-
-    @typing.overload
-    def __call__(
-        self, _: _MessageCallbackSigT, /
-    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
-        ...
-
-
 def as_message_menu(
     name: typing.Union[str, collections.Mapping[str, str]],
     /,
@@ -93,7 +79,9 @@ def as_message_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
-) -> _MessageResultProto:
+) -> collections.Callable[
+    [_CallbackishT[_MessageCallbackSigT]], MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]
+]:
     """Build a message [tanjun.MenuCommand][] by decorating a function.
 
     !!! note
@@ -187,20 +175,6 @@ def as_message_menu(
     return decorator
 
 
-class _UserResultProto(typing.Protocol):
-    @typing.overload
-    def __call__(
-        self, _: _AnyCommandT[_UserCallbackSigT], /
-    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
-        ...
-
-    @typing.overload
-    def __call__(
-        self, _: _UserCallbackSigT, /
-    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
-        ...
-
-
 def as_user_menu(
     name: typing.Union[str, collections.Mapping[str, str]],
     /,
@@ -210,7 +184,9 @@ def as_user_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
-) -> _UserResultProto:
+) -> collections.Callable[
+    [_CallbackishT[_UserCallbackSigT]], MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]
+]:
     """Build a user [tanjun.MenuCommand][] by decorating a function.
 
     !!! note

@@ -63,17 +63,9 @@ _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
-class _ResultProto(typing.Protocol):
-    @typing.overload
-    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
-        ...
-
-    @typing.overload
-    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]:
-        ...
-
-
-def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True) -> _ResultProto:
+def as_message_command(
+    name: str, /, *names: str, validate_arg_keys: bool = True
+) -> collections.Callable[[_CallbackishT[_MessageCallbackSigT]], MessageCommand[_MessageCallbackSigT]]:
     """Build a message command from a decorated callback.
 
     Parameters
@@ -111,19 +103,9 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
     return decorator
 
 
-class _GroupResultProto(typing.Protocol):
-    @typing.overload
-    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:
-        ...
-
-    @typing.overload
-    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]:
-        ...
-
-
 def as_message_command_group(
     name: str, /, *names: str, strict: bool = False, validate_arg_keys: bool = True
-) -> _GroupResultProto:
+) -> collections.Callable[[_CallbackishT[_MessageCallbackSigT]], MessageCommandGroup[_MessageCallbackSigT]]:
     """Build a message command group from a decorated callback.
 
     Parameters
@@ -423,7 +405,9 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
 
         return self
 
-    def as_sub_command(self, name: str, /, *names: str, validate_arg_keys: bool = True) -> _ResultProto:
+    def as_sub_command(
+        self, name: str, /, *names: str, validate_arg_keys: bool = True
+    ) -> collections.Callable[[_CallbackishT[_OtherCallbackSigT]], MessageCommand[_OtherCallbackSigT]]:
         """Build a message command in this group from a decorated callback.
 
         Parameters
@@ -453,7 +437,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
 
     def as_sub_group(
         self, name: str, /, *names: str, strict: bool = False, validate_arg_keys: bool = True
-    ) -> _GroupResultProto:
+    ) -> collections.Callable[[_CallbackishT[_OtherCallbackSigT]], MessageCommandGroup[_OtherCallbackSigT]]:
         """Build a message command group in this group from a decorated callback.
 
         Parameters

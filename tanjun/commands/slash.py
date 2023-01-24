@@ -244,16 +244,6 @@ def slash_command_group(
     )
 
 
-class _ResultProto(typing.Protocol):
-    @typing.overload
-    def __call__(self, _: _AnyCommandT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
-        ...
-
-    @typing.overload
-    def __call__(self, _: _SlashCallbackSigT, /) -> SlashCommand[_SlashCallbackSigT]:
-        ...
-
-
 def as_slash_command(
     name: typing.Union[str, collections.Mapping[str, str]],
     description: typing.Union[str, collections.Mapping[str, str]],
@@ -266,7 +256,7 @@ def as_slash_command(
     is_global: bool = True,
     sort_options: bool = True,
     validate_arg_keys: bool = True,
-) -> _ResultProto:
+) -> collections.Callable[[_CallbackishT[_SlashCallbackSigT]], SlashCommand[_SlashCallbackSigT]]:
     r"""Build a [tanjun.SlashCommand][] by decorating a function.
 
     !!! note
@@ -1221,7 +1211,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         default_to_ephemeral: typing.Optional[bool] = None,
         sort_options: bool = True,
         validate_arg_keys: bool = True,
-    ) -> _ResultProto:
+    ) -> collections.Callable[[_CallbackishT[_SlashCallbackSigT]], SlashCommand[_SlashCallbackSigT]]:
         r"""Build a [tanjun.SlashCommand][] in this command group by decorating a function.
 
         !!! note
