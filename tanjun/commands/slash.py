@@ -2847,7 +2847,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             str, int | float | str | hikari.Attachment | hikari.User | hikari.Role | hikari.InteractionChannel
         ] = {}
         for tracked_option in self._tracked_options.values():
-            if not (option := ctx.options.get(tracked_option.name)):
+            option = ctx.options.get(tracked_option.name)
+            if not option:
                 if tracked_option.default is UNDEFINED_DEFAULT:
                     raise RuntimeError(  # TODO: ConversionError?
                         f"Required option {tracked_option.name} is missing data, are you sure your commands"
@@ -2856,39 +2857,44 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
                 else:
                     keyword_args[tracked_option.key] = tracked_option.default
+                    continue
 
-            elif option.type is hikari.OptionType.USER:
-                member: hikari.InteractionMember | None = None
-                if tracked_option.is_only_member and not (member := option.resolve_to_member(default=None)):
-                    raise errors.ConversionError(
-                        f"Couldn't find member for provided user: {option.value}", tracked_option.name
-                    )
+            match option.type:
+                case hikari.OptionType.USER:
+                    member: hikari.InteractionMember | None = None
+                    if tracked_option.is_only_member and not (member := option.resolve_to_member(default=None)):
+                        raise errors.ConversionError(
+                            f"Couldn't find member for provided user: {option.value}", tracked_option.name
+                        )
 
-                keyword_args[tracked_option.key] = member or option.resolve_to_user()
+                    keyword_args[tracked_option.key] = member or option.resolve_to_user()
 
-            elif option.type is hikari.OptionType.CHANNEL:
-                keyword_args[tracked_option.key] = option.resolve_to_channel()
+                case hikari.OptionType.CHANNEL:
+                    keyword_args[tracked_option.key] = option.resolve_to_channel()
 
-            elif option.type is hikari.OptionType.ROLE:
-                keyword_args[tracked_option.key] = option.resolve_to_role()
+                case hikari.OptionType.ROLE:
+                    keyword_args[tracked_option.key] = option.resolve_to_role()
 
-            elif option.type is hikari.OptionType.MENTIONABLE:
-                keyword_args[tracked_option.key] = option.resolve_to_mentionable()
+                case hikari.OptionType.MENTIONABLE:
+                    keyword_args[tracked_option.key] = option.resolve_to_mentionable()
 
-            elif option.type is hikari.OptionType.ATTACHMENT:
-                keyword_args[tracked_option.key] = option.resolve_to_attachment()
+                case hikari.OptionType.ATTACHMENT:
+                    keyword_args[tracked_option.key] = option.resolve_to_attachment()
 
-            else:
-                value = option.value
-                # To be type safe we obfuscate the fact that discord's double type will provide an int or float
-                # depending on the value Discord inputs by always casting to float.
-                if tracked_option.type is hikari.OptionType.FLOAT and tracked_option.is_always_float:
-                    value = float(value)
+                case hikari.OptionType.FLOAT | hikari.OptionType.INTEGER | hikari.OptionType.STRING:
+                    value = option.value
+                    # To be type safe we obfuscate the fact that discord's double type will provide an int or float
+                    # depending on the value Discord inputs by always casting to float.
+                    if tracked_option.type is hikari.OptionType.FLOAT and tracked_option.is_always_float:
+                        value = float(value)
 
-                if tracked_option.converters:
-                    value = await tracked_option.convert(ctx, option.value)
+                    if tracked_option.converters:
+                        value = await tracked_option.convert(ctx, option.value)
 
-                keyword_args[tracked_option.key] = value
+                    keyword_args[tracked_option.key] = value
+
+                case _:
+                    raise NotImplementedError(f"Unrecognised option type {option.type}")
 
         return keyword_args
 
@@ -2939,17 +2945,18 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         self, ctx: tanjun.AutocompleteContext, /, *, option: hikari.AutocompleteInteractionOption | None = None
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
-        if ctx.focused.type is hikari.OptionType.STRING:
-            callback = self._str_autocompletes.get(ctx.focused.name)
+        match ctx.focused.type:
+            case hikari.OptionType.STRING:
+                callback = self._str_autocompletes.get(ctx.focused.name)
 
-        elif ctx.focused.type is hikari.OptionType.FLOAT:
-            callback = self._float_autocompletes.get(ctx.focused.name)
+            case hikari.OptionType.FLOAT:
+                callback = self._float_autocompletes.get(ctx.focused.name)
 
-        elif ctx.focused.type is hikari.OptionType.INTEGER:
-            callback = self._int_autocompletes.get(ctx.focused.name)
+            case hikari.OptionType.INTEGER:
+                callback = self._int_autocompletes.get(ctx.focused.name)
 
-        else:
-            raise NotImplementedError(f"Autocomplete isn't implemented for '{ctx.focused.type}' option yet.")
+            case _:
+                raise NotImplementedError(f"Autocomplete isn't implemented for '{ctx.focused.type}' option yet.")
 
         if not callback:
             raise RuntimeError(f"No autocomplete callback found for '{ctx.focused.name}' option")

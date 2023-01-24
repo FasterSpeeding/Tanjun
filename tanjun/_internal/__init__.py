@@ -382,25 +382,33 @@ def parse_channel_types(*channel_types: type[hikari.PartialChannel] | int) -> li
         raise ValueError(f"Unknown channel type {exc.args[0]}") from exc
 
 
-_CHANNEL_TYPE_REPS: dict[hikari.ChannelType, str] = {
-    hikari.ChannelType.GUILD_TEXT: "Text",
-    hikari.ChannelType.DM: "DM",
-    hikari.ChannelType.GUILD_VOICE: "Voice",
-    hikari.ChannelType.GROUP_DM: "Group DM",
-    hikari.ChannelType.GUILD_CATEGORY: "Category",
-    hikari.ChannelType.GUILD_NEWS: "News",
-    hikari.ChannelType.GUILD_STAGE: "Stage",
-    hikari.ChannelType.GUILD_NEWS_THREAD: "News Thread",
-    hikari.ChannelType.GUILD_PUBLIC_THREAD: "Public Thread",
-    hikari.ChannelType.GUILD_PRIVATE_THREAD: "Private Thread",
-    hikari.ChannelType.GUILD_FORUM: "Forum",
-}
-_UNKNOWN_CHANNEL_REPR = "Unknown"
-
-
 def repr_channel(channel_type: hikari.ChannelType, /) -> str:
     """Get a text repr of a channel type."""
-    return _CHANNEL_TYPE_REPS.get(channel_type, _UNKNOWN_CHANNEL_REPR)
+    match channel_type:
+        case hikari.ChannelType.GUILD_TEXT:
+            return "Text"
+        case hikari.ChannelType.DM:
+            return "DM"
+        case hikari.ChannelType.GUILD_VOICE:
+            return "Voice"
+        case hikari.ChannelType.GROUP_DM:
+            return "Group DM"
+        case hikari.ChannelType.GUILD_CATEGORY:
+            return "Category"
+        case hikari.ChannelType.GUILD_NEWS:
+            return "News"
+        case hikari.ChannelType.GUILD_STAGE:
+            return "Stage"
+        case hikari.ChannelType.GUILD_NEWS_THREAD:
+            return "News Thread"
+        case hikari.ChannelType.GUILD_PUBLIC_THREAD:
+            return "Public Thread"
+        case hikari.ChannelType.GUILD_PRIVATE_THREAD:
+            return "Private Thread"
+        case hikari.ChannelType.GUILD_FORUM:
+            return "Forum"
+        case _:
+            return "Unknown"
 
 
 def cmp_command(

@@ -65,6 +65,12 @@ class TestMessageAcceptsEnum:
     def test_get_event_type(self, value: tanjun.MessageAcceptsEnum, expected_type: hikari.Event | None):
         assert value.get_event_type() == expected_type
 
+    def test_get_event_type_not_missing_any_values(self):
+        for key in tanjun.MessageAcceptsEnum:
+            result = key.get_event_type()
+
+            assert result is None or issubclass(result, hikari.Event)
+
 
 class TestLoaderDescriptor:
     def test_has_load_property(self):

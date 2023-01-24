@@ -762,20 +762,21 @@ class Component(tanjun.Component):
         Self
             The current component to allow for chaining.
         """
-        if isinstance(command, tanjun.MessageCommand):
-            self.add_message_command(command)
+        match command:
+            case tanjun.MessageCommand():
+                self.add_message_command(command)
 
-        elif isinstance(command, tanjun.BaseSlashCommand):
-            self.add_slash_command(command)
+            case tanjun.BaseSlashCommand():
+                self.add_slash_command(command)
 
-        elif isinstance(command, tanjun.MenuCommand):
-            self.add_menu_command(command)
+            case tanjun.MenuCommand():
+                self.add_menu_command(command)
 
-        else:
-            raise TypeError(
-                "Unexpected object passed, expected a MenuCommand, "
-                f"MessageCommand or BaseSlashCommand but got {type(command)}"
-            )
+            case _:
+                raise TypeError(
+                    "Unexpected object passed, expected a MenuCommand, "
+                    f"MessageCommand or BaseSlashCommand but got {type(command)}"
+                )
 
         return self
 
@@ -792,19 +793,20 @@ class Component(tanjun.Component):
         Self
             This component to enable method chaining.
         """
-        if isinstance(command, tanjun.MessageCommand):
-            self.remove_message_command(command)
+        match command:
+            case tanjun.MessageCommand():
+                self.remove_message_command(command)
 
-        elif isinstance(command, tanjun.BaseSlashCommand):
-            self.remove_slash_command(command)
+            case tanjun.BaseSlashCommand():
+                self.remove_slash_command(command)
 
-        elif isinstance(command, tanjun.MenuCommand):
-            self.remove_menu_command(command)
+            case tanjun.MenuCommand():
+                self.remove_menu_command(command)
 
-        else:
-            raise TypeError(
-                f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(command)}"
-            )
+            case _:
+                raise TypeError(
+                    f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(command)}"
+                )
 
         return self
 

@@ -1332,11 +1332,15 @@ def parse_annotated_args(
 
     if follow_wrapped:
         for sub_command in _internal.collect_wrapped(command):
-            if isinstance(sub_command, message.MessageCommand):
-                message_commands.append(sub_command)
+            match sub_command:
+                case message.MessageCommand():
+                    message_commands.append(sub_command)
 
-            elif isinstance(sub_command, slash.SlashCommand):
-                slash_commands.append(sub_command)
+                case slash.SlashCommand():
+                    slash_commands.append(sub_command)
+
+                case _:
+                    pass
 
     for parameter in signature.parameters.values():
         if parameter.annotation is parameter.empty:
@@ -1344,14 +1348,18 @@ def parse_annotated_args(
 
         arg_config = _ArgConfig(parameter, description=descriptions.get(parameter.name))
         for arg in _snoop_annotation_args(parameter.annotation):
-            if isinstance(arg, _ConfigIdentifier):
-                arg.set_config(arg_config)
+            match arg:
+                case _ConfigIdentifier():
+                    arg.set_config(arg_config)
 
-            elif isinstance(arg, str) and not arg_config.description:
-                arg_config.description = arg
+                case str() if not arg_config.description:
+                    arg_config.description = arg
 
-            elif isinstance(arg, (range, slice)):
-                arg_config.range_or_slice = arg
+                case range() | slice():
+                    arg_config.range_or_slice = arg
+
+                case _:
+                    pass
 
         arg_config.finalise_slice()
         if arg_config.option_type or arg_config.converters:

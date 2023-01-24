@@ -426,16 +426,17 @@ class MessageAcceptsEnum(str, enum.Enum):
             This will be [None][] if this mode disables listening to
             message create events.
         """
-        return _ACCEPTS_EVENT_TYPE_MAPPING[self]
-
-
-_ACCEPTS_EVENT_TYPE_MAPPING: dict[MessageAcceptsEnum, type[hikari.MessageCreateEvent] | None] = {
-    MessageAcceptsEnum.ALL: hikari.MessageCreateEvent,
-    MessageAcceptsEnum.DM_ONLY: hikari.DMMessageCreateEvent,
-    MessageAcceptsEnum.GUILD_ONLY: hikari.GuildMessageCreateEvent,
-    MessageAcceptsEnum.NONE: None,
-}
-assert _ACCEPTS_EVENT_TYPE_MAPPING.keys() == set(MessageAcceptsEnum)
+        match self:
+            case MessageAcceptsEnum.ALL:
+                return hikari.MessageCreateEvent
+            case MessageAcceptsEnum.DM_ONLY:
+                return hikari.DMMessageCreateEvent
+            case MessageAcceptsEnum.GUILD_ONLY:
+                return hikari.GuildMessageCreateEvent
+            case MessageAcceptsEnum.NONE:
+                return None
+            case _:
+                raise NotImplementedError
 
 
 def _check_human(ctx: tanjun.Context, /) -> bool:
@@ -1342,16 +1343,17 @@ class Client(tanjun.Client):
                 builder = command
 
             command_id = None
-            if builder.type is hikari.CommandType.USER:
-                user_count += 1
-                command_id = user_ids.get(command.name)
+            match builder.type:
+                case hikari.CommandType.USER:
+                    user_count += 1
+                    command_id = user_ids.get(command.name)
 
-            elif builder.type is hikari.CommandType.MESSAGE:
-                message_count += 1
-                command_id = message_ids.get(command.name)
+                case hikari.CommandType.MESSAGE:
+                    message_count += 1
+                    command_id = message_ids.get(command.name)
 
-            elif builder.type is hikari.CommandType.SLASH:
-                slash_count += 1
+                case hikari.CommandType.SLASH:
+                    slash_count += 1
 
             if command_id := (command_id or command_ids.get(command.name)):
                 builder.set_id(hikari.Snowflake(command_id))
