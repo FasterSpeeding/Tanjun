@@ -1014,10 +1014,12 @@ def with_check(
 
 def with_check(
     check: tanjun.CheckSig[typing.Any], /, *, follow_wrapped: bool = False
-) -> (collections.Callable[[_CommandT], _CommandT] |
-    collections.Callable[[_MenuCommandT], _MenuCommandT] |
-    collections.Callable[[_MessageCommandT], _MessageCommandT] |
-    collections.Callable[[_SlashCommandT], _SlashCommandT]):
+) -> (
+    collections.Callable[[_CommandT], _CommandT]
+    | collections.Callable[[_MenuCommandT], _MenuCommandT]
+    | collections.Callable[[_MessageCommandT], _MessageCommandT]
+    | collections.Callable[[_SlashCommandT], _SlashCommandT]
+):
     """Add a generic check to a command.
 
     Parameters
