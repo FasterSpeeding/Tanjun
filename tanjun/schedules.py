@@ -94,7 +94,7 @@ class AbstractSchedule(abc.ABC):
         """
 
     @abc.abstractmethod
-    def start(self, client: alluka.Client, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
+    def start(self, client: alluka.Client, /, *, loop: asyncio.AbstractEventLoop | None = None) -> None:
         """Start the schedule.
 
         Parameters
@@ -140,12 +140,12 @@ class _ComponentProto(typing.Protocol):
 
 
 def as_interval(
-    interval: typing.Union[int, float, datetime.timedelta],
+    interval: int | float | datetime.timedelta,
     /,
     *,
     fatal_exceptions: collections.Sequence[type[Exception]] = (),
     ignored_exceptions: collections.Sequence[type[Exception]] = (),
-    max_runs: typing.Optional[int] = None,
+    max_runs: int | None = None,
 ) -> collections.Callable[[_CallbackSigT], IntervalSchedule[_CallbackSigT]]:
     """Decorator to create an schedule.
 
@@ -217,12 +217,12 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
     def __init__(
         self,
         callback: _CallbackSigT,
-        interval: typing.Union[datetime.timedelta, int, float],
+        interval: datetime.timedelta | int | float,
         /,
         *,
         fatal_exceptions: collections.Sequence[type[Exception]] = (),
         ignored_exceptions: collections.Sequence[type[Exception]] = (),
-        max_runs: typing.Optional[int] = None,
+        max_runs: int | None = None,
     ) -> None:
         """Initialise an interval schedule.
 
@@ -250,14 +250,14 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             self._interval = datetime.timedelta(seconds=interval)
 
         self._callback = callback
-        self._client: typing.Optional[alluka.Client] = None
+        self._client: alluka.Client | None = None
         self._fatal_exceptions = tuple(fatal_exceptions)
         self._ignored_exceptions = tuple(ignored_exceptions)
         self._iteration_count: int = 0
         self._max_runs = max_runs
-        self._stop_callback: typing.Optional[_CallbackSig] = None
-        self._start_callback: typing.Optional[_CallbackSig] = None
-        self._task: typing.Optional[asyncio.Task[None]] = None
+        self._stop_callback: _CallbackSig | None = None
+        self._start_callback: _CallbackSig | None = None
+        self._task: asyncio.Task[None] | None = None
         self._tasks: list[asyncio.Task[None]] = []
 
     @property
@@ -393,7 +393,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             except Exception:
                 traceback.print_exc()
 
-    def start(self, client: alluka.Client, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
+    def start(self, client: alluka.Client, /, *, loop: asyncio.AbstractEventLoop | None = None) -> None:
         # <<inherited docstring from IntervalSchedule>>.
         if self._task:
             raise RuntimeError("Cannot start an active schedule")
@@ -548,7 +548,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         return self
 
 
-def _get_next(target_values: collections.Sequence[int], current_value: int, /) -> typing.Optional[int]:
+def _get_next(target_values: collections.Sequence[int], current_value: int, /) -> int | None:
     for value in target_values:
         if value > current_value:
             return value
@@ -557,8 +557,8 @@ def _get_next(target_values: collections.Sequence[int], current_value: int, /) -
 
 
 def _to_sequence(
-    values: typing.Union[int, collections.Sequence[int], None], min_: int, max_: int, name: str, /
-) -> typing.Optional[collections.Sequence[int]]:
+    values: int | collections.Sequence[int] | None, min_: int, max_: int, name: str, /
+) -> collections.Sequence[int] | None:
     if values is None:
         return None
 
@@ -599,13 +599,13 @@ def _to_sequence(
 class _TimeScheduleConfig:
     __slots__ = ("current_date", "days", "hours", "is_weekly", "minutes", "months", "seconds", "timezone")
     current_date: datetime.datetime
-    days: typing.Optional[collections.Sequence[int]]
+    days: collections.Sequence[int] | None
     hours: collections.Sequence[int]
     is_weekly: bool
     minutes: collections.Sequence[int]
     months: collections.Sequence[int]
     seconds: collections.Sequence[int]
-    timezone: typing.Optional[datetime.timezone]
+    timezone: datetime.timezone | None
 
 
 class _Datetime:
@@ -798,15 +798,15 @@ class _Datetime:
 
 def as_time_schedule(
     *,
-    months: typing.Union[int, collections.Sequence[int]] = (),
+    months: int | collections.Sequence[int] = (),
     weekly: bool = False,
-    days: typing.Union[int, collections.Sequence[int]] = (),
-    hours: typing.Union[int, collections.Sequence[int]] = (),
-    minutes: typing.Union[int, collections.Sequence[int]] = (),
-    seconds: typing.Union[int, collections.Sequence[int]] = 0,
+    days: int | collections.Sequence[int] = (),
+    hours: int | collections.Sequence[int] = (),
+    minutes: int | collections.Sequence[int] = (),
+    seconds: int | collections.Sequence[int] = 0,
     fatal_exceptions: collections.Sequence[type[Exception]] = (),
     ignored_exceptions: collections.Sequence[type[Exception]] = (),
-    timezone: typing.Optional[datetime.timezone] = None,
+    timezone: datetime.timezone | None = None,
 ) -> collections.Callable[[_CallbackSigT], TimeSchedule[_CallbackSigT]]:
     """Create a time schedule through a decorator call.
 
@@ -927,15 +927,15 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         callback: _CallbackSigT,
         /,
         *,
-        months: typing.Union[int, collections.Sequence[int]] = (),
+        months: int | collections.Sequence[int] = (),
         weekly: bool = False,
-        days: typing.Union[int, collections.Sequence[int]] = (),
-        hours: typing.Union[int, collections.Sequence[int]] = (),
-        minutes: typing.Union[int, collections.Sequence[int]] = (),
-        seconds: typing.Union[int, collections.Sequence[int]] = 0,
+        days: int | collections.Sequence[int] = (),
+        hours: int | collections.Sequence[int] = (),
+        minutes: int | collections.Sequence[int] = (),
+        seconds: int | collections.Sequence[int] = 0,
         fatal_exceptions: collections.Sequence[type[Exception]] = (),
         ignored_exceptions: collections.Sequence[type[Exception]] = (),
-        timezone: typing.Optional[datetime.timezone] = None,
+        timezone: datetime.timezone | None = None,
     ) -> None:
         """Initialise the time schedule.
 
@@ -1024,7 +1024,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         )
         self._fatal_exceptions = tuple(fatal_exceptions)
         self._ignored_exceptions = tuple(ignored_exceptions)
-        self._task: typing.Optional[asyncio.Task[None]] = None
+        self._task: asyncio.Task[None] | None = None
         self._tasks: list[asyncio.Task[None]] = []
 
     @property
@@ -1097,7 +1097,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         if isinstance(component, _ComponentProto):
             component.add_schedule(self)
 
-    def start(self, client: alluka.Client, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
+    def start(self, client: alluka.Client, /, *, loop: asyncio.AbstractEventLoop | None = None) -> None:
         # <<inherited docstring from IntervalSchedule>>.
         if self._task:
             raise RuntimeError("Schedule is already running")

@@ -31,8 +31,6 @@
 """Utility classes for making cache calls."""
 from __future__ import annotations
 
-import typing
-
 import hikari
 
 from .. import abc as tanjun
@@ -66,7 +64,7 @@ async def get_perm_channel(client: tanjun.Client, channel_id: hikari.Snowflake, 
     hikari.channels.PermissibleGuildChannel
         The permissible guild channel.
     """
-    channel: typing.Optional[hikari.PartialChannel]  # MyPy compat
+    channel: hikari.PartialChannel | None  # MyPy compat
     if client.cache and (channel := client.cache.get_guild_channel(channel_id)):
         return channel
 

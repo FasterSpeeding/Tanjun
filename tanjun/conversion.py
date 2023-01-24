@@ -95,7 +95,7 @@ if typing.TYPE_CHECKING:
     _PartialChannelT = typing.TypeVar("_PartialChannelT", bound=hikari.PartialChannel)
 
 
-_SnowflakeIsh = typing.Union[str, int]
+_SnowflakeIsh = str | int
 _ValueT = typing.TypeVar("_ValueT")
 _LOGGER = logging.getLogger("hikari.tanjun.conversion")
 
@@ -242,7 +242,7 @@ class ToChannel(BaseConverter):
     def __init__(
         self,
         *,
-        allowed_types: typing.Optional[collections.Collection[typing.Union[type[hikari.PartialChannel], int]]] = None,
+        allowed_types: collections.Collection[type[hikari.PartialChannel] | int] | None = None,
         include_dms: bool = True,
     ) -> None:
         """Initialise a to channel converter.
@@ -330,9 +330,9 @@ class ToChannel(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_GuildChannelCacheT]] = None,
-        dm_cache: alluka.Injected[typing.Optional[_DmCacheT]] = None,
-        thread_cache: alluka.Injected[typing.Optional[_ThreadCacheT]] = None,
+        cache: alluka.Injected[_GuildChannelCacheT | None] = None,
+        dm_cache: alluka.Injected[_DmCacheT | None] = None,
+        thread_cache: alluka.Injected[_ThreadCacheT | None] = None,
     ) -> hikari.PartialChannel:
         channel_id = parse_channel_id(argument, message="No valid channel mention or ID found")
         if ctx.cache and (channel_ := ctx.cache.get_guild_channel(channel_id)):
@@ -417,7 +417,7 @@ class ToEmoji(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_EmojiCacheT]] = None,
+        cache: alluka.Injected[_EmojiCacheT | None] = None,
     ) -> hikari.KnownCustomEmoji:
         emoji_id = parse_emoji_id(argument, message="No valid emoji or emoji ID found")
 
@@ -470,7 +470,7 @@ class ToGuild(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_GuildCacheT]] = None,
+        cache: alluka.Injected[_GuildCacheT | None] = None,
     ) -> hikari.Guild:
         guild_id = parse_snowflake(argument, message="No valid guild ID found")
         if ctx.cache and (guild := ctx.cache.get_guild(guild_id)):
@@ -517,7 +517,7 @@ class ToInvite(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_InviteCacheT]] = None,
+        cache: alluka.Injected[_InviteCacheT | None] = None,
     ) -> hikari.Invite:
         if ctx.cache and (invite := ctx.cache.get_invite(argument)):
             return invite
@@ -571,7 +571,7 @@ class ToInviteWithMetadata(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_InviteCacheT]] = None,
+        cache: alluka.Injected[_InviteCacheT | None] = None,
     ) -> hikari.InviteWithMetadata:
         if ctx.cache and (invite := ctx.cache.get_invite(argument)):
             return invite
@@ -613,7 +613,7 @@ class ToMember(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_MemberCacheT]] = None,
+        cache: alluka.Injected[_MemberCacheT | None] = None,
     ) -> hikari.Member:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a member from a DM channel")
@@ -690,7 +690,7 @@ class ToPresence(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_PresenceCacheT]] = None,
+        cache: alluka.Injected[_PresenceCacheT | None] = None,
     ) -> hikari.MemberPresence:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a presence from a DM channel")
@@ -729,7 +729,7 @@ class ToRole(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_RoleCacheT]] = None,
+        cache: alluka.Injected[_RoleCacheT | None] = None,
     ) -> hikari.Role:
         role_id = parse_role_id(argument, message="No valid role mention or ID found")
         if ctx.cache and (role := ctx.cache.get_role(role_id)):
@@ -778,7 +778,7 @@ class ToUser(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_UserCacheT]] = None,
+        cache: alluka.Injected[_UserCacheT | None] = None,
     ) -> hikari.User:
         # TODO: search by name if this is a guild context
         user_id = parse_user_id(argument, message="No valid user mention or ID found")
@@ -836,7 +836,7 @@ class ToMessage(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_MessageCacheT]] = None,
+        cache: alluka.Injected[_MessageCacheT | None] = None,
     ) -> hikari.Message:
         channel_id, message_id = parse_message_id(argument)
         if ctx.cache and (message := ctx.cache.get_message(message_id)):
@@ -897,7 +897,7 @@ class ToVoiceState(BaseConverter):
         /,
         ctx: alluka.Injected[tanjun.Context],
         *,
-        cache: alluka.Injected[typing.Optional[_VoiceStateCacheT]] = None,
+        cache: alluka.Injected[_VoiceStateCacheT | None] = None,
     ) -> hikari.VoiceState:
         if ctx.guild_id is None:
             raise ValueError("Cannot get a voice state from a DM channel")
@@ -946,7 +946,7 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSigProto:
         ValueError
             If the value cannot be parsed.
         """
-        result: typing.Optional[hikari.Snowflake] = None
+        result: hikari.Snowflake | None = None
         if isinstance(value, int) or value.isdigit():
             result = hikari.Snowflake(value)
 
@@ -1201,7 +1201,7 @@ _MESSAGE_LINK_REGEX = re.compile(r"(\d+|@me)/(\d+)/(\d+)")
 
 def parse_message_id(
     value: _SnowflakeIsh, /, *, message: str = "No valid message link or ID found"
-) -> tuple[typing.Optional[hikari.Snowflake], hikari.Snowflake]:
+) -> tuple[hikari.Snowflake | None, hikari.Snowflake]:
     """Parse a user ID from a string or int value.
 
     Parameters
@@ -1221,8 +1221,8 @@ def parse_message_id(
     ValueError
         If the value cannot be parsed.
     """
-    channel_id: typing.Optional[hikari.Snowflake] = None
-    message_id: typing.Optional[hikari.Snowflake] = None
+    channel_id: hikari.Snowflake | None = None
+    message_id: hikari.Snowflake | None = None
 
     if isinstance(value, int) or value.isdigit():
         message_id = hikari.Snowflake(value)
@@ -1374,7 +1374,7 @@ def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
     ...
 
 
-def from_datetime(value: typing.Union[datetime.datetime, datetime.timedelta], /, *, style: str = "f") -> str:
+def from_datetime(value: datetime.datetime | datetime.timedelta, /, *, style: str = "f") -> str:
     """Format a datetime as Discord's datetime format.
 
     More information on this format can be found at

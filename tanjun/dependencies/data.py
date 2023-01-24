@@ -69,15 +69,15 @@ class LazyConstant(typing.Generic[_T]):
             This supports dependency injection and may either be sync or asynchronous.
         """
         self._callback = callback
-        self._lock: typing.Optional[asyncio.Lock] = None
-        self._value: typing.Optional[_T] = None
+        self._lock: asyncio.Lock | None = None
+        self._value: _T | None = None
 
     @property
     def callback(self) -> alluka.abc.CallbackSig[_T]:
         """Descriptor of the callback used to get this constant's initial value."""
         return self._callback
 
-    def get_value(self) -> typing.Optional[_T]:
+    def get_value(self) -> _T | None:
         """Get the value of this constant if set, else [None][]."""
         return self._value
 
@@ -223,16 +223,12 @@ class _CacheCallback(typing.Generic[_T]):
     __slots__ = ("_callback", "_expire_after", "_last_called", "_lock", "_result", "__weakref__")
 
     def __init__(
-        self,
-        callback: alluka.abc.CallbackSig[_T],
-        /,
-        *,
-        expire_after: typing.Union[int, float, datetime.timedelta, None],
+        self, callback: alluka.abc.CallbackSig[_T], /, *, expire_after: int | float | datetime.timedelta | None
     ) -> None:
         self._callback = callback
-        self._last_called: typing.Optional[float] = None
-        self._lock: typing.Optional[asyncio.Lock] = None
-        self._result: typing.Union[_T, alluka.abc.Undefined] = alluka.abc.UNDEFINED
+        self._last_called: float | None = None
+        self._lock: asyncio.Lock | None = None
+        self._result: _T | alluka.abc.Undefined = alluka.abc.UNDEFINED
         if expire_after is None:
             pass
         elif isinstance(expire_after, datetime.timedelta):
@@ -274,7 +270,7 @@ class _CacheCallback(typing.Generic[_T]):
 
 
 def cache_callback(
-    callback: alluka.abc.CallbackSig[_T], /, *, expire_after: typing.Union[int, float, datetime.timedelta, None] = None
+    callback: alluka.abc.CallbackSig[_T], /, *, expire_after: int | float | datetime.timedelta | None = None
 ) -> collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]]:
     """Cache the result of a callback within a dependency injection context.
 
@@ -306,7 +302,7 @@ def cache_callback(
 
 
 def cached_inject(
-    callback: alluka.abc.CallbackSig[_T], /, *, expire_after: typing.Union[float, int, datetime.timedelta, None] = None
+    callback: alluka.abc.CallbackSig[_T], /, *, expire_after: float | int | datetime.timedelta | None = None
 ) -> _T:
     """Inject a callback with caching.
 

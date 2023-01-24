@@ -56,7 +56,7 @@ def stub_class(
     cls: type[_T],
     /,
     args: collections.Sequence[typing.Any] = (),
-    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    kwargs: collections.Mapping[str, typing.Any] | None = None,
     **namespace: typing.Any,
 ) -> _T:
     namespace["__slots__"] = ()
@@ -136,9 +136,9 @@ def test_as_slash_command():
     ],
 )
 def test_as_slash_command_when_wrapping_command(
-    other_command: typing.Union[
-        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MenuCommand[typing.Any, typing.Any]
-    ]
+    other_command: (
+        tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
+    )
 ):
 
     command = tanjun.as_slash_command(
@@ -1323,11 +1323,11 @@ class TestSlashCommand:
     )
     def test___init___when_command_object(
         self,
-        inner_command: typing.Union[
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig],
-            tanjun.MessageCommand[tanjun.abc.CommandCallbackSig],
-            tanjun.MenuCommand[typing.Any, typing.Any],
-        ],
+        inner_command: (
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig]
+            | tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
+            | tanjun.MenuCommand[typing.Any, typing.Any]
+        ),
     ):
         assert tanjun.SlashCommand(inner_command, "woow", "no").callback is inner_command.callback
 
@@ -2886,8 +2886,8 @@ class TestSlashCommand:
     def test_add_channel_option_types_behaviour(
         self,
         command: tanjun.SlashCommand[typing.Any],
-        classes: list[typing.Union[type[hikari.PartialChannel], int]],
-        int_types: typing.Optional[list[int]],
+        classes: list[type[hikari.PartialChannel] | int],
+        int_types: list[int] | None,
     ):
         command.add_channel_option("channel", "chaaa", types=classes)
 

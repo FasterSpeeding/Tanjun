@@ -72,14 +72,12 @@ if typing.TYPE_CHECKING:
 
     class _AnyCallback(typing.Protocol):
         async def __call__(
-            self, ctx: tanjun.Context, /, *, localiser: typing.Optional[dependencies.AbstractLocaliser] = None
+            self, ctx: tanjun.Context, /, *, localiser: dependencies.AbstractLocaliser | None = None
         ) -> bool:
             raise NotImplementedError
 
-
-_CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
-# This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
-_CallbackReturnT = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
+    _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
+    _CallbackReturnT = _CommandT | collections.Callable[[_CommandT], _CommandT]
 
 
 def _add_to_command(command: _CommandT, check: tanjun.CheckSig, follow_wrapped: bool) -> _CommandT:
@@ -91,8 +89,8 @@ def _add_to_command(command: _CommandT, check: tanjun.CheckSig, follow_wrapped: 
 
 
 def _optional_kwargs(
-    command: typing.Optional[_CommandT], check: tanjun.CheckSig, follow_wrapped: bool, /
-) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
+    command: _CommandT | None, check: tanjun.CheckSig, follow_wrapped: bool, /
+) -> _CommandT | collections.Callable[[_CommandT], _CommandT]:
     if command:
         return _add_to_command(command, check, follow_wrapped)
 
@@ -104,12 +102,12 @@ class _Check:
 
     def __init__(
         self,
-        error: typing.Optional[collections.Callable[..., Exception]],
-        error_message: typing.Union[str, collections.Mapping[str, str], None],
+        error: collections.Callable[..., Exception] | None,
+        error_message: str | collections.Mapping[str, str] | None,
         halt_execution: bool,
         /,
         *,
-        id_name: typing.Optional[str] = None,
+        id_name: str | None = None,
     ) -> None:
         self._error = error
         self._error_message = localisation.MaybeLocalised("error_message", error_message) if error_message else None
@@ -120,7 +118,7 @@ class _Check:
         self,
         ctx: tanjun.Context,
         result: bool,
-        localiser: typing.Optional[dependencies.AbstractLocaliser] = None,
+        localiser: dependencies.AbstractLocaliser | None = None,
         /,
         *args: typing.Any,
     ) -> bool:
@@ -147,8 +145,8 @@ class OwnerCheck(_Check):
     def __init__(
         self,
         *,
-        error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
+        error: collections.Callable[[], Exception] | None = None,
+        error_message: str | collections.Mapping[str, str] | None = "Only bot owners can use this command",
         halt_execution: bool = False,
     ) -> None:
         """Initialise an owner check.
@@ -181,7 +179,7 @@ class OwnerCheck(_Check):
         /,
         dependency: alluka.Injected[dependencies.AbstractOwners],
         *,
-        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+        localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None,
     ) -> bool:
         return self._handle_result(ctx, await dependency.check_ownership(ctx.client, ctx.author), localiser)
 
@@ -204,10 +202,8 @@ class NsfwCheck(_Check):
     def __init__(
         self,
         *,
-        error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Union[
-            str, collections.Mapping[str, str], None
-        ] = "Command can only be used in NSFW channels",
+        error: collections.Callable[[], Exception] | None = None,
+        error_message: str | collections.Mapping[str, str] | None = "Command can only be used in NSFW channels",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a NSFW check.
@@ -235,11 +231,7 @@ class NsfwCheck(_Check):
         super().__init__(error, error_message, halt_execution)
 
     async def __call__(
-        self,
-        ctx: tanjun.Context,
-        /,
-        *,
-        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+        self, ctx: tanjun.Context, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
         return self._handle_result(ctx, await _get_is_nsfw(ctx, dm_default=True), localiser)
 
@@ -255,10 +247,8 @@ class SfwCheck(_Check):
     def __init__(
         self,
         *,
-        error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Union[
-            str, collections.Mapping[str, str], None
-        ] = "Command can only be used in SFW channels",
+        error: collections.Callable[[], Exception] | None = None,
+        error_message: str | collections.Mapping[str, str] | None = "Command can only be used in SFW channels",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a SFW check.
@@ -286,11 +276,7 @@ class SfwCheck(_Check):
         super().__init__(error, error_message, halt_execution)
 
     async def __call__(
-        self,
-        ctx: tanjun.Context,
-        /,
-        *,
-        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+        self, ctx: tanjun.Context, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
         return self._handle_result(ctx, not await _get_is_nsfw(ctx, dm_default=False), localiser)
 
@@ -306,8 +292,8 @@ class DmCheck(_Check):
     def __init__(
         self,
         *,
-        error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
+        error: collections.Callable[[], Exception] | None = None,
+        error_message: str | collections.Mapping[str, str] | None = "Command can only be used in DMs",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a DM check.
@@ -335,11 +321,7 @@ class DmCheck(_Check):
         super().__init__(error, error_message, halt_execution)
 
     def __call__(
-        self,
-        ctx: tanjun.Context,
-        /,
-        *,
-        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+        self, ctx: tanjun.Context, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
         return self._handle_result(ctx, ctx.guild_id is None, localiser)
 
@@ -355,10 +337,8 @@ class GuildCheck(_Check):
     def __init__(
         self,
         *,
-        error: typing.Optional[collections.Callable[[], Exception]] = None,
-        error_message: typing.Union[
-            str, collections.Mapping[str, str], None
-        ] = "Command can only be used in guild channels",
+        error: collections.Callable[[], Exception] | None = None,
+        error_message: str | collections.Mapping[str, str] | None = "Command can only be used in guild channels",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a guild check.
@@ -386,11 +366,7 @@ class GuildCheck(_Check):
         super().__init__(error, error_message, halt_execution)
 
     def __call__(
-        self,
-        ctx: tanjun.Context,
-        /,
-        *,
-        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+        self, ctx: tanjun.Context, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
         return self._handle_result(ctx, ctx.guild_id is not None, localiser)
 
@@ -405,13 +381,13 @@ class AuthorPermissionCheck(_Check):
 
     def __init__(
         self,
-        permissions: typing.Union[hikari.Permissions, int],
+        permissions: hikari.Permissions | int,
         /,
         *,
-        error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-        error_message: typing.Union[
-            str, collections.Mapping[str, str], None
-        ] = "You don't have the permissions required to use this command",
+        error: collections.Callable[[hikari.Permissions], Exception] | None = None,
+        error_message: str
+        | collections.Mapping[str, str]
+        | None = "You don't have the permissions required to use this command",
         halt_execution: bool = False,
     ) -> None:
         """Initialise an author permission check.
@@ -445,11 +421,7 @@ class AuthorPermissionCheck(_Check):
         self._permissions = permissions
 
     async def __call__(
-        self,
-        ctx: tanjun.Context,
-        /,
-        *,
-        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+        self, ctx: tanjun.Context, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
         if not ctx.member:
             # If there's no member when this is within a guild then it's likely
@@ -473,7 +445,7 @@ class AuthorPermissionCheck(_Check):
         return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, localiser, missing_perms)
 
 
-_MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
+_MemberCacheT = dependencies.SfGuildBound[hikari.Member] | None
 
 
 class OwnPermissionCheck(_Check):
@@ -486,13 +458,13 @@ class OwnPermissionCheck(_Check):
 
     def __init__(
         self,
-        permissions: typing.Union[hikari.Permissions, int],
+        permissions: hikari.Permissions | int,
         /,
         *,
-        error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-        error_message: typing.Union[
-            str, collections.Mapping[str, str], None
-        ] = "Bot doesn't have the permissions required to run this command",
+        error: collections.Callable[[hikari.Permissions], Exception] | None = None,
+        error_message: str
+        | collections.Mapping[str, str]
+        | None = "Bot doesn't have the permissions required to run this command",
         halt_execution: bool = False,
     ) -> None:
         """Initialise a own permission check.
@@ -530,7 +502,7 @@ class OwnPermissionCheck(_Check):
         ctx: tanjun.Context,
         /,
         *,
-        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+        localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None,
         my_user: hikari.OwnUser = dependencies.inject_lc(hikari.OwnUser),
         member_cache: alluka.Injected[_MemberCacheT] = None,
     ) -> bool:
@@ -561,8 +533,8 @@ def with_dm_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_dm_check(
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None = "Command can only be used in DMs",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -570,11 +542,11 @@ def with_dm_check(
 
 
 def with_dm_check(
-    command: typing.Optional[_CommandT] = None,
+    command: _CommandT | None = None,
     /,
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None = "Command can only be used in DMs",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -623,10 +595,8 @@ def with_guild_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_guild_check(
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[
-        str, collections.Mapping[str, str], None
-    ] = "Command can only be used in guild channels",
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None = "Command can only be used in guild channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -634,13 +604,11 @@ def with_guild_check(
 
 
 def with_guild_check(
-    command: typing.Optional[_CommandT] = None,
+    command: _CommandT | None = None,
     /,
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[
-        str, collections.Mapping[str, str], None
-    ] = "Command can only be used in guild channels",
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None = "Command can only be used in guild channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -689,8 +657,8 @@ def with_nsfw_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_nsfw_check(
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in NSFW channels",
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None = "Command can only be used in NSFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -698,11 +666,11 @@ def with_nsfw_check(
 
 
 def with_nsfw_check(
-    command: typing.Optional[_CommandT] = None,
+    command: _CommandT | None = None,
     /,
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in NSFW channels",
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None = "Command can only be used in NSFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -751,8 +719,8 @@ def with_sfw_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_sfw_check(
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in SFW channels",
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None = "Command can only be used in SFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -760,11 +728,11 @@ def with_sfw_check(
 
 
 def with_sfw_check(
-    command: typing.Optional[_CommandT] = None,
+    command: _CommandT | None = None,
     /,
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in SFW channels",
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None = "Command can only be used in SFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -813,8 +781,8 @@ def with_owner_check(command: _CommandT, /) -> _CommandT:
 @typing.overload
 def with_owner_check(
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None = "Only bot owners can use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -822,11 +790,11 @@ def with_owner_check(
 
 
 def with_owner_check(
-    command: typing.Optional[_CommandT] = None,
+    command: _CommandT | None = None,
     /,
     *,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None = "Only bot owners can use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> _CallbackReturnT[_CommandT]:
@@ -868,12 +836,12 @@ def with_owner_check(
 
 
 def with_author_permission_check(
-    permissions: typing.Union[hikari.Permissions, int],
+    permissions: hikari.Permissions | int,
     *,
-    error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-    error_message: typing.Union[
-        str, collections.Mapping[str, str], None
-    ] = "You don't have the permissions required to use this command",
+    error: collections.Callable[[hikari.Permissions], Exception] | None = None,
+    error_message: str
+    | collections.Mapping[str, str]
+    | None = "You don't have the permissions required to use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -924,12 +892,12 @@ def with_author_permission_check(
 
 
 def with_own_permission_check(
-    permissions: typing.Union[hikari.Permissions, int],
+    permissions: hikari.Permissions | int,
     *,
-    error: typing.Optional[collections.Callable[[hikari.Permissions], Exception]] = None,
-    error_message: typing.Union[
-        str, collections.Mapping[str, str], None
-    ] = "Bot doesn't have the permissions required to run this command",
+    error: collections.Callable[[hikari.Permissions], Exception] | None = None,
+    error_message: str
+    | collections.Mapping[str, str]
+    | None = "Bot doesn't have the permissions required to run this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -1069,8 +1037,8 @@ class _AnyChecks(_Check):
     def __init__(
         self,
         checks: list[tanjun.CheckSig],
-        error: typing.Optional[collections.Callable[[], Exception]],
-        error_message: typing.Union[str, collections.Mapping[str, str], None],
+        error: collections.Callable[[], Exception] | None,
+        error_message: str | collections.Mapping[str, str] | None,
         halt_execution: bool,
         suppress: tuple[type[Exception], ...],
     ) -> None:
@@ -1079,11 +1047,7 @@ class _AnyChecks(_Check):
         self._suppress = suppress
 
     async def __call__(
-        self,
-        ctx: tanjun.Context,
-        /,
-        *,
-        localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None,
+        self, ctx: tanjun.Context, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
         for check in self._checks:
             try:
@@ -1103,8 +1067,8 @@ def any_checks(
     check: tanjun.CheckSig,
     /,
     *checks: tanjun.CheckSig,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[str, collections.Mapping[str, str], None],
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
 ) -> _AnyCallback:
@@ -1148,8 +1112,8 @@ def with_any_checks(
     check: tanjun.CheckSig,
     /,
     *checks: tanjun.CheckSig,
-    error: typing.Optional[collections.Callable[[], Exception]] = None,
-    error_message: typing.Union[str, collections.Mapping[str, str], None],
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None,
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),

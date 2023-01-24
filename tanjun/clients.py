@@ -76,9 +76,11 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
-    _AppCmdResponse = typing.Union[
-        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
-    ]
+    _AppCmdResponse = (
+        hikari.api.InteractionMessageBuilder
+        | hikari.api.InteractionDeferredBuilder
+        | hikari.api.InteractionModalBuilder
+    )
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig)
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun.MetaEventSig)
     _PrefixGetterSigT = typing.TypeVar("_PrefixGetterSigT", bound="PrefixGetterSig")
@@ -91,7 +93,7 @@ if typing.TYPE_CHECKING:
             client: tanjun.Client,
             interaction: hikari.AutocompleteInteraction,
             *,
-            future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
+            future: asyncio.Future[hikari.api.InteractionAutocompleteBuilder] | None = None,
         ) -> context.AutocompleteContext:
             raise NotImplementedError
 
@@ -103,10 +105,8 @@ if typing.TYPE_CHECKING:
             register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
             *,
             default_to_ephemeral: bool = False,
-            future: typing.Optional[asyncio.Future[_AppCmdResponse]] = None,
-            on_not_found: typing.Optional[
-                collections.Callable[[tanjun.MenuContext], collections.Awaitable[None]]
-            ] = None,
+            future: asyncio.Future[_AppCmdResponse] | None = None,
+            on_not_found: collections.Callable[[tanjun.MenuContext], collections.Awaitable[None]] | None = None,
         ) -> context.MenuContext:
             raise NotImplementedError
 
@@ -131,10 +131,8 @@ if typing.TYPE_CHECKING:
             register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
             *,
             default_to_ephemeral: bool = False,
-            future: typing.Optional[asyncio.Future[_AppCmdResponse]] = None,
-            on_not_found: typing.Optional[
-                collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]
-            ] = None,
+            future: asyncio.Future[_AppCmdResponse] | None = None,
+            on_not_found: collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]] | None = None,
         ) -> context.SlashContext:
             raise NotImplementedError
 
@@ -159,7 +157,7 @@ _MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 class _LoaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.update_wrapper
     def __init__(
         self,
-        callback: typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun.Client], None]],
+        callback: collections.Callable[[Client], None] | collections.Callable[[tanjun.Client], None],
         standard_impl: bool,
     ) -> None:
         self._callback = callback
@@ -196,7 +194,7 @@ class _LoaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.updat
 class _UnloaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.update_wrapper
     def __init__(
         self,
-        callback: typing.Union[collections.Callable[[Client], None], collections.Callable[[tanjun.Client], None]],
+        callback: collections.Callable[[Client], None] | collections.Callable[[tanjun.Client], None],
         standard_impl: bool,
     ) -> None:
         self._callback = callback
@@ -259,18 +257,16 @@ def as_loader(
 
 
 def as_loader(
-    callback: typing.Union[
-        collections.Callable[[tanjun.Client], None], collections.Callable[[Client], None], None
-    ] = None,
+    callback: collections.Callable[[tanjun.Client], None] | collections.Callable[[Client], None] | None = None,
     /,
     *,
     standard_impl: bool = True,
-) -> typing.Union[
-    collections.Callable[[tanjun.Client], None],
-    collections.Callable[[Client], None],
-    collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]],
-    collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]],
-]:
+) -> (
+    collections.Callable[[tanjun.Client], None]
+    | collections.Callable[[Client], None]
+    | collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]]
+    | collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]]
+):
     """Mark a callback as being used to load Tanjun components from a module.
 
     !!! note
@@ -334,18 +330,16 @@ def as_unloader(
 
 
 def as_unloader(
-    callback: typing.Union[
-        collections.Callable[[Client], None], collections.Callable[[tanjun.Client], None], None
-    ] = None,
+    callback: collections.Callable[[Client], None] | collections.Callable[[tanjun.Client], None] | None = None,
     /,
     *,
     standard_impl: bool = True,
-) -> typing.Union[
-    collections.Callable[[Client], None],
-    collections.Callable[[tanjun.Client], None],
-    collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]],
-    collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]],
-]:
+) -> (
+    collections.Callable[[Client], None]
+    | collections.Callable[[tanjun.Client], None]
+    | collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]]
+    | collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]]
+):
     """Mark a callback as being used to unload a module's utilities from a client.
 
     !!! note
@@ -420,7 +414,7 @@ class MessageAcceptsEnum(str, enum.Enum):
     NONE = "NONE"
     """Set the client to not execute commands based on message create events."""
 
-    def get_event_type(self) -> typing.Optional[type[hikari.MessageCreateEvent]]:
+    def get_event_type(self) -> type[hikari.MessageCreateEvent] | None:
         """Get the base event type this mode listens to.
 
         Returns
@@ -432,16 +426,17 @@ class MessageAcceptsEnum(str, enum.Enum):
             This will be [None][] if this mode disables listening to
             message create events.
         """
-        return _ACCEPTS_EVENT_TYPE_MAPPING[self]
-
-
-_ACCEPTS_EVENT_TYPE_MAPPING: dict[MessageAcceptsEnum, typing.Optional[type[hikari.MessageCreateEvent]]] = {
-    MessageAcceptsEnum.ALL: hikari.MessageCreateEvent,
-    MessageAcceptsEnum.DM_ONLY: hikari.DMMessageCreateEvent,
-    MessageAcceptsEnum.GUILD_ONLY: hikari.GuildMessageCreateEvent,
-    MessageAcceptsEnum.NONE: None,
-}
-assert _ACCEPTS_EVENT_TYPE_MAPPING.keys() == set(MessageAcceptsEnum)
+        match self:
+            case MessageAcceptsEnum.ALL:
+                return hikari.MessageCreateEvent
+            case MessageAcceptsEnum.DM_ONLY:
+                return hikari.DMMessageCreateEvent
+            case MessageAcceptsEnum.GUILD_ONLY:
+                return hikari.GuildMessageCreateEvent
+            case MessageAcceptsEnum.NONE:
+                return None
+            case _:
+                raise NotImplementedError
 
 
 def _check_human(ctx: tanjun.Context, /) -> bool:
@@ -471,9 +466,9 @@ class _StartDeclarer:
         self,
         client: Client,
         guild_id: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]],
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]],
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]],
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]],
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None,
+        message_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None,
+        user_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None,
     ) -> None:
         self.client = client
         self.command_ids = command_ids
@@ -550,21 +545,21 @@ class Client(tanjun.Client):
         self,
         rest: hikari.api.RESTClient,
         *,
-        cache: typing.Optional[hikari.api.Cache] = None,
-        events: typing.Optional[hikari.api.EventManager] = None,
-        server: typing.Optional[hikari.api.InteractionServer] = None,
-        shards: typing.Optional[hikari.ShardAware] = None,
-        voice: typing.Optional[hikari.api.VoiceComponent] = None,
+        cache: hikari.api.Cache | None = None,
+        events: hikari.api.EventManager | None = None,
+        server: hikari.api.InteractionServer | None = None,
+        shards: hikari.ShardAware | None = None,
+        voice: hikari.api.VoiceComponent | None = None,
         event_managed: bool = False,
-        injector: typing.Optional[alluka.abc.Client] = None,
+        injector: alluka.abc.Client | None = None,
         mention_prefix: bool = False,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
-        ] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        set_global_commands: hikari.SnowflakeishOr[hikari.PartialGuild] | bool = False,
+        declare_global_commands: hikari.SnowflakeishSequence[hikari.PartialGuild]
+        | hikari.SnowflakeishOr[hikari.PartialGuild]
+        | bool = False,
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        message_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        user_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
         _stack_level: int = 0,
     ) -> None:
         """Initialise a Tanjun client.
@@ -678,9 +673,9 @@ class Client(tanjun.Client):
                 "automatic command dispatch will be unavailable."
             )
 
-        self._auto_defer_after: typing.Optional[float] = 2.0
+        self._auto_defer_after: float | None = 2.0
         self._cache = cache
-        self._cached_application_id: typing.Optional[hikari.Snowflake] = None
+        self._cached_application_id: hikari.Snowflake | None = None
         self._checks: list[tanjun.CheckSig] = []
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
         self._components: dict[str, tanjun.Component] = {}
@@ -689,13 +684,13 @@ class Client(tanjun.Client):
         self._dms_enabled_for_app_cmds = True
         self._events = events
         self._grab_mention_prefix = mention_prefix
-        self._hooks: typing.Optional[tanjun.AnyHooks] = hooks.AnyHooks().set_on_parser_error(on_parser_error)
+        self._hooks: tanjun.AnyHooks | None = hooks.AnyHooks().set_on_parser_error(on_parser_error)
         self._interaction_accepts = InteractionAcceptsEnum.ALL
         self._is_case_sensitive = True
-        self._menu_hooks: typing.Optional[tanjun.MenuHooks] = None
-        self._menu_not_found: typing.Optional[str] = "Command not found"
-        self._slash_hooks: typing.Optional[tanjun.SlashHooks] = None
-        self._slash_not_found: typing.Optional[str] = self._menu_not_found
+        self._menu_hooks: tanjun.MenuHooks | None = None
+        self._menu_not_found: str | None = "Command not found"
+        self._slash_hooks: tanjun.SlashHooks | None = None
+        self._slash_not_found: str | None = self._menu_not_found
         # TODO: test coverage
         self._injector = injector or alluka.Client()
         self._is_closing = False
@@ -703,17 +698,17 @@ class Client(tanjun.Client):
             type[hikari.Event],
             dict[tanjun.ListenerCallbackSig, alluka.abc.AsyncSelfInjecting[tanjun.ListenerCallbackSig]],
         ] = {}
-        self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
+        self._loop: asyncio.AbstractEventLoop | None = None
         self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
         self._make_menu_context: _MenuContextMakerProto = context.MenuContext
         self._make_message_context: _MessageContextMakerProto = context.MessageContext
         self._make_slash_context: _SlashContextMakerProto = context.SlashContext
         self._message_accepts = MessageAcceptsEnum.ALL if events else MessageAcceptsEnum.NONE
-        self._message_hooks: typing.Optional[tanjun.MessageHooks] = None
+        self._message_hooks: tanjun.MessageHooks | None = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._modules: dict[str, types.ModuleType] = {}
         self._path_modules: dict[pathlib.Path, types.ModuleType] = {}
-        self._prefix_getter: typing.Optional[PrefixGetterSig] = None
+        self._prefix_getter: PrefixGetterSig | None = None
         self._prefixes: list[str] = []
         self._rest = rest
         self._server = server
@@ -756,7 +751,7 @@ class Client(tanjun.Client):
             _stack_level=_stack_level,
         )
 
-    def _maybe_set_type_dep(self, type_: type[_T], value: typing.Optional[_T], /) -> Self:
+    def _maybe_set_type_dep(self, type_: type[_T], value: _T | None, /) -> Self:
         if value is not None:
             self.set_type_dependency(type_, value)
 
@@ -764,13 +759,13 @@ class Client(tanjun.Client):
 
     def _schedule_startup_registers(
         self,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
-        ] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        set_global_commands: hikari.SnowflakeishOr[hikari.PartialGuild] | bool = False,
+        declare_global_commands: hikari.SnowflakeishSequence[hikari.PartialGuild]
+        | hikari.SnowflakeishOr[hikari.PartialGuild]
+        | bool = False,
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        message_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        user_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
         _stack_level: int = 0,
     ) -> None:
         if set_global_commands:
@@ -838,15 +833,15 @@ class Client(tanjun.Client):
         /,
         *,
         event_managed: bool = True,
-        injector: typing.Optional[alluka.abc.Client] = None,
+        injector: alluka.abc.Client | None = None,
         mention_prefix: bool = False,
-        declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
-        ] = False,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        declare_global_commands: hikari.SnowflakeishSequence[hikari.PartialGuild]
+        | hikari.SnowflakeishOr[hikari.PartialGuild]
+        | bool = False,
+        set_global_commands: hikari.SnowflakeishOr[hikari.PartialGuild] | bool = False,
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        message_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        user_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
     ) -> Client:
         """Build a [tanjun.Client][] from a gateway bot.
 
@@ -932,14 +927,14 @@ class Client(tanjun.Client):
         /,
         *,
         bot_managed: bool = False,
-        declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
-        ] = False,
-        injector: typing.Optional[alluka.abc.Client] = None,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        declare_global_commands: hikari.SnowflakeishSequence[hikari.PartialGuild]
+        | hikari.SnowflakeishOr[hikari.PartialGuild]
+        | bool = False,
+        injector: alluka.abc.Client | None = None,
+        set_global_commands: hikari.SnowflakeishOr[hikari.PartialGuild] | bool = False,
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        message_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        user_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
     ) -> Client:
         """Build a [tanjun.Client][] from a [hikari.traits.RESTBotAware][] instance.
 
@@ -1018,10 +1013,7 @@ class Client(tanjun.Client):
         return self
 
     async def __aexit__(
-        self,
-        exc_type: typing.Optional[type[BaseException]],
-        exc: typing.Optional[BaseException],
-        exc_traceback: typing.Optional[types.TracebackType],
+        self, exc_type: type[BaseException] | None, exc: BaseException | None, exc_tb: types.TracebackType | None
     ) -> None:
         await self.close()
 
@@ -1064,7 +1056,7 @@ class Client(tanjun.Client):
         return _check_human in self._checks
 
     @property
-    def cache(self) -> typing.Optional[hikari.api.Cache]:
+    def cache(self) -> hikari.api.Cache | None:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._cache
 
@@ -1083,7 +1075,7 @@ class Client(tanjun.Client):
         return self._components.copy().values()
 
     @property
-    def events(self) -> typing.Optional[hikari.api.EventManager]:
+    def events(self) -> hikari.api.EventManager | None:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._events
 
@@ -1102,12 +1094,12 @@ class Client(tanjun.Client):
         return self._is_case_sensitive
 
     @property
-    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+    def loop(self) -> asyncio.AbstractEventLoop | None:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._loop
 
     @property
-    def hooks(self) -> typing.Optional[tanjun.AnyHooks]:
+    def hooks(self) -> tanjun.AnyHooks | None:
         """Top level [tanjun.abc.AnyHooks][] set for this client.
 
         These are called during both message, menu and slash command execution.
@@ -1115,7 +1107,7 @@ class Client(tanjun.Client):
         return self._hooks
 
     @property
-    def menu_hooks(self) -> typing.Optional[tanjun.MenuHooks]:
+    def menu_hooks(self) -> tanjun.MenuHooks | None:
         """Top level [tanjun.abc.MenuHooks][] set for this client.
 
         These are only called during menu command execution.
@@ -1123,7 +1115,7 @@ class Client(tanjun.Client):
         return self._menu_hooks
 
     @property
-    def message_hooks(self) -> typing.Optional[tanjun.MessageHooks]:
+    def message_hooks(self) -> tanjun.MessageHooks | None:
         """Top level [tanjun.abc.MessageHooks][] set for this client.
 
         These are only called during message command execution.
@@ -1131,7 +1123,7 @@ class Client(tanjun.Client):
         return self._message_hooks
 
     @property
-    def slash_hooks(self) -> typing.Optional[tanjun.SlashHooks]:
+    def slash_hooks(self) -> tanjun.SlashHooks | None:
         """Top level [tanjun.abc.SlashHooks][] set for this client.
 
         These are only called during slash command execution.
@@ -1144,7 +1136,7 @@ class Client(tanjun.Client):
         return self._metadata
 
     @property
-    def prefix_getter(self) -> typing.Optional[PrefixGetterSig]:
+    def prefix_getter(self) -> PrefixGetterSig | None:
         """Prefix getter method set for this client.
 
         For more information on this callback's signature see
@@ -1163,30 +1155,30 @@ class Client(tanjun.Client):
         return self._rest
 
     @property
-    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
+    def server(self) -> hikari.api.InteractionServer | None:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._server
 
     @property
-    def shards(self) -> typing.Optional[hikari.ShardAware]:
+    def shards(self) -> hikari.ShardAware | None:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._shards
 
     @property
-    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
+    def voice(self) -> hikari.api.VoiceComponent | None:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._voice
 
-    async def _on_starting(self, _: typing.Union[hikari.StartingEvent, hikari.RESTBotAware], /) -> None:
+    async def _on_starting(self, _: hikari.StartingEvent | hikari.RESTBotAware, /) -> None:
         await self.open()
 
-    async def _on_stopping(self, _: typing.Union[hikari.StoppingEvent, hikari.RESTBotAware], /) -> None:
+    async def _on_stopping(self, _: hikari.StoppingEvent | hikari.RESTBotAware, /) -> None:
         await self.close()
 
     async def clear_application_commands(
         self,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1198,7 +1190,7 @@ class Client(tanjun.Client):
     async def set_global_commands(
         self,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
@@ -1217,12 +1209,12 @@ class Client(tanjun.Client):
 
     async def declare_global_commands(
         self,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        user_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1244,9 +1236,9 @@ class Client(tanjun.Client):
         self,
         command: tanjun.BaseSlashCommand,
         /,
-        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        command_id: hikari.Snowflakeish | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.SlashCommand:
         ...
@@ -1256,9 +1248,9 @@ class Client(tanjun.Client):
         self,
         command: tanjun.MenuCommand[typing.Any, typing.Any],
         /,
-        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        command_id: hikari.Snowflakeish | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.ContextMenuCommand:
         ...
@@ -1268,9 +1260,9 @@ class Client(tanjun.Client):
         self,
         command: tanjun.AppCommand[typing.Any],
         /,
-        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        command_id: hikari.Snowflakeish | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.PartialCommand:
         ...
@@ -1279,9 +1271,9 @@ class Client(tanjun.Client):
         self,
         command: tanjun.AppCommand[typing.Any],
         /,
-        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        command_id: hikari.Snowflakeish | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.PartialCommand:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1316,14 +1308,14 @@ class Client(tanjun.Client):
 
     async def declare_application_commands(
         self,
-        commands: collections.Iterable[typing.Union[tanjun.AppCommand[typing.Any], hikari.api.CommandBuilder]],
+        commands: collections.Iterable[tanjun.AppCommand[typing.Any] | hikari.api.CommandBuilder],
         /,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        user_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -1351,16 +1343,17 @@ class Client(tanjun.Client):
                 builder = command
 
             command_id = None
-            if builder.type is hikari.CommandType.USER:
-                user_count += 1
-                command_id = user_ids.get(command.name)
+            match builder.type:
+                case hikari.CommandType.USER:
+                    user_count += 1
+                    command_id = user_ids.get(command.name)
 
-            elif builder.type is hikari.CommandType.MESSAGE:
-                message_count += 1
-                command_id = message_ids.get(command.name)
+                case hikari.CommandType.MESSAGE:
+                    message_count += 1
+                    command_id = message_ids.get(command.name)
 
-            elif builder.type is hikari.CommandType.SLASH:
-                slash_count += 1
+                case hikari.CommandType.SLASH:
+                    slash_count += 1
 
             if command_id := (command_id or command_ids.get(command.name)):
                 builder.set_id(hikari.Snowflake(command_id))
@@ -1419,7 +1412,7 @@ class Client(tanjun.Client):
 
         return responses
 
-    def set_auto_defer_after(self, time: typing.Optional[float], /) -> Self:
+    def set_auto_defer_after(self, time: float | None, /) -> Self:
         """Set when this client should automatically defer execution of commands.
 
         !!! warning
@@ -1447,7 +1440,7 @@ class Client(tanjun.Client):
         self._is_case_sensitive = state
         return self
 
-    def set_default_app_command_permissions(self, permissions: typing.Union[int, hikari.Permissions], /) -> Self:
+    def set_default_app_command_permissions(self, permissions: int | hikari.Permissions, /) -> Self:
         """Set the default member permissions needed for this client's commands.
 
         !!! warning
@@ -1530,7 +1523,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def set_interaction_not_found(self, message: typing.Optional[str], /) -> Self:
+    def set_interaction_not_found(self, message: str | None, /) -> Self:
         """Set the response message for when an interaction command is not found.
 
         !!! warning
@@ -1545,7 +1538,7 @@ class Client(tanjun.Client):
         """
         return self.set_menu_not_found(message).set_slash_not_found(message)
 
-    def set_menu_not_found(self, message: typing.Optional[str], /) -> Self:
+    def set_menu_not_found(self, message: str | None, /) -> Self:
         """Set the response message for when a menu command is not found.
 
         !!! warning
@@ -1561,7 +1554,7 @@ class Client(tanjun.Client):
         self._menu_not_found = message
         return self
 
-    def set_slash_not_found(self, message: typing.Optional[str], /) -> Self:
+    def set_slash_not_found(self, message: str | None, /) -> Self:
         """Set the response message for when a slash command is not found.
 
         !!! warning
@@ -1850,7 +1843,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def get_component_by_name(self, name: str, /) -> typing.Optional[tanjun.Component]:
+    def get_component_by_name(self, name: str, /) -> tanjun.Component | None:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._components.get(name)
 
@@ -1879,9 +1872,7 @@ class Client(tanjun.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         return self.remove_component(self._components[name])
 
-    def add_client_callback(
-        self, name: typing.Union[str, tanjun.ClientCallbackNames], /, *callbacks: tanjun.MetaEventSig
-    ) -> Self:
+    def add_client_callback(self, name: str | tanjun.ClientCallbackNames, /, *callbacks: tanjun.MetaEventSig) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         for callback in callbacks:
@@ -1897,9 +1888,7 @@ class Client(tanjun.Client):
 
         return self
 
-    async def dispatch_client_callback(
-        self, name: typing.Union[str, tanjun.ClientCallbackNames], /, *args: typing.Any
-    ) -> None:
+    async def dispatch_client_callback(self, name: str | tanjun.ClientCallbackNames, /, *args: typing.Any) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         if callbacks := self._client_callbacks.get(name):
@@ -1907,7 +1896,7 @@ class Client(tanjun.Client):
             await asyncio.gather(*calls)
 
     def get_client_callbacks(
-        self, name: typing.Union[str, tanjun.ClientCallbackNames], /
+        self, name: str | tanjun.ClientCallbackNames, /
     ) -> collections.Collection[tanjun.MetaEventSig]:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
@@ -1916,9 +1905,7 @@ class Client(tanjun.Client):
 
         return ()
 
-    def remove_client_callback(
-        self, name: typing.Union[str, tanjun.ClientCallbackNames], callback: tanjun.MetaEventSig, /
-    ) -> Self:
+    def remove_client_callback(self, name: str | tanjun.ClientCallbackNames, callback: tanjun.MetaEventSig, /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         name = name.casefold()
         self._client_callbacks[name].remove(callback)
@@ -1928,7 +1915,7 @@ class Client(tanjun.Client):
         return self
 
     def with_client_callback(
-        self, name: typing.Union[str, tanjun.ClientCallbackNames], /
+        self, name: str | tanjun.ClientCallbackNames, /
     ) -> collections.Callable[[_MetaEventSigT], _MetaEventSigT]:
         # <<inherited docstring from tanjun.abc.Client>>.
         def decorator(callback: _MetaEventSigT, /) -> _MetaEventSigT:
@@ -1985,7 +1972,7 @@ class Client(tanjun.Client):
 
         return decorator
 
-    def add_prefix(self, prefixes: typing.Union[collections.Iterable[str], str], /) -> Self:
+    def add_prefix(self, prefixes: collections.Iterable[str] | str, /) -> Self:
         """Add a prefix used to filter message command calls.
 
         This will be matched against the first character(s) in a message's
@@ -2033,7 +2020,7 @@ class Client(tanjun.Client):
         self._prefixes.remove(prefix)
         return self
 
-    def set_prefix_getter(self, getter: typing.Optional[PrefixGetterSig], /) -> Self:
+    def set_prefix_getter(self, getter: PrefixGetterSig | None, /) -> Self:
         """Set the callback used to retrieve message prefixes set for the relevant guild.
 
         Parameters
@@ -2108,12 +2095,12 @@ class Client(tanjun.Client):
 
     @typing.overload
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002.
+        self, *, global_only: bool = False, type: hikari.CommandType | None = None  # noqa: A002.
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Any]]:
         ...
 
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002
+        self, *, global_only: bool = False, type: hikari.CommandType | None = None  # noqa: A002
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Any]]:
         # <<inherited docstring from tanjun.abc.Client>>.
         if global_only:
@@ -2152,7 +2139,7 @@ class Client(tanjun.Client):
             component.check_slash_name(name) for component in self._components.values()
         )
 
-    async def _check_prefix(self, ctx: tanjun.MessageContext, /) -> typing.Optional[str]:
+    async def _check_prefix(self, ctx: tanjun.MessageContext, /) -> str | None:
         prefix: str  # MyPy fubs up its introspection here so we explicitly annotate.
         if self._prefix_getter:
             for prefix in await ctx.call_with_async_di(self._prefix_getter, ctx):
@@ -2229,7 +2216,7 @@ class Client(tanjun.Client):
         await self.dispatch_client_callback(ClientCallbackNames.STARTING)
 
         if self._grab_mention_prefix:
-            user: typing.Optional[hikari.OwnUser] = None
+            user: hikari.OwnUser | None = None
             if self._cache:
                 user = self._cache.get_me()
 
@@ -2296,7 +2283,7 @@ class Client(tanjun.Client):
 
         return self._cached_application_id
 
-    def set_hooks(self, hooks: typing.Optional[tanjun.AnyHooks], /) -> Self:
+    def set_hooks(self, hooks: tanjun.AnyHooks | None, /) -> Self:
         """Set the general command execution hooks for this client.
 
         The callbacks within this hook will be added to every slash and message
@@ -2317,7 +2304,7 @@ class Client(tanjun.Client):
         self._hooks = hooks
         return self
 
-    def set_menu_hooks(self, hooks: typing.Optional[tanjun.MenuHooks], /) -> Self:
+    def set_menu_hooks(self, hooks: tanjun.MenuHooks | None, /) -> Self:
         """Set the menu command execution hooks for this client.
 
         The callbacks within this hook will be added to every menu command
@@ -2339,7 +2326,7 @@ class Client(tanjun.Client):
         self._menu_hooks = hooks
         return self
 
-    def set_slash_hooks(self, hooks: typing.Optional[tanjun.SlashHooks], /) -> Self:
+    def set_slash_hooks(self, hooks: tanjun.SlashHooks | None, /) -> Self:
         """Set the slash command execution hooks for this client.
 
         The callbacks within this hook will be added to every slash command
@@ -2361,7 +2348,7 @@ class Client(tanjun.Client):
         self._slash_hooks = hooks
         return self
 
-    def set_message_hooks(self, hooks: typing.Optional[tanjun.MessageHooks], /) -> Self:
+    def set_message_hooks(self, hooks: tanjun.MessageHooks | None, /) -> Self:
         """Set the message command execution hooks for this client.
 
         The callbacks within this hook will be added to every message command
@@ -2383,9 +2370,7 @@ class Client(tanjun.Client):
         self._message_hooks = hooks
         return self
 
-    def load_directory(
-        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
-    ) -> Self:
+    def load_directory(self, directory: str | pathlib.Path, /, *, namespace: str | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         paths = _scan_directory(pathlib.Path(directory), namespace)
         for path in paths:
@@ -2398,9 +2383,7 @@ class Client(tanjun.Client):
 
         return self
 
-    async def load_directory_async(
-        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
-    ) -> None:
+    async def load_directory_async(self, directory: str | pathlib.Path, /, *, namespace: str | None = None) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         paths = await asyncio.get_running_loop().run_in_executor(
             None, _scan_directory, pathlib.Path(directory), namespace
@@ -2413,9 +2396,7 @@ class Client(tanjun.Client):
             except errors.ModuleMissingLoaders:
                 _LOGGER.info("Ignoring load_directory target `%s` with no loaders", path)
 
-    def _call_loaders(
-        self, module_path: typing.Union[str, pathlib.Path], loaders: list[tanjun.ClientLoader], /
-    ) -> None:
+    def _call_loaders(self, module_path: str | pathlib.Path, loaders: list[tanjun.ClientLoader], /) -> None:
         found = False
         for loader in loaders:
             if loader.load(self):
@@ -2424,9 +2405,7 @@ class Client(tanjun.Client):
         if not found:
             raise errors.ModuleMissingLoaders(f"Didn't find any loaders in {module_path}", module_path)
 
-    def _call_unloaders(
-        self, module_path: typing.Union[str, pathlib.Path], loaders: list[tanjun.ClientLoader], /
-    ) -> None:
+    def _call_unloaders(self, module_path: str | pathlib.Path, loaders: list[tanjun.ClientLoader], /) -> None:
         found = False
         for loader in loaders:
             if loader.unload(self):
@@ -2436,7 +2415,7 @@ class Client(tanjun.Client):
             raise errors.ModuleMissingUnloaders(f"Didn't find any unloaders in {module_path}", module_path)
 
     def _load_module(
-        self, module_path: typing.Union[str, pathlib.Path], /
+        self, module_path: str | pathlib.Path, /
     ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
         if isinstance(module_path, str):
             if module_path in self._modules:
@@ -2462,7 +2441,7 @@ class Client(tanjun.Client):
 
             self._path_modules[module_path] = module
 
-    def load_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
+    def load_modules(self, *modules: str | pathlib.Path) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, pathlib.Path):
@@ -2482,7 +2461,7 @@ class Client(tanjun.Client):
 
         return self
 
-    async def load_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+    async def load_modules_async(self, *modules: str | pathlib.Path) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         loop = asyncio.get_running_loop()
         for module_path in modules:
@@ -2501,7 +2480,7 @@ class Client(tanjun.Client):
             else:
                 raise RuntimeError("Generator didn't finish")
 
-    def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
+    def unload_modules(self, *modules: str | pathlib.Path) -> Self:
         # <<inherited docstring from tanjun.ab.Client>>.
         for module_path in modules:
             if isinstance(module_path, str):
@@ -2524,11 +2503,11 @@ class Client(tanjun.Client):
         return self
 
     def _reload_module(
-        self, module_path: typing.Union[str, pathlib.Path], /
+        self, module_path: str | pathlib.Path, /
     ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
         if isinstance(module_path, str):
             old_module = self._modules.get(module_path)
-            load_module: typing.Optional[_ReloadModule] = None
+            load_module: _ReloadModule | None = None
             modules_dict: dict[typing.Any, types.ModuleType] = self._modules
 
         else:
@@ -2570,7 +2549,7 @@ class Client(tanjun.Client):
         else:
             modules_dict[module_path] = module
 
-    def reload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
+    def reload_modules(self, *modules: str | pathlib.Path) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         for module_path in modules:
             if isinstance(module_path, pathlib.Path):
@@ -2590,7 +2569,7 @@ class Client(tanjun.Client):
 
         return self
 
-    async def reload_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+    async def reload_modules_async(self, *modules: str | pathlib.Path) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         loop = asyncio.get_running_loop()
         for module_path in modules:
@@ -2616,7 +2595,7 @@ class Client(tanjun.Client):
         self._injector.set_type_dependency(type_, value)
         return self
 
-    def get_type_dependency(self, type_: type[_T], /) -> typing.Union[_T, alluka.abc.Undefined]:
+    def get_type_dependency(self, type_: type[_T], /) -> _T | alluka.abc.Undefined:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._injector.get_type_dependency(type_)
 
@@ -2632,9 +2611,7 @@ class Client(tanjun.Client):
         self._injector.set_callback_override(callback, override)
         return self
 
-    def get_callback_override(
-        self, callback: alluka.abc.CallbackSig[_T], /
-    ) -> typing.Optional[alluka.abc.CallbackSig[_T]]:
+    def get_callback_override(self, callback: alluka.abc.CallbackSig[_T], /) -> alluka.abc.CallbackSig[_T] | None:
         # <<inherited docstring from tanjun.abc.Client>>.
         return self._injector.get_callback_override(callback)
 
@@ -2661,7 +2638,7 @@ class Client(tanjun.Client):
             return
 
         ctx.set_content(ctx.content.lstrip()[len(prefix) :].lstrip()).set_triggering_prefix(prefix)
-        hooks: typing.Optional[set[tanjun.MessageHooks]] = None
+        hooks: set[tanjun.MessageHooks] | None = None
         if self._hooks and self._message_hooks:
             hooks = {self._hooks, self._message_hooks}
 
@@ -2686,8 +2663,8 @@ class Client(tanjun.Client):
 
         await self.dispatch_client_callback(ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
 
-    def _get_slash_hooks(self) -> typing.Optional[set[tanjun.SlashHooks]]:
-        hooks: typing.Optional[set[tanjun.SlashHooks]] = None
+    def _get_slash_hooks(self) -> set[tanjun.SlashHooks] | None:
+        hooks: set[tanjun.SlashHooks] | None = None
         if self._hooks and self._slash_hooks:
             hooks = {self._hooks, self._slash_hooks}
 
@@ -2699,8 +2676,8 @@ class Client(tanjun.Client):
 
         return hooks
 
-    def _get_menu_hooks(self) -> typing.Optional[set[tanjun.MenuHooks]]:
-        hooks: typing.Optional[set[tanjun.MenuHooks]] = None
+    def _get_menu_hooks(self) -> set[tanjun.MenuHooks] | None:
+        hooks: set[tanjun.MenuHooks] | None = None
         if self._hooks and self._menu_hooks:
             hooks = {self._hooks, self._menu_hooks}
 
@@ -2745,14 +2722,14 @@ class Client(tanjun.Client):
             The interaction to execute a command based on.
         """
         if interaction.command_type is hikari.CommandType.SLASH:
-            ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
+            ctx: context.MenuContext | context.SlashContext = self._make_slash_context(
                 client=self,
                 interaction=interaction,
                 register_task=self._add_task,
                 on_not_found=self._on_slash_not_found,
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
-            hooks: typing.Union[set[tanjun.MenuHooks], set[tanjun.SlashHooks], None] = self._get_slash_hooks()
+            hooks: set[tanjun.MenuHooks] | set[tanjun.SlashHooks] | None = self._get_slash_hooks()
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
@@ -2857,9 +2834,7 @@ class Client(tanjun.Client):
 
     async def on_command_interaction_request(
         self, interaction: hikari.CommandInteraction, /
-    ) -> typing.Union[
-        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
-    ]:
+    ) -> hikari.api.InteractionMessageBuilder | hikari.api.InteractionDeferredBuilder | hikari.api.InteractionModalBuilder:
         """Execute an app command based on received REST requests.
 
         Parameters
@@ -2876,7 +2851,7 @@ class Client(tanjun.Client):
         future: asyncio.Future[_AppCmdResponse] = loop.create_future()
 
         if interaction.command_type is hikari.CommandType.SLASH:
-            ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
+            ctx: context.MenuContext | context.SlashContext = self._make_slash_context(
                 client=self,
                 interaction=interaction,
                 register_task=self._add_task,
@@ -2884,7 +2859,7 @@ class Client(tanjun.Client):
                 default_to_ephemeral=self._defaults_to_ephemeral,
                 future=future,
             )
-            hooks: typing.Union[set[tanjun.MenuHooks], set[tanjun.SlashHooks], None] = self._get_slash_hooks()
+            hooks: set[tanjun.MenuHooks] | set[tanjun.SlashHooks] | None = self._get_slash_hooks()
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
@@ -2942,7 +2917,7 @@ class Client(tanjun.Client):
 
     async def _mark_not_found_request(
         self,
-        ctx: typing.Union[context.SlashContext, context.MenuContext],
+        ctx: context.SlashContext | context.MenuContext,
         loop: asyncio.AbstractEventLoop,
         future: asyncio.Future[_AppCmdResponse],
         /,
@@ -2953,7 +2928,7 @@ class Client(tanjun.Client):
         return await future
 
 
-async def _mark_not_found_event(ctx: typing.Union[context.SlashContext, context.MenuContext], /) -> None:
+async def _mark_not_found_event(ctx: context.SlashContext | context.MenuContext, /) -> None:
     try:
         await ctx.mark_not_found()
 
@@ -2961,7 +2936,7 @@ async def _mark_not_found_event(ctx: typing.Union[context.SlashContext, context.
         ctx.cancel_defer()
 
 
-def _scan_directory(path: pathlib.Path, namespace: typing.Optional[str], /) -> list[typing.Union[pathlib.Path, str]]:
+def _scan_directory(path: pathlib.Path, namespace: str | None, /) -> list[pathlib.Path | str]:
     if namespace:
         return [namespace + "." + path.name.removesuffix(".py") for path in path.glob("*.py") if path.is_file()]
 
@@ -2977,9 +2952,7 @@ def _normalize_path(path: pathlib.Path, /) -> pathlib.Path:
     return path.resolve()
 
 
-def _get_loaders(
-    module: types.ModuleType, module_path: typing.Union[str, pathlib.Path], /
-) -> list[tanjun.ClientLoader]:
+def _get_loaders(module: types.ModuleType, module_path: str | pathlib.Path, /) -> list[tanjun.ClientLoader]:
     exported = getattr(module, "__all__", None)
     if exported is not None and isinstance(exported, collections.Iterable):
         _LOGGER.debug("Scanning %s module based on its declared __all__)", module_path)
@@ -3022,10 +2995,7 @@ class _WrapLoadError:
         pass
 
     def __exit__(
-        self,
-        exc_type: typing.Optional[type[BaseException]],
-        exc: typing.Optional[BaseException],
-        exc_tb: typing.Optional[types.TracebackType],
+        self, exc_type: type[BaseException] | None, exc: BaseException | None, exc_tb: types.TracebackType | None
     ) -> None:
         if (
             exc
@@ -3062,7 +3032,7 @@ def _try_unsubscribe(
 
 @dataclasses.dataclass
 class _LoadModule:
-    path: typing.Union[str, pathlib.Path]
+    path: str | pathlib.Path
 
     def __call__(self) -> types.ModuleType:
         return importlib.import_module(self.path) if isinstance(self.path, str) else _get_path_module(self.path)
@@ -3070,7 +3040,7 @@ class _LoadModule:
 
 @dataclasses.dataclass
 class _ReloadModule:
-    path: typing.Union[types.ModuleType, pathlib.Path]
+    path: types.ModuleType | pathlib.Path
 
     def __call__(self) -> types.ModuleType:
         return _get_path_module(self.path) if isinstance(self.path, pathlib.Path) else importlib.reload(self.path)

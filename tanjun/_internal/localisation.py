@@ -53,10 +53,7 @@ class MaybeLocalised:
     __slots__ = ("default_value", "_field_name", "id", "localised_values")
 
     def __init__(
-        self,
-        field_name: str,
-        field: typing.Union[str, collections.Mapping[str, str], collections.Iterable[tuple[str, str]]],
-        /,
+        self, field_name: str, field: str | collections.Mapping[str, str] | collections.Iterable[tuple[str, str]], /
     ) -> None:
         """Initialise an instance of MaybeLocalised.
 
@@ -85,7 +82,7 @@ class MaybeLocalised:
         self._field_name = field_name
         if isinstance(field, str):
             self.default_value = field
-            self.id: typing.Optional[str] = None
+            self.id: str | None = None
             self.localised_values: dict[str, str] = {}
 
         else:
@@ -106,7 +103,7 @@ class MaybeLocalised:
     def localise(
         self,
         ctx: tanjun.Context,
-        localiser: typing.Optional[dependencies.AbstractLocaliser],
+        localiser: dependencies.AbstractLocaliser | None,
         field_type: _NamedFields,
         field_name: str,
         /,
@@ -134,7 +131,7 @@ class MaybeLocalised:
         if (self.localised_values or localiser) and isinstance(ctx, tanjun.AppCommandContext):
             if localiser:
                 localise_id = self.id or to_localise_id(
-                    _TYPE_TO_STR[ctx.type], ctx.triggering_name, field_type, field_name
+                    _cmd_type_str(ctx.type), ctx.triggering_name, field_type, field_name
                 )
                 if field := localiser.localise(localise_id, ctx.interaction.locale, **kwargs):
                     return field
@@ -202,14 +199,21 @@ class MaybeLocalised:
 
 
 _CommandTypes = typing.Literal["message_menu", "slash", "user_menu"]
-_TYPE_TO_STR: dict[hikari.CommandType, _CommandTypes] = {
-    hikari.CommandType.MESSAGE: "message_menu",
-    hikari.CommandType.SLASH: "slash",
-    hikari.CommandType.USER: "user_menu",
-}
 _NamedFields = typing.Literal["check", "option.description", "option.name"]
 _UnnamedFields = typing.Literal["description", "name"]
-_FieldType = typing.Union[_NamedFields, _UnnamedFields]
+_FieldType = _NamedFields | _UnnamedFields
+
+
+def _cmd_type_str(cmd_type: hikari.CommandType, /) -> _CommandTypes:
+    match cmd_type:
+        case hikari.CommandType.MESSAGE:
+            return "message_menu"
+        case hikari.CommandType.SLASH:
+            return "slash"
+        case hikari.CommandType.USER:
+            return "user_menu"
+        case _:
+            raise NotImplementedError
 
 
 @typing.overload
@@ -229,7 +233,7 @@ def to_localise_id(
 
 
 def to_localise_id(
-    command_type: _CommandTypes, command_name: str, field_type: _FieldType, field_name: typing.Optional[str] = None, /
+    command_type: _CommandTypes, command_name: str, field_type: _FieldType, field_name: str | None = None, /
 ) -> str:
     """Generate an ID for a localised field.
 
@@ -273,7 +277,7 @@ def localise_command(cmd_builder: hikari.api.CommandBuilder, localiser: dependen
     localiser
         The abstract localiser to localise fields with.
     """
-    localise_type = _TYPE_TO_STR[cmd_builder.type]
+    localise_type = _cmd_type_str(cmd_builder.type)
     names = dict(cmd_builder.name_localizations)
     names.update(localiser.get_all_variants(to_localise_id(localise_type, cmd_builder.name, "name")))
     cmd_builder.set_name_localizations(names)

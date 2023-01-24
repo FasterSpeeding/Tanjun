@@ -53,7 +53,7 @@ class AbstractLocaliser(abc.ABC):
         """Get all the localisation variants for an identifier."""
 
     @abc.abstractmethod
-    def localise(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
+    def localise(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> str | None:
         """Localise a string with the given identifier and arguments.
 
         Parameters
@@ -76,7 +76,7 @@ class AbstractLocaliser(abc.ABC):
             The localised string.
         """
 
-    def localize(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
+    def localize(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> str | None:
         """Alias for `AbstractLocaliser.localise`."""
         return self.localise(identifier, tag, **kwargs)
 
@@ -125,7 +125,7 @@ class BasicLocaliser(AbstractLocaliser):
             results.pop("default", None)
             return results
 
-    def localise(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
+    def localise(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> str | None:
         # <<inherited docstring from AbstractLocaliser>>.
         if (tag_values := self._tags.get(identifier)) and (string := tag_values.get(tag)):
             return string.format(**kwargs)
@@ -133,7 +133,7 @@ class BasicLocaliser(AbstractLocaliser):
         return None  # MyPy compat
 
     def set_variants(
-        self, identifier: str, variants: typing.Optional[collections.Mapping[str, str]] = None, /, **other_variants: str
+        self, identifier: str, variants: collections.Mapping[str, str] | None = None, /, **other_variants: str
     ) -> Self:
         """Set the variants for a localised field.
 

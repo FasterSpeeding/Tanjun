@@ -123,7 +123,7 @@ def test_inject_lc():
 
 
 @pytest.mark.parametrize("expire_after", [0.0, -1, datetime.timedelta(seconds=-2)])
-def test_cache_callback_when_invalid_expire_after(expire_after: typing.Union[float, int, datetime.timedelta]):
+def test_cache_callback_when_invalid_expire_after(expire_after: float | int | datetime.timedelta):
     with pytest.raises(ValueError, match="expire_after must be more than 0 seconds"):
         tanjun.dependencies.data.cache_callback(mock.Mock(), expire_after=expire_after)
 
@@ -152,7 +152,7 @@ async def test_cache_callback():
 
 @pytest.mark.parametrize("expire_after", [4, 4.0, datetime.timedelta(seconds=4)])
 @pytest.mark.asyncio()
-async def test_cache_callback_when_expired(expire_after: typing.Union[float, int, datetime.timedelta]):
+async def test_cache_callback_when_expired(expire_after: float | int | datetime.timedelta):
     mock_callback = mock.AsyncMock()
     mock_first_context = mock.AsyncMock()
     mock_second_context = mock.AsyncMock()
@@ -182,7 +182,7 @@ async def test_cache_callback_when_expired(expire_after: typing.Union[float, int
 
 @pytest.mark.parametrize("expire_after", [15, 15.0, datetime.timedelta(seconds=15)])
 @pytest.mark.asyncio()
-async def test_cache_callback_when_not_expired(expire_after: typing.Union[float, int, datetime.timedelta]):
+async def test_cache_callback_when_not_expired(expire_after: float | int | datetime.timedelta):
     mock_callback = mock.AsyncMock()
     mock_context = mock.AsyncMock()
     cached_callback = tanjun.dependencies.data.cache_callback(mock_callback, expire_after=expire_after)

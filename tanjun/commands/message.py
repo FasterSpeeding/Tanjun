@@ -48,15 +48,15 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
-    _CommandT = typing.Union[
-        tanjun.MenuCommand["_CommandCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_CommandCallbackSigT"],
-        tanjun.SlashCommand["_CommandCallbackSigT"],
-    ]
-    _CallbackishT = typing.Union[_CommandT["_CommandCallbackSigT"], "_CommandCallbackSigT"]
+    _CommandT = (
+        tanjun.MenuCommand["_CommandCallbackSigT", typing.Any]
+        | tanjun.MessageCommand["_CommandCallbackSigT"]
+        | tanjun.SlashCommand["_CommandCallbackSigT"]
+    )
+    _CallbackishT: typing.TypeAlias = "_CommandT[_CommandCallbackSigT] | _CommandCallbackSigT"
+    _OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.CommandCallbackSig)
 
 _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
-_OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.CommandCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
@@ -183,7 +183,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         /,
         *names: str,
         validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
     ) -> None:
         ...
 
@@ -195,7 +195,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         /,
         *names: str,
         validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
     ) -> None:
         ...
 
@@ -206,7 +206,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         /,
         *names: str,
         validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
     ) -> None:
         """Initialise a message command.
 
@@ -232,8 +232,8 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         self._arg_names = _internal.get_kwargs(callback) if validate_arg_keys else None
         self._callback: _CommandCallbackSigT = callback
         self._names = list(dict.fromkeys((name, *names)))
-        self._parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None
-        self._parser: typing.Optional[tanjun.MessageParser] = None
+        self._parent: tanjun.MessageCommandGroup[typing.Any] | None = None
+        self._parser: tanjun.MessageParser | None = None
         self._wrapped_command = _wrapped_command
 
     def __repr__(self) -> str:
@@ -258,17 +258,17 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         return self._names.copy()
 
     @property
-    def parent(self) -> typing.Optional[tanjun.MessageCommandGroup[typing.Any]]:
+    def parent(self) -> tanjun.MessageCommandGroup[typing.Any] | None:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         return self._parent
 
     @property
-    def parser(self) -> typing.Optional[tanjun.MessageParser]:
+    def parser(self) -> tanjun.MessageParser | None:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         return self._parser
 
     @property
-    def wrapped_command(self) -> typing.Optional[tanjun.ExecutableCommand[typing.Any]]:
+    def wrapped_command(self) -> tanjun.ExecutableCommand[typing.Any] | None:
         """The command object this wraps, if any."""
         return self._wrapped_command
 
@@ -288,7 +288,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
 
         return self
 
-    def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> Self:
+    def copy(self, *, parent: tanjun.MessageCommandGroup[typing.Any] | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         inst = super().copy()
         inst._callback = copy.copy(self._callback)
@@ -297,12 +297,12 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         inst._parser = self._parser.copy() if self._parser else None
         return inst
 
-    def set_parent(self, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]], /) -> Self:
+    def set_parent(self, parent: tanjun.MessageCommandGroup[typing.Any] | None, /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         self._parent = parent
         return self
 
-    def set_parser(self, parser: typing.Optional[tanjun.MessageParser], /) -> Self:
+    def set_parser(self, parser: tanjun.MessageParser | None, /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if parser and self._arg_names is not None:
             try:
@@ -323,11 +323,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         return result
 
     async def execute(
-        self,
-        ctx: tanjun.MessageContext,
-        /,
-        *,
-        hooks: typing.Optional[collections.MutableSet[tanjun.MessageHooks]] = None,
+        self, ctx: tanjun.MessageContext, /, *, hooks: collections.MutableSet[tanjun.MessageHooks] | None = None
     ) -> None:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         ctx = ctx.set_command(self)
@@ -383,7 +379,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         *names: str,
         strict: bool = False,
         validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
     ) -> None:
         ...
 
@@ -396,7 +392,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         *names: str,
         strict: bool = False,
         validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
     ) -> None:
         ...
 
@@ -408,7 +404,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         *names: str,
         strict: bool = False,
         validate_arg_keys: bool = True,
-        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
     ) -> None:
         """Initialise a message command group.
 
@@ -447,7 +443,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
     def is_strict(self) -> bool:
         return self._commands.is_strict
 
-    def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> Self:
+    def copy(self, *, parent: tanjun.MessageCommandGroup[typing.Any] | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         inst = super().copy(parent=parent)
         inst._commands = self._commands.copy(parent=self)
@@ -499,7 +495,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         """
 
         def decorator(
-            callback: typing.Union[_OtherCallbackSigT, _CommandT[_OtherCallbackSigT]], /
+            callback: _OtherCallbackSigT | _CommandT[_OtherCallbackSigT], /
         ) -> MessageCommand[_OtherCallbackSigT]:
             return self.with_command(as_message_command(name, *names, validate_arg_keys=validate_arg_keys)(callback))
 
@@ -534,7 +530,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         """
 
         def decorator(
-            callback: typing.Union[_OtherCallbackSigT, _CommandT[_OtherCallbackSigT]], /
+            callback: _OtherCallbackSigT | _CommandT[_OtherCallbackSigT], /
         ) -> MessageCommandGroup[_OtherCallbackSigT]:
             return self.with_command(
                 as_message_command_group(name, *names, strict=strict, validate_arg_keys=validate_arg_keys)(callback)
@@ -574,11 +570,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         return self._commands.find(content, case_sensntive)
 
     async def execute(
-        self,
-        ctx: tanjun.MessageContext,
-        /,
-        *,
-        hooks: typing.Optional[collections.MutableSet[tanjun.MessageHooks]] = None,
+        self, ctx: tanjun.MessageContext, /, *, hooks: collections.MutableSet[tanjun.MessageHooks] | None = None
     ) -> None:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if ctx.message.content is None:
