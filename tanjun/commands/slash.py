@@ -95,13 +95,10 @@ _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 _ConvertT = typing.TypeVar("_ConvertT", int, float, str)
 _P = typing_extensions.ParamSpec("_P")
-_ConverterSig = (
-    collections.Callable[
-        typing_extensions.Concatenate[_ConvertT, _P], collections.Coroutine[typing.Any, typing.Any, typing.Any]
-    ]
-    | collections.Callable[typing_extensions.Concatenate[_ConvertT, _P], typing.Any]
-)
 
+_ConverterSig = collections.Callable[
+    typing_extensions.Concatenate[_ConvertT, _P], collections.Coroutine[typing.Any, typing.Any, typing.Any] | typing.Any
+]
 ConverterSig = _ConverterSig[_ConvertT, ...]
 """Type hint of a slash command option converter."""
 

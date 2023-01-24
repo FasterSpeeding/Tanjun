@@ -85,10 +85,9 @@ if typing.TYPE_CHECKING:
 
 _T = typing.TypeVar("_T")
 _P = typing_extensions.ParamSpec("_P")
-_ConverterSig = (
-    collections.Callable[typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, _T]]
-    | collections.Callable[typing_extensions.Concatenate[str, _P], _T]
-)
+_ConverterSig = collections.Callable[
+    typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, _T] | _T
+]
 
 ConverterSig = _ConverterSig[..., _T]  # TODO: is this correct?
 """Type hint of a converter used within a parser instance.

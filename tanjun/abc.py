@@ -118,7 +118,7 @@ _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
 
-_MaybeAwaitable = collections.Callable[_P, _CoroT[_T]] | collections.Callable[_P, _T]
+_MaybeAwaitable = collections.Callable[_P, _CoroT[_T] | _T]
 
 _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
 _AutocompleteSig = collections.Callable[
@@ -156,8 +156,6 @@ AnyCheckSig = _CheckSig["Context", ...]
 CommandCallbackSig = collections.Callable[..., _CoroT[None]]
 """Deprecated type hint used to represent any command callback."""
 
-_CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], _CoroT[None]]
-
 _ManuCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P], _CoroT[None]]
 MenuCallbackSig = _ManuCallbackSig["MenuContext", _MenuValueT, ...]
 """Type hint of a context menu command callback.
@@ -174,6 +172,8 @@ MenuCommandCallbackSig = MenuCallbackSig
 """Deprecated alias of [tanjun.abc.MenuCallbackSig][]."""
 
 _MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound=MenuCallbackSig[typing.Any])
+
+_CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], _CoroT[None]]
 
 MessageCallbackSig = _CommandCallbackSig["MessageContext", ...]
 """Type hint of a message command callback.

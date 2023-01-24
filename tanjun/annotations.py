@@ -94,12 +94,9 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _P = typing_extensions.ParamSpec("_P")
-    __ConverterSig = (
-        collections.Callable[
-            typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, "_T"],
-        ]
-        | collections.Callable[typing_extensions.Concatenate[str, _P], "_T"]
-    )
+    __ConverterSig = collections.Callable[
+        typing_extensions.Concatenate[str, _P], "collections.Coroutine[typing.Any, typing.Any, _T] | _T",
+    ]
     _ConverterSig = __ConverterSig[..., "_T"]
 
 _T = typing.TypeVar("_T")
