@@ -89,7 +89,7 @@ _ConverterSig = collections.Callable[
     typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, _T] | _T
 ]
 
-ConverterSig = _ConverterSig[..., _T]  # TODO: is this correct?
+ConverterSig = _ConverterSig[..., _T]
 """Type hint of a converter used within a parser instance.
 
 This must be a callable or asynchronous callable which takes one position
