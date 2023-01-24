@@ -709,17 +709,12 @@ class _Datetime:
         day = _get_next(self._config.days, day)
         current = self._date.year, self._date.month
         if day is None:  # Indicates we've passed the last matching day in this week.
+            # This handles flowing to the next month/year.
             self._date = (self._date + datetime.timedelta((8 - self._date.isoweekday()))).replace(
                 hour=0, minute=0, second=0
             )
-
-            if (self._date.year, self._date.month) != current:
-                # Re-calculate if necessary to ensure that this month matches
-                # if this jump crossed to a new month or year.
-                return self._next_month()
-
-            # Calculate the next matching day in this week.
-            return self._next_day()
+            # Then recalculate
+            return self._next_month()
 
         self._date = (self._date + datetime.timedelta(days=day - self._date.isoweekday())).replace(
             hour=0, minute=0, second=0
@@ -787,11 +782,6 @@ class _Datetime:
             return self._next_month()
 
         self._date = self._date.replace(second=second)
-        if self._config.current_date == self._date:
-            # There's some timing edge-cases where this might trigger before the
-            # target time and to avoid that leading to duped-calls we check after calculating.
-            return self._next_second()
-
         self._config.current_date = self._date
         return self
 
