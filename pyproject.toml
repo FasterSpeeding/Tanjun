@@ -148,7 +148,7 @@ default_sessions = [
 extra_test_installs = ["."]
 path_ignore = "tanjun\\/_internal\\/vendor\\/"
 project_name = "tanjun"
-top_level_targets = ["./examples", "./noxfile.py", "./tanjun"] # , "./tests"]
+top_level_targets = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
 
 [tool.piped.github_actions.freeze_for_pr]
 [tool.piped.github_actions.lint]

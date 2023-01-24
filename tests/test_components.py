@@ -1229,7 +1229,7 @@ class TestComponent:
         )()
 
         with pytest.raises(ValueError, match="Missing positional event argument"):
-            component.with_listener()(callback)
+            component.with_listener()(callback)  # type: ignore
 
         add_listener.assert_not_called()
 
@@ -1243,7 +1243,7 @@ class TestComponent:
         )()
 
         with pytest.raises(ValueError, match="Missing positional event argument"):
-            component.with_listener()(callback)
+            component.with_listener()(callback)  # type: ignore
 
         add_listener.assert_not_called()
 

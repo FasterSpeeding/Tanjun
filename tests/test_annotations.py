@@ -238,7 +238,7 @@ def test_with_nested_message_command_and_incompatible_parser_set():
 
     @tanjun.as_message_command("command")
     @tanjun.as_slash_command("command", "description")
-    async def command(ctx: tanjun.abc.MessageContext, foo: typing.Annotated[annotations.Int, "desc"]):
+    async def command(ctx: tanjun.abc.Context, foo: typing.Annotated[annotations.Int, "desc"]):
         ...
 
     command.set_parser(mock_parser)
@@ -1380,7 +1380,7 @@ def test_with_flag():
     @tanjun.as_message_command("meow")
     @tanjun.as_slash_command("beep", "boop")
     async def callback(
-        ctx: tanjun.abc.MessageContext,
+        ctx: tanjun.abc.Context,
         meep: typing.Annotated[annotations.Str, annotations.Flag(), "bb"] = "",
         eep: typing.Annotated[
             annotations.Int, annotations.Flag(aliases=("--hi", "--bye"), empty_value=empty_value), "b"
@@ -1435,7 +1435,7 @@ def test_with_flag_and_deprecated_default():
         @tanjun.as_message_command("meow")
         @tanjun.as_slash_command("beep", "boop")
         async def callback(
-            ctx: tanjun.abc.MessageContext,
+            ctx: tanjun.abc.Context,
             eep: typing.Annotated[annotations.Int, annotations.Flag(default=1231), "b"] = 545454,
         ) -> None:
             ...
