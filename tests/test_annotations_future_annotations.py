@@ -968,8 +968,10 @@ def test_with_converted():
     @tanjun.as_message_command("nyaa")
     async def command(
         ctx: tanjun.abc.Context,
-        boo: typing.Annotated[annotations.Str, annotations.Converted(mock_callback_1, mock_callback_2), "description"],
-        bam: typing.Annotated[typing.Optional[annotations.Int], annotations.Converted(mock_callback_3), "nom"] = None,
+        boo: typing.Annotated[str, annotations.Converted(mock_callback_1, mock_callback_2), "description"],
+        bam: typing.Annotated[
+            typing.Optional[int], annotations.Converted(mock_callback_3), "nom"  # noqa: NU002
+        ] = None,
     ) -> None:
         ...
 
@@ -978,7 +980,7 @@ def test_with_converted():
             type=hikari.OptionType.STRING, name="boo", channel_types=None, description="description", is_required=True
         ),
         hikari.CommandOption(
-            type=hikari.OptionType.INTEGER, name="bam", channel_types=None, description="nom", is_required=False
+            type=hikari.OptionType.STRING, name="bam", channel_types=None, description="nom", is_required=False
         ),
     ]
 
@@ -999,7 +1001,7 @@ def test_with_converted():
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "bam"
     assert tracked_option.name == "bam"
-    assert tracked_option.type is hikari.OptionType.INTEGER
+    assert tracked_option.type is hikari.OptionType.STRING
 
     assert isinstance(command.wrapped_command, tanjun.MessageCommand)
     assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)

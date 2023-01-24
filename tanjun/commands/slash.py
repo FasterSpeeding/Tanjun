@@ -470,7 +470,7 @@ def with_int_slash_option(
     *,
     autocomplete: tanjun.AutocompleteSig[int] | None = None,
     choices: typing.Optional[collections.Mapping[str, int]] = None,
-    converters: collections.Collection[ConverterSig[int]] | ConverterSig[int] = (),
+    converters: collections.Sequence[ConverterSig[int]] | ConverterSig[int] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
     key: typing.Optional[str] = None,
     min_value: typing.Optional[int] = None,
@@ -519,7 +519,7 @@ def with_float_slash_option(
     always_float: bool = True,
     autocomplete: tanjun.AutocompleteSig[float] | None = None,
     choices: typing.Optional[collections.Mapping[str, float]] = None,
-    converters: collections.Collection[ConverterSig[float]] | ConverterSig[float] = (),
+    converters: collections.Sequence[ConverterSig[float]] | ConverterSig[float] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
     key: typing.Optional[str] = None,
     min_value: typing.Optional[float] = None,
@@ -1671,7 +1671,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         choices: typing.Union[
             collections.Mapping[str, typing.Union[str, int, float]], collections.Sequence[typing.Any], None
         ] = None,
-        converters: collections.Iterable[_AnyConverterSig] | _AnyConverterSig = (),
+        converters: collections.Sequence[_AnyConverterSig] | _AnyConverterSig = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_length: typing.Optional[int] = None,
@@ -1702,7 +1702,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             raise ValueError(f"{key!r} is not a valid keyword argument for {self._callback}")
 
         type_ = hikari.OptionType(type_)
-        if isinstance(converters, collections.Iterable):
+        if isinstance(converters, collections.Sequence):
             converters = list(converters)
 
         else:
@@ -1987,7 +1987,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         *,
         autocomplete: tanjun.AutocompleteSig[int] | None = None,
         choices: typing.Optional[collections.Mapping[str, int]] = None,
-        converters: collections.Collection[ConverterSig[int]] | ConverterSig[int] = (),
+        converters: collections.Sequence[ConverterSig[int]] | ConverterSig[int] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_value: typing.Optional[int] = None,
@@ -2098,7 +2098,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         always_float: bool = True,
         autocomplete: tanjun.AutocompleteSig[float] | None = None,
         choices: typing.Optional[collections.Mapping[str, float]] = None,
-        converters: collections.Collection[ConverterSig[float]] | ConverterSig[float] = (),
+        converters: collections.Sequence[ConverterSig[float]] | ConverterSig[float] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_value: typing.Optional[float] = None,

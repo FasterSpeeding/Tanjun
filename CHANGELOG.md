@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - [tanjun.MenuHooks][] is now exported top-level.
 
+### Fixed
+- [tanjun.annotations.Converted][] now properly overrides the actual type annotation for
+  slash commands.
+- The `add_{}_option` and `with_{}_option` methods for the standard slash command impl
+  will no-longer mishandle iterable but non-sequence types like [enum.Enum][] as if
+  they were a sequence of converters when they are passed as the value for `converters`.
+
 ### [2.11.2] - 2023-01-23
 ### Changed
 - [tanjun.clients.Client.from_gateway_bot][] can now also take cache-less `ShardAware` bots.

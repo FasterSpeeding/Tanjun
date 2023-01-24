@@ -34,6 +34,7 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
+import enum
 import inspect
 import re
 import types
@@ -1871,6 +1872,16 @@ class TestSlashCommand:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_str_option("name", {hikari.Locale.IT: ""})
 
+    def test_add_str_option_when_converters_is_flat_enum(self, command: tanjun.SlashCommand[typing.Any]):
+        class Enum(str, enum.Enum):
+            FOO = "i can't"
+            BAR = "meow"
+            BAZ = "something will change"
+
+        command.add_str_option("boom", "No u", converters=Enum)
+
+        assert list(command._tracked_options["boom"].converters) == [Enum]
+
     def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
 
@@ -2085,6 +2096,15 @@ class TestSlashCommand:
     def test_add_int_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_int_option("name", {hikari.Locale.IT: ""})
+
+    def test_add_int_option_when_converters_is_flat_enum(self, command: tanjun.SlashCommand[typing.Any]):
+        class Enum(int, enum.Enum):
+            THERE_IS_NO = 543
+            THERE_IS_YES = 123123
+
+        command.add_int_option("see", "seesee", converters=[Enum])
+
+        assert list(command._tracked_options["see"].converters) == [Enum]
 
     def test_add_float_option(self, command: tanjun.SlashCommand[typing.Any]):
         mock_converter = mock.Mock()
@@ -2322,6 +2342,15 @@ class TestSlashCommand:
     def test_add_float_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_float_option("name", {hikari.Locale.IT: ""})
+
+    def test_add_float_option_when_converters_is_flat_enum(self, command: tanjun.SlashCommand[typing.Any]):
+        class Enum(enum.Enum):
+            MEOW = 431.123
+            NYAA = 3243.543
+
+        command.add_float_option("sesese", "asasasa", converters=[Enum])
+
+        assert list(command._tracked_options["sesese"].converters) == [Enum]
 
     def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_bool_option("eaassa", "saas", default="feel", key="o")
