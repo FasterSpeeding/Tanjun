@@ -70,6 +70,22 @@ _MenuTypeT = typing.TypeVar(
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
+# While these overloads may seem redundant/unnecessary, MyPy cannot understand
+# this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
+class _AsMsgResultProto(typing.Protocol):
+    @typing.overload
+    def __call__(
+        self, _: _MessageCallbackSigT, /
+    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
+        ...
+
+    @typing.overload
+    def __call__(
+        self, _: _AnyCommandT[_MessageCallbackSigT], /
+    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
+        ...
+
+
 def as_message_menu(
     name: typing.Union[str, collections.Mapping[str, str]],
     /,
@@ -79,9 +95,7 @@ def as_message_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
-) -> collections.Callable[
-    [_CallbackishT[_MessageCallbackSigT]], MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]
-]:
+) -> _AsMsgResultProto:
     """Build a message [tanjun.MenuCommand][] by decorating a function.
 
     !!! note
@@ -175,6 +189,22 @@ def as_message_menu(
     return decorator
 
 
+# While these overloads may seem redundant/unnecessary, MyPy cannot understand
+# this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
+class _AsUserResultProto(typing.Protocol):
+    @typing.overload
+    def __call__(
+        self, _: _UserCallbackSigT, /
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
+        ...
+
+    @typing.overload
+    def __call__(
+        self, _: _AnyCommandT[_UserCallbackSigT], /
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
+        ...
+
+
 def as_user_menu(
     name: typing.Union[str, collections.Mapping[str, str]],
     /,
@@ -184,9 +214,7 @@ def as_user_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
-) -> collections.Callable[
-    [_CallbackishT[_UserCallbackSigT]], MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]
-]:
+) -> _AsUserResultProto:
     """Build a user [tanjun.MenuCommand][] by decorating a function.
 
     !!! note
@@ -306,7 +334,26 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
     @typing.overload
     def __init__(
         self: MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]],
-        callback: _CallbackishT[_UserCallbackSigT],
+        callback: _UserCallbackSigT,
+        type_: typing.Literal[hikari.CommandType.USER],
+        name: str | collections.Mapping[str, str],
+        /,
+        *,
+        always_defer: bool = False,
+        default_member_permissions: hikari.Permissions | int | None = None,
+        default_to_ephemeral: bool | None = None,
+        dm_enabled: bool | None = None,
+        is_global: bool = True,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+    ) -> None:
+        ...
+
+    # While this extra overload may seem redundant/unnecessary, MyPy cannot understand
+    # this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
+    @typing.overload
+    def __init__(
+        self: MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]],
+        callback: _AnyCommandT[_UserCallbackSigT],
         type_: typing.Literal[hikari.CommandType.USER],
         name: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -323,7 +370,26 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
     @typing.overload
     def __init__(
         self: MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]],
-        callback: _CallbackishT[_MessageCallbackSigT],
+        callback: _MessageCallbackSigT,
+        type_: typing.Literal[hikari.CommandType.MESSAGE],
+        name: str | collections.Mapping[str, str],
+        /,
+        *,
+        always_defer: bool = False,
+        default_member_permissions: hikari.Permissions | int | None = None,
+        default_to_ephemeral: bool | None = None,
+        dm_enabled: bool | None = None,
+        is_global: bool = True,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+    ) -> None:
+        ...
+
+    # While this extra overload may seem redundant/unnecessary, MyPy cannot understand
+    # this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
+    @typing.overload
+    def __init__(
+        self: MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]],
+        callback: _AnyCommandT[_MessageCallbackSigT],
         type_: typing.Literal[hikari.CommandType.MESSAGE],
         name: typing.Union[str, collections.Mapping[str, str]],
         /,

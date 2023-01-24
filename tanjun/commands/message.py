@@ -63,9 +63,19 @@ _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
-def as_message_command(
-    name: str, /, *names: str, validate_arg_keys: bool = True
-) -> collections.Callable[[_CallbackishT[_MessageCallbackSigT]], MessageCommand[_MessageCallbackSigT]]:
+# While these overloads may seem redundant/unnecessary, MyPy cannot understand
+# this when expressed through callback: _CallbackIshT[_MessageCallbackSigT].
+class _AsMsgResultProto(typing.Protocol):
+    @typing.overload
+    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]:
+        ...
+
+    @typing.overload
+    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
+        ...
+
+
+def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True) -> _AsMsgResultProto:
     """Build a message command from a decorated callback.
 
     Parameters
@@ -103,9 +113,21 @@ def as_message_command(
     return decorator
 
 
+# While these overloads may seem redundant/unnecessary, MyPy cannot understand
+# this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
+class _AsGroupResultProto(typing.Protocol):
+    @typing.overload
+    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]:
+        ...
+
+    @typing.overload
+    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:
+        ...
+
+
 def as_message_command_group(
     name: str, /, *names: str, strict: bool = False, validate_arg_keys: bool = True
-) -> collections.Callable[[_CallbackishT[_MessageCallbackSigT]], MessageCommandGroup[_MessageCallbackSigT]]:
+) -> _AsGroupResultProto:
     """Build a message command group from a decorated callback.
 
     Parameters
@@ -152,6 +174,32 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
     """Standard implementation of a message command."""
 
     __slots__ = ("_arg_names", "_callback", "_names", "_parent", "_parser", "_wrapped_command")
+
+    # While these overloads may seem redundant/unnecessary, MyPy cannot understand
+    # this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
+    @typing.overload
+    def __init__(
+        self,
+        callback: _MessageCallbackSigT,
+        name: str,
+        /,
+        *names: str,
+        validate_arg_keys: bool = True,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+    ) -> None:
+        ...
+
+    @typing.overload
+    def __init__(
+        self,
+        callback: _AnyCommandT[_MessageCallbackSigT],
+        name: str,
+        /,
+        *names: str,
+        validate_arg_keys: bool = True,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+    ) -> None:
+        ...
 
     def __init__(
         self,
@@ -327,6 +375,34 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
     """Standard implementation of a message command group."""
 
     __slots__ = ("_commands",)
+
+    # While these overloads may seem redundant/unnecessary, MyPy cannot understand
+    # this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
+    @typing.overload
+    def __init__(
+        self,
+        callback: _MessageCallbackSigT,
+        name: str,
+        /,
+        *names: str,
+        strict: bool = False,
+        validate_arg_keys: bool = True,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+    ) -> None:
+        ...
+
+    @typing.overload
+    def __init__(
+        self,
+        callback: _AnyCommandT[_MessageCallbackSigT],
+        name: str,
+        /,
+        *names: str,
+        strict: bool = False,
+        validate_arg_keys: bool = True,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+    ) -> None:
+        ...
 
     def __init__(
         self,

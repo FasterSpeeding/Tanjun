@@ -112,7 +112,6 @@ _MenuTypeT = typing.TypeVar(
 
 _MaybeAwaitable = collections.Callable[_P, _CoroT[_T]] | collections.Callable[_P, _T]
 
-
 _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
 _AutocompleteSig = collections.Callable[
     typing_extensions.Concatenate["AutocompleteContext", _AutocompleteValueT, _P], _CoroT[None]

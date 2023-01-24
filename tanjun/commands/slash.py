@@ -244,6 +244,18 @@ def slash_command_group(
     )
 
 
+# While these overloads may seem redundant/unnecessary, MyPy cannot understand
+# this when expressed through `callback: _CallbackIshT[_SlashCallbackSigT]`.
+class _AsSlashResultProto(typing.Protocol):
+    @typing.overload
+    def __call__(self, _: _SlashCallbackSigT, /) -> SlashCommand[_SlashCallbackSigT]:
+        ...
+
+    @typing.overload
+    def __call__(self, _: _AnyCommandT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
+        ...
+
+
 def as_slash_command(
     name: typing.Union[str, collections.Mapping[str, str]],
     description: typing.Union[str, collections.Mapping[str, str]],
@@ -256,7 +268,7 @@ def as_slash_command(
     is_global: bool = True,
     sort_options: bool = True,
     validate_arg_keys: bool = True,
-) -> collections.Callable[[_CallbackishT[_SlashCallbackSigT]], SlashCommand[_SlashCallbackSigT]]:
+) -> _AsSlashResultProto:
     r"""Build a [tanjun.SlashCommand][] by decorating a function.
 
     !!! note
@@ -1432,6 +1444,46 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         "_tracked_options",
         "_wrapped_command",
     )
+
+    # While these overloads may seem redundant/unnecessary, MyPy cannot understand
+    # this when expressed through `callback: _CallbackIshT[_SlashCallbackSigT]`.
+    @typing.overload
+    def __init__(
+        self,
+        callback: _SlashCallbackSigT,
+        name: str | collections.Mapping[str, str],
+        description: str | collections.Mapping[str, str],
+        /,
+        *,
+        always_defer: bool = False,
+        default_member_permissions: hikari.Permissions | int | None = None,
+        default_to_ephemeral: bool | None = None,
+        dm_enabled: bool | None = None,
+        is_global: bool = True,
+        sort_options: bool = True,
+        validate_arg_keys: bool = True,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+    ) -> None:
+        ...
+
+    @typing.overload
+    def __init__(
+        self,
+        callback: _AnyCommandT[_SlashCallbackSigT],
+        name: str | collections.Mapping[str, str],
+        description: str | collections.Mapping[str, str],
+        /,
+        *,
+        always_defer: bool = False,
+        default_member_permissions: hikari.Permissions | int | None = None,
+        default_to_ephemeral: bool | None = None,
+        dm_enabled: bool | None = None,
+        is_global: bool = True,
+        sort_options: bool = True,
+        validate_arg_keys: bool = True,
+        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+    ) -> None:
+        ...
 
     def __init__(
         self,
