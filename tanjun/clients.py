@@ -477,12 +477,10 @@ class _StartDeclarer:
         self.user_ids = user_ids
 
     async def __call__(self) -> None:
-        try:
-            await self.client.declare_global_commands(
-                self.command_ids, message_ids=self.message_ids, user_ids=self.user_ids, guild=self.guild_id, force=False
-            )
-        finally:
-            self.client.remove_client_callback(ClientCallbackNames.STARTING, self)
+        self.client.remove_client_callback(ClientCallbackNames.STARTING, self)
+        await self.client.declare_global_commands(
+            self.command_ids, message_ids=self.message_ids, user_ids=self.user_ids, guild=self.guild_id, force=False
+        )
 
 
 class Client(tanjun.Client):
