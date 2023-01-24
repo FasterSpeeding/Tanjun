@@ -49,15 +49,16 @@ if typing.TYPE_CHECKING:
 
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
-    _AnyCommandT = typing.Union[
-        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
-        tanjun.MessageCommand[_AnyCallbackSigT],
-        tanjun.SlashCommand["_AnyCallbackSigT"],
-    ]
-    _CallbackishT = typing.Union[_AnyCommandT["_MessageCallbackSigT"], "_MessageCallbackSigT"]
+    _AnyCommandT = (
+        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any]
+        | tanjun.MessageCommand[_AnyCallbackSigT]
+        | tanjun.SlashCommand[_AnyCallbackSigT]
+    )
+    _CallbackishT: typing.TypeAlias = "_AnyCommandT[_MessageCallbackSigT] | _MessageCallbackSigT"
+    _OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.MessageCallbackSig)
+
 
 _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=tanjun.MessageCallbackSig)
-_OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.MessageCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
@@ -444,7 +445,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         """
 
         def decorator(
-            callback: typing.Union[_OtherCallbackSigT, _AnyCommandT[_OtherCallbackSigT]], /
+            callback: _OtherCallbackSigT | _AnyCommandT[_OtherCallbackSigT], /
         ) -> MessageCommand[_OtherCallbackSigT]:
             return self.with_command(as_message_command(name, *names, validate_arg_keys=validate_arg_keys)(callback))
 

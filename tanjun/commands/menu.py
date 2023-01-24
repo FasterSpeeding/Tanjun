@@ -51,15 +51,15 @@ if typing.TYPE_CHECKING:
     _AnyCallbackSigT = typing.TypeVar(
         "_AnyCallbackSigT", bound=collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
     )
-    _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound="tanjun.MenuCallbackSig[hikari.Message]")
-    _UserCallbackSigT = typing.TypeVar("_UserCallbackSigT", bound="tanjun.MenuCallbackSig[hikari.InteractionMember]")
+    _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=tanjun.MenuCallbackSig[hikari.Message])
+    _UserCallbackSigT = typing.TypeVar("_UserCallbackSigT", bound=tanjun.MenuCallbackSig[hikari.InteractionMember])
 
-    _AnyCommandT = typing.Union[
-        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_AnyCallbackSigT"],
-        tanjun.SlashCommand["_AnyCallbackSigT"],
-    ]
-    _CallbackishT = typing.Union["_AnyCallbackSigT", _AnyCommandT["_AnyCallbackSigT"]]
+    _AnyCommandT = (
+        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any]
+        | tanjun.MessageCommand[_AnyCallbackSigT]
+        | tanjun.SlashCommand[_AnyCallbackSigT]
+    )
+    _CallbackishT = _AnyCallbackSigT | _AnyCommandT[_AnyCallbackSigT]
 
 import hikari
 

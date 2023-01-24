@@ -55,19 +55,16 @@ if typing.TYPE_CHECKING:
 
     from .. import abc as tanjun
 
+    _T = typing.TypeVar("_T")
     _P = typing_extensions.ParamSpec("_P")
 
     _ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
-    _TreeT = dict[
-        typing.Union[str, "_IndexKeys"],
-        typing.Union["_TreeT", list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]],
-    ]
+    _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
+    _TreeT = dict["str | _IndexKeys", "_TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]",]
 
 
-_T = typing.TypeVar("_T")
 _KeyT = typing.TypeVar("_KeyT")
 _OtherT = typing.TypeVar("_OtherT")
-_CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
 
 _LOGGER = logging.getLogger("hikari.tanjun")
 

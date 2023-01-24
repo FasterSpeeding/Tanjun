@@ -147,7 +147,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._error_callbacks.append(callback)
         return self
 
-    def set_on_error(self, callback: typing.Optional[tanjun.ErrorHookSig[_ContextT_contra]], /) -> Self:
+    def set_on_error(self, callback: tanjun.ErrorHookSig[_ContextT_contra] | None, /) -> Self:
         """Set the error callback for this hook object.
 
         !!! note
@@ -204,7 +204,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._parser_error_callbacks.append(callback)
         return self
 
-    def set_on_parser_error(self, callback: typing.Optional[tanjun.HookSig[_ContextT_contra]], /) -> Self:
+    def set_on_parser_error(self, callback: tanjun.HookSig[_ContextT_contra] | None, /) -> Self:
         """Set the parser error callback for this hook object.
 
         Parameters
@@ -254,7 +254,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._post_execution_callbacks.append(callback)
         return self
 
-    def set_post_execution(self, callback: typing.Optional[tanjun.HookSig[_ContextT_contra]], /) -> Self:
+    def set_post_execution(self, callback: tanjun.HookSig[_ContextT_contra] | None, /) -> Self:
         """Set the post-execution callback for this hook object.
 
         Parameters
@@ -301,7 +301,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._pre_execution_callbacks.append(callback)
         return self
 
-    def set_pre_execution(self, callback: typing.Optional[tanjun.HookSig[_ContextT_contra]], /) -> Self:
+    def set_pre_execution(self, callback: tanjun.HookSig[_ContextT_contra] | None, /) -> Self:
         """Set the pre-execution callback for this hook object.
 
         Parameters
@@ -348,7 +348,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._success_callbacks.append(callback)
         return self
 
-    def set_on_success(self, callback: typing.Optional[tanjun.HookSig[_ContextT_contra]], /) -> Self:
+    def set_on_success(self, callback: tanjun.HookSig[_ContextT_contra] | None, /) -> Self:
         """Set the success callback for this hook object.
 
         Parameters

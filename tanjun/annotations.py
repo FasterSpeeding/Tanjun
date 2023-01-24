@@ -94,14 +94,15 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _P = typing_extensions.ParamSpec("_P")
-    _ConverterValueT = typing.TypeVar("_ConverterValueT", bound=typing.Union[int, str, float])
-    __ConverterSig = typing.Union[
+    # TODO: test this
+    _ConverterValueT = typing.TypeVar("_ConverterValueT", bound=int | str | float)
+    __ConverterSig = (
         collections.Callable[
             typing_extensions.Concatenate[_ConverterValueT, _P],
             collections.Coroutine[typing.Any, typing.Any, typing.Any],
-        ],
-        collections.Callable[typing_extensions.Concatenate[_ConverterValueT, _P], typing.Any],
-    ]
+        ]
+        | collections.Callable[typing_extensions.Concatenate[_ConverterValueT, _P], typing.Any]
+    )
     _ConverterSig = __ConverterSig[_ConverterValueT, ...]
 
 _T = typing.TypeVar("_T")
@@ -280,7 +281,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
 class _ConvertedMeta(abc.ABCMeta):
     def __getitem__(
-        cls, converters: typing.Union[_ConverterSig[_ConverterValueT], tuple[_ConverterSig[_ConverterValueT]]], /
+        cls, converters: _ConverterSig[_ConverterValueT] | tuple[_ConverterSig[_ConverterValueT]], /
     ) -> type[_ConverterValueT]:
         if not isinstance(converters, tuple):
             converters = (converters,)
@@ -1126,7 +1127,7 @@ class _ArgConfig:
         self.aliases: typing.Optional[collections.Sequence[str]] = None
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
-        self.converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
+        self.converters: collections.Sequence[_ConverterSig[typing.Any]] | None = None
         self.default: typing.Any = parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
         self.description: typing.Optional[str] = description
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED

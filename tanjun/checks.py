@@ -73,14 +73,12 @@ if typing.TYPE_CHECKING:
 
     class _AnyCallback(typing.Protocol[_ContextT_contra]):
         async def __call__(
-            self, ctx: _ContextT_contra, /, *, localiser: typing.Optional[dependencies.AbstractLocaliser] = None
+            self, ctx: _ContextT_contra, /, *, localiser: dependencies.AbstractLocaliser | None = None
         ) -> bool:
             raise NotImplementedError
 
 
-_CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
-# This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
-_CallbackReturnT = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
+
 _ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
 
 
@@ -93,8 +91,8 @@ def _add_to_command(command: _CommandT, check: tanjun.AnyCheckSig, follow_wrappe
 
 
 def _optional_kwargs(
-    command: typing.Optional[_CommandT], check: tanjun.AnyCheckSig, follow_wrapped: bool
-) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
+    command: _CommandT | None, check: tanjun.AnyCheckSig, follow_wrapped: bool
+) -> _CommandT | collections.Callable[[_CommandT], _CommandT]:
     if command:
         return _add_to_command(command, check, follow_wrapped)
 
@@ -1081,7 +1079,7 @@ class _AnyChecks(_Check, typing.Generic[_ContextT]):
         self._suppress = suppress
 
     async def __call__(
-        self, ctx: _ContextT, /, *, localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None
+        self, ctx: _ContextT, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
         for check in self._checks:
             try:

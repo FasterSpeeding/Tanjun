@@ -76,12 +76,13 @@ if typing.TYPE_CHECKING:
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
     _AnyBaseSlashCommandT = typing.TypeVar("_AnyBaseSlashCommandT", bound="tanjun.BaseSlashCommand")
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
-    _AnyCommandT = typing.Union[
-        tanjun.MenuCommand["_AnyCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_AnyCallbackSigT"],
-        tanjun.SlashCommand["_AnyCallbackSigT"],
-    ]
-    _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
+    _AnyCommandT = (
+        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any]
+        | tanjun.MessageCommand[_AnyCallbackSigT]
+        | tanjun.SlashCommand[_AnyCallbackSigT]
+    )
+    _AnyConverterSig: typing.TypeAlias = "ConverterSig[float] | ConverterSig[int] | ConverterSig[str]"
+    _CallbackishT: typing.TypeAlias = "_SlashCallbackSigT | _AnyCommandT[_SlashCallbackSigT]"
 
     _IntAutocompleteSigT = typing.TypeVar("_IntAutocompleteSigT", bound=tanjun.AutocompleteSig[int])
     _FloatAutocompleteSigT = typing.TypeVar("_FloatAutocompleteSigT", bound=tanjun.AutocompleteSig[float])
@@ -94,16 +95,15 @@ _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 _ConvertT = typing.TypeVar("_ConvertT", int, float, str)
 _P = typing_extensions.ParamSpec("_P")
-_ConverterSig = typing.Union[
+_ConverterSig = (
     collections.Callable[
         typing_extensions.Concatenate[_ConvertT, _P], collections.Coroutine[typing.Any, typing.Any, typing.Any]
-    ],
-    collections.Callable[typing_extensions.Concatenate[_ConvertT, _P], typing.Any],
-]
+    ]
+    | collections.Callable[typing_extensions.Concatenate[_ConvertT, _P], typing.Any]
+)
 
 ConverterSig = _ConverterSig[_ConvertT, ...]
 """Type hint of a slash command option converter."""
-_AnyConverterSig = typing.Union[ConverterSig[float], ConverterSig[int], ConverterSig[str]]
 
 
 _SCOMMAND_NAME_REG: typing.Final[str] = r"^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$"
@@ -421,9 +421,9 @@ def with_str_slash_option(
     description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
-    autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
+    autocomplete: tanjun.AutocompleteSig[str] | None = None,
     choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
-    converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
+    converters: collections.Sequence[ConverterSig[str]] | ConverterSig[str] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
     key: typing.Optional[str] = None,
     min_length: typing.Optional[int] = None,
@@ -469,9 +469,9 @@ def with_int_slash_option(
     description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
-    autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
+    autocomplete: tanjun.AutocompleteSig[int] | None = None,
     choices: typing.Optional[collections.Mapping[str, int]] = None,
-    converters: typing.Union[collections.Collection[ConverterSig[int]], ConverterSig[int]] = (),
+    converters: collections.Collection[ConverterSig[int]] | ConverterSig[int] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
     key: typing.Optional[str] = None,
     min_value: typing.Optional[int] = None,
@@ -518,9 +518,9 @@ def with_float_slash_option(
     /,
     *,
     always_float: bool = True,
-    autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
+    autocomplete: tanjun.AutocompleteSig[float] | None = None,
     choices: typing.Optional[collections.Mapping[str, float]] = None,
-    converters: typing.Union[collections.Collection[ConverterSig[float]], ConverterSig[float]] = (),
+    converters: collections.Collection[ConverterSig[float]] | ConverterSig[float] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
     key: typing.Optional[str] = None,
     min_value: typing.Optional[float] = None,
@@ -775,7 +775,7 @@ class _TrackedOption:
         name: str,
         option_type: typing.Union[hikari.OptionType, int],
         always_float: bool = False,
-        converters: typing.Optional[list[_AnyConverterSig]] = None,
+        converters: list[_AnyConverterSig] | None = None,
         only_member: bool = False,
         default: typing.Any = UNDEFINED_DEFAULT,
     ) -> None:
@@ -1632,7 +1632,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         choices: typing.Union[
             collections.Mapping[str, typing.Union[str, int, float]], collections.Sequence[typing.Any], None
         ] = None,
-        converters: typing.Union[collections.Iterable[_AnyConverterSig], _AnyConverterSig] = (),
+        converters: collections.Iterable[_AnyConverterSig] | _AnyConverterSig = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_length: typing.Optional[int] = None,
@@ -1798,9 +1798,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
-        autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
+        autocomplete: tanjun.AutocompleteSig[str] | None = None,
         choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
-        converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
+        converters: collections.Sequence[ConverterSig[str]] | ConverterSig[str] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_length: typing.Optional[int] = None,
@@ -1946,9 +1946,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
-        autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
+        autocomplete: tanjun.AutocompleteSig[int] | None = None,
         choices: typing.Optional[collections.Mapping[str, int]] = None,
-        converters: typing.Union[collections.Collection[ConverterSig[int]], ConverterSig[int]] = (),
+        converters: collections.Collection[ConverterSig[int]] | ConverterSig[int] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_value: typing.Optional[int] = None,
@@ -2057,9 +2057,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         /,
         *,
         always_float: bool = True,
-        autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
+        autocomplete: tanjun.AutocompleteSig[float] | None = None,
         choices: typing.Optional[collections.Mapping[str, float]] = None,
-        converters: typing.Union[collections.Collection[ConverterSig[float]], ConverterSig[float]] = (),
+        converters: collections.Collection[ConverterSig[float]] | ConverterSig[float] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_value: typing.Optional[float] = None,
@@ -2576,7 +2576,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             pass_as_kwarg=pass_as_kwarg,
         )
 
-    def set_float_autocomplete(self, name: str, callback: typing.Optional[tanjun.AutocompleteSig[float]], /) -> Self:
+    def set_float_autocomplete(self, name: str, callback: tanjun.AutocompleteSig[float] | None, /) -> Self:
         """Set the autocomplete callback for a float option.
 
         Parameters

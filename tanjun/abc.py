@@ -110,7 +110,7 @@ _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
 
-_MaybeAwaitable = typing.Union[collections.Callable[_P, _CoroT[_T]], collections.Callable[_P, _T]]
+_MaybeAwaitable = collections.Callable[_P, _CoroT[_T]] | collections.Callable[_P, _T]
 
 
 _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
@@ -188,7 +188,7 @@ This must be asynchronous and return [None][].
 """
 _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=SlashCallbackSig)
 
-_ErrorHookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, Exception, _P], typing.Optional[bool]]
+_ErrorHookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, Exception, _P], bool | None]
 
 ErrorHookSig = _ErrorHookSig[_ContextT_contra, ...]
 """Type hint of the callback used as a unexpected command error hook.

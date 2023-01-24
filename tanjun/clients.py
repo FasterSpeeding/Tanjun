@@ -76,9 +76,11 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
-    _AppCmdResponse = typing.Union[
-        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
-    ]
+    _AppCmdResponse = (
+        hikari.api.InteractionMessageBuilder
+        | hikari.api.InteractionDeferredBuilder
+        | hikari.api.InteractionModalBuilder
+    )
     _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig[typing.Any])
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun.MetaEventSig)
@@ -490,11 +492,11 @@ class _StartDeclarer:
 
 
 def _log_clients(
-    cache: typing.Optional[hikari.api.Cache],
-    events: typing.Optional[hikari.api.EventManager],
-    server: typing.Optional[hikari.api.InteractionServer],
+    cache: hikari.api.Cache | None,
+    events: hikari.api.EventManager | None,
+    server: hikari.api.InteractionServer | None,
     rest: hikari.api.RESTClient,
-    shards: typing.Optional[hikari.ShardAware],
+    shards: hikari.ShardAware | None,
     event_managed: bool,
     /,
 ) -> None:
