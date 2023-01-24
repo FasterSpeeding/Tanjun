@@ -55,6 +55,11 @@ if typing.TYPE_CHECKING:
     _MessageErrorHookSigT = typing.TypeVar("_MessageErrorHookSigT", bound=tanjun.ErrorHookSig[tanjun.MessageContext])
     _SlashErrorHookSigT = typing.TypeVar("_SlashErrorHookSigT", bound=tanjun.ErrorHookSig[tanjun.SlashContext])
 
+    _AnyParserHookSigT = typing.TypeVar("_AnyParserHookSigT", bound=tanjun.ParserHookSig[typing.Any])
+    _MenuParserHookSigT = typing.TypeVar("_MenuParserHookSigT", bound=tanjun.ParserHookSig[tanjun.MenuContext])
+    _MessageParserHookSigT = typing.TypeVar("_MessageParserHookSigT", bound=tanjun.ParserHookSig[tanjun.MessageContext])
+    _SlashParserHookSigT = typing.TypeVar("_SlashParserHookSigT", bound=tanjun.ParserHookSig[tanjun.SlashContext])
+
     _AnyHookSigT = typing.TypeVar("_AnyHookSigT", bound=tanjun.HookSig[typing.Any])
     _MenuHookSigT = typing.TypeVar("_MenuHookSigT", bound=tanjun.HookSig[tanjun.MenuContext])
     _MessageHookSigT = typing.TypeVar("_MessageHookSigT", bound=tanjun.HookSig[tanjun.MessageContext])
@@ -87,7 +92,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     def __init__(self) -> None:
         """Initialise a command hook object."""
         self._error_callbacks: list[tanjun.ErrorHookSig[_ContextT_contra]] = []
-        self._parser_error_callbacks: list[tanjun.HookSig[_ContextT_contra]] = []
+        self._parser_error_callbacks: list[tanjun.ParserHookSig[_ContextT_contra]] = []
         self._pre_execution_callbacks: list[tanjun.HookSig[_ContextT_contra]] = []
         self._post_execution_callbacks: list[tanjun.HookSig[_ContextT_contra]] = []
         self._success_callbacks: list[tanjun.HookSig[_ContextT_contra]] = []
@@ -179,6 +184,10 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         return self.add_on_error(callback) if callback else self
 
     @typing.overload
+    def with_on_error(self: AnyHooks, callback: _AnyErrorHookSigT, /) -> _AnyErrorHookSigT:
+        ...
+
+    @typing.overload
     def with_on_error(self: MenuHooks, callback: _MenuErrorHookSigT, /) -> _MenuErrorHookSigT:
         ...
 
@@ -195,12 +204,12 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self.add_on_error(callback)
         return callback
 
-    def add_on_parser_error(self, callback: tanjun.HookSig[_ContextT_contra], /) -> Self:
+    def add_on_parser_error(self, callback: tanjun.ParserHookSig[_ContextT_contra], /) -> Self:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         self._parser_error_callbacks.append(callback)
         return self
 
-    def set_on_parser_error(self, callback: tanjun.HookSig[_ContextT_contra] | None, /) -> Self:
+    def set_on_parser_error(self, callback: tanjun.ParserHookSig[_ContextT_contra] | None, /) -> Self:
         """Set the parser error callback for this hook object.
 
         Parameters
@@ -225,18 +234,22 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         return self.add_on_parser_error(callback) if callback else self
 
     @typing.overload
-    def with_on_parser_error(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
+    def with_on_parser_error(self: AnyHooks, callback: _AnyParserHookSigT, /) -> _AnyParserHookSigT:
         ...
 
     @typing.overload
-    def with_on_parser_error(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT:
+    def with_on_parser_error(self: MenuHooks, callback: _MenuParserHookSigT, /) -> _MenuParserHookSigT:
         ...
 
     @typing.overload
-    def with_on_parser_error(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
+    def with_on_parser_error(self: MessageHooks, callback: _MessageParserHookSigT, /) -> _MessageParserHookSigT:
         ...
 
-    def with_on_parser_error(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
+    @typing.overload
+    def with_on_parser_error(self: SlashHooks, callback: _SlashParserHookSigT, /) -> _SlashParserHookSigT:
+        ...
+
+    def with_on_parser_error(self, callback: _AnyParserHookSigT, /) -> _AnyParserHookSigT:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         self.add_on_parser_error(callback)
         return callback
@@ -266,6 +279,10 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         """
         self._post_execution_callbacks.clear()
         return self.add_post_execution(callback) if callback else self
+
+    @typing.overload
+    def with_post_execution(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT:
+        ...
 
     @typing.overload
     def with_post_execution(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
@@ -311,6 +328,10 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         return self.add_pre_execution(callback) if callback else self
 
     @typing.overload
+    def with_pre_execution(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT:
+        ...
+
+    @typing.overload
     def with_pre_execution(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
         ...
 
@@ -352,6 +373,10 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         """
         self._success_callbacks.clear()
         return self.add_on_success(callback) if callback else self
+
+    @typing.overload
+    def with_on_success(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT:
+        ...
 
     @typing.overload
     def with_on_success(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:

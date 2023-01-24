@@ -59,6 +59,7 @@ __all__: list[str] = [
     "MessageContext",
     "MessageHooks",
     "MetaEventSig",
+    "ParserHookSig",
     "SlashCommand",
     "SlashCommandGroup",
     "SlashContext",
@@ -82,12 +83,19 @@ if typing.TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from . import errors
+
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
 
     _AnyErrorHookSigT = typing.TypeVar("_AnyErrorHookSigT", bound="ErrorHookSig[typing.Any]")
     _MenuErrorHookSigT = typing.TypeVar("_MenuErrorHookSigT", bound="ErrorHookSig[MenuContext]")
     _MessageErrorHookSigT = typing.TypeVar("_MessageErrorHookSigT", bound="ErrorHookSig[MessageContext]")
     _SlashErrorHookSigT = typing.TypeVar("_SlashErrorHookSigT", bound="ErrorHookSig[SlashContext]")
+
+    _AnyParserHookSigT = typing.TypeVar("_AnyParserHookSigT", bound="ParserHookSig[typing.Any]")
+    _MenuParserHookSigT = typing.TypeVar("_MenuParserHookSigT", bound="ParserHookSig[MenuContext]")
+    _MessageParserHookSigT = typing.TypeVar("_MessageParserHookSigT", bound="ParserHookSig[MessageContext]")
+    _SlashParserHookSigT = typing.TypeVar("_SlashParserHookSigT", bound="ParserHookSig[SlashContext]")
 
     _AnyHookSigT = typing.TypeVar("_AnyHookSigT", bound="HookSig[typing.Any]")
     _MenuHookSigT = typing.TypeVar("_MenuHookSigT", bound="HookSig[MenuContext]")
@@ -127,7 +135,7 @@ autocomplete type), returns [None][] and may use dependency injection.
 """
 
 AutocompleteCallbackSig = AutocompleteSig
-"""Deprecated alias of [tanjun.abc.AutocompleteSig][]"""
+"""Deprecated alias of [tanjun.abc.AutocompleteSig][]."""
 
 _CheckSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], bool]
 CheckSig = _CheckSig[_ContextT_contra, ...]
@@ -193,7 +201,8 @@ ErrorHookSig = _ErrorHookSig[_ContextT_contra, ...]
 """Type hint of the callback used as a unexpected command error hook.
 
 This will be called whenever an unexpected [Exception][] is raised during the
-execution stage of a command (not including expected [tanjun.TanjunError][]).
+execution stage of a command (ignoring [tanjun.ParserError][] and expected
+[tanjun.TanjunError][] subclasses).
 
 This should take two positional arguments - of type [tanjun.abc.Context][] and
 [Exception][] - and may be either a synchronous or asynchronous callback which
@@ -201,6 +210,22 @@ returns [bool][] or [None][] and may take advantage of dependency injection.
 
 [True][] is returned to indicate that the exception should be suppressed and
 [False][] is returned to indicate that the exception should be re-raised.
+"""
+
+_ParserHookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, "errors.ParserError", _P], bool | None]
+
+ParserHookSig = _ParserHookSig[_ContextT_contra, ...]
+"""Type hint of the callback used as a command parser error hook.
+
+This will be called whenever an parser [ParserError][tanjun.errors.ParserError]
+is raised during the execution stage of a command.
+
+This should take two positional arguments - of type [tanjun.abc.Context][] and
+[ParserError][tanjun.errors.ParserError] - and may be either a synchronous or
+asynchronous callback which returns [None][] and may take advantage of
+dependency injection.
+
+Parser errors are always suppressed (unlike general errors).
 """
 
 _HookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], None]
@@ -2177,6 +2202,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
     @typing.overload
     @abc.abstractmethod
+    def with_on_error(self: AnyHooks, callback: _AnyErrorHookSigT, /) -> _AnyErrorHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
     def with_on_error(self: MenuHooks, callback: _MenuErrorHookSigT, /) -> _MenuErrorHookSigT:
         ...
 
@@ -2233,7 +2263,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         """
 
     @abc.abstractmethod
-    def add_on_parser_error(self, callback: HookSig[_ContextT_contra], /) -> Self:
+    def add_on_parser_error(self, callback: ParserHookSig[_ContextT_contra], /) -> Self:
         """Add a parser error callback to this hook object.
 
         Parameters
@@ -2256,21 +2286,26 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_parser_error(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
+    def with_on_parser_error(self: AnyHooks, callback: _AnyParserHookSigT, /) -> _AnyParserHookSigT:
         ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_parser_error(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT:
+    def with_on_parser_error(self: MenuHooks, callback: _MenuParserHookSigT, /) -> _MenuParserHookSigT:
         ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_parser_error(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
+    def with_on_parser_error(self: MessageHooks, callback: _MessageParserHookSigT, /) -> _MessageParserHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_on_parser_error(self: SlashHooks, callback: _SlashParserHookSigT, /) -> _SlashParserHookSigT:
         ...
 
     @abc.abstractmethod
-    def with_on_parser_error(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
+    def with_on_parser_error(self, callback: _AnyParserHookSigT, /) -> _AnyParserHookSigT:
         """Add a parser error callback to this hook object through a decorator call.
 
         Examples
@@ -2316,6 +2351,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         Self
             The hook object to enable method chaining.
         """
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_post_execution(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT:
+        ...
 
     @typing.overload
     @abc.abstractmethod
@@ -2382,6 +2422,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
     @typing.overload
     @abc.abstractmethod
+    def with_pre_execution(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT:
+        ...
+
+    @typing.overload
+    @abc.abstractmethod
     def with_pre_execution(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
         ...
 
@@ -2442,6 +2487,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         Self
             The hook object to enable method chaining.
         """
+
+    @typing.overload
+    @abc.abstractmethod
+    def with_on_success(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT:
+        ...
 
     @typing.overload
     @abc.abstractmethod
