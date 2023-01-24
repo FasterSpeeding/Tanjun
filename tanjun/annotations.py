@@ -94,16 +94,13 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _P = typing_extensions.ParamSpec("_P")
-    # TODO: test this
-    _ConverterValueT = typing.TypeVar("_ConverterValueT", bound=int | str | float)
     __ConverterSig = (
         collections.Callable[
-            typing_extensions.Concatenate[_ConverterValueT, _P],
-            collections.Coroutine[typing.Any, typing.Any, typing.Any],
+            typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, "_T"],
         ]
-        | collections.Callable[typing_extensions.Concatenate[_ConverterValueT, _P], typing.Any]
+        | collections.Callable[typing_extensions.Concatenate[str, _P], "_T"]
     )
-    _ConverterSig = __ConverterSig[_ConverterValueT, ...]
+    _ConverterSig = __ConverterSig[..., "_T"]
 
 _T = typing.TypeVar("_T")
 _ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
@@ -280,13 +277,11 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
 
 class _ConvertedMeta(abc.ABCMeta):
-    def __getitem__(
-        cls, converters: _ConverterSig[_ConverterValueT] | tuple[_ConverterSig[_ConverterValueT]], /
-    ) -> type[_ConverterValueT]:
+    def __getitem__(cls, converters: _ConverterSig[_T] | tuple[_ConverterSig[_T]], /) -> type[_T]:
         if not isinstance(converters, tuple):
             converters = (converters,)
 
-        return typing.cast("type[_ConverterValueT]", typing.Annotated[typing.Any, Converted(*converters)])
+        return typing.cast("type[_T]", typing.Annotated[typing.Any, Converted(*converters)])
 
 
 class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
@@ -1259,7 +1254,6 @@ class _ArgConfig:
             self.slash_name,
             d,
             choices=_ensure_values("choice", float, self.choices),  # TODO: can we pass ints here as well?
-            converters=self.converters or (),
             default=self._slash_default(),
             key=self.parameter.name,
             min_value=self.min_value,  # TODO: explicitly cast to float?
@@ -1269,7 +1263,6 @@ class _ArgConfig:
             self.slash_name,
             d,
             choices=_ensure_values("choice", int, self.choices),
-            converters=self.converters or (),
             default=self._slash_default(),
             key=self.parameter.name,
             min_value=_ensure_value("min", int, self.min_value),
