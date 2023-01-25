@@ -1257,14 +1257,15 @@ class _ArgConfig:
         return slash.UNDEFINED_DEFAULT if self.default is parsing.UNDEFINED else self.default
 
     def to_slash_option(self, command: slash.SlashCommand[typing.Any], /) -> None:
-        if self.str_converters and not self.option_type:
-            self.option_type = str
+        option_type = self.option_type
+        if not option_type and self.str_converters:
+            option_type = str
 
-        if self.option_type:
+        if option_type:
             if not self.description:
                 raise ValueError(f"Missing description for argument {self.parameter.name!r}")
 
-            self.SLASH_OPTION_ADDER[self.option_type](self, command, self.description)
+            self.SLASH_OPTION_ADDER[option_type](self, command, self.description)
 
     SLASH_OPTION_ADDER: dict[
         typing.Any, collections.Callable[[Self, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]]
