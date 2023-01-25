@@ -214,7 +214,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
 
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Coroutine[None]]
+        callback : tanjun.abc.MessageCallbackSig
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional
@@ -418,7 +418,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
 
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Coroutine[None]]
+        callback : tanjun.abc.MessageCallbackSig
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional

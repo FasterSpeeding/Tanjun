@@ -54,7 +54,7 @@ class TestClient:
         client = StubClient(mock.Mock())
 
         with pytest.raises(ValueError, match="Missing event argument annotation"):
-            client.with_listener()(callback)
+            client.with_listener()(callback)  # pyright: ignore[reportUnknownArgumentType]
 
         add_listener_.assert_not_called()
 

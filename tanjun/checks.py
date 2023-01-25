@@ -1076,9 +1076,51 @@ def all_checks(
     return _AllChecks[_ContextT]([check, *checks])
 
 
+@typing.overload
 def with_all_checks(
     check: tanjun.AnyCheckSig, /, *checks: tanjun.AnyCheckSig, follow_wrapped: bool = False
-) -> collections.Callable[[_CommandT], _CommandT]:  # TODO: specialise  with overloading
+) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_all_checks(
+    check: tanjun.CheckSig[tanjun.MenuContext],
+    /,
+    *checks: tanjun.CheckSig[tanjun.MenuContext],
+    follow_wrapped: bool = False,
+) -> collections.Callable[[_MenuCommandT], _MenuCommandT]:
+    ...
+
+
+@typing.overload
+def with_all_checks(
+    check: tanjun.CheckSig[tanjun.MessageContext],
+    /,
+    *checks: tanjun.CheckSig[tanjun.MessageContext],
+    follow_wrapped: bool = False,
+) -> collections.Callable[[_MessageCommandT], _MessageCommandT]:
+    ...
+
+
+@typing.overload
+def with_all_checks(
+    check: tanjun.CheckSig[tanjun.SlashContext],
+    /,
+    *checks: tanjun.CheckSig[tanjun.SlashContext],
+    follow_wrapped: bool = False,
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    ...
+
+
+def with_all_checks(
+    check: tanjun.CheckSig[typing.Any], /, *checks: tanjun.CheckSig[typing.Any], follow_wrapped: bool = False
+) -> (
+    collections.Callable[[_CommandT], _CommandT]
+    | collections.Callable[[_MenuCommandT], _MenuCommandT]
+    | collections.Callable[[_MessageCommandT], _MessageCommandT]
+    | collections.Callable[[_SlashCommandT], _SlashCommandT]
+):
     """Add a check which will pass if all the provided checks pass through a decorator call.
 
     This ensures that the callbacks are run in the order they were supplied in
@@ -1179,7 +1221,7 @@ def any_checks(
     return _AnyChecks[_ContextT]([check, *checks], error, error_message, halt_execution, suppress)
 
 
-# Specialising this would be too much boiler plate so for now this just isn't getting that feature.
+@typing.overload
 def with_any_checks(
     check: tanjun.AnyCheckSig,
     /,
@@ -1190,6 +1232,66 @@ def with_any_checks(
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
 ) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
+@typing.overload
+def with_any_checks(
+    check: tanjun.CheckSig[tanjun.MenuContext],
+    /,
+    *checks: tanjun.CheckSig[tanjun.MenuContext],
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None,
+    follow_wrapped: bool = False,
+    halt_execution: bool = False,
+    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
+) -> collections.Callable[[_MenuCommandT], _MenuCommandT]:
+    ...
+
+
+@typing.overload
+def with_any_checks(
+    check: tanjun.CheckSig[tanjun.MessageContext],
+    /,
+    *checks: tanjun.CheckSig[tanjun.MessageContext],
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None,
+    follow_wrapped: bool = False,
+    halt_execution: bool = False,
+    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
+) -> collections.Callable[[_MessageCommandT], _MessageCommandT]:
+    ...
+
+
+@typing.overload
+def with_any_checks(
+    check: tanjun.CheckSig[tanjun.SlashContext],
+    /,
+    *checks: tanjun.CheckSig[tanjun.SlashContext],
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None,
+    follow_wrapped: bool = False,
+    halt_execution: bool = False,
+    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
+    ...
+
+
+def with_any_checks(
+    check: tanjun.CheckSig[typing.Any],
+    /,
+    *checks: tanjun.CheckSig[typing.Any],
+    error: collections.Callable[[], Exception] | None = None,
+    error_message: str | collections.Mapping[str, str] | None,
+    follow_wrapped: bool = False,
+    halt_execution: bool = False,
+    suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
+) -> (
+    collections.Callable[[_CommandT], _CommandT]
+    | collections.Callable[[_MenuCommandT], _MenuCommandT]
+    | collections.Callable[[_MessageCommandT], _MessageCommandT]
+    | collections.Callable[[_SlashCommandT], _SlashCommandT]
+):
     """Add a check which'll pass if any of the provided checks pass through a decorator call.
 
     This ensures that the callbacks are run in the order they were supplied in

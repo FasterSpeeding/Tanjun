@@ -1107,6 +1107,7 @@ class Client(tanjun.Client):
     def listeners(
         self,
     ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig[typing.Any]]]:
+        # <<inherited docstring from tanjun.abc.Client>>.
         return _internal.CastedView(self._listeners, lambda x: [callback.callback for callback in x.values()])
 
     @property

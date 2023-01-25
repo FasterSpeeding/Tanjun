@@ -1201,7 +1201,7 @@ class TestComponent:
         )()
 
         with pytest.raises(ValueError, match="Missing event argument annotation"):
-            component.with_listener()(callback)
+            component.with_listener()(callback)  # pyright: ignore[reportUnknownArgumentType]
 
         add_listener.assert_not_called()
 

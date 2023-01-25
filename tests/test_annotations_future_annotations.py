@@ -663,7 +663,7 @@ def test_choices_and_mixed_values(
     with pytest.raises(
         TypeError, match=f"Choice of type {mismatched_type.__name__} is not valid for a {type_repr.__name__} argument"
     ):
-        annotations.with_annotated_args(callback)
+        annotations.with_annotated_args(callback)  # pyright: ignore[reportUnknownArgumentType]
 
 
 def test_with_generic_float_choices():
