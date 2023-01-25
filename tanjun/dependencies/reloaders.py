@@ -41,7 +41,6 @@ import itertools
 import logging
 import pathlib
 import typing
-from collections import abc as collections
 
 import alluka
 import hikari
@@ -51,6 +50,8 @@ from .. import abc as tanjun
 from .. import errors
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
     from typing_extensions import Self
 
     _BuilderDict = dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder]

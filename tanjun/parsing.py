@@ -80,6 +80,7 @@ if typing.TYPE_CHECKING:
             raise NotImplementedError
 
     _CmpProtoT = typing.TypeVar("_CmpProtoT", bound=_CmpProto[typing.Any])
+    _MaybeIterable: typing.TypeAlias = "collections.Iterable[_T] | _T"
     _SizedCmpProtoT = typing.TypeVar("_SizedCmpProtoT", bound=_SizedCmpProto[typing.Any])
 
 
@@ -95,8 +96,6 @@ ConverterSig = _ConverterSig[..., _T]
 This must be a callable or asynchronous callable which takes one position
 [str][], argument and returns the resultant value.
 """
-
-_MaybeIterable = typing.Union[collections.Iterable[_T], _T]
 
 
 class UndefinedT:

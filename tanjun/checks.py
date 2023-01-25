@@ -55,7 +55,6 @@ __all__: list[str] = [
 ]
 
 import typing
-from collections import abc as collections
 
 import alluka
 import hikari
@@ -69,6 +68,8 @@ from ._internal import cache
 from ._internal import localisation
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
     _ContextT_contra = typing.TypeVar("_ContextT_contra", bound=tanjun.Context, contravariant=True)
 
     class _AnyCallback(typing.Protocol[_ContextT_contra]):

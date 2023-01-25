@@ -90,24 +90,27 @@ from .commands import message
 from .commands import slash
 
 if typing.TYPE_CHECKING:
+    import enum
+
     import typing_extensions
     from typing_extensions import Self
 
+    _T = typing.TypeVar("_T")
     _P = typing_extensions.ParamSpec("_P")
     __ConverterSig = collections.Callable[
-        typing_extensions.Concatenate[str, _P], "collections.Coroutine[typing.Any, typing.Any, _T] | _T",
+        typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, _T] | _T,
     ]
-    _ConverterSig = __ConverterSig[..., "_T"]
+    _ConverterSig = __ConverterSig[..., _T]
+    _ChannelTypeIsh = type[hikari.PartialChannel] | int
+    _ChoiceUnion = int | float | str
+    _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
+    _CommandUnion = slash.SlashCommand[typing.Any] | message.MessageCommand[typing.Any]
+    _CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
+    _EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
+    _NumberT = typing.TypeVar("_NumberT", float, int)
 
-_T = typing.TypeVar("_T")
-_ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
-_ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
-_ChoiceUnion = typing.Union[int, float, str]
-_CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
-_CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
-_EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
-_MentionableUnion = typing.Union[hikari.User, hikari.Role]
-_NumberT = typing.TypeVar("_NumberT", float, int)
+
+_MentionableUnion = hikari.User | hikari.Role
 
 
 class _ConfigIdentifier(abc.ABC):
@@ -239,7 +242,7 @@ class _ChoicesMeta(abc.ABCMeta):
 
         # TODO: do we want to wrap the convert callback to give better failed parse messages?
         return typing.cast(
-            type[_EnumT], typing.Annotated[enum_, choices, converter, Converted(enum_), _TypeOverride(type_)]
+            "type[_EnumT]", typing.Annotated[enum_, choices, converter, Converted(enum_), _TypeOverride(type_)]
         )
 
 
@@ -376,10 +379,10 @@ class _DefaultMeta(abc.ABCMeta):
     def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], _T]], /) -> type[_T]:
         if isinstance(value, tuple):
             type_ = value[0]
-            return typing.cast(type[_T], typing.Annotated[type_, Default(value[1])])
+            return typing.cast("type[_T]", typing.Annotated[type_, Default(value[1])])
 
-        type_ = typing.cast(type[_T], value)
-        return typing.cast(type[_T], typing.Annotated[type_, Default()])
+        type_ = typing.cast("type[_T]", value)
+        return typing.cast("type[_T]", typing.Annotated[type_, Default()])
 
 
 class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
@@ -532,7 +535,7 @@ class Flag(_ConfigIdentifier):
 
 class _PositionalMeta(abc.ABCMeta):
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        return typing.cast(type[_T], typing.Annotated[type_, Positional()])
+        return typing.cast("type[_T]", typing.Annotated[type_, Positional()])
 
 
 class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
@@ -565,7 +568,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
 
 class _GreedyMeta(abc.ABCMeta):
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        return typing.cast(type[_T], typing.Annotated[type_, Greedy()])
+        return typing.cast("type[_T]", typing.Annotated[type_, Greedy()])
 
 
 class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
@@ -603,7 +606,7 @@ class _LengthMeta(abc.ABCMeta):
         else:
             obj = Length(*value)
 
-        return typing.cast(type[str], typing.Annotated[Str, obj])
+        return typing.cast("type[str]", typing.Annotated[Str, obj])
 
 
 class Length(_ConfigIdentifier, metaclass=_LengthMeta):
@@ -697,9 +700,9 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
 class _MaxMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
-            return typing.cast(type[_NumberT], typing.Annotated[Int, Max(value)])
+            return typing.cast("type[_NumberT]", typing.Annotated[Int, Max(value)])
 
-        return typing.cast(type[_NumberT], typing.Annotated[Float, Max(value)])
+        return typing.cast("type[_NumberT]", typing.Annotated[Float, Max(value)])
 
 
 class Max(_ConfigIdentifier, metaclass=_MaxMeta):
@@ -746,9 +749,9 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
 class _MinMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
-            return typing.cast(type[_NumberT], typing.Annotated[Int, Min(value)])
+            return typing.cast("type[_NumberT]", typing.Annotated[Int, Min(value)])
 
-        return typing.cast(type[_NumberT], typing.Annotated[Float, Min(value)])
+        return typing.cast("type[_NumberT]", typing.Annotated[Float, Min(value)])
 
 
 class Min(_ConfigIdentifier, metaclass=_MinMeta):
@@ -866,9 +869,9 @@ class _RangedMeta(abc.ABCMeta):
         # This better matches how type checking (well pyright at least) will
         # prefer to go to float if either value is float.
         if isinstance(range_[0], float) or isinstance(range_[1], float):
-            return typing.cast(type[_NumberT], typing.Annotated[Float, Ranged(range_[0], range_[1])])
+            return typing.cast("type[_NumberT]", typing.Annotated[Float, Ranged(range_[0], range_[1])])
 
-        return typing.cast(type[_NumberT], typing.Annotated[Int, Ranged(range_[0], range_[1])])
+        return typing.cast("type[_NumberT]", typing.Annotated[Int, Ranged(range_[0], range_[1])])
 
 
 class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
@@ -1045,7 +1048,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
         if not isinstance(value, collections.Collection):
             value = (value,)
 
-        return typing.cast(type[hikari.PartialChannel], typing.Annotated[Channel, TheseChannels(*value)])
+        return typing.cast("type[hikari.PartialChannel]", typing.Annotated[Channel, TheseChannels(*value)])
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
@@ -1095,7 +1098,7 @@ def _ensure_values(
                 f"{name.capitalize()} of type {type(value).__name__} is not valid for a {type_.__name__} argument"
             )
 
-    return typing.cast(collections.Mapping[str, _T], mapping)
+    return typing.cast("collections.Mapping[str, _T]", mapping)
 
 
 _OPTION_TYPE_TO_CONVERTERS: dict[typing.Any, tuple[collections.Callable[..., typing.Any], ...]] = {

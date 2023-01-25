@@ -80,7 +80,10 @@ import hikari
 
 from .. import errors
 
-_DefaultT = typing.TypeVar("_DefaultT")
+if typing.TYPE_CHECKING:
+    _DefaultT = typing.TypeVar("_DefaultT")
+
+
 _KeyT = typing.TypeVar("_KeyT")
 _ValueT = typing.TypeVar("_ValueT")
 

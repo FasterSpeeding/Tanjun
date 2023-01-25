@@ -36,12 +36,13 @@ __all__: list[str] = ["AnyHooks", "Hooks", "MenuHooks", "MessageHooks", "SlashHo
 import asyncio
 import copy
 import typing
-from collections import abc as collections
 
 from . import abc as tanjun
 from . import errors
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
     from typing_extensions import Self
 
     _AnyCommandT = typing.TypeVar("_AnyCommandT", bound=tanjun.ExecutableCommand[typing.Any])

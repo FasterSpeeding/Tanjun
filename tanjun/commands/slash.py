@@ -90,9 +90,6 @@ if typing.TYPE_CHECKING:
 
 
 _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=tanjun.SlashCallbackSig)
-_EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
-_EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
-
 _ConvertT = typing.TypeVar("_ConvertT", int, float, str)
 _P = typing_extensions.ParamSpec("_P")
 
@@ -102,6 +99,8 @@ _ConverterSig = collections.Callable[
 ConverterSig = _ConverterSig[_ConvertT, ...]
 """Type hint of a slash command option converter."""
 
+_EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
+_EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 _SCOMMAND_NAME_REG: typing.Final[str] = r"^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$"
 _VALID_NAME_UNICODE_CATEGORIES = frozenset(
