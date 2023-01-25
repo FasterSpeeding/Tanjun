@@ -1257,15 +1257,11 @@ class _ArgConfig:
         return slash.UNDEFINED_DEFAULT if self.default is parsing.UNDEFINED else self.default
 
     def to_slash_option(self, command: slash.SlashCommand[typing.Any], /) -> None:
-        option_type = self.option_type
-        if not option_type and self.str_converters:
-            option_type = str
-
-        if option_type:
+        if self.option_type:
             if not self.description:
                 raise ValueError(f"Missing description for argument {self.parameter.name!r}")
 
-            self.SLASH_OPTION_ADDER[option_type](self, command, self.description)
+            self.SLASH_OPTION_ADDER[self.option_type](self, command, self.description)
 
     SLASH_OPTION_ADDER: dict[
         typing.Any, collections.Callable[[Self, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]]
@@ -1403,7 +1399,7 @@ def parse_annotated_args(
                 arg_config.range_or_slice = arg
 
         arg_config.finalise_slice()
-        if arg_config.option_type or arg_config.str_converters:
+        if arg_config.option_type:
             for slash_command in slash_commands:
                 arg_config.to_slash_option(slash_command)
 
