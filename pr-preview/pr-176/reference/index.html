@@ -17493,7 +17493,7 @@ If no converters are provided then the raw value will be passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.10/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Collection" href="https://docs.python.org/3.10/library/collections.abc.html#collections.abc.Collection">Collection</a>[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.ConverterSig" href="commands/#tanjun.commands.slash.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/functions.html#float">float</a>]] | <a class="autorefs autorefs-internal" title="tanjun.commands.slash.ConverterSig" href="commands/#tanjun.commands.slash.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/functions.html#float">float</a>]</code>
+                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.10/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.10/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.ConverterSig" href="commands/#tanjun.commands.slash.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/functions.html#float">float</a>]] | <a class="autorefs autorefs-internal" title="tanjun.commands.slash.ConverterSig" href="commands/#tanjun.commands.slash.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/functions.html#float">float</a>]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -17747,7 +17747,7 @@ If no converters are provided then the raw value will be passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.10/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Collection" href="https://docs.python.org/3.10/library/collections.abc.html#collections.abc.Collection">Collection</a>[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.ConverterSig" href="commands/#tanjun.commands.slash.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/functions.html#int">int</a>]] | <a class="autorefs autorefs-internal" title="tanjun.commands.slash.ConverterSig" href="commands/#tanjun.commands.slash.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/functions.html#int">int</a>]</code>
+                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.10/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.10/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.ConverterSig" href="commands/#tanjun.commands.slash.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/functions.html#int">int</a>]] | <a class="autorefs autorefs-internal" title="tanjun.commands.slash.ConverterSig" href="commands/#tanjun.commands.slash.ConverterSig">ConverterSig</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/functions.html#int">int</a>]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -21992,7 +21992,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -23363,7 +23363,7 @@ command wraps in a decorator call chain.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 
