@@ -186,8 +186,4 @@ required_plugins = ["pytest-asyncio", "pytest-timeout"]
 strict-imports = true
 require-superclass = true
 require-subclass = true
-exclude-classes = """
-tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)
-| tanjun.dependencies.reloaders:(_PathLoader|_ScanResult)
-| .*Proto
-"""
+exclude-classes = "tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)|.*Proto"
