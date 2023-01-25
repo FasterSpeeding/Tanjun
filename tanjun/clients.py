@@ -3028,18 +3028,16 @@ def _try_unsubscribe(
         pass
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class _LoadModule:
-    __slots__ = ("path",)
     path: str | pathlib.Path
 
     def __call__(self) -> types.ModuleType:
         return importlib.import_module(self.path) if isinstance(self.path, str) else _get_path_module(self.path)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(slots=True)
 class _ReloadModule:
-    __slots__ = ("path",)
     path: types.ModuleType | pathlib.Path
 
     def __call__(self) -> types.ModuleType:
