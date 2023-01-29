@@ -35,6 +35,7 @@
 import asyncio
 import datetime
 import time
+import typing
 from unittest import mock
 
 import alluka
@@ -46,7 +47,7 @@ import tanjun
 
 class TestOwners:
     @pytest.mark.parametrize("value", [0, -1.0, datetime.timedelta(seconds=-2)])
-    def test_init_with_invalid_expire_after(self, value: int | float | datetime.timedelta):
+    def test_init_with_invalid_expire_after(self, value: typing.Union[int, float, datetime.timedelta]):
         with pytest.raises(ValueError, match="Expire after must be greater than 0 seconds"):
             tanjun.dependencies.Owners(expire_after=-1)
 
@@ -276,7 +277,9 @@ class TestOwners:
 
     @pytest.mark.parametrize("expire_after", [datetime.timedelta(seconds=60), 60, 60.0])
     @pytest.mark.asyncio()
-    async def test_check_ownership_application_expires_cache(self, expire_after: float | int | datetime.timedelta):
+    async def test_check_ownership_application_expires_cache(
+        self, expire_after: typing.Union[float, int, datetime.timedelta]
+    ):
         check = tanjun.dependencies.Owners(expire_after=expire_after)
         mock_client = mock.Mock(tanjun.Client)
         mock_client.get_type_dependency.return_value = alluka.abc.UNDEFINED

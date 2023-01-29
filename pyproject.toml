@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 name = "hikari-tanjun"
 version = "2.11.2"
 readme = "README.md"
-requires-python = ">=3.10.0,<3.12"
+requires-python = ">=3.9.0,<3.12"
 license = {file = "LICENSE"}
 authors = [ {name = "Faster Speeding", email="lucina@lmbyrne.dev"} ]
 keywords = ["hikari"]
@@ -16,6 +16,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
@@ -38,10 +39,11 @@ Changelog = "https://github.com/FasterSpeeding/tanjun/blob/master/CHANGELOG.md"
 name = "tanjun"
 
 [tool.black]
+extend-exclude = "^\\/tanjun\\/_internal\\/vendor\\/.*$"
 include = ".*pyi?$"
 line-length = 120
 skip-magic-trailing-comma = true
-target-version = ["py310"]
+target-version = ["py39"]
 
 [tool.coverage.run]
 concurrency = ["multiprocessing"]
@@ -59,12 +61,14 @@ exclude_lines = [
     "^\\s*@abc.abstractmethod$",
     "^if typing.TYPE_CHECKING:$"
 ]
+omit = ["tanjun/_internal/vendor/*"]
 
 [tool.flake8]
 accept-encodings = "utf-8"
 count = true
 docstring-convention = "numpy"
 eradicate-aggressive = true
+exclude = ["tanjun/_internal/vendor/**"]
 # extend-select = ["TC100", "TC101"]
 force-future-annotations = true
 ignore-decorators = "overload"
@@ -72,7 +76,7 @@ max-complexity = 20
 max-function-length = 100
 # Technically this is 120, but black has a policy of "1 or 2 over is fine if it is tidier", so we have to raise this.
 max-line-length = 130
-min_python_version = "3.10"
+min_python_version = "3.9"
 pep585-activation = "always"
 show_source = false
 statistics = false
@@ -107,10 +111,11 @@ per-file-ignores = [
 [tool.isort]
 profile = "black"
 force_single_line = true
+skip = ["tanjun/_internal/vendor"]
 
 [tool.mypy]
 # some good strict settings
-python_version = "3.10"
+python_version = 3.9
 strict = true
 warn_unreachable = true
 
@@ -125,6 +130,9 @@ warn_redundant_casts = false
 allow_redefinition = true
 disable_error_code = ["type-abstract"]
 
+# Ignore vendored modules
+exclude = ["tanjun/_internal/vendor/"]
+
 [tool.piped]
 codespell_ignore = "TimeSchedule|Nd"
 default_sessions = [
@@ -138,11 +146,9 @@ default_sessions = [
     "verify-types",
 ]
 extra_test_installs = ["."]
+path_ignore = "tanjun\\/_internal\\/vendor\\/"
 project_name = "tanjun"
 top_level_targets = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
-
-[tool.piped.github_actions."*"]
-default_py_ver = "3.10"
 
 [tool.piped.github_actions.freeze_for_pr]
 [tool.piped.github_actions.lint]
@@ -150,7 +156,7 @@ default_py_ver = "3.10"
 [tool.piped.github_actions.publish]
 [tool.piped.github_actions.py_test]
 codeclimate_token = "117363998d7c6b4bab4ac57348026e1089767e142ccca3eb8cc37da6cf4cc8b9"
-python_versions = ["3.10", "3.11"]
+python_versions = ["3.9", "3.10", "3.11"]
 
 [tool.piped.github_actions.reformat]
 [tool.piped.github_actions.release_docs]
@@ -162,9 +168,10 @@ python_versions = ["3.10", "3.11"]
 [tool.piped.github_actions.verify_types]
 
 [tool.pyright]
+exclude = ["tanjun/_internal/vendor"]
 include = ["examples", "tanjun", "noxfile.py", "tests"]
 
-pythonVersion = "3.10"
+pythonVersion = "3.9"
 typeCheckingMode = "strict"
 reportMissingModuleSource = "error"
 reportMissingTypeStubs = "error"
@@ -186,4 +193,9 @@ required_plugins = ["pytest-asyncio", "pytest-timeout"]
 strict-imports = true
 require-superclass = true
 require-subclass = true
-exclude-classes = "tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)|.*Proto"
+exclude-classes = """
+tanjun.clients:(_LoaderDescriptor|_LoadModule|_ReloadModule|_UnloaderDescriptor)
+| tanjun.dependencies.reloaders:(_PathLoader|_PathScanner|_ScanResult)
+| .*Proto
+"""
+exclude-modules = "tanjun._internal.vendor"

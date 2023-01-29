@@ -84,7 +84,7 @@ class CommandError(TanjunError):
     content: hikari.UndefinedOr[str]
     """The response error message's content."""
 
-    delete_after: datetime.timedelta | float | int | None
+    delete_after: typing.Union[datetime.timedelta, float, int, None]
     """The seconds after which the response message should be deleted, if set."""
 
     attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]]
@@ -99,7 +99,7 @@ class CommandError(TanjunError):
     mentions_everyone: hikari.UndefinedOr[bool]
     """Whether or not the response should be allowed to mention `@everyone`/`@here`."""
 
-    user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType
+    user_mentions: typing.Union[hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType]
     """Configuration for the response's allowed user mentions.
 
     If this is a sequence then the response will only be allowed to mention
@@ -109,7 +109,7 @@ class CommandError(TanjunError):
     if the value is `True`.
     """
 
-    role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType
+    role_mentions: typing.Union[hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType]
     """Configuration for the response's allowed role mentions.
 
     If this is a sequence then the response will only be allowed to mention
@@ -123,7 +123,7 @@ class CommandError(TanjunError):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: datetime.timedelta | float | int | None = None,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -131,8 +131,12 @@ class CommandError(TanjunError):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
     ) -> None:
         """Initialise a command error.
 
@@ -223,10 +227,10 @@ class CommandError(TanjunError):
         ...
 
     @typing.overload
-    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> hikari.Message | None:
+    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> typing.Optional[hikari.Message]:
         ...
 
-    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> hikari.Message | None:
+    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> typing.Optional[hikari.Message]:
         """Send this error as a command response.
 
         Parameters
@@ -310,7 +314,7 @@ class ParserError(TanjunError, ValueError):
         This may be used as a command response message.
     """
 
-    parameter: str | None
+    parameter: typing.Optional[str]
     """Name of the this was raised for.
 
     !!! note
@@ -318,7 +322,7 @@ class ParserError(TanjunError, ValueError):
         provided message content.
     """
 
-    def __init__(self, message: str, parameter: str | None, /) -> None:
+    def __init__(self, message: str, parameter: typing.Optional[str], /) -> None:
         """Initialise a parser error.
 
         Parameters
@@ -400,7 +404,7 @@ class TooManyArgumentsError(ParserError):
 class ModuleMissingLoaders(RuntimeError, TanjunError):
     """Error raised when a module is missing loaders."""
 
-    def __init__(self, message: str, path: str | pathlib.Path, /) -> None:
+    def __init__(self, message: str, path: typing.Union[str, pathlib.Path], /) -> None:
         self._message = message
         self._path = path
 
@@ -410,7 +414,7 @@ class ModuleMissingLoaders(RuntimeError, TanjunError):
         return self._message
 
     @property
-    def path(self) -> str | pathlib.Path:
+    def path(self) -> typing.Union[str, pathlib.Path]:
         """The path of the module which is missing loaders."""
         return self._path
 
@@ -418,7 +422,7 @@ class ModuleMissingLoaders(RuntimeError, TanjunError):
 class ModuleMissingUnloaders(RuntimeError, TanjunError):
     """Error raised when a module is missing unloaders."""
 
-    def __init__(self, message: str, path: str | pathlib.Path, /) -> None:
+    def __init__(self, message: str, path: typing.Union[str, pathlib.Path], /) -> None:
         self._message = message
         self._path = path
 
@@ -428,7 +432,7 @@ class ModuleMissingUnloaders(RuntimeError, TanjunError):
         return self._message
 
     @property
-    def path(self) -> str | pathlib.Path:
+    def path(self) -> typing.Union[str, pathlib.Path]:
         """The path of the module which is missing unloaders."""
         return self._path
 
@@ -436,7 +440,7 @@ class ModuleMissingUnloaders(RuntimeError, TanjunError):
 class ModuleStateConflict(ValueError, TanjunError):
     """Error raised when a module cannot be (un)loaded due to a state conflict."""
 
-    def __init__(self, message: str, path: str | pathlib.Path, /) -> None:
+    def __init__(self, message: str, path: typing.Union[str, pathlib.Path], /) -> None:
         self._message = message
         self._path = path
 
@@ -446,7 +450,7 @@ class ModuleStateConflict(ValueError, TanjunError):
         return self._message
 
     @property
-    def path(self) -> str | pathlib.Path:
+    def path(self) -> typing.Union[str, pathlib.Path]:
         """The path of the module which caused the error."""
         return self._path
 
@@ -464,11 +468,11 @@ class FailedModuleLoad(TanjunError):
     __cause__: Exception
     """The root error."""
 
-    def __init__(self, path: str | pathlib.Path, /) -> None:
+    def __init__(self, path: typing.Union[str, pathlib.Path], /) -> None:
         self._path = path
 
     @property
-    def path(self) -> str | pathlib.Path:
+    def path(self) -> typing.Union[str, pathlib.Path]:
         """The path of the module which caused the error."""
         return self._path
 
@@ -493,10 +497,10 @@ class FailedModuleUnload(TanjunError):
     __cause__: Exception
     """The root error."""
 
-    def __init__(self, path: str | pathlib.Path, /) -> None:
+    def __init__(self, path: typing.Union[str, pathlib.Path], /) -> None:
         self._path = path
 
     @property
-    def path(self) -> str | pathlib.Path:
+    def path(self) -> typing.Union[str, pathlib.Path]:
         """The path of the module which caused the error."""
         return self._path

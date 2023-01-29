@@ -50,11 +50,9 @@ if typing.TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    _ResponseTypeT = (
-        hikari.api.InteractionMessageBuilder
-        | hikari.api.InteractionDeferredBuilder
-        | hikari.api.InteractionModalBuilder
-    )
+    _ResponseTypeT = typing.Union[
+        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
+    ]
     _T = typing.TypeVar("_T")
 
 
@@ -62,7 +60,7 @@ _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(min
 _LOGGER = logging.getLogger("hikari.tanjun.context")
 
 
-def _delete_after_to_float(delete_after: datetime.timedelta | float | int, /) -> float:
+def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float, int], /) -> float:
     return delete_after.total_seconds() if isinstance(delete_after, datetime.timedelta) else float(delete_after)
 
 
@@ -82,7 +80,9 @@ class SlashOption(tanjun.SlashOption):
 
     __slots__ = ("_option", "_resolved")
 
-    def __init__(self, resolved: hikari.ResolvedOptionData | None, option: hikari.CommandInteractionOption, /):
+    def __init__(
+        self, resolved: typing.Optional[hikari.ResolvedOptionData], option: hikari.CommandInteractionOption, /
+    ):
         """Initialise a slash option.
 
         Parameters
@@ -104,12 +104,12 @@ class SlashOption(tanjun.SlashOption):
         return self._option.name
 
     @property
-    def type(self) -> hikari.OptionType | int:
+    def type(self) -> typing.Union[hikari.OptionType, int]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         return self._option.type
 
     @property
-    def value(self) -> str | int | hikari.Snowflake | bool | float:
+    def value(self) -> typing.Union[str, int, hikari.Snowflake, bool, float]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # This is asserted in __init__
         assert self._option.value is not None
@@ -158,7 +158,7 @@ class SlashOption(tanjun.SlashOption):
 
     def resolve_value(
         self,
-    ) -> hikari.Attachment | hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User:
+    ) -> typing.Union[hikari.Attachment, hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self._option.type is hikari.OptionType.CHANNEL:
             return self.resolve_to_channel()
@@ -201,12 +201,12 @@ class SlashOption(tanjun.SlashOption):
         ...
 
     @typing.overload
-    def resolve_to_member(self, *, default: _T) -> hikari.InteractionMember | _T:
+    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
         ...
 
     def resolve_to_member(
-        self, *, default: _T | _internal.NoDefault = _internal.NO_DEFAULT
-    ) -> hikari.InteractionMember | _T:
+        self, *, default: typing.Union[_T, _internal.NoDefault] = _internal.NO_DEFAULT
+    ) -> typing.Union[hikari.InteractionMember, _T]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
         if self._option.type is hikari.OptionType.USER:
@@ -235,7 +235,7 @@ class SlashOption(tanjun.SlashOption):
 
         raise TypeError(f"Cannot resolve non-user option type {self._option.type} to a member")
 
-    def resolve_to_mentionable(self) -> hikari.Role | hikari.User | hikari.Member:
+    def resolve_to_mentionable(self) -> typing.Union[hikari.Role, hikari.User, hikari.Member]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self._option.type is hikari.OptionType.MENTIONABLE:
             assert self._option.value is not None
@@ -268,7 +268,7 @@ class SlashOption(tanjun.SlashOption):
 
         raise TypeError(f"Cannot resolve non-role option type {self._option.type} to a role")
 
-    def resolve_to_user(self) -> hikari.User | hikari.Member:
+    def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self._option.type is hikari.OptionType.USER:
             assert self._option.value is not None
@@ -307,15 +307,15 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
         *,
         default_to_ephemeral: bool = False,
-        future: asyncio.Future[_ResponseTypeT] | None = None,
+        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
     ) -> None:
         super().__init__(client)
         self._defaults_to_ephemeral = default_to_ephemeral
-        self._defer_task: asyncio.Task[None] | None = None
+        self._defer_task: typing.Optional[asyncio.Task[None]] = None
         self._has_been_deferred = False
         self._has_responded = False
         self._interaction = interaction
-        self._last_response_id: hikari.Snowflake | None = None
+        self._last_response_id: typing.Optional[hikari.Snowflake] = None
         self._register_task = register_task
         self._response_future = future
         self._response_lock = asyncio.Lock()
@@ -352,7 +352,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         return self.created_at + _INTERACTION_LIFETIME
 
     @property
-    def guild_id(self) -> hikari.Snowflake | None:
+    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._interaction.guild_id
 
@@ -372,7 +372,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         return True
 
     @property
-    def member(self) -> hikari.InteractionMember | None:
+    def member(self) -> typing.Optional[hikari.InteractionMember]:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._interaction.member
 
@@ -381,7 +381,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         return self._interaction
 
-    async def _auto_defer(self, countdown: int | float, /) -> None:
+    async def _auto_defer(self, countdown: typing.Union[int, float], /) -> None:
         await asyncio.sleep(countdown)
         await self.defer()
 
@@ -391,14 +391,14 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             self._defer_task.cancel()
 
     def _get_flags(
-        self, flags: hikari.UndefinedType | int | hikari.MessageFlag = hikari.UNDEFINED, /
-    ) -> int | hikari.MessageFlag:
+        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED, /
+    ) -> typing.Union[int, hikari.MessageFlag]:
         if flags is hikari.UNDEFINED:
             return hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
 
         return flags or hikari.MessageFlag.NONE
 
-    def start_defer_timer(self, count_down: int | float, /) -> Self:
+    def start_defer_timer(self, count_down: typing.Union[int, float], /) -> Self:
         """Start the auto-deferral timer.
 
         Parameters
@@ -426,7 +426,10 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         return self
 
     async def defer(
-        self, *, flags: hikari.UndefinedType | int | hikari.MessageFlag = hikari.UNDEFINED, ephemeral: bool = False
+        self,
+        *,
+        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
+        ephemeral: bool = False,
     ) -> None:
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         if ephemeral:
@@ -455,7 +458,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                     hikari.ResponseType.DEFERRED_MESSAGE_CREATE, flags=flags
                 )
 
-    def _validate_delete_after(self, delete_after: float | int | datetime.timedelta, /) -> float:
+    def _validate_delete_after(self, delete_after: typing.Union[float, int, datetime.timedelta], /) -> float:
         delete_after = _delete_after_to_float(delete_after)
         time_left = (
             _INTERACTION_LIFETIME - (datetime.datetime.now(tz=datetime.timezone.utc) - self.created_at)
@@ -476,7 +479,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: datetime.timedelta | float | int | None = None,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -484,10 +487,14 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        flags: hikari.UndefinedType | int | hikari.MessageFlag = hikari.UNDEFINED,
+        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
         delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
         message = await self._interaction.execute(
@@ -520,7 +527,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: datetime.timedelta | float | int | None = None,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         ephemeral: bool = False,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
@@ -529,10 +536,14 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        flags: hikari.UndefinedType | int | hikari.MessageFlag = hikari.UNDEFINED,
+        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         if ephemeral:
@@ -566,7 +577,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: datetime.timedelta | float | int | None = None,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -574,9 +585,13 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        flags: int | hikari.MessageFlag | hikari.UndefinedType = hikari.UNDEFINED,
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
         flags = self._get_flags(flags)
@@ -638,7 +653,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: datetime.timedelta | float | int | None = None,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         ephemeral: bool = False,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
@@ -647,9 +662,13 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        flags: int | hikari.MessageFlag | hikari.UndefinedType = hikari.UNDEFINED,
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Context>>.
@@ -698,7 +717,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: datetime.timedelta | float | int | None = None,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedNoneOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedNoneOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -706,8 +725,12 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
@@ -735,7 +758,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: datetime.timedelta | float | int | None = None,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedNoneOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedNoneOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -743,8 +766,12 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
         if self._last_response_id:
@@ -831,7 +858,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
-        delete_after: datetime.timedelta | float | int | None = None,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -839,8 +866,12 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
     ) -> hikari.Message:
         ...
 
@@ -850,7 +881,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        delete_after: datetime.timedelta | float | int | None = None,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -858,9 +889,13 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-    ) -> hikari.Message | None:
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+    ) -> typing.Optional[hikari.Message]:
         ...
 
     async def respond(
@@ -868,7 +903,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        delete_after: datetime.timedelta | float | int | None = None,
+        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -876,9 +911,13 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
-    ) -> hikari.Message | None:
+        user_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+        role_mentions: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
+        ] = hikari.UNDEFINED,
+    ) -> typing.Optional[hikari.Message]:
         # <<inherited docstring from tanjun.abc.Context>>.
         async with self._response_lock:
             if self._has_responded:
@@ -938,7 +977,7 @@ def _to_list(
     singular: hikari.UndefinedOr[_T],
     plural: hikari.UndefinedOr[collections.Sequence[_T]],
     other: typing.Any,
-    type_: type[typing.Any] | tuple[type[typing.Any], ...],
+    type_: typing.Union[type[typing.Any], tuple[type[typing.Any], ...]],
     name: str,
     /,
 ) -> list[_T]:
@@ -969,8 +1008,8 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
         *,
         default_to_ephemeral: bool = False,
-        future: asyncio.Future[_ResponseTypeT] | None = None,
-        on_not_found: collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]] | None = None,
+        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
+        on_not_found: typing.Optional[collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]] = None,
     ) -> None:
         """Initialise a slash command context.
 
@@ -994,14 +1033,14 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         self._marked_not_found = False
         self._on_not_found = on_not_found
 
-        self._command: tanjun.BaseSlashCommand | None = None
+        self._command: typing.Optional[tanjun.BaseSlashCommand] = None
         command_name, options = _internal.flatten_options(interaction.command_name, interaction.options)
         self._command_name = command_name
         self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
         (self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(SlashContext, self))
 
     @property
-    def command(self) -> tanjun.BaseSlashCommand | None:
+    def command(self) -> typing.Optional[tanjun.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         return self._command
 
@@ -1027,7 +1066,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
             self._marked_not_found = True
             await self._on_not_found(self)
 
-    def set_command(self, command: tanjun.BaseSlashCommand | None, /) -> Self:
+    def set_command(self, command: typing.Optional[tanjun.BaseSlashCommand], /) -> Self:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         self._assert_not_final()
         if command:

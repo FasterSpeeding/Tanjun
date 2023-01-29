@@ -25,6 +25,7 @@
 # `tanjun.abc.SlashContext` to allow state to still be tracked and ensure
 # better compatibility.
 import asyncio
+import typing
 
 import hikari
 
@@ -58,7 +59,7 @@ nested_group = top_group.with_command(tanjun.slash_command_group("interaction", 
 # to the "name" argument as type str if it was provided else None.
 @tanjun.with_str_slash_option("name", "Option description", default=None)
 @tanjun.as_slash_command("hi", "command description")
-async def hi_command(ctx: tanjun.abc.Context, name: str | None, member: hikari.Member) -> None:
+async def hi_command(ctx: tanjun.abc.Context, name: typing.Optional[str], member: hikari.Member) -> None:
     if name:
         await ctx.respond(f"Hi, {name} and {member.username}")
 

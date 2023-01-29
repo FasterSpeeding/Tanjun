@@ -82,7 +82,7 @@ class AbstractCooldownManager(abc.ABC):
     @abc.abstractmethod
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
-    ) -> datetime.datetime | None:
+    ) -> typing.Optional[datetime.datetime]:
         """Check if a bucket is on cooldown for the provided context.
 
         Parameters
@@ -183,7 +183,9 @@ class BucketResource(int, enum.Enum):
     """A global resource bucket."""
 
 
-async def _try_get_role(cache: async_cache.SfCache[hikari.Role], role_id: hikari.Snowflake, /) -> hikari.Role | None:
+async def _try_get_role(
+    cache: async_cache.SfCache[hikari.Role], role_id: hikari.Snowflake, /
+) -> typing.Optional[hikari.Role]:
     try:
         return await cache.get(role_id)
     except async_cache.EntryNotFound:
@@ -198,7 +200,7 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
         return ctx.channel_id
 
     if type_ is BucketResource.PARENT_CHANNEL:
-        channel: hikari.PartialChannel | None  # MyPy compat
+        channel: typing.Optional[hikari.PartialChannel]  # MyPy compat
         if ctx.guild_id is None:
             return ctx.channel_id
 
@@ -281,7 +283,7 @@ class _Cooldown:
 
         return self
 
-    def must_wait_until(self) -> datetime.datetime | None:
+    def must_wait_until(self) -> typing.Optional[datetime.datetime]:
         # A limit of -1 is special cased to mean no limit, so we don't need to wait.
         if self.limit == -1:
             return None
@@ -330,7 +332,7 @@ class _BaseResource(abc.ABC, typing.Generic[_InnerResourceT]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    async def try_into_inner(self, ctx: tanjun.Context, /) -> _InnerResourceT | None:
+    async def try_into_inner(self, ctx: tanjun.Context, /) -> typing.Optional[_InnerResourceT]:
         raise NotImplementedError
 
 
@@ -345,7 +347,7 @@ class _FlatResource(_BaseResource[_InnerResourceT]):
         self.mapping: dict[hikari.Snowflake, _InnerResourceT] = {}
         self.resource = resource
 
-    async def try_into_inner(self, ctx: tanjun.Context, /) -> _InnerResourceT | None:
+    async def try_into_inner(self, ctx: tanjun.Context, /) -> typing.Optional[_InnerResourceT]:
         return self.mapping.get(await _get_ctx_target(ctx, self.resource))
 
     async def into_inner(self, ctx: tanjun.Context, /) -> _InnerResourceT:
@@ -392,7 +394,7 @@ class _MemberResource(_BaseResource[_InnerResourceT]):
         self.mapping[ctx.guild_id] = {ctx.author.id: resource}
         return resource
 
-    async def try_into_inner(self, ctx: tanjun.Context, /) -> _InnerResourceT | None:
+    async def try_into_inner(self, ctx: tanjun.Context, /) -> typing.Optional[_InnerResourceT]:
         if not ctx.guild_id:
             return self.dm_fallback.get(ctx.channel_id)
 
@@ -425,7 +427,7 @@ class _GlobalResource(_BaseResource[_InnerResourceT]):
         super().__init__(make_resource)
         self.bucket = make_resource()
 
-    async def try_into_inner(self, _: tanjun.Context, /) -> _InnerResourceT | None:
+    async def try_into_inner(self, _: tanjun.Context, /) -> typing.Optional[_InnerResourceT]:
         return self.bucket
 
     async def into_inner(self, _: tanjun.Context, /) -> _InnerResourceT:
@@ -480,7 +482,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         self._default_bucket_template: _BaseResource[_Cooldown] = _FlatResource(
             BucketResource.USER, _MakeCooldown(limit=2, reset_after=datetime.timedelta(seconds=5))
         )
-        self._gc_task: asyncio.Task[None] | None = None
+        self._gc_task: typing.Optional[asyncio.Task[None]] = None
 
     def _get_or_default(self, bucket_id: str, /) -> _BaseResource[_Cooldown]:
         if bucket := self._buckets.get(bucket_id):
@@ -517,9 +519,9 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
-    ) -> datetime.datetime | None:
+    ) -> typing.Optional[datetime.datetime]:
         # <<inherited docstring from AbstractCooldownManager>>.
-        bucket: _Cooldown | None
+        bucket: typing.Optional[_Cooldown]
         if increment:
             bucket = await self._get_or_default(bucket_id).into_inner(ctx)
             if cooldown := bucket.must_wait_until():
@@ -551,7 +553,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         self._gc_task.cancel()
         self._gc_task = None
 
-    def open(self, *, _loop: asyncio.AbstractEventLoop | None = None) -> None:
+    def open(self, *, _loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
         """Start the cooldown manager.
 
         Raises
@@ -593,7 +595,12 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         return self
 
     def set_bucket(
-        self, bucket_id: str, resource: BucketResource, limit: int, reset_after: int | float | datetime.timedelta, /
+        self,
+        bucket_id: str,
+        resource: BucketResource,
+        limit: int,
+        reset_after: typing.Union[int, float, datetime.timedelta],
+        /,
     ) -> Self:
         """Set the cooldown for a specific bucket.
 
@@ -656,9 +663,10 @@ class CooldownPreExecution:
         bucket_id: str,
         /,
         *,
-        error: collections.Callable[[str, datetime.datetime], Exception] | None = None,
-        error_message: str
-        | collections.Mapping[str, str] = "This command is currently in cooldown. Try again {cooldown}.",
+        error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
+        error_message: typing.Union[
+            str, collections.Mapping[str, str]
+        ] = "This command is currently in cooldown. Try again {cooldown}.",
         owners_exempt: bool = True,
     ) -> None:
         """Initialise a pre-execution cooldown command hook.
@@ -694,8 +702,8 @@ class CooldownPreExecution:
         /,
         cooldowns: alluka.Injected[AbstractCooldownManager],
         *,
-        localiser: locales.AbstractLocaliser | None = None,
-        owner_check: alluka.Injected[owners.AbstractOwners | None],
+        localiser: typing.Optional[locales.AbstractLocaliser] = None,
+        owner_check: alluka.Injected[typing.Optional[owners.AbstractOwners]],
     ) -> None:
         if self._owners_exempt:
             if not owner_check:
@@ -718,8 +726,10 @@ def with_cooldown(
     bucket_id: str,
     /,
     *,
-    error: collections.Callable[[str, datetime.datetime], Exception] | None = None,
-    error_message: str | collections.Mapping[str, str] = "This command is currently in cooldown. Try again {cooldown}.",
+    error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
+    error_message: typing.Union[
+        str, collections.Mapping[str, str]
+    ] = "This command is currently in cooldown. Try again {cooldown}.",
     follow_wrapped: bool = False,
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -845,7 +855,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         self._default_bucket_template: _BaseResource[_ConcurrencyLimit] = _FlatResource(
             BucketResource.USER, lambda: _ConcurrencyLimit(1)
         )
-        self._gc_task: asyncio.Task[None] | None = None
+        self._gc_task: typing.Optional[asyncio.Task[None]] = None
 
     async def _gc(self) -> None:
         while True:
@@ -886,7 +896,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         self._gc_task.cancel()
         self._gc_task = None
 
-    def open(self, *, _loop: asyncio.AbstractEventLoop | None = None) -> None:
+    def open(self, *, _loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
         """Start the concurrency manager.
 
         Raises
@@ -1003,8 +1013,10 @@ class ConcurrencyPreExecution:
         bucket_id: str,
         /,
         *,
-        error: collections.Callable[[str], Exception] | None = None,
-        error_message: str | collections.Mapping[str, str] = "This resource is currently busy; please try again later.",
+        error: typing.Optional[collections.Callable[[str], Exception]] = None,
+        error_message: typing.Union[
+            str, collections.Mapping[str, str]
+        ] = "This resource is currently busy; please try again later.",
     ) -> None:
         """Initialise a concurrency pre-execution hook.
 
@@ -1035,7 +1047,7 @@ class ConcurrencyPreExecution:
         /,
         limiter: alluka.Injected[AbstractConcurrencyLimiter],
         *,
-        localiser: locales.AbstractLocaliser | None = None,
+        localiser: typing.Optional[locales.AbstractLocaliser] = None,
     ) -> None:
         if not await limiter.try_acquire(self._bucket_id, ctx):
             if self._error:
@@ -1075,8 +1087,10 @@ def with_concurrency_limit(
     bucket_id: str,
     /,
     *,
-    error: collections.Callable[[str], Exception] | None = None,
-    error_message: str | collections.Mapping[str, str] = "This resource is currently busy; please try again later.",
+    error: typing.Optional[collections.Callable[[str], Exception]] = None,
+    error_message: typing.Union[
+        str, collections.Mapping[str, str]
+    ] = "This resource is currently busy; please try again later.",
     follow_wrapped: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.

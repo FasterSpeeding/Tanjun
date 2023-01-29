@@ -80,11 +80,11 @@ class AbstractOwners(abc.ABC):
 class _CachedValue(typing.Generic[_T]):
     __slots__ = ("_expire_after", "_last_called", "_lock", "_result")
 
-    def __init__(self, *, expire_after: float | None) -> None:
+    def __init__(self, *, expire_after: typing.Optional[float]) -> None:
         self._expire_after = expire_after
-        self._last_called: float | None = None
-        self._lock: asyncio.Lock | None = None
-        self._result: _T | None = None
+        self._last_called: typing.Optional[float] = None
+        self._lock: typing.Optional[asyncio.Lock] = None
+        self._result: typing.Optional[_T] = None
 
     @property
     def _has_expired(self) -> bool:
@@ -127,9 +127,9 @@ class Owners(AbstractOwners):
     def __init__(
         self,
         *,
-        expire_after: datetime.timedelta | int | float = datetime.timedelta(minutes=5),
+        expire_after: typing.Union[datetime.timedelta, int, float] = datetime.timedelta(minutes=5),
         fallback_to_application: bool = True,
-        owners: hikari.SnowflakeishSequence[hikari.User] | None = None,
+        owners: typing.Optional[hikari.SnowflakeishSequence[hikari.User]] = None,
     ) -> None:
         """Initiate a new owner check dependency.
 

@@ -95,9 +95,9 @@ def test_as_message_menu_with_defaults():
     ],
 )
 def test_as_message_menu_when_wrapping_command(
-    other_command: (
-        tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
-    )
+    other_command: typing.Union[
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MenuCommand[typing.Any, typing.Any]
+    ]
 ):
     command = tanjun.as_message_menu(
         "c",
@@ -170,9 +170,9 @@ def test_as_user_menu_with_defaults():
     ],
 )
 def test_as_user_menu_when_wrapping_command(
-    other_command: (
-        tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
-    )
+    other_command: typing.Union[
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MenuCommand[typing.Any, typing.Any]
+    ]
 ):
     command = tanjun.as_user_menu(
         "c",
@@ -249,11 +249,11 @@ class TestMenuCommand:
     )
     def test___init___when_command_object(
         self,
-        inner_command: (
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig]
-            | tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
-            | tanjun.MenuCommand[typing.Any, typing.Any]
-        ),
+        inner_command: typing.Union[
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig],
+            tanjun.MessageCommand[tanjun.abc.CommandCallbackSig],
+            tanjun.MenuCommand[typing.Any, typing.Any],
+        ],
     ):
         assert tanjun.MenuCommand(inner_command, hikari.CommandType.MESSAGE, "woow").callback is inner_command.callback
 
