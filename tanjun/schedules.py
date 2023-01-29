@@ -595,8 +595,9 @@ def _to_sequence(
     return values
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class _TimeScheduleConfig:
+    __slots__ = ("current_date", "days", "hours", "is_weekly", "minutes", "months", "seconds", "timezone")
     current_date: datetime.datetime
     days: typing.Optional[collections.Sequence[int]]
     hours: collections.Sequence[int]

@@ -3058,17 +3058,19 @@ def _try_unsubscribe(
         pass
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class _LoadModule:
-    path: typing.Union[str, pathlib.Path]
+    __slots__ = ("path",)
+    path: str | pathlib.Path
 
     def __call__(self) -> types.ModuleType:
         return importlib.import_module(self.path) if isinstance(self.path, str) else _get_path_module(self.path)
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class _ReloadModule:
-    path: typing.Union[types.ModuleType, pathlib.Path]
+    __slots__ = ("path",)
+    path: types.ModuleType | pathlib.Path
 
     def __call__(self) -> types.ModuleType:
         return _get_path_module(self.path) if isinstance(self.path, pathlib.Path) else importlib.reload(self.path)

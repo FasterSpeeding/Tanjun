@@ -546,7 +546,7 @@ def _scan_one(path: pathlib.Path, /) -> typing.Optional[int]:
         return None  # MyPy compat
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class _ScanResult:
     py_paths: dict[str, _PyPathInfo] = dataclasses.field(init=False, default_factory=dict)
     removed_py_paths: list[str] = dataclasses.field(init=False, default_factory=list)
@@ -554,8 +554,9 @@ class _ScanResult:
     sys_paths: dict[pathlib.Path, _PyPathInfo] = dataclasses.field(init=False, default_factory=dict)
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class _PathScanner(typing.Generic[_PathT]):
+    __slots__ = ("global_paths", "dead_unloads", "result_paths", "removed_paths")
     global_paths: dict[_PathT, _PyPathInfo]
     dead_unloads: set[str | pathlib.Path]
     result_paths: dict[_PathT, _PyPathInfo]
@@ -591,7 +592,7 @@ class _PathScanner(typing.Generic[_PathT]):
                 self.removed_paths.append(path)
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class _PathLoader(typing.Generic[_PathT]):
     waiting_for: dict[_PathT, int]
     paths: dict[_PathT, _PyPathInfo]
