@@ -43,7 +43,7 @@ async def on_error(ctx: tanjun.abc.Context, exc: Exception) -> typing.Optional[b
 
     Returns
     -------
-    typing.Optional[bool]
+    bool | None
         The return type indicates whether this hook wants the error to be
         suppressed where `True` indicates that it should be suppressed,
         `False` indicates that it should be re-raised and `None` indicates
