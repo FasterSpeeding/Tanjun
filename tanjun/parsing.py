@@ -85,17 +85,27 @@ if typing.TYPE_CHECKING:
 
 
 _T = typing.TypeVar("_T")
-_P = typing_extensions.ParamSpec("_P")
-_ConverterSig = collections.Callable[
-    typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, _T] | _T
-]
 
-ConverterSig = _ConverterSig[..., _T]
-"""Type hint of a converter used within a parser instance.
+"""Type hint of a slash command option converter."""
+if typing.TYPE_CHECKING:
+    _P = typing_extensions.ParamSpec("_P")
+    _ConverterSig = collections.Callable[
+        typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, _T] | _T
+    ]
 
-This must be a callable or asynchronous callable which takes one position
-[str][], argument and returns the resultant value.
-"""
+    ConverterSig = _ConverterSig[..., _T]
+    """Type hint of a converter used within a parser instance.
+
+    This must be a callable or asynchronous callable which takes one position
+    [str][], argument and returns the resultant value.
+    """
+
+else:
+    import types
+
+    ConverterSig = types.GenericAlias(
+        collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T] | _T], (_T,)
+    )
 
 
 class UndefinedT:

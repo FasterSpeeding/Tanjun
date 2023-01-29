@@ -107,149 +107,21 @@ if typing.TYPE_CHECKING:
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound="MetaEventSig")
 
-_P = typing_extensions.ParamSpec("_P")
 _T = typing.TypeVar("_T")
 _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
+_AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
 _ContextT_co = typing.TypeVar("_ContextT_co", covariant=True, bound="Context")
 _ContextT_contra = typing.TypeVar("_ContextT_contra", bound="Context", contravariant=True)
 _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
-_MenuValueT = typing.TypeVar("_MenuValueT", hikari.Message, hikari.InteractionMember)
 _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
-
-_MaybeAwaitable = collections.Callable[_P, _CoroT[_T] | _T]
-
-_AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
-_AutocompleteSig = collections.Callable[
-    typing_extensions.Concatenate["AutocompleteContext", _AutocompleteValueT, _P], _CoroT[None]
-]
-
-AutocompleteSig = _AutocompleteSig[_AutocompleteValueT, ...]
-"""Type hint of the callback an autocomplete callback should have.
-
-This will be called when handling autocomplete and should be an asynchronous
-callback which two positional arguments of type [tanjun.abc.AutocompleteContext][] and
-`str` or `int` or `float` (with the 2nd argument type being decided by the
-autocomplete type), returns [None][] and may use dependency injection.
-"""
-
-AutocompleteCallbackSig = AutocompleteSig
-"""Deprecated alias of [tanjun.abc.AutocompleteSig][]."""
-
-_CheckSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], bool]
-CheckSig = _CheckSig[_ContextT_contra, ...]
-"""Type hint of a generic context check used with Tanjun [tanjun.abc.ExecutableCommand][] classes.
-
-This may be registered with a [tanjun.abc.ExecutableCommand][] to add a rule
-which decides whether it should execute for each context passed to it.
-
-This should take one positional argument of type [tanjun.abc.Context][] and may
-either be a synchronous or asynchronous callback which returns [bool][].
-Returning [False][] or raising [tanjun.FailedCheck][] will indicate that the
-current context shouldn't lead to an execution.
-"""
-
-AnyCheckSig = _CheckSig["Context", ...]
-"""Type hint of a check callback for any command type."""
+_MenuValueT = typing.TypeVar("_MenuValueT", hikari.Message, hikari.InteractionMember)
 
 CommandCallbackSig = collections.Callable[..., _CoroT[None]]
 """Deprecated type hint used to represent any command callback."""
 
-_ManuCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P], _CoroT[None]]
-MenuCallbackSig = _ManuCallbackSig["MenuContext", _MenuValueT, ...]
-"""Type hint of a context menu command callback.
-
-This is guaranteed two positional; arguments of type [tanjun.abc.MenuContext][]
-and either `hikari.User | hikari.InteractionMember` and/or
-[hikari.messages.Message][] dependent on the type(s) of menu this is,
-and may use dependency injection.
-
-This must be asynchronous and return [None][].
-"""
-
-MenuCommandCallbackSig = MenuCallbackSig
-"""Deprecated alias of [tanjun.abc.MenuCallbackSig][]."""
-
-_MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound=MenuCallbackSig[typing.Any])
-
-_CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], _CoroT[None]]
-
-MessageCallbackSig = _CommandCallbackSig["MessageContext", ...]
-"""Type hint of a message command callback.
-
-This is guaranteed one positional argument of type [tanjun.abc.MessageContext][] and
-may use dependency injection.
-
-This must be asynchronous and return [None][].
-"""
-_MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=MessageCallbackSig)
-
-SlashCallbackSig = _CommandCallbackSig["SlashContext", ...]
-"""Type hint of a slash command callback.
-
-This is guaranteed one positional argument of type [tanjun.abc.SlashContext][] and
-may use dependency injection.
-
-This must be asynchronous and return [None][].
-"""
-_SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=SlashCallbackSig)
-
-_ErrorHookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, Exception, _P], bool | None]
-
-ErrorHookSig = _ErrorHookSig[_ContextT_contra, ...]
-"""Type hint of the callback used as a unexpected command error hook.
-
-This will be called whenever an unexpected [Exception][] is raised during the
-execution stage of a command (ignoring [tanjun.ParserError][] and expected
-[tanjun.TanjunError][] subclasses).
-
-This should take two positional arguments - of type [tanjun.abc.Context][] and
-[Exception][] - and may be either a synchronous or asynchronous callback which
-returns [bool][] or [None][] and may take advantage of dependency injection.
-
-[True][] is returned to indicate that the exception should be suppressed and
-[False][] is returned to indicate that the exception should be re-raised.
-"""
-
-_ParserHookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, "errors.ParserError", _P], bool | None]
-
-ParserHookSig = _ParserHookSig[_ContextT_contra, ...]
-"""Type hint of the callback used as a command parser error hook.
-
-This will be called whenever an parser [ParserError][tanjun.errors.ParserError]
-is raised during the execution stage of a command.
-
-This should take two positional arguments - of type [tanjun.abc.Context][] and
-[ParserError][tanjun.errors.ParserError] - and may be either a synchronous or
-asynchronous callback which returns [None][] and may take advantage of
-dependency injection.
-
-Parser errors are always suppressed (unlike general errors).
-"""
-
-_HookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], None]
-
-HookSig = _HookSig[_ContextT_contra, ...]
-"""Type hint of the callback used as a general command hook.
-
-!!! note
-    This may be asynchronous or synchronous, dependency injection is supported
-    for this callback's keyword arguments and the positional arguments which
-    are passed dependent on the type of hook this is being registered as.
-"""
-
-_EventT = typing.TypeVar("_EventT", bound=hikari.Event)
-_ListenerCallbackSig = collections.Callable[typing_extensions.Concatenate[_EventT, _P], _CoroT[None]]
-
-ListenerCallbackSig = _ListenerCallbackSig[_EventT, ...]
-"""Type hint of a hikari event manager callback.
-
-This is guaranteed one positional arg of type [hikari.events.base_events.Event][]
-regardless of implementation and must be a coruotine function which returns [None][].
-"""
-
-MetaEventSig = _MaybeAwaitable[..., None]
+MetaEventSig = collections.Callable[..., _CoroT[None] | None]
 """Type hint of a client callback.
 
 The positional arguments this is guaranteed depend on the event name its being
@@ -257,6 +129,159 @@ subscribed to (more information the standard client callbacks can be found at
 [tanjun.abc.ClientCallbackNames][]) and may be either synchronous or asynchronous but must
 return [None][].
 """
+
+# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
+if typing.TYPE_CHECKING:
+    _P = typing_extensions.ParamSpec("_P")
+
+    _MaybeAwaitable = collections.Callable[_P, _CoroT[_T] | _T]
+
+    _AutocompleteSig = collections.Callable[
+        typing_extensions.Concatenate["AutocompleteContext", _AutocompleteValueT, _P], _CoroT[None]
+    ]
+
+    AutocompleteSig = _AutocompleteSig[_AutocompleteValueT, ...]
+    """Type hint of the callback an autocomplete callback should have.
+
+    This will be called when handling autocomplete and should be an asynchronous
+    callback which two positional arguments of type [tanjun.abc.AutocompleteContext][] and
+    `str` or `int` or `float` (with the 2nd argument type being decided by the
+    autocomplete type), returns [None][] and may use dependency injection.
+    """
+
+    AutocompleteCallbackSig = AutocompleteSig
+    """Deprecated alias of [tanjun.abc.AutocompleteSig][]."""
+
+    _CheckSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], bool]
+    CheckSig = _CheckSig[_ContextT_contra, ...]
+    """Type hint of a generic context check used with Tanjun [tanjun.abc.ExecutableCommand][] classes.
+
+    This may be registered with a [tanjun.abc.ExecutableCommand][] to add a rule
+    which decides whether it should execute for each context passed to it.
+
+    This should take one positional argument of type [tanjun.abc.Context][] and may
+    either be a synchronous or asynchronous callback which returns [bool][].
+    Returning [False][] or raising [tanjun.FailedCheck][] will indicate that the
+    current context shouldn't lead to an execution.
+    """
+
+    AnyCheckSig = _CheckSig["Context", ...]
+    """Type hint of a check callback for any command type."""
+
+    _ManuCallbackSig = collections.Callable[
+        typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P], _CoroT[None]
+    ]
+    MenuCallbackSig = _ManuCallbackSig["MenuContext", _MenuValueT, ...]
+    """Type hint of a context menu command callback.
+
+    This is guaranteed two positional; arguments of type [tanjun.abc.MenuContext][]
+    and either `hikari.User | hikari.InteractionMember` and/or
+    [hikari.messages.Message][] dependent on the type(s) of menu this is,
+    and may use dependency injection.
+
+    This must be asynchronous and return [None][].
+    """
+
+    MenuCommandCallbackSig = MenuCallbackSig
+    """Deprecated alias of [tanjun.abc.MenuCallbackSig][]."""
+
+    _CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], _CoroT[None]]
+
+    MessageCallbackSig = _CommandCallbackSig["MessageContext", ...]
+    """Type hint of a message command callback.
+
+    This is guaranteed one positional argument of type [tanjun.abc.MessageContext][] and
+    may use dependency injection.
+
+    This must be asynchronous and return [None][].
+    """
+
+    SlashCallbackSig = _CommandCallbackSig["SlashContext", ...]
+    """Type hint of a slash command callback.
+
+    This is guaranteed one positional argument of type [tanjun.abc.SlashContext][] and
+    may use dependency injection.
+
+    This must be asynchronous and return [None][].
+    """
+
+    _ErrorHookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, Exception, _P], bool | None]
+
+    ErrorHookSig = _ErrorHookSig[_ContextT_contra, ...]
+    """Type hint of the callback used as a unexpected command error hook.
+
+    This will be called whenever an unexpected [Exception][] is raised during the
+    execution stage of a command (ignoring [tanjun.ParserError][] and expected
+    [tanjun.TanjunError][] subclasses).
+
+    This should take two positional arguments - of type [tanjun.abc.Context][] and
+    [Exception][] - and may be either a synchronous or asynchronous callback which
+    returns [bool][] or [None][] and may take advantage of dependency injection.
+
+    [True][] is returned to indicate that the exception should be suppressed and
+    [False][] is returned to indicate that the exception should be re-raised.
+    """
+
+    _ParserHookSig = _MaybeAwaitable[
+        typing_extensions.Concatenate[_ContextT_contra, "errors.ParserError", _P], bool | None
+    ]
+
+    ParserHookSig = _ParserHookSig[_ContextT_contra, ...]
+    """Type hint of the callback used as a command parser error hook.
+
+    This will be called whenever an parser [ParserError][tanjun.errors.ParserError]
+    is raised during the execution stage of a command.
+
+    This should take two positional arguments - of type [tanjun.abc.Context][] and
+    [ParserError][tanjun.errors.ParserError] - and may be either a synchronous or
+    asynchronous callback which returns [None][] and may take advantage of
+    dependency injection.
+
+    Parser errors are always suppressed (unlike general errors).
+    """
+
+    _HookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], None]
+
+    HookSig = _HookSig[_ContextT_contra, ...]
+    """Type hint of the callback used as a general command hook.
+
+    !!! note
+        This may be asynchronous or synchronous, dependency injection is supported
+        for this callback's keyword arguments and the positional arguments which
+        are passed dependent on the type of hook this is being registered as.
+    """
+
+    _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
+    _ListenerCallbackSig = collections.Callable[typing_extensions.Concatenate[_EventT, _P], _CoroT[None]]
+
+    ListenerCallbackSig = _ListenerCallbackSig[_EventT, ...]
+    """Type hint of a hikari event manager callback.
+
+    This is guaranteed one positional arg of type [hikari.events.base_events.Event][]
+    regardless of implementation and must be a coruotine function which returns [None][].
+    """
+
+else:
+    import types
+
+    AutocompleteSig = types.GenericAlias(collections.Callable[..., typing.Any], (_AutocompleteValueT,))
+    AutocompleteCallbackSig = AutocompleteSig
+    CheckSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
+    AnyCheckSig = CheckSig
+    MenuCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_MenuValueT,))
+    MenuCommandCallbackSig = MenuCallbackSig
+    MessageCallbackSig = collections.Callable[..., typing.Any]
+    SlashCallbackSig = collections.Callable[..., typing.Any]
+    ErrorHookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
+    ParserHookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
+    HookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
+    _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
+    ListenerCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_EventT,))
+
+
+_MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound=MenuCallbackSig[typing.Any])
+_MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=MessageCallbackSig)
+_SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=SlashCallbackSig)
 
 
 class Context(alluka.Context):

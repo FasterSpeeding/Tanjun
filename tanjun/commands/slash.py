@@ -91,13 +91,22 @@ if typing.TYPE_CHECKING:
 
 _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=tanjun.SlashCallbackSig)
 _ConvertT = typing.TypeVar("_ConvertT", int, float, str)
-_P = typing_extensions.ParamSpec("_P")
 
-_ConverterSig = collections.Callable[
-    typing_extensions.Concatenate[_ConvertT, _P], collections.Coroutine[typing.Any, typing.Any, typing.Any] | typing.Any
-]
-ConverterSig = _ConverterSig[_ConvertT, ...]
-"""Type hint of a slash command option converter."""
+# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
+if typing.TYPE_CHECKING:
+    _P = typing_extensions.ParamSpec("_P")
+
+    _ConverterSig = collections.Callable[
+        typing_extensions.Concatenate[_ConvertT, _P],
+        collections.Coroutine[typing.Any, typing.Any, typing.Any] | typing.Any,
+    ]
+    ConverterSig = _ConverterSig[_ConvertT, ...]
+    """Type hint of a slash command option converter."""
+
+else:
+    import types
+
+    ConverterSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ConvertT,))
 
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
