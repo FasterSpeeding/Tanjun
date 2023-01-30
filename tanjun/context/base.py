@@ -53,12 +53,12 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
     def __init__(self, client: tanjun.Client, /) -> None:
         super().__init__(client.injector)
         self._client = client
-        self._component: tanjun.Component | None = None
+        self._component: typing.Optional[tanjun.Component] = None
         self._final = False
         self._set_type_special_case(tanjun.Context, self)
 
     @property
-    def cache(self) -> hikari.api.Cache | None:
+    def cache(self) -> typing.Optional[hikari.api.Cache]:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.cache
 
@@ -68,17 +68,17 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
         return self._client
 
     @property
-    def component(self) -> tanjun.Component | None:
+    def component(self) -> typing.Optional[tanjun.Component]:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._component
 
     @property
-    def events(self) -> hikari.api.EventManager | None:
+    def events(self) -> typing.Optional[hikari.api.EventManager]:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.events
 
     @property
-    def server(self) -> hikari.api.InteractionServer | None:
+    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.server
 
@@ -88,7 +88,7 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
         return self._client.rest
 
     @property
-    def shard(self) -> hikari.api.GatewayShard | None:
+    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
         # <<inherited docstring from tanjun.abc.Context>>.
         if not self._client.shards:
             return None
@@ -102,12 +102,12 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
         return self._client.shards.shards[shard_id]
 
     @property
-    def shards(self) -> hikari.ShardAware | None:
+    def shards(self) -> typing.Optional[hikari.ShardAware]:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.shards
 
     @property
-    def voice(self) -> hikari.api.VoiceComponent | None:
+    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
         # <<inherited docstring from tanjun.abc.Context>>.
         return self._client.voice
 
@@ -126,7 +126,7 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
         self._final = True
         return self
 
-    def set_component(self, component: tanjun.Component | None, /) -> Self:
+    def set_component(self, component: typing.Optional[tanjun.Component], /) -> Self:
         # <<inherited docstring from tanjun.abc.Context>>.
         self._assert_not_final()
         if component:
@@ -138,7 +138,7 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
         self._component = component
         return self
 
-    def get_channel(self) -> hikari.TextableGuildChannel | None:
+    def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
         # <<inherited docstring from tanjun.abc.Context>>.
         if self._client.cache:
             channel = self._client.cache.get_guild_channel(self.channel_id)
@@ -147,7 +147,7 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
 
         return None  # MyPy compat
 
-    def get_guild(self) -> hikari.Guild | None:
+    def get_guild(self) -> typing.Optional[hikari.Guild]:
         # <<inherited docstring from tanjun.abc.Context>>.
         if self.guild_id is not None and self._client.cache:
             return self._client.cache.get_guild(self.guild_id)
@@ -160,7 +160,7 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
         assert isinstance(channel, hikari.TextableChannel)
         return channel
 
-    async def fetch_guild(self) -> hikari.Guild | None:  # TODO: or raise?
+    async def fetch_guild(self) -> typing.Optional[hikari.Guild]:  # TODO: or raise?
         # <<inherited docstring from tanjun.abc.Context>>.
         if self.guild_id is not None:
             return await self._client.rest.fetch_guild(self.guild_id)

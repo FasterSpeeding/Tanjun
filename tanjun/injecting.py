@@ -72,7 +72,7 @@ from . import abc as tanjun
 _T = typing.TypeVar("_T")
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound=alluka.abc.CallbackSig[typing.Any])
 
-UndefinedOr = Undefined | _T
+UndefinedOr = typing.Union[Undefined, _T]
 """Type-hint generic union used to indicate that a value may be undefined or `_T`."""
 
 

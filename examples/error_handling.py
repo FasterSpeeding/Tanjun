@@ -9,6 +9,8 @@
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
 """Examples of how hooks may be used within a bot with a focus on error handling."""
+import typing
+
 import hikari
 
 import tanjun
@@ -21,7 +23,7 @@ hooks = tanjun.AnyHooks()
 
 
 @hooks.with_on_error
-async def on_error(ctx: tanjun.abc.Context, exc: Exception) -> bool | None:
+async def on_error(ctx: tanjun.abc.Context, exc: Exception) -> typing.Optional[bool]:
     """General error handler.
 
     This will be called on all errors raised during execution except errors

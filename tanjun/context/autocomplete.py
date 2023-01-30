@@ -61,7 +61,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         client: tanjun.Client,
         interaction: hikari.AutocompleteInteraction,
         *,
-        future: asyncio.Future[hikari.api.InteractionAutocompleteBuilder] | None = None,
+        future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
     ) -> None:
         """Initialise an autocomplete context.
 
@@ -81,7 +81,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         self._has_responded = False
         self._interaction = interaction
 
-        focused: hikari.AutocompleteInteractionOption | None = None
+        focused: typing.Optional[hikari.AutocompleteInteractionOption] = None
         self._options: dict[str, hikari.AutocompleteInteractionOption] = {}
         command_name, options = _internal.flatten_options(interaction.command_name, interaction.options)
         for option in options:
@@ -105,7 +105,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         return self._interaction.channel_id
 
     @property
-    def cache(self) -> hikari.api.Cache | None:
+    def cache(self) -> typing.Optional[hikari.api.Cache]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._client.cache
 
@@ -125,7 +125,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         return self._interaction.created_at
 
     @property
-    def events(self) -> hikari.api.EventManager | None:
+    def events(self) -> typing.Optional[hikari.api.EventManager]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._client.events
 
@@ -135,17 +135,17 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         return self._focused
 
     @property
-    def guild_id(self) -> hikari.Snowflake | None:
+    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._interaction.guild_id
 
     @property
-    def member(self) -> hikari.Member | None:
+    def member(self) -> typing.Optional[hikari.Member]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._interaction.member
 
     @property
-    def server(self) -> hikari.api.InteractionServer | None:
+    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._client.server
 
@@ -155,7 +155,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         return self._client.rest
 
     @property
-    def shard(self) -> hikari.api.GatewayShard | None:
+    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         if not self._client.shards:
             return None
@@ -169,12 +169,12 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         return self._client.shards.shards[shard_id]
 
     @property
-    def shards(self) -> hikari.ShardAware | None:
+    def shards(self) -> typing.Optional[hikari.ShardAware]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._client.shards
 
     @property
-    def voice(self) -> hikari.api.VoiceComponent | None:
+    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._client.voice
 
@@ -197,21 +197,21 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return await self._interaction.fetch_channel()
 
-    async def fetch_guild(self) -> hikari.Guild | None:
+    async def fetch_guild(self) -> typing.Optional[hikari.Guild]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return await self._interaction.fetch_guild()
 
-    def get_channel(self) -> hikari.TextableGuildChannel | None:
+    def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._interaction.get_channel()
 
-    def get_guild(self) -> hikari.Guild | None:
+    def get_guild(self) -> typing.Optional[hikari.Guild]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         return self._interaction.get_guild()
 
     async def set_choices(
         self,
-        choices: collections.Mapping[str, _ValueT] | collections.Iterable[tuple[str, _ValueT]] = (),
+        choices: typing.Union[collections.Mapping[str, _ValueT], collections.Iterable[tuple[str, _ValueT]]] = (),
         /,
         **kwargs: _ValueT,
     ) -> None:

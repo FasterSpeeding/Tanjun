@@ -37,10 +37,10 @@ import asyncio
 import copy as copy_
 import enum
 import functools
-import inspect
 import itertools
 import logging
 import operator
+import sys
 import types
 import typing
 from collections import abc as collections
@@ -48,6 +48,7 @@ from collections import abc as collections
 import hikari
 
 from .. import errors
+from .vendor import inspect
 
 if typing.TYPE_CHECKING:
     import typing_extensions
@@ -56,7 +57,10 @@ if typing.TYPE_CHECKING:
 
     _P = typing_extensions.ParamSpec("_P")
 
-    _TreeT = dict["str | _IndexKeys", "_TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]"]
+    _TreeT = dict[
+        typing.Union[str, "_IndexKeys"],
+        typing.Union["_TreeT", list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]],
+    ]
 
 
 _T = typing.TypeVar("_T")
@@ -66,7 +70,11 @@ _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
 
 _LOGGER = logging.getLogger("hikari.tanjun")
 
-UnionTypes = frozenset((typing.Union, types.UnionType))
+if sys.version_info >= (3, 10):
+    UnionTypes = frozenset((typing.Union, types.UnionType))
+
+else:
+    UnionTypes = frozenset((typing.Union,))
 
 
 class _NoDefaultEnum(enum.Enum):
@@ -277,7 +285,7 @@ def log_task_exc(
 
 
 class _WrappedProto(typing.Protocol):
-    wrapped_command: tanjun.ExecutableCommand[typing.Any] | None
+    wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]]
 
 
 def _has_wrapped(value: typing.Any, /) -> typing_extensions.TypeGuard[_WrappedProto]:
@@ -320,7 +328,7 @@ SUB_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset
 
 
 def flatten_options(
-    name: str, options: collections.Sequence[_OptionT] | None, /
+    name: str, options: typing.Optional[collections.Sequence[_OptionT]], /
 ) -> tuple[str, collections.Sequence[_OptionT]]:
     """Flatten the options of a slash/autocomplete interaction.
 
@@ -369,7 +377,7 @@ for _channel_cls, _types in CHANNEL_TYPES.copy().items():
 CHANNEL_TYPES[hikari.InteractionChannel] = CHANNEL_TYPES[hikari.PartialChannel]
 
 
-def parse_channel_types(*channel_types: type[hikari.PartialChannel] | int) -> list[hikari.ChannelType]:
+def parse_channel_types(*channel_types: typing.Union[type[hikari.PartialChannel], int]) -> list[hikari.ChannelType]:
     """Parse a channel types collection to a list of channel type integers."""
     types_iter = itertools.chain.from_iterable(
         (hikari.ChannelType(type_),) if isinstance(type_, int) else CHANNEL_TYPES[type_] for type_ in channel_types
@@ -382,38 +390,30 @@ def parse_channel_types(*channel_types: type[hikari.PartialChannel] | int) -> li
         raise ValueError(f"Unknown channel type {exc.args[0]}") from exc
 
 
+_CHANNEL_TYPE_REPS: dict[hikari.ChannelType, str] = {
+    hikari.ChannelType.GUILD_TEXT: "Text",
+    hikari.ChannelType.DM: "DM",
+    hikari.ChannelType.GUILD_VOICE: "Voice",
+    hikari.ChannelType.GROUP_DM: "Group DM",
+    hikari.ChannelType.GUILD_CATEGORY: "Category",
+    hikari.ChannelType.GUILD_NEWS: "News",
+    hikari.ChannelType.GUILD_STAGE: "Stage",
+    hikari.ChannelType.GUILD_NEWS_THREAD: "News Thread",
+    hikari.ChannelType.GUILD_PUBLIC_THREAD: "Public Thread",
+    hikari.ChannelType.GUILD_PRIVATE_THREAD: "Private Thread",
+    hikari.ChannelType.GUILD_FORUM: "Forum",
+}
+_UNKNOWN_CHANNEL_REPR = "Unknown"
+
+
 def repr_channel(channel_type: hikari.ChannelType, /) -> str:
     """Get a text repr of a channel type."""
-    match channel_type:
-        case hikari.ChannelType.GUILD_TEXT:
-            return "Text"
-        case hikari.ChannelType.DM:
-            return "DM"
-        case hikari.ChannelType.GUILD_VOICE:
-            return "Voice"
-        case hikari.ChannelType.GROUP_DM:
-            return "Group DM"
-        case hikari.ChannelType.GUILD_CATEGORY:
-            return "Category"
-        case hikari.ChannelType.GUILD_NEWS:
-            return "News"
-        case hikari.ChannelType.GUILD_STAGE:
-            return "Stage"
-        case hikari.ChannelType.GUILD_NEWS_THREAD:
-            return "News Thread"
-        case hikari.ChannelType.GUILD_PUBLIC_THREAD:
-            return "Public Thread"
-        case hikari.ChannelType.GUILD_PRIVATE_THREAD:
-            return "Private Thread"
-        case hikari.ChannelType.GUILD_FORUM:
-            return "Forum"
-        case _:
-            return "Unknown"
+    return _CHANNEL_TYPE_REPS.get(channel_type, _UNKNOWN_CHANNEL_REPR)
 
 
 def cmp_command(
-    cmd: hikari.PartialCommand | hikari.api.CommandBuilder,
-    other: hikari.PartialCommand | hikari.api.CommandBuilder | None,
+    cmd: typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder],
+    other: typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder, None],
     /,
 ) -> bool:
     """Compare application command objects and command builders."""
@@ -445,8 +445,10 @@ def cmp_command(
 
 
 def cmp_all_commands(
-    commands: collections.Collection[hikari.PartialCommand | hikari.api.CommandBuilder],
-    other: collections.Mapping[tuple[hikari.CommandType, str], hikari.PartialCommand | hikari.api.CommandBuilder],
+    commands: collections.Collection[typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder]],
+    other: collections.Mapping[
+        tuple[hikari.CommandType, str], typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder]
+    ],
     /,
 ) -> bool:
     """Compare two sets of command objects/builders."""
@@ -468,9 +470,9 @@ class MessageCommandIndex:
         strict: bool,
         /,
         *,
-        commands: list[tanjun.MessageCommand[typing.Any]] | None = None,
-        names_to_commands: dict[str, tuple[str, tanjun.MessageCommand[typing.Any]]] | None = None,
-        search_tree: _TreeT | None = None,
+        commands: typing.Optional[list[tanjun.MessageCommand[typing.Any]]] = None,
+        names_to_commands: typing.Optional[dict[str, tuple[str, tanjun.MessageCommand[typing.Any]]]] = None,
+        search_tree: typing.Optional[_TreeT] = None,
     ) -> None:
         """Initialise a message command index.
 
@@ -553,7 +555,7 @@ class MessageCommandIndex:
         self.commands.append(command)
         return True
 
-    def copy(self, *, parent: tanjun.MessageCommandGroup[typing.Any] | None = None) -> MessageCommandIndex:
+    def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> MessageCommandIndex:
         """In-place copy the index and its contained commands.
 
         Parameters

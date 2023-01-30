@@ -112,7 +112,7 @@ def calculate_permissions(
     roles: collections.Mapping[hikari.Snowflake, hikari.Role],
     /,
     *,
-    channel: hikari.PermissibleGuildChannel | None = None,
+    channel: typing.Optional[hikari.PermissibleGuildChannel] = None,
 ) -> hikari.Permissions:
     """Calculate the permissions a member has within a guild.
 
@@ -178,7 +178,7 @@ async def fetch_permissions(
     member: hikari.Member,
     /,
     *,
-    channel: hikari.SnowflakeishOr[hikari.GuildChannel] | None = None,
+    channel: typing.Optional[hikari.SnowflakeishOr[hikari.GuildChannel]] = None,
 ) -> hikari.Permissions:
     """Calculate the permissions a member has within a guild.
 
@@ -204,8 +204,8 @@ async def fetch_permissions(
     """
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
-    guild: hikari.Guild | None
-    roles: collections.Mapping[hikari.Snowflake, hikari.Role] | None = None
+    guild: typing.Optional[hikari.Guild]
+    roles: typing.Optional[collections.Mapping[hikari.Snowflake, hikari.Role]] = None
     guild = client.cache.get_guild(member.guild_id) if client.cache else None
     if not guild and (guild_cache := client.get_type_dependency(_GuildCacheT)):
         try:
@@ -248,7 +248,7 @@ async def fetch_permissions(
 
 
 def calculate_everyone_permissions(
-    everyone_role: hikari.Role, /, *, channel: hikari.PermissibleGuildChannel | None = None
+    everyone_role: hikari.Role, /, *, channel: typing.Optional[hikari.PermissibleGuildChannel] = None
 ) -> hikari.Permissions:
     """Calculate a guild's default permissions within the guild or for a specific channel.
 
@@ -289,7 +289,7 @@ async def fetch_everyone_permissions(
     guild_id: hikari.Snowflake,
     /,
     *,
-    channel: hikari.SnowflakeishOr[hikari.GuildChannel] | None = None,
+    channel: typing.Optional[hikari.SnowflakeishOr[hikari.GuildChannel]] = None,
 ) -> hikari.Permissions:
     """Calculate the permissions a guild's default @everyone role has within a guild or for a specific channel.
 

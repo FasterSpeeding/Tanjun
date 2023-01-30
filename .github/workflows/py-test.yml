@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11"]
 
     runs-on: ${{ matrix.os }}
 
@@ -55,10 +55,10 @@ jobs:
         with:
           submodules: "true"
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.9
         uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435
         with:
-          python-version: "3.10"
+          python-version: "3.9"
 
       - name: install prerequisites
         run: |

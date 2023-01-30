@@ -138,7 +138,7 @@ class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def get(self, *, default: _DefaultT = ...) -> _ValueT | _DefaultT:
+    async def get(self, *, default: _DefaultT = ...) -> typing.Union[_ValueT, _DefaultT]:
         """Get the entry.
 
         Parameters
@@ -181,7 +181,7 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def get(self, key: _KeyT, /, *, default: _DefaultT = ...) -> _ValueT | _DefaultT:
+    async def get(self, key: _KeyT, /, *, default: _DefaultT = ...) -> typing.Union[_ValueT, _DefaultT]:
         """Get an entry from this cache by ID.
 
         Parameters
@@ -241,7 +241,7 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     @abc.abstractmethod
     async def get_from_channel(
         self, channel_id: hikari.Snowflakeish, key: _KeyT, /, *, default: _DefaultT = ...
-    ) -> _ValueT | _DefaultT:
+    ) -> typing.Union[_ValueT, _DefaultT]:
         """Get an entry from this cache for a specific channel by ID.
 
         Parameters
@@ -318,7 +318,7 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     @abc.abstractmethod
     async def get_from_guild(
         self, guild_id: hikari.Snowflakeish, key: _KeyT, /, *, default: _DefaultT = ...
-    ) -> _ValueT | _DefaultT:
+    ) -> typing.Union[_ValueT, _DefaultT]:
         """Get an entry from this cache for a specific guild by ID.
 
         Parameters
