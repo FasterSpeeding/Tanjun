@@ -74,12 +74,12 @@ if typing.TYPE_CHECKING:
 
     class _AnyCallback(typing.Protocol[_ContextT_contra]):
         async def __call__(
-            self, ctx: _ContextT_contra, /, *, localiser: dependencies.AbstractLocaliser | None = None
+            self, ctx: _ContextT_contra, /, *, localiser: typing.Optional[dependencies.AbstractLocaliser] = None
         ) -> bool:
             raise NotImplementedError
 
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
-    _CallbackReturnT = _CommandT | collections.Callable[[_CommandT], _CommandT]
+    _CallbackReturnT = typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]
     _MenuCommandT = typing.TypeVar("_MenuCommandT", bound=tanjun.MenuCommand[typing.Any, typing.Any])
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=tanjun.MessageCommand[typing.Any])
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound=tanjun.BaseSlashCommand)
@@ -97,8 +97,8 @@ def _add_to_command(command: _CommandT, check: tanjun.AnyCheckSig, follow_wrappe
 
 
 def _optional_kwargs(
-    command: _CommandT | None, check: tanjun.AnyCheckSig, follow_wrapped: bool
-) -> _CommandT | collections.Callable[[_CommandT], _CommandT]:
+    command: typing.Optional[_CommandT], check: tanjun.AnyCheckSig, follow_wrapped: bool
+) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
     if command:
         return _add_to_command(command, check, follow_wrapped)
 
@@ -1015,12 +1015,12 @@ def with_check(
 
 def with_check(
     check: tanjun.CheckSig[typing.Any], /, *, follow_wrapped: bool = False
-) -> (
-    collections.Callable[[_CommandT], _CommandT]
-    | collections.Callable[[_MenuCommandT], _MenuCommandT]
-    | collections.Callable[[_MessageCommandT], _MessageCommandT]
-    | collections.Callable[[_SlashCommandT], _SlashCommandT]
-):
+) -> typing.Union[
+    collections.Callable[[_CommandT], _CommandT],
+    collections.Callable[[_MenuCommandT], _MenuCommandT],
+    collections.Callable[[_MessageCommandT], _MessageCommandT],
+    collections.Callable[[_SlashCommandT], _SlashCommandT],
+]:
     """Add a generic check to a command.
 
     Parameters
@@ -1115,12 +1115,12 @@ def with_all_checks(
 
 def with_all_checks(
     check: tanjun.CheckSig[typing.Any], /, *checks: tanjun.CheckSig[typing.Any], follow_wrapped: bool = False
-) -> (
-    collections.Callable[[_CommandT], _CommandT]
-    | collections.Callable[[_MenuCommandT], _MenuCommandT]
-    | collections.Callable[[_MessageCommandT], _MessageCommandT]
-    | collections.Callable[[_SlashCommandT], _SlashCommandT]
-):
+) -> typing.Union[
+    collections.Callable[[_CommandT], _CommandT],
+    collections.Callable[[_MenuCommandT], _MenuCommandT],
+    collections.Callable[[_MessageCommandT], _MessageCommandT],
+    collections.Callable[[_SlashCommandT], _SlashCommandT],
+]:
     """Add a check which will pass if all the provided checks pass through a decorator call.
 
     This ensures that the callbacks are run in the order they were supplied in
@@ -1160,7 +1160,7 @@ class _AnyChecks(_Check, typing.Generic[_ContextT]):
         self._suppress = suppress
 
     async def __call__(
-        self, ctx: _ContextT, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
+        self, ctx: _ContextT, /, *, localiser: alluka.Injected[typing.Optional[dependencies.AbstractLocaliser]] = None
     ) -> bool:
         for check in self._checks:
             try:
@@ -1240,8 +1240,8 @@ def with_any_checks(
     check: tanjun.CheckSig[tanjun.MenuContext],
     /,
     *checks: tanjun.CheckSig[tanjun.MenuContext],
-    error: collections.Callable[[], Exception] | None = None,
-    error_message: str | collections.Mapping[str, str] | None,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error_message: typing.Union[str, collections.Mapping[str, str], None],
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
@@ -1254,8 +1254,8 @@ def with_any_checks(
     check: tanjun.CheckSig[tanjun.MessageContext],
     /,
     *checks: tanjun.CheckSig[tanjun.MessageContext],
-    error: collections.Callable[[], Exception] | None = None,
-    error_message: str | collections.Mapping[str, str] | None,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error_message: typing.Union[str, collections.Mapping[str, str], None],
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
@@ -1268,8 +1268,8 @@ def with_any_checks(
     check: tanjun.CheckSig[tanjun.SlashContext],
     /,
     *checks: tanjun.CheckSig[tanjun.SlashContext],
-    error: collections.Callable[[], Exception] | None = None,
-    error_message: str | collections.Mapping[str, str] | None,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error_message: typing.Union[str, collections.Mapping[str, str], None],
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
@@ -1281,17 +1281,17 @@ def with_any_checks(
     check: tanjun.CheckSig[typing.Any],
     /,
     *checks: tanjun.CheckSig[typing.Any],
-    error: collections.Callable[[], Exception] | None = None,
-    error_message: str | collections.Mapping[str, str] | None,
+    error: typing.Optional[collections.Callable[[], Exception]] = None,
+    error_message: typing.Union[str, collections.Mapping[str, str], None],
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
-) -> (
-    collections.Callable[[_CommandT], _CommandT]
-    | collections.Callable[[_MenuCommandT], _MenuCommandT]
-    | collections.Callable[[_MessageCommandT], _MessageCommandT]
-    | collections.Callable[[_SlashCommandT], _SlashCommandT]
-):
+) -> typing.Union[
+    collections.Callable[[_CommandT], _CommandT],
+    collections.Callable[[_MenuCommandT], _MenuCommandT],
+    collections.Callable[[_MessageCommandT], _MessageCommandT],
+    collections.Callable[[_SlashCommandT], _SlashCommandT],
+]:
     """Add a check which'll pass if any of the provided checks pass through a decorator call.
 
     This ensures that the callbacks are run in the order they were supplied in

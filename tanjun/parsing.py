@@ -80,7 +80,7 @@ if typing.TYPE_CHECKING:
             raise NotImplementedError
 
     _CmpProtoT = typing.TypeVar("_CmpProtoT", bound=_CmpProto[typing.Any])
-    _MaybeIterable: typing.TypeAlias = "collections.Iterable[_T] | _T"
+    _MaybeIterable = typing.Union[collections.Iterable["_T"], "_T"]
     _SizedCmpProtoT = typing.TypeVar("_SizedCmpProtoT", bound=_SizedCmpProto[typing.Any])
 
 
@@ -90,7 +90,7 @@ _T = typing.TypeVar("_T")
 if typing.TYPE_CHECKING:
     _P = typing_extensions.ParamSpec("_P")
     _ConverterSig = collections.Callable[
-        typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, _T] | _T
+        typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
     ]
 
     ConverterSig = _ConverterSig[..., _T]
@@ -104,7 +104,7 @@ else:
     import types
 
     ConverterSig = types.GenericAlias(
-        collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T] | _T], (_T,)
+        collections.Callable[..., typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]], (_T,)
     )
 
 

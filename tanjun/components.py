@@ -70,7 +70,7 @@ _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.A
 # This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
 _WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
 
-OnCallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None] | None]
+OnCallbackSig = collections.Callable[..., typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]]
 """Type hint of a on_open or on_close component callback.
 
 These support dependency injection, should expect no positional arguments and

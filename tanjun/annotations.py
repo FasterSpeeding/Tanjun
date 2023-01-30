@@ -73,7 +73,6 @@ __all__: list[str] = [
 
 import abc
 import datetime
-import enum
 import itertools
 import operator
 import typing
@@ -98,19 +97,19 @@ if typing.TYPE_CHECKING:
     _T = typing.TypeVar("_T")
     _P = typing_extensions.ParamSpec("_P")
     __ConverterSig = collections.Callable[
-        typing_extensions.Concatenate[str, _P], collections.Coroutine[typing.Any, typing.Any, _T] | _T,
+        typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T],
     ]
     _ConverterSig = __ConverterSig[..., _T]
-    _ChannelTypeIsh = type[hikari.PartialChannel] | int
-    _ChoiceUnion = int | float | str
+    _ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
+    _ChoiceUnion = typing.Union[int, float, str]
     _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
-    _CommandUnion = slash.SlashCommand[typing.Any] | message.MessageCommand[typing.Any]
+    _CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
     _CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
     _EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
     _NumberT = typing.TypeVar("_NumberT", float, int)
 
 
-_MentionableUnion = hikari.User | hikari.Role
+_MentionableUnion = typing.Union[hikari.User, hikari.Role]
 
 
 class _ConfigIdentifier(abc.ABC):
@@ -306,7 +305,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
 
 class _ConvertedMeta(abc.ABCMeta):
-    def __getitem__(cls, converters: _ConverterSig[_T] | tuple[_ConverterSig[_T]], /) -> type[_T]:
+    def __getitem__(cls, converters: typing.Union[_ConverterSig[_T], tuple[_ConverterSig[_T]]], /) -> type[_T]:
         if not isinstance(converters, tuple):
             converters = (converters,)
 
@@ -971,7 +970,7 @@ class _SnowflakeOrMeta(abc.ABCMeta):
             descriptor = SnowflakeOr()
 
         return typing.cast(
-            type[typing.Union[hikari.Snowflake, _T]],
+            "type[typing.Union[hikari.Snowflake, _T]]",
             typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor],
         )
 
@@ -1154,8 +1153,8 @@ class _ArgConfig:
         self.default: typing.Any = parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
         self.description: typing.Optional[str] = description
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
-        self.float_converter: collections.Callable[[float], typing.Any] | None = None
-        self.int_converter: collections.Callable[[int], typing.Any] | None = None
+        self.float_converter: typing.Optional[collections.Callable[[float], typing.Any]] = None
+        self.int_converter: typing.Optional[collections.Callable[[int], typing.Any]] = None
         # The float and int converters are just for Choices[Enum].
         self.is_greedy: bool = False
         self.is_positional: typing.Optional[bool] = None
@@ -1169,7 +1168,7 @@ class _ArgConfig:
         self.range_or_slice: typing.Union[range, slice, None] = None
         self.slash_name: str = parameter.name
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
-        self.str_converters: collections.Sequence[_ConverterSig[typing.Any]] | None = None
+        self.str_converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
 
     def finalise_slice(self) -> None:
         if not self.range_or_slice:

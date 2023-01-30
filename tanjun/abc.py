@@ -121,7 +121,7 @@ _MenuValueT = typing.TypeVar("_MenuValueT", hikari.Message, hikari.InteractionMe
 CommandCallbackSig = collections.Callable[..., _CoroT[None]]
 """Deprecated type hint used to represent any command callback."""
 
-MetaEventSig = collections.Callable[..., _CoroT[None] | None]
+MetaEventSig = collections.Callable[..., typing.Union[_CoroT[None], None]]
 """Type hint of a client callback.
 
 The positional arguments this is guaranteed depend on the event name its being
@@ -134,7 +134,7 @@ return [None][].
 if typing.TYPE_CHECKING:
     _P = typing_extensions.ParamSpec("_P")
 
-    _MaybeAwaitable = collections.Callable[_P, _CoroT[_T] | _T]
+    _MaybeAwaitable = collections.Callable[_P, typing.Union[_CoroT[_T], _T]]
 
     _AutocompleteSig = collections.Callable[
         typing_extensions.Concatenate["AutocompleteContext", _AutocompleteValueT, _P], _CoroT[None]
@@ -205,7 +205,9 @@ if typing.TYPE_CHECKING:
     This must be asynchronous and return [None][].
     """
 
-    _ErrorHookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, Exception, _P], bool | None]
+    _ErrorHookSig = _MaybeAwaitable[
+        typing_extensions.Concatenate[_ContextT_contra, Exception, _P], typing.Optional[bool]
+    ]
 
     ErrorHookSig = _ErrorHookSig[_ContextT_contra, ...]
     """Type hint of the callback used as a unexpected command error hook.
@@ -223,7 +225,7 @@ if typing.TYPE_CHECKING:
     """
 
     _ParserHookSig = _MaybeAwaitable[
-        typing_extensions.Concatenate[_ContextT_contra, "errors.ParserError", _P], bool | None
+        typing_extensions.Concatenate[_ContextT_contra, "errors.ParserError", _P], typing.Optional[bool]
     ]
 
     ParserHookSig = _ParserHookSig[_ContextT_contra, ...]

@@ -35,6 +35,8 @@ __all__: list[str] = ["MenuCommand", "as_message_menu", "as_user_menu"]
 
 import typing
 
+import hikari
+
 from .. import _internal
 from .. import abc as tanjun
 from .. import components
@@ -54,14 +56,12 @@ if typing.TYPE_CHECKING:
     _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=tanjun.MenuCallbackSig[hikari.Message])
     _UserCallbackSigT = typing.TypeVar("_UserCallbackSigT", bound=tanjun.MenuCallbackSig[hikari.InteractionMember])
 
-    _AnyCommandT = (
-        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any]
-        | tanjun.MessageCommand[_AnyCallbackSigT]
-        | tanjun.SlashCommand[_AnyCallbackSigT]
-    )
-    _CallbackishT = _AnyCallbackSigT | _AnyCommandT[_AnyCallbackSigT]
-
-import hikari
+    _AnyCommandT = typing.Union[
+        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any],
+        tanjun.MessageCommand[_AnyCallbackSigT],
+        tanjun.SlashCommand[_AnyCallbackSigT],
+    ]
+    _CallbackishT = typing.Union[_AnyCallbackSigT, _AnyCommandT[_AnyCallbackSigT]]
 
 _AnyMenuCallbackSigT = typing.TypeVar("_AnyMenuCallbackSigT", bound=tanjun.MenuCallbackSig[typing.Any])
 _MenuTypeT = typing.TypeVar(
@@ -336,15 +336,15 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         self: MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]],
         callback: _UserCallbackSigT,
         type_: typing.Literal[hikari.CommandType.USER],
-        name: str | collections.Mapping[str, str],
+        name: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: hikari.Permissions | int | None = None,
-        default_to_ephemeral: bool | None = None,
-        dm_enabled: bool | None = None,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+        default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
-        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
 
@@ -372,15 +372,15 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         self: MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]],
         callback: _MessageCallbackSigT,
         type_: typing.Literal[hikari.CommandType.MESSAGE],
-        name: str | collections.Mapping[str, str],
+        name: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
         always_defer: bool = False,
-        default_member_permissions: hikari.Permissions | int | None = None,
-        default_to_ephemeral: bool | None = None,
-        dm_enabled: bool | None = None,
+        default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+        default_to_ephemeral: typing.Optional[bool] = None,
+        dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
-        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
 

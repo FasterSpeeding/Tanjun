@@ -76,11 +76,9 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
-    _AppCmdResponse = (
-        hikari.api.InteractionMessageBuilder
-        | hikari.api.InteractionDeferredBuilder
-        | hikari.api.InteractionModalBuilder
-    )
+    _AppCmdResponse = typing.Union[
+        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder,
+    ]
     _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig[typing.Any])
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun.MetaEventSig)
@@ -492,11 +490,11 @@ class _StartDeclarer:
 
 
 def _log_clients(
-    cache: hikari.api.Cache | None,
-    events: hikari.api.EventManager | None,
-    server: hikari.api.InteractionServer | None,
+    cache: typing.Optional[hikari.api.Cache],
+    events: typing.Optional[hikari.api.EventManager],
+    server: typing.Optional[hikari.api.InteractionServer],
     rest: hikari.api.RESTClient,
-    shards: hikari.ShardAware | None,
+    shards: typing.Optional[hikari.ShardAware],
     event_managed: bool,
     /,
 ) -> None:
@@ -3079,17 +3077,21 @@ def _try_unsubscribe(
         pass
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class _LoadModule:
-    path: str | pathlib.Path
+    __slots__ = ("path",)
+
+    path: typing.Union[str, pathlib.Path]
 
     def __call__(self) -> types.ModuleType:
         return importlib.import_module(self.path) if isinstance(self.path, str) else _get_path_module(self.path)
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class _ReloadModule:
-    path: types.ModuleType | pathlib.Path
+    __slots__ = ("path",)
+
+    path: typing.Union[types.ModuleType, pathlib.Path]
 
     def __call__(self) -> types.ModuleType:
         return _get_path_module(self.path) if isinstance(self.path, pathlib.Path) else importlib.reload(self.path)

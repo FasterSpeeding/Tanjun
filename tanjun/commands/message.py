@@ -49,12 +49,12 @@ if typing.TYPE_CHECKING:
 
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
-    _AnyCommandT = (
-        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any]
-        | tanjun.MessageCommand[_AnyCallbackSigT]
-        | tanjun.SlashCommand[_AnyCallbackSigT]
-    )
-    _CallbackishT: typing.TypeAlias = "_AnyCommandT[_MessageCallbackSigT] | _MessageCallbackSigT"
+    _AnyCommandT = typing.Union[
+        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any],
+        tanjun.MessageCommand[_AnyCallbackSigT],
+        tanjun.SlashCommand[_AnyCallbackSigT],
+    ]
+    _CallbackishT = typing.Union[_AnyCommandT["_MessageCallbackSigT"], "_MessageCallbackSigT"]
     _OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.MessageCallbackSig)
 
 
@@ -185,7 +185,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         /,
         *names: str,
         validate_arg_keys: bool = True,
-        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
 
@@ -197,7 +197,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         /,
         *names: str,
         validate_arg_keys: bool = True,
-        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
 
@@ -387,7 +387,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         *names: str,
         strict: bool = False,
         validate_arg_keys: bool = True,
-        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
 
@@ -400,7 +400,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         *names: str,
         strict: bool = False,
         validate_arg_keys: bool = True,
-        _wrapped_command: tanjun.ExecutableCommand[typing.Any] | None = None,
+        _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
 
@@ -505,7 +505,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         """
 
         def decorator(
-            callback: _OtherCallbackSigT | _AnyCommandT[_OtherCallbackSigT], /
+            callback: typing.Union[_OtherCallbackSigT, _AnyCommandT[_OtherCallbackSigT]], /
         ) -> MessageCommand[_OtherCallbackSigT]:
             return self.with_command(as_message_command(name, *names, validate_arg_keys=validate_arg_keys)(callback))
 

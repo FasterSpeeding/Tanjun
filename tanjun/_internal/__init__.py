@@ -60,7 +60,10 @@ if typing.TYPE_CHECKING:
 
     _ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
     _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
-    _TreeT = dict["str | _IndexKeys", "_TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]"]
+    _TreeT = dict[
+        typing.Union[str, "_IndexKeys"],
+        typing.Union["_TreeT", list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]],
+    ]
 
 
 _KeyT = typing.TypeVar("_KeyT")
@@ -155,7 +158,7 @@ class CastedView(collections.Mapping[_KeyT, _OtherT]):
 _KEYWORD_TYPES = {inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD}
 
 
-def get_kwargs(callback: collections.Callable[..., typing.Any], /) -> list[str] | None:
+def get_kwargs(callback: collections.Callable[..., typing.Any], /) -> typing.Union[list[str], None]:
     """Get a list of the keyword argument names for a callback.
 
     Parameters
