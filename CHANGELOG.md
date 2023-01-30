@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### [2.11.2] - 2023-01-23
 ### Changed
 - [tanjun.clients.Client.from_gateway_bot][] can now also take cache-less `ShardAware` bots.
+- Improved the typing of callbacks which support DI to enforce the type of any positionally
+  passed arguments with a static type.
+  MyPy doesn't support this and will just behave as before.
 
 ### Fixed
 - [tanjun.clients.Client.set_human_only][] no longer registers the internal check multiple

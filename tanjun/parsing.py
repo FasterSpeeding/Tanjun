@@ -86,7 +86,7 @@ if typing.TYPE_CHECKING:
 
 _T = typing.TypeVar("_T")
 
-"""Type hint of a slash command option converter."""
+# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
 if typing.TYPE_CHECKING:
     _P = typing_extensions.ParamSpec("_P")
     _ConverterSig = collections.Callable[

@@ -263,6 +263,7 @@ if typing.TYPE_CHECKING:
     regardless of implementation and must be a coruotine function which returns [None][].
     """
 
+# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
 else:
     import types
 
