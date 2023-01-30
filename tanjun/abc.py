@@ -36,6 +36,7 @@ __all__: list[str] = [
     "AnyHooks",
     "AppCommand",
     "AppCommandContext",
+    "AutocompleteCallbackSig",
     "AutocompleteContext",
     "AutocompleteSig",
     "BaseSlashCommand",
@@ -43,6 +44,7 @@ __all__: list[str] = [
     "Client",
     "ClientCallbackNames",
     "ClientLoader",
+    "CommandCallbackSig",
     "Component",
     "Context",
     "ErrorHookSig",
@@ -52,6 +54,7 @@ __all__: list[str] = [
     "ListenerCallbackSig",
     "MenuCallbackSig",
     "MenuCommand",
+    "MenuCommandCallbackSig",
     "MenuContext",
     "MenuHooks",
     "MessageCommand",
@@ -150,9 +153,6 @@ if typing.TYPE_CHECKING:
     autocomplete type), returns [None][] and may use dependency injection.
     """
 
-    AutocompleteCallbackSig = AutocompleteSig
-    """Deprecated alias of [tanjun.abc.AutocompleteSig][]."""
-
     _CheckSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], bool]
     CheckSig = _CheckSig[_ContextT_contra, ...]
     """Type hint of a generic context check used with Tanjun [tanjun.abc.ExecutableCommand][] classes.
@@ -182,9 +182,6 @@ if typing.TYPE_CHECKING:
 
     This must be asynchronous and return [None][].
     """
-
-    MenuCommandCallbackSig = MenuCallbackSig
-    """Deprecated alias of [tanjun.abc.MenuCallbackSig][]."""
 
     _CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], _CoroT[None]]
 
@@ -269,11 +266,9 @@ else:
     import types
 
     AutocompleteSig = types.GenericAlias(collections.Callable[..., typing.Any], (_AutocompleteValueT,))
-    AutocompleteCallbackSig = AutocompleteSig
     CheckSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
     AnyCheckSig = CheckSig
     MenuCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_MenuValueT,))
-    MenuCommandCallbackSig = MenuCallbackSig
     MessageCallbackSig = collections.Callable[..., typing.Any]
     SlashCallbackSig = collections.Callable[..., typing.Any]
     ErrorHookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
@@ -282,6 +277,12 @@ else:
     _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
     ListenerCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_EventT,))
 
+
+AutocompleteCallbackSig = AutocompleteSig
+"""Deprecated alias of [tanjun.abc.AutocompleteSig][]."""
+
+MenuCommandCallbackSig = MenuCallbackSig
+"""Deprecated alias of [tanjun.abc.MenuCallbackSig][]."""
 
 _MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound=MenuCallbackSig[typing.Any])
 _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=MessageCallbackSig)
