@@ -64,11 +64,10 @@ if typing.TYPE_CHECKING:
     _OnCallbackSigT = typing.TypeVar("_OnCallbackSigT", bound="OnCallbackSig")
     _ScheduleT = typing.TypeVar("_ScheduleT", bound=schedules_.AbstractSchedule)
 
+    _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
+    _WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
 
 _LOGGER = logging.getLogger("hikari.tanjun.components")
-_CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
-# This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
-_WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
 
 OnCallbackSig = collections.Callable[..., typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]]
 """Type hint of a on_open or on_close component callback.
@@ -107,7 +106,7 @@ def _with_command(
         add_command(target_command)
         if follow_wrapped and not _recursing:
             for wrapped in _internal.collect_wrapped(target_command):
-                decorator(typing.cast(_CommandT, wrapped), _recursing=True)
+                decorator(typing.cast("_CommandT", wrapped), _recursing=True)
 
         return command
 
