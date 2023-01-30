@@ -56,8 +56,6 @@ import shlex
 import typing
 from collections import abc as collections
 
-import typing_extensions
-
 from . import abc as tanjun
 from . import conversion
 from . import errors
@@ -88,6 +86,8 @@ _T = typing.TypeVar("_T")
 
 # 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
 if typing.TYPE_CHECKING:
+    import typing_extensions
+
     _P = typing_extensions.ParamSpec("_P")
     _ConverterSig = collections.Callable[
         typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]

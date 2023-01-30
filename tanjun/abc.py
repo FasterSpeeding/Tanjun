@@ -73,7 +73,6 @@ import typing
 from collections import abc as collections
 
 import hikari
-import typing_extensions
 from alluka import abc as alluka
 
 if typing.TYPE_CHECKING:
@@ -132,6 +131,8 @@ return [None][].
 
 # 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
 if typing.TYPE_CHECKING:
+    import typing_extensions
+
     _P = typing_extensions.ParamSpec("_P")
 
     _MaybeAwaitable = collections.Callable[_P, typing.Union[_CoroT[_T], _T]]
