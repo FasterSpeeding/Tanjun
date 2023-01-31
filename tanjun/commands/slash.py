@@ -91,7 +91,7 @@ if typing.TYPE_CHECKING:
 _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=tanjun.SlashCallbackSig)
 _ConvertT = typing.TypeVar("_ConvertT", int, float, str)
 
-# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
+# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
     import typing_extensions
 
