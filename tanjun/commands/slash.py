@@ -72,25 +72,50 @@ if typing.TYPE_CHECKING:
     from hikari.api import special_endpoints as special_endpoints_api
     from typing_extensions import Self
 
-    _AutocompleteCallbackSigT = typing.TypeVar("_AutocompleteCallbackSigT", bound=tanjun.AutocompleteCallbackSig)
-    _AnyBaseSlashCommandT = typing.TypeVar("_AnyBaseSlashCommandT", bound="tanjun.BaseSlashCommand")
+    _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
+    _AnyBaseSlashCommandT = typing.TypeVar("_AnyBaseSlashCommandT", bound=tanjun.BaseSlashCommand)
     _SlashCommandT = typing.TypeVar("_SlashCommandT", bound="SlashCommand[typing.Any]")
-    _CommandT = typing.Union[
-        tanjun.MenuCommand["_CommandCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_CommandCallbackSigT"],
-        tanjun.SlashCommand["_CommandCallbackSigT"],
+    _AnyCommandT = typing.Union[
+        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any],
+        tanjun.MessageCommand[_AnyCallbackSigT],
+        tanjun.SlashCommand[_AnyCallbackSigT],
     ]
-    _CallbackishT = typing.Union["_CommandCallbackSigT", _CommandT["_CommandCallbackSigT"]]
+    _AnyConverterSig = typing.Union["ConverterSig[float]", "ConverterSig[int]", "ConverterSig[str]"]
+    _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
 
-_CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
+    _IntAutocompleteSigT = typing.TypeVar("_IntAutocompleteSigT", bound=tanjun.AutocompleteSig[int])
+    _FloatAutocompleteSigT = typing.TypeVar("_FloatAutocompleteSigT", bound=tanjun.AutocompleteSig[float])
+    _StrAutocompleteSigT = typing.TypeVar("_StrAutocompleteSigT", bound=tanjun.AutocompleteSig[str])
+
+
+_SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=tanjun.SlashCallbackSig)
+_ConvertT = typing.TypeVar("_ConvertT", int, float, str)
+
+# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
+if typing.TYPE_CHECKING:
+    import typing_extensions
+
+    _P = typing_extensions.ParamSpec("_P")
+
+    _ConverterSig = collections.Callable[
+        typing_extensions.Concatenate[_ConvertT, _P],
+        typing.Union[collections.Coroutine[typing.Any, typing.Any, typing.Any], typing.Any],
+    ]
+    ConverterSig = _ConverterSig[_ConvertT, ...]
+    """Type hint of a slash command option converter.
+
+    This represents the signatures `def (int | float | str, ...) -> Any` and
+    `async def (int | float | str, ...) -> None` where dependency injection is
+    supported.
+    """
+
+else:
+    import types
+
+    ConverterSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ConvertT,))
+
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
-
-ConverterSig = typing.Union[
-    collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]],
-    collections.Callable[..., typing.Any],
-]
-
 
 _SCOMMAND_NAME_REG: typing.Final[str] = r"^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$"
 _VALID_NAME_UNICODE_CATEGORIES = frozenset(
@@ -230,17 +255,16 @@ def slash_command_group(
     )
 
 
-class _ResultProto(typing.Protocol):
+# While these overloads may seem redundant/unnecessary, MyPy cannot understand
+# this when expressed through `callback: _CallbackIshT[_SlashCallbackSigT]`.
+class _AsSlashResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _CommandT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
+    def __call__(self, _: _SlashCallbackSigT, /) -> SlashCommand[_SlashCallbackSigT]:
         ...
 
     @typing.overload
-    def __call__(self, _: _CommandCallbackSigT, /) -> SlashCommand[_CommandCallbackSigT]:
+    def __call__(self, _: _AnyCommandT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
         ...
-
-    def __call__(self, _: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
-        raise NotImplementedError
 
 
 def as_slash_command(
@@ -255,7 +279,7 @@ def as_slash_command(
     is_global: bool = True,
     sort_options: bool = True,
     validate_arg_keys: bool = True,
-) -> _ResultProto:
+) -> _AsSlashResultProto:
     r"""Build a [tanjun.SlashCommand][] by decorating a function.
 
     !!! note
@@ -325,7 +349,7 @@ def as_slash_command(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
+    collections.abc.Callable[[tanjun.abc.SlashCallbackSig], SlashCommand]
         The decorator callback used to make a [tanjun.SlashCommand][].
 
         This can either wrap a raw command callback or another callable command instance
@@ -343,7 +367,7 @@ def as_slash_command(
         * If the description is over 100 characters long.
     """  # noqa: D202, E501
 
-    def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
+    def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -397,7 +421,7 @@ def with_attachment_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda command: command.add_attachment_option(
@@ -410,9 +434,9 @@ def with_str_slash_option(
     description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
-    autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
+    autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
     choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
-    converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
+    converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
     key: typing.Optional[str] = None,
     min_length: typing.Optional[int] = None,
@@ -435,7 +459,7 @@ def with_str_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_str_option(
@@ -458,9 +482,9 @@ def with_int_slash_option(
     description: typing.Union[str, collections.Mapping[str, str]],
     /,
     *,
-    autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
+    autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
     choices: typing.Optional[collections.Mapping[str, int]] = None,
-    converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
+    converters: typing.Union[collections.Sequence[ConverterSig[int]], ConverterSig[int]] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
     key: typing.Optional[str] = None,
     min_value: typing.Optional[int] = None,
@@ -483,7 +507,7 @@ def with_int_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_int_option(
@@ -507,9 +531,9 @@ def with_float_slash_option(
     /,
     *,
     always_float: bool = True,
-    autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
+    autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
     choices: typing.Optional[collections.Mapping[str, float]] = None,
-    converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
+    converters: typing.Union[collections.Sequence[ConverterSig[float]], ConverterSig[float]] = (),
     default: typing.Any = UNDEFINED_DEFAULT,
     key: typing.Optional[str] = None,
     min_value: typing.Optional[float] = None,
@@ -532,7 +556,7 @@ def with_float_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_float_option(
@@ -576,7 +600,7 @@ def with_bool_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_bool_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -612,7 +636,7 @@ def with_user_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_user_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -645,7 +669,7 @@ def with_member_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_member_option(name, description, default=default, key=key)
@@ -680,7 +704,7 @@ def with_channel_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_channel_option(
@@ -713,7 +737,7 @@ def with_role_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_role_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -748,7 +772,7 @@ def with_mentionable_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[_SlashCommandT], _SlashCommandT]
+    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_mentionable_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -764,7 +788,7 @@ class _TrackedOption:
         name: str,
         option_type: typing.Union[hikari.OptionType, int],
         always_float: bool = False,
-        converters: typing.Optional[list[ConverterSig]] = None,
+        converters: typing.Optional[list[_AnyConverterSig]] = None,
         only_member: bool = False,
         default: typing.Any = UNDEFINED_DEFAULT,
     ) -> None:
@@ -794,9 +818,6 @@ class _TrackedOption:
                 exceptions.append(exc)
 
         raise errors.ConversionError(f"Couldn't convert {self.type} '{self.name}'", self.name, errors=exceptions)
-
-
-_SlashCommandBuilderT = typing.TypeVar("_SlashCommandBuilderT", bound="_SlashCommandBuilder")
 
 
 class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
@@ -1213,7 +1234,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         default_to_ephemeral: typing.Optional[bool] = None,
         sort_options: bool = True,
         validate_arg_keys: bool = True,
-    ) -> _ResultProto:
+    ) -> collections.Callable[[_CallbackishT[_SlashCallbackSigT]], SlashCommand[_SlashCallbackSigT]]:
         r"""Build a [tanjun.SlashCommand][] in this command group by decorating a function.
 
         !!! note
@@ -1250,7 +1271,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
 
         Returns
         -------
-        collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
+        collections.abc.Callable[[tanjun.abc.SlashCallbackSig], SlashCommand]
             The decorator callback used to make a sub-command.
 
             This can either wrap a raw command callback or another callable command instance
@@ -1266,7 +1287,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the description is over 100 characters long.
         """  # noqa: D202, E501
 
-        def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> SlashCommand[_CommandCallbackSigT]:
+        def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
             return self.with_command(
                 as_slash_command(
                     name,
@@ -1419,7 +1440,7 @@ def _assert_in_range(name: str, value: typing.Optional[int], min_value: int, max
         raise ValueError(f"`{name}` must be less than or equal to {max_value}")
 
 
-class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
+class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
     """Standard implementation of a slash command."""
 
     __slots__ = (
@@ -1435,10 +1456,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         "_wrapped_command",
     )
 
+    # While these overloads may seem redundant/unnecessary, MyPy cannot understand
+    # this when expressed through `callback: _CallbackIshT[_SlashCallbackSigT]`.
     @typing.overload
     def __init__(
         self,
-        callback: _CommandT[_CommandCallbackSigT],
+        callback: _SlashCallbackSigT,
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -1457,7 +1480,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
     @typing.overload
     def __init__(
         self,
-        callback: _CommandCallbackSigT,
+        callback: _AnyCommandT[_SlashCallbackSigT],
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -1475,7 +1498,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def __init__(
         self,
-        callback: _CallbackishT[_CommandCallbackSigT],
+        callback: _CallbackishT[_SlashCallbackSigT],
         name: typing.Union[str, collections.Mapping[str, str]],
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
@@ -1506,7 +1529,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.SlashContext, ...], collections.abc.Coroutine[Any, Any, None]]
+        callback : tanjun.abc.SlashCallbackSig
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional
@@ -1576,16 +1599,16 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         self._builder = _SlashCommandBuilder(
             self.name, self.name_localisations, self.description, self.description_localisations, sort_options
         )
-        self._callback: _CommandCallbackSigT = callback
+        self._callback: _SlashCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None
-        self._float_autocompletes: dict[str, tanjun.AutocompleteCallbackSig] = {}
-        self._int_autocompletes: dict[str, tanjun.AutocompleteCallbackSig] = {}
-        self._str_autocompletes: dict[str, tanjun.AutocompleteCallbackSig] = {}
+        self._float_autocompletes: dict[str, tanjun.AutocompleteSig[float]] = {}
+        self._int_autocompletes: dict[str, tanjun.AutocompleteSig[int]] = {}
+        self._str_autocompletes: dict[str, tanjun.AutocompleteSig[str]] = {}
         self._tracked_options: dict[str, _TrackedOption] = {}
         self._wrapped_command = _wrapped_command
 
     if typing.TYPE_CHECKING:
-        __call__: _CommandCallbackSigT
+        __call__: _SlashCallbackSigT
 
     else:
 
@@ -1593,22 +1616,22 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             await self._callback(*args, **kwargs)
 
     @property
-    def callback(self) -> _CommandCallbackSigT:
+    def callback(self) -> _SlashCallbackSigT:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._callback
 
     @property
-    def float_autocompletes(self) -> collections.Mapping[str, tanjun.AutocompleteCallbackSig]:
+    def float_autocompletes(self) -> collections.Mapping[str, tanjun.AutocompleteSig[float]]:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._float_autocompletes.copy()
 
     @property
-    def int_autocompletes(self) -> collections.Mapping[str, tanjun.AutocompleteCallbackSig]:
+    def int_autocompletes(self) -> collections.Mapping[str, tanjun.AutocompleteSig[int]]:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._int_autocompletes.copy()
 
     @property
-    def str_autocompletes(self) -> collections.Mapping[str, tanjun.AutocompleteCallbackSig]:
+    def str_autocompletes(self) -> collections.Mapping[str, tanjun.AutocompleteSig[str]]:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
         return self._str_autocompletes.copy()
 
@@ -1662,7 +1685,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         choices: typing.Union[
             collections.Mapping[str, typing.Union[str, int, float]], collections.Sequence[typing.Any], None
         ] = None,
-        converters: typing.Union[collections.Iterable[ConverterSig], ConverterSig] = (),
+        converters: typing.Union[collections.Sequence[_AnyConverterSig], _AnyConverterSig] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_length: typing.Optional[int] = None,
@@ -1693,7 +1716,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             raise ValueError(f"{key!r} is not a valid keyword argument for {self._callback}")
 
         type_ = hikari.OptionType(type_)
-        if isinstance(converters, collections.Iterable):
+        if isinstance(converters, collections.Sequence):
             converters = list(converters)
 
         else:
@@ -1828,9 +1851,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
-        autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
+        autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
         choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
-        converters: typing.Union[collections.Sequence[ConverterSig], ConverterSig] = (),
+        converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_length: typing.Optional[int] = None,
@@ -1859,8 +1882,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
-            argument should be of type [str][].
+            [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
+            should be of type [str][].
         choices
             The option's choices.
 
@@ -1976,9 +1999,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         description: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,
-        autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
+        autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
         choices: typing.Optional[collections.Mapping[str, int]] = None,
-        converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
+        converters: typing.Union[collections.Sequence[ConverterSig[int]], ConverterSig[int]] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_value: typing.Optional[int] = None,
@@ -2002,8 +2025,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
-            argument should be of type [int][].
+            [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
+            should be of type [int][].
         choices
             The option's choices.
 
@@ -2087,9 +2110,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         /,
         *,
         always_float: bool = True,
-        autocomplete: typing.Optional[tanjun.AutocompleteCallbackSig] = None,
+        autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
         choices: typing.Optional[collections.Mapping[str, float]] = None,
-        converters: typing.Union[collections.Collection[ConverterSig], ConverterSig] = (),
+        converters: typing.Union[collections.Sequence[ConverterSig[float]], ConverterSig[float]] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
         min_value: typing.Optional[float] = None,
@@ -2119,8 +2142,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
-            argument should be of type [float][].
+            [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
+            should be of type [float][].
         choices
             The option's choices.
 
@@ -2606,7 +2629,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             pass_as_kwarg=pass_as_kwarg,
         )
 
-    def set_float_autocomplete(self, name: str, callback: typing.Optional[tanjun.AutocompleteCallbackSig], /) -> Self:
+    def set_float_autocomplete(self, name: str, callback: typing.Optional[tanjun.AutocompleteSig[float]], /) -> Self:
         """Set the autocomplete callback for a float option.
 
         Parameters
@@ -2620,8 +2643,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
-            argument should be of type [float][].
+            [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
+            should be of type [float][].
 
             Passing [None][] here will remove the autocomplete callback for the
             option.
@@ -2658,7 +2681,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
     def with_float_autocomplete(
         self, name: str, /
-    ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+    ) -> collections.Callable[[_FloatAutocompleteSigT], _FloatAutocompleteSigT]:
         """Set the autocomplete callback for a float option through a decorator call.
 
         Parameters
@@ -2671,12 +2694,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         Returns
         -------
-        Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
+        Collections.abc.Callable[[tanjun.abc.AutocompleteSig[float]], tanjun.abc.AutocompleteSig[float]]
             Decorator callback used to capture the autocomplete callback.
 
             More information on the autocomplete signature can be found at
-            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
-            argument should be of type [float][].
+            [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
+            should be of type [float][].
 
         Raises
         ------
@@ -2686,13 +2709,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             Raises a type error if the option isn't of type `float`.
         """
 
-        def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
+        def decorator(callback: _FloatAutocompleteSigT, /) -> _FloatAutocompleteSigT:
             self.set_float_autocomplete(name, callback)
             return callback
 
         return decorator
 
-    def set_int_autocomplete(self, name: str, callback: tanjun.AutocompleteCallbackSig, /) -> Self:
+    def set_int_autocomplete(self, name: str, callback: tanjun.AutocompleteSig[int], /) -> Self:
         """Set the autocomplete callback for a string option.
 
         Parameters
@@ -2706,8 +2729,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
-            argument should be of type [str][].
+            [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
+            should be of type [str][].
 
             Passing [None][] here will remove the autocomplete callback for the
             option.
@@ -2736,9 +2759,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         self._int_autocompletes[name] = callback
         return self
 
-    def with_int_autocomplete(
-        self, name: str, /
-    ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+    def with_int_autocomplete(self, name: str, /) -> collections.Callable[[_IntAutocompleteSigT], _IntAutocompleteSigT]:
         """Set the autocomplete callback for a integer option through a decorator call.
 
         Parameters
@@ -2751,12 +2772,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         Returns
         -------
-        Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
+        Collections.abc.Callable[[tanjun.abc.AutocompleteSig[int]], tanjun.abc.AutocompleteSig[int]]
             Decorator callback used to capture the autocomplete callback.
 
             More information on the autocomplete signature can be found at
-            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
-            argument should be of type [int][].
+            [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
+            should be of type [int][].
 
         Raises
         ------
@@ -2766,13 +2787,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             Raises a type error if the option isn't of type `int`.
         """
 
-        def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
+        def decorator(callback: _IntAutocompleteSigT, /) -> _IntAutocompleteSigT:
             self.set_int_autocomplete(name, callback)
             return callback
 
         return decorator
 
-    def set_str_autocomplete(self, name: str, callback: tanjun.AutocompleteCallbackSig, /) -> Self:
+    def set_str_autocomplete(self, name: str, callback: tanjun.AutocompleteSig[str], /) -> Self:
         """Set the autocomplete callback for a str option.
 
         Parameters
@@ -2786,8 +2807,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             The autocomplete callback for the option.
 
             More information on this callback's signature can be found at
-            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
-            argument should be of type [str][].
+            [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
+            should be of type [str][].
 
             Passing [None][] here will remove the autocomplete callback for the
             option.
@@ -2816,9 +2837,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
         self._str_autocompletes[name] = callback
         return self
 
-    def with_str_autocomplete(
-        self, name: str, /
-    ) -> collections.Callable[[_AutocompleteCallbackSigT], _AutocompleteCallbackSigT]:
+    def with_str_autocomplete(self, name: str, /) -> collections.Callable[[_StrAutocompleteSigT], _StrAutocompleteSigT]:
         """Set the autocomplete callback for a string option through a decorator call.
 
         Parameters
@@ -2831,12 +2850,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
 
         Returns
         -------
-        Collections.abc.Callable[[tanjun.abc.AutocompleteCallbackSig], tanjun.abc.AutocompleteCallbackSig]
+        Collections.abc.Callable[[tanjun.abc.AutocompleteSig[str]], tanjun.abc.AutocompleteSig[str]]
             Decorator callback used to capture the autocomplete callback.
 
             More information on the autocomplete signature can be found at
-            [tanjun.abc.AutocompleteCallbackSig][] and the 2nd positional
-            argument should be of type [str][].
+            [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
+            should be of type [str][].
 
         Raises
         ------
@@ -2846,7 +2865,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_CommandCallbackSigT]):
             Raises a type error if the option isn't of type `str`.
         """
 
-        def decorator(callback: _AutocompleteCallbackSigT, /) -> _AutocompleteCallbackSigT:
+        def decorator(callback: _StrAutocompleteSigT, /) -> _StrAutocompleteSigT:
             self.set_str_autocomplete(name, callback)
             return callback
 

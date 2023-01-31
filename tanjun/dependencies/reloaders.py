@@ -41,7 +41,6 @@ import itertools
 import logging
 import pathlib
 import typing
-from collections import abc as collections
 
 import alluka
 import hikari
@@ -51,6 +50,8 @@ from .. import abc as tanjun
 from .. import errors
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
     from typing_extensions import Self
 
     _BuilderDict = dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder]
@@ -556,9 +557,10 @@ class _ScanResult:
 
 @dataclasses.dataclass
 class _PathScanner(typing.Generic[_PathT]):
-    __slots__ = ("global_paths", "dead_unloads", "result_paths", "removed_paths")
+    __slots__ = ("dead_unloads", "global_paths", "removed_paths", "result_paths")
+
     global_paths: dict[_PathT, _PyPathInfo]
-    dead_unloads: set[str | pathlib.Path]
+    dead_unloads: set[typing.Union[str, pathlib.Path]]
     result_paths: dict[_PathT, _PyPathInfo]
     removed_paths: list[_PathT]
 

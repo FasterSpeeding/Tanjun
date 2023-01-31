@@ -41,7 +41,6 @@ __all__: list[str] = [
 ]
 
 import typing
-from collections import abc as collections
 
 import hikari
 
@@ -49,6 +48,8 @@ from ._internal import cache
 from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
     from . import abc as tanjun
 
 

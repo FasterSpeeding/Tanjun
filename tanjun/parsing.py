@@ -78,21 +78,34 @@ if typing.TYPE_CHECKING:
             raise NotImplementedError
 
     _CmpProtoT = typing.TypeVar("_CmpProtoT", bound=_CmpProto[typing.Any])
+    _MaybeIterable = typing.Union[collections.Iterable["_T"], "_T"]
     _SizedCmpProtoT = typing.TypeVar("_SizedCmpProtoT", bound=_SizedCmpProto[typing.Any])
 
 
 _T = typing.TypeVar("_T")
 
-ConverterSig = typing.Union[
-    collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, _T]], collections.Callable[..., _T]
-]
-"""Type hint of a converter used within a parser instance.
+# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
+if typing.TYPE_CHECKING:
+    import typing_extensions
 
-This must be a callable or asynchronous callable which takes one position
-[str][], argument and returns the resultant value.
-"""
+    _P = typing_extensions.ParamSpec("_P")
+    _ConverterSig = collections.Callable[
+        typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
+    ]
 
-_MaybeIterable = typing.Union[collections.Iterable[_T], _T]
+    ConverterSig = _ConverterSig[..., _T]
+    """Type hint of a converter used within a parser instance.
+
+    This represents the signatures `def (str, ...) -> Any` and
+    `async def (str, ...) -> Any` where dependency injection is supported.
+    """
+
+else:
+    import types
+
+    ConverterSig = types.GenericAlias(
+        collections.Callable[..., typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]], (_T,)
+    )
 
 
 class UndefinedT:

@@ -41,6 +41,7 @@ from unittest import mock
 
 import pytest
 
+import tanjun
 from tanjun.commands import base as base_command
 
 _T = typing.TypeVar("_T")
@@ -132,7 +133,7 @@ class TestPartialCommand:
         assert command.checks == [mock_check_2, mock_check_3, mock_check_1]
 
     def test_remove_check(self, command: base_command.PartialCommand[typing.Any]):
-        def mock_check() -> bool:
+        def mock_check(ctx: tanjun.abc.Context) -> bool:
             raise NotImplementedError
 
         command.add_check(mock_check)
@@ -151,7 +152,7 @@ class TestPartialCommand:
         add_check.assert_called_once_with(mock_check)
 
     def test_with_check_when_already_present(self, command: base_command.PartialCommand[typing.Any]):
-        def mock_check() -> bool:
+        def mock_check(ctx: tanjun.abc.Context) -> bool:
             raise NotImplementedError
 
         command.add_check(mock_check).with_check(mock_check)

@@ -73,7 +73,6 @@ __all__: list[str] = [
 
 import abc
 import datetime
-import enum
 import itertools
 import operator
 import typing
@@ -90,17 +89,27 @@ from .commands import message
 from .commands import slash
 
 if typing.TYPE_CHECKING:
+    import enum
+
+    import typing_extensions
     from typing_extensions import Self
 
-_T = typing.TypeVar("_T")
-_ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
-_ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
-_ChoiceUnion = typing.Union[int, float, str]
-_CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
-_CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
-_EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
+    _T = typing.TypeVar("_T")
+    _P = typing_extensions.ParamSpec("_P")
+    __ConverterSig = collections.Callable[
+        typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T],
+    ]
+    _ConverterSig = __ConverterSig[..., _T]
+    _ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
+    _ChoiceUnion = typing.Union[int, float, str]
+    _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
+    _CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
+    _CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
+    _EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
+    _NumberT = typing.TypeVar("_NumberT", float, int)
+
+
 _MentionableUnion = typing.Union[hikari.User, hikari.Role]
-_NumberT = typing.TypeVar("_NumberT", float, int)
 
 
 class _ConfigIdentifier(abc.ABC):
@@ -186,25 +195,54 @@ User = typing.Annotated[hikari.User, _OptionMarker(hikari.User)]
 """An argument which takes a user."""
 
 
+class _FloatEnumConverter(_ConfigIdentifier):
+    """Specialised converters for float enum choices."""
+
+    __slots__ = ("_enum",)
+
+    def __init__(self, enum: collections.Callable[[float], typing.Any]) -> None:
+        self._enum = enum
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.float_converter = self._enum
+
+
+class _IntEnumConverter(_ConfigIdentifier):
+    """Specialised converters for int enum choices."""
+
+    __slots__ = ("_enum",)
+
+    def __init__(self, enum: collections.Callable[[int], typing.Any]) -> None:
+        self._enum = enum
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.int_converter = self._enum
+
+
 class _ChoicesMeta(abc.ABCMeta):
     def __getitem__(cls, enum_: type[_EnumT], /) -> type[_EnumT]:
-        if issubclass(enum_, int):
+        if issubclass(enum_, float):
+            type_ = float
+            choices = Choices(enum_.__members__)
+            converter = _FloatEnumConverter(enum_)
+
+        elif issubclass(enum_, int):
             type_ = int
             choices = Choices(enum_.__members__)
+            converter = _IntEnumConverter(enum_)
 
         elif issubclass(enum_, str):
             type_ = str
             choices = Choices(enum_.__members__)
-
-        elif issubclass(enum_, float):
-            type_ = float
-            choices = Choices(enum_.__members__)
+            converter = None
 
         else:
             raise TypeError("Enum must be a subclass of str, float or int")
 
         # TODO: do we want to wrap the convert callback to give better failed parse messages?
-        return typing.cast(type[_EnumT], typing.Annotated[enum_, choices, Converted(enum_), _TypeOverride(type_)])
+        return typing.cast(
+            "type[_EnumT]", typing.Annotated[enum_, choices, converter, Converted(enum_), _TypeOverride(type_)]
+        )
 
 
 class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
@@ -267,13 +305,11 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
 
 class _ConvertedMeta(abc.ABCMeta):
-    def __getitem__(
-        cls, converters: typing.Union[parsing.ConverterSig[_T], tuple[parsing.ConverterSig[_T]]], /
-    ) -> type[_T]:
+    def __getitem__(cls, converters: typing.Union[_ConverterSig[_T], tuple[_ConverterSig[_T]]], /) -> type[_T]:
         if not isinstance(converters, tuple):
             converters = (converters,)
 
-        return typing.cast(type[_T], typing.Annotated[typing.Any, Converted(*converters)])
+        return typing.cast("type[_T]", typing.Annotated[typing.Any, Converted(*converters)])
 
 
 class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
@@ -297,19 +333,17 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
 
     __slots__ = ("_converters",)
 
-    def __init__(
-        self, converter: parsing.ConverterSig[typing.Any], /, *other_converters: parsing.ConverterSig[typing.Any]
-    ) -> None:
+    def __init__(self, converter: _ConverterSig[typing.Any], /, *other_converters: _ConverterSig[typing.Any]) -> None:
         """Create a converted instance.
 
         Parameters
         ----------
-        converter : collections.abc.Callable
+        converter : collections.abc.Callable[[str, ...], collections.Coroutine[Any, Any, Any] | Any]
             The first converter this argument should use to handle values passed to it
             during parsing.
 
             Only the first converter to pass will be used.
-        *other_converters : collections.abc.Callable
+        *other_converters : collections.abc.Callable[[str, ...], collections.Coroutine[Any, Any, Any] | Any]
             Other first converter(s) this argument should use to handle values passed to it
             during parsing.
 
@@ -318,12 +352,13 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
         self._converters = [converter, *other_converters]
 
     @property
-    def converters(self) -> collections.Sequence[parsing.ConverterSig[typing.Any]]:
+    def converters(self) -> collections.Sequence[_ConverterSig[typing.Any]]:
         """A sequence of the converters."""
         return self._converters
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.converters = self._converters
+        config.str_converters = self._converters
+        config.option_type = str
 
 
 Color = typing.Annotated[hikari.Color, Converted(conversion.to_color)]
@@ -343,10 +378,10 @@ class _DefaultMeta(abc.ABCMeta):
     def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], _T]], /) -> type[_T]:
         if isinstance(value, tuple):
             type_ = value[0]
-            return typing.cast(type[_T], typing.Annotated[type_, Default(value[1])])
+            return typing.cast("type[_T]", typing.Annotated[type_, Default(value[1])])
 
-        type_ = typing.cast(type[_T], value)
-        return typing.cast(type[_T], typing.Annotated[type_, Default()])
+        type_ = typing.cast("type[_T]", value)
+        return typing.cast("type[_T]", typing.Annotated[type_, Default()])
 
 
 class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
@@ -499,7 +534,7 @@ class Flag(_ConfigIdentifier):
 
 class _PositionalMeta(abc.ABCMeta):
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        return typing.cast(type[_T], typing.Annotated[type_, Positional()])
+        return typing.cast("type[_T]", typing.Annotated[type_, Positional()])
 
 
 class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
@@ -526,16 +561,13 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
 
     __slots__ = ()
 
-    def __init__(self) -> None:
-        """Create a positional instance."""
-
     def set_config(self, config: _ArgConfig, /) -> None:
         config.is_positional = True
 
 
 class _GreedyMeta(abc.ABCMeta):
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        return typing.cast(type[_T], typing.Annotated[type_, Greedy()])
+        return typing.cast("type[_T]", typing.Annotated[type_, Greedy()])
 
 
 class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
@@ -573,7 +605,7 @@ class _LengthMeta(abc.ABCMeta):
         else:
             obj = Length(*value)
 
-        return typing.cast(type[str], typing.Annotated[Str, obj])
+        return typing.cast("type[str]", typing.Annotated[Str, obj])
 
 
 class Length(_ConfigIdentifier, metaclass=_LengthMeta):
@@ -667,9 +699,9 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
 class _MaxMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
-            return typing.cast(type[_NumberT], typing.Annotated[Int, Max(value)])
+            return typing.cast("type[_NumberT]", typing.Annotated[Int, Max(value)])
 
-        return typing.cast(type[_NumberT], typing.Annotated[Float, Max(value)])
+        return typing.cast("type[_NumberT]", typing.Annotated[Float, Max(value)])
 
 
 class Max(_ConfigIdentifier, metaclass=_MaxMeta):
@@ -716,9 +748,9 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
 class _MinMeta(abc.ABCMeta):
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
-            return typing.cast(type[_NumberT], typing.Annotated[Int, Min(value)])
+            return typing.cast("type[_NumberT]", typing.Annotated[Int, Min(value)])
 
-        return typing.cast(type[_NumberT], typing.Annotated[Float, Min(value)])
+        return typing.cast("type[_NumberT]", typing.Annotated[Float, Min(value)])
 
 
 class Min(_ConfigIdentifier, metaclass=_MinMeta):
@@ -836,9 +868,9 @@ class _RangedMeta(abc.ABCMeta):
         # This better matches how type checking (well pyright at least) will
         # prefer to go to float if either value is float.
         if isinstance(range_[0], float) or isinstance(range_[1], float):
-            return typing.cast(type[_NumberT], typing.Annotated[Float, Ranged(range_[0], range_[1])])
+            return typing.cast("type[_NumberT]", typing.Annotated[Float, Ranged(range_[0], range_[1])])
 
-        return typing.cast(type[_NumberT], typing.Annotated[Int, Ranged(range_[0], range_[1])])
+        return typing.cast("type[_NumberT]", typing.Annotated[Int, Ranged(range_[0], range_[1])])
 
 
 class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
@@ -938,7 +970,7 @@ class _SnowflakeOrMeta(abc.ABCMeta):
             descriptor = SnowflakeOr()
 
         return typing.cast(
-            type[typing.Union[hikari.Snowflake, _T]],
+            "type[typing.Union[hikari.Snowflake, _T]]",
             typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor],
         )
 
@@ -1015,7 +1047,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
         if not isinstance(value, collections.Collection):
             value = (value,)
 
-        return typing.cast(type[hikari.PartialChannel], typing.Annotated[Channel, TheseChannels(*value)])
+        return typing.cast("type[hikari.PartialChannel]", typing.Annotated[Channel, TheseChannels(*value)])
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
@@ -1065,7 +1097,7 @@ def _ensure_values(
                 f"{name.capitalize()} of type {type(value).__name__} is not valid for a {type_.__name__} argument"
             )
 
-    return typing.cast(collections.Mapping[str, _T], mapping)
+    return typing.cast("collections.Mapping[str, _T]", mapping)
 
 
 _OPTION_TYPE_TO_CONVERTERS: dict[typing.Any, tuple[collections.Callable[..., typing.Any], ...]] = {
@@ -1094,10 +1126,11 @@ class _ArgConfig:
         "aliases",
         "channel_types",
         "choices",
-        "converters",
         "default",
         "description",
         "empty_value",
+        "float_converter",
+        "int_converter",
         "is_greedy",
         "is_positional",
         "min_length",
@@ -1110,16 +1143,19 @@ class _ArgConfig:
         "range_or_slice",
         "slash_name",
         "snowflake_converter",
+        "str_converters",
     )
 
     def __init__(self, parameter: inspect.Parameter, /, *, description: typing.Optional[str]) -> None:
         self.aliases: typing.Optional[collections.Sequence[str]] = None
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
-        self.converters: typing.Optional[collections.Sequence[parsing.ConverterSig[typing.Any]]] = None
         self.default: typing.Any = parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
         self.description: typing.Optional[str] = description
         self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
+        self.float_converter: typing.Optional[collections.Callable[[float], typing.Any]] = None
+        self.int_converter: typing.Optional[collections.Callable[[int], typing.Any]] = None
+        # The float and int converters are just for Choices[Enum].
         self.is_greedy: bool = False
         self.is_positional: typing.Optional[bool] = None
         self.min_length: typing.Optional[int] = None
@@ -1132,6 +1168,7 @@ class _ArgConfig:
         self.range_or_slice: typing.Union[range, slice, None] = None
         self.slash_name: str = parameter.name
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
+        self.str_converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
 
     def finalise_slice(self) -> None:
         if not self.range_or_slice:
@@ -1155,8 +1192,8 @@ class _ArgConfig:
             self.max_value = max_value
 
     def to_message_option(self, command: message.MessageCommand[typing.Any], /) -> None:
-        if self.converters:
-            converters = self.converters
+        if self.str_converters:
+            converters = self.str_converters
 
         elif self.option_type:
             if self.snowflake_converter and self.option_type in _MESSAGE_ID_ONLY:
@@ -1222,15 +1259,11 @@ class _ArgConfig:
         return slash.UNDEFINED_DEFAULT if self.default is parsing.UNDEFINED else self.default
 
     def to_slash_option(self, command: slash.SlashCommand[typing.Any], /) -> None:
-        option_type = self.option_type
-        if not option_type and self.converters:
-            option_type = str
-
-        if option_type:
+        if self.option_type:
             if not self.description:
                 raise ValueError(f"Missing description for argument {self.parameter.name!r}")
 
-            self.SLASH_OPTION_ADDER[option_type](self, command, self.description)
+            self.SLASH_OPTION_ADDER[self.option_type](self, command, self.description)
 
     SLASH_OPTION_ADDER: dict[
         typing.Any, collections.Callable[[Self, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]]
@@ -1248,7 +1281,7 @@ class _ArgConfig:
             self.slash_name,
             d,
             choices=_ensure_values("choice", float, self.choices),  # TODO: can we pass ints here as well?
-            converters=self.converters or (),
+            converters=self.float_converter or (),
             default=self._slash_default(),
             key=self.parameter.name,
             min_value=self.min_value,  # TODO: explicitly cast to float?
@@ -1258,7 +1291,7 @@ class _ArgConfig:
             self.slash_name,
             d,
             choices=_ensure_values("choice", int, self.choices),
-            converters=self.converters or (),
+            converters=self.int_converter or (),
             default=self._slash_default(),
             key=self.parameter.name,
             min_value=_ensure_value("min", int, self.min_value),
@@ -1277,7 +1310,7 @@ class _ArgConfig:
             self.slash_name,
             d,
             choices=_ensure_values("choice", str, self.choices),
-            converters=self.converters or (),
+            converters=self.str_converters or (),
             default=self._slash_default(),
             key=self.parameter.name,
             min_length=self.min_length,
@@ -1368,7 +1401,7 @@ def parse_annotated_args(
                 arg_config.range_or_slice = arg
 
         arg_config.finalise_slice()
-        if arg_config.option_type or arg_config.converters:
+        if arg_config.option_type:
             for slash_command in slash_commands:
                 arg_config.to_slash_option(slash_command)
 

@@ -35,12 +35,13 @@ __all__: list[str] = ["AbstractLocaliser", "AbstractLocalizer", "BasicLocaliser"
 
 import abc
 import typing
-from collections import abc as collections
-
-from .. import abc as tanjun
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
     from typing_extensions import Self
+
+    from .. import abc as tanjun
 
 
 class AbstractLocaliser(abc.ABC):

@@ -50,7 +50,6 @@ import datetime
 import enum
 import logging
 import typing
-from collections import abc as collections
 
 import alluka
 import hikari
@@ -66,10 +65,16 @@ from . import locales
 from . import owners
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
     from typing_extensions import Self
 
-    _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
-    _OtherCommandT = typing.TypeVar("_OtherCommandT", bound="tanjun.ExecutableCommand[typing.Any]")
+    _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
+    _OtherCommandT = typing.TypeVar("_OtherCommandT", bound=tanjun.ExecutableCommand[typing.Any])
+    _InnerResourceSig = collections.Callable[[], "_InnerResourceT"]
+
+
+_InnerResourceT = typing.TypeVar("_InnerResourceT", bound="_InnerResourceProto")
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
 
@@ -310,9 +315,6 @@ class _InnerResourceProto(typing.Protocol):
         raise NotImplementedError
 
 
-_InnerResourceT = typing.TypeVar("_InnerResourceT", bound=_InnerResourceProto)
-
-
 class _BaseResource(abc.ABC, typing.Generic[_InnerResourceT]):
     __slots__ = ("make_resource",)
 
@@ -334,9 +336,6 @@ class _BaseResource(abc.ABC, typing.Generic[_InnerResourceT]):
     @abc.abstractmethod
     async def try_into_inner(self, ctx: tanjun.Context, /) -> typing.Optional[_InnerResourceT]:
         raise NotImplementedError
-
-
-_InnerResourceSig = collections.Callable[[], _InnerResourceT]
 
 
 class _FlatResource(_BaseResource[_InnerResourceT]):

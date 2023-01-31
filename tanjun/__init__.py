@@ -115,6 +115,7 @@ __all__: list[str] = [
     "InteractionAcceptsEnum",
     "LazyConstant",
     "MenuCommand",
+    "MenuHooks",
     "MessageAcceptsEnum",
     "MessageCommand",
     "MessageCommandGroup",
@@ -296,6 +297,7 @@ from .errors import TanjunError
 from .errors import TooManyArgumentsError
 from .hooks import AnyHooks
 from .hooks import Hooks
+from .hooks import MenuHooks
 from .hooks import MessageHooks
 from .hooks import SlashHooks
 from .injecting import as_self_injecting

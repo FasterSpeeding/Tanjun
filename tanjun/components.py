@@ -55,27 +55,25 @@ if typing.TYPE_CHECKING:
 
     _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound=tanjun.AppCommandContext)
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound=tanjun.BaseSlashCommand)
-    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
-    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig)
+    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
+    _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
+    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig[typing.Any])
     _MenuCommandT = typing.TypeVar("_MenuCommandT", bound=tanjun.MenuCommand[typing.Any, typing.Any])
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound=tanjun.MessageCommand[typing.Any])
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun.MetaEventSig)
     _OnCallbackSigT = typing.TypeVar("_OnCallbackSigT", bound="OnCallbackSig")
     _ScheduleT = typing.TypeVar("_ScheduleT", bound=schedules_.AbstractSchedule)
 
+    _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
+    _WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
 
 _LOGGER = logging.getLogger("hikari.tanjun.components")
-_CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
-# This errors on earlier 3.9 releases when not quotes cause dumb handling of the [_CommandT] list
-_WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
 
-OnCallbackSig = typing.Union[
-    collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]], collections.Callable[..., None]
-]
+OnCallbackSig = collections.Callable[..., typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]]
 """Type hint of a on_open or on_close component callback.
 
-These support dependency injection, should expect no positional arguments and
-should return [None][].
+This represents the signatures `def (...) -> None` and `async def (...) -> None`
+where dependency injection is supported.
 """
 
 
@@ -108,7 +106,7 @@ def _with_command(
         add_command(target_command)
         if follow_wrapped and not _recursing:
             for wrapped in _internal.collect_wrapped(target_command):
-                decorator(typing.cast(_CommandT, wrapped), _recursing=True)
+                decorator(typing.cast("_CommandT", wrapped), _recursing=True)
 
         return command
 
@@ -197,7 +195,7 @@ class Component(tanjun.Component):
             When this is [True][], message command names will not be allowed to contain
             spaces and will have to be unique to one command within the component.
         """
-        self._checks: list[tanjun.CheckSig] = []
+        self._checks: list[tanjun.AnyCheckSig] = []
         self._client: typing.Optional[tanjun.Client] = None
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
         self._default_app_cmd_permissions: typing.Optional[hikari.Permissions] = None
@@ -205,7 +203,7 @@ class Component(tanjun.Component):
         self._dms_enabled_for_app_cmds: typing.Optional[bool] = None
         self._hooks: typing.Optional[tanjun.AnyHooks] = None
         self._is_case_sensitive: typing.Optional[bool] = None
-        self._listeners: dict[type[hikari.Event], list[tanjun.ListenerCallbackSig]] = {}
+        self._listeners: dict[type[hikari.Event], list[tanjun.ListenerCallbackSig[typing.Any]]] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._menu_commands: dict[tuple[hikari.CommandType, str], tanjun.MenuCommand[typing.Any, typing.Any]] = {}
         self._menu_hooks: typing.Optional[tanjun.MenuHooks] = None
@@ -229,7 +227,7 @@ class Component(tanjun.Component):
         return self._is_case_sensitive
 
     @property
-    def checks(self) -> collections.Collection[tanjun.CheckSig]:
+    def checks(self) -> collections.Collection[tanjun.AnyCheckSig]:
         """Collection of the checks being run against every command execution in this component."""
         return self._checks.copy()
 
@@ -303,7 +301,9 @@ class Component(tanjun.Component):
         return self._message_commands.commands.copy()
 
     @property
-    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
+    def listeners(
+        self,
+    ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         return _internal.CastedView(self._listeners, lambda x: x.copy())
 
@@ -565,7 +565,7 @@ class Component(tanjun.Component):
         self._slash_hooks = hooks
         return self
 
-    def add_check(self, *checks: tanjun.CheckSig) -> Self:
+    def add_check(self, *checks: tanjun.AnyCheckSig) -> Self:
         """Add a command check to this component to be used for all its commands.
 
         Parameters
@@ -584,7 +584,7 @@ class Component(tanjun.Component):
 
         return self
 
-    def remove_check(self, check: tanjun.CheckSig, /) -> Self:
+    def remove_check(self, check: tanjun.AnyCheckSig, /) -> Self:
         """Remove a command check from this component.
 
         Parameters
@@ -986,7 +986,7 @@ class Component(tanjun.Component):
         # <<inherited docstring from tanjun.abc.Component>>.
         return _with_command(self.add_message_command, command, copy=copy)
 
-    def add_listener(self, event: type[hikari.Event], /, *callbacks: tanjun.ListenerCallbackSig) -> Self:
+    def add_listener(self, event: type[_EventT], /, *callbacks: tanjun.ListenerCallbackSig[_EventT]) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
         for listener in callbacks:
             try:
@@ -1004,7 +1004,7 @@ class Component(tanjun.Component):
 
         return self
 
-    def remove_listener(self, event: type[hikari.Event], listener: tanjun.ListenerCallbackSig, /) -> Self:
+    def remove_listener(self, event: type[_EventT], listener: tanjun.ListenerCallbackSig[_EventT], /) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
         self._listeners[event].remove(listener)
         if not self._listeners[event]:
@@ -1015,7 +1015,6 @@ class Component(tanjun.Component):
 
         return self
 
-    # TODO: make event optional?
     def with_listener(
         self, *event_types: type[hikari.Event]
     ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:

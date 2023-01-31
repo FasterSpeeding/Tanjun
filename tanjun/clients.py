@@ -75,11 +75,12 @@ if typing.TYPE_CHECKING:
     import typing_extensions
     from typing_extensions import Self
 
-    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.CheckSig)
+    _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
     _AppCmdResponse = typing.Union[
-        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
+        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder,
     ]
-    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig)
+    _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
+    _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig[typing.Any])
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound=tanjun.MetaEventSig)
     _PrefixGetterSigT = typing.TypeVar("_PrefixGetterSigT", bound="PrefixGetterSig")
     _T = typing.TypeVar("_T")
@@ -142,15 +143,23 @@ if typing.TYPE_CHECKING:
         """Protocol of a cacheless Hikari Gateway bot."""
 
 
-PrefixGetterSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]]]
-"""Type hint of a callable used to get the prefix(es) for a specific guild.
+# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
+if typing.TYPE_CHECKING:
+    _PrefixGetterSig = collections.Callable[
+        typing_extensions.Concatenate[tanjun.MessageContext, _P],
+        collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]],
+    ]
+    PrefixGetterSig = _PrefixGetterSig[...]
+    """Type hint of a callable used to get the prefix(es) for a specific guild.
 
-This should be an asynchronous callable which returns an iterable of strings.
+    This represents the callback `async def (tanjun.abc.MessageContext, ...) -> collections.Iterable[str]`
+    where dependency injection is supported.
+    """
 
-!!! note
-    While dependency injection is supported for this, the first positional
-    argument will always be a [tanjun.abc.MessageContext][].
-"""
+else:
+    PrefixGetterSig = collections.Callable[
+        ..., collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]]
+    ]
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
 _MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
@@ -488,6 +497,32 @@ class _StartDeclarer:
         )
 
 
+def _log_clients(
+    cache: typing.Optional[hikari.api.Cache],
+    events: typing.Optional[hikari.api.EventManager],
+    server: typing.Optional[hikari.api.InteractionServer],
+    rest: hikari.api.RESTClient,
+    shards: typing.Optional[hikari.ShardAware],
+    event_managed: bool,
+    /,
+) -> None:
+    _LOGGER.info(
+        "%s initialised with the following components: %s",
+        "Event-managed client" if event_managed else "Client",
+        ", ".join(
+            name
+            for name, value in [
+                ("cache", cache),
+                ("event manager", events),
+                ("interaction server", server),
+                ("rest", rest),
+                ("shard manager", shards),
+            ]
+            if value
+        ),
+    )
+
+
 class Client(tanjun.Client):
     """Tanjun's standard [tanjun.abc.Client][] implementation.
 
@@ -654,21 +689,7 @@ class Client(tanjun.Client):
             * If `command_ids` is passed when `declare_global_commands` is `False`.
         """
         if _LOGGER.isEnabledFor(logging.INFO):
-            _LOGGER.info(
-                "%s initialised with the following components: %s",
-                "Event-managed client" if event_managed else "Client",
-                ", ".join(
-                    name
-                    for name, value in [
-                        ("cache", cache),
-                        ("event manager", events),
-                        ("interaction server", server),
-                        ("rest", rest),
-                        ("shard manager", shards),
-                    ]
-                    if value
-                ),
-            )
+            _log_clients(cache, events, server, rest, shards, event_managed)
 
         if not events and not server:
             _LOGGER.warning(
@@ -679,7 +700,7 @@ class Client(tanjun.Client):
         self._auto_defer_after: typing.Optional[float] = 2.0
         self._cache = cache
         self._cached_application_id: typing.Optional[hikari.Snowflake] = None
-        self._checks: list[tanjun.CheckSig] = []
+        self._checks: list[tanjun.AnyCheckSig] = []
         self._client_callbacks: dict[str, list[tanjun.MetaEventSig]] = {}
         self._components: dict[str, tanjun.Component] = {}
         self._default_app_cmd_permissions = hikari.Permissions.NONE
@@ -699,7 +720,10 @@ class Client(tanjun.Client):
         self._is_closing = False
         self._listeners: dict[
             type[hikari.Event],
-            dict[tanjun.ListenerCallbackSig, alluka.abc.AsyncSelfInjecting[tanjun.ListenerCallbackSig]],
+            dict[
+                tanjun.ListenerCallbackSig[typing.Any],
+                alluka.abc.AsyncSelfInjecting[tanjun.ListenerCallbackSig[typing.Any]],
+            ],
         ] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
@@ -1067,7 +1091,7 @@ class Client(tanjun.Client):
         return self._cache
 
     @property
-    def checks(self) -> collections.Collection[tanjun.CheckSig]:
+    def checks(self) -> collections.Collection[tanjun.AnyCheckSig]:
         """Collection of the level [tanjun.abc.Context][] checks registered to this client.
 
         !!! note
@@ -1086,7 +1110,10 @@ class Client(tanjun.Client):
         return self._events
 
     @property
-    def listeners(self) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig]]:
+    def listeners(
+        self,
+    ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig[typing.Any]]]:
+        # <<inherited docstring from tanjun.abc.Client>>.
         return _internal.CastedView(self._listeners, lambda x: [callback.callback for callback in x.values()])
 
     @property
@@ -1756,7 +1783,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def add_check(self, *checks: tanjun.CheckSig) -> Self:
+    def add_check(self, *checks: tanjun.AnyCheckSig) -> Self:
         """Add a generic check to this client.
 
         This will be applied to both message and slash command execution.
@@ -1779,7 +1806,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def remove_check(self, check: tanjun.CheckSig, /) -> Self:
+    def remove_check(self, check: tanjun.AnyCheckSig, /) -> Self:
         """Remove a check from the client.
 
         Parameters
@@ -1935,7 +1962,7 @@ class Client(tanjun.Client):
 
         return decorator
 
-    def add_listener(self, event_type: type[hikari.Event], /, *callbacks: tanjun.ListenerCallbackSig) -> Self:
+    def add_listener(self, event_type: type[_EventT], /, *callbacks: tanjun.ListenerCallbackSig[_EventT]) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         for callback in callbacks:
             injected = self.injector.as_async_self_injecting(callback)
@@ -1954,7 +1981,7 @@ class Client(tanjun.Client):
 
         return self
 
-    def remove_listener(self, event_type: type[hikari.Event], callback: tanjun.ListenerCallbackSig, /) -> Self:
+    def remove_listener(self, event_type: type[_EventT], callback: tanjun.ListenerCallbackSig[_EventT], /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         callbacks = self._listeners[event_type]
 
@@ -3061,7 +3088,8 @@ def _try_unsubscribe(
 @dataclasses.dataclass
 class _LoadModule:
     __slots__ = ("path",)
-    path: str | pathlib.Path
+
+    path: typing.Union[str, pathlib.Path]
 
     def __call__(self) -> types.ModuleType:
         return importlib.import_module(self.path) if isinstance(self.path, str) else _get_path_module(self.path)
@@ -3070,7 +3098,8 @@ class _LoadModule:
 @dataclasses.dataclass
 class _ReloadModule:
     __slots__ = ("path",)
-    path: types.ModuleType | pathlib.Path
+
+    path: typing.Union[types.ModuleType, pathlib.Path]
 
     def __call__(self) -> types.ModuleType:
         return _get_path_module(self.path) if isinstance(self.path, pathlib.Path) else importlib.reload(self.path)

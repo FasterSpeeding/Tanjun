@@ -55,18 +55,19 @@ if typing.TYPE_CHECKING:
 
     from .. import abc as tanjun
 
+    _T = typing.TypeVar("_T")
     _P = typing_extensions.ParamSpec("_P")
 
+    _ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
+    _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
     _TreeT = dict[
         typing.Union[str, "_IndexKeys"],
         typing.Union["_TreeT", list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]],
     ]
 
 
-_T = typing.TypeVar("_T")
 _KeyT = typing.TypeVar("_KeyT")
 _OtherT = typing.TypeVar("_OtherT")
-_CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
 
 _LOGGER = logging.getLogger("hikari.tanjun")
 
@@ -88,21 +89,21 @@ NoDefault = typing.Literal[_NoDefaultEnum.VALUE]
 """The type of `NO_DEFAULT`."""
 
 
-async def _execute_check(ctx: tanjun.Context, callback: tanjun.CheckSig, /) -> bool:
+async def _execute_check(ctx: _ContextT, callback: tanjun.CheckSig[_ContextT], /) -> bool:
     if result := await ctx.call_with_async_di(callback, ctx):
         return result
 
     raise errors.FailedCheck
 
 
-async def gather_checks(ctx: tanjun.Context, checks: collections.Iterable[tanjun.CheckSig], /) -> bool:
+async def gather_checks(ctx: _ContextT, checks: collections.Iterable[tanjun.CheckSig[_ContextT]], /) -> bool:
     """Gather a collection of checks.
 
     Parameters
     ----------
-    ctx
+    ctx : tanjun.abc.Context
         The context to check.
-    checks
+    checks : collections.abc.Iterable[tanjun.abc.CheckSig]
         An iterable of injectable checks.
 
     Returns
@@ -157,7 +158,7 @@ class CastedView(collections.Mapping[_KeyT, _OtherT]):
 _KEYWORD_TYPES = {inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD}
 
 
-def get_kwargs(callback: collections.Callable[..., typing.Any], /) -> list[str] | None:
+def get_kwargs(callback: collections.Callable[..., typing.Any], /) -> typing.Union[list[str], None]:
     """Get a list of the keyword argument names for a callback.
 
     Parameters

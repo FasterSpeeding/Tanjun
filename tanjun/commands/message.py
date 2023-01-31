@@ -48,33 +48,34 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
-    _CommandT = typing.Union[
-        tanjun.MenuCommand["_CommandCallbackSigT", typing.Any],
-        tanjun.MessageCommand["_CommandCallbackSigT"],
-        tanjun.SlashCommand["_CommandCallbackSigT"],
+    _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
+    _AnyCommandT = typing.Union[
+        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any],
+        tanjun.MessageCommand[_AnyCallbackSigT],
+        tanjun.SlashCommand[_AnyCallbackSigT],
     ]
-    _CallbackishT = typing.Union[_CommandT["_CommandCallbackSigT"], "_CommandCallbackSigT"]
+    _CallbackishT = typing.Union[_AnyCommandT["_MessageCallbackSigT"], "_MessageCallbackSigT"]
+    _OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.MessageCallbackSig)
 
-_CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.CommandCallbackSig)
-_OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.CommandCallbackSig)
+
+_MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=tanjun.MessageCallbackSig)
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 
 
-class _ResultProto(typing.Protocol):
+# While these overloads may seem redundant/unnecessary, MyPy cannot understand
+# this when expressed through callback: _CallbackIshT[_MessageCallbackSigT].
+class _AsMsgResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _CommandT[_CommandCallbackSigT], /) -> MessageCommand[_CommandCallbackSigT]:
+    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]:
         ...
 
     @typing.overload
-    def __call__(self, _: _CommandCallbackSigT, /) -> MessageCommand[_CommandCallbackSigT]:
+    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
         ...
 
-    def __call__(self, _: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommand[_CommandCallbackSigT]:
-        raise NotImplementedError
 
-
-def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True) -> _ResultProto:
+def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True) -> _AsMsgResultProto:
     """Build a message command from a decorated callback.
 
     Parameters
@@ -82,13 +83,13 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
     name
         The command name.
     *names
-        Variable positional arguments of other names for the command.
+        Other names for the command.
     validate_arg_keys
         Whether to validate that option keys match the command callback's signature.
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
+    collections.abc.Callable[[tanjun.abc.MessageCallbackSig], MessageCommand]
         The decorator callback used to make a [tanjun.MessageCommand][].
 
         This can either wrap a raw command callback or another callable command instance
@@ -97,7 +98,7 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
         [tanjun.Component.load_from_scope][].
     """
 
-    def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommand[_CommandCallbackSigT]:
+    def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -112,22 +113,21 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
     return decorator
 
 
-class _GroupResultProto(typing.Protocol):
+# While these overloads may seem redundant/unnecessary, MyPy cannot understand
+# this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
+class _AsGroupResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _CommandT[_CommandCallbackSigT], /) -> MessageCommandGroup[_CommandCallbackSigT]:
+    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]:
         ...
 
     @typing.overload
-    def __call__(self, _: _CommandCallbackSigT, /) -> MessageCommandGroup[_CommandCallbackSigT]:
+    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:
         ...
-
-    def __call__(self, _: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommandGroup[_CommandCallbackSigT]:
-        raise NotImplementedError
 
 
 def as_message_command_group(
     name: str, /, *names: str, strict: bool = False, validate_arg_keys: bool = True
-) -> _GroupResultProto:
+) -> _AsGroupResultProto:
     """Build a message command group from a decorated callback.
 
     Parameters
@@ -135,7 +135,7 @@ def as_message_command_group(
     name
         The command name.
     *names
-        Variable positional arguments of other names for the command.
+        Other names for the command.
     strict
         Whether this command group should only allow commands without spaces in their names.
 
@@ -146,7 +146,7 @@ def as_message_command_group(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
+    collections.abc.Callable[[tanjun.abc.MessageCallbackSig], MessageCommand]
         The decorator callback used to make a [tanjun.MessageCommandGroup][].
 
         This can either wrap a raw command callback or another callable command instance
@@ -155,7 +155,7 @@ def as_message_command_group(
         [tanjun.Component.load_from_scope][].
     """
 
-    def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> MessageCommandGroup[_CommandCallbackSigT]:
+    def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
@@ -170,15 +170,17 @@ def as_message_command_group(
     return decorator
 
 
-class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageCommand[_CommandCallbackSigT]):
+class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageCommand[_MessageCallbackSigT]):
     """Standard implementation of a message command."""
 
     __slots__ = ("_arg_names", "_callback", "_names", "_parent", "_parser", "_wrapped_command")
 
+    # While these overloads may seem redundant/unnecessary, MyPy cannot understand
+    # this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
     @typing.overload
     def __init__(
         self,
-        callback: _CommandT[_CommandCallbackSigT],
+        callback: _MessageCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -190,7 +192,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
     @typing.overload
     def __init__(
         self,
-        callback: _CommandCallbackSigT,
+        callback: _AnyCommandT[_MessageCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -201,7 +203,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
 
     def __init__(
         self,
-        callback: _CallbackishT[_CommandCallbackSigT],
+        callback: _CallbackishT[_MessageCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -212,7 +214,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
 
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Coroutine[None]]
+        callback : tanjun.abc.MessageCallbackSig
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional
@@ -221,7 +223,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         name
             The command name.
         *names
-            Variable positional arguments of other names for the command.
+            Other names for the command.
         validate_arg_keys
             Whether to validate that option keys match the command callback's signature.
         """
@@ -230,7 +232,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             callback = callback.callback
 
         self._arg_names = _internal.get_kwargs(callback) if validate_arg_keys else None
-        self._callback: _CommandCallbackSigT = callback
+        self._callback: _MessageCallbackSigT = callback
         self._names = list(dict.fromkeys((name, *names)))
         self._parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None
         self._parser: typing.Optional[tanjun.MessageParser] = None
@@ -240,7 +242,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         return f"Command <{self._names}>"
 
     if typing.TYPE_CHECKING:
-        __call__: _CommandCallbackSigT
+        __call__: _MessageCallbackSigT
 
     else:
 
@@ -248,7 +250,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             await self._callback(*args, **kwargs)
 
     @property
-    def callback(self) -> _CommandCallbackSigT:
+    def callback(self) -> _MessageCallbackSigT:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         return self._callback
 
@@ -369,15 +371,17 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             self._wrapped_command.load_into_component(component)
 
 
-class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCommandGroup[_CommandCallbackSigT]):
+class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCommandGroup[_MessageCallbackSigT]):
     """Standard implementation of a message command group."""
 
     __slots__ = ("_commands",)
 
+    # While these overloads may seem redundant/unnecessary, MyPy cannot understand
+    # this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
     @typing.overload
     def __init__(
         self,
-        callback: _CommandT[_CommandCallbackSigT],
+        callback: _MessageCallbackSigT,
         name: str,
         /,
         *names: str,
@@ -390,7 +394,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
     @typing.overload
     def __init__(
         self,
-        callback: _CommandCallbackSigT,
+        callback: _AnyCommandT[_MessageCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -402,7 +406,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
     def __init__(
         self,
-        callback: _CallbackishT[_CommandCallbackSigT],
+        callback: _CallbackishT[_MessageCallbackSigT],
         name: str,
         /,
         *names: str,
@@ -414,7 +418,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
         Parameters
         ----------
-        callback : collections.abc.Callable[[tanjun.abc.MessageContext, ...], collections.abc.Coroutine[None]]
+        callback : tanjun.abc.MessageCallbackSig
             Callback to execute when the command is invoked.
 
             This should be an asynchronous callback which takes one positional
@@ -423,7 +427,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         name
             The command name.
         *names
-            Variable positional arguments of other names for the command.
+            Other names for the command.
         strict
             Whether this command group should only allow commands without spaces in their names.
 
@@ -477,7 +481,9 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
         return self
 
-    def as_sub_command(self, name: str, /, *names: str, validate_arg_keys: bool = True) -> _ResultProto:
+    def as_sub_command(
+        self, name: str, /, *names: str, validate_arg_keys: bool = True
+    ) -> collections.Callable[[_CallbackishT[_OtherCallbackSigT]], MessageCommand[_OtherCallbackSigT]]:
         """Build a message command in this group from a decorated callback.
 
         Parameters
@@ -485,13 +491,13 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         name
             The command name.
         *names
-            Variable positional arguments of other names for the command.
+            Other names for the command.
         validate_arg_keys
             Whether to validate that option keys match the command callback's signature.
 
         Returns
         -------
-        collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
+        collections.abc.Callable[[tanjun.abc.MessageCallbackSig], MessageCommand]
             The decorator callback used to make a sub-command.
 
             This can either wrap a raw command callback or another callable command instance
@@ -499,7 +505,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         """
 
         def decorator(
-            callback: typing.Union[_OtherCallbackSigT, _CommandT[_OtherCallbackSigT]], /
+            callback: typing.Union[_OtherCallbackSigT, _AnyCommandT[_OtherCallbackSigT]], /
         ) -> MessageCommand[_OtherCallbackSigT]:
             return self.with_command(as_message_command(name, *names, validate_arg_keys=validate_arg_keys)(callback))
 
@@ -507,7 +513,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
     def as_sub_group(
         self, name: str, /, *names: str, strict: bool = False, validate_arg_keys: bool = True
-    ) -> _GroupResultProto:
+    ) -> collections.Callable[[_CallbackishT[_OtherCallbackSigT]], MessageCommandGroup[_OtherCallbackSigT]]:
         """Build a message command group in this group from a decorated callback.
 
         Parameters
@@ -515,7 +521,7 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
         name
             The command name.
         *names
-            Variable positional arguments of other names for the command.
+            Other names for the command.
         strict
             Whether this command group should only allow commands without spaces in their names.
 
@@ -526,16 +532,14 @@ class MessageCommandGroup(MessageCommand[_CommandCallbackSigT], tanjun.MessageCo
 
         Returns
         -------
-        collections.abc.Callable[[tanjun.abc.CommandCallbackSig], MessageCommand]
+        collections.abc.Callable[[tanjun.abc.MessageCallbackSig], MessageCommand]
             The decorator callback used to make a sub-command group.
 
             This can either wrap a raw command callback or another callable command instance
             (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][]).
         """
 
-        def decorator(
-            callback: typing.Union[_OtherCallbackSigT, _CommandT[_OtherCallbackSigT]], /
-        ) -> MessageCommandGroup[_OtherCallbackSigT]:
+        def decorator(callback: _CallbackishT[_OtherCallbackSigT], /) -> MessageCommandGroup[_OtherCallbackSigT]:
             return self.with_command(
                 as_message_command_group(name, *names, strict=strict, validate_arg_keys=validate_arg_keys)(callback)
             )

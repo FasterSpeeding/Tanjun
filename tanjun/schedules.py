@@ -56,7 +56,7 @@ if typing.TYPE_CHECKING:
     _OtherCallbackT = typing.TypeVar("_OtherCallbackT", bound="_CallbackSig")
 
 _CallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
-_CallbackSigT = typing.TypeVar("_CallbackSigT", bound="_CallbackSig")
+_CallbackSigT = typing.TypeVar("_CallbackSigT", bound=_CallbackSig)
 
 
 class AbstractSchedule(abc.ABC):
@@ -598,6 +598,7 @@ def _to_sequence(
 @dataclasses.dataclass
 class _TimeScheduleConfig:
     __slots__ = ("current_date", "days", "hours", "is_weekly", "minutes", "months", "seconds", "timezone")
+
     current_date: datetime.datetime
     days: typing.Optional[collections.Sequence[int]]
     hours: collections.Sequence[int]
