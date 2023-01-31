@@ -272,7 +272,7 @@ class TestMenuCommand:
 
         command = tanjun.MenuCommand(mock_callback, hikari.CommandType.MESSAGE, "a")
 
-        await command(123, 321, "ea", b=32)
+        await command(mock_ctx, mock_message, "ea", b=32)
 
         check_called.assert_called_once()
 
