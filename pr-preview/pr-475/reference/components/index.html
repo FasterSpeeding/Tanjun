@@ -1268,14 +1268,14 @@
   </span>
 
 <a href="#tanjun.components.OnCallbackSig" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">OnCallbackSig</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]],</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+<div class="highlight"><pre><span></span><code><span class="n">OnCallbackSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
   
       <p>Type hint of a on_open or on_close component callback.</p>
-<p>These support dependency injection, should expect no positional arguments and
-should return <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a>.</p>
+<p>This represents the signatures <code>def (...) -&gt; None</code> and <code>async def (...) -&gt; None</code>
+where dependency injection is supported.</p>
   </div>
 
 </div>
@@ -1419,7 +1419,7 @@ supports dependency injection.</p>
   </span>
 
 <a href="#tanjun.components.Component.checks" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">checks</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun</span><span class="o">.</span><span class="n">CheckSig</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">checks</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Collection</span><span class="p">[</span><span class="n">tanjun</span><span class="o">.</span><span class="n">AnyCheckSig</span><span class="p">]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1644,7 +1644,7 @@ spaces and will have to be unique to one command within the component.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.CheckSig" href="../abc/#tanjun.abc.CheckSig">CheckSig</a></code>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.AnyCheckSig" href="../abc/#tanjun.abc.AnyCheckSig">AnyCheckSig</a></code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -2434,7 +2434,7 @@ client by targeting the module using [tanjun.Client.load_modules][],
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.CheckSig" href="../abc/#tanjun.abc.CheckSig">CheckSig</a></code>
+                    <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.AnyCheckSig" href="../abc/#tanjun.abc.AnyCheckSig">AnyCheckSig</a></code>
                 </span>
             </p>
           </td>
@@ -2831,7 +2831,7 @@ from the parent client.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>, hikari.<span title="hikari.Permissions">Permissions</span>, None]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.Permissions">Permissions</span>, None]</code>
                 </span>
             </p>
           </td>

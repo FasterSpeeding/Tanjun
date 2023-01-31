@@ -761,19 +761,6 @@
     Positional
   </a>
   
-    <nav class="md-nav" aria-label="Positional">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#tanjun.annotations.Positional.__init__" class="md-nav__link">
-    __init__()
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1476,19 +1463,6 @@
     Positional
   </a>
   
-    <nav class="md-nav" aria-label="Positional">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#tanjun.annotations.Positional.__init__" class="md-nav__link">
-    __init__()
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1704,7 +1678,7 @@
   <div class="doc doc-contents ">
   
       <p>An argument which takes a channel.</p>
-<p>[hikari.InteractionChannel][hikari.interactions.command_interactions.InteractionChannel]
+<p><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/command_interactions/#hikari.interactions.command_interactions.InteractionChannel">hikari.InteractionChannel</a>
 will be passed for options typed as this when being called as a slash command.</p>
   </div>
 
@@ -1723,7 +1697,7 @@ will be passed for options typed as this when being called as a slash command.</
   </span>
 
 <a href="#tanjun.annotations.Color" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">Color</span> <span class="o">=</span> <span class="n">Converted</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">to_color</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">Color</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Color</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">conversion</span><span class="o">.</span><span class="n">to_color</span><span class="p">)]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1769,7 +1743,7 @@ will be passed for options typed as this when being called as a slash command.</
   </span>
 
 <a href="#tanjun.annotations.Datetime" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">Datetime</span> <span class="o">=</span> <span class="n">Converted</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">Datetime</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">conversion</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">)]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1900,7 +1874,7 @@ commands (unlike <a class="autorefs autorefs-internal" href="#tanjun.annotations
   <div class="doc doc-contents ">
   
       <p>An argument which takes a guild member.</p>
-<p>[hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember]
+<p><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.InteractionMember</a>
 will be passed for options typed as this when being called as a slash command.</p>
   </div>
 
@@ -1965,7 +1939,7 @@ will be passed for options typed as this when being called as a slash command.</
   </span>
 
 <a href="#tanjun.annotations.Snowflake" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">Snowflake</span> <span class="o">=</span> <span class="n">Converted</span><span class="p">[</span><span class="n">conversion</span><span class="o">.</span><span class="n">parse_snowflake</span><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><span class="n">Snowflake</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">conversion</span><span class="o">.</span><span class="n">parse_snowflake</span><span class="p">)]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2189,8 +2163,10 @@ of <code>tuple[name, value]</code> or a sequence of choice values.</p>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
     <span class="n">argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">OtherType</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">other_callback</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
     <span class="n">other_argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Converted</span><span class="p">[</span><span class="n">callback</span><span class="p">,</span> <span class="n">other_callback</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
-<span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
+<p>Where <code>Converted[...]</code> follows the same semantics as Converted's <code>__init__</code>.</p>
 
 
 
@@ -2217,7 +2193,7 @@ of <code>tuple[name, value]</code> or a sequence of choice values.</p>
   </span>
 
 <a href="#tanjun.annotations.Converted.converters" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">converters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">parsing</span><span class="o">.</span><span class="n">ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span>
+<div class="highlight"><pre><span></span><code><span class="n">converters</span><span class="p">:</span> <span class="n">collections</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="n">_ConverterSig</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2262,7 +2238,7 @@ during parsing.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a></code>
+                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, ...], <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Coroutine" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Coroutine">Coroutine</a>[Any, Any, Any] | Any]</code>
                 </span>
             </p>
           </td>
@@ -2276,7 +2252,7 @@ during parsing.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a></code>
+                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>, ...], <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Coroutine" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Coroutine">Coroutine</a>[Any, Any, Any] | Any]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -2326,7 +2302,7 @@ during parsing.</p>
     <span class="n">argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Default</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
     <span class="n">other_argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Default</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
@@ -2335,7 +2311,7 @@ during parsing.</p>
     <span class="n">required_argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Default</span><span class="p">[</span><span class="n">Str</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yeet&quot;</span><span class="p">,</span>
     <span class="n">other_required</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Default</span><span class="p">(),</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">123</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
 <p>Passing an empty <a class="autorefs autorefs-internal" href="#tanjun.annotations.Default">Default</a> allows you to mark
 an argument that's optional in the signature as being a required option.</p>
@@ -3344,26 +3320,6 @@ allows for marking positional arguments as optional.</p>
 
 
 
-<div class="doc doc-object doc-function">
-
-
-
-<h3 id="tanjun.annotations.Positional.__init__" class="doc doc-heading">
-        <span class="doc doc-object-name doc-function-name">__init__</span>
-
-
-<a href="#tanjun.annotations.Positional.__init__" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">()</span>
-</code></pre></div>
-
-  <div class="doc doc-contents ">
-  
-      <p>Create a positional instance.</p>
-
-  </div>
-
-</div>
-
 
 
   </div>
@@ -3654,7 +3610,7 @@ formats.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>], hikari.<span title="hikari.Snowflake">Snowflake</span>]</code>
+                    <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>], <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.Snowflake">Snowflake</span>]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -3970,7 +3926,7 @@ message commands options as they don't have descriptions.</p>
     <span class="n">converted</span><span class="p">:</span> <span class="n">Converted</span><span class="p">[</span><span class="n">Type</span><span class="o">.</span><span class="n">from_str</span><span class="p">],</span>
     <span class="n">enable</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
 
   <table>
