@@ -1322,7 +1322,7 @@ values separately (passed to the function as a list of values); "greedy"
 string (including spacing).</p>
 <p>The most helpful configuration for options and arguments is converters: these
 are callbacks which will be called to try convert an argument's raw value; the
-first callback to pass (not raise a <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/exceptions.html#ValueError">ValueError</a>) is used as the value. For
+first callback to pass (not raise a <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError">ValueError</a>) is used as the value. For
 more configuration see <a class="autorefs autorefs-internal" href="../reference/parsing/#tanjun.parsing">tanjun.parsing</a> and for the standard converters see
 <a class="autorefs autorefs-internal" href="../reference/conversion/#tanjun.conversion">tanjun.conversion</a>.</p>
 <h3 id="context-menus">Context menus<a class="headerlink" href="#context-menus" title="Permanent link">#</a></h3>
@@ -1366,11 +1366,11 @@ type, now it's time to go higher.</p>
 a simple way to declare the arguments for both message and slash commands.
 While this feature is cross-compatible, there is one key difference: a
 description must be included for options when annotating for a slash command,
-which is done by passing a string value to <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/typing.html#typing.Annotated">typing.Annotated</a> (as shown
+which is done by passing a string value to <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#typing.Annotated">typing.Annotated</a> (as shown
 above).</p>
 <p>The special generic types offered in <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations">tanjun.annotations</a> (e.g
 <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Ranged">Ranged</a> and <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Converted">Converted</a>)
-return a <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/typing.html#typing.Annotated">typing.Annotated</a> instance from their generic calls and can also be
+return a <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#typing.Annotated">typing.Annotated</a> instance from their generic calls and can also be
 passed as arguments to Annotated like <code>Annotated[Int, Ranged(13, 130)]</code>, and
 <code>Annotated[Str, Converted(get_video)]</code>.</p>
 <p>This example doesn't demonstrate every feature of this, and More information on
@@ -1380,7 +1380,7 @@ how arguments are configured through annotations can be found in
 <p>When creating multiple command types in a decorator call chain, standard
 decorators which can be applied to multiple command types often have a
 <code>follow_wrapped</code> argument which will apply them to all the compatible
-commands in a chain if <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/constants.html#True">True</a> is passed for it.</p>
+commands in a chain if <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a> is passed for it.</p>
 <p>When using <code>follow_wrapped</code> the relevant decorator will be applied to all the
 compatible <code>as_{}_command</code> decorator calls below it in the chain.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1459,7 +1459,7 @@ unless you're using
 <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context.edit_initial_response">Context.edit_initial_response</a> or
 <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context.respond">Context.respond</a> and if you want a deferred
 response to be ephemeral you'll have to either pass <code>ephemeral=True</code> while
-deferring or have the ephemeral default set to <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/constants.html#True">True</a>.</p>
+deferring or have the ephemeral default set to <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a>.</p>
 <p>Automatic deferral can be configured using
 <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client.set_auto_defer_after">Client.set_auto_defer_after</a>,
 and commands can even be configured to always defer when they start executing
@@ -1493,7 +1493,7 @@ dynamically return choice suggestions to a user as they type a string option.</p
 </code></pre></div>
 <p>To set the results for an autocomplete interaction call
 <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.AutocompleteContext.set_choices">AutocompleteContext.set_choices</a>:
-this has a similar signature to <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/stdtypes.html#dict">dict</a> and takes up to 25 choices (where both
+this has a similar signature to <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#dict">dict</a> and takes up to 25 choices (where both
 name and value have a limit of up to 100 characters).</p>
 <p>Unlike application commands, autocomplete must give a response within 3 seconds
 as these do not support deferrals.</p>
@@ -1618,10 +1618,10 @@ child command.</p>
 <p>Custom checks can be made by making a function with either the signature
 <code>def (tanjun.abc.Context, ...) -&gt; bool</code> or <code>async def (tanjun.abc.Context, ...) -&gt; bool</code>
 (where <a class="autorefs autorefs-internal" href="#dependency-injection">dependency injection</a> is supported).  Returning
-<a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/constants.html#True">True</a> indicates that the check passed, and returning <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/constants.html#False">False</a> indicates that
+<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a> indicates that the check passed, and returning <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#False">False</a> indicates that
 the client should continue looking for a matching command as the check failed.
 You will probably want to raise <a class="autorefs autorefs-internal" href="../reference/errors/#tanjun.errors.CommandError">CommandError</a> to
-end command execution with a response rather than returning <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/constants.html#False">False</a>.</p>
+end command execution with a response rather than returning <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#False">False</a>.</p>
 <h3 id="execution-hooks">Execution hooks<a class="headerlink" href="#execution-hooks" title="Permanent link">#</a></h3>
 <p>Command hooks are callbacks that are called around command execution, these
 are contained within <a class="autorefs autorefs-internal" href="../reference/hooks/#tanjun.hooks.Hooks">Hooks</a> objects which may be added
@@ -1658,9 +1658,9 @@ that isn't a <a class="autorefs autorefs-internal" href="../reference/errors/#ta
 <a class="autorefs autorefs-internal" href="../reference/errors/#tanjun.errors.CommandError">CommandError</a> or
 <a class="autorefs autorefs-internal" href="../reference/errors/#tanjun.errors.HaltExecution">HaltExecution</a> (as these are special-cased).</p>
 <p>The return value of an error hook is used with other error hook return values
-to workout whether the error should be re-raised: <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/constants.html#True">True</a> acts as a vote
-towards suppressing the error, <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/constants.html#False">False</a> acts as a vote towards re-raising the
-error and <a class="autorefs autorefs-external" href="https://docs.python.org/3.10/library/constants.html#None">None</a> acts as no vote. In the case of a tie the error will be
+to workout whether the error should be re-raised: <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#True">True</a> acts as a vote
+towards suppressing the error, <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#False">False</a> acts as a vote towards re-raising the
+error and <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> acts as no vote. In the case of a tie the error will be
 re-raised.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@hooks</span><span class="o">.</span><span class="n">with_on_parser_error</span>  <span class="c1"># hooks.add_on_parser_error</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">parser_error_hook</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">ParserError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1700,7 +1700,7 @@ linked limiter).</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_concurrency_limit">with_concurrency_limit</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_concurrency_limit">with_concurrency_limit</a>
 to mark these commands as using the <code>"main_commands"</code> concurrency limit bucket;
 buckets share their limits for a resource across all the commands under it. For
 more information on the resources concurrency can be limited by see
@@ -1736,7 +1736,7 @@ only have 1 linked cooldown manager).</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_cooldown">with_cooldown</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_cooldown">with_cooldown</a>
 to mark these commands as using the <code>"main_commands"</code> cooldown bucket;
 buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
