@@ -159,7 +159,7 @@ if typing.TYPE_CHECKING:
     This may be registered with a command, client or component to add a rule
     which decides whether it should execute for each context passed to it.
 
-    This represnts the signatures `def (tanjun.abc.Context, ...) -> bool | None`
+    This represents the signatures `def (tanjun.abc.Context, ...) -> bool | None`
     and `async def (tanjun.abc.Context, ...) -> bool | None` where dependency
     injection is  supported.
 
