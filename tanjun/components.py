@@ -72,8 +72,8 @@ _LOGGER = logging.getLogger("hikari.tanjun.components")
 OnCallbackSig = collections.Callable[..., typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]]
 """Type hint of a on_open or on_close component callback.
 
-These support dependency injection, should expect no positional arguments and
-should return [None][].
+This represents the signatures `def (...) -> None` and `async def (...) -> None`
+where dependency injection is supported.
 """
 
 

@@ -83,7 +83,7 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
     name
         The command name.
     *names
-        Variable positional arguments of other names for the command.
+        Other names for the command.
     validate_arg_keys
         Whether to validate that option keys match the command callback's signature.
 
@@ -135,7 +135,7 @@ def as_message_command_group(
     name
         The command name.
     *names
-        Variable positional arguments of other names for the command.
+        Other names for the command.
     strict
         Whether this command group should only allow commands without spaces in their names.
 
@@ -223,7 +223,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         name
             The command name.
         *names
-            Variable positional arguments of other names for the command.
+            Other names for the command.
         validate_arg_keys
             Whether to validate that option keys match the command callback's signature.
         """
@@ -427,7 +427,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         name
             The command name.
         *names
-            Variable positional arguments of other names for the command.
+            Other names for the command.
         strict
             Whether this command group should only allow commands without spaces in their names.
 
@@ -491,7 +491,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         name
             The command name.
         *names
-            Variable positional arguments of other names for the command.
+            Other names for the command.
         validate_arg_keys
             Whether to validate that option keys match the command callback's signature.
 
@@ -521,7 +521,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         name
             The command name.
         *names
-            Variable positional arguments of other names for the command.
+            Other names for the command.
         strict
             Whether this command group should only allow commands without spaces in their names.
 

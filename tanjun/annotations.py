@@ -338,12 +338,12 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
 
         Parameters
         ----------
-        converter : collections.abc.Callable[[str], collections.Coroutine[Any, Any, Any] | Any]
+        converter : collections.abc.Callable[[str, ...], collections.Coroutine[Any, Any, Any] | Any]
             The first converter this argument should use to handle values passed to it
             during parsing.
 
             Only the first converter to pass will be used.
-        *other_converters : collections.abc.Callable[[str], collections.Coroutine[Any, Any, Any] | Any]
+        *other_converters : collections.abc.Callable[[str, ...], collections.Coroutine[Any, Any, Any] | Any]
             Other first converter(s) this argument should use to handle values passed to it
             during parsing.
 

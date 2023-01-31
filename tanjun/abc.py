@@ -145,25 +145,28 @@ if typing.TYPE_CHECKING:
     ]
 
     AutocompleteSig = _AutocompleteSig[_AutocompleteValueT, ...]
-    """Type hint of the callback an autocomplete callback should have.
+    """Type hint of the signature an autocomplete callback should have.
 
-    This will be called when handling autocomplete and should be an asynchronous
-    callback which two positional arguments of type [tanjun.abc.AutocompleteContext][] and
-    `str` or `int` or `float` (with the 2nd argument type being decided by the
-    autocomplete type), returns [None][] and may use dependency injection.
+    This represents the signature
+    `async def (tanjun.abc.AutocompleteContext, int | str | float) -> None`
+    where dependency injection is supported.
     """
 
     _CheckSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], bool]
     CheckSig = _CheckSig[_ContextT_contra, ...]
-    """Type hint of a generic context check used with Tanjun [tanjun.abc.ExecutableCommand][] classes.
+    """Type hint of a generic context check used with Tanjun commands.
 
-    This may be registered with a [tanjun.abc.ExecutableCommand][] to add a rule
+    This may be registered with a command, client or component to add a rule
     which decides whether it should execute for each context passed to it.
 
-    This should take one positional argument of type [tanjun.abc.Context][] and may
-    either be a synchronous or asynchronous callback which returns [bool][].
-    Returning [False][] or raising [tanjun.FailedCheck][] will indicate that the
-    current context shouldn't lead to an execution.
+    This represnts the signatures `def (tanjun.abc.Context, ...) -> bool | None`
+    and `async def (tanjun.abc.Context, ...) -> bool | None` where dependency
+    injection is  supported.
+
+    Check callbacks may either return [False][] to indicate that the current
+    command(s) don't match the context (without stopping execution) or raise
+    [tanjun.FailedCheck][] to indicate that command execution should be halted
+    early and marked as not found.
     """
 
     AnyCheckSig = _CheckSig["Context", ...]
@@ -175,12 +178,10 @@ if typing.TYPE_CHECKING:
     MenuCallbackSig = _ManuCallbackSig["MenuContext", _MenuValueT, ...]
     """Type hint of a context menu command callback.
 
-    This is guaranteed two positional; arguments of type [tanjun.abc.MenuContext][]
-    and either `hikari.User | hikari.InteractionMember` and/or
-    [hikari.messages.Message][] dependent on the type(s) of menu this is,
-    and may use dependency injection.
-
-    This must be asynchronous and return [None][].
+    This represents the signature
+    `async def (tanjun.abc.MenuContext, hikari.Message, ...) -> None` or
+    `async def (tanjun.abc.MenuContext, hikari.InteractionMember, ...) ->  None`
+    where dependency injection is supported.
     """
 
     _CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], _CoroT[None]]
@@ -188,19 +189,15 @@ if typing.TYPE_CHECKING:
     MessageCallbackSig = _CommandCallbackSig["MessageContext", ...]
     """Type hint of a message command callback.
 
-    This is guaranteed one positional argument of type [tanjun.abc.MessageContext][] and
-    may use dependency injection.
-
-    This must be asynchronous and return [None][].
+    This represents the signature `async def (tanjun.abc.MessageContext, ...) -> None`
+    where dependency injection is supported.
     """
 
     SlashCallbackSig = _CommandCallbackSig["SlashContext", ...]
     """Type hint of a slash command callback.
 
-    This is guaranteed one positional argument of type [tanjun.abc.SlashContext][] and
-    may use dependency injection.
-
-    This must be asynchronous and return [None][].
+    This represents the signature `async def (tanjun.abc.SlashContext, ...) -> None`
+    where dependency injection is supported.
     """
 
     _ErrorHookSig = _MaybeAwaitable[
@@ -214,9 +211,9 @@ if typing.TYPE_CHECKING:
     execution stage of a command (ignoring [tanjun.ParserError][] and expected
     [tanjun.TanjunError][] subclasses).
 
-    This should take two positional arguments - of type [tanjun.abc.Context][] and
-    [Exception][] - and may be either a synchronous or asynchronous callback which
-    returns [bool][] or [None][] and may take advantage of dependency injection.
+    This represents the signatures `def (tanjun.abc.Context, Exception, ...) -> bool | None`
+    and `async def (tanjun.abc.Context, Exception, ...) -> bool | None` where
+    dependency injection is supported.
 
     [True][] is returned to indicate that the exception should be suppressed and
     [False][] is returned to indicate that the exception should be re-raised.
@@ -232,10 +229,9 @@ if typing.TYPE_CHECKING:
     This will be called whenever an parser [ParserError][tanjun.errors.ParserError]
     is raised during the execution stage of a command.
 
-    This should take two positional arguments - of type [tanjun.abc.Context][] and
-    [ParserError][tanjun.errors.ParserError] - and may be either a synchronous or
-    asynchronous callback which returns [None][] and may take advantage of
-    dependency injection.
+    This represents the signatures `def (tanjun.abc.Context, tanjun.ParserError, ...) -> None`
+    and `async def (tanjun.abc.Context, tanjun.ParserError, ...) -> None` where
+    dependency injection is supported.
 
     Parser errors are always suppressed (unlike general errors).
     """
@@ -245,10 +241,9 @@ if typing.TYPE_CHECKING:
     HookSig = _HookSig[_ContextT_contra, ...]
     """Type hint of the callback used as a general command hook.
 
-    !!! note
-        This may be asynchronous or synchronous, dependency injection is supported
-        for this callback's keyword arguments and the positional arguments which
-        are passed dependent on the type of hook this is being registered as.
+    This represents the signatures `def (tanjun.abc.Context, ...) -> None` and
+    `async def (tanjun.abc.Context, ...) -> None` where dependency injection is
+    supported.
     """
 
     _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
@@ -257,8 +252,8 @@ if typing.TYPE_CHECKING:
     ListenerCallbackSig = _ListenerCallbackSig[_EventT, ...]
     """Type hint of a hikari event manager callback.
 
-    This is guaranteed one positional arg of type [hikari.events.base_events.Event][]
-    regardless of implementation and must be a coruotine function which returns [None][].
+    This represents the signature `async def (hikari.Event, ...) -> None` where
+    dependency injection is supported.
     """
 
 # 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.

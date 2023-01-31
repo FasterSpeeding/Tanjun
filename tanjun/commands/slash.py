@@ -102,7 +102,12 @@ if typing.TYPE_CHECKING:
         typing.Union[collections.Coroutine[typing.Any, typing.Any, typing.Any], typing.Any],
     ]
     ConverterSig = _ConverterSig[_ConvertT, ...]
-    """Type hint of a slash command option converter."""
+    """Type hint of a slash command option converter.
+
+    This represents the signatures `def (int | float | str, ...) -> Any` and
+    `async def (int | float | str, ...) -> None` where dependency injection is
+    supported.
+    """
 
 else:
     import types

@@ -96,8 +96,8 @@ if typing.TYPE_CHECKING:
     ConverterSig = _ConverterSig[..., _T]
     """Type hint of a converter used within a parser instance.
 
-    This must be a callable or asynchronous callable which takes one position
-    [str][], argument and returns the resultant value.
+    This represents the signatures `def (str, ...) -> Any` and
+    `async def (str, ...) -> Any` where dependency injection is supported.
     """
 
 else:
