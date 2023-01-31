@@ -145,7 +145,10 @@ if typing.TYPE_CHECKING:
 
 # 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
 if typing.TYPE_CHECKING:
-    _PrefixGetterSig =  collections.Callable[typing_extensions.Concatenate[tanjun.MessageContext, _P], collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]]]
+    _PrefixGetterSig = collections.Callable[
+        typing_extensions.Concatenate[tanjun.MessageContext, _P],
+        collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]],
+    ]
     PrefixGetterSig = _PrefixGetterSig[...]
     """Type hint of a callable used to get the prefix(es) for a specific guild.
 
@@ -154,7 +157,9 @@ if typing.TYPE_CHECKING:
     """
 
 else:
-    PrefixGetterSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]]]
+    PrefixGetterSig = collections.Callable[
+        ..., collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]]
+    ]
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
 _MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
