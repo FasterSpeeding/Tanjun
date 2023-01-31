@@ -51,9 +51,10 @@ if typing.TYPE_CHECKING:
     import typing_extensions
     from typing_extensions import Self
 
-    _AnyCallbackSigT = typing.TypeVar(
-        "_AnyCallbackSigT", bound=collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
-    )
+    _P = typing_extensions.ParamSpec("_P")
+    _T = typing.TypeVar("_T")
+    _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
+    _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., _CoroT[None]])
     _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=tanjun.MenuCallbackSig[hikari.Message])
     _UserCallbackSigT = typing.TypeVar("_UserCallbackSigT", bound=tanjun.MenuCallbackSig[hikari.InteractionMember])
 
@@ -511,9 +512,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         self._wrapped_command = _wrapped_command
 
     async def __call__(
-        self: MenuCommand[collections.Callable[_P, collections.Coroutine[typing.Any, typing.Any, None]], _MenuTypeT],
-        *args: _P.args,
-        **kwargs: _P.kwargs,
+        self: MenuCommand[collections.Callable[_P, _CoroT[None]], _MenuTypeT], *args: _P.args, **kwargs: _P.kwargs
     ) -> None:
         await self._callback(*args, **kwargs)
 

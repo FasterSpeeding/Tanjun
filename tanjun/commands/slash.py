@@ -84,6 +84,8 @@ if typing.TYPE_CHECKING:
     ]
     _AnyConverterSig = typing.Union["ConverterSig[float]", "ConverterSig[int]", "ConverterSig[str]"]
     _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
+    _T = typing.TypeVar("_T")
+    _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
 
     _IntAutocompleteSigT = typing.TypeVar("_IntAutocompleteSigT", bound=tanjun.AutocompleteSig[int])
     _FloatAutocompleteSigT = typing.TypeVar("_FloatAutocompleteSigT", bound=tanjun.AutocompleteSig[float])
@@ -98,8 +100,7 @@ if typing.TYPE_CHECKING:
     _P = typing_extensions.ParamSpec("_P")
 
     _ConverterSig = collections.Callable[
-        typing_extensions.Concatenate[_ConvertT, _P],
-        typing.Union[collections.Coroutine[typing.Any, typing.Any, typing.Any], typing.Any],
+        typing_extensions.Concatenate[_ConvertT, _P], typing.Union[_CoroT[typing.Any], typing.Any],
     ]
     ConverterSig = _ConverterSig[_ConvertT, ...]
     """Type hint of a slash command option converter.
