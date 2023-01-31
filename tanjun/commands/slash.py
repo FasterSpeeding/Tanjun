@@ -96,8 +96,6 @@ _ConvertT = typing.TypeVar("_ConvertT", int, float, str)
 
 # 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
 if typing.TYPE_CHECKING:
-    import typing_extensions
-
     _P = typing_extensions.ParamSpec("_P")
 
     _ConverterSig = collections.Callable[
