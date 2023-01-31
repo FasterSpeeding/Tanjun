@@ -2515,7 +2515,7 @@ and may use dependency injection to access other services.</p>
         <tr>
           <td><code>*names</code></td>
           <td class="doc-param-details">
-            <p>Variable positional arguments of other names for the command.</p>
+            <p>Other names for the command.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -2645,7 +2645,7 @@ and may use dependency injection to access other services.</p>
         <tr>
           <td><code>*names</code></td>
           <td class="doc-param-details">
-            <p>Variable positional arguments of other names for the command.</p>
+            <p>Other names for the command.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -2824,7 +2824,7 @@ command group.</p>
         <tr>
           <td><code>*names</code></td>
           <td class="doc-param-details">
-            <p>Variable positional arguments of other names for the command.</p>
+            <p>Other names for the command.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -2922,7 +2922,7 @@ command group.</p>
         <tr>
           <td><code>*names</code></td>
           <td class="doc-param-details">
-            <p>Variable positional arguments of other names for the command.</p>
+            <p>Other names for the command.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -3047,7 +3047,7 @@ enforces that command names are unique to a single command within the group.</p>
         <tr>
           <td><code>*names</code></td>
           <td class="doc-param-details">
-            <p>Variable positional arguments of other names for the command.</p>
+            <p>Other names for the command.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -3147,7 +3147,7 @@ and will manage loading the other command into a component when using
         <tr>
           <td><code>*names</code></td>
           <td class="doc-param-details">
-            <p>Variable positional arguments of other names for the command.</p>
+            <p>Other names for the command.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -3277,6 +3277,9 @@ and will manage loading the other command into a component when using
   <div class="doc doc-contents ">
   
       <p>Type hint of a slash command option converter.</p>
+<p>This represents the signatures <code>def (int | float | str, ...) -&gt; Any</code> and
+<code>async def (int | float | str, ...) -&gt; None</code> where dependency injection is
+supported.</p>
   </div>
 
 </div>

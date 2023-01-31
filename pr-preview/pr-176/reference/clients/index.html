@@ -1683,18 +1683,14 @@
   </span>
 
 <a href="#tanjun.clients.PrefixGetterSig" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">PrefixGetterSig</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Coroutine</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span>
+<div class="highlight"><pre><span></span><code><span class="n">PrefixGetterSig</span> <span class="o">=</span> <span class="n">_PrefixGetterSig</span><span class="p">[</span><span class="bp">Ellipsis</span><span class="p">]</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
   
       <p>Type hint of a callable used to get the prefix(es) for a specific guild.</p>
-<p>This should be an asynchronous callable which returns an iterable of strings.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>While dependency injection is supported for this, the first positional
-argument will always be a <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.MessageContext">tanjun.abc.MessageContext</a>.</p>
-</div>
+<p>This represents the callback <code>async def (tanjun.abc.MessageContext, ...) -&gt; collections.Iterable[str]</code>
+where dependency injection is supported.</p>
   </div>
 
 </div>
