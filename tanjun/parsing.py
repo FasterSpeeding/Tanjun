@@ -84,7 +84,7 @@ if typing.TYPE_CHECKING:
 
 _T = typing.TypeVar("_T")
 
-# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
+# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
     import typing_extensions
 

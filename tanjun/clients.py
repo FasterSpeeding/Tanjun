@@ -143,7 +143,7 @@ if typing.TYPE_CHECKING:
         """Protocol of a cacheless Hikari Gateway bot."""
 
 
-# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
+# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
     _PrefixGetterSig = collections.Callable[
         typing_extensions.Concatenate[tanjun.MessageContext, _P],

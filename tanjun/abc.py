@@ -132,7 +132,7 @@ subscribed to (more information the standard client callbacks can be found at
 return [None][].
 """
 
-# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
+# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
     import typing_extensions
 
@@ -256,7 +256,7 @@ if typing.TYPE_CHECKING:
     dependency injection is supported.
     """
 
-# 3.9 and 3.10 just can't handle ending a Paramspec with ... so we lie at runtime about this.
+# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 else:
     import types
 
