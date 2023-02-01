@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.11.3] - 2023-01-31
+## [2.11.3] - 2023-02-01
 ### Added
 - [tanjun.MenuHooks][] is now exported top-level.
 
