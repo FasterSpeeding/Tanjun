@@ -482,9 +482,9 @@ pydantic==1.10.4 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:f2f7eb6273dd12472d7f218e1fef6f7c7c2f00ac2e1ecde4db8824c457300416 \
     --hash=sha256:fdf88ab63c3ee282c76d652fc86518aacb737ff35796023fae56a65ced1a5978 \
     --hash=sha256:fdf8d759ef326962b4678d89e275ffc55b7ce59d917d9f72233762061fd04a2d
-pyright==1.1.291 ; python_full_version >= "3.9.0" and python_version < "3.12" \
-    --hash=sha256:2dbd133ee400e81ff319d0701bc47545a7ab1cd7dcfcf46c7de37d9b0fbbb76f \
-    --hash=sha256:3946f43f1a99f8e438eee1738ad0649d8bd7ac36dded25849245993ab02671bd
+pyright==1.1.292 ; python_full_version >= "3.9.0" and python_version < "3.12" \
+    --hash=sha256:035ea1af6fabfdcc80c0afb545f677bd377114157d69779cce2a642ff894e51c \
+    --hash=sha256:23d1f14b15afe38bb7a7117b9861ad0546aff078da312d294e60a727445c23ff
 pytest-asyncio==0.20.3 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:83cbf01169ce3e8eb71c6c278ccb0574d1a7a3bb8eaaf5e50e0ad342afb33b36 \
     --hash=sha256:f129998b209d04fcc65c96fc85c11e5316738358909a8399e93be553d7656442
