@@ -273,10 +273,10 @@ else:
     ListenerCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_EventT,))
 
 
-AutocompleteCallbackSig = AutocompleteSig
+AutocompleteCallbackSig = AutocompleteSig[_AutocompleteValueT]
 """Deprecated alias of [tanjun.abc.AutocompleteSig][]."""
 
-MenuCommandCallbackSig = MenuCallbackSig
+MenuCommandCallbackSig = MenuCallbackSig[_MenuValueT]
 """Deprecated alias of [tanjun.abc.MenuCallbackSig][]."""
 
 _MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound=MenuCallbackSig[typing.Any])
