@@ -530,6 +530,8 @@ class MessageCommandIndex:
             self.names_to_commands.update((key, (name, command)) for key, name in zip(insensitive_names, names))
 
         else:  # strict indexes avoid using the search tree all together.
+            # This needs to be explicitly typed for MyPy.
+            node: typing.Union[_TreeT, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]
             for name in filter(None, command.names):
                 node = self.search_tree
                 # The search tree is kept case-insensitive as a check against the actual name
@@ -549,7 +551,9 @@ class MessageCommandIndex:
                 # This is split into a list of words to avoid mult-spaces failing lookup.
                 name_parts = name.split(" ")
                 try:
-                    node[_IndexKeys.COMMANDS].append((name_parts, command))
+                    commands = node[_IndexKeys.COMMANDS]
+                    assert isinstance(commands, list)
+                    commands.append((name_parts, command))
                 except KeyError:
                     node[_IndexKeys.COMMANDS] = [(name_parts, command)]
 
@@ -608,6 +612,8 @@ class MessageCommandIndex:
             # strict indexes avoid using the search tree all together.
             return
 
+        # This needs to be explicitly typed for MyPy.
+        node: typing.Union[_TreeT, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]
         node = self.search_tree
         segments: list[tuple[int, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]] = []
         split = content.split(" ")
@@ -656,6 +662,8 @@ class MessageCommandIndex:
             # strict indexes avoid using the search tree all together.
             return
 
+        # This needs to be explicitly typed for MyPy.
+        node: typing.Union[_TreeT, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]
         for name in filter(None, command.names):
             nodes: list[tuple[str, _TreeT]] = []
             node = self.search_tree
@@ -674,7 +682,9 @@ class MessageCommandIndex:
             else:
                 # If it didn't break out of the for chars loop then the command is in here.
                 name_parts = name.split(" ")
-                node[_IndexKeys.COMMANDS].remove((name_parts, command))  # Remove the command from the last node.
+                entries = node[_IndexKeys.COMMANDS]
+                assert isinstance(entries, list)
+                entries.remove((name_parts, command))  # Remove the command from the last node.
                 if not node[_IndexKeys.COMMANDS]:
                     del node[_IndexKeys.COMMANDS]
 
