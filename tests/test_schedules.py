@@ -1036,13 +1036,21 @@ class TestTimeSchedule:
 
     @pytest.mark.asyncio()
     async def test_call_dunder_method(self):
-        mock_callback: typing.Any = mock.AsyncMock()
+        check_called = mock.Mock()
+
+        async def mock_callback(value: int, other: str, /, *, a: int, b: int) -> None:
+            assert value == 123
+            assert other == "32"
+            assert a == 432
+            assert b == 123
+            check_called()
+
         interval = tanjun.schedules.TimeSchedule(mock_callback)
 
         result = await interval(123, "32", a=432, b=123)
 
         assert result is None
-        mock_callback.assert_awaited_once_with(123, "32", a=432, b=123)
+        check_called.assert_called_once()
 
     def test_copy(self):
         mock_callback: typing.Any = mock.AsyncMock()

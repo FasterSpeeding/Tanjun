@@ -69,6 +69,7 @@ from .._internal import localisation
 from . import base
 
 if typing.TYPE_CHECKING:
+    import typing_extensions
     from hikari.api import special_endpoints as special_endpoints_api
     from typing_extensions import Self
 
@@ -82,6 +83,8 @@ if typing.TYPE_CHECKING:
     ]
     _AnyConverterSig = typing.Union["ConverterSig[float]", "ConverterSig[int]", "ConverterSig[str]"]
     _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
+    _T = typing.TypeVar("_T")
+    _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
 
     _IntAutocompleteSigT = typing.TypeVar("_IntAutocompleteSigT", bound=tanjun.AutocompleteSig[int])
     _FloatAutocompleteSigT = typing.TypeVar("_FloatAutocompleteSigT", bound=tanjun.AutocompleteSig[float])
@@ -93,13 +96,10 @@ _ConvertT = typing.TypeVar("_ConvertT", int, float, str)
 
 # 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
-    import typing_extensions
-
     _P = typing_extensions.ParamSpec("_P")
 
     _ConverterSig = collections.Callable[
-        typing_extensions.Concatenate[_ConvertT, _P],
-        typing.Union[collections.Coroutine[typing.Any, typing.Any, typing.Any], typing.Any],
+        typing_extensions.Concatenate[_ConvertT, _P], typing.Union[_CoroT[typing.Any], typing.Any],
     ]
     ConverterSig = _ConverterSig[_ConvertT, ...]
     """Type hint of a slash command option converter.
@@ -1607,13 +1607,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         self._tracked_options: dict[str, _TrackedOption] = {}
         self._wrapped_command = _wrapped_command
 
-    if typing.TYPE_CHECKING:
-        __call__: _SlashCallbackSigT
-
-    else:
-
-        async def __call__(self, *args, **kwargs) -> None:
-            await self._callback(*args, **kwargs)
+    async def __call__(
+        self: SlashCommand[collections.Callable[_P, _CoroT[None]]], *args: _P.args, **kwargs: _P.kwargs
+    ) -> None:
+        await self._callback(*args, **kwargs)
 
     @property
     def callback(self) -> _SlashCallbackSigT:

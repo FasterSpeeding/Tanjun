@@ -49,13 +49,17 @@ from . import _internal
 from . import components
 
 if typing.TYPE_CHECKING:
+    import typing_extensions
     from typing_extensions import Self
 
     from . import abc as tanjun
 
     _OtherCallbackT = typing.TypeVar("_OtherCallbackT", bound="_CallbackSig")
+    _P = typing_extensions.ParamSpec("_P")
+    _T = typing.TypeVar("_T")
+    _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
 
-_CallbackSig = collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, None]]
+_CallbackSig = collections.Callable[..., "_CoroT[None]"]
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound=_CallbackSig)
 
 
@@ -280,13 +284,10 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         # <<inherited docstring from IntervalSchedule>>.
         return self._iteration_count
 
-    if typing.TYPE_CHECKING:
-        __call__: _CallbackSigT
-
-    else:
-
-        async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-            await self._callback(*args, **kwargs)
+    async def __call__(
+        self: IntervalSchedule[collections.Callable[_P, _CoroT[None]]], *args: _P.args, **kwargs: _P.kwargs
+    ) -> None:
+        await self._callback(*args, **kwargs)
 
     def copy(self) -> Self:
         # <<inherited docstring from IntervalSchedule>>.
@@ -1028,13 +1029,10 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         # <<inherited docstring from IntervalSchedule>>.
         return self._task is not None
 
-    if typing.TYPE_CHECKING:
-        __call__: _CallbackSigT
-
-    else:
-
-        async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
-            await self._callback(*args, **kwargs)
+    async def __call__(
+        self: TimeSchedule[collections.Callable[_P, _CoroT[None]]], *args: _P.args, **kwargs: _P.kwargs
+    ) -> None:
+        await self._callback(*args, **kwargs)
 
     def copy(self) -> Self:
         # <<inherited docstring from IntervalSchedule>>.

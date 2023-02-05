@@ -259,12 +259,22 @@ class TestMenuCommand:
 
     @pytest.mark.asyncio()
     async def test_call_dunder_method(self):
-        mock_callback: typing.Any = mock.AsyncMock()
+        mock_ctx = mock.Mock()
+        mock_message = mock.Mock()
+        check_called = mock.Mock()
+
+        async def mock_callback(ctx: tanjun.abc.Context, message: hikari.Message, other: str, /, *, b: int) -> None:
+            assert ctx is mock_ctx
+            assert message is mock_message
+            assert other == "ea"
+            assert b == 32
+            check_called()
+
         command = tanjun.MenuCommand(mock_callback, hikari.CommandType.MESSAGE, "a")
 
-        await command(123, 321, "ea", b=32)
+        await command(mock_ctx, mock_message, "ea", b=32)
 
-        mock_callback.assert_awaited_once_with(123, 321, "ea", b=32)
+        check_called.assert_called_once()
 
     def test_callback_property(self):
         mock_callback = mock.Mock()
