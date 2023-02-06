@@ -836,9 +836,9 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         super().__init__(
             name=name,
             description=description,
-            description_localizations=description_localizations,  # pyright: ignore [ reportGeneralTypeIssues ]
-            id=id_,  # pyright: ignore [ reportGeneralTypeIssues ]
-            name_localizations=name_localizations,  # pyright: ignore [ reportGeneralTypeIssues ]
+            description_localizations=description_localizations,
+            id=id_,
+            name_localizations=name_localizations,
         )
         self._has_been_sorted = True
         self._options_dict: dict[str, hikari.CommandOption] = {}

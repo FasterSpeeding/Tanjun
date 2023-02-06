@@ -634,14 +634,14 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             result = hikari.impl.InteractionMessageBuilder(
                 hikari.ResponseType.MESSAGE_CREATE,
                 content,
-                attachments=attachments,  # pyright: ignore [ reportGeneralTypeIssues ]
-                components=components,  # pyright: ignore [ reportGeneralTypeIssues ]
-                embeds=embeds,  # pyright: ignore [ reportGeneralTypeIssues ]
-                flags=flags,  # pyright: ignore [ reportGeneralTypeIssues ]
-                is_tts=tts,  # pyright: ignore [ reportGeneralTypeIssues ]
-                mentions_everyone=mentions_everyone,  # pyright: ignore [ reportGeneralTypeIssues ]
-                user_mentions=user_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]
-                role_mentions=role_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]
+                attachments=attachments,
+                components=components,
+                embeds=embeds,
+                flags=flags,
+                is_tts=tts,
+                mentions_everyone=mentions_everyone,
+                user_mentions=user_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]  # TODO: hikari fix
+                role_mentions=role_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]  # TODO: hikari fix
             )
 
             self._response_future.set_result(result)
@@ -981,7 +981,7 @@ def _to_list(
     type_: typing.Union[type[_T], tuple[type[_T], ...]],
     name: str,
     /,
-) -> tuple[list[_T], hikari.UndefinedOr[_OtherT]]:
+) -> tuple[hikari.UndefinedOr[list[_T]], hikari.UndefinedOr[_OtherT]]:
     if singular is not hikari.UNDEFINED and plural is not hikari.UNDEFINED:
         raise ValueError(f"Only one of {name} or {name}s may be passed")
 
