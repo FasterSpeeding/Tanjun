@@ -992,7 +992,7 @@ def _to_list(
         return list(plural), other
 
     if other and isinstance(other, type_):
-        return [other], undefined.UNDEFINED
+        return [other], hikari.UNDEFINED
 
     return hikari.UNDEFINED, other
 
