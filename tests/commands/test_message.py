@@ -124,7 +124,7 @@ def test_as_message_command_group(mock_callback: collections.Callable[[tanjun.ab
 )
 def test_as_message_command_group_when_wrapping_command(
     other_command: typing.Union[
-        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MenuCommand[typing.Any, typing.Any],
+        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MenuCommand[typing.Any, typing.Any]
     ]
 ):
     command = tanjun.as_message_command_group("c", "b", strict=True)(other_command)
@@ -145,7 +145,7 @@ class TestMessageCommand:
     def test___init___when_command_object(
         self,
         inner_command: typing.Union[
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MenuCommand[typing.Any, typing.Any],
+            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MenuCommand[typing.Any, typing.Any]
         ],
     ):
         assert tanjun.MessageCommand(inner_command, "woow").callback is inner_command.callback
@@ -810,7 +810,6 @@ class TestMessageCommandGroup:
     async def test_execute_falls_back_to_own_callback_no_pass_through_hooks(
         self, mock_callback: collections.Callable[[tanjun.abc.Context], typing.Any]
     ):
-
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
         mock_command_2 = mock.AsyncMock()

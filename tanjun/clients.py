@@ -77,7 +77,7 @@ if typing.TYPE_CHECKING:
 
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
     _AppCmdResponse = typing.Union[
-        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder,
+        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
     ]
     _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
     _ListenerCallbackSigT = typing.TypeVar("_ListenerCallbackSigT", bound=tanjun.ListenerCallbackSig[typing.Any])
