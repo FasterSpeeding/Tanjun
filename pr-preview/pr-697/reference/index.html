@@ -9874,22 +9874,6 @@ longer than <code>max_rate_limit</code> when making a request.</p>
         <tr>
           <td>
             <span class="doc-raises-annotation">
-                <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.RateLimitedError">RateLimitedError</span></code>
-            </span>
-          </td>
-          <td class="doc-raises-details">
-            <p>Usually, Hikari will handle and retry on hitting
-rate-limits automatically. This includes most bucket-specific
-rate-limits and global rate-limits. In some rare edge cases,
-however, Discord implements other undocumented rules for
-rate-limiting, such as limits per attribute. These cannot be
-detected or handled normally by Hikari due to their undocumented
-nature, and will trigger this exception if they occur.</p>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <span class="doc-raises-annotation">
                 <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.InternalServerError">InternalServerError</span></code>
             </span>
           </td>
@@ -14664,7 +14648,7 @@ if limit is less 0 or negative.</p>
       <p>Injected type used to hold and generate lazy constants.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.inject_lc">inject_lc</a>.</p>
+<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="#tanjun.inject_lc">inject_lc</a>.</p>
 </div>
 
 
@@ -17209,7 +17193,7 @@ the option is required without the actual value being used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will always result in
-[hikari.interactions.command_interactions.InteractionChannel][].</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.interactions.base_interactions.InteractionChannel</a>.</p>
 </div>
 
   <table>
@@ -21992,7 +21976,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -23228,7 +23212,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 <a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_channel_option">tanjun.SlashCommand.add_channel_option</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This will always result in [hikari.interactions.command_interactions.InteractionChannel][].</p>
+<p>This will always result in <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.interactions.base_interactions.InteractionChannel</a>.</p>
 </div>
 
 <p><strong>Examples:</strong></p>
@@ -23363,7 +23347,7 @@ command wraps in a decorator call chain.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 

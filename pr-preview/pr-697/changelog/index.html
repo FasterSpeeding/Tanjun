@@ -3441,6 +3441,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   response specifically) will no-longer try to pass the attachment, component or embed as
   the actual message content when passed for the <code>content</code> argument for REST-based
   interaction commands.</li>
+<li>Removed use of and references to <code>hikari.RateLimitedError</code> to fix compatibility with
+  <code>hikari&gt;=2.0.0.dev116</code>.</li>
 </ul>
 <h2 id="2113-2023-02-01"><a href="https://github.com/FasterSpeeding/Tanjun/compare/v2.11.2...v2.11.3">2.11.3</a> - 2023-02-01<a class="headerlink" href="#2113-2023-02-01" title="Permanent link">#</a></h2>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">#</a></h3>
@@ -3557,9 +3559,9 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>The hot reloader will no-longer retry to reload a module being targeted through a system path
   (<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/pathlib.html#pathlib.Path">pathlib.Path</a>) after one of its unloaders raises or finding out it has no unloaders.</li>
 <li>Allow passing <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/channels/#hikari.channels.GuildThreadChannel">hikari.GuildThreadChannel</a> derived types
-  (+ [hikari.InteractionChannel][hikari.interactions.command_interactions.InteractionChannel]) to
+  (+ <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.InteractionChannel</a>) to
   <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.TheseChannels">TheseChannels</a>, and to the <code>types</code> field of
-  <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.with_channel_slash_option">with_channel_slash_option</a> and
+  <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_channel_slash_option">with_channel_slash_option</a> and
   <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.SlashCommand.add_channel_option">SlashCommand.add_channel_option</a>.</li>
 <li>The spacing in <code>triggering_name</code> is now properly normalised for message commands in groups to ensure
   only 1 space. This also fixes cases where names were being smashed together without any spaces.</li>

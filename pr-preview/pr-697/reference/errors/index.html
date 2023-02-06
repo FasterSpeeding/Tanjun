@@ -1716,22 +1716,6 @@ longer than <code>max_rate_limit</code> when making a request.</p>
         <tr>
           <td>
             <span class="doc-raises-annotation">
-                <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.RateLimitedError">RateLimitedError</span></code>
-            </span>
-          </td>
-          <td class="doc-raises-details">
-            <p>Usually, Hikari will handle and retry on hitting
-rate-limits automatically. This includes most bucket-specific
-rate-limits and global rate-limits. In some rare edge cases,
-however, Discord implements other undocumented rules for
-rate-limiting, such as limits per attribute. These cannot be
-detected or handled normally by Hikari due to their undocumented
-nature, and will trigger this exception if they occur.</p>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <span class="doc-raises-annotation">
                 <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.InternalServerError">InternalServerError</span></code>
             </span>
           </td>
