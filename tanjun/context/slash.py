@@ -843,7 +843,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             if self._response_future:
                 components, _ = _to_list(component, components, None, hikari.api.ComponentBuilder, "component")
 
-                response = hikari.impl.InteractionModalBuilder(title, custom_id, components)
+                response = hikari.impl.InteractionModalBuilder(title, custom_id, components or [])
                 self._response_future.set_result(response)
 
             else:
