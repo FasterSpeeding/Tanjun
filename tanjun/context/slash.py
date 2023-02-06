@@ -981,7 +981,7 @@ def _to_list(
     type_: typing.Union[type[_T], tuple[type[_T], ...]],
     name: str,
     /,
-) -> tuple[list[_T], hikari.UndefinedNoneOr[_OtherT]]:
+) -> tuple[list[_T], hikari.UndefinedOr[_OtherT]]:
     if singular is not hikari.UNDEFINED and plural is not hikari.UNDEFINED:
         raise ValueError(f"Only one of {name} or {name}s may be passed")
 
