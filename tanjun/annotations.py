@@ -149,7 +149,7 @@ Bool = typing.Annotated[bool, _OptionMarker(bool)]
 Channel = typing.Annotated[hikari.PartialChannel, _OptionMarker(hikari.PartialChannel)]
 """An argument which takes a channel.
 
-[hikari.InteractionChannel][hikari.interactions.command_interactions.InteractionChannel]
+[hikari.InteractionChannel][hikari.interactions.base_interactions.InteractionChannel]
 will be passed for options typed as this when being called as a slash command.
 """
 

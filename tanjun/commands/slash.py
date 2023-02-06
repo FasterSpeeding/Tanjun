@@ -691,7 +691,7 @@ def with_channel_slash_option(
     [tanjun.SlashCommand.add_channel_option][].
 
     !!! note
-        This will always result in [hikari.interactions.command_interactions.InteractionChannel][].
+        This will always result in [hikari.interactions.base_interactions.InteractionChannel][].
 
     Examples
     --------
@@ -2437,7 +2437,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         !!! note
             This will always result in
-            [hikari.interactions.command_interactions.InteractionChannel][].
+            [hikari.interactions.base_interactions.InteractionChannel][].
 
         Parameters
         ----------

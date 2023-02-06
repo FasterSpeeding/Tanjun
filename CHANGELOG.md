@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   response specifically) will no-longer try to pass the attachment, component or embed as
   the actual message content when passed for the `content` argument for REST-based
   interaction commands.
+- Removed use of and references to `hikari.RateLimitedError` to fix compatibility with
+  `hikari>=2.0.0.dev116`.
 
 ## [2.11.3] - 2023-02-01
 ### Added
@@ -111,7 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The hot reloader will no-longer retry to reload a module being targeted through a system path
   ([pathlib.Path][]) after one of its unloaders raises or finding out it has no unloaders.
 - Allow passing [hikari.GuildThreadChannel][hikari.channels.GuildThreadChannel] derived types
-  (+ [hikari.InteractionChannel][hikari.interactions.command_interactions.InteractionChannel]) to
+  (+ [hikari.InteractionChannel][hikari.interactions.base_interactions.InteractionChannel]) to
   [TheseChannels][tanjun.annotations.TheseChannels], and to the `types` field of
   [with_channel_slash_option][tanjun.commands.with_channel_slash_option] and
   [SlashCommand.add_channel_option][tanjun.commands.SlashCommand.add_channel_option].
