@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   response specifically) will no-longer try to pass the attachment, component or embed as
   the actual message content when passed for the `content` argument for REST-based
   interaction commands.
+- Removed use of and references to `hikari.RateLimitedError` to fix compatibility with
+  `hikari>=2.0.0.dev116`.
 
 ## [2.11.3] - 2023-02-01
 ### Added
