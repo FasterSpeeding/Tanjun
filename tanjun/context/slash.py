@@ -54,6 +54,7 @@ if typing.TYPE_CHECKING:
         hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
     ]
     _T = typing.TypeVar("_T")
+    _OtherT = typing.TypeVar("_OtherT")
 
 
 _INTERACTION_LIFETIME: typing.Final[datetime.timedelta] = datetime.timedelta(minutes=15)
@@ -623,9 +624,9 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             )
 
         else:
-            attachments = _to_list(attachment, attachments, content, _ATTACHMENT_TYPES, "attachment")
-            components = _to_list(component, components, content, hikari.api.ComponentBuilder, "component")
-            embeds = _to_list(embed, embeds, content, hikari.Embed, "embed")
+            attachments, content = _to_list(attachment, attachments, content, _ATTACHMENT_TYPES, "attachment")
+            components, content = _to_list(component, components, content, hikari.api.ComponentBuilder, "component")
+            embeds, content = _to_list(embed, embeds, content, hikari.Embed, "embed")
 
             content = str(content) if content is not hikari.UNDEFINED else hikari.UNDEFINED
             # Pyright doesn't properly support attrs and doesn't account for _ being removed from field
@@ -633,14 +634,14 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             result = hikari.impl.InteractionMessageBuilder(
                 hikari.ResponseType.MESSAGE_CREATE,
                 content,
-                attachments=attachments,  # pyright: ignore [ reportGeneralTypeIssues ]
-                components=components,  # pyright: ignore [ reportGeneralTypeIssues ]
-                embeds=embeds,  # pyright: ignore [ reportGeneralTypeIssues ]
-                flags=flags,  # pyright: ignore [ reportGeneralTypeIssues ]
-                is_tts=tts,  # pyright: ignore [ reportGeneralTypeIssues ]
-                mentions_everyone=mentions_everyone,  # pyright: ignore [ reportGeneralTypeIssues ]
-                user_mentions=user_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]
-                role_mentions=role_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]
+                attachments=attachments,
+                components=components,
+                embeds=embeds,
+                flags=flags,
+                is_tts=tts,
+                mentions_everyone=mentions_everyone,
+                user_mentions=user_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]  # TODO: hikari fix
+                role_mentions=role_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]  # TODO: hikari fix
             )
 
             self._response_future.set_result(result)
@@ -840,9 +841,9 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 raise RuntimeError("Initial response has already been created")
 
             if self._response_future:
-                components = _to_list(component, components, None, hikari.api.ComponentBuilder, "component")
+                components, _ = _to_list(component, components, None, hikari.api.ComponentBuilder, "component")
 
-                response = hikari.impl.InteractionModalBuilder(title, custom_id, components)
+                response = hikari.impl.InteractionModalBuilder(title, custom_id, components or [])
                 self._response_future.set_result(response)
 
             else:
@@ -976,24 +977,24 @@ _ATTACHMENT_TYPES: tuple[type[typing.Any], ...] = (hikari.files.Resource, *hikar
 def _to_list(
     singular: hikari.UndefinedOr[_T],
     plural: hikari.UndefinedOr[collections.Sequence[_T]],
-    other: typing.Any,
-    type_: typing.Union[type[typing.Any], tuple[type[typing.Any], ...]],
+    other: _OtherT,
+    type_: typing.Union[type[_T], tuple[type[_T], ...]],
     name: str,
     /,
-) -> list[_T]:
+) -> tuple[hikari.UndefinedOr[list[_T]], hikari.UndefinedOr[_OtherT]]:
     if singular is not hikari.UNDEFINED and plural is not hikari.UNDEFINED:
         raise ValueError(f"Only one of {name} or {name}s may be passed")
 
-    if singular:
-        return [singular]
+    if singular is not hikari.UNDEFINED:
+        return [singular], other
 
-    if plural:
-        return list(plural)
+    if plural is not hikari.UNDEFINED:
+        return list(plural), other
 
     if other and isinstance(other, type_):
-        return [other]
+        return [other], hikari.UNDEFINED
 
-    return []
+    return hikari.UNDEFINED, other
 
 
 class SlashContext(AppCommandContext, tanjun.SlashContext):
