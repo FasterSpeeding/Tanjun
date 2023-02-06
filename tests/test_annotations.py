@@ -3863,7 +3863,7 @@ def test_for_interaction_channel_option_on_message_command():
     with pytest.raises(
         RuntimeError,
         match=(
-            "<class 'hikari.interactions.command_interactions.InteractionChannel'> "
+            "<class 'hikari.interactions.base_interactions.InteractionChannel'> "
             "is not supported for message commands"
         ),
     ):
