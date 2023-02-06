@@ -985,16 +985,16 @@ def _to_list(
     if singular is not hikari.UNDEFINED and plural is not hikari.UNDEFINED:
         raise ValueError(f"Only one of {name} or {name}s may be passed")
 
-    if singular:
+    if singular is not hikari.UNDEFINED:
         return [singular], other
 
-    if plural:
+    if plural is not hikari.UNDEFINED:
         return list(plural), other
 
     if other and isinstance(other, type_):
         return [other], None
 
-    return [], other
+    return hikari.UNDEFINED, other
 
 
 class SlashContext(AppCommandContext, tanjun.SlashContext):
