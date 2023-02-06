@@ -445,7 +445,7 @@ class HotReloader:
             try:
                 await client.declare_application_commands(builders.values(), guild=self._commands_guild)
 
-            except (hikari.RateLimitTooLongError) as exc:
+            except hikari.RateLimitTooLongError as exc:
                 _LOGGER.exception("Timed out on command declare, will try again soon", exc_info=exc)
 
             except Exception as exc:
