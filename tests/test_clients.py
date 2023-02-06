@@ -1958,7 +1958,6 @@ class TestClient:
 
     @pytest.mark.asyncio()
     async def test_load_directory_async(self):
-
         mock_load_modules = mock.AsyncMock()
 
         class StubClient(tanjun.Client):

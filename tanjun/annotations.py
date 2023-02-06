@@ -97,7 +97,7 @@ if typing.TYPE_CHECKING:
     _T = typing.TypeVar("_T")
     _P = typing_extensions.ParamSpec("_P")
     __ConverterSig = collections.Callable[
-        typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T],
+        typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
     ]
     _ConverterSig = __ConverterSig[..., _T]
     _ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]

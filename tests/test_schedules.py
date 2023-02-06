@@ -1125,7 +1125,6 @@ class TestTimeSchedule:
         interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
         interval.start(mock.Mock())
         try:
-
             with pytest.raises(RuntimeError, match="Schedule is already running"):
                 interval.start(mock.Mock())
 
