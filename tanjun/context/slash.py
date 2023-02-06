@@ -977,7 +977,7 @@ _ATTACHMENT_TYPES: tuple[type[typing.Any], ...] = (hikari.files.Resource, *hikar
 def _to_list(
     singular: hikari.UndefinedOr[_T],
     plural: hikari.UndefinedOr[collections.Sequence[_T]],
-    other: hikari.UndefinedOr[_OtherT],
+    other: _OtherT,
     type_: typing.Union[type[_T], tuple[type[_T], ...]],
     name: str,
     /,
