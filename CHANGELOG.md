@@ -853,7 +853,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced MYPY with pyright as the standard type checker.
 - Switch over to relative imports.
 - Switched over to just importing the top level `hikari` module when possible to simplify imports.
-- Moved the project metadata duner properties direcltly to `tanjun` (from `tanjun.about.py`).
+- Moved the project metadata dunder properties direcltly to `tanjun` (from `tanjun.about.py`).
 - Switched over to pdoc from pdoc3 for doc generation.
 - Switched away from setuptools to pep 621 with flit for defining the library and it's metadata (including
   requirements).
