@@ -77,7 +77,7 @@ component = tanjun.Component()
 async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
     ...
 
-@tanjun.with_listener
+@component.with_listener()
 async def event_listener(event: hikari.Event) -> None:
     ...
 ```
