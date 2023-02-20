@@ -73,6 +73,7 @@ __all__: list[str] = [
 
 import abc
 import datetime
+import enum
 import itertools
 import operator
 import typing
@@ -87,7 +88,6 @@ from . import parsing
 from ._internal.vendor import inspect
 from .commands import message
 from .commands import slash
-import enum
 
 if typing.TYPE_CHECKING:
     import typing_extensions
