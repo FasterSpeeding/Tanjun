@@ -73,9 +73,10 @@ __all__: list[str] = [
     "with_cooldown",
 ]
 
+import typing
+
 import hikari
 
-from .. import abc as _tanjun
 from .async_cache import AsyncCache
 from .async_cache import CacheIterator
 from .async_cache import CacheMissError
@@ -107,6 +108,9 @@ from .locales import BasicLocalizer
 from .owners import AbstractOwners
 from .owners import Owners
 from .reloaders import HotReloader
+
+if typing.TYPE_CHECKING:
+    from .. import abc as _tanjun
 
 
 def set_standard_dependencies(client: _tanjun.Client, /) -> None:

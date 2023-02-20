@@ -38,8 +38,8 @@ import typing
 import alluka
 import hikari
 
-from .. import abc as tanjun
-from . import async_cache
+from .. import abc as tanjun  # noqa: TC002
+from . import async_cache  # noqa: TC002
 
 
 async def fetch_my_user(

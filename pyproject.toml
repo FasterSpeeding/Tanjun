@@ -69,7 +69,7 @@ count = true
 docstring-convention = "numpy"
 eradicate-aggressive = true
 exclude = ["tanjun/_internal/vendor/**"]
-# extend-select = ["TC100", "TC101"]
+extend-select = ["TC100", "TC101"]
 force-future-annotations = true
 ignore-decorators = "overload"
 max-complexity = 20
@@ -102,10 +102,13 @@ ignore = [
     "E231",    # missing whitespace after ','
 ]
 per-file-ignores = [
-    "examples/*.py: D100, D101, D103, E800, FA100, FA101, F401, F403, INP001",
+    "examples/*.py: D100, D101, D103, E800, FA100, FA101, F401, F403, INP001, TC001",
     "noxfile.py: D100, FA101, F401, F403, INP001",
     "tanjun/py.typed: D100",
     "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101",
+    "tests/test_annotations*.py: CCE002, D100, D101, D103, D104, FA100, FA101, TC101",
+    "tests/test_clients*.py: CCE002, D100, D101, D103, D104, FA100, FA101, TC101",
+    "tests/test_components*.py: CCE002, D100, D101, D103, D104, FA100, FA101, TC101",
 ]
 
 [tool.isort]

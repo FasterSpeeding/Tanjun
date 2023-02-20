@@ -65,7 +65,7 @@ def stub_class(
 
     name = origin.__name__ if (origin := getattr(cls, "__origin__", None)) else cls.__name__
     new_cls = types.new_class(name, (cls,), exec_body=lambda body: body.update(namespace))
-    return typing.cast(type[_T], new_cls)(*args, **kwargs or {})
+    return typing.cast("type[_T]", new_cls)(*args, **kwargs or {})
 
 
 @pytest.fixture()
@@ -702,7 +702,7 @@ class TestMessageCommandGroup:
             )
         )
 
-        await command.execute(mock_context, hooks={typing.cast(tanjun.abc.MessageHooks, mock_hooks)})
+        await command.execute(mock_context, hooks={typing.cast("tanjun.abc.MessageHooks", mock_hooks)})
 
         mock_context.set_content.assert_called_once_with("desu-ga hi")
         mock_context.set_triggering_name.assert_called_once_with("go home baka")
@@ -795,7 +795,7 @@ class TestMessageCommandGroup:
         )
 
         with mock.patch.object(tanjun.commands.MessageCommand, "execute", new=mock.AsyncMock()) as mock_execute:
-            await command.execute(mock_context, hooks={typing.cast(tanjun.abc.MessageHooks, mock_hooks)})
+            await command.execute(mock_context, hooks={typing.cast("tanjun.abc.MessageHooks", mock_hooks)})
 
             mock_execute.assert_called_once_with(mock_context, hooks={mock_hooks, mock_attached_hooks})
 
