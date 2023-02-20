@@ -88,8 +88,11 @@ from . import parsing
 from ._internal.vendor import inspect
 from .commands import message
 from .commands import slash
+import typing_extensions
 
 if typing.TYPE_CHECKING:
+    import enum
+
     import typing_extensions
     from typing_extensions import Self
 
@@ -463,6 +466,26 @@ class Flag(_ConfigIdentifier):
 
     __slots__ = ("_aliases", "_default", "_empty_value")
 
+    @typing.overload
+    def __init__(
+        self,
+        *,
+        aliases: typing.Optional[collections.Sequence[str]] = None,
+        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
+    ) -> None:
+        ...
+
+    @typing_extensions.deprecated("Use annotations.Default instead of the default arg")
+    @typing.overload
+    def __init__(
+        self,
+        *,
+        aliases: typing.Optional[collections.Sequence[str]] = None,
+        default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED,
+        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
+    ) -> None:
+        ...
+
     def __init__(
         self,
         *,
@@ -505,6 +528,7 @@ class Flag(_ConfigIdentifier):
         return self._aliases
 
     @property
+    @typing_extensions.deprecated("Use annotations.Default instead of the default arg")
     def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
         """The flag's default.
 

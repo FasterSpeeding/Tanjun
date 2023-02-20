@@ -53,6 +53,7 @@ import asyncio
 import copy
 import itertools
 import shlex
+import typing_extensions
 import typing
 from collections import abc as collections
 
@@ -128,13 +129,13 @@ class UndefinedT:
         return False
 
 
-UndefinedDefaultT = UndefinedT
-"""Deprecated alias of [Undefined][tanjun.parsing.UNDEFINED]."""
+UndefinedDefaultT = typing_extensions.deprecated("Use Undefined")(UndefinedT)
+"""Deprecated alias of [UndefinedT][tanjun.parsing.UndefinedT]."""
 
 UNDEFINED = UndefinedT()
 """A singleton used to represent an undefined value within parsing logic."""
 
-UNDEFINED_DEFAULT = UNDEFINED
+UNDEFINED_DEFAULT = typing_extensions.deprecated("Use UNDEFINED")(UNDEFINED)
 """Deprecated alias of [UNDEFINED][tanjun.parsing.UNDEFINED]."""
 
 _UndefinedOr = typing.Union[UndefinedT, _T]
@@ -475,7 +476,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         """
 
 
-AbstractParser = AbstractOptionParser
+AbstractParser = typing_extensions.deprecated("AbstractOptionParser")(AbstractOptionParser)
 """Deprecated alias of [AbstractOptionParser][tanjun.parsing.AbstractOptionParser]."""
 
 
