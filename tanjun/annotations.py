@@ -73,6 +73,7 @@ __all__: list[str] = [
 
 import abc
 import datetime
+import enum
 import itertools
 import operator
 import typing
@@ -89,8 +90,6 @@ from .commands import message
 from .commands import slash
 
 if typing.TYPE_CHECKING:
-    import enum
-
     import typing_extensions
     from typing_extensions import Self
 
@@ -105,7 +104,7 @@ if typing.TYPE_CHECKING:
     _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)
     _CommandUnion = typing.Union[slash.SlashCommand[typing.Any], message.MessageCommand[typing.Any]]
     _CommandUnionT = typing.TypeVar("_CommandUnionT", bound=_CommandUnion)
-    _EnumT = typing.TypeVar("_EnumT", bound=enum.Enum)
+    _EnumT = typing.TypeVar("_EnumT", bound="enum.Enum")
     _NumberT = typing.TypeVar("_NumberT", float, int)
 
 

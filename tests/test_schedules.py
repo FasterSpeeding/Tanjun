@@ -69,7 +69,7 @@ def _print_tb(callback: _CallbackSigT, /) -> _CallbackSigT:
             traceback.print_exc()
             raise
 
-    return typing.cast(_CallbackSigT, wrapper)
+    return typing.cast("_CallbackSigT", wrapper)
 
 
 class _ManualClock:

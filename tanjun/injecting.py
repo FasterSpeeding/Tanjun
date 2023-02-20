@@ -67,7 +67,8 @@ from alluka.abc import CallbackSig
 from alluka.abc import Context as AbstractInjectionContext
 from alluka.abc import Undefined
 
-from . import abc as tanjun
+if typing.TYPE_CHECKING:
+    from . import abc as tanjun
 
 _T = typing.TypeVar("_T")
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound=alluka.abc.CallbackSig[typing.Any])

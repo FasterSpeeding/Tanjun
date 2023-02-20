@@ -35,8 +35,10 @@ import typing
 
 import hikari
 
-from .. import abc as tanjun
 from ..dependencies import async_cache
+
+if typing.TYPE_CHECKING:
+    from .. import abc as tanjun
 
 _ChannelCacheT = async_cache.SfCache[hikari.PermissibleGuildChannel]
 _ThreadCacheT = async_cache.SfCache[hikari.GuildThreadChannel]

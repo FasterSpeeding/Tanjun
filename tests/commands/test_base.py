@@ -62,7 +62,7 @@ def stub_class(
 
     name = origin.__name__ if (origin := getattr(cls, "__origin__", None)) else cls.__name__
     new_cls = types.new_class(name, (cls,), exec_body=lambda body: body.update(namespace))
-    return typing.cast(type[_T], new_cls)(*args, **kwargs or {})
+    return typing.cast("type[_T]", new_cls)(*args, **kwargs or {})
 
 
 class TestPartialCommand:

@@ -43,12 +43,11 @@ import traceback
 import typing
 from collections import abc as collections
 
-from alluka import abc as alluka
-
 from . import _internal
 from . import components
 
 if typing.TYPE_CHECKING:
+    from alluka import abc as alluka
     from typing_extensions import Self
 
     from . import abc as tanjun
