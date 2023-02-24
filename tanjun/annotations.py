@@ -1427,8 +1427,8 @@ def with_annotated_args(
 
     To declare arguments a you will have to do one of two things:
 
-    1. Using any of the following types as an argument's type-hint (this may be
-        as the first argument to [typing.Annotated][]) will mark it as injected:
+    1. Using any of the following types as an argument's type-hint (this may be as the
+        first argument to [typing.Annotated][]) will mark it as a command argument:
 
         * [tanjun.annotations.Attachment][]\*
         * [tanjun.annotations.Bool][]
