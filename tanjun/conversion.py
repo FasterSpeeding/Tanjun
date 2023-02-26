@@ -84,11 +84,11 @@ from collections import abc as collections
 
 import alluka
 import hikari
+import typing_extensions
 
 from . import _internal
 from . import abc as tanjun
 from .dependencies import async_cache
-import typing_extensions
 
 if typing.TYPE_CHECKING:
     from . import parsing

@@ -81,6 +81,7 @@ import warnings
 from collections import abc as collections
 
 import hikari
+import typing_extensions
 
 from . import _internal
 from . import conversion
@@ -88,7 +89,6 @@ from . import parsing
 from ._internal.vendor import inspect
 from .commands import message
 from .commands import slash
-import typing_extensions
 
 if typing.TYPE_CHECKING:
     import enum

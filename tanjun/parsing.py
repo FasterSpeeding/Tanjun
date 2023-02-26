@@ -53,9 +53,10 @@ import asyncio
 import copy
 import itertools
 import shlex
-import typing_extensions
 import typing
 from collections import abc as collections
+
+import typing_extensions
 
 from . import abc as tanjun
 from . import conversion

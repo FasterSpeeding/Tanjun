@@ -60,6 +60,7 @@ from collections import abc as collections
 import alluka
 import hikari
 import hikari.traits
+import typing_extensions
 
 from . import _internal
 from . import abc as tanjun
@@ -68,7 +69,6 @@ from . import dependencies
 from . import errors
 from . import hooks
 from ._internal import localisation
-import typing_extensions
 
 if typing.TYPE_CHECKING:
     import types
