@@ -33,10 +33,8 @@ from __future__ import annotations
 
 __all__: list[str] = [
     "BaseSlashCommand",
-    "ConverterSig",
     "SlashCommand",
     "SlashCommandGroup",
-    "UNDEFINED_DEFAULT",
     "as_slash_command",
     "slash_command_group",
     "with_attachment_slash_option",

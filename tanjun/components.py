@@ -31,7 +31,7 @@
 """Standard implementation of Tanjun's "components" used to manage separate features within a client."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractComponentLoader", "Component", "OnCallbackSig"]
+__all__: list[str] = ["AbstractComponentLoader", "Component"]
 
 import abc
 import asyncio

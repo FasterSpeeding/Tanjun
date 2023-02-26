@@ -36,7 +36,6 @@ __all__: list[str] = [
     "ClientCallbackNames",
     "InteractionAcceptsEnum",
     "MessageAcceptsEnum",
-    "PrefixGetterSig",
     "as_loader",
     "as_unloader",
     "on_parser_error",
