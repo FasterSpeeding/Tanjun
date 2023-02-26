@@ -129,13 +129,13 @@ class UndefinedT:
         return False
 
 
-UndefinedDefaultT = typing_extensions.deprecated("Use Undefined")(UndefinedT)
+UndefinedDefaultT = UndefinedT
 """Deprecated alias of [UndefinedT][tanjun.parsing.UndefinedT]."""
 
 UNDEFINED = UndefinedT()
 """A singleton used to represent an undefined value within parsing logic."""
 
-UNDEFINED_DEFAULT = typing_extensions.deprecated("Use UNDEFINED")(UNDEFINED)
+UNDEFINED_DEFAULT = UNDEFINED
 """Deprecated alias of [UNDEFINED][tanjun.parsing.UNDEFINED]."""
 
 _UndefinedOr = typing.Union[UndefinedT, _T]
@@ -476,7 +476,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         """
 
 
-AbstractParser = typing_extensions.deprecated("AbstractOptionParser")(AbstractOptionParser)
+AbstractParser = AbstractOptionParser
 """Deprecated alias of [AbstractOptionParser][tanjun.parsing.AbstractOptionParser]."""
 
 

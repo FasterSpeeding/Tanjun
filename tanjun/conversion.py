@@ -388,7 +388,7 @@ class ToChannel(BaseConverter):
         raise ValueError("Couldn't find channel")
 
 
-ChannelConverter = typing_extensions.deprecated("Use ToChannel")(ToChannel)
+ChannelConverter = ToChannel
 """Deprecated alias of [tanjun.conversion.ToChannel][]."""
 
 _EmojiCacheT = async_cache.SfCache[hikari.KnownCustomEmoji]
@@ -448,7 +448,7 @@ class ToEmoji(BaseConverter):
         raise ValueError("Couldn't find emoji")
 
 
-EmojiConverter = typing_extensions.deprecated("Use ToEmoji")(ToEmoji)
+EmojiConverter = ToEmoji
 """Deprecated alias of [tanjun.conversion.ToEmoji][]."""
 
 
@@ -499,7 +499,7 @@ class ToGuild(BaseConverter):
         raise ValueError("Couldn't find guild")
 
 
-GuildConverter = typing_extensions.deprecated("Use ToGuild")(ToGuild)
+GuildConverter = ToGuild
 """Deprecated alias of [tanjun.conversion.ToGuild][]."""
 
 _InviteCacheT = async_cache.AsyncCache[str, hikari.InviteWithMetadata]
@@ -544,7 +544,7 @@ class ToInvite(BaseConverter):
         raise ValueError("Couldn't find invite")
 
 
-InviteConverter = typing_extensions.deprecated("Use ToInvite")(ToInvite)
+InviteConverter = ToInvite
 """Deprecated alias of [tanjun.conversion.ToInvite][]."""
 
 
@@ -586,7 +586,7 @@ class ToInviteWithMetadata(BaseConverter):
         raise ValueError("Couldn't find invite")
 
 
-InviteWithMetadataConverter = typing_extensions.deprecated("Use ToInviteWithMetadata")(ToInviteWithMetadata)
+InviteWithMetadataConverter = ToInviteWithMetadata
 """Deprecated alias of [tanjun.conversion.ToInviteWithMetadata][]."""
 
 
@@ -656,7 +656,7 @@ class ToMember(BaseConverter):
         raise ValueError("Couldn't find member in this guild")
 
 
-MemberConverter = typing_extensions.deprecated("Use ToMember")(ToMember)
+MemberConverter = ToMember
 """Deprecated alias of [tanjun.conversion.ToMember][]."""
 
 _PresenceCacheT = async_cache.SfGuildBound[hikari.MemberPresence]
@@ -709,7 +709,7 @@ class ToPresence(BaseConverter):
         raise ValueError("Couldn't find presence in current guild")
 
 
-PresenceConverter = typing_extensions.deprecated("Use ToPresence")(ToPresence)
+PresenceConverter = ToPresence
 """Deprecated alias of [tanjun.conversion.ToPresence][]."""
 
 _RoleCacheT = async_cache.SfCache[hikari.Role]
@@ -757,7 +757,7 @@ class ToRole(BaseConverter):
         raise ValueError("Couldn't find role")
 
 
-RoleConverter = typing_extensions.deprecated("Use ToROle")(ToRole)
+RoleConverter = ToRole
 """Deprecated alias of [tanjun.conversion.ToRole][]."""
 
 _UserCacheT = async_cache.SfCache[hikari.User]
@@ -808,7 +808,7 @@ class ToUser(BaseConverter):
         raise ValueError("Couldn't find user")
 
 
-UserConverter = typing_extensions.deprecated("Use ToUser")(ToUser)
+UserConverter = ToUser
 """Deprecated alias of [tanjun.conversion.ToUser][]."""
 
 
@@ -917,7 +917,7 @@ class ToVoiceState(BaseConverter):
         raise ValueError("Voice state couldn't be found for current guild")
 
 
-VoiceStateConverter = typing_extensions.deprecated("Use ToVoiceState")(ToVoiceState)
+VoiceStateConverter = ToVoiceState
 """Deprecated alias of [tanjun.conversion.ToVoiceState][]."""
 
 
