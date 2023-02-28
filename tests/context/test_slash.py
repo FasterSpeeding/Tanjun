@@ -319,7 +319,9 @@ class TestSlashOption:
     def test_resolve_to_channel(self):
         mock_channel = mock.Mock()
         mock_resolved = mock.Mock(channels={3123321: mock_channel})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.CHANNEL, value="3123321"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.CHANNEL, value="3123321")
+        )
 
         value = option.resolve_to_channel()
 
@@ -360,7 +362,9 @@ class TestSlashOption:
     def test_resolve_to_member_when_mentionable(self):
         mock_member = mock.Mock()
         mock_resolved = mock.Mock(members={1122: mock_member})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         result = option.resolve_to_member()
 
@@ -368,7 +372,9 @@ class TestSlashOption:
 
     def test_resolve_to_member_when_mentionable_and_user_only(self):
         mock_resolved = mock.Mock(users={1122: mock.Mock()}, members={})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         with pytest.raises(LookupError):
             option.resolve_to_member()
@@ -376,7 +382,9 @@ class TestSlashOption:
     def test_resolve_to_member_when_mentionable_and_user_only_while_defaulting(self):
         mock_resolved = mock.Mock(members={}, users={1122: mock.Mock()})
         mock_default = mock.Mock()
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         result = option.resolve_to_member(default=mock_default)
 
@@ -384,7 +392,9 @@ class TestSlashOption:
 
     def test_resolve_to_member_when_mentionable_but_targets_role(self):
         mock_resolved = mock.Mock(members={}, users={})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         with pytest.raises(TypeError):
             option.resolve_to_member(default=mock.Mock())
@@ -401,7 +411,9 @@ class TestSlashOption:
     def test_resolve_to_mentionable_for_role(self):
         mock_role = mock.Mock()
         mock_resolved = mock.Mock(roles={1122: mock_role}, users={}, members={})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         result = option.resolve_to_mentionable()
 
@@ -410,7 +422,9 @@ class TestSlashOption:
     def test_resolve_to_mentionable_for_member(self):
         mock_member = mock.Mock()
         mock_resolved = mock.Mock(members={1122: mock_member}, roles={}, users={})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         result = option.resolve_to_mentionable()
 
@@ -419,7 +433,9 @@ class TestSlashOption:
     def test_resolve_to_mentionable_when_user_only(self):
         mock_user = mock.Mock()
         mock_resolved = mock.Mock(users={1122: mock_user}, roles={}, members={})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="1122")
+        )
 
         result = option.resolve_to_mentionable()
 
@@ -481,7 +497,9 @@ class TestSlashOption:
     def test_resolve_to_role_when_mentionable(self):
         mock_role = mock.Mock()
         mock_resolved = mock.Mock(roles={21321: mock_role})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="21321"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="21321")
+        )
 
         result = option.resolve_to_role()
 
@@ -489,7 +507,9 @@ class TestSlashOption:
 
     def test_resolve_to_role_when_mentionable_but_targets_user(self):
         mock_resolved = mock.Mock(roles={})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="21321"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="21321")
+        )
 
         with pytest.raises(TypeError):
             option.resolve_to_role()
@@ -516,7 +536,9 @@ class TestSlashOption:
     def test_resolve_to_user_when_member_present(self):
         mock_member = mock.Mock()
         mock_resolved = mock.Mock(members={33333: mock_member}, users={33333: mock.Mock()})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333")
+        )
 
         result = option.resolve_to_user()
 
@@ -535,7 +557,9 @@ class TestSlashOption:
     def test_resolve_to_user_when_mentionable(self):
         mock_user = mock.Mock()
         mock_resolved = mock.Mock(users={33333: mock_user}, members={})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333")
+        )
 
         result = option.resolve_to_user()
 
@@ -544,7 +568,9 @@ class TestSlashOption:
     def test_resolve_to_user_when_mentionable_and_member_present(self):
         mock_member = mock.Mock()
         mock_resolved = mock.Mock(members={33333: mock_member}, users={33333: mock.Mock()})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333")
+        )
 
         result = option.resolve_to_user()
 
@@ -552,7 +578,9 @@ class TestSlashOption:
 
     def test_resolve_to_user_when_mentionable_but_targets_role(self):
         mock_resolved = mock.Mock(members={}, users={})
-        option = tanjun.context.slash.SlashOption(mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333"))
+        option = tanjun.context.slash.SlashOption(
+            mock_resolved, mock.Mock(type=hikari.OptionType.MENTIONABLE, value="33333")
+        )
 
         with pytest.raises(TypeError):
             option.resolve_to_user()
