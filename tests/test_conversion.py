@@ -567,7 +567,7 @@ class TestToChannel:
         mock_dm_cache = mock.AsyncMock()
         mock_thread_cache = mock.AsyncMock()
         mock_thread_cache.get.side_effect = tanjun.dependencies.EntryNotFound
-        converter = tanjun.conversion.ChannelConverter(include_dms=False)
+        converter = tanjun.conversion.ToChannel(include_dms=False)
 
         with pytest.raises(ValueError, match="Couldn't find channel"):
             await converter(
@@ -652,7 +652,7 @@ class TestToChannel:
         mock_dm_cache = mock.AsyncMock()
         mock_thread_cache = mock.AsyncMock()
         mock_thread_cache.get.side_effect = tanjun.dependencies.EntryNotFound
-        converter = tanjun.conversion.ChannelConverter(include_dms=False)
+        converter = tanjun.conversion.ToChannel(include_dms=False)
 
         with pytest.raises(ValueError, match="Couldn't find channel"):
             await converter(
@@ -729,7 +729,7 @@ class TestToChannel:
         mock_dm_cache = mock.AsyncMock()
         mock_thread_cache = mock.AsyncMock()
         mock_thread_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        converter = tanjun.conversion.ChannelConverter(include_dms=False)
+        converter = tanjun.conversion.ToChannel(include_dms=False)
 
         result = await converter(
             "<#12222>", mock_context, cache=mock_channel_cache, dm_cache=mock_dm_cache, thread_cache=mock_thread_cache
@@ -752,7 +752,7 @@ class TestToChannel:
         mock_dm_cache = mock.AsyncMock()
         mock_thread_cache = mock.AsyncMock()
         mock_thread_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        converter = tanjun.conversion.ChannelConverter(include_dms=False)
+        converter = tanjun.conversion.ToChannel(include_dms=False)
 
         with pytest.raises(ValueError, match="Only the following channel types are allowed for this argument: .*"):
             await converter(
@@ -780,7 +780,7 @@ class TestToChannel:
         mock_dm_cache.get.side_effect = tanjun.dependencies.CacheMissError
         mock_thread_cache = mock.AsyncMock()
         mock_thread_cache.get.side_effect = tanjun.dependencies.CacheMissError
-        converter = tanjun.conversion.ChannelConverter(include_dms=False)
+        converter = tanjun.conversion.ToChannel(include_dms=False)
 
         with pytest.raises(ValueError, match="Couldn't find channel"):
             await converter(

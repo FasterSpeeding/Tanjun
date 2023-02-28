@@ -104,7 +104,7 @@ class TestFlag:
         ):
             flag = annotations.Flag(default=value)
 
-        with pytest.warns(DeprecationWarning, match=re.escape("Flag.default is deprecated")):
+        with pytest.warns(DeprecationWarning, match=re.escape("Use annotations.Default instead of the default arg")):
             assert flag.default is value
 
 

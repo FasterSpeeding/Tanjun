@@ -532,7 +532,6 @@ class Flag(_ConfigIdentifier):
         If not specified then the default in the signature for this argument
         will be used.
         """
-        warnings.warn("Flag.default is deprecated", category=DeprecationWarning)
         return self._default
 
     @property

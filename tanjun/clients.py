@@ -1358,12 +1358,6 @@ class Client(tanjun.Client):
         !!! warning "deprecated"
             Since v2.1.1a1; use [tanjun.Client.declare_global_commands][] instead.
         """
-        warnings.warn(
-            "The `Client.set_global_commands` method has been deprecated since v2.1.1a1. "
-            "Use `Client.declare_global_commands` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return await self.declare_global_commands(application=application, guild=guild, force=force)
 
     async def declare_global_commands(
