@@ -31,7 +31,7 @@
 """Base command implementations."""
 from __future__ import annotations
 
-__all__: list[str] = ["PartialCommand"]
+__all__: list[str] = []
 
 import copy
 import typing

@@ -31,7 +31,7 @@
 """Dependency used for managing owner checks."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractOwners", "Owners"]
+__all__: list[str] = ["Owners"]
 
 import abc
 import asyncio

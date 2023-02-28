@@ -31,10 +31,9 @@
 """Standard implementations of Tanjun's context classes."""
 from __future__ import annotations
 
-__all__: list[str] = ["AutocompleteContext", "MenuContext", "MessageContext", "SlashContext", "SlashOption"]
+__all__: list[str] = ["AutocompleteContext", "MenuContext", "MessageContext", "SlashContext"]
 
 from .autocomplete import AutocompleteContext
 from .menu import MenuContext
 from .message import MessageContext
 from .slash import SlashContext
-from .slash import SlashOption

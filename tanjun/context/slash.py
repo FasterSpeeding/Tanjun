@@ -31,7 +31,7 @@
 """Slash command implementation."""
 from __future__ import annotations
 
-__all__: list[str] = ["SlashContext", "SlashOption"]
+__all__: list[str] = ["SlashContext"]
 
 import asyncio
 import datetime

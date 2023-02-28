@@ -32,7 +32,6 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "AbstractOptionParser",
     "Argument",
     "Option",
     "Parameter",

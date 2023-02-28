@@ -31,7 +31,7 @@
 """Dependency used for managing localising strings around interactions commands."""
 from __future__ import annotations
 
-__all__: list[str] = ["AbstractLocaliser", "AbstractLocalizer", "BasicLocaliser", "BasicLocalizer"]
+__all__: list[str] = ["BasicLocaliser", "BasicLocalizer"]
 
 import abc
 import typing
