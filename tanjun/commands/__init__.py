@@ -32,7 +32,6 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "BaseSlashCommand",
     "MenuCommand",
     "MessageCommand",
     "MessageCommandGroup",
@@ -64,7 +63,6 @@ from .message import MessageCommand
 from .message import MessageCommandGroup
 from .message import as_message_command
 from .message import as_message_command_group
-from .slash import BaseSlashCommand
 from .slash import SlashCommand
 from .slash import SlashCommandGroup
 from .slash import as_slash_command
