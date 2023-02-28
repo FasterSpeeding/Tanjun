@@ -1518,8 +1518,7 @@ class Client(tanjun.Client):
         if conflicts:
             raise ValueError(
                 "Couldn't declare commands due to conflicts. The following command names have more than one command "
-                "registered for them "
-                + ", ".join(f"{type_}:{name}" for type_, name in conflicts)
+                "registered for them " + ", ".join(f"{type_}:{name}" for type_, name in conflicts)
             )
 
         if message_count > 5:

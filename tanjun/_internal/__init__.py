@@ -522,8 +522,7 @@ class MessageCommandIndex:
             if name_conflicts := self.names_to_commands.keys() & insensitive_names:
                 raise ValueError(
                     "Sub-command names must be (case-insensitively) unique in a strict collection. "
-                    "The following conflicts were found "
-                    + ", ".join(name_conflicts)
+                    "The following conflicts were found " + ", ".join(name_conflicts)
                 )
 
             # Case insensitive keys are used here as a subsequent check against the original
