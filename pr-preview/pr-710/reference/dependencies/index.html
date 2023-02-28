@@ -15,7 +15,7 @@
         <link rel="next" href="../errors/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.12">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.13">
     
     
       
@@ -23,10 +23,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.0d440cfe.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ffa9267a.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.a0c5b2b5.min.css">
       
       
   
@@ -2348,7 +2348,6 @@
                   
 
 
-
 <h1 id="tanjundependencies">tanjun.dependencies<a class="headerlink" href="#tanjundependencies" title="Permanent link">#</a></h1>
 <p>Default dependency utilities used within Tanjun and their abstract interfaces.</p>
 
@@ -2521,8 +2520,8 @@ and <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/la
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.AsyncCache.get" class="headerlink" title="Permanent link">#</a></h4>
@@ -2734,8 +2733,8 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.CacheIterator.len" class="headerlink" title="Permanent link">#</a></h4>
@@ -2855,8 +2854,8 @@ doesn't exist.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.ChannelBoundCache.get_from_channel" class="headerlink" title="Permanent link">#</a></h4>
@@ -3175,8 +3174,8 @@ which indicates that the cache is sure that the entry doesn't exist.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.GuildBoundCache.get_from_guild" class="headerlink" title="Permanent link">#</a></h4>
@@ -3475,8 +3474,8 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.SingleStoreCache.get" class="headerlink" title="Permanent link">#</a></h4>
@@ -4024,7 +4023,7 @@ has been called.</p>
       <p>Cache the result of a callback within a dependency injection context.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is internally used by <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.cached_inject">cached_inject</a>.</p>
+<p>This is internally used by <a class="autorefs autorefs-internal" href="../#tanjun.cached_inject">cached_inject</a>.</p>
 </div>
 
   <table>
@@ -4251,7 +4250,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="../#tanjun.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -4344,7 +4343,7 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="../#tanjun.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -4470,8 +4469,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractConcurrencyLimiter.release" class="headerlink" title="Permanent link">#</a></h4>
@@ -4495,8 +4494,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractConcurrencyLimiter.try_acquire" class="headerlink" title="Permanent link">#</a></h4>
@@ -4616,8 +4615,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown" class="headerlink" title="Permanent link">#</a></h4>
@@ -4715,8 +4714,8 @@ if it's in cooldown else <a class="autorefs autorefs-external" href="https://doc
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractCooldownManager.increment_cooldown" class="headerlink" title="Permanent link">#</a></h4>
@@ -6234,8 +6233,8 @@ command wraps in a decorator call chain.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
@@ -6885,8 +6884,8 @@ implementations can be found at <a class="autorefs autorefs-internal" href="../.
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.owners.AbstractOwners.check_ownership" class="headerlink" title="Permanent link">#</a></h4>
@@ -7754,10 +7753,10 @@ this and adds this as a type dependency.</p>
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.4b2c34cd.min.js"></script>
+      <script src="../../assets/javascripts/bundle.2a6f1dda.min.js"></script>
       
     
   </body>
