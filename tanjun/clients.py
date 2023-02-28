@@ -60,6 +60,7 @@ from collections import abc as collections
 import alluka
 import hikari
 import hikari.traits
+import typing_extensions
 
 from . import _internal
 from . import abc as tanjun
@@ -72,7 +73,6 @@ from ._internal import localisation
 if typing.TYPE_CHECKING:
     import types
 
-    import typing_extensions
     from typing_extensions import Self
 
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
@@ -579,6 +579,53 @@ class Client(tanjun.Client):
         "_voice",
     )
 
+    @typing.overload
+    def __init__(
+        self,
+        rest: hikari.api.RESTClient,
+        *,
+        cache: typing.Optional[hikari.api.Cache] = None,
+        events: typing.Optional[hikari.api.EventManager] = None,
+        server: typing.Optional[hikari.api.InteractionServer] = None,
+        shards: typing.Optional[hikari.ShardAware] = None,
+        voice: typing.Optional[hikari.api.VoiceComponent] = None,
+        event_managed: bool = False,
+        injector: typing.Optional[alluka.abc.Client] = None,
+        mention_prefix: bool = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
+        ] = False,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+    ) -> None:
+        ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Use the declare_global_commands arg instead")
+    def __init__(
+        self,
+        rest: hikari.api.RESTClient,
+        *,
+        cache: typing.Optional[hikari.api.Cache] = None,
+        events: typing.Optional[hikari.api.EventManager] = None,
+        server: typing.Optional[hikari.api.InteractionServer] = None,
+        shards: typing.Optional[hikari.ShardAware] = None,
+        voice: typing.Optional[hikari.api.VoiceComponent] = None,
+        event_managed: bool = False,
+        injector: typing.Optional[alluka.abc.Client] = None,
+        mention_prefix: bool = False,
+        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
+        ] = False,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        _stack_level: int = 0,
+    ) -> None:
+        ...
+
     def __init__(
         self,
         rest: hikari.api.RESTClient,
@@ -654,8 +701,6 @@ class Client(tanjun.Client):
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
-        set_global_commands
-            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids
             If provided, a mapping of top level command names to IDs of the
             existing commands to update.
@@ -854,6 +899,46 @@ class Client(tanjun.Client):
             task.add_done_callback(self._remove_task)
 
     @classmethod
+    @typing.overload
+    def from_gateway_bot(
+        cls,
+        bot: _GatewayBotProto,
+        /,
+        *,
+        event_managed: bool = True,
+        injector: typing.Optional[alluka.abc.Client] = None,
+        mention_prefix: bool = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
+        ] = False,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+    ) -> Client:
+        ...
+
+    @classmethod
+    @typing.overload
+    @typing_extensions.deprecated("Use the declare_global_commands arg instead")
+    def from_gateway_bot(
+        cls,
+        bot: _GatewayBotProto,
+        /,
+        *,
+        event_managed: bool = True,
+        injector: typing.Optional[alluka.abc.Client] = None,
+        mention_prefix: bool = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
+        ] = False,
+        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+    ) -> Client:
+        ...
+
+    @classmethod
     def from_gateway_bot(
         cls,
         bot: _GatewayBotProto,
@@ -907,8 +992,6 @@ class Client(tanjun.Client):
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
-        set_global_commands
-            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids
             If provided, a mapping of top level command names to IDs of the commands to update.
 
@@ -946,6 +1029,44 @@ class Client(tanjun.Client):
             .set_human_only()
             .set_hikari_trait_injectors(bot)
         )
+
+    @classmethod
+    @typing.overload
+    def from_rest_bot(
+        cls,
+        bot: hikari.RESTBotAware,
+        /,
+        *,
+        bot_managed: bool = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
+        ] = False,
+        injector: typing.Optional[alluka.abc.Client] = None,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+    ) -> Client:
+        ...
+
+    @classmethod
+    @typing.overload
+    @typing_extensions.deprecated("Use the declare_global_commands arg instead")
+    def from_rest_bot(
+        cls,
+        bot: hikari.RESTBotAware,
+        /,
+        *,
+        bot_managed: bool = False,
+        declare_global_commands: typing.Union[
+            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
+        ] = False,
+        injector: typing.Optional[alluka.abc.Client] = None,
+        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
+        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+    ) -> Client:
+        ...
 
     @classmethod
     def from_rest_bot(
@@ -993,8 +1114,6 @@ class Client(tanjun.Client):
             The alluka client this should use for dependency injection.
 
             If not provided then the client will initialise its own DI client.
-        set_global_commands
-            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids
             If provided, a mapping of top level command names to IDs of the
             existing commands to update.
@@ -1220,6 +1339,7 @@ class Client(tanjun.Client):
 
         await self._rest.set_application_commands(application, (), guild=guild)
 
+    @typing_extensions.deprecated("Use declare_global_commands instead")
     async def set_global_commands(
         self,
         *,
@@ -1232,12 +1352,6 @@ class Client(tanjun.Client):
         !!! warning "deprecated"
             Since v2.1.1a1; use [tanjun.Client.declare_global_commands][] instead.
         """
-        warnings.warn(
-            "The `Client.set_global_commands` method has been deprecated since v2.1.1a1. "
-            "Use `Client.declare_global_commands` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return await self.declare_global_commands(application=application, guild=guild, force=force)
 
     async def declare_global_commands(

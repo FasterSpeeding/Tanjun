@@ -81,6 +81,7 @@ import warnings
 from collections import abc as collections
 
 import hikari
+import typing_extensions
 
 from . import _internal
 from . import conversion
@@ -90,7 +91,6 @@ from .commands import message
 from .commands import slash
 
 if typing.TYPE_CHECKING:
-    import typing_extensions
     from typing_extensions import Self
 
     _T = typing.TypeVar("_T")
@@ -463,6 +463,26 @@ class Flag(_ConfigIdentifier):
 
     __slots__ = ("_aliases", "_default", "_empty_value")
 
+    @typing.overload
+    def __init__(
+        self,
+        *,
+        aliases: typing.Optional[collections.Sequence[str]] = None,
+        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
+    ) -> None:
+        ...
+
+    @typing_extensions.deprecated("Use annotations.Default instead of the default arg")
+    @typing.overload
+    def __init__(
+        self,
+        *,
+        aliases: typing.Optional[collections.Sequence[str]] = None,
+        default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED,
+        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
+    ) -> None:
+        ...
+
     def __init__(
         self,
         *,
@@ -478,10 +498,6 @@ class Flag(_ConfigIdentifier):
             Other names the flag may be triggered by.
 
             This does not override the argument's name.
-        default
-            Deprecated argument used to specify the option's default.
-
-            Use [Default][tanjun.annotations.Default] instead.
         empty_value
             Value to pass for the argument if the flag is provided without a value.
 
@@ -505,13 +521,13 @@ class Flag(_ConfigIdentifier):
         return self._aliases
 
     @property
+    @typing_extensions.deprecated("Use annotations.Default instead of the default arg")
     def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
         """The flag's default.
 
         If not specified then the default in the signature for this argument
         will be used.
         """
-        warnings.warn("Flag.default is deprecated", category=DeprecationWarning)
         return self._default
 
     @property

@@ -58,6 +58,7 @@ import warnings
 from collections import abc as collections
 
 import hikari
+import typing_extensions
 
 from .. import _internal
 from .. import abc as tanjun
@@ -93,8 +94,6 @@ _ConvertT = typing.TypeVar("_ConvertT", int, float, str)
 
 # 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
-    import typing_extensions
-
     _P = typing_extensions.ParamSpec("_P")
 
     _ConverterSig = collections.Callable[
@@ -1845,6 +1844,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             pass_as_kwarg=pass_as_kwarg,
         )
 
+    @typing.overload
     def add_str_option(
         self,
         name: typing.Union[str, collections.Mapping[str, str]],
@@ -1853,6 +1853,46 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         *,
         autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
         choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
+        converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
+        default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
+        pass_as_kwarg: bool = True,
+        _stack_level: int = 0,
+    ) -> Self:
+        ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Pass a dict for `choices`, not a sequence of tuples")
+    def add_str_option(
+        self,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
+        /,
+        *,
+        autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
+        choices: collections.Sequence[tuple[str, str]],
+        converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
+        default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
+        min_length: typing.Optional[int] = None,
+        max_length: typing.Optional[int] = None,
+        pass_as_kwarg: bool = True,
+        _stack_level: int = 0,
+    ) -> Self:
+        ...
+
+    def add_str_option(
+        self,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
+        /,
+        *,
+        autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
+        choices: typing.Union[
+            collections.Mapping[str, str], collections.Sequence[str], collections.Sequence[tuple[str, str]], None
+        ] = None,
         converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
@@ -1884,13 +1924,15 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             More information on this callback's signature can be found at
             [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
             should be of type [str][].
-        choices
+        choices : collections.abc.Mapping[str, str], collections.abc.Sequence[str] | None
             The option's choices.
 
             This either a mapping of [option_name, option_value] where both option_name
             and option_value should be strings of up to 100 characters or a sequence
             of strings where the string will be used for both the choice's name and
             value.
+
+            Passing a sequence of tuples here is deprecated.
         converters
             The option's converters.
 
@@ -1947,17 +1989,14 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If `min_length` is less than `0` or greater than `6000`.
             * If `max_length` is less than `1` or greater than `6000`.
         """  # noqa: E501
-        if choices is None:
-            actual_choices = None
-
-        elif isinstance(choices, collections.Mapping):
-            actual_choices = choices
+        if choices is None or isinstance(choices, collections.Mapping):
+            actual_choices: typing.Optional[collections.Mapping[str, str]] = choices
 
         else:
             actual_choices = {}
             warned = False
             for choice in choices:
-                if isinstance(choice, tuple):  # type: ignore[unreachable]  # the point of this is for deprecation
+                if isinstance(choice, tuple):
                     if not warned:
                         warnings.warn(
                             "Passing a sequence of tuples for 'choices' is deprecated since 2.1.2a1, "
@@ -1993,6 +2032,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         return self
 
+    @typing.overload
     def add_int_option(
         self,
         name: typing.Union[str, collections.Mapping[str, str]],
@@ -2001,6 +2041,44 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         *,
         autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
         choices: typing.Optional[collections.Mapping[str, int]] = None,
+        converters: typing.Union[collections.Sequence[ConverterSig[int]], ConverterSig[int]] = (),
+        default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
+        min_value: typing.Optional[int] = None,
+        max_value: typing.Optional[int] = None,
+        pass_as_kwarg: bool = True,
+        _stack_level: int = 0,
+    ) -> Self:
+        ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Pass a dict for choices, not a sequence of tuples")
+    def add_int_option(
+        self,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
+        /,
+        *,
+        autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
+        choices: collections.Sequence[tuple[str, int]],
+        converters: typing.Union[collections.Sequence[ConverterSig[int]], ConverterSig[int]] = (),
+        default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
+        min_value: typing.Optional[int] = None,
+        max_value: typing.Optional[int] = None,
+        pass_as_kwarg: bool = True,
+        _stack_level: int = 0,
+    ) -> Self:
+        ...
+
+    def add_int_option(
+        self,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
+        /,
+        *,
+        autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
+        choices: typing.Union[collections.Mapping[str, int], collections.Sequence[tuple[str, int]], None] = None,
         converters: typing.Union[collections.Sequence[ConverterSig[int]], ConverterSig[int]] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
@@ -2027,7 +2105,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             More information on this callback's signature can be found at
             [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
             should be of type [int][].
-        choices
+        choices : collections.abc.Mapping[str, int] | None
             The option's choices.
 
             This is a mapping of [option_name, option_value] where option_name
@@ -2103,6 +2181,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         return self
 
+    @typing.overload
     def add_float_option(
         self,
         name: typing.Union[str, collections.Mapping[str, str]],
@@ -2112,6 +2191,46 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         always_float: bool = True,
         autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
         choices: typing.Optional[collections.Mapping[str, float]] = None,
+        converters: typing.Union[collections.Sequence[ConverterSig[float]], ConverterSig[float]] = (),
+        default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
+        min_value: typing.Optional[float] = None,
+        max_value: typing.Optional[float] = None,
+        pass_as_kwarg: bool = True,
+        _stack_level: int = 0,
+    ) -> Self:
+        ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Pass a dict for choices, not a sequence of tuples")
+    def add_float_option(
+        self,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
+        /,
+        *,
+        always_float: bool = True,
+        autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
+        choices: collections.Sequence[tuple[str, float]],
+        converters: typing.Union[collections.Sequence[ConverterSig[float]], ConverterSig[float]] = (),
+        default: typing.Any = UNDEFINED_DEFAULT,
+        key: typing.Optional[str] = None,
+        min_value: typing.Optional[float] = None,
+        max_value: typing.Optional[float] = None,
+        pass_as_kwarg: bool = True,
+        _stack_level: int = 0,
+    ) -> Self:
+        ...
+
+    def add_float_option(
+        self,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
+        /,
+        *,
+        always_float: bool = True,
+        autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
+        choices: typing.Union[collections.Mapping[str, float], collections.Sequence[tuple[str, float]], None] = None,
         converters: typing.Union[collections.Sequence[ConverterSig[float]], ConverterSig[float]] = (),
         default: typing.Any = UNDEFINED_DEFAULT,
         key: typing.Optional[str] = None,
@@ -2144,7 +2263,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             More information on this callback's signature can be found at
             [tanjun.abc.AutocompleteSig][] and the 2nd positional argument
             should be of type [float][].
-        choices
+        choices : collections.abc.Mapping[str, float] | None
             The option's choices.
 
             This is a mapping of [option_name, option_value] where option_name

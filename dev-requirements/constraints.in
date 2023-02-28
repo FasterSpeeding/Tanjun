@@ -1,2 +1,3 @@
 alluka>=0.1.2, <1
 hikari>=2.0.0.dev115, <3
+typing-extensions>=4.5
