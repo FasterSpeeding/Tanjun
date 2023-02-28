@@ -1990,7 +1990,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If `max_length` is less than `1` or greater than `6000`.
         """  # noqa: E501
         if choices is None or isinstance(choices, collections.Mapping):
-            actual_choices: typing.Optional[typing.Mapping[str, str]] = choices
+            actual_choices: typing.Optional[collections.Mapping[str, str]] = choices
 
         else:
             actual_choices = {}
