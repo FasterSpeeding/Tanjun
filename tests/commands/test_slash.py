@@ -738,7 +738,8 @@ class TestBaseSlashCommand:
     def test__init__when_localised_default_description_too_long(self):
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             stub_class(
-                tanjun.commands.slash.BaseSlashCommand, args=("gary", {"default": "x" * 101, hikari.Locale.EL: "el salvador"})
+                tanjun.commands.slash.BaseSlashCommand,
+                args=("gary", {"default": "x" * 101, hikari.Locale.EL: "el salvador"}),
             )
 
     def test__init__when_description_too_short(self):
@@ -875,7 +876,9 @@ class TestBaseSlashCommand:
         assert command._names.id is None
 
     def test_name_properties_when_dict_without_localisations(self):
-        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=({"default": "this_default", "id": "meep"}, "boop"))
+        command = stub_class(
+            tanjun.commands.slash.BaseSlashCommand, args=({"default": "this_default", "id": "meep"}, "boop")
+        )
 
         assert command.name == "this_default"
         assert command.name_localisations == {}
