@@ -91,9 +91,6 @@ from .commands import message
 from .commands import slash
 
 if typing.TYPE_CHECKING:
-    import enum
-
-    import typing_extensions
     from typing_extensions import Self
 
     _T = typing.TypeVar("_T")

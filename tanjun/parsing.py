@@ -88,8 +88,6 @@ _T = typing.TypeVar("_T")
 
 # 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
-    import typing_extensions
-
     _P = typing_extensions.ParamSpec("_P")
     _ConverterSig = collections.Callable[
         typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
