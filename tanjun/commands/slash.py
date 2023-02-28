@@ -1607,7 +1607,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         self._wrapped_command = _wrapped_command
 
     if typing.TYPE_CHECKING:
-        __call__: _SlashCallbackSigT
+        __call__: _SlashCallbackSigT  # pyright: ignore [ reportUninitializedInstanceVariable ]
 
     else:
 
@@ -1737,7 +1737,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         else:
             warnings.warn(
                 "Passing a sequence of tuples to `choices` is deprecated since 2.1.2a1, "
-                "please pass a mapping instead.",
+                + "please pass a mapping instead.",
                 category=DeprecationWarning,
                 stacklevel=2 + _stack_level,
             )
@@ -2000,7 +2000,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
                     if not warned:
                         warnings.warn(
                             "Passing a sequence of tuples for 'choices' is deprecated since 2.1.2a1, "
-                            "please pass a mapping instead.",
+                            + "please pass a mapping instead.",
                             category=DeprecationWarning,
                             stacklevel=2 + _stack_level,
                         )
@@ -2999,7 +2999,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
                 if tracked_option.default is UNDEFINED_DEFAULT:
                     raise RuntimeError(  # TODO: ConversionError?
                         f"Required option {tracked_option.name} is missing data, are you sure your commands"
-                        " are up to date?"
+                        + " are up to date?"
                     )
 
                 else:

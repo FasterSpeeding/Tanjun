@@ -9,7 +9,6 @@
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
 """Examples of how checks may be used within Tanjun."""
-
 import hikari
 
 import tanjun

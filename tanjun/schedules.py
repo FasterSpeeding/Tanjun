@@ -280,7 +280,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         return self._iteration_count
 
     if typing.TYPE_CHECKING:
-        __call__: _CallbackSigT
+        __call__: _CallbackSigT  #  pyright: ignore [ reportUninitializedInstanceVariable ]
 
     else:
 
@@ -1028,7 +1028,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         return self._task is not None
 
     if typing.TYPE_CHECKING:
-        __call__: _CallbackSigT
+        __call__: _CallbackSigT  # pyright: ignore [ reportUninitializedInstanceVariable ]
 
     else:
 

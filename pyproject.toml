@@ -177,7 +177,14 @@ include = ["examples", "tanjun", "noxfile.py", "tests"]
 pythonVersion = "3.9"
 typeCheckingMode = "strict"
 reportMissingModuleSource = "error"
-reportMissingTypeStubs = "error"
+reportShadowedImports = "error"
+reportCallInDefaultInitializer = "none"  # Ended up just complaining about cases where this was fine (e.g. timedeltas).
+reportImplicitStringConcatenation = "error"
+reportMissingSuperCall = "none"  # Way too strict (requires calls to `object.__init__`).
+reportPropertyTypeMismatch = "error"
+reportUninitializedInstanceVariable = "error"
+reportUnnecessaryTypeIgnoreComment = "error"
+reportUnusedCallResult = "none"  # Enforces doing `_ = ...`.
 
 reportIncompatibleMethodOverride = "warning"    # This relies on ordering for key-word only arguments
                                                 # which is more annoying than it's worth
