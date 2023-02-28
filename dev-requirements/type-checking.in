@@ -2,3 +2,4 @@
 -r ../piped/python/base-requirements/nox.in
 -r ../piped/python/base-requirements/type-checking.in
 -r ./constraints.in
+pyright==1.1.294  # Pinned until bug fix
