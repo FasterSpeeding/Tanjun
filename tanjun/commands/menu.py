@@ -510,7 +510,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         self._wrapped_command = _wrapped_command
 
     if typing.TYPE_CHECKING:
-        __call__: _AnyMenuCallbackSigT
+        __call__: _AnyMenuCallbackSigT  # pyright: ignore [ reportUninitializedInstanceVariable ]
 
     else:
 

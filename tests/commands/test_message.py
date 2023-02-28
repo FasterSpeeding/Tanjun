@@ -164,7 +164,7 @@ class TestMessageCommand:
         async def command(*args: typing.Any, **kwargs: typing.Any) -> None:
             await callback(*args, **kwargs)
 
-        await command(65123, "okokok", a="odoosd", gf=435123)  # type: ignore
+        await command(65123, "okokok", a="odoosd", gf=435123)
 
         callback.assert_awaited_once_with(65123, "okokok", a="odoosd", gf=435123)
 
@@ -203,7 +203,7 @@ class TestMessageCommand:
         with pytest.raises(ValueError, match=".+"):
             inspect.Signature.from_callable(int)
 
-        command: tanjun.MessageCommand[typing.Any] = tanjun.MessageCommand(int, "name")  # type: ignore
+        command: tanjun.MessageCommand[typing.Any] = tanjun.MessageCommand(int, "name")
 
         tanjun.with_option("meow", "--nyaa", default=123)(command)
         tanjun.with_argument("meow")(command)

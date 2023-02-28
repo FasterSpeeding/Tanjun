@@ -1352,7 +1352,7 @@ class TestSlashCommand:
 
         command = tanjun.SlashCommand[typing.Any](callback, "yee", "nsoosos")
 
-        await command(1, 3, a=4, b=5)  # type: ignore
+        await command(1, 3, a=4, b=5)
 
         mock_callback.assert_awaited_once_with(1, 3, a=4, b=5)
 
