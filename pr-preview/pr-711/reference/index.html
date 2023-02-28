@@ -6341,22 +6341,6 @@ being per-guild if targeting a specific guild otherwise globally).</p>
           </td>
         </tr>
         <tr>
-          <td><code>set_global_commands</code></td>
-          <td class="doc-param-details">
-            <p>Deprecated as of v2.1.1a1 alias of <code>declare_global_commands</code>.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.SnowflakeishOr">SnowflakeishOr</span>[<a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.PartialGuild">PartialGuild</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>False</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
           <td><code>command_ids</code></td>
           <td class="doc-param-details">
             <p>If provided, a mapping of top level command names to IDs of the
@@ -6887,22 +6871,6 @@ being per-guild if targeting a specific guild otherwise globally).</p>
           </td>
         </tr>
         <tr>
-          <td><code>set_global_commands</code></td>
-          <td class="doc-param-details">
-            <p>Deprecated as of v2.1.1a1 alias of <code>declare_global_commands</code>.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.SnowflakeishOr">SnowflakeishOr</span>[<a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.PartialGuild">PartialGuild</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>False</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
           <td><code>command_ids</code></td>
           <td class="doc-param-details">
             <p>If provided, a mapping of top level command names to IDs of the commands to update.</p>
@@ -7064,22 +7032,6 @@ based on the REST bot's startup and shutdown callbacks.</p>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
                     <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>set_global_commands</code></td>
-          <td class="doc-param-details">
-            <p>Deprecated as of v2.1.1a1 alias of <code>declare_global_commands</code>.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.9/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.SnowflakeishOr">SnowflakeishOr</span>[<a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.PartialGuild">PartialGuild</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a>]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>False</code>
                 </span>
             </p>
           </td>
@@ -21980,7 +21932,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -23351,7 +23303,7 @@ command wraps in a decorator call chain.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 
@@ -23475,8 +23427,8 @@ command wraps in a decorator call chain.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
