@@ -475,8 +475,11 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         """
 
 
-AbstractParser = AbstractOptionParser
-"""Deprecated alias of [AbstractOptionParser][tanjun.parsing.AbstractOptionParser]."""
+@typing_extensions.deprecated("Use AbstractOptionParser")
+class AbstractParser(AbstractOptionParser):
+    """Deprecated alias of [AbstractOptionParser][tanjun.parsing.AbstractOptionParser]."""
+
+    __slots__ = ()
 
 
 class _ShlexTokenizer:
