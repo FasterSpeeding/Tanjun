@@ -58,6 +58,7 @@ import warnings
 from collections import abc as collections
 
 import hikari
+import typing_extensions
 
 from .. import _internal
 from .. import abc as tanjun
@@ -67,7 +68,6 @@ from .. import errors
 from .. import hooks as hooks_
 from .._internal import localisation
 from . import base
-import typing_extensions
 
 if typing.TYPE_CHECKING:
     from hikari.api import special_endpoints as special_endpoints_api
