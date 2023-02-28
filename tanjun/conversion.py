@@ -32,17 +32,6 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "ToChannel",
-    "ToEmoji",
-    "ToGuild",
-    "ToInvite",
-    "ToInviteWithMetadata",
-    "ToMember",
-    "ToMessage",
-    "ToPresence",
-    "ToRole",
-    "ToUser",
-    "ToVoiceState",
     "from_datetime",
     "parse_channel_id",
     "parse_emoji_id",
