@@ -205,7 +205,7 @@ class BaseConverter:
             else:
                 _LOGGER.info(
                     "Converter %r (registered with %s) may not perform "
-                    + "optimally without the following cache components: %s",
+                    "optimally without the following cache components: %s",
                     self,
                     parent_name,
                     missing_components,

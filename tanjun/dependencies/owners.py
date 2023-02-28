@@ -175,7 +175,7 @@ class Owners(AbstractOwners):
         if client.rest.token_type is not hikari.TokenType.BOT:
             _LOGGER.warning(
                 "Owner checks cannot fallback to application owners when bound to an OAuth2 "
-                + "client credentials token and may always fail unless bound to a Bot token."
+                "client credentials token and may always fail unless bound to a Bot token."
             )
             return False
 

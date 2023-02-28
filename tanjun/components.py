@@ -776,7 +776,7 @@ class Component(tanjun.Component):
         else:
             raise TypeError(
                 "Unexpected object passed, expected a MenuCommand, "
-                + f"MessageCommand or BaseSlashCommand but got {type(command)}"
+                f"MessageCommand or BaseSlashCommand but got {type(command)}"
             )
 
         return self

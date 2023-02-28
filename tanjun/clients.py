@@ -739,7 +739,7 @@ class Client(tanjun.Client):
         if not events and not server:
             _LOGGER.warning(
                 "Client initiaited without an event manager or interaction server, "
-                + "automatic command dispatch will be unavailable."
+                "automatic command dispatch will be unavailable."
             )
 
         self._auto_defer_after: typing.Optional[float] = 2.0
@@ -843,7 +843,7 @@ class Client(tanjun.Client):
         if set_global_commands:
             warnings.warn(
                 "The `set_global_commands` argument is deprecated since v2.1.1a1. "
-                + "Use `declare_global_commands` instead.",
+                "Use `declare_global_commands` instead.",
                 DeprecationWarning,
                 stacklevel=3 + _stack_level,
             )
@@ -853,7 +853,7 @@ class Client(tanjun.Client):
             if command_ids and len(declare_global_commands) > 1:
                 raise ValueError(
                     "Cannot provide specific command_ids while automatically "
-                    + "declaring commands marked as 'global' in multiple-guilds on startup"
+                    "declaring commands marked as 'global' in multiple-guilds on startup"
                 )
 
             for guild in declare_global_commands:
@@ -869,7 +869,7 @@ class Client(tanjun.Client):
                 if not command_ids and not message_ids and not user_ids:
                     _LOGGER.warning(
                         "No command IDs passed for startup command declarer, this could lead to previously set "
-                        + "command permissions being lost when commands are renamed."
+                        "command permissions being lost when commands are renamed."
                     )
 
                 self.add_client_callback(
@@ -1518,7 +1518,7 @@ class Client(tanjun.Client):
         if conflicts:
             raise ValueError(
                 "Couldn't declare commands due to conflicts. The following command names have more than one command "
-                + "registered for them "
+                "registered for them "
                 + ", ".join(f"{type_}:{name}" for type_, name in conflicts)
             )
 
