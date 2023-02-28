@@ -498,10 +498,6 @@ class Flag(_ConfigIdentifier):
             Other names the flag may be triggered by.
 
             This does not override the argument's name.
-        default
-            Deprecated argument used to specify the option's default.
-
-            Use [Default][tanjun.annotations.Default] instead.
         empty_value
             Value to pass for the argument if the flag is provided without a value.
 

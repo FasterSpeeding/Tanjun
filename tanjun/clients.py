@@ -701,8 +701,6 @@ class Client(tanjun.Client):
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
-        set_global_commands
-            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids
             If provided, a mapping of top level command names to IDs of the
             existing commands to update.
@@ -994,8 +992,6 @@ class Client(tanjun.Client):
             The endpoint this uses has a strict ratelimit which, as of writing,
             only allows for 2 requests per minute (with that ratelimit either
             being per-guild if targeting a specific guild otherwise globally).
-        set_global_commands
-            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids
             If provided, a mapping of top level command names to IDs of the commands to update.
 
@@ -1118,8 +1114,6 @@ class Client(tanjun.Client):
             The alluka client this should use for dependency injection.
 
             If not provided then the client will initialise its own DI client.
-        set_global_commands
-            Deprecated as of v2.1.1a1 alias of `declare_global_commands`.
         command_ids
             If provided, a mapping of top level command names to IDs of the
             existing commands to update.
