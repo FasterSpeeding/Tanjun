@@ -32,9 +32,6 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "Argument",
-    "Option",
-    "Parameter",
     "ShlexParser",
     "with_argument",
     "with_greedy_argument",
