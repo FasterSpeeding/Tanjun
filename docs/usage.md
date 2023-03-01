@@ -3,7 +3,7 @@
 This guide is not a conclusive list of the features in Tanjun.
 
 You'll want to have some basic understanding of Hikari before you start
-using Tanjun. A basic Hikari guide can be found [here](https://hg.cursed.solutions/) .
+using Tanjun. A basic Hikari guide can be found [here](https://hg.cursed.solutions/).
 
 ## Starting with Hikari
 
