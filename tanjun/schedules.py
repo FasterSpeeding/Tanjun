@@ -178,7 +178,7 @@ def as_interval(
 
     Returns
     -------
-    collections.Callable[[_CallbackSigT], tanjun.scheduling.IntervalSchedule[_CallbackSigT]]
+    collections.Callable[[_CallbackSigT], tanjun.schedules.IntervalSchedule[_CallbackSigT]]
         The decorator used to create the schedule.
 
         This should be decorating an asynchronous function which takes no
@@ -866,7 +866,7 @@ def as_time_schedule(
 
     Returns
     -------
-    collections.Callable[[_CallbackSigT], tanjun.scheduling.TimeSchedule[_CallbackSigT]]
+    collections.Callable[[_CallbackSigT], tanjun.schedules.TimeSchedule[_CallbackSigT]]
         The decorator used to create the schedule.
 
         This should be decorating an asynchronous function which takes no
