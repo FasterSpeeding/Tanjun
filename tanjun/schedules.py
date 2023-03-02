@@ -805,7 +805,6 @@ def as_time_schedule(
 
     ```py
     @component.with_schedule
-
     @tanjun.as_time_schedule(  # This will run every week day at 8:00 and 16:00 UTC.
         minutes=0, hours=[8, 16], days=range(0, 5), weekly=True, timezone=datetime.timezone.utc
     )
@@ -838,7 +837,7 @@ def as_time_schedule(
         will be ignored.
 
         If this is not specified or an empty sequence, then the schedule
-        will on all days.
+        will run on all days.
     hours
         Either one or multiple hours the schedule should run on.
 
