@@ -953,7 +953,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
             will be ignored.
 
             If this is not specified or an empty sequence, then the schedule
-            will on all days.
+            will run on all days.
         hours
             Either one or multiple hours the schedule should run on.
 
