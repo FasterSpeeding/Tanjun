@@ -3674,7 +3674,8 @@ take use injected dependencies.</p>
   
       <p>Add a schedule to the component through a decorator call.</p>
 <h5 id="tanjun.components.Component.with_schedule--example">Example<a class="headerlink" href="#tanjun.components.Component.with_schedule--example" title="Permanent link">#</a></h5>
-<p>This may be used in conjunction with <a class="autorefs autorefs-internal" href="../#tanjun.as_interval">tanjun.as_interval</a>.</p>
+<p>This may be used in conjunction with <a class="autorefs autorefs-internal" href="../#tanjun.as_interval">tanjun.as_interval</a> or
+<a class="autorefs autorefs-internal" href="../#tanjun.as_time_schedule">tanjun.as_time_schedule</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_schedule</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_interval</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">my_schedule</span><span class="p">():</span>
