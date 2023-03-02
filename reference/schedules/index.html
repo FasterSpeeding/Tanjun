@@ -15,7 +15,7 @@
         <link rel="next" href="../utilities/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.12">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.13">
     
     
       
@@ -23,10 +23,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.0d440cfe.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ffa9267a.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.2505c338.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.a0c5b2b5.min.css">
       
       
   
@@ -982,7 +982,6 @@
               <article class="md-content__inner md-typeset">
                 
                   
-
 
 
 <h1 id="tanjunschedules">tanjun.schedules<a class="headerlink" href="#tanjunschedules" title="Permanent link">#</a></h1>
@@ -2055,7 +2054,7 @@ will run on all months.</p>
 For months where less than 31 days exist, numbers which are too large
 will be ignored.</p>
 <p>If this is not specified or an empty sequence, then the schedule
-will on all days.</p>
+will run on all days.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -2468,7 +2467,7 @@ callback, start callback or stop callback.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<span title="tanjun.schedules._CallbackSigT">_CallbackSigT</span>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.scheduling">scheduling</span>.<span title="tanjun.scheduling.IntervalSchedule">IntervalSchedule</span>[<span title="tanjun.schedules._CallbackSigT">_CallbackSigT</span>]]</code>
+                  <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<span title="tanjun.schedules._CallbackSigT">_CallbackSigT</span>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.schedules">schedules</span>.<a class="autorefs autorefs-internal" title="tanjun.schedules.IntervalSchedule" href="#tanjun.schedules.IntervalSchedule">IntervalSchedule</a>[<span title="tanjun.schedules._CallbackSigT">_CallbackSigT</span>]]</code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -2502,7 +2501,6 @@ positional arguments, returns <a class="autorefs autorefs-external" href="https:
 
 <p><strong>Examples:</strong></p>
     <div class="highlight"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_schedule</span>
-
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_time_schedule</span><span class="p">(</span>  <span class="c1"># This will run every week day at 8:00 and 16:00 UTC.</span>
     <span class="n">minutes</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hours</span><span class="o">=</span><span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span> <span class="n">days</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">weekly</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timezone</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span>
 <span class="p">)</span>
@@ -2566,7 +2564,7 @@ will run on all months.</p>
 For months where less than 31 days exist, numbers which are too large
 will be ignored.</p>
 <p>If this is not specified or an empty sequence, then the schedule
-will on all days.</p>
+will run on all days.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -2698,7 +2696,7 @@ callback, start callback or stop callback.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<span title="tanjun.schedules._CallbackSigT">_CallbackSigT</span>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.scheduling">scheduling</span>.<span title="tanjun.scheduling.TimeSchedule">TimeSchedule</span>[<span title="tanjun.schedules._CallbackSigT">_CallbackSigT</span>]]</code>
+                  <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.9/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.9/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<span title="tanjun.schedules._CallbackSigT">_CallbackSigT</span>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.schedules">schedules</span>.<a class="autorefs autorefs-internal" title="tanjun.schedules.TimeSchedule" href="#tanjun.schedules.TimeSchedule">TimeSchedule</a>[<span title="tanjun.schedules._CallbackSigT">_CallbackSigT</span>]]</code>
               </span>
           </td>
           <td class="doc-returns-details">
@@ -2788,10 +2786,10 @@ positional arguments, returns <a class="autorefs autorefs-external" href="https:
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.4b2c34cd.min.js"></script>
+      <script src="../../assets/javascripts/bundle.2a6f1dda.min.js"></script>
       
     
   </body>
