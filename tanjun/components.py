@@ -1361,7 +1361,8 @@ class Component(tanjun.Component):
 
         Example
         -------
-        This may be used in conjunction with [tanjun.as_interval][].
+        This may be used in conjunction with [tanjun.as_interval][] or
+        [tanjun.as_time_schedule][].
 
         ```py
         @component.with_schedule
