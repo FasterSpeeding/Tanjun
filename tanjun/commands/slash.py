@@ -176,7 +176,7 @@ def slash_command_group(
 
     !!! note
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by [tanjun.Client.declare_global_commandsadd_command
+        the command should be bulk set by [tanjun.Client.declare_global_commands][]
         or when `declare_global_commands` is True
 
     Examples
