@@ -262,7 +262,7 @@ else:
 
     AutocompleteSig = types.GenericAlias(collections.Callable[..., typing.Any], (_AutocompleteValueT,))
     CheckSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
-    AnyCheckSig = CheckSig
+    AnyCheckSig = CheckSig["Context"]
     MenuCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_MenuValueT,))
     MessageCallbackSig = collections.Callable[..., typing.Any]
     SlashCallbackSig = collections.Callable[..., typing.Any]
