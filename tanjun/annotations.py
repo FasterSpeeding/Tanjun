@@ -1222,6 +1222,9 @@ class _ArgConfig:
         return self
 
     def add_to_msg_cmds(self, commands: collections.Sequence[message.MessageCommand[typing.Any]], /) -> Self:
+        if not commands:
+            return self
+
         if self.str_converters:
             converters = self.str_converters
 

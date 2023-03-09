@@ -3789,11 +3789,21 @@ def test_for_interaction_channel_option():
     @tanjun.as_slash_command("meow", "nom")
     async def command(
         ctx: tanjun.abc.Context,
+        arg: typing.Annotated[annotations.InteractionChannel, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.InteractionChannel, str], "feet"] = "ok",
     ) -> None:
         ...
 
     assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.CHANNEL,
+            name="arg",
+            channel_types=None,
+            description="yeet",
+            is_required=True,
+            min_value=None,
+            max_value=None,
+        ),
         hikari.CommandOption(
             type=hikari.OptionType.CHANNEL,
             name="arg_2",
@@ -3802,10 +3812,19 @@ def test_for_interaction_channel_option():
             is_required=False,
             min_value=None,
             max_value=None,
-        )
+        ),
     ]
 
-    assert len(command._tracked_options) == 1
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["arg"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "arg"
+    assert tracked_option.name == "arg"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
+
     tracked_option = command._tracked_options["arg_2"]
     assert tracked_option.converters == []
     assert tracked_option.default is tanjun.abc.NO_PASS
@@ -4085,11 +4104,21 @@ def test_for_interaction_member_option():
     @tanjun.as_slash_command("meow", "nom")
     async def command(
         ctx: tanjun.abc.Context,
+        arg: typing.Annotated[annotations.InteractionMember, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.InteractionMember, str], "feet"] = "ok",
     ) -> None:
         ...
 
     assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.USER,
+            name="arg",
+            channel_types=None,
+            description="yeet",
+            is_required=True,
+            min_value=None,
+            max_value=None,
+        ),
         hikari.CommandOption(
             type=hikari.OptionType.USER,
             name="arg_2",
@@ -4098,10 +4127,19 @@ def test_for_interaction_member_option():
             is_required=False,
             min_value=None,
             max_value=None,
-        )
+        ),
     ]
 
-    assert len(command._tracked_options) == 1
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["arg"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "arg"
+    assert tracked_option.name == "arg"
+    assert tracked_option.type is hikari.OptionType.USER
+
     tracked_option = command._tracked_options["arg_2"]
     assert tracked_option.converters == []
     assert tracked_option.default is tanjun.abc.NO_PASS
