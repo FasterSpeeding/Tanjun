@@ -38,7 +38,6 @@ __all__: list[str] = [
     "MessageCommandGroup",
     "SlashCommand",
     "SlashCommandGroup",
-    "annotations",
     "as_message_command",
     "as_message_command_group",
     "as_message_menu",
