@@ -251,6 +251,9 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         default
             The default value of this argument, if left as
             [tanjun.abc.NO_DEFAULT][] then this will have no default.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         greedy
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
@@ -416,8 +419,11 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
             Only the first converter to pass will be used.
         empty_value
             The value to use if this option is provided without a value.
+
             If left as [tanjun.abc.NO_DEFAULT][] then this option
             will error if it's provided without a value.
+
+            [tanjun.abc.NO_PASS][] is not supported for this.
         min_length
             Assert that a string argument's length is greater than or equal to this.
 
@@ -766,6 +772,9 @@ def with_argument(
     default
         The default value of this argument, if left as
         [tanjun.abc.NO_DEFAULT][] then this will have no default.
+
+        If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+        passed when no value was provided.
     greedy
         Whether or not this argument should be greedy (meaning that it
         takes in the remaining argument values).
@@ -941,7 +950,9 @@ def with_greedy_argument(
     default
         The default value of this argument, if left as
         [tanjun.abc.NO_DEFAULT][] then this will have no default.
-        Assert that a string argument's length is greater than or equal to this.
+
+        If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+        passed when no value was provided.
 
         If any converters are provided then this should be compatible
         with the result of them.
@@ -1109,6 +1120,9 @@ def with_multi_argument(
     default
         The default value of this argument, if left as
         [tanjun.abc.NO_DEFAULT][] then this will have no default.
+
+        If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+        passed when no value was provided.
     min_length
         Assert that a string argument's length is greater than or equal to this.
 
@@ -1290,9 +1304,12 @@ def with_option(
 
         Only the first converter to pass will be used.
     empty_value
-        The value to use if this option is provided without a value. If left as
-        [tanjun.abc.NO_DEFAULT][] then this option will error if
+        The value to use if this option is provided without a value.
+
+        If left as [tanjun.abc.NO_DEFAULT][] then this option will error if
         it's provided without a value.
+
+        [tanjun.abc.NO_PASS][] is not supported for this.
     min_length
         Assert that a string argument's length is greater than or equal to this.
 
@@ -1482,9 +1499,12 @@ def with_multi_option(
 
         Only the first converter to pass will be used.
     empty_value
-        The value to use if this option is provided without a value. If left as
-        [tanjun.abc.NO_DEFAULT][] then this option will error if
+        The value to use if this option is provided without a value.
+
+        If left as [tanjun.abc.NO_DEFAULT][] then this option will error if
         it's provided without a value.
+
+        [tanjun.abc.NO_PASS][] is not supported for this.
     min_length
         Assert that a string argument's length is greater than or equal to this.
 
@@ -1597,6 +1617,9 @@ class Parameter:
 
         If this is [tanjun.abc.NO_DEFAULT][] then this parameter is
         required.
+
+        If this is [tanjun.abc.NO_PASS][] then the parameter won't be
+        passed when no value was provided.
         """
         return self._default
 
@@ -1756,8 +1779,10 @@ class Argument(Parameter):
             Only the first converter to pass will be used.
         default
             The default value of this argument, if left as
-            [tanjun.abc.NO_DEFAULT][] then this will have no
-            default.
+            [tanjun.abc.NO_DEFAULT][] then this will have no default.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         greedy
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
@@ -1825,7 +1850,7 @@ class Option(Parameter):
         /,
         *names: str,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
-        default: typing.Any = tanjun.NO_DEFAULT,
+        default: typing.Any,
         empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
@@ -1857,8 +1882,11 @@ class Option(Parameter):
             Only the first converter to pass will be used.
         empty_value
             The value to use if this option is provided without a value.
+
             If left as [tanjun.abc.NO_DEFAULT][] then this option
             will error if it's provided without a value.
+
+            [tanjun.abc.NO_PASS][] is not supported for this.
         min_length
             Assert that a string argument's length is greater than or equal to this.
 

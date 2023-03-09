@@ -1803,7 +1803,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default
             The option's default value.
 
-            If this is left as undefined then this option will be required.
+            If this is left as no default then this option will be required.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         key
             Name of the argument this option's value should be passed to.
 
@@ -1943,7 +1946,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default
             The option's default value.
 
-            If this is left as undefined then this option will be required.
+            If this is left as no default then this option will be required.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         key
             Name of the argument this option's value should be passed to.
 
@@ -2122,6 +2128,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             The option's default value.
 
             If this is left as undefined then this option will be required.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         key
             Name of the argument this option's value should be passed to.
 
@@ -2279,7 +2288,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default
             The option's default value.
 
-            If this is left as undefined then this option will be required.
+            If this is left as no default then this option will be required.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         key
             Name of the argument this option's value should be passed to.
 
@@ -2364,7 +2376,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default
             The option's default value.
 
-            If this is left as undefined then this option will be required.
+            If this is left as no default then this option will be required.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         key
             Name of the argument this option's value should be passed to.
 
@@ -2433,7 +2448,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default
             The option's default value.
 
-            If this is left as undefined then this option will be required.
+            If this is left as no default then this option will be required.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         key
             Name of the argument this option's value should be passed to.
 
@@ -2507,7 +2525,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default
             The option's default value.
 
-            If this is left as undefined then this option will be required.
+            If this is left as no default then this option will be required.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         key
             Name of the argument this option's value should be passed to.
 
@@ -2570,7 +2591,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default
             The option's default value.
 
-            If this is left as undefined then this option will be required.
+            If this is left as no default then this option will be required.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         types
             A collection of the channel classes and types this option should accept.
 
@@ -2640,7 +2664,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default
             The option's default value.
 
-            If this is left as undefined then this option will be required.
+            If this is left as no default then this option will be required.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         key
             Name of the argument this option's value should be passed to.
 
@@ -2708,7 +2735,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default
             The option's default value.
 
-            If this is left as undefined then this option will be required.
+            If this is left as no default then this option will be required.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         key
             Name of the argument this option's value should be passed to.
 

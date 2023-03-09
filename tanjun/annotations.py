@@ -500,6 +500,8 @@ class Flag(_ConfigIdentifier):
             Value to pass for the argument if the flag is provided without a value.
 
             If left undefined then an explicit value will always be needed.
+
+            [tanjun.abc.NO_PASS][] is not supported for this.
         """
         if default is not tanjun.NO_DEFAULT:
             warnings.warn(
@@ -532,7 +534,8 @@ class Flag(_ConfigIdentifier):
     def empty_value(self) -> typing.Any:
         """The value to pass for the argument if the flag is provided without a value.
 
-        If this is undefined then a value will always need to be passed for the flag.
+        If this is [tanjun.abc.NO_DEFAULT][] then a value will be required
+        for this flag.
         """
         return self._empty_value
 
