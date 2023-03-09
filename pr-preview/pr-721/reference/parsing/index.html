@@ -1546,6 +1546,8 @@ during parsing.</p>
           <td class="doc-param-details">
             <p>The default value of this argument, if left as
 <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this will have no default.</p>
+<p>If this is <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> then the <code>key</code> parameter won't be
+passed when no value was provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -1818,9 +1820,10 @@ during parsing.</p>
         <tr>
           <td><code>empty_value</code></td>
           <td class="doc-param-details">
-            <p>The value to use if this option is provided without a value.
-If left as <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this option
+            <p>The value to use if this option is provided without a value.</p>
+<p>If left as <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this option
 will error if it's provided without a value.</p>
+<p><a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> is not supported for this.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -2140,8 +2143,9 @@ during parsing.</p>
           <td><code>default</code></td>
           <td class="doc-param-details">
             <p>The default value of this argument, if left as
-<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this will have no
-default.</p>
+<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this will have no default.</p>
+<p>If this is <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> then the <code>key</code> parameter won't be
+passed when no value was provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -2349,7 +2353,7 @@ required for the option.</p>
 
 
 <a href="#tanjun.parsing.Option.__init__" class="headerlink" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="fm">__init__</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multi</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -2416,10 +2420,6 @@ for options.</p>
                   <b>TYPE:</b>
                     <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.9/library/typing.html#typing.Any">Any</a></code>
                 </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>tanjun.NO_DEFAULT</code>
-                </span>
             </p>
           </td>
         </tr>
@@ -2445,9 +2445,10 @@ during parsing.</p>
         <tr>
           <td><code>empty_value</code></td>
           <td class="doc-param-details">
-            <p>The value to use if this option is provided without a value.
-If left as <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this option
+            <p>The value to use if this option is provided without a value.</p>
+<p>If left as <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this option
 will error if it's provided without a value.</p>
+<p><a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> is not supported for this.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -2621,6 +2622,8 @@ with the result of them.</p>
       <p>The parameter's default.</p>
 <p>If this is <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this parameter is
 required.</p>
+<p>If this is <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> then the parameter won't be
+passed when no value was provided.</p>
   </div>
 
 </div>
@@ -3013,6 +3016,8 @@ during parsing.</p>
           <td class="doc-param-details">
             <p>The default value of this argument, if left as
 <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this will have no default.</p>
+<p>If this is <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> then the <code>key</code> parameter won't be
+passed when no value was provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -3253,8 +3258,9 @@ during parsing.</p>
           <td><code>default</code></td>
           <td class="doc-param-details">
             <p>The default value of this argument, if left as
-<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this will have no default.
-Assert that a string argument's length is greater than or equal to this.</p>
+<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this will have no default.</p>
+<p>If this is <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> then the <code>key</code> parameter won't be
+passed when no value was provided.</p>
 <p>If any converters are provided then this should be compatible
 with the result of them.</p>
             <p>
@@ -3480,6 +3486,8 @@ during parsing.</p>
           <td class="doc-param-details">
             <p>The default value of this argument, if left as
 <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this will have no default.</p>
+<p>If this is <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> then the <code>key</code> parameter won't be
+passed when no value was provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -3735,9 +3743,10 @@ during parsing.</p>
         <tr>
           <td><code>empty_value</code></td>
           <td class="doc-param-details">
-            <p>The value to use if this option is provided without a value. If left as
-<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this option will error if
+            <p>The value to use if this option is provided without a value.</p>
+<p>If left as <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this option will error if
 it's provided without a value.</p>
+<p><a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> is not supported for this.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -3989,9 +3998,10 @@ during parsing.</p>
         <tr>
           <td><code>empty_value</code></td>
           <td class="doc-param-details">
-            <p>The value to use if this option is provided without a value. If left as
-<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this option will error if
+            <p>The value to use if this option is provided without a value.</p>
+<p>If left as <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a> then this option will error if
 it's provided without a value.</p>
+<p><a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> is not supported for this.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
