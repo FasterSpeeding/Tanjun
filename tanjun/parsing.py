@@ -572,52 +572,56 @@ class _SemanticShlex(_ShlexTokenizer):
 
     async def parse(self) -> dict[str, typing.Any]:
         raw_options = self.collect_raw_options()
-        results = asyncio.gather(*(self.__process_option(option, raw_options) for option in self.__options))
-        values = dict(zip((option.key for option in self.__options), await results))
+        kwargs: dict[str, typing.Any] = {}
+
+        for option in self.__options:
+            values_iter = itertools.chain.from_iterable(
+                raw_options[name] for name in option.names if name in raw_options
+            )
+            if option.is_multi and (values := list(values_iter)):
+                kwargs[option.key] = await asyncio.gather(
+                    *(_covert_option_or_empty(self.__ctx, option, value) for value in values)
+                )
+
+            elif not option.is_multi and (value := next(values_iter, ...)) is not ...:
+                if next(values_iter, ...) is not ...:
+                    raise errors.TooManyArgumentsError(
+                        f"Option `{option.key}` can only take a single value", option.key
+                    )
+
+                kwargs[option.key] = await _covert_option_or_empty(self.__ctx, option, value)
+
+            elif option.default is tanjun.NO_DEFAULT:
+                # If this is reached then no value was found.
+                raise errors.NotEnoughArgumentsError(f"Missing required option `{option.key}`", option.key)
+
+            elif option.default is not tanjun.NO_PASS:
+                kwargs[option.key] = option.default
 
         for argument in self.__arguments:
-            values[argument.key] = await self.__process_argument(argument)
+            if argument.is_greedy and (value := " ".join(self.iter_raw_arguments())):
+                kwargs[argument.key] = await argument.convert(self.__ctx, value)
+
+            elif argument.is_multi and (values := list(self.iter_raw_arguments())):
+                kwargs[argument.key] = await asyncio.gather(*(argument.convert(self.__ctx, value) for value in values))
+
+            # If the previous two statements failed on getting raw arguments then this will as well.
+            elif (optional_value := self.next_raw_argument()) is not None:
+                kwargs[argument.key] = await argument.convert(self.__ctx, optional_value)
+
+            elif argument.default is tanjun.NO_DEFAULT:
+                # If this is reached then no value was found.
+                raise errors.NotEnoughArgumentsError(
+                    f"Missing value for required argument '{argument.key}'", argument.key
+                )
+
+            elif argument.default is not tanjun.NO_PASS:
+                kwargs[argument.key] = argument.default
 
             if argument.is_greedy or argument.is_multi:
                 break  # Multi and Greedy parameters should always be the last parameter.
 
-        return values
-
-    async def __process_argument(self, argument: Argument, /) -> typing.Any:
-        if argument.is_greedy and (value := " ".join(self.iter_raw_arguments())):
-            return await argument.convert(self.__ctx, value)
-
-        if argument.is_multi and (values := list(self.iter_raw_arguments())):
-            return await asyncio.gather(*(argument.convert(self.__ctx, value) for value in values))
-
-        # If the previous two statements failed on getting raw arguments then this will as well.
-        if (optional_value := self.next_raw_argument()) is not None:
-            return await argument.convert(self.__ctx, optional_value)
-
-        if argument.default is not tanjun.NO_DEFAULT:
-            return argument.default
-
-        # If this is reached then no value was found.
-        raise errors.NotEnoughArgumentsError(f"Missing value for required argument '{argument.key}'", argument.key)
-
-    async def __process_option(
-        self, option: Option, raw_options: collections.Mapping[str, collections.Sequence[typing.Optional[str]]], /
-    ) -> typing.Any:
-        values_iter = itertools.chain.from_iterable(raw_options[name] for name in option.names if name in raw_options)
-        if option.is_multi and (values := list(values_iter)):
-            return await asyncio.gather(*(_covert_option_or_empty(self.__ctx, option, value) for value in values))
-
-        if not option.is_multi and (value := next(values_iter, ...)) is not ...:
-            if next(values_iter, ...) is not ...:
-                raise errors.TooManyArgumentsError(f"Option `{option.key}` can only take a single value", option.key)
-
-            return await _covert_option_or_empty(self.__ctx, option, value)
-
-        if option.default is not tanjun.NO_DEFAULT:
-            return option.default
-
-        # If this is reached then no value was found.
-        raise errors.NotEnoughArgumentsError(f"Missing required option `{option.key}`", option.key)
+        return kwargs
 
 
 def _get_or_set_parser(command: tanjun.MessageCommand[typing.Any], /) -> AbstractOptionParser:
