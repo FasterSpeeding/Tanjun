@@ -3571,11 +3571,22 @@ def test_for_attachment_option():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("meow", "nom")
     async def command(
-        ctx: tanjun.abc.Context, arg_2: typing.Annotated[typing.Union[annotations.Attachment, str], "feet"] = "ok"
+        ctx: tanjun.abc.Context,
+        arg: typing.Annotated[annotations.Attachment, "yeet"],
+        arg_2: typing.Annotated[typing.Union[annotations.Attachment, str], "feet"] = "ok",
     ) -> None:
         ...
 
     assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.ATTACHMENT,
+            name="arg",
+            channel_types=None,
+            description="yeet",
+            is_required=True,
+            min_value=None,
+            max_value=None,
+        ),
         hikari.CommandOption(
             type=hikari.OptionType.ATTACHMENT,
             name="arg_2",
@@ -3584,10 +3595,19 @@ def test_for_attachment_option():
             is_required=False,
             min_value=None,
             max_value=None,
-        )
+        ),
     ]
 
-    assert len(command._tracked_options) == 1
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["arg"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "arg"
+    assert tracked_option.name == "arg"
+    assert tracked_option.type is hikari.OptionType.ATTACHMENT
+
     tracked_option = command._tracked_options["arg_2"]
     assert tracked_option.converters == []
     assert tracked_option.default is tanjun.abc.NO_PASS
