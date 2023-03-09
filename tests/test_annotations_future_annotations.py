@@ -279,7 +279,7 @@ def test_with_with_std_range():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == [int]
-    assert option.default == 44
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value == 22
@@ -336,7 +336,7 @@ def test_with_with_backwards_std_range():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == [int]
-    assert option.default == 44
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value == 42
@@ -393,7 +393,7 @@ def test_with_std_slice():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == [int]
-    assert option.default == 44
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value == 444
@@ -450,7 +450,7 @@ def test_with_backwards_std_slice():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == [int]
-    assert option.default == 44
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value == 421
@@ -609,7 +609,7 @@ def test_choices(
 
     tracked_option = callback._tracked_options["boo"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "hi"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is (option_type is hikari.OptionType.FLOAT)
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "boo"
@@ -726,7 +726,7 @@ def test_with_generic_float_choices():
 
     tracked_option = callback._tracked_options["boom"]
     assert tracked_option.converters == [Choices1]
-    assert tracked_option.default is Choices1.Blam
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is True
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "boom"
@@ -751,7 +751,7 @@ def test_with_generic_float_choices():
     assert option.key == "boom"
     assert option.names == ["--boom"]
     assert option.converters == [Choices1]
-    assert option.default is Choices1.Blam
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -815,7 +815,7 @@ def test_with_generic_int_choices():
 
     tracked_option = callback._tracked_options["bag"]
     assert tracked_option.converters == [Choices2]
-    assert tracked_option.default is Choices2.Bazman
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "bag"
@@ -840,7 +840,7 @@ def test_with_generic_int_choices():
     assert option.key == "bag"
     assert option.names == ["--bag"]
     assert option.converters == [Choices2]
-    assert option.default is Choices2.Bazman
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -907,7 +907,7 @@ def test_with_generic_str_choices():
 
     tracked_option = callback._tracked_options["aa"]
     assert tracked_option.converters == [Choices3]
-    assert tracked_option.default is Choices3.Sis
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "aa"
@@ -932,7 +932,7 @@ def test_with_generic_str_choices():
     assert option.key == "aa"
     assert option.names == ["--aa"]
     assert option.converters == [Choices3]
-    assert option.default is Choices3.Sis
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -996,7 +996,7 @@ def test_with_converted():
 
     tracked_option = command._tracked_options["bam"]
     assert tracked_option.converters == [mock_callback_3]
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "bam"
@@ -1021,7 +1021,7 @@ def test_with_converted():
     assert option.key == "bam"
     assert option.names == ["--bam"]
     assert option.converters == [mock_callback_3]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -1067,7 +1067,7 @@ def test_with_generic_converted():
 
     tracked_option = command._tracked_options["bam"]
     assert tracked_option.converters == [mock_callback_3]
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "bam"
@@ -1092,7 +1092,7 @@ def test_with_generic_converted():
     assert option.key == "bam"
     assert option.names == ["--bam"]
     assert option.converters == [mock_callback_3]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -1284,7 +1284,7 @@ def test_with_flag():
     assert option.key == "meep"
     assert option.names == ["--meep"]
     assert option.converters == []
-    assert option.default == ""
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -1293,7 +1293,7 @@ def test_with_flag():
     assert option.key == "eep"
     assert option.names == ["--eep", "--hi", "--bye"]
     assert option.converters == [int]
-    assert option.default == 545454
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is empty_value
     assert option.is_multi is False
     assert option.min_value is None
@@ -1309,9 +1309,9 @@ def test_with_flag():
     ]
     assert len(callback.wrapped_command._tracked_options) == 2
     option = callback.wrapped_command._tracked_options["meep"]
-    assert option.default == ""
+    assert option.default is tanjun.abc.NO_PASS
     option = callback.wrapped_command._tracked_options["eep"]
-    assert option.default == 545454
+    assert option.default is tanjun.abc.NO_PASS
 
 
 def test_with_flag_and_deprecated_default():
@@ -1364,7 +1364,7 @@ def test_with_flag_and_default():
     assert option.key == "eep"
     assert option.names == ["--eep", "--hi", "--bye"]
     assert option.converters == [int]
-    assert option.default == 123
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -1377,7 +1377,7 @@ def test_with_flag_and_default():
     ]
     assert len(callback.wrapped_command._tracked_options) == 1
     option = callback.wrapped_command._tracked_options["eep"]
-    assert option.default == 123
+    assert option.default is tanjun.abc.NO_PASS
 
 
 def test_with_flag_missing_default():
@@ -1504,7 +1504,7 @@ def test_with_length():
 
     tracked_option = callback._tracked_options["other_value"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_value"
@@ -1531,7 +1531,7 @@ def test_with_length():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == []
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_length == 0
@@ -1584,7 +1584,7 @@ def test_with_length_when_min_specificed():
 
     tracked_option = callback._tracked_options["other_value"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_value"
@@ -1611,7 +1611,7 @@ def test_with_length_when_min_specificed():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == []
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_length == 32
@@ -1664,7 +1664,7 @@ def test_with_generic_length():
 
     tracked_option = callback._tracked_options["other_value"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_value"
@@ -1691,7 +1691,7 @@ def test_with_generic_length():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == []
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_length == 0
@@ -1744,7 +1744,7 @@ def test_with_generic_length_when_min_specificed():
 
     tracked_option = callback._tracked_options["other_value"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_value"
@@ -1771,7 +1771,7 @@ def test_with_generic_length_when_min_specificed():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == []
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_length == 32
@@ -1843,7 +1843,7 @@ def test_with_max(
 
     tracked_option = callback._tracked_options["yeet_no"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is (raw_type is float)
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "yeet_no"
@@ -1865,7 +1865,7 @@ def test_with_max(
     assert option.key == "yeet_no"
     assert option.names == ["--yeet-no"]
     assert option.converters == [raw_type]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -1927,7 +1927,7 @@ def test_with_generic_max(
 
     tracked_option = callback._tracked_options["other_number"]
     assert tracked_option.converters == []
-    assert tracked_option.default == 54234
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is (converter is float)
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_number"
@@ -1949,7 +1949,7 @@ def test_with_generic_max(
     assert option.key == "other_number"
     assert option.names == ["--other-number"]
     assert option.converters == [converter]
-    assert option.default == 54234
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -2014,7 +2014,7 @@ def test_with_max_when_int_for_float():
 
     tracked_option = callback._tracked_options["other_value"]
     assert tracked_option.converters == []
-    assert tracked_option.default is False
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is True
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_value"
@@ -2036,7 +2036,7 @@ def test_with_max_when_int_for_float():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == [float]
-    assert option.default is False
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -2106,7 +2106,7 @@ def test_with_min(
 
     tracked_option = callback._tracked_options["other_number"]
     assert tracked_option.converters == []
-    assert tracked_option.default == 54234
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is (raw_type is float)
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_number"
@@ -2128,7 +2128,7 @@ def test_with_min(
     assert option.key == "other_number"
     assert option.names == ["--other-number"]
     assert option.converters == [raw_type]
-    assert option.default == 54234
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -2190,7 +2190,7 @@ def test_with_generic_min(
 
     tracked_option = callback._tracked_options["other_number"]
     assert tracked_option.converters == []
-    assert tracked_option.default == 321
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is (converter is float)
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_number"
@@ -2212,7 +2212,7 @@ def test_with_generic_min(
     assert option.key == "other_number"
     assert option.names == ["--other-number"]
     assert option.converters == [converter]
-    assert option.default == 321
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value == value
@@ -2277,7 +2277,7 @@ def test_with_min_when_int_for_float():
 
     tracked_option = callback._tracked_options["other_value"]
     assert tracked_option.converters == []
-    assert tracked_option.default is False
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is True
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_value"
@@ -2299,7 +2299,7 @@ def test_with_min_when_int_for_float():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == [float]
-    assert option.default is False
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value == 44444
@@ -2352,7 +2352,7 @@ def test_with_overridden_name():
 
     tracked_option = callback._tracked_options["meep_meep"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "meowow"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "meow"
@@ -2374,7 +2374,7 @@ def test_with_overridden_name():
     assert option.key == "meow"
     assert option.names == ["--meep-meep"]
     assert option.converters == []
-    assert option.default == "meowow"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -2429,7 +2429,7 @@ def test_with_individually_overridden_name():
 
     tracked_option = callback._tracked_options["n"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "meowow"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "meow"
@@ -2451,7 +2451,7 @@ def test_with_individually_overridden_name():
     assert option.key == "meow"
     assert option.names == ["--boop-oop"]
     assert option.converters == []
-    assert option.default == "meowow"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -2504,7 +2504,7 @@ def test_with_overridden_slash_name():
 
     tracked_option = callback._tracked_options["sex"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "meow"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "nya"
@@ -2526,7 +2526,7 @@ def test_with_overridden_slash_name():
     assert option.key == "nya"
     assert option.names == ["--nya"]
     assert option.converters == []
-    assert option.default == "meow"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -2560,7 +2560,7 @@ def test_with_overridden_message_name():
     assert len(callback._tracked_options) == 1
     tracked_option = callback._tracked_options["meow_meow"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "neko"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "meow_meow"
@@ -2573,7 +2573,7 @@ def test_with_overridden_message_name():
     assert option.key == "meow_meow"
     assert option.names == ["--blam-blam"]
     assert option.converters == []
-    assert option.default == "neko"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -2630,7 +2630,7 @@ def test_with_ranged():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == [float]
-    assert option.default == 5
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value == 5433
@@ -2702,7 +2702,7 @@ def test_with_generic_ranged(
 
     tracked_option = callback._tracked_options["other_number"]
     assert tracked_option.converters == []
-    assert tracked_option.default == 443
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is (converter is float)
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_number"
@@ -2724,7 +2724,7 @@ def test_with_generic_ranged(
     assert option.key == "other_number"
     assert option.names == ["--other-number"]
     assert option.converters == [converter]
-    assert option.default == 443
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value == min_value
@@ -2781,7 +2781,7 @@ def test_with_snowflake_or():
 
     tracked_option = callback.wrapped_command._tracked_options["value_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "value_2"
@@ -2803,7 +2803,7 @@ def test_with_snowflake_or():
     assert option.key == "value_2"
     assert option.names == ["--value-2"]
     assert option.converters == [tanjun.conversion.parse_snowflake]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -2857,7 +2857,7 @@ def test_with_generic_snowflake_or_for_channel():
 
     tracked_option = callback.wrapped_command._tracked_options["value_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "value_2"
@@ -2879,7 +2879,7 @@ def test_with_generic_snowflake_or_for_channel():
     assert option.key == "value_2"
     assert option.names == ["--value-2"]
     assert option.converters == [tanjun.conversion.parse_channel_id]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -2933,7 +2933,7 @@ def test_with_generic_snowflake_or_for_member():
 
     tracked_option = callback.wrapped_command._tracked_options["value_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is True
     assert tracked_option.key == "value_2"
@@ -2955,7 +2955,7 @@ def test_with_generic_snowflake_or_for_member():
     assert option.key == "value_2"
     assert option.names == ["--value-2"]
     assert option.converters == [tanjun.conversion.parse_user_id]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3009,7 +3009,7 @@ def test_with_generic_snowflake_or_for_mentionable():
 
     tracked_option = callback.wrapped_command._tracked_options["value_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "value_2"
@@ -3031,7 +3031,7 @@ def test_with_generic_snowflake_or_for_mentionable():
     assert option.key == "value_2"
     assert option.names == ["--value-2"]
     assert option.converters == [tanjun.conversion.parse_snowflake]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3085,7 +3085,7 @@ def test_with_generic_snowflake_or_for_role():
 
     tracked_option = callback.wrapped_command._tracked_options["value_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "value_2"
@@ -3107,7 +3107,7 @@ def test_with_generic_snowflake_or_for_role():
     assert option.key == "value_2"
     assert option.names == ["--value-2"]
     assert option.converters == [tanjun.conversion.parse_role_id]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3161,7 +3161,7 @@ def test_with_generic_snowflake_or_for_user():
 
     tracked_option = callback.wrapped_command._tracked_options["value_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "value_2"
@@ -3183,7 +3183,7 @@ def test_with_generic_snowflake_or_for_user():
     assert option.key == "value_2"
     assert option.names == ["--value-2"]
     assert option.converters == [tanjun.conversion.parse_user_id]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3237,7 +3237,7 @@ def test_with_generic_snowflake_or():
 
     tracked_option = callback.wrapped_command._tracked_options["value_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "value_2"
@@ -3259,7 +3259,7 @@ def test_with_generic_snowflake_or():
     assert option.key == "value_2"
     assert option.names == ["--value-2"]
     assert option.converters == [tanjun.conversion.to_bool]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3348,7 +3348,7 @@ def test_with_these_channels(
 
     tracked_option = command._tracked_options["bar"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "bar"
@@ -3374,7 +3374,7 @@ def test_with_these_channels(
     assert len(option.converters) == 1
     assert isinstance(option.converters[0], tanjun.conversion.ToChannel)
     assert option.converters[0]._allowed_types == expected_types
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3445,7 +3445,7 @@ def test_with_generic_these_channels():
 
     tracked_option = command._tracked_options["bat"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "bat"
@@ -3471,7 +3471,7 @@ def test_with_generic_these_channels():
     assert len(option.converters) == 1
     assert isinstance(option.converters[0], tanjun.conversion.ToChannel)
     assert option.converters[0]._allowed_types == expected_types_2
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3482,22 +3482,11 @@ def test_for_attachment_option():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("meow", "nom")
     async def command(
-        ctx: tanjun.abc.Context,
-        arg: typing.Annotated[annotations.Attachment, "yeet"],
-        arg_2: typing.Annotated[typing.Union[annotations.Attachment, str], "feet"] = "ok",
+        ctx: tanjun.abc.Context, arg_2: typing.Annotated[typing.Union[annotations.Attachment, str], "feet"] = "ok"
     ) -> None:
         ...
 
     assert command.build().options == [
-        hikari.CommandOption(
-            type=hikari.OptionType.ATTACHMENT,
-            name="arg",
-            channel_types=None,
-            description="yeet",
-            is_required=True,
-            min_value=None,
-            max_value=None,
-        ),
         hikari.CommandOption(
             type=hikari.OptionType.ATTACHMENT,
             name="arg_2",
@@ -3506,22 +3495,13 @@ def test_for_attachment_option():
             is_required=False,
             min_value=None,
             max_value=None,
-        ),
+        )
     ]
 
-    assert len(command._tracked_options) == 2
-    tracked_option = command._tracked_options["arg"]
-    assert tracked_option.converters == []
-    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
-    assert tracked_option.is_always_float is False
-    assert tracked_option.is_only_member is False
-    assert tracked_option.key == "arg"
-    assert tracked_option.name == "arg"
-    assert tracked_option.type is hikari.OptionType.ATTACHMENT
-
+    assert len(command._tracked_options) == 1
     tracked_option = command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "ok"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "arg_2"
@@ -3590,7 +3570,7 @@ def test_for_bool_option():
     assert option.key == "arg_2"
     assert option.names == ["--arg-2"]
     assert option.converters == [tanjun.conversion.to_bool]
-    assert option.default == "ok"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3629,7 +3609,7 @@ def test_for_bool_option():
 
     tracked_option = command.wrapped_command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "ok"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "arg_2"
@@ -3668,7 +3648,7 @@ def test_for_channel_option():
     assert option.names == ["--arg-2"]
     assert len(option.converters) == 1
     assert isinstance(option.converters[0], tanjun.conversion.ToChannel)
-    assert option.default == "ok"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3707,7 +3687,7 @@ def test_for_channel_option():
 
     tracked_option = command.wrapped_command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "ok"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "arg_2"
@@ -3720,21 +3700,11 @@ def test_for_interaction_channel_option():
     @tanjun.as_slash_command("meow", "nom")
     async def command(
         ctx: tanjun.abc.Context,
-        arg: typing.Annotated[annotations.InteractionChannel, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.InteractionChannel, str], "feet"] = "ok",
     ) -> None:
         ...
 
     assert command.build().options == [
-        hikari.CommandOption(
-            type=hikari.OptionType.CHANNEL,
-            name="arg",
-            channel_types=None,
-            description="yeet",
-            is_required=True,
-            min_value=None,
-            max_value=None,
-        ),
         hikari.CommandOption(
             type=hikari.OptionType.CHANNEL,
             name="arg_2",
@@ -3743,22 +3713,13 @@ def test_for_interaction_channel_option():
             is_required=False,
             min_value=None,
             max_value=None,
-        ),
+        )
     ]
 
-    assert len(command._tracked_options) == 2
-    tracked_option = command._tracked_options["arg"]
-    assert tracked_option.converters == []
-    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
-    assert tracked_option.is_always_float is False
-    assert tracked_option.is_only_member is False
-    assert tracked_option.key == "arg"
-    assert tracked_option.name == "arg"
-    assert tracked_option.type is hikari.OptionType.CHANNEL
-
+    assert len(command._tracked_options) == 1
     tracked_option = command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "ok"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "arg_2"
@@ -3831,7 +3792,7 @@ def test_for_float_option():
     assert option.key == "arg_2"
     assert option.names == ["--arg-2"]
     assert option.converters == [float]
-    assert option.default == "ok"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3870,7 +3831,7 @@ def test_for_float_option():
 
     tracked_option = command.wrapped_command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "ok"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is True
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "arg_2"
@@ -3907,7 +3868,7 @@ def test_for_int_option():
     assert option.key == "arg_2"
     assert option.names == ["--arg-2"]
     assert option.converters == [int]
-    assert option.default == "ok"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -3946,7 +3907,7 @@ def test_for_int_option():
 
     tracked_option = command.wrapped_command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "ok"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "arg_2"
@@ -3983,7 +3944,7 @@ def test_for_member_option():
     assert option.key == "arg_2"
     assert option.names == ["--arg-2"]
     assert option.converters == [tanjun.conversion.to_member]
-    assert option.default == "ok"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -4022,7 +3983,7 @@ def test_for_member_option():
 
     tracked_option = command.wrapped_command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "ok"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is True
     assert tracked_option.key == "arg_2"
@@ -4035,21 +3996,11 @@ def test_for_interaction_member_option():
     @tanjun.as_slash_command("meow", "nom")
     async def command(
         ctx: tanjun.abc.Context,
-        arg: typing.Annotated[annotations.InteractionMember, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.InteractionMember, str], "feet"] = "ok",
     ) -> None:
         ...
 
     assert command.build().options == [
-        hikari.CommandOption(
-            type=hikari.OptionType.USER,
-            name="arg",
-            channel_types=None,
-            description="yeet",
-            is_required=True,
-            min_value=None,
-            max_value=None,
-        ),
         hikari.CommandOption(
             type=hikari.OptionType.USER,
             name="arg_2",
@@ -4058,22 +4009,13 @@ def test_for_interaction_member_option():
             is_required=False,
             min_value=None,
             max_value=None,
-        ),
+        )
     ]
 
-    assert len(command._tracked_options) == 2
-    tracked_option = command._tracked_options["arg"]
-    assert tracked_option.converters == []
-    assert tracked_option.default is tanjun.commands.slash.UNDEFINED_DEFAULT
-    assert tracked_option.is_always_float is False
-    assert tracked_option.is_only_member is True
-    assert tracked_option.key == "arg"
-    assert tracked_option.name == "arg"
-    assert tracked_option.type is hikari.OptionType.USER
-
+    assert len(command._tracked_options) == 1
     tracked_option = command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "ok"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is True
     assert tracked_option.key == "arg_2"
@@ -4145,7 +4087,7 @@ def test_for_mentionable_option():
     assert option.key == "arg_2"
     assert option.names == ["--arg-2"]
     assert option.converters == [tanjun.conversion.to_user, tanjun.conversion.to_role]
-    assert option.default == "ok"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -4184,7 +4126,7 @@ def test_for_mentionable_option():
 
     tracked_option = command.wrapped_command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "ok"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "arg_2"
@@ -4221,7 +4163,7 @@ def test_for_role_option():
     assert option.key == "arg_2"
     assert option.names == ["--arg-2"]
     assert option.converters == [tanjun.conversion.to_role]
-    assert option.default == "ok"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -4260,7 +4202,7 @@ def test_for_role_option():
 
     tracked_option = command.wrapped_command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "ok"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "arg_2"
@@ -4297,7 +4239,7 @@ def test_for_str_option():
     assert option.key == "arg_2"
     assert option.names == ["--arg-2"]
     assert option.converters == []
-    assert option.default is False
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -4336,7 +4278,7 @@ def test_for_str_option():
 
     tracked_option = command.wrapped_command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default is False
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "arg_2"
@@ -4373,7 +4315,7 @@ def test_for_user_option():
     assert option.key == "arg_2"
     assert option.names == ["--arg-2"]
     assert option.converters == [tanjun.conversion.to_user]
-    assert option.default == "bye"
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value is None
@@ -4412,7 +4354,7 @@ def test_for_user_option():
 
     tracked_option = command.wrapped_command._tracked_options["arg_2"]
     assert tracked_option.converters == []
-    assert tracked_option.default == "bye"
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "arg_2"
@@ -4447,7 +4389,7 @@ def test_when_annotated_not_top_level():
     assert len(command._tracked_options) == 2
     tracked_option = command._tracked_options["value"]
     assert tracked_option.converters == []
-    assert tracked_option.default is False
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "value"
@@ -4456,7 +4398,7 @@ def test_when_annotated_not_top_level():
 
     tracked_option = command._tracked_options["other_value"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_value"
@@ -4470,7 +4412,7 @@ def test_when_annotated_not_top_level():
     argument = command.wrapped_command.parser.arguments[0]
     assert argument.key == "value"
     assert argument.converters == []
-    assert argument.default is False
+    assert argument.default is tanjun.abc.NO_PASS
     assert argument.is_greedy is False
     assert argument.is_multi is False
     assert argument.min_value is None
@@ -4481,7 +4423,7 @@ def test_when_annotated_not_top_level():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == [int]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value == 123
@@ -4517,7 +4459,7 @@ if sys.version_info >= (3, 10):
         assert len(command._tracked_options) == 2
         tracked_option = command._tracked_options["value"]
         assert tracked_option.converters == []
-        assert tracked_option.default is False
+        assert tracked_option.default is tanjun.abc.NO_PASS
         assert tracked_option.is_always_float is False
         assert tracked_option.is_only_member is False
         assert tracked_option.key == "value"
@@ -4526,7 +4468,7 @@ if sys.version_info >= (3, 10):
 
         tracked_option = command._tracked_options["other_value"]
         assert tracked_option.converters == []
-        assert tracked_option.default is None
+        assert tracked_option.default is tanjun.abc.NO_PASS
         assert tracked_option.is_always_float is False
         assert tracked_option.is_only_member is False
         assert tracked_option.key == "other_value"
@@ -4540,7 +4482,7 @@ if sys.version_info >= (3, 10):
         argument = command.wrapped_command.parser.arguments[0]
         assert argument.key == "value"
         assert argument.converters == []
-        assert argument.default is False
+        assert argument.default is tanjun.abc.NO_PASS
         assert argument.is_greedy is False
         assert argument.is_multi is False
         assert argument.min_value is None
@@ -4551,7 +4493,7 @@ if sys.version_info >= (3, 10):
         assert option.key == "other_value"
         assert option.names == ["--other-value"]
         assert option.converters == [int]
-        assert option.default is None
+        assert option.default is tanjun.abc.NO_PASS
         assert option.empty_value is tanjun.parsing.UNDEFINED
         assert option.is_multi is False
         assert option.min_value == 123
@@ -4585,7 +4527,7 @@ def test_when_annotated_handles_unions():
     assert len(command._tracked_options) == 2
     tracked_option = command._tracked_options["value"]
     assert tracked_option.converters == []
-    assert tracked_option.default is False
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "value"
@@ -4594,7 +4536,7 @@ def test_when_annotated_handles_unions():
 
     tracked_option = command._tracked_options["other_value"]
     assert tracked_option.converters == []
-    assert tracked_option.default is None
+    assert tracked_option.default is tanjun.abc.NO_PASS
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "other_value"
@@ -4608,7 +4550,7 @@ def test_when_annotated_handles_unions():
     argument = command.wrapped_command.parser.arguments[0]
     assert argument.key == "value"
     assert argument.converters == []
-    assert argument.default is False
+    assert argument.default is tanjun.abc.NO_PASS
     assert argument.is_greedy is False
     assert argument.is_multi is False
     assert argument.min_value is None
@@ -4619,7 +4561,7 @@ def test_when_annotated_handles_unions():
     assert option.key == "other_value"
     assert option.names == ["--other-value"]
     assert option.converters == [int]
-    assert option.default is None
+    assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.parsing.UNDEFINED
     assert option.is_multi is False
     assert option.min_value == 123
@@ -4655,7 +4597,7 @@ if sys.version_info >= (3, 10):
         assert len(command._tracked_options) == 2
         tracked_option = command._tracked_options["value"]
         assert tracked_option.converters == []
-        assert tracked_option.default is False
+        assert tracked_option.default is tanjun.abc.NO_PASS
         assert tracked_option.is_always_float is False
         assert tracked_option.is_only_member is False
         assert tracked_option.key == "value"
@@ -4664,7 +4606,7 @@ if sys.version_info >= (3, 10):
 
         tracked_option = command._tracked_options["other_value"]
         assert tracked_option.converters == []
-        assert tracked_option.default is None
+        assert tracked_option.default is tanjun.abc.NO_PASS
         assert tracked_option.is_always_float is False
         assert tracked_option.is_only_member is False
         assert tracked_option.key == "other_value"
@@ -4678,7 +4620,7 @@ if sys.version_info >= (3, 10):
         argument = command.wrapped_command.parser.arguments[0]
         assert argument.key == "value"
         assert argument.converters == []
-        assert argument.default is False
+        assert argument.default is tanjun.abc.NO_PASS
         assert argument.is_greedy is False
         assert argument.is_multi is False
         assert argument.min_value is None
@@ -4689,7 +4631,7 @@ if sys.version_info >= (3, 10):
         assert option.key == "other_value"
         assert option.names == ["--other-value"]
         assert option.converters == [int]
-        assert option.default is None
+        assert option.default is tanjun.abc.NO_PASS
         assert option.empty_value is tanjun.parsing.UNDEFINED
         assert option.is_multi is False
         assert option.min_value == 123

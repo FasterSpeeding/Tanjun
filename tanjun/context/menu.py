@@ -167,7 +167,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         ...
 
     def resolve_to_member(
-        self, *, default: typing.Union[_T, _internal.NoDefault] = _internal.NO_DEFAULT
+        self, *, default: typing.Union[_T, _internal.Default] = _internal.DEFAULT
     ) -> typing.Union[hikari.InteractionMember, _T]:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
@@ -175,7 +175,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
             return next(iter(self._interaction.resolved.members.values()))
 
         if self._interaction.resolved.users:
-            if default is not _internal.NO_DEFAULT:
+            if default is not _internal.DEFAULT:
                 return default
 
             raise LookupError("User isn't in the current guild")
