@@ -1193,7 +1193,7 @@ class _ArgConfig:
             if isinstance(arg, _ConfigIdentifier):
                 arg.set_config(self)
 
-            elif isinstance(arg, str) and not self.description:
+            elif not self.description and isinstance(arg, str):
                 self.description = arg
 
             elif isinstance(arg, (range, slice)):
