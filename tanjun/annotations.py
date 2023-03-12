@@ -1473,7 +1473,7 @@ def with_annotated_args(
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
     r"""Set a command's arguments based on its signature.
 
-    To declare arguments a you will have to do one of two things:
+    To declare arguments you will have to do one of two things:
 
     1. Using any of the following types as an argument's type-hint (this may be as the
         first argument to [typing.Annotated][]) will mark it as a command argument:
