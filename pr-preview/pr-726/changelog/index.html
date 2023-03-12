@@ -3525,8 +3525,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Support for declaring the options for a slash command using
   <code>**kwargs: typing.Unpack[TypedDict]</code> when using the annotations parsing impl in
   <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations">tanjun.annotations</a>.</li>
-<li><a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> for making command options as
-  being not passed when they weren't provided.</li>
+<li><a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.NO_PASS">tanjun.abc.NO_PASS</a> for making command options as being not passed when they
+  weren't provided.</li>
 </ul>
 <h3 id="changed">Changed<a class="headerlink" href="#changed" title="Permanent link">#</a></h3>
 <ul>
@@ -3535,10 +3535,9 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 </ul>
 <h3 id="deprecated">Deprecated<a class="headerlink" href="#deprecated" title="Permanent link">#</a></h3>
 <ul>
-<li>Renamed <code>tanjun.parser.UNDEFINED_DEFAULT</code> and
-  <code>tanjun.commands.slash.UNDEFINED_DEFAULT</code> to
-  <code>tanjun.abc.NO_DEFAULT</code>.</li>
-<li><code>tanjun.parser.UndefinedT</code>.</li>
+<li>Renamed [tanjun.parser.UNDEFINED_DEFAULT][] and
+  <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.UNDEFINED_DEFAULT">tanjun.commands.slash.UNDEFINED_DEFAULT</a> to <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.NO_DEFAULT">tanjun.abc.NO_DEFAULT</a>.</li>
+<li>[tanjun.parser.UndefinedT][].</li>
 </ul>
 <h2 id="2114-2023-02-08"><a href="https://github.com/FasterSpeeding/Tanjun/compare/v2.11.3...v2.11.4">2.11.4</a> - 2023-02-08<a class="headerlink" href="#2114-2023-02-08" title="Permanent link">#</a></h2>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">#</a></h3>
@@ -3667,7 +3666,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Allow passing <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/channels/#hikari.channels.GuildThreadChannel">hikari.GuildThreadChannel</a> derived types
   (+ <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.InteractionChannel</a>) to
   <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.TheseChannels">TheseChannels</a>, and to the <code>types</code> field of
-  <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_channel_slash_option">with_channel_slash_option</a> and
+  <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.with_channel_slash_option">with_channel_slash_option</a> and
   <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.SlashCommand.add_channel_option">SlashCommand.add_channel_option</a>.</li>
 <li>The spacing in <code>triggering_name</code> is now properly normalised for message commands in groups to ensure
   only 1 space. This also fixes cases where names were being smashed together without any spaces.</li>
