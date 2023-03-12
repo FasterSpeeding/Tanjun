@@ -1543,9 +1543,6 @@ def with_annotated_args(
             raise NotImplementedError
         ```
 
-    It should be noted that wrapping in [typing.Annotated][] isn't necessary for
-    message commands options as they don't have descriptions.
-
     ```py
     async def message_command(
         ctx: tanjun.abc.MessageContext,
@@ -1555,6 +1552,28 @@ def with_annotated_args(
     ) -> None:
         raise NotImplementedError
     ```
+
+    It should be noted that wrapping in [typing.Annotated][] isn't necessary for
+    message commands options as they don't have descriptions.
+
+    ```py
+    class CommandOptions(typing.TypedDict):
+        argument: Annotated[Str, "A required string argument"]
+        other: NotRequired[Annotated[Bool, "An optional string argument"]]
+
+    @tanjun.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("name")
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, **kwargs: Unpack[CommandOptions],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    A [typing.TypedDict][] can be used to declare multiple options by
+    typing the passed `**kwargs` dict as it using [typing.Unpack][].
+    [typing.NotRequired][], `full=False` or [Default][] can be used to
+    mark these options as optional.
 
     Parameters
     ----------

@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for declaring the options for a slash command using
+  `**kwargs: typing.Unwrap[TypedDict]` when using the annotations parsing impl in
+  [tanjun.annotations][].
+
 ### Changed
 - Marked deprecated classes, functions and overloads as deprecated using `typing.deprecated`.
   Deprecated class aliases are now separate classes to allow warning on init.
