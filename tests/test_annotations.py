@@ -5493,7 +5493,7 @@ def test_with_unpacked_typed_dict_and_float():
     tracked_option = command._tracked_options["of"]
     assert tracked_option.converters == []
     assert tracked_option.default is tanjun.abc.NO_DEFAULT
-    assert tracked_option.is_always_float is False
+    assert tracked_option.is_always_float is True
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "of"
     assert tracked_option.name == "of"
@@ -5502,7 +5502,7 @@ def test_with_unpacked_typed_dict_and_float():
     tracked_option = command._tracked_options["oo"]
     assert tracked_option.converters == []
     assert tracked_option.default is tanjun.abc.NO_PASS
-    assert tracked_option.is_always_float is False
+    assert tracked_option.is_always_float is True
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "oo"
     assert tracked_option.name == "oo"
