@@ -1572,7 +1572,7 @@ def with_annotated_args(
 
     A [typing.TypedDict][] can be used to declare multiple options by
     typing the passed `**kwargs` dict as it using [typing.Unpack][].
-    [typing.NotRequired][], `full=False` or [Default][] can be used to
+    [typing.NotRequired][], `total=False` or [Default][] can be used to
     mark these options as optional.
 
     Parameters
