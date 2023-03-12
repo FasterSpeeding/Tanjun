@@ -7103,8 +7103,8 @@ def test_with_unpacked_typed_dict_and_user():
 
 def test_ignores_non_typed_dict_class_in_kwargs_unpack():
     class CustomClass:
-        of: typing.Annotated[annotations.User, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]
+        of: typing.Annotated[annotations.User, "maaaa"]  # pyright: ignore [ reportUninitializedInstanceVariable ]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]  # type: ignore
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7127,7 +7127,7 @@ def test_ignores_non_unpack_kwargs():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: TypedDict) -> None:  # type: ignore
+    async def command(ctx: tanjun.abc.Context, **kwargs: TypedDict) -> None:
         raise NotImplementedError
 
     assert command.build().options == []
