@@ -5474,7 +5474,63 @@ def test_with_unpacked_typed_dict_and_flag():
 
 
 def test_with_unpacked_typed_dict_and_float():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Float, "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Float, "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.FLOAT, name="of", description="maaaa", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.FLOAT, name="oo", description="xat", is_required=False),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.FLOAT
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.FLOAT
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [float]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [float]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_greedy():
@@ -5482,15 +5538,133 @@ def test_with_unpacked_typed_dict_and_greedy():
 
 
 def test_with_unpacked_typed_dict_and_int():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Int, "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Int, "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.INTEGER, name="of", description="maaaa", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.INTEGER, name="oo", description="xat", is_required=False),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [int]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [int]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_interaction_channel():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.InteractionChannel, "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.InteractionChannel, "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.CHANNEL, name="of", description="maaaa", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.CHANNEL, name="oo", description="xat", is_required=False),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
 
 
 def test_with_unpacked_typed_dict_and_interaction_member():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.InteractionMember, "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.InteractionMember, "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.USER, name="of", description="maaaa", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.USER, name="oo", description="xat", is_required=False),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.USER
 
 
 def test_with_unpacked_typed_dict_and_length():
@@ -5502,11 +5676,123 @@ def test_with_unpacked_typed_dict_and_max():
 
 
 def test_with_unpacked_typed_dict_and_member():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Member, "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Member, "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.USER, name="of", description="maaaa", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.USER, name="oo", description="xat", is_required=False),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [tanjun.to_member]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [tanjun.to_member]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_mentionable():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Mentionable, "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Mentionable, "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.MENTIONABLE, name="of", description="maaaa", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.MENTIONABLE, name="oo", description="xat", is_required=False),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.MENTIONABLE
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.MENTIONABLE
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [tanjun.to_user, tanjun.to_role]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [tanjun.to_user, tanjun.to_role]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_min():
