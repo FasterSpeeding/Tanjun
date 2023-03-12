@@ -410,6 +410,8 @@ def test_with_with_std_range():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 123
     assert argument.max_value == 344
 
@@ -421,6 +423,8 @@ def test_with_with_std_range():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 22
     assert option.max_value == 5567
 
@@ -467,6 +471,8 @@ def test_with_with_backwards_std_range():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 110
     assert argument.max_value == 542
 
@@ -478,6 +484,8 @@ def test_with_with_backwards_std_range():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 42
     assert option.max_value == 3334
 
@@ -524,6 +532,8 @@ def test_with_std_slice():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 324
     assert argument.max_value == 652
 
@@ -535,6 +545,8 @@ def test_with_std_slice():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 444
     assert option.max_value == 554
 
@@ -581,6 +593,8 @@ def test_with_backwards_std_slice():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 232
     assert argument.max_value == 444
 
@@ -592,6 +606,8 @@ def test_with_backwards_std_slice():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 421
     assert option.max_value == 664
 
@@ -869,6 +885,8 @@ def test_with_generic_float_choices():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -880,6 +898,8 @@ def test_with_generic_float_choices():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -956,6 +976,8 @@ def test_with_generic_int_choices():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -967,6 +989,8 @@ def test_with_generic_int_choices():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1046,6 +1070,8 @@ def test_with_generic_str_choices():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1057,6 +1083,8 @@ def test_with_generic_str_choices():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1132,6 +1160,8 @@ def test_with_converted():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1143,6 +1173,8 @@ def test_with_converted():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1200,6 +1232,8 @@ def test_with_generic_converted():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1211,6 +1245,8 @@ def test_with_generic_converted():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1251,6 +1287,8 @@ def test_with_default():
     assert option.default == "nyaa"
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1292,6 +1330,8 @@ def test_with_generic_default():
     assert option.default == "nyaa"
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1333,6 +1373,8 @@ def test_with_default_overriding_signature_default():
     assert option.default == "yeet"
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1372,6 +1414,8 @@ def test_with_default_unsetting_signature_default():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1402,6 +1446,8 @@ def test_with_flag():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
     option = callback.parser.options[1]
@@ -1411,6 +1457,8 @@ def test_with_flag():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is empty_value
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1482,6 +1530,8 @@ def test_with_flag_and_default():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1526,6 +1576,8 @@ def test_with_positional():
     assert option.converters == []
     assert option.default is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1553,6 +1605,8 @@ def test_with_greedy():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is True
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1571,6 +1625,8 @@ def test_with_generic_greedy():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is True
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1967,6 +2023,8 @@ def test_with_max(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value == value
 
@@ -1978,6 +2036,8 @@ def test_with_max(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value == value
 
@@ -2048,6 +2108,8 @@ def test_with_generic_max(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value == value
 
@@ -2059,6 +2121,8 @@ def test_with_generic_max(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value == value
 
@@ -2135,6 +2199,8 @@ def test_with_max_when_int_for_float():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value == 432
 
@@ -2146,6 +2212,8 @@ def test_with_max_when_int_for_float():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value == 5431
 
@@ -2222,6 +2290,8 @@ def test_with_min(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value == value
 
@@ -2233,6 +2303,8 @@ def test_with_min(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value == value
 
@@ -2303,6 +2375,8 @@ def test_with_generic_min(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == value
     assert argument.max_value is None
 
@@ -2314,6 +2388,8 @@ def test_with_generic_min(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == value
     assert option.max_value is None
 
@@ -2390,6 +2466,8 @@ def test_with_min_when_int_for_float():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 12333
     assert argument.max_value is None
 
@@ -2401,6 +2479,8 @@ def test_with_min_when_int_for_float():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 44444
     assert option.max_value is None
 
@@ -2465,6 +2545,8 @@ def test_with_overridden_name():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2476,6 +2558,8 @@ def test_with_overridden_name():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2542,6 +2626,8 @@ def test_with_individually_overridden_name():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2553,6 +2639,8 @@ def test_with_individually_overridden_name():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2617,6 +2705,8 @@ def test_with_overridden_slash_name():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2628,6 +2718,8 @@ def test_with_overridden_slash_name():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2675,6 +2767,8 @@ def test_with_overridden_message_name():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2720,6 +2814,8 @@ def test_with_ranged():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 44
     assert argument.max_value == 55
 
@@ -2732,6 +2828,8 @@ def test_with_ranged():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 5433
     assert option.max_value == 6524.32
 
@@ -2810,6 +2908,8 @@ def test_with_generic_ranged(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == min_value
     assert argument.max_value == max_value
 
@@ -2821,6 +2921,8 @@ def test_with_generic_ranged(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == min_value
     assert option.max_value == max_value
 
@@ -2888,6 +2990,8 @@ def test_with_snowflake_or():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2899,6 +3003,8 @@ def test_with_snowflake_or():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2964,6 +3070,8 @@ def test_with_generic_snowflake_or_for_channel():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2975,6 +3083,8 @@ def test_with_generic_snowflake_or_for_channel():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3040,6 +3150,8 @@ def test_with_generic_snowflake_or_for_member():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3051,6 +3163,8 @@ def test_with_generic_snowflake_or_for_member():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3116,6 +3230,8 @@ def test_with_generic_snowflake_or_for_mentionable():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3127,6 +3243,8 @@ def test_with_generic_snowflake_or_for_mentionable():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3192,6 +3310,8 @@ def test_with_generic_snowflake_or_for_role():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3203,6 +3323,8 @@ def test_with_generic_snowflake_or_for_role():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3268,6 +3390,8 @@ def test_with_generic_snowflake_or_for_user():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3279,6 +3403,8 @@ def test_with_generic_snowflake_or_for_user():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3344,6 +3470,8 @@ def test_with_generic_snowflake_or():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3355,6 +3483,8 @@ def test_with_generic_snowflake_or():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3409,6 +3539,8 @@ def test_with_these_channels(
     assert option.name == "foo"
     assert option.description == "meow"
     assert option.is_required is True
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
     assert option.channel_types
@@ -3420,6 +3552,8 @@ def test_with_these_channels(
     assert option.name == "bar"
     assert option.description == "boom"
     assert option.is_required is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
     assert option.channel_types
@@ -3454,6 +3588,8 @@ def test_with_these_channels(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3467,6 +3603,8 @@ def test_with_these_channels(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3506,6 +3644,8 @@ def test_with_generic_these_channels():
     assert option.name == "bb"
     assert option.description == "nep"
     assert option.is_required is True
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
     assert option.channel_types
@@ -3517,6 +3657,8 @@ def test_with_generic_these_channels():
     assert option.name == "bat"
     assert option.description == "bip"
     assert option.is_required is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
     assert option.channel_types
@@ -3551,6 +3693,8 @@ def test_with_generic_these_channels():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3564,6 +3708,8 @@ def test_with_generic_these_channels():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3672,6 +3818,8 @@ def test_for_bool_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3683,6 +3831,8 @@ def test_for_bool_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3749,6 +3899,8 @@ def test_for_channel_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3761,6 +3913,8 @@ def test_for_channel_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3913,6 +4067,8 @@ def test_for_float_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3924,6 +4080,8 @@ def test_for_float_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3989,6 +4147,8 @@ def test_for_int_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4000,6 +4160,8 @@ def test_for_int_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4065,6 +4227,8 @@ def test_for_member_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4076,6 +4240,8 @@ def test_for_member_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4227,6 +4393,8 @@ def test_for_mentionable_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4238,6 +4406,8 @@ def test_for_mentionable_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4303,6 +4473,8 @@ def test_for_role_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4314,6 +4486,8 @@ def test_for_role_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4379,6 +4553,8 @@ def test_for_str_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4390,6 +4566,8 @@ def test_for_str_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4455,6 +4633,8 @@ def test_for_user_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4466,6 +4646,8 @@ def test_for_user_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4563,6 +4745,8 @@ def test_when_annotated_not_top_level():
     assert argument.default is tanjun.abc.NO_PASS
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4574,6 +4758,8 @@ def test_when_annotated_not_top_level():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 123
     assert option.max_value == 432
 
@@ -4633,6 +4819,8 @@ if sys.version_info >= (3, 10):
         assert argument.default is tanjun.abc.NO_PASS
         assert argument.is_greedy is False
         assert argument.is_multi is False
+        assert argument.min_length is None
+        assert argument.max_length is None
         assert argument.min_value is None
         assert argument.max_value is None
 
@@ -4644,6 +4832,8 @@ if sys.version_info >= (3, 10):
         assert option.default is tanjun.abc.NO_PASS
         assert option.empty_value is tanjun.abc.NO_DEFAULT
         assert option.is_multi is False
+        assert option.min_length is None
+        assert option.max_length is None
         assert option.min_value == 123
         assert option.max_value == 432
 
@@ -4701,6 +4891,8 @@ def test_when_annotated_handles_unions():
     assert argument.default is tanjun.abc.NO_PASS
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4712,6 +4904,8 @@ def test_when_annotated_handles_unions():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 123
     assert option.max_value == 432
 
@@ -4771,6 +4965,8 @@ if sys.version_info >= (3, 10):
         assert argument.default is tanjun.abc.NO_PASS
         assert argument.is_greedy is False
         assert argument.is_multi is False
+        assert argument.min_length is None
+        assert argument.max_length is None
         assert argument.min_value is None
         assert argument.max_value is None
 
@@ -4782,6 +4978,8 @@ if sys.version_info >= (3, 10):
         assert option.default is tanjun.abc.NO_PASS
         assert option.empty_value is tanjun.abc.NO_DEFAULT
         assert option.is_multi is False
+        assert option.min_length is None
+        assert option.max_length is None
         assert option.min_value == 123
         assert option.max_value == 432
 
@@ -4891,6 +5089,8 @@ def test_with_unpacked_stdlib_typed_dict():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4900,6 +5100,8 @@ def test_with_unpacked_stdlib_typed_dict():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4965,6 +5167,8 @@ def test_with_unpacked_other_syntax_typed_dict():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4974,6 +5178,8 @@ def test_with_unpacked_other_syntax_typed_dict():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4985,6 +5191,8 @@ def test_with_unpacked_other_syntax_typed_dict():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -5064,6 +5272,8 @@ def test_with_empty_unpacked_typed_dict_where_total_is_false():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5075,6 +5285,8 @@ def test_with_empty_unpacked_typed_dict_where_total_is_false():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -5085,6 +5297,8 @@ def test_with_empty_unpacked_typed_dict_where_total_is_false():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -5148,6 +5362,8 @@ def test_with_unpacked_typed_dict_and_other_args():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5157,6 +5373,8 @@ def test_with_unpacked_typed_dict_and_other_args():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5168,6 +5386,8 @@ def test_with_unpacked_typed_dict_and_other_args():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -5252,6 +5472,8 @@ def test_with_unpacked_typed_dict_and_bool():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5263,6 +5485,8 @@ def test_with_unpacked_typed_dict_and_bool():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -5313,6 +5537,8 @@ def test_with_unpacked_typed_dict_and_channel():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5325,20 +5551,88 @@ def test_with_unpacked_typed_dict_and_channel():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
 
-def test_with_unpacked_typed_dict_and_float_choices():
-    ...
+def test_with_unpacked_typed_dict_and_choices():
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Str, annotations.Choices({"hi": "meow", "blam": "xd"}), "maaaa"]
+        oo: typing_extensions.NotRequired[
+            typing.Annotated[annotations.Int, annotations.Choices({"m": 1, "ddd": 420}), "xat"]
+        ]
 
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
 
-def test_with_unpacked_typed_dict_and_int_choices():
-    ...
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="of",
+            description="maaaa",
+            is_required=True,
+            choices=[hikari.CommandChoice(name="hi", value="meow"), hikari.CommandChoice(name="blam", value="xd")],
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="oo",
+            description="xat",
+            is_required=False,
+            choices=[hikari.CommandChoice(name="m", value=1), hikari.CommandChoice(name="ddd", value=420)],
+        ),
+    ]
 
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.STRING
 
-def test_with_unpacked_typed_dict_and_str_choices():
-    ...
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == []
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [int]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_color():
@@ -5386,6 +5680,8 @@ def test_with_unpacked_typed_dict_and_color():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5397,12 +5693,77 @@ def test_with_unpacked_typed_dict_and_color():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_converted():
-    ...
+    mock_callback_1 = mock.Mock()
+    mock_callback_2 = mock.Mock()
+
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Converted[mock_callback_1], "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Converted[mock_callback_2], "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="of", description="maaaa", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="oo", description="xat", is_required=False),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == [mock_callback_1]
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == [mock_callback_2]
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [mock_callback_1]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [mock_callback_2]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_datetime():
@@ -5450,6 +5811,8 @@ def test_with_unpacked_typed_dict_and_datetime():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5461,16 +5824,119 @@ def test_with_unpacked_typed_dict_and_datetime():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_default():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Default[annotations.Int, 0], "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Default[annotations.Float, 0.1], "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.INTEGER, name="of", description="maaaa", is_required=False),
+        hikari.CommandOption(type=hikari.OptionType.FLOAT, name="oo", description="xat", is_required=False),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == 0
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == 0.1
+    assert tracked_option.is_always_float is True
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.FLOAT
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.options) == 2
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "of"
+    assert option.names == ["--of"]
+    assert option.converters == [int]
+    assert option.default == 0
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+    option = command.wrapped_command.parser.options[1]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [float]
+    assert option.default == 0.1
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_flag():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing_extensions.NotRequired[
+            typing.Annotated[annotations.Int, annotations.Flag(aliases=["-o"], empty_value="aaaa"), "maaaa"]
+        ]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.INTEGER, name="of", description="maaaa", is_required=False)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 0
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "of"
+    assert option.names == ["--of", "-o"]
+    assert option.converters == [int]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value == "aaaa"
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_float():
@@ -5518,6 +5984,8 @@ def test_with_unpacked_typed_dict_and_float():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5529,12 +5997,52 @@ def test_with_unpacked_typed_dict_and_float():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_greedy():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Greedy[annotations.Str], "maaaa"]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="of", description="maaaa", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == []
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
 
 
 def test_with_unpacked_typed_dict_and_int():
@@ -5582,6 +6090,8 @@ def test_with_unpacked_typed_dict_and_int():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5593,6 +6103,8 @@ def test_with_unpacked_typed_dict_and_int():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -5668,11 +6180,144 @@ def test_with_unpacked_typed_dict_and_interaction_member():
 
 
 def test_with_unpacked_typed_dict_and_length():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Length[232], "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Length[4, 128], "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="of",
+            description="maaaa",
+            is_required=True,
+            min_length=0,
+            max_length=232,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING, name="oo", description="xat", is_required=False, min_length=4, max_length=128
+        ),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == []
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length == 0
+    assert argument.max_length == 232
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == []
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length == 4
+    assert option.max_length == 128
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_max():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Max[453], "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Max[69.420], "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER, name="of", description="maaaa", is_required=True, max_value=453
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.FLOAT, name="oo", description="xat", is_required=False, max_value=69.420
+        ),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is True
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.FLOAT
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [int]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value == 453
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [float]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value == 69.420
 
 
 def test_with_unpacked_typed_dict_and_member():
@@ -5720,6 +6365,8 @@ def test_with_unpacked_typed_dict_and_member():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5731,6 +6378,8 @@ def test_with_unpacked_typed_dict_and_member():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -5780,6 +6429,8 @@ def test_with_unpacked_typed_dict_and_mentionable():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5791,24 +6442,253 @@ def test_with_unpacked_typed_dict_and_mentionable():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_min():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Min[3.2], "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Min[32], "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.FLOAT, name="of", description="maaaa", is_required=True, min_value=3.2
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER, name="oo", description="xat", is_required=False, min_value=32
+        ),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is True
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.FLOAT
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [float]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value == 3.2
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [int]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value == 32
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_name():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Float, annotations.Name("hi"), "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.User, annotations.Name("nye"), "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.FLOAT, name="hi", description="maaaa", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.USER, name="nye", description="xat", is_required=False),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["hi"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is True
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "hi"
+    assert tracked_option.type is hikari.OptionType.FLOAT
+
+    tracked_option = command._tracked_options["nye"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "nye"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [float]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--nye"]
+    assert option.converters == [tanjun.to_user]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_positional():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Positional[annotations.Int], "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Positional[annotations.Str], "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+
+    assert len(command.parser.arguments) == 2
+    argument = command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [int]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    argument = command.parser.arguments[1]
+    assert argument.key == "oo"
+    assert argument.converters == []
+    assert argument.default is tanjun.abc.NO_PASS
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.parser.options) == 0
 
 
 def test_with_unpacked_typed_dict_and_ranged():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.Ranged[4, 64], "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Ranged[12.21, 54.34], "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER, name="of", description="maaaa", is_required=True, min_value=4, max_value=64
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.FLOAT,
+            name="oo",
+            description="xat",
+            is_required=False,
+            min_value=12.21,
+            max_value=54.34,
+        ),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is True
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.FLOAT
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [int]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value == 4
+    assert argument.max_value == 64
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [float]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value == 12.21
+    assert option.max_value == 54.34
 
 
 def test_with_unpacked_typed_dict_and_role():
@@ -5856,6 +6736,8 @@ def test_with_unpacked_typed_dict_and_role():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5867,6 +6749,8 @@ def test_with_unpacked_typed_dict_and_role():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -5916,6 +6800,8 @@ def test_with_unpacked_typed_dict_and_snowflake():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5927,12 +6813,74 @@ def test_with_unpacked_typed_dict_and_snowflake():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_snowflake_or():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.SnowflakeOr[annotations.Role], "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.SnowflakeOr[annotations.Member], "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.ROLE, name="of", description="maaaa", is_required=True),
+        hikari.CommandOption(type=hikari.OptionType.USER, name="oo", description="xat", is_required=False),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.ROLE
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [tanjun.conversion.parse_role_id]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert option.converters == [tanjun.conversion.parse_user_id]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_str():
@@ -5980,6 +6928,8 @@ def test_with_unpacked_typed_dict_and_str():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -5991,12 +6941,100 @@ def test_with_unpacked_typed_dict_and_str():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_these_channels():
-    ...
+    class TypedDict(typing_extensions.TypedDict):
+        of: typing.Annotated[annotations.TheseChannels[hikari.ChannelType.DM, hikari.GuildThreadChannel], "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.TheseChannels[hikari.GuildTextChannel], "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.CHANNEL,
+            name="of",
+            description="maaaa",
+            is_required=True,
+            channel_types=[
+                hikari.ChannelType.DM,
+                hikari.ChannelType.GUILD_NEWS_THREAD,
+                hikari.ChannelType.GUILD_PUBLIC_THREAD,
+                hikari.ChannelType.GUILD_PRIVATE_THREAD,
+            ],
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.CHANNEL,
+            name="oo",
+            description="xat",
+            is_required=False,
+            channel_types=[hikari.ChannelType.GUILD_TEXT],
+        ),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
+
+    tracked_option = command._tracked_options["oo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "oo"
+    assert tracked_option.name == "oo"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert len(argument.converters) == 1
+    assert isinstance(argument.converters[0], tanjun.conversion.ToChannel)
+    assert argument.converters[0]._allowed_types == {
+        hikari.ChannelType.DM,
+        hikari.ChannelType.GUILD_NEWS_THREAD,
+        hikari.ChannelType.GUILD_PUBLIC_THREAD,
+        hikari.ChannelType.GUILD_PRIVATE_THREAD,
+    }
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "oo"
+    assert option.names == ["--oo"]
+    assert len(option.converters) == 1
+    assert isinstance(option.converters[0], tanjun.conversion.ToChannel)
+    assert option.converters[0]._allowed_types == {hikari.ChannelType.GUILD_TEXT}
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_user():
@@ -6044,6 +7082,8 @@ def test_with_unpacked_typed_dict_and_user():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -6055,5 +7095,7 @@ def test_with_unpacked_typed_dict_and_user():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None

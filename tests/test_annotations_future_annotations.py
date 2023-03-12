@@ -271,6 +271,8 @@ def test_with_with_std_range():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 123
     assert argument.max_value == 344
 
@@ -282,6 +284,8 @@ def test_with_with_std_range():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 22
     assert option.max_value == 5567
 
@@ -328,6 +332,8 @@ def test_with_with_backwards_std_range():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 110
     assert argument.max_value == 542
 
@@ -339,6 +345,8 @@ def test_with_with_backwards_std_range():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 42
     assert option.max_value == 3334
 
@@ -385,6 +393,8 @@ def test_with_std_slice():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 324
     assert argument.max_value == 652
 
@@ -396,6 +406,8 @@ def test_with_std_slice():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 444
     assert option.max_value == 554
 
@@ -442,6 +454,8 @@ def test_with_backwards_std_slice():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 232
     assert argument.max_value == 444
 
@@ -453,6 +467,8 @@ def test_with_backwards_std_slice():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 421
     assert option.max_value == 664
 
@@ -743,6 +759,8 @@ def test_with_generic_float_choices():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -754,6 +772,8 @@ def test_with_generic_float_choices():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -832,6 +852,8 @@ def test_with_generic_int_choices():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -843,6 +865,8 @@ def test_with_generic_int_choices():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -924,6 +948,8 @@ def test_with_generic_str_choices():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -935,6 +961,8 @@ def test_with_generic_str_choices():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1013,6 +1041,8 @@ def test_with_converted():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1024,6 +1054,8 @@ def test_with_converted():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1084,6 +1116,8 @@ def test_with_generic_converted():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1095,6 +1129,8 @@ def test_with_generic_converted():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1135,6 +1171,8 @@ def test_with_default():
     assert option.default == "nyaa"
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1176,6 +1214,8 @@ def test_with_generic_default():
     assert option.default == "nyaa"
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1217,6 +1257,8 @@ def test_with_default_overriding_signature_default():
     assert option.default == "yeet"
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1256,6 +1298,8 @@ def test_with_default_unsetting_signature_default():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1287,6 +1331,8 @@ def test_with_flag():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
     option = callback.parser.options[1]
@@ -1296,6 +1342,8 @@ def test_with_flag():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is empty_value
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1367,6 +1415,8 @@ def test_with_flag_and_default():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1411,6 +1461,8 @@ def test_with_positional():
     assert option.converters == []
     assert option.default is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -1438,6 +1490,8 @@ def test_with_greedy():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is True
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1456,6 +1510,8 @@ def test_with_generic_greedy():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is True
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -1857,6 +1913,8 @@ def test_with_max(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value == value
 
@@ -1868,6 +1926,8 @@ def test_with_max(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value == value
 
@@ -1941,6 +2001,8 @@ def test_with_generic_max(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value == value
 
@@ -1952,6 +2014,8 @@ def test_with_generic_max(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value == value
 
@@ -2028,6 +2092,8 @@ def test_with_max_when_int_for_float():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value == 432
 
@@ -2039,6 +2105,8 @@ def test_with_max_when_int_for_float():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value == 5431
 
@@ -2120,6 +2188,8 @@ def test_with_min(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value == value
 
@@ -2131,6 +2201,8 @@ def test_with_min(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value == value
 
@@ -2204,6 +2276,8 @@ def test_with_generic_min(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == value
     assert argument.max_value is None
 
@@ -2215,6 +2289,8 @@ def test_with_generic_min(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == value
     assert option.max_value is None
 
@@ -2291,6 +2367,8 @@ def test_with_min_when_int_for_float():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 12333
     assert argument.max_value is None
 
@@ -2302,6 +2380,8 @@ def test_with_min_when_int_for_float():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 44444
     assert option.max_value is None
 
@@ -2366,6 +2446,8 @@ def test_with_overridden_name():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2377,6 +2459,8 @@ def test_with_overridden_name():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2443,6 +2527,8 @@ def test_with_individually_overridden_name():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2454,6 +2540,8 @@ def test_with_individually_overridden_name():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2518,6 +2606,8 @@ def test_with_overridden_slash_name():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2529,6 +2619,8 @@ def test_with_overridden_slash_name():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2576,6 +2668,8 @@ def test_with_overridden_message_name():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2621,6 +2715,8 @@ def test_with_ranged():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == 44
     assert argument.max_value == 55
 
@@ -2633,6 +2729,8 @@ def test_with_ranged():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 5433
     assert option.max_value == 6524.32
 
@@ -2716,6 +2814,8 @@ def test_with_generic_ranged(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value == min_value
     assert argument.max_value == max_value
 
@@ -2727,6 +2827,8 @@ def test_with_generic_ranged(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == min_value
     assert option.max_value == max_value
 
@@ -2795,6 +2897,8 @@ def test_with_snowflake_or():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2806,6 +2910,8 @@ def test_with_snowflake_or():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2871,6 +2977,8 @@ def test_with_generic_snowflake_or_for_channel():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2882,6 +2990,8 @@ def test_with_generic_snowflake_or_for_channel():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -2947,6 +3057,8 @@ def test_with_generic_snowflake_or_for_member():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -2958,6 +3070,8 @@ def test_with_generic_snowflake_or_for_member():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3023,6 +3137,8 @@ def test_with_generic_snowflake_or_for_mentionable():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3034,6 +3150,8 @@ def test_with_generic_snowflake_or_for_mentionable():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3099,6 +3217,8 @@ def test_with_generic_snowflake_or_for_role():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3110,6 +3230,8 @@ def test_with_generic_snowflake_or_for_role():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3175,6 +3297,8 @@ def test_with_generic_snowflake_or_for_user():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3186,6 +3310,8 @@ def test_with_generic_snowflake_or_for_user():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3251,6 +3377,8 @@ def test_with_generic_snowflake_or():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3262,6 +3390,8 @@ def test_with_generic_snowflake_or():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3319,6 +3449,8 @@ def test_with_these_channels(
     assert option.name == "foo"
     assert option.description == "meow"
     assert option.is_required is True
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
     assert option.channel_types
@@ -3330,6 +3462,8 @@ def test_with_these_channels(
     assert option.name == "bar"
     assert option.description == "boom"
     assert option.is_required is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
     assert option.channel_types
@@ -3364,6 +3498,8 @@ def test_with_these_channels(
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3377,6 +3513,8 @@ def test_with_these_channels(
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3416,6 +3554,8 @@ def test_with_generic_these_channels():
     assert option.name == "bb"
     assert option.description == "nep"
     assert option.is_required is True
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
     assert option.channel_types
@@ -3427,6 +3567,8 @@ def test_with_generic_these_channels():
     assert option.name == "bat"
     assert option.description == "bip"
     assert option.is_required is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
     assert option.channel_types
@@ -3461,6 +3603,8 @@ def test_with_generic_these_channels():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3474,6 +3618,8 @@ def test_with_generic_these_channels():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3582,6 +3728,8 @@ def test_for_bool_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3593,6 +3741,8 @@ def test_for_bool_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3659,6 +3809,8 @@ def test_for_channel_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3671,6 +3823,8 @@ def test_for_channel_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3823,6 +3977,8 @@ def test_for_float_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3834,6 +3990,8 @@ def test_for_float_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3899,6 +4057,8 @@ def test_for_int_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3910,6 +4070,8 @@ def test_for_int_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -3975,6 +4137,8 @@ def test_for_member_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -3986,6 +4150,8 @@ def test_for_member_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4138,6 +4304,8 @@ def test_for_mentionable_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4149,6 +4317,8 @@ def test_for_mentionable_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4214,6 +4384,8 @@ def test_for_role_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4225,6 +4397,8 @@ def test_for_role_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4290,6 +4464,8 @@ def test_for_str_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4301,6 +4477,8 @@ def test_for_str_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4366,6 +4544,8 @@ def test_for_user_option():
     assert argument.default is tanjun.abc.NO_DEFAULT
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4377,6 +4557,8 @@ def test_for_user_option():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
 
@@ -4474,6 +4656,8 @@ def test_when_annotated_not_top_level():
     assert argument.default is tanjun.abc.NO_PASS
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4485,6 +4669,8 @@ def test_when_annotated_not_top_level():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 123
     assert option.max_value == 432
 
@@ -4544,6 +4730,8 @@ if sys.version_info >= (3, 10):
         assert argument.default is tanjun.abc.NO_PASS
         assert argument.is_greedy is False
         assert argument.is_multi is False
+        assert argument.min_length is None
+        assert argument.max_length is None
         assert argument.min_value is None
         assert argument.max_value is None
 
@@ -4555,6 +4743,8 @@ if sys.version_info >= (3, 10):
         assert option.default is tanjun.abc.NO_PASS
         assert option.empty_value is tanjun.abc.NO_DEFAULT
         assert option.is_multi is False
+        assert option.min_length is None
+        assert option.max_length is None
         assert option.min_value == 123
         assert option.max_value == 432
 
@@ -4612,6 +4802,8 @@ def test_when_annotated_handles_unions():
     assert argument.default is tanjun.abc.NO_PASS
     assert argument.is_greedy is False
     assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
     assert argument.min_value is None
     assert argument.max_value is None
 
@@ -4623,6 +4815,8 @@ def test_when_annotated_handles_unions():
     assert option.default is tanjun.abc.NO_PASS
     assert option.empty_value is tanjun.abc.NO_DEFAULT
     assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
     assert option.min_value == 123
     assert option.max_value == 432
 
@@ -4682,6 +4876,8 @@ if sys.version_info >= (3, 10):
         assert argument.default is tanjun.abc.NO_PASS
         assert argument.is_greedy is False
         assert argument.is_multi is False
+        assert argument.min_length is None
+        assert argument.max_length is None
         assert argument.min_value is None
         assert argument.max_value is None
 
@@ -4693,6 +4889,8 @@ if sys.version_info >= (3, 10):
         assert option.default is tanjun.abc.NO_PASS
         assert option.empty_value is tanjun.abc.NO_DEFAULT
         assert option.is_multi is False
+        assert option.min_length is None
+        assert option.max_length is None
         assert option.min_value == 123
         assert option.max_value == 432
 
