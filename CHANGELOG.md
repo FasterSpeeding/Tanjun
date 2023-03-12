@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [tanjun.annotations][].
 
 ### Changed
-- Marked deprecated classes, functions and overloads as deprecated using `typing.deprecated`.
+- Marked deprecated classes, functions and overloads as deprecated using [typing.deprecated][].
   Deprecated class aliases are now separate classes to allow warning on init.
 
 ## [2.11.4] - 2023-02-08
