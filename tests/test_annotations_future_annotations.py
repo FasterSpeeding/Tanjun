@@ -4954,4 +4954,4 @@ def test_parse_annotated_args_with_descriptions_argument_for_wrapped_slash_comma
     ]
 
 
-# TypedDict tests can not be copied over since `from __future__ import annotations` breaks Required and NotRequired.
+# TypedDict tests cannot be copied over since `from __future__ import annotations` breaks Required and NotRequired.
