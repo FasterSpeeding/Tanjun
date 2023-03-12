@@ -1473,7 +1473,7 @@ def with_annotated_args(
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
     r"""Set a command's arguments based on its signature.
 
-    To declare arguments a you will have to do one of two things:
+    To declare arguments you will have to do one of two things:
 
     1. Using any of the following types as an argument's type-hint (this may be as the
         first argument to [typing.Annotated][]) will mark it as a command argument:
@@ -1552,6 +1552,25 @@ def with_annotated_args(
         name: Str,
         converted: Converted[Type.from_str],
         enable: typing.Optional[Bool] = None,
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    A [typing.TypedDict][] can be used to declare multiple options by
+    typing the passed `**kwargs` dict as it using [typing.Unpack][].
+    These options can be marked as optional using [typing.NotRequired][],
+    `total=False` or [Default][tanjun.annotations.Default].
+
+    ```py
+    class CommandOptions(typing.TypedDict):
+        argument: Annotated[Str, "A required string argument"]
+        other: NotRequired[Annotated[Bool, "An optional string argument"]]
+
+    @tanjun.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("name")
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, **kwargs: Unpack[CommandOptions],
     ) -> None:
         raise NotImplementedError
     ```
