@@ -4952,3 +4952,6 @@ def test_parse_annotated_args_with_descriptions_argument_for_wrapped_slash_comma
         hikari.CommandOption(type=hikari.OptionType.USER, name="ruby", description="shining", is_required=True),
         hikari.CommandOption(type=hikari.OptionType.STRING, name="rebecca", description="cool gal", is_required=False),
     ]
+
+
+# TypedDict tests can not be copied over since `from __future__ import annotations` breaks Required and NotRequired.
