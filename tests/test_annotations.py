@@ -7099,3 +7099,89 @@ def test_with_unpacked_typed_dict_and_user():
     assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
+
+
+def test_ignores_non_typed_dict_class_in_kwargs_unpack():
+    class CustomClass:
+        of: typing.Annotated[annotations.User, "maaaa"]
+        oo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[CustomClass]) -> None:  # type: ignore
+        raise NotImplementedError
+
+    assert command.build().options == []
+    assert command._tracked_options == {}
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert command.wrapped_command.parser is None
+
+
+def test_ignores_non_unpack_kwargs():
+    class TypedDict(typing_extensions.TypedDict):
+        meow: typing.Annotated[annotations.User, "maaaa"]
+        echo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: TypedDict) -> None:  # type: ignore
+        raise NotImplementedError
+
+    assert command.build().options == []
+    assert command._tracked_options == {}
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert command.wrapped_command.parser is None
+
+
+def test_ignores_unpack_typed_dict_for_varargs():
+    class TypedDict(typing_extensions.TypedDict):
+        meow: typing.Annotated[annotations.User, "maaaa"]
+        echo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, *args: typing_extensions.Unpack[TypedDict]) -> None:  # type: ignore
+        raise NotImplementedError
+
+    assert command.build().options == []
+    assert command._tracked_options == {}
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert command.wrapped_command.parser is None
+
+
+def test_ignores_unpack_typed_dict_for_non_var_arg():
+    class TypedDict(typing_extensions.TypedDict):
+        meow: typing.Annotated[annotations.User, "maaaa"]
+        echo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, arg: typing_extensions.Unpack[TypedDict]) -> None:  # type: ignore
+        raise NotImplementedError
+
+    assert command.build().options == []
+    assert command._tracked_options == {}
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert command.wrapped_command.parser is None
+
+
+def test_ignores_untyped_kwargs():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs) -> None:  # type: ignore
+        raise NotImplementedError
+
+    assert command.build().options == []
+    assert command._tracked_options == {}
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert command.wrapped_command.parser is None
