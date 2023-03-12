@@ -199,7 +199,7 @@ def test_with_attachment_slash_option_with_defaults():
 
     assert result is mock_command.add_attachment_option.return_value
     mock_command.add_attachment_option.assert_called_once_with(
-        "meow", "nyaa", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
+        "meow", "nyaa", default=tanjun.abc.NO_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
@@ -247,7 +247,7 @@ def test_with_str_slash_option_with_defaults():
         "a_name",
         "a_value",
         autocomplete=None,
-        default=tanjun.commands.slash.UNDEFINED_DEFAULT,
+        default=tanjun.abc.NO_DEFAULT,
         choices=None,
         converters=(),
         key=None,
@@ -304,7 +304,7 @@ def test_with_int_slash_option_with_defaults():
         autocomplete=None,
         choices=None,
         converters=(),
-        default=tanjun.commands.slash.UNDEFINED_DEFAULT,
+        default=tanjun.abc.NO_DEFAULT,
         key=None,
         min_value=None,
         max_value=None,
@@ -360,7 +360,7 @@ def test_with_float_slash_option_with_defaults():
         "bye",
         always_float=True,
         autocomplete=None,
-        default=tanjun.commands.slash.UNDEFINED_DEFAULT,
+        default=tanjun.abc.NO_DEFAULT,
         choices=None,
         converters=(),
         key=None,
@@ -391,7 +391,7 @@ def test_with_bool_slash_option_with_defaults():
 
     assert result is mock_command.add_bool_option.return_value
     mock_command.add_bool_option.assert_called_once_with(
-        "bool", "bool me man", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
+        "bool", "bool me man", default=tanjun.abc.NO_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
@@ -415,11 +415,7 @@ def test_with_user_slash_option_with_defaults():
 
     assert result is mock_command.add_user_option.return_value
     mock_command.add_user_option.assert_called_once_with(
-        "victim",
-        "who're we getting next?",
-        default=tanjun.commands.slash.UNDEFINED_DEFAULT,
-        key=None,
-        pass_as_kwarg=True,
+        "victim", "who're we getting next?", default=tanjun.abc.NO_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
@@ -438,9 +434,7 @@ def test_with_member_slash_option_with_defaults():
     result = tanjun.with_member_slash_option("no", "hihihi?")(mock_command)
 
     assert result is mock_command.add_member_option.return_value
-    mock_command.add_member_option.assert_called_once_with(
-        "no", "hihihi?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None
-    )
+    mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=tanjun.abc.NO_DEFAULT, key=None)
 
 
 def test_with_channel_slash_option():
@@ -473,7 +467,7 @@ def test_with_channel_slash_option_with_defaults():
 
     assert result is mock_command.add_channel_option.return_value
     mock_command.add_channel_option.assert_called_once_with(
-        "channel", "channel?", types=None, default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
+        "channel", "channel?", types=None, default=tanjun.abc.NO_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
@@ -497,7 +491,7 @@ def test_with_role_slash_option_with_defaults():
 
     assert result is mock_command.add_role_option.return_value
     mock_command.add_role_option.assert_called_once_with(
-        "role", "role?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
+        "role", "role?", default=tanjun.abc.NO_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
@@ -521,7 +515,7 @@ def test_with_mentionable_slash_option_with_defaults():
 
     assert result is mock_command.add_mentionable_option.return_value
     mock_command.add_mentionable_option.assert_called_once_with(
-        "mentu", "mentu?", default=tanjun.commands.slash.UNDEFINED_DEFAULT, key=None, pass_as_kwarg=True
+        "mentu", "mentu?", default=tanjun.abc.NO_DEFAULT, key=None, pass_as_kwarg=True
     )
 
 
@@ -1492,7 +1486,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.ATTACHMENT
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
@@ -1638,7 +1632,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.STRING
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
@@ -1673,7 +1667,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.STRING
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
@@ -1698,7 +1692,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.STRING
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
@@ -1951,7 +1945,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.INTEGER
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
@@ -1974,7 +1968,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.INTEGER
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
@@ -2197,7 +2191,7 @@ class TestSlashCommand:
         tracked = command._tracked_options[option.name]
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.FLOAT
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is True
         assert tracked.is_only_member is False
@@ -2220,7 +2214,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.FLOAT
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is True
         assert tracked.is_only_member is False
@@ -2392,7 +2386,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.BOOLEAN
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
@@ -2551,7 +2545,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.USER
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
@@ -2710,7 +2704,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.USER
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is True
@@ -2865,7 +2859,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.CHANNEL
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
@@ -3081,7 +3075,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.ROLE
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
@@ -3240,7 +3234,7 @@ class TestSlashCommand:
         assert tracked.key == option.name
         assert tracked.name == option.name
         assert tracked.type is hikari.OptionType.MENTIONABLE
-        assert tracked.default is tanjun.commands.slash.UNDEFINED_DEFAULT
+        assert tracked.default is tanjun.abc.NO_DEFAULT
         assert tracked.converters == []
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False

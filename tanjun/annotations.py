@@ -84,6 +84,7 @@ import hikari
 import typing_extensions
 
 from . import _internal
+from . import abc as tanjun
 from . import conversion
 from . import parsing
 from ._internal.vendor import inspect
@@ -416,7 +417,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
 
     __slots__ = ("_default",)
 
-    def __init__(self, default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED, /) -> None:
+    def __init__(self, default: typing.Any = tanjun.NO_DEFAULT, /) -> None:
         """Initialise a default.
 
         Parameters
@@ -424,13 +425,13 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
         default
             The argument's default.
 
-            If left as [tanjun.parsing.UNDEFINED][] then the argument will be
+            If left as [tanjun.abc.NO_DEFAULT][] then the argument will be
             required regardless of the signature default.
         """
         self._default = default
 
     @property
-    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
+    def default(self) -> typing.Any:
         """The option's default.
 
         This will override the default in the signature for this parameter.
@@ -465,10 +466,7 @@ class Flag(_ConfigIdentifier):
 
     @typing.overload
     def __init__(
-        self,
-        *,
-        aliases: typing.Optional[collections.Sequence[str]] = None,
-        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
+        self, *, aliases: typing.Optional[collections.Sequence[str]] = None, empty_value: typing.Any = tanjun.NO_DEFAULT
     ) -> None:
         ...
 
@@ -478,8 +476,8 @@ class Flag(_ConfigIdentifier):
         self,
         *,
         aliases: typing.Optional[collections.Sequence[str]] = None,
-        default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED,
-        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
     ) -> None:
         ...
 
@@ -487,8 +485,8 @@ class Flag(_ConfigIdentifier):
         self,
         *,
         aliases: typing.Optional[collections.Sequence[str]] = None,
-        default: typing.Union[typing.Any, parsing.UndefinedT] = parsing.UNDEFINED,
-        empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
     ) -> None:
         """Create a flag instance.
 
@@ -502,8 +500,10 @@ class Flag(_ConfigIdentifier):
             Value to pass for the argument if the flag is provided without a value.
 
             If left undefined then an explicit value will always be needed.
+
+            [tanjun.abc.NO_PASS][] is not supported for this.
         """
-        if default is not parsing.UNDEFINED:
+        if default is not tanjun.NO_DEFAULT:
             warnings.warn(
                 "Flag.__init__'s `default` argument is deprecated, use Default instead", category=DeprecationWarning
             )
@@ -522,7 +522,7 @@ class Flag(_ConfigIdentifier):
 
     @property
     @typing_extensions.deprecated("Use annotations.Default instead of the default arg")
-    def default(self) -> typing.Union[typing.Any, parsing.UndefinedT]:
+    def default(self) -> typing.Any:
         """The flag's default.
 
         If not specified then the default in the signature for this argument
@@ -531,15 +531,16 @@ class Flag(_ConfigIdentifier):
         return self._default
 
     @property
-    def empty_value(self) -> typing.Union[parsing.UndefinedT, typing.Any]:
+    def empty_value(self) -> typing.Any:
         """The value to pass for the argument if the flag is provided without a value.
 
-        If this is undefined then a value will always need to be passed for the flag.
+        If this is [tanjun.abc.NO_DEFAULT][] then a value will be required
+        for this flag.
         """
         return self._empty_value
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        if self._default is not parsing.UNDEFINED:
+        if self._default is not tanjun.NO_DEFAULT:
             config.default = self._default
 
         config.aliases = self._aliases or config.aliases
@@ -1145,49 +1146,64 @@ class _ArgConfig:
         "description",
         "empty_value",
         "float_converter",
+        "has_natural_default",
         "int_converter",
         "is_greedy",
         "is_positional",
+        "key",
         "min_length",
         "max_length",
         "min_value",
         "max_value",
         "message_name",
         "option_type",
-        "parameter",
         "range_or_slice",
         "slash_name",
         "snowflake_converter",
         "str_converters",
     )
 
-    def __init__(self, parameter: inspect.Parameter, /, *, description: typing.Optional[str]) -> None:
+    def __init__(self, key: str, default: typing.Any, /, *, description: typing.Optional[str]) -> None:
         self.aliases: typing.Optional[collections.Sequence[str]] = None
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
-        self.default: typing.Any = parsing.UNDEFINED if parameter.default is parameter.empty else parameter.default
+        self.default: typing.Any = default
         self.description: typing.Optional[str] = description
-        self.empty_value: typing.Union[parsing.UndefinedT, typing.Any] = parsing.UNDEFINED
+        self.empty_value: typing.Any = tanjun.NO_DEFAULT
         self.float_converter: typing.Optional[collections.Callable[[float], typing.Any]] = None
+        self.has_natural_default: bool = default is tanjun.NO_PASS
         self.int_converter: typing.Optional[collections.Callable[[int], typing.Any]] = None
         # The float and int converters are just for Choices[Enum].
         self.is_greedy: bool = False
         self.is_positional: typing.Optional[bool] = None
+        self.key: str = key
         self.min_length: typing.Optional[int] = None
         self.max_length: typing.Optional[int] = None
         self.min_value: typing.Union[float, int, None] = None
         self.max_value: typing.Union[float, int, None] = None
-        self.message_name: str = "--" + parameter.name.replace("_", "-")
+        self.message_name: str = "--" + key.replace("_", "-")
         self.option_type: typing.Optional[type[typing.Any]] = None
-        self.parameter: inspect.Parameter = parameter
         self.range_or_slice: typing.Union[range, slice, None] = None
-        self.slash_name: str = parameter.name
+        self.slash_name: str = key
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
         self.str_converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
 
-    def finalise_slice(self) -> None:
+    def from_annotation(self, annotation: typing.Any, /) -> Self:
+        for arg in _snoop_annotation_args(annotation):
+            if isinstance(arg, _ConfigIdentifier):
+                arg.set_config(self)
+
+            elif not self.description and isinstance(arg, str):
+                self.description = arg
+
+            elif isinstance(arg, (range, slice)):
+                self.range_or_slice = arg
+
+        return self
+
+    def finalise_slice(self) -> Self:
         if not self.range_or_slice:
-            return
+            return self
 
         # Slice's attributes are all Any so we need to cast to int.
         if self.range_or_slice.step is None or operator.index(self.range_or_slice.step) > 0:
@@ -1206,7 +1222,12 @@ class _ArgConfig:
             self.min_value = min_value
             self.max_value = max_value
 
-    def to_message_option(self, command: message.MessageCommand[typing.Any], /) -> None:
+        return self
+
+    def add_to_msg_cmds(self, commands: collections.Sequence[message.MessageCommand[typing.Any]], /) -> Self:
+        if not commands:
+            return self
+
         if self.str_converters:
             converters = self.str_converters
 
@@ -1220,85 +1241,87 @@ class _ArgConfig:
             elif self.option_type is hikari.PartialChannel:
                 converters = (conversion.ToChannel(allowed_types=self.channel_types),)
 
-            elif self.parameter.default is self.parameter.empty:
+            elif not self.has_natural_default:
                 raise RuntimeError(f"{self.option_type!r} is not supported for message commands")
 
             else:
                 # If there is a real default then this should just be left to always default
                 # for better interoperability.
-                return
+                return self
 
         else:
-            return
+            return self
 
-        if command.parser:
-            if not isinstance(command.parser, parsing.AbstractOptionParser):
-                raise TypeError("Expected parser to be an instance of tanjun.parsing.AbstractOptionParser")
+        for command in commands:
+            if command.parser:
+                if not isinstance(command.parser, parsing.AbstractOptionParser):
+                    raise TypeError("Expected parser to be an instance of tanjun.parsing.AbstractOptionParser")
 
-            parser = command.parser
+                parser = command.parser
 
-        else:
-            parser = parsing.ShlexParser()
-            command.set_parser(parser)
+            else:
+                parser = parsing.ShlexParser()
+                command.set_parser(parser)
 
-        if self.is_positional or (self.is_positional is None and self.default is parsing.UNDEFINED):
-            parser.add_argument(
-                self.parameter.name,
-                converters=converters,
-                default=self.default,
-                greedy=self.is_greedy,
-                min_length=self.min_length,
-                max_length=self.max_length,
-                min_value=self.min_value,
-                max_value=self.max_value,
-            )
+            if self.is_positional or (self.is_positional is None and self.default is tanjun.NO_DEFAULT):
+                parser.add_argument(
+                    self.key,
+                    converters=converters,
+                    default=self.default,
+                    greedy=self.is_greedy,
+                    min_length=self.min_length,
+                    max_length=self.max_length,
+                    min_value=self.min_value,
+                    max_value=self.max_value,
+                )
 
-        elif self.default is parsing.UNDEFINED:
-            raise ValueError(f"Flag argument {self.parameter.name!r} must have a default")
+            elif self.default is tanjun.NO_DEFAULT:
+                raise ValueError(f"Flag argument {self.key!r} must have a default")
 
-        else:
-            parser.add_option(
-                self.parameter.name,
-                self.message_name,
-                *self.aliases or (),
-                converters=converters,
-                default=self.default,
-                empty_value=self.empty_value,
-                min_length=self.min_length,
-                max_length=self.max_length,
-                min_value=self.min_value,
-                max_value=self.max_value,
-            )
+            else:
+                parser.add_option(
+                    self.key,
+                    self.message_name,
+                    *self.aliases or (),
+                    converters=converters,
+                    default=self.default,
+                    empty_value=self.empty_value,
+                    min_length=self.min_length,
+                    max_length=self.max_length,
+                    min_value=self.min_value,
+                    max_value=self.max_value,
+                )
 
-    def _slash_default(self) -> typing.Any:
-        return slash.UNDEFINED_DEFAULT if self.default is parsing.UNDEFINED else self.default
+        return self
 
-    def to_slash_option(self, command: slash.SlashCommand[typing.Any], /) -> None:
+    def add_to_slash_cmds(self, commands: collections.Sequence[slash.SlashCommand[typing.Any]], /) -> Self:
         if self.option_type:
-            if not self.description:
-                raise ValueError(f"Missing description for argument {self.parameter.name!r}")
+            option_adder = self.SLASH_OPTION_ADDER[self.option_type]
+            for command in commands:
+                if not self.description:
+                    raise ValueError(f"Missing description for argument {self.key!r}")
 
-            self.SLASH_OPTION_ADDER[self.option_type](self, command, self.description)
+                option_adder(self, command, self.description)
+
+        return self
 
     SLASH_OPTION_ADDER: dict[
         typing.Any, collections.Callable[[Self, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]]
     ] = {
         hikari.Attachment: lambda self, c, d: c.add_attachment_option(
-            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
+            self.slash_name, d, default=self.default, key=self.key
         ),
-        bool: lambda self, c, d: c.add_bool_option(
-            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
-        ),
+        bool: lambda self, c, d: c.add_bool_option(self.slash_name, d, default=self.default, key=self.key),
         hikari.PartialChannel: lambda self, c, d: c.add_channel_option(
-            self.slash_name, d, default=self._slash_default(), key=self.parameter.name, types=self.channel_types
+            self.slash_name, d, default=self.default, key=self.key, types=self.channel_types
         ),
         float: lambda self, c, d: c.add_float_option(
             self.slash_name,
             d,
             choices=_ensure_values("choice", float, self.choices),  # TODO: can we pass ints here as well?
             converters=self.float_converter or (),
-            default=self._slash_default(),
-            key=self.parameter.name,
+            default=self.default,
+            key=self.key,
             min_value=self.min_value,  # TODO: explicitly cast to float?
             max_value=self.max_value,
         ),
@@ -1307,48 +1330,48 @@ class _ArgConfig:
             d,
             choices=_ensure_values("choice", int, self.choices),
             converters=self.int_converter or (),
-            default=self._slash_default(),
-            key=self.parameter.name,
+            default=self.default,
+            key=self.key,
             min_value=_ensure_value("min", int, self.min_value),
             max_value=_ensure_value("max", int, self.max_value),
         ),
-        hikari.Member: lambda self, c, d: c.add_member_option(
-            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
-        ),
+        hikari.Member: lambda self, c, d: c.add_member_option(self.slash_name, d, default=self.default, key=self.key),
         _MentionableUnion: lambda self, c, d: c.add_mentionable_option(
-            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
+            self.slash_name, d, default=self.default, key=self.key
         ),
-        hikari.Role: lambda self, c, d: c.add_role_option(
-            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
-        ),
+        hikari.Role: lambda self, c, d: c.add_role_option(self.slash_name, d, default=self.default, key=self.key),
         str: lambda self, c, d: c.add_str_option(
             self.slash_name,
             d,
             choices=_ensure_values("choice", str, self.choices),
             converters=self.str_converters or (),
-            default=self._slash_default(),
-            key=self.parameter.name,
+            default=self.default,
+            key=self.key,
             min_length=self.min_length,
             max_length=self.max_length,
         ),
-        hikari.User: lambda self, c, d: c.add_user_option(
-            self.slash_name, d, default=self._slash_default(), key=self.parameter.name
-        ),
+        hikari.User: lambda self, c, d: c.add_user_option(self.slash_name, d, default=self.default, key=self.key),
     }
 
     SLASH_OPTION_ADDER[hikari.InteractionChannel] = SLASH_OPTION_ADDER[hikari.PartialChannel]
     SLASH_OPTION_ADDER[hikari.InteractionMember] = SLASH_OPTION_ADDER[hikari.Member]
 
 
+_WRAPPER_TYPES = {typing_extensions.Required, typing_extensions.NotRequired}
+
+
 def _snoop_annotation_args(type_: typing.Any, /) -> collections.Iterator[typing.Any]:
-    origin = typing.get_origin(type_)
+    origin = typing_extensions.get_origin(type_)
     if origin is typing.Annotated:
-        args = typing.get_args(type_)
+        args = typing_extensions.get_args(type_)
         yield from _snoop_annotation_args(args[0])
         yield from args[1:]
 
     elif origin in _internal.UnionTypes:
-        yield from itertools.chain.from_iterable(map(_snoop_annotation_args, typing.get_args(type_)))
+        yield from itertools.chain.from_iterable(map(_snoop_annotation_args, typing_extensions.get_args(type_)))
+
+    elif origin in _WRAPPER_TYPES:
+        yield from _snoop_annotation_args(typing_extensions.get_args(type_)[0])
 
 
 def parse_annotated_args(
@@ -1404,24 +1427,33 @@ def parse_annotated_args(
         if parameter.annotation is parameter.empty:
             continue
 
-        arg_config = _ArgConfig(parameter, description=descriptions.get(parameter.name))
-        for arg in _snoop_annotation_args(parameter.annotation):
-            if isinstance(arg, _ConfigIdentifier):
-                arg.set_config(arg_config)
+        if parameter.kind is not parameter.VAR_KEYWORD:
+            default = tanjun.NO_DEFAULT if parameter.default is parameter.empty else tanjun.NO_PASS
+            (
+                _ArgConfig(parameter.name, default, description=descriptions.get(parameter.name))
+                .from_annotation(parameter.annotation)
+                .finalise_slice()
+                .add_to_msg_cmds(message_commands)
+                .add_to_slash_cmds(slash_commands)
+            )
+            continue
 
-            elif isinstance(arg, str) and not arg_config.description:
-                arg_config.description = arg
+        if typing_extensions.get_origin(parameter.annotation) is not typing_extensions.Unpack:
+            continue
 
-            elif isinstance(arg, (range, slice)):
-                arg_config.range_or_slice = arg
+        typed_dict = typing_extensions.get_args(parameter.annotation)[0]
+        if not typing_extensions.is_typeddict(typed_dict):
+            continue
 
-        arg_config.finalise_slice()
-        if arg_config.option_type:
-            for slash_command in slash_commands:
-                arg_config.to_slash_option(slash_command)
-
-            for message_command in message_commands:
-                arg_config.to_message_option(message_command)
+        for name, annotation in typing_extensions.get_type_hints(typed_dict, include_extras=True).items():
+            default = tanjun.NO_PASS if name in typed_dict.__optional_keys__ else tanjun.NO_DEFAULT
+            (
+                _ArgConfig(name, default, description=descriptions.get(name))
+                .from_annotation(annotation)
+                .finalise_slice()
+                .add_to_msg_cmds(message_commands)
+                .add_to_slash_cmds(slash_commands)
+            )
 
     return
 

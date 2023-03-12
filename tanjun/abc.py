@@ -284,6 +284,18 @@ _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=MessageCallb
 _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=SlashCallbackSig)
 
 
+class _DefaultFlag(enum.Enum):
+    NO_DEFAULT = object()
+    NO_PASS = object()
+
+
+NO_DEFAULT = _DefaultFlag.NO_DEFAULT
+"""Singleton used to mark an argument as having no default."""
+
+NO_PASS = _DefaultFlag.NO_PASS
+"""Singleton used to mark an argument as being not passed when it isn't provided."""
+
+
 class Context(alluka.Context):
     """Interface for the context of a command execution."""
 

@@ -38,8 +38,6 @@ __all__: list[str] = [
     "Option",
     "Parameter",
     "ShlexParser",
-    "UNDEFINED",
-    "UndefinedT",
     "with_argument",
     "with_greedy_argument",
     "with_multi_argument",
@@ -108,36 +106,17 @@ else:
     )
 
 
-class UndefinedT:
-    """Singleton used to indicate an undefined value within parsing logic."""
+UndefinedT = typing.Literal[tanjun.NO_DEFAULT]
+"""Deprecated alias of `typing.Literal[tanjun.abc.NO_DEFAULT]`."""
 
-    __slots__ = ()
-    __singleton: typing.Optional[UndefinedT] = None
+UndefinedDefaultT = typing.Literal[tanjun.NO_DEFAULT]
+"""Deprecated alias of `typing.Literal[tanjun.abc.NO_DEFAULT]`."""
 
-    def __new__(cls) -> UndefinedT:
-        if cls.__singleton is None:
-            cls.__singleton = super().__new__(cls)
-            assert isinstance(cls.__singleton, UndefinedT)
+UNDEFINED = tanjun.NO_DEFAULT
+"""Deprecated alias of [tanjun.abc.NO_DEFAULT][]."""
 
-        return cls.__singleton
-
-    def __repr__(self) -> str:
-        return "UNDEFINED"
-
-    def __bool__(self) -> typing.Literal[False]:
-        return False
-
-
-UndefinedDefaultT = UndefinedT
-"""Deprecated alias of [UndefinedT][tanjun.parsing.UndefinedT]."""
-
-UNDEFINED = UndefinedT()
-"""A singleton used to represent an undefined value within parsing logic."""
-
-UNDEFINED_DEFAULT = UNDEFINED
-"""Deprecated alias of [UNDEFINED][tanjun.parsing.UNDEFINED]."""
-
-_UndefinedOr = typing.Union[UndefinedT, _T]
+UNDEFINED_DEFAULT = tanjun.NO_DEFAULT
+"""Deprecated alias of [tanjun.abc.NO_DEFAULT][]."""
 
 
 class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
@@ -163,7 +142,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         /,
         converters: _MaybeIterable[ConverterSig[typing.Any]],
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         multi: bool = False,
     ) -> Self:
@@ -177,7 +156,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         /,
         converters: _MaybeIterable[ConverterSig[str]] = (),
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
@@ -195,7 +174,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         /,
         converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
@@ -213,7 +192,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         /,
         converters: _MaybeIterable[ConverterSig[collections.Sized]],
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
@@ -229,7 +208,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         /,
         converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
@@ -244,7 +223,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         /,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
@@ -271,7 +250,10 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
             Only the first converter to pass will be used.
         default
             The default value of this argument, if left as
-            [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
+            [tanjun.abc.NO_DEFAULT][] then this will have no default.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         greedy
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
@@ -320,7 +302,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         *names: str,
         converters: _MaybeIterable[ConverterSig[typing.Any]],
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         multi: bool = False,
     ) -> Self:
         ...
@@ -335,7 +317,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         *names: str,
         converters: _MaybeIterable[ConverterSig[str]] = (),
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[str]] = None,
@@ -354,7 +336,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         *names: str,
         converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_SizedCmpProtoT] = None,
@@ -373,7 +355,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         *names: str,
         converters: _MaybeIterable[ConverterSig[collections.Sized]],
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         multi: bool = False,
@@ -390,7 +372,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         *names: str,
         converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
@@ -406,7 +388,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         *names: str,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
@@ -437,8 +419,11 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
             Only the first converter to pass will be used.
         empty_value
             The value to use if this option is provided without a value.
-            If left as [UNDEFINED][tanjun.parsing.UNDEFINED] then this option
+
+            If left as [tanjun.abc.NO_DEFAULT][] then this option
             will error if it's provided without a value.
+
+            [tanjun.abc.NO_PASS][] is not supported for this.
         min_length
             Assert that a string argument's length is greater than or equal to this.
 
@@ -570,7 +555,7 @@ async def _covert_option_or_empty(
     if value is not None:
         return await option.convert(ctx, value)
 
-    if option.empty_value is not UNDEFINED:
+    if option.empty_value is not tanjun.NO_DEFAULT:
         return option.empty_value
 
     raise errors.NotEnoughArgumentsError(f"Option '{option.key} cannot be empty.", option.key)
@@ -593,52 +578,56 @@ class _SemanticShlex(_ShlexTokenizer):
 
     async def parse(self) -> dict[str, typing.Any]:
         raw_options = self.collect_raw_options()
-        results = asyncio.gather(*(self.__process_option(option, raw_options) for option in self.__options))
-        values = dict(zip((option.key for option in self.__options), await results))
+        kwargs: dict[str, typing.Any] = {}
+
+        for option in self.__options:
+            values_iter = itertools.chain.from_iterable(
+                raw_options[name] for name in option.names if name in raw_options
+            )
+            if option.is_multi and (values := list(values_iter)):
+                kwargs[option.key] = await asyncio.gather(
+                    *(_covert_option_or_empty(self.__ctx, option, value) for value in values)
+                )
+
+            elif not option.is_multi and (value := next(values_iter, ...)) is not ...:
+                if next(values_iter, ...) is not ...:
+                    raise errors.TooManyArgumentsError(
+                        f"Option `{option.key}` can only take a single value", option.key
+                    )
+
+                kwargs[option.key] = await _covert_option_or_empty(self.__ctx, option, value)
+
+            elif option.default is tanjun.NO_DEFAULT:
+                # If this is reached then no value was found.
+                raise errors.NotEnoughArgumentsError(f"Missing required option `{option.key}`", option.key)
+
+            elif option.default is not tanjun.NO_PASS:
+                kwargs[option.key] = option.default
 
         for argument in self.__arguments:
-            values[argument.key] = await self.__process_argument(argument)
+            if argument.is_greedy and (value := " ".join(self.iter_raw_arguments())):
+                kwargs[argument.key] = await argument.convert(self.__ctx, value)
+
+            elif argument.is_multi and (values := list(self.iter_raw_arguments())):
+                kwargs[argument.key] = await asyncio.gather(*(argument.convert(self.__ctx, value) for value in values))
+
+            # If the previous two statements failed on getting raw arguments then this will as well.
+            elif (optional_value := self.next_raw_argument()) is not None:
+                kwargs[argument.key] = await argument.convert(self.__ctx, optional_value)
+
+            elif argument.default is tanjun.NO_DEFAULT:
+                # If this is reached then no value was found.
+                raise errors.NotEnoughArgumentsError(
+                    f"Missing value for required argument '{argument.key}'", argument.key
+                )
+
+            elif argument.default is not tanjun.NO_PASS:
+                kwargs[argument.key] = argument.default
 
             if argument.is_greedy or argument.is_multi:
                 break  # Multi and Greedy parameters should always be the last parameter.
 
-        return values
-
-    async def __process_argument(self, argument: Argument, /) -> typing.Any:
-        if argument.is_greedy and (value := " ".join(self.iter_raw_arguments())):
-            return await argument.convert(self.__ctx, value)
-
-        if argument.is_multi and (values := list(self.iter_raw_arguments())):
-            return await asyncio.gather(*(argument.convert(self.__ctx, value) for value in values))
-
-        # If the previous two statements failed on getting raw arguments then this will as well.
-        if (optional_value := self.next_raw_argument()) is not None:
-            return await argument.convert(self.__ctx, optional_value)
-
-        if argument.default is not UNDEFINED:
-            return argument.default
-
-        # If this is reached then no value was found.
-        raise errors.NotEnoughArgumentsError(f"Missing value for required argument '{argument.key}'", argument.key)
-
-    async def __process_option(
-        self, option: Option, raw_options: collections.Mapping[str, collections.Sequence[typing.Optional[str]]], /
-    ) -> typing.Any:
-        values_iter = itertools.chain.from_iterable(raw_options[name] for name in option.names if name in raw_options)
-        if option.is_multi and (values := list(values_iter)):
-            return await asyncio.gather(*(_covert_option_or_empty(self.__ctx, option, value) for value in values))
-
-        if not option.is_multi and (value := next(values_iter, ...)) is not ...:
-            if next(values_iter, ...) is not ...:
-                raise errors.TooManyArgumentsError(f"Option `{option.key}` can only take a single value", option.key)
-
-            return await _covert_option_or_empty(self.__ctx, option, value)
-
-        if option.default is not UNDEFINED:
-            return option.default
-
-        # If this is reached then no value was found.
-        raise errors.NotEnoughArgumentsError(f"Missing required option `{option.key}`", option.key)
+        return kwargs
 
 
 def _get_or_set_parser(command: tanjun.MessageCommand[typing.Any], /) -> AbstractOptionParser:
@@ -659,7 +648,7 @@ def with_argument(
     /,
     converters: _MaybeIterable[ConverterSig[typing.Any]],
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     greedy: bool = False,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -672,7 +661,7 @@ def with_argument(
     /,
     converters: _MaybeIterable[ConverterSig[str]] = (),
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     greedy: bool = False,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
@@ -689,7 +678,7 @@ def with_argument(
     /,
     converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     greedy: bool = False,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
@@ -706,7 +695,7 @@ def with_argument(
     /,
     converters: _MaybeIterable[ConverterSig[collections.Sized]],
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     greedy: bool = False,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
@@ -721,7 +710,7 @@ def with_argument(
     /,
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     greedy: bool = False,
     min_value: typing.Optional[_CmpProtoT] = None,
     max_value: typing.Optional[_CmpProtoT] = None,
@@ -735,7 +724,7 @@ def with_argument(
     /,
     converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     greedy: bool = False,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
@@ -782,7 +771,10 @@ def with_argument(
         Only the first converter to pass will be used.
     default
         The default value of this argument, if left as
-        [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
+        [tanjun.abc.NO_DEFAULT][] then this will have no default.
+
+        If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+        passed when no value was provided.
     greedy
         Whether or not this argument should be greedy (meaning that it
         takes in the remaining argument values).
@@ -841,7 +833,7 @@ def with_argument(
 
 @typing.overload
 def with_greedy_argument(
-    key: str, /, converters: _MaybeIterable[ConverterSig[typing.Any]], *, default: _UndefinedOr[typing.Any] = UNDEFINED
+    key: str, /, converters: _MaybeIterable[ConverterSig[typing.Any]], *, default: typing.Any = tanjun.NO_DEFAULT
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -852,7 +844,7 @@ def with_greedy_argument(
     /,
     converters: _MaybeIterable[ConverterSig[str]] = (),
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
@@ -867,7 +859,7 @@ def with_greedy_argument(
     /,
     converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_SizedCmpProtoT] = None,
@@ -882,7 +874,7 @@ def with_greedy_argument(
     /,
     converters: _MaybeIterable[ConverterSig[collections.Sized]],
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -895,7 +887,7 @@ def with_greedy_argument(
     /,
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     min_value: typing.Optional[_CmpProtoT] = None,
     max_value: typing.Optional[_CmpProtoT] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -907,7 +899,7 @@ def with_greedy_argument(
     /,
     converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[typing.Any]] = None,
@@ -957,8 +949,10 @@ def with_greedy_argument(
         Only the first converter to pass will be used.
     default
         The default value of this argument, if left as
-        [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
-        Assert that a string argument's length is greater than or equal to this.
+        [tanjun.abc.NO_DEFAULT][] then this will have no default.
+
+        If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+        passed when no value was provided.
 
         If any converters are provided then this should be compatible
         with the result of them.
@@ -1008,7 +1002,7 @@ def with_greedy_argument(
 
 @typing.overload
 def with_multi_argument(
-    key: str, /, converters: _MaybeIterable[ConverterSig[typing.Any]], *, default: _UndefinedOr[typing.Any] = UNDEFINED
+    key: str, /, converters: _MaybeIterable[ConverterSig[typing.Any]], *, default: typing.Any = tanjun.NO_DEFAULT
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -1019,7 +1013,7 @@ def with_multi_argument(
     /,
     converters: _MaybeIterable[ConverterSig[str]] = (),
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
@@ -1034,7 +1028,7 @@ def with_multi_argument(
     /,
     converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_SizedCmpProtoT] = None,
@@ -1049,7 +1043,7 @@ def with_multi_argument(
     /,
     converters: _MaybeIterable[ConverterSig[collections.Sized]],
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -1062,7 +1056,7 @@ def with_multi_argument(
     /,
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     min_value: typing.Optional[_CmpProtoT] = None,
     max_value: typing.Optional[_CmpProtoT] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -1074,7 +1068,7 @@ def with_multi_argument(
     /,
     converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     *,
-    default: _UndefinedOr[typing.Any] = UNDEFINED,
+    default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[typing.Any]] = None,
@@ -1125,7 +1119,10 @@ def with_multi_argument(
         Only the first converter to pass will be used.
     default
         The default value of this argument, if left as
-        [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no default.
+        [tanjun.abc.NO_DEFAULT][] then this will have no default.
+
+        If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+        passed when no value was provided.
     min_length
         Assert that a string argument's length is greater than or equal to this.
 
@@ -1178,7 +1175,7 @@ def with_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[typing.Any]],
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
@@ -1192,7 +1189,7 @@ def with_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[str]] = (),
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
@@ -1210,7 +1207,7 @@ def with_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_SizedCmpProtoT] = None,
@@ -1228,7 +1225,7 @@ def with_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[collections.Sized]],
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     multi: bool = False,
@@ -1244,7 +1241,7 @@ def with_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_value: typing.Optional[_CmpProtoT] = None,
     max_value: typing.Optional[_CmpProtoT] = None,
     multi: bool = False,
@@ -1260,7 +1257,7 @@ def with_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[typing.Any]] = None,
@@ -1307,9 +1304,12 @@ def with_option(
 
         Only the first converter to pass will be used.
     empty_value
-        The value to use if this option is provided without a value. If left as
-        [UNDEFINED][tanjun.parsing.UNDEFINED] then this option will error if
+        The value to use if this option is provided without a value.
+
+        If left as [tanjun.abc.NO_DEFAULT][] then this option will error if
         it's provided without a value.
+
+        [tanjun.abc.NO_PASS][] is not supported for this.
     min_length
         Assert that a string argument's length is greater than or equal to this.
 
@@ -1372,7 +1372,7 @@ def with_multi_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[typing.Any]],
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     ...
 
@@ -1385,7 +1385,7 @@ def with_multi_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[str]] = (),
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
@@ -1402,7 +1402,7 @@ def with_multi_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_SizedCmpProtoT] = None,
@@ -1419,7 +1419,7 @@ def with_multi_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[collections.Sized]],
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -1434,7 +1434,7 @@ def with_multi_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_value: typing.Optional[_CmpProtoT] = None,
     max_value: typing.Optional[_CmpProtoT] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -1448,7 +1448,7 @@ def with_multi_option(
     *names: str,
     converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
     default: typing.Any,
-    empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+    empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[typing.Any]] = None,
@@ -1499,9 +1499,12 @@ def with_multi_option(
 
         Only the first converter to pass will be used.
     empty_value
-        The value to use if this option is provided without a value. If left as
-        [UNDEFINED][tanjun.parsing.UNDEFINED] then this option will error if
+        The value to use if this option is provided without a value.
+
+        If left as [tanjun.abc.NO_DEFAULT][] then this option will error if
         it's provided without a value.
+
+        [tanjun.abc.NO_PASS][] is not supported for this.
     min_length
         Assert that a string argument's length is greater than or equal to this.
 
@@ -1571,7 +1574,7 @@ class Parameter:
         /,
         *,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
@@ -1609,11 +1612,14 @@ class Parameter:
         return self._converters.copy()
 
     @property
-    def default(self) -> _UndefinedOr[typing.Any]:
+    def default(self) -> typing.Any:
         """The parameter's default.
 
-        If this is [UNDEFINED][tanjun.parsing.UNDEFINED] then this parameter is
+        If this is [tanjun.abc.NO_DEFAULT][] then this parameter is
         required.
+
+        If this is [tanjun.abc.NO_PASS][] then the parameter won't be
+        passed when no value was provided.
         """
         return self._default
 
@@ -1749,7 +1755,7 @@ class Argument(Parameter):
         /,
         *,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
@@ -1773,8 +1779,10 @@ class Argument(Parameter):
             Only the first converter to pass will be used.
         default
             The default value of this argument, if left as
-            [UNDEFINED][tanjun.parsing.UNDEFINED] then this will have no
-            default.
+            [tanjun.abc.NO_DEFAULT][] then this will have no default.
+
+            If this is [tanjun.abc.NO_PASS][] then the `key` parameter won't be
+            passed when no value was provided.
         greedy
             Whether or not this argument should be greedy (meaning that it
             takes in the remaining argument values).
@@ -1842,8 +1850,8 @@ class Option(Parameter):
         /,
         *names: str,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,
@@ -1874,8 +1882,11 @@ class Option(Parameter):
             Only the first converter to pass will be used.
         empty_value
             The value to use if this option is provided without a value.
-            If left as [UNDEFINED][tanjun.parsing.UNDEFINED] then this option
+
+            If left as [tanjun.abc.NO_DEFAULT][] then this option
             will error if it's provided without a value.
+
+            [tanjun.abc.NO_PASS][] is not supported for this.
         min_length
             Assert that a string argument's length is greater than or equal to this.
 
@@ -1917,10 +1928,10 @@ class Option(Parameter):
         )
 
     @property
-    def empty_value(self) -> _UndefinedOr[typing.Any]:
+    def empty_value(self) -> typing.Any:
         """The value to return if the option is empty.
 
-        If this is [UNDEFINED][tanjun.parsing.UNDEFINED] then a value will be
+        If this is [tanjun.abc.NO_DEFAULT][] then a value will be
         required for the option.
         """
         return self._empty_value
@@ -1976,7 +1987,7 @@ class ShlexParser(AbstractOptionParser):
         /,
         converters: _MaybeIterable[ConverterSig[typing.Any]],
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         multi: bool = False,
     ) -> Self:
@@ -1989,7 +2000,7 @@ class ShlexParser(AbstractOptionParser):
         /,
         converters: _MaybeIterable[ConverterSig[str]] = (),
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
@@ -2006,7 +2017,7 @@ class ShlexParser(AbstractOptionParser):
         /,
         converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
@@ -2023,7 +2034,7 @@ class ShlexParser(AbstractOptionParser):
         /,
         converters: _MaybeIterable[ConverterSig[collections.Sized]],
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
@@ -2038,7 +2049,7 @@ class ShlexParser(AbstractOptionParser):
         /,
         converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
@@ -2052,7 +2063,7 @@ class ShlexParser(AbstractOptionParser):
         /,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         *,
-        default: _UndefinedOr[typing.Any] = UNDEFINED,
+        default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
@@ -2095,7 +2106,7 @@ class ShlexParser(AbstractOptionParser):
         *names: str,
         converters: _MaybeIterable[ConverterSig[typing.Any]],
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         multi: bool = False,
     ) -> Self:
         ...
@@ -2109,7 +2120,7 @@ class ShlexParser(AbstractOptionParser):
         *names: str,
         converters: _MaybeIterable[ConverterSig[str]] = (),
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[str]] = None,
@@ -2127,7 +2138,7 @@ class ShlexParser(AbstractOptionParser):
         *names: str,
         converters: _MaybeIterable[ConverterSig[_SizedCmpProtoT]],
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_SizedCmpProtoT] = None,
@@ -2145,7 +2156,7 @@ class ShlexParser(AbstractOptionParser):
         *names: str,
         converters: _MaybeIterable[ConverterSig[collections.Sized]],
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         multi: bool = False,
@@ -2161,7 +2172,7 @@ class ShlexParser(AbstractOptionParser):
         *names: str,
         converters: _MaybeIterable[ConverterSig[_CmpProtoT]],
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
@@ -2177,7 +2188,7 @@ class ShlexParser(AbstractOptionParser):
         *names: str,
         converters: _MaybeIterable[ConverterSig[typing.Any]] = (),
         default: typing.Any,
-        empty_value: _UndefinedOr[typing.Any] = UNDEFINED,
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         min_value: typing.Optional[_CmpProto[typing.Any]] = None,

@@ -78,15 +78,15 @@ else:
     UnionTypes = frozenset((typing.Union,))
 
 
-class _NoDefaultEnum(enum.Enum):
+class _DefaultEnum(enum.Enum):
     VALUE = object()
 
 
-NO_DEFAULT = _NoDefaultEnum.VALUE
+DEFAULT = _DefaultEnum.VALUE
 """Internal singleton used to signify when a value wasn't provided."""
 
-NoDefault = typing.Literal[_NoDefaultEnum.VALUE]
-"""The type of `NO_DEFAULT`."""
+Default = typing.Literal[_DefaultEnum.VALUE]
+"""The type of `DEFAULT`."""
 
 
 async def _execute_check(ctx: _ContextT, callback: tanjun.CheckSig[_ContextT], /) -> bool:

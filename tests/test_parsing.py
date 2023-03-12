@@ -34,25 +34,6 @@
 
 import pytest
 
-import tanjun
-
-
-class TestUndefinedT:
-    def test___new__(self):
-        assert tanjun.parsing.UndefinedT() is tanjun.parsing.UndefinedT()
-        assert tanjun.parsing.UndefinedT() is tanjun.parsing.UNDEFINED
-        assert tanjun.parsing.UndefinedT() is tanjun.parsing.UNDEFINED_DEFAULT
-        assert tanjun.parsing.UndefinedDefaultT() is tanjun.parsing.UndefinedT()
-        assert tanjun.parsing.UndefinedDefaultT() is tanjun.parsing.UNDEFINED
-        assert tanjun.parsing.UndefinedDefaultT() is tanjun.parsing.UNDEFINED_DEFAULT
-        assert tanjun.parsing.UNDEFINED_DEFAULT is tanjun.parsing.UNDEFINED
-
-    def test___repr__(self):
-        assert repr(tanjun.parsing.UNDEFINED) == "UNDEFINED"
-
-    def test___bool__(self):
-        assert bool(tanjun.parsing.UNDEFINED) is False
-
 
 @pytest.mark.skip(reason="TODO")
 class TestShlexTokenizer:

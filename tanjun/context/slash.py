@@ -206,7 +206,7 @@ class SlashOption(tanjun.SlashOption):
         ...
 
     def resolve_to_member(
-        self, *, default: typing.Union[_T, _internal.NoDefault] = _internal.NO_DEFAULT
+        self, *, default: typing.Union[_T, _internal.Default] = _internal.DEFAULT
     ) -> typing.Union[hikari.InteractionMember, _T]:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         # What does self.value being None mean?
@@ -216,7 +216,7 @@ class SlashOption(tanjun.SlashOption):
             if member := self._resolved.members.get(hikari.Snowflake(self._option.value)):
                 return member
 
-            if default is not _internal.NO_DEFAULT:
+            if default is not _internal.DEFAULT:
                 return default
 
             raise LookupError("User isn't in the current guild") from None
@@ -229,7 +229,7 @@ class SlashOption(tanjun.SlashOption):
                 return member
 
             if target_id in self._resolved.users:
-                if default is not _internal.NO_DEFAULT:
+                if default is not _internal.DEFAULT:
                     return default
 
                 raise LookupError("User isn't in the current guild")
