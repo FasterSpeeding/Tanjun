@@ -1543,6 +1543,9 @@ def with_annotated_args(
             raise NotImplementedError
         ```
 
+    It should be noted that wrapping in [typing.Annotated][] isn't necessary for
+    message commands options as they don't have descriptions.
+
     ```py
     async def message_command(
         ctx: tanjun.abc.MessageContext,
@@ -1553,8 +1556,10 @@ def with_annotated_args(
         raise NotImplementedError
     ```
 
-    It should be noted that wrapping in [typing.Annotated][] isn't necessary for
-    message commands options as they don't have descriptions.
+    A [typing.TypedDict][] can be used to declare multiple options by
+    typing the passed `**kwargs` dict as it using [typing.Unpack][].
+    These options can be marked as optional using [typing.NotRequired][],
+    `total=False` or [Default][tanjun.annotations.Default].
 
     ```py
     class CommandOptions(typing.TypedDict):
@@ -1569,12 +1574,6 @@ def with_annotated_args(
     ) -> None:
         raise NotImplementedError
     ```
-
-    A [typing.TypedDict][] can be used to declare multiple options by
-    typing the passed `**kwargs` dict as it using [typing.Unpack][].
-
-    These options can be marked as optional using [typing.NotRequired][],
-    `total=False` or [Default][tanjun.annotations.Default].
 
     Parameters
     ----------
