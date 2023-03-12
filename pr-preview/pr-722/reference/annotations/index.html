@@ -3905,6 +3905,8 @@ this wraps in a decorator call chain.</p>
 </code></pre></div>
 </li>
 </ol>
+<p>It should be noted that wrapping in <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a> isn't necessary for
+message commands options as they don't have descriptions.</p>
 <div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">message_command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Str</span><span class="p">,</span>
@@ -3913,8 +3915,10 @@ this wraps in a decorator call chain.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>It should be noted that wrapping in <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a> isn't necessary for
-message commands options as they don't have descriptions.</p>
+<p>A <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.TypedDict">typing.TypedDict</a> can be used to declare multiple options by
+typing the passed <code>**kwargs</code> dict as it using <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Unpack">typing.Unpack</a>.
+These options can be marked as optional using <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.NotRequired">typing.NotRequired</a>,
+<code>total=False</code> or <a class="autorefs autorefs-internal" href="#tanjun.annotations.Default">Default</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">CommandOptions</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">TypedDict</span><span class="p">):</span>
     <span class="n">argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="s2">&quot;A required string argument&quot;</span><span class="p">]</span>
     <span class="n">other</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">Annotated</span><span class="p">[</span><span class="n">Bool</span><span class="p">,</span> <span class="s2">&quot;An optional string argument&quot;</span><span class="p">]]</span>
@@ -3927,10 +3931,6 @@ message commands options as they don't have descriptions.</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>A <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.TypedDict">typing.TypedDict</a> can be used to declare multiple options by
-typing the passed <code>**kwargs</code> dict as it using <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Unpack">typing.Unpack</a>.</p>
-<p>These options can be marked as optional using <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.NotRequired">typing.NotRequired</a>,
-<code>total=False</code> or <a class="autorefs autorefs-internal" href="#tanjun.annotations.Default">Default</a>.</p>
 
   <table>
     <thead>
