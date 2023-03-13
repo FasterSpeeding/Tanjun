@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ## [2.12.0] - 2023-03-12
 ### Added
-- Support for declaring the options for a slash command using
+- Support for declaring the options for a command using
   `**kwargs: typing.Unpack[TypedDict]` when using the annotations parsing impl in
   [tanjun.annotations][].
 - [tanjun.abc.NO_PASS][] for marking command options as being not passed when they
