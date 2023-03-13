@@ -10,10 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for declaring the options for a slash command using
   `**kwargs: typing.Unpack[TypedDict]` when using the annotations parsing impl in
   [tanjun.annotations][].
+- [tanjun.abc.NO_PASS][] for making command options as being not passed when they
+  weren't provided.
 
 ### Changed
 - Marked deprecated classes, functions and overloads as deprecated using `typing.deprecated`.
   Deprecated class aliases are now separate classes to allow warning on init.
+
+### Deprecated
+- Renamed [tanjun.parsing.UNDEFINED_DEFAULT][] and
+  [tanjun.commands.slash.UNDEFINED_DEFAULT][] to [tanjun.abc.NO_DEFAULT][].
+- [tanjun.parsing.UndefinedT][].
 
 ## [2.11.4] - 2023-02-08
 ### Fixed
