@@ -18,9 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Deprecated class aliases are now separate classes to allow warning on init.
 
 ### Deprecated
-- Renamed [tanjun.parser.UNDEFINED_DEFAULT][] and
+- Renamed [tanjun.parsing.UNDEFINED_DEFAULT][] and
   [tanjun.commands.slash.UNDEFINED_DEFAULT][] to [tanjun.abc.NO_DEFAULT][].
-- [tanjun.parser.UndefinedT][].
+- [tanjun.parsing.UndefinedT][].
 
 ## [2.11.4] - 2023-02-08
 ### Fixed
