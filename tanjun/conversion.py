@@ -462,7 +462,7 @@ _GuildCacheT = async_cache.SfCache[hikari.Guild]
 
 
 class ToGuild(BaseConverter):
-    """Stanard converter for guilds.
+    """Standard converter for guilds.
 
     For a standard instance of this see [tanjun.conversion.to_guild][].
     """

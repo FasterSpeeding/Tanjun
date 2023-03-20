@@ -609,7 +609,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Removed `cache_callback` from injecting.pyi.
-- Some bodged logging calls in declare_slash_commands which weren't providing the right amont of format args.
+- Some bodged logging calls in declare_slash_commands which weren't providing the right amount of format args.
 - Options not being sorted for slash commands within a command group.
 - Stop shlex from treating stuff after a `#` as a comment.
 
