@@ -674,7 +674,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `add_converter` and `remove_converter` from Parameter.
-- the `BaseConverter` classes are no-longer included in `conversion.__all__` meaning that they are no-longer
+- The `BaseConverter` classes are no-longer included in `conversion.__all__` meaning that they are no-longer
   documented.
 
 ## [2.1.0a1] - 2021-10-02
