@@ -3668,7 +3668,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Allow passing <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/channels/#hikari.channels.GuildThreadChannel">hikari.GuildThreadChannel</a> derived types
   (+ <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.InteractionChannel</a>) to
   <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.TheseChannels">TheseChannels</a>, and to the <code>types</code> field of
-  <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.with_channel_slash_option">with_channel_slash_option</a> and
+  <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_channel_slash_option">with_channel_slash_option</a> and
   <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.SlashCommand.add_channel_option">SlashCommand.add_channel_option</a>.</li>
 <li>The spacing in <code>triggering_name</code> is now properly normalised for message commands in groups to ensure
   only 1 space. This also fixes cases where names were being smashed together without any spaces.</li>
@@ -3939,10 +3939,12 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li><code>has_responded</code> is now only set to <code>True</code> for slash command contexts after the
   <code>create_initial_response</code> passes, avoiding issues where error logic calling <code>ctx.respond</code> after
   a call to <code>create_initial_response</code> failed would try to create a followup and 404.</li>
-<li>Further resolve Paths in module loading logic:</li>
+<li>Further resolve Paths in module loading logic:<ul>
 <li>User relative paths (<code>~</code>) can now be passed.</li>
 <li>It now normalises path (so separators), avoiding the same path but with different separators being registered multiple times.</li>
 <li>It now normalises symlinks, avoiding the same module being registered multiple times through different symlinks.</li>
+</ul>
+</li>
 </ul>
 <h2 id="241a1-2022-02-25"><a href="https://github.com/FasterSpeeding/Tanjun/compare/v2.4.0a1...v2.4.1a1">2.4.1a1</a> - 2022-02-25<a class="headerlink" href="#241a1-2022-02-25" title="Permanent link">#</a></h2>
 <h3 id="added_18">Added<a class="headerlink" href="#added_18" title="Permanent link">#</a></h3>
