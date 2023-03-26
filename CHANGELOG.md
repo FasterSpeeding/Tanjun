@@ -365,9 +365,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `create_initial_response` passes, avoiding issues where error logic calling `ctx.respond` after
   a call to `create_initial_response` failed would try to create a followup and 404.
 - Further resolve Paths in module loading logic:
-  * User relative paths (`~`) can now be passed.
-  * It now normalises path (so separators), avoiding the same path but with different separators being registered multiple times.
-  * It now normalises symlinks, avoiding the same module being registered multiple times through different symlinks.
+    * User relative paths (`~`) can now be passed.
+    * It now normalises path (so separators), avoiding the same path but with different separators being registered multiple times.
+    * It now normalises symlinks, avoiding the same module being registered multiple times through different symlinks.
 
 ## [2.4.1a1] - 2022-02-25
 ### Added
@@ -419,7 +419,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - False-positive cache warnings from the standard converters.
 - Mishandled edge cases for to_color.
-- Mishandling of greedy arguments as reported by #200
+- Mishandling of greedy arguments as reported by [#200](https://github.com/FasterSpeeding/Tanjun/issues/200).
 
 ## [2.3.1a1] - 2022-01-27
 ### Added
@@ -674,7 +674,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `add_converter` and `remove_converter` from Parameter.
-- the `BaseConverter` classes are no-longer included in `conversion.__all__` meaning that they are no-longer
+- The `BaseConverter` classes are no-longer included in `conversion.__all__` meaning that they are no-longer
   documented.
 
 ## [2.1.0a1] - 2021-10-02
