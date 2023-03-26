@@ -48,17 +48,16 @@ async def nsfw_command(ctx: tanjun.abc.Context) -> None:
 
 # While slash command groups may be nested, this only works up to one level.
 top_group = component.with_slash_command(tanjun.slash_command_group("places", "get info about places"))
-nested_group = top_group.with_command(tanjun.slash_command_group("interaction", "say hello or something!"))
+nested_group = top_group.make_sub_group("interaction", "say hello or something!")
 
 
-@nested_group.with_command
 # This adds a required member option to the command which'll be passed to the
 # "member" argument as type hikari.Member.
 @tanjun.with_member_slash_option("member", "Option description")
 # This adds an optional string option to the command which'll be passed
 # to the "name" argument as type str if it was provided else None.
 @tanjun.with_str_slash_option("name", "Option description", default=None)
-@tanjun.as_slash_command("hi", "command description")
+@nested_group.as_sub_command("hi", "command description")
 async def hi_command(ctx: tanjun.abc.Context, name: typing.Optional[str], member: hikari.Member) -> None:
     if name:
         await ctx.respond(f"Hi, {name} and {member.username}")
@@ -67,16 +66,14 @@ async def hi_command(ctx: tanjun.abc.Context, name: typing.Optional[str], member
         await ctx.respond(f"Hi {member.username}")
 
 
-@top_group.with_command
 # Here we add a required string option which'll be convertered to an emoji object.
 @tanjun.with_str_slash_option("emoji", "Option description", converters=tanjun.to_emoji)
-@tanjun.as_slash_command("japan", "command description")
+@top_group.as_sub_command("japan", "command description")
 async def japan_command(ctx: tanjun.abc.Context, emoji: hikari.Emoji) -> None:
     await ctx.respond(f"Nihongo ga dekimasu ka? {emoji}")
 
 
-@top_group.with_command
-@tanjun.as_slash_command("europe", "command description")
+@top_group.as_sub_command("europe", "command description")
 async def europe_command(ctx: tanjun.abc.Context) -> None:
     await ctx.respond("I don't know how to describe Europe... small?")
 
