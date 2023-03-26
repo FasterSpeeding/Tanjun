@@ -186,14 +186,12 @@ def slash_command_group(
     ```python
     help_group = tanjun.slash_command_group("help", "get help")
 
-    @help_group.with_command
     @tanjun.with_str_slash_option("command_name", "command name")
-    @tanjun.as_slash_command("command", "Get help with a command")
+    @help_group.as_sub_command("command", "Get help with a command")
     async def help_command_command(ctx: tanjun.abc.SlashContext, command_name: str) -> None:
         ...
 
-    @help_group.with_command
-    @tanjun.as_slash_command("me", "help me")
+    @help_group.as_sub_command("me", "help me")
     async def help_me_command(ctx: tanjun.abc.SlashContext) -> None:
         ...
 

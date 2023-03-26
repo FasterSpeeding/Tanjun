@@ -59,8 +59,7 @@ async def user(
     ...  # TODO: implement response
 
 
-@user.with_command
-@tanjun.as_message_command("remove self")
+@user.as_sub_command("remove self")
 async def remove_self(
     # Here we ask for an implementation of the type `DatabaseProto` to be
     # provided as an argument whenever the client calls this command.

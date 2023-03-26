@@ -31,19 +31,17 @@ async def note(ctx: tanjun.abc.Context) -> None:
     await ctx.respond("You have zero notes")
 
 
-@note.with_command
 @tanjun.with_greedy_argument("value")
 @tanjun.with_argument("name")
-@tanjun.as_message_command("add", "create")
+@note.as_sub_command("add", "create")
 async def note_add(ctx: tanjun.abc.Context, name: str, value: str) -> None:
     ...  # Actual implementation
     await ctx.respond(f"Added {name} note with value {value}")
 
 
-@note.with_command
 @tanjun.with_option("force", "--force", "-f", converters=(bool,), default=False)
 @tanjun.with_argument("name")
-@tanjun.as_message_command("remove", "delete")
+@note.as_sub_command("remove", "delete")
 async def note_remove(ctx: tanjun.abc.Context, name: str, force: bool) -> None:
     ...  # Actual implementation
     await ctx.respond(f"Force removed {name} note" if force else f"Removed {name} note")
