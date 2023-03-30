@@ -1685,7 +1685,7 @@ of commands concurrently.</p>
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 will manage the concurrency limits for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_bucket">Limiter.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to at most 2 concurrent executions per user,
@@ -1742,7 +1742,7 @@ only have 1 linked cooldown manager).</p>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_cooldown">with_cooldown</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_cooldown">with_cooldown</a>
 to mark these commands as using the <code>"main_commands"</code> cooldown bucket;
 buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
