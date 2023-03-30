@@ -201,6 +201,7 @@ reportUnknownVariableType = "warning"           # Lotta false-positives, might f
 asyncio_mode = "strict"
 testpaths = ["tests"]
 required_plugins = ["pytest-asyncio", "pytest-timeout"]
+filterwarnings = ["error::DeprecationWarning"]
 
 [tool.slotscheck]
 strict-imports = true
