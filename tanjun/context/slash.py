@@ -640,8 +640,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 flags=flags,
                 is_tts=tts,
                 mentions_everyone=mentions_everyone,
-                user_mentions=user_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]  # TODO: hikari fix
-                role_mentions=role_mentions,  # pyright: ignore [ reportGeneralTypeIssues ]  # TODO: hikari fix
+                user_mentions=user_mentions,
+                role_mentions=role_mentions,
             )
 
             self._response_future.set_result(result)
