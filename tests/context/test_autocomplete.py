@@ -281,7 +281,10 @@ class TestAutocompleteContext:
         assert result is None
         assert context.has_responded is True
         mock_interaction.create_response.assert_awaited_once_with(
-            [hikari.CommandChoice(name="hi", value="bye"), hikari.CommandChoice(name="ok", value="45")]
+            [
+                hikari.impl.AutocompleteChoiceBuilder(name="hi", value="bye"),
+                hikari.impl.AutocompleteChoiceBuilder(name="ok", value="45"),
+            ]
         )
 
     @pytest.mark.asyncio()
@@ -304,9 +307,9 @@ class TestAutocompleteContext:
         assert result is None
         mock_interaction.create_response.assert_awaited_once_with(
             [
-                hikari.CommandChoice(name="echo", value="delta"),
-                hikari.CommandChoice(name="hi", value="bye"),
-                hikari.CommandChoice(name="goof", value="meow"),
+                hikari.impl.AutocompleteChoiceBuilder(name="echo", value="delta"),
+                hikari.impl.AutocompleteChoiceBuilder(name="hi", value="bye"),
+                hikari.impl.AutocompleteChoiceBuilder(name="goof", value="meow"),
             ]
         )
 
@@ -322,9 +325,9 @@ class TestAutocompleteContext:
         mock_future.set_result.assert_called_once_with(mock_interaction.build_response.return_value)
         mock_interaction.build_response.assert_called_once_with(
             [
-                hikari.CommandChoice(name="meow", value="neko"),
-                hikari.CommandChoice(name="woof", value="borf"),
-                hikari.CommandChoice(name="bark", value="moo"),
+                hikari.impl.AutocompleteChoiceBuilder(name="meow", value="neko"),
+                hikari.impl.AutocompleteChoiceBuilder(name="woof", value="borf"),
+                hikari.impl.AutocompleteChoiceBuilder(name="bark", value="moo"),
             ]
         )
 
@@ -341,9 +344,9 @@ class TestAutocompleteContext:
         mock_future.set_result.assert_called_once_with(mock_interaction.build_response.return_value)
         mock_interaction.build_response.assert_called_once_with(
             [
-                hikari.CommandChoice(name="japan", value="weeb"),
-                hikari.CommandChoice(name="england", value="idk"),
-                hikari.CommandChoice(name="usa", value="lol"),
+                hikari.impl.AutocompleteChoiceBuilder(name="japan", value="weeb"),
+                hikari.impl.AutocompleteChoiceBuilder(name="england", value="idk"),
+                hikari.impl.AutocompleteChoiceBuilder(name="usa", value="lol"),
             ]
         )
         assert context.has_responded is True
