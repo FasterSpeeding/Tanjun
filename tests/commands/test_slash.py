@@ -2138,7 +2138,7 @@ class TestSlashCommand:
 
     def test_add_float_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]):
         choice_1 = hikari.CommandChoice(name="g", name_localizations={"g": "d", "e": "o"}, value="o")
-        choice_2 = hikari.CommandChoice(name="t", name_localizations={"d": "g", "ed": "os"}, value="fo")
+        choice_2 = hikari.CommandChoice(name="t", name_localizations={"d": "g", "ed": "os"}, value="for")
         choice_3 = hikari.CommandChoice(name="s", name_localizations={"f": "g", "a": "od"}, value="go")
         command.add_float_option("sesese", "asasasa", choices=[choice_1, choice_2, choice_3])
 
