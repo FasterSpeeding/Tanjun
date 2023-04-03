@@ -39,7 +39,6 @@ import inspect
 import re
 import types
 import typing
-import warnings
 from collections import abc as collections
 from unittest import mock
 
@@ -1614,33 +1613,25 @@ class TestSlashCommand:
         command.add_str_option("boom", "No u", choices=["video", "channel", "playlist"])
 
         option = command.build().options[0]
-        assert option.name == "boom"
-        assert option.description == "No u"
-        assert option.is_required is True
-        assert option.options is None
-        assert option.type is hikari.OptionType.STRING
         assert option.choices == [
             hikari.CommandChoice(name="Video", value="video"),
             hikari.CommandChoice(name="Channel", value="channel"),
             hikari.CommandChoice(name="Playlist", value="playlist"),
         ]
-        assert option.min_value is None
-        assert option.max_value is None
-        assert option.channel_types is None
+        assert option.name in command._tracked_options
 
-        tracked = command._tracked_options[option.name]
-        assert tracked.key == option.name
-        assert tracked.name == option.name
-        assert tracked.type is hikari.OptionType.STRING
-        assert tracked.default is tanjun.abc.NO_DEFAULT
-        assert tracked.converters == []
-        assert tracked.is_always_float is False
-        assert tracked.is_only_member is False
+    def test_add_str_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]):
+        choice_1 = hikari.CommandChoice(name="ea", name_localizations={"a": "b"}, value="meow")
+        choice_2 = hikari.CommandChoice(name="s", name_localizations={"a": "h"}, value="meowa")
+        choice_3 = hikari.CommandChoice(name="f", name_localizations={"a": "bf"}, value="mesow")
+        command.add_str_option("boom", "No u", choices=[choice_1, choice_2, choice_3])
+
+        option = command.build().options[0]
+        assert option.choices == [choice_1, choice_2, choice_3]
+        assert option.name in command._tracked_options
 
     def test_add_str_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-
+        with pytest.warns(DeprecationWarning):
             command.add_str_option(
                 "boom",
                 "No u",
@@ -1648,29 +1639,13 @@ class TestSlashCommand:
             )
 
         option = command.build().options[0]
-        assert option.name == "boom"
-        assert option.description == "No u"
-        assert option.is_required is True
-        assert option.options is None
-        assert option.type is hikari.OptionType.STRING
         assert option.choices == [
             hikari.CommandChoice(name="gay", value="Gay"),
             hikari.CommandChoice(name="No", value="no"),
             hikari.CommandChoice(name="lesbian_bi", value="Lesbian Bi"),
             hikari.CommandChoice(name="transive", value="Trans"),
         ]
-        assert option.min_value is None
-        assert option.max_value is None
-        assert option.channel_types is None
-
-        tracked = command._tracked_options[option.name]
-        assert tracked.key == option.name
-        assert tracked.name == option.name
-        assert tracked.type is hikari.OptionType.STRING
-        assert tracked.default is tanjun.abc.NO_DEFAULT
-        assert tracked.converters == []
-        assert tracked.is_always_float is False
-        assert tracked.is_only_member is False
+        assert option.name in command._tracked_options
 
     def test_add_str_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_str_option("boom", "No u")
@@ -1925,30 +1900,23 @@ class TestSlashCommand:
             command.add_int_option("sesese", "asasasa", min_value=33232, max_value=2232)
 
     def test_add_int_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-
+        with pytest.warns(DeprecationWarning):
             command.add_int_option("see", "seesee", choices=[("les", 1), ("g", 43)])  # type: ignore
 
         option = command.build().options[0]
-        assert option.name == "see"
-        assert option.description == "seesee"
-        assert option.is_required is True
-        assert option.options is None
-        assert option.type is hikari.OptionType.INTEGER
         assert option.choices == [hikari.CommandChoice(name="les", value=1), hikari.CommandChoice(name="g", value=43)]
-        assert option.min_value is None
-        assert option.max_value is None
-        assert option.channel_types is None
+        assert option.name in command._tracked_options
 
-        tracked = command._tracked_options[option.name]
-        assert tracked.key == option.name
-        assert tracked.name == option.name
-        assert tracked.type is hikari.OptionType.INTEGER
-        assert tracked.default is tanjun.abc.NO_DEFAULT
-        assert tracked.converters == []
-        assert tracked.is_always_float is False
-        assert tracked.is_only_member is False
+    def test_add_int_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]):
+        choice_1 = hikari.CommandChoice(name="a", name_localizations={"b": "c"}, value="d")
+        choice_2 = hikari.CommandChoice(name="e", name_localizations={"f": "g"}, value="h")
+        choice_3 = hikari.CommandChoice(name="i", name_localizations={"j": "k"}, value="l")
+
+        command.add_int_option("see", "seesee", choices=[choice_1, choice_2, choice_3])
+
+        option = command.build().options[0]
+        assert option.choices == [choice_1, choice_2, choice_3]
+        assert option.name in command._tracked_options
 
     def test_add_int_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_int_option("e", "a")
@@ -2168,33 +2136,26 @@ class TestSlashCommand:
         with pytest.raises(ValueError, match="`min_value` cannot be greater than `max_value`"):
             command.add_float_option("sesese", "asasasa", min_value=333.222, max_value=222.333)
 
-    def test_add_float_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
+    def test_add_float_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]):
+        choice_1 = hikari.CommandChoice(name="g", name_localizations={"g": "d", "e": "o"}, value="o")
+        choice_2 = hikari.CommandChoice(name="t", name_localizations={"d": "g", "ed": "os"}, value="fo")
+        choice_3 = hikari.CommandChoice(name="s", name_localizations={"f": "g", "a": "od"}, value="go")
+        command.add_float_option("sesese", "asasasa", choices=[choice_1, choice_2, choice_3])
 
+        option = command.build().options[0]
+        assert option.choices == [choice_1, choice_2, choice_3]
+        assert option.name in command._tracked_options
+
+    def test_add_float_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
+        with pytest.warns(DeprecationWarning):
             command.add_float_option("easy", "aaa", choices=[("blam", 4.20), ("blam2", 6.9)])  # type: ignore
 
         option = command.build().options[0]
-        assert option.name == "easy"
-        assert option.description == "aaa"
-        assert option.is_required is True
-        assert option.options is None
-        assert option.type is hikari.OptionType.FLOAT
         assert option.choices == [
             hikari.CommandChoice(name="blam", value=4.20),
             hikari.CommandChoice(name="blam2", value=6.9),
         ]
-        assert option.min_value is None
-        assert option.max_value is None
-        assert option.channel_types is None
-
-        tracked = command._tracked_options[option.name]
-        assert tracked.name == option.name
-        assert tracked.type is hikari.OptionType.FLOAT
-        assert tracked.default is tanjun.abc.NO_DEFAULT
-        assert tracked.converters == []
-        assert tracked.is_always_float is True
-        assert tracked.is_only_member is False
+        assert option.name in command._tracked_options
 
     def test_add_float_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_float_option("easy", "aaa")

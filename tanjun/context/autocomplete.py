@@ -224,7 +224,9 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
             raise ValueError("Cannot set more than 25 choices")
 
         self._has_responded = True
-        choice_objects = [hikari.CommandChoice(name=name, value=value) for name, value in choices.items()]
+        choice_objects = [
+            hikari.impl.AutocompleteChoiceBuilder(name=name, value=value) for name, value in choices.items()
+        ]
 
         if self._future:
             self._future.set_result(self._interaction.build_response(choice_objects))

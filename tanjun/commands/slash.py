@@ -431,7 +431,9 @@ def with_str_slash_option(
     /,
     *,
     autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
-    choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
+    choices: typing.Union[
+        collections.Mapping[str, str], collections.Sequence[str], collections.Sequence[hikari.CommandChoice], None
+    ] = None,
     converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
     default: typing.Any = tanjun.NO_DEFAULT,
     key: typing.Optional[str] = None,
@@ -479,7 +481,7 @@ def with_int_slash_option(
     /,
     *,
     autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
-    choices: typing.Optional[collections.Mapping[str, int]] = None,
+    choices: typing.Union[collections.Mapping[str, int], collections.Sequence[hikari.CommandChoice], None] = None,
     converters: typing.Union[collections.Sequence[ConverterSig[int]], ConverterSig[int]] = (),
     default: typing.Any = tanjun.NO_DEFAULT,
     key: typing.Optional[str] = None,
@@ -528,7 +530,7 @@ def with_float_slash_option(
     *,
     always_float: bool = True,
     autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
-    choices: typing.Optional[collections.Mapping[str, float]] = None,
+    choices: typing.Union[collections.Mapping[str, float], collections.Sequence[hikari.CommandChoice], None] = None,
     converters: typing.Union[collections.Sequence[ConverterSig[float]], ConverterSig[float]] = (),
     default: typing.Any = tanjun.NO_DEFAULT,
     key: typing.Optional[str] = None,
@@ -1679,7 +1681,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         autocomplete: bool = False,
         channel_types: typing.Optional[collections.Sequence[int]] = None,
         choices: typing.Union[
-            collections.Mapping[str, typing.Union[str, int, float]], collections.Sequence[typing.Any], None
+            collections.Mapping[str, typing.Union[str, int, float]],
+            collections.Sequence[tuple[str, typing.Union[str, int, float]]],
+            collections.Sequence[hikari.CommandChoice],
+            None,
         ] = None,
         converters: typing.Union[collections.Sequence[_AnyConverterSig], _AnyConverterSig] = (),
         default: typing.Any = tanjun.NO_DEFAULT,
@@ -1732,13 +1737,23 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             actual_choices = [hikari.CommandChoice(name=name, value=value) for name, value in choices.items()]
 
         else:
-            warnings.warn(
-                "Passing a sequence of tuples to `choices` is deprecated since 2.1.2a1, "
-                "please pass a mapping instead.",
-                category=DeprecationWarning,
-                stacklevel=2 + _stack_level,
-            )
-            actual_choices = [hikari.CommandChoice(name=name, value=value) for name, value in choices]
+            actual_choices = []
+            warned = False
+            for choice in choices:
+                if isinstance(choice, tuple):
+                    if not warned:
+                        warned = True
+                        warnings.warn(
+                            "Passing a sequence of tuples to `choices` is deprecated since 2.1.2a1, "
+                            "please pass a mapping instead.",
+                            category=DeprecationWarning,
+                            stacklevel=2 + _stack_level,
+                        )
+
+                    actual_choices.append(hikari.CommandChoice(name=choice[0], value=choice[1]))
+
+                else:
+                    actual_choices.append(choice)
 
         if actual_choices and len(actual_choices) > 25:
             raise ValueError("Slash command options cannot have more than 25 choices")
@@ -1852,7 +1867,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         /,
         *,
         autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
-        choices: typing.Union[collections.Mapping[str, str], collections.Sequence[str], None] = None,
+        choices: typing.Union[
+            collections.Mapping[str, str], collections.Sequence[str], collections.Sequence[hikari.CommandChoice], None
+        ] = None,
         converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
         default: typing.Any = tanjun.NO_DEFAULT,
         key: typing.Optional[str] = None,
@@ -1891,7 +1908,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         *,
         autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
         choices: typing.Union[
-            collections.Mapping[str, str], collections.Sequence[str], collections.Sequence[tuple[str, str]], None
+            collections.Mapping[str, str],
+            collections.Sequence[str],
+            collections.Sequence[tuple[str, str]],
+            collections.Sequence[hikari.CommandChoice],
+            None,
         ] = None,
         converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
         default: typing.Any = tanjun.NO_DEFAULT,
@@ -1993,10 +2014,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If `max_length` is less than `1` or greater than `6000`.
         """  # noqa: E501
         if choices is None or isinstance(choices, collections.Mapping):
-            actual_choices: typing.Optional[collections.Mapping[str, str]] = choices
+            actual_choices: typing.Union[collections.Mapping[str, str], list[hikari.CommandChoice], None] = choices
 
         else:
-            actual_choices = {}
+            actual_choices = []
             warned = False
             for choice in choices:
                 if isinstance(choice, tuple):
@@ -2009,10 +2030,13 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
                         )
                         warned = True
 
-                    actual_choices[choice[0]] = choice[1]
+                    actual_choices.append(hikari.CommandChoice(name=choice[0], value=choice[1]))
+
+                elif isinstance(choice, hikari.CommandChoice):
+                    actual_choices.append(choice)
 
                 else:
-                    actual_choices[choice.capitalize()] = choice
+                    actual_choices.append(hikari.CommandChoice(name=choice.capitalize(), value=choice))
 
         names = localisation.MaybeLocalised("name", name)
         descriptions = localisation.MaybeLocalised("description", description)
@@ -2043,7 +2067,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         /,
         *,
         autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
-        choices: typing.Optional[collections.Mapping[str, int]] = None,
+        choices: typing.Union[collections.Mapping[str, int], collections.Sequence[hikari.CommandChoice], None] = None,
         converters: typing.Union[collections.Sequence[ConverterSig[int]], ConverterSig[int]] = (),
         default: typing.Any = tanjun.NO_DEFAULT,
         key: typing.Optional[str] = None,
@@ -2081,7 +2105,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         /,
         *,
         autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
-        choices: typing.Union[collections.Mapping[str, int], collections.Sequence[tuple[str, int]], None] = None,
+        choices: typing.Union[
+            collections.Mapping[str, int],
+            collections.Sequence[tuple[str, int]],
+            collections.Sequence[hikari.CommandChoice],
+            None,
+        ] = None,
         converters: typing.Union[collections.Sequence[ConverterSig[int]], ConverterSig[int]] = (),
         default: typing.Any = tanjun.NO_DEFAULT,
         key: typing.Optional[str] = None,
@@ -2196,7 +2225,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         *,
         always_float: bool = True,
         autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
-        choices: typing.Optional[collections.Mapping[str, float]] = None,
+        choices: typing.Union[collections.Mapping[str, float], collections.Sequence[hikari.CommandChoice], None] = None,
         converters: typing.Union[collections.Sequence[ConverterSig[float]], ConverterSig[float]] = (),
         default: typing.Any = tanjun.NO_DEFAULT,
         key: typing.Optional[str] = None,
@@ -2236,7 +2265,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         *,
         always_float: bool = True,
         autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
-        choices: typing.Union[collections.Mapping[str, float], collections.Sequence[tuple[str, float]], None] = None,
+        choices: typing.Union[
+            collections.Mapping[str, float],
+            collections.Sequence[tuple[str, float]],
+            collections.Sequence[hikari.CommandChoice],
+            None,
+        ] = None,
         converters: typing.Union[collections.Sequence[ConverterSig[float]], ConverterSig[float]] = (),
         default: typing.Any = tanjun.NO_DEFAULT,
         key: typing.Optional[str] = None,
