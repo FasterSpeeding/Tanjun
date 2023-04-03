@@ -15,7 +15,7 @@
         <link rel="next" href="../reference/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.3">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.4">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.c4a75a56.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.240905d7.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -1685,7 +1685,7 @@ of commands concurrently.</p>
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 will manage the concurrency limits for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_bucket">Limiter.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to at most 2 concurrent executions per user,
@@ -1710,7 +1710,7 @@ linked limiter).</p>
 to mark these commands as using the <code>"main_commands"</code> concurrency limit bucket;
 buckets share their limits for a resource across all the commands under it. For
 more information on the resources concurrency can be limited by see
-<a class="autorefs autorefs-internal" href="../reference/#tanjun.BucketResource">BucketResource</a>.</p>
+<a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.BucketResource">BucketResource</a>.</p>
 <h3 id="cooldowns">Cooldowns<a class="headerlink" href="#cooldowns" title="Permanent link">#</a></h3>
 <p>Cooldowns limit how often a group of commands can be called.</p>
 <div class="highlight"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
@@ -1746,7 +1746,7 @@ only have 1 linked cooldown manager).</p>
 to mark these commands as using the <code>"main_commands"</code> cooldown bucket;
 buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
-<a class="autorefs autorefs-internal" href="../reference/#tanjun.BucketResource">BucketResource</a>.</p>
+<a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.BucketResource">BucketResource</a>.</p>
 <h2 id="localisation">Localisation<a class="headerlink" href="#localisation" title="Permanent link">#</a></h2>
 <p><a href="https://en.wikipedia.org/wiki/Language_localisation">Localisation</a> allows for
 tailoring the declarations and responses of slash commands and context menu
@@ -1791,6 +1791,7 @@ use the following formats unless explicitly overridden:</p>
 <li>Command names: <code>f"{command_type}:{command_name}:name"</code></li>
 <li>Slash option names: <code>f"slash:{command_name}:option.name:{option_name}"</code></li>
 <li>Slash option descriptions: <code>f"slash:{command_name}:option.description:{option_name}"</code></li>
+<li>Slash option choice names: <code>f"slash:{command_name}:choice.name:{choice_name}"</code></li>
 </ul>
 <p><code>command_type</code> may be one of <code>"message_menu"</code>, <code>"slash"</code> or <code>"user_menu"</code>,
 <code>command_name</code> will be the full name of the command (including parent command
@@ -1866,7 +1867,7 @@ specific languages within your own code.</p>
     <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.efa0ade1.min.js"></script>
+      <script src="../assets/javascripts/bundle.19047be9.min.js"></script>
       
     
   </body>
