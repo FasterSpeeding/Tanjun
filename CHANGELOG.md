@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Support for localising slash command option names.
+- Support for localising slash command option choice names.
 
 ## [2.12.0] - 2023-03-12
 ### Added
