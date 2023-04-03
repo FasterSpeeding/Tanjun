@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for sending stickers to just [MessageContext.respond][tanjun.abc.MessageContext.respond].
+
 ## [2.12.0] - 2023-03-12
 ### Added
 - Support for declaring the options for a command using
