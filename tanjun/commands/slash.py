@@ -878,7 +878,7 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
         )
 
         for option in self.options:
-            builder.add_option(option)
+            builder.add_option(copy.copy(option))
 
         return builder
 

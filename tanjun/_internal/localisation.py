@@ -207,7 +207,7 @@ _TYPE_TO_STR: dict[hikari.CommandType, _CommandTypes] = {
     hikari.CommandType.SLASH: "slash",
     hikari.CommandType.USER: "user_menu",
 }
-_NamedFields = typing.Literal["check", "option.description", "option.name"]
+_NamedFields = typing.Literal["check", "choice.name", "option.description", "option.name"]
 _UnnamedFields = typing.Literal["description", "name"]
 _FieldType = typing.Union[_NamedFields, _UnnamedFields]
 
@@ -305,6 +305,12 @@ def _localise_slash_option(
     option.name_localizations.update(name_variants)
     option.description_localizations = dict(option.description_localizations)
     option.description_localizations.update(description_variants)
+
+    if option.choices:
+        for choice in option.choices:
+            name_variants = localiser.get_all_variants(to_localise_id("slash", name, "choice.name", choice.name))
+            choice.name_localizations = dict(choice.name_localizations)
+            choice.name_localizations.update(name_variants)
 
     if option.options:
         for option in option.options:
