@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Support for sending stickers to just [MessageContext.respond][tanjun.abc.MessageContext.respond].
+- Support for localising slash command option choice names.
 - Support for passing a sequence of [hikari.CommandChoice][hikari.commands.CommandChoice]s
   to `choices` when adding an option to a slash command.
 

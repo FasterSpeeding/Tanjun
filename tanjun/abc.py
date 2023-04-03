@@ -1005,6 +1005,8 @@ class MessageContext(Context, abc.ABC):
         components: hikari.UndefinedOr[collections.Sequence[hikari.api.ComponentBuilder]] = hikari.UNDEFINED,
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
+        sticker: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialSticker]] = hikari.UNDEFINED,
+        stickers: hikari.UndefinedOr[hikari.SnowflakeishSequence[hikari.PartialSticker]] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         reply: typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType] = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
@@ -1061,6 +1063,15 @@ class MessageContext(Context, abc.ABC):
             An embed to respond with.
         embeds
             A sequence of embeds to respond with.
+        sticker
+            If provided, the object or ID of a sticker to send on the message.
+
+            As of writing, bots can only send custom stickers from the current guild.
+        stickers
+            If provided, a sequence of the objects and IDs of up to 3 stickers
+            to send on the message.
+
+            As of writing, bots can only send custom stickers from the current guild.
         mentions_everyone
             If provided, whether the message should parse @everyone/@here
             mentions.
@@ -1092,7 +1103,8 @@ class MessageContext(Context, abc.ABC):
             If the interaction will have expired before `delete_after` is reached.
 
             If both `attachment` and `attachments` are passed or both `component`
-            and `components` are passed or both `embed` and `embeds` are passed.
+            and `components` are passed or both `embed` and `embeds` are passed
+            or both `sticker` and `stickers` are passed.
         hikari.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than

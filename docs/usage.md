@@ -866,6 +866,7 @@ use the following formats unless explicitly overridden:
 * Command names: `f"{command_type}:{command_name}:name"`
 * Slash option names: `f"slash:{command_name}:option.name:{option_name}"`
 * Slash option descriptions: `f"slash:{command_name}:option.description:{option_name}"`
+* Slash option choice names: `f"slash:{command_name}:choice.name:{choice_name}"`
 
 `command_type` may be one of `"message_menu"`, `"slash"` or `"user_menu"`,
 `command_name` will be the full name of the command (including parent command
