@@ -67,11 +67,19 @@ from . import owners
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+    import typing_extensions
     from typing_extensions import Self
+
+    _P = typing_extensions.ParamSpec("_P")
 
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _OtherCommandT = typing.TypeVar("_OtherCommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _InnerResourceSig = collections.Callable[[], "_InnerResourceT"]
+
+    _ConcurrencyErrorSigBase = collections.Callable[typing_extensions.Concatenate[str, _P], Exception]
+    _ConcurrencyErrorSig = _ConcurrencyErrorSigBase[...]
+    _CooldownErrorSigBase = collections.Callable[typing_extensions.Concatenate[str, datetime.datetime, _P], Exception]
+    _CooldownErrorSig = _CooldownErrorSigBase[...]
 
 
 _InnerResourceT = typing.TypeVar("_InnerResourceT", bound="_InnerResourceProto")
@@ -662,7 +670,7 @@ class CooldownPreExecution:
         bucket_id: str,
         /,
         *,
-        error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
+        error: typing.Optional[_CooldownErrorSig] = None,
         error_message: typing.Union[
             str, collections.Mapping[str, str]
         ] = "This command is currently in cooldown. Try again {cooldown}.",
@@ -677,9 +685,10 @@ class CooldownPreExecution:
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This should two arguments one of type [str][] and [datetime.datetime][]
-            where the first is the limiting bucket's ID and the second is when said
-            bucket can be used again.
+            This should match the signature `def (str, datetime.timedelta ...) -> Exception`
+            where the arguments are the limiting bucket's ID and when the bucket
+            can be used again, sync dependency injection is supported and the
+            returned [Exception][] is raised.
 
             This takes priority over `error_message`.
         error_message
@@ -725,7 +734,7 @@ def with_cooldown(
     bucket_id: str,
     /,
     *,
-    error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
+    error: typing.Optional[_CooldownErrorSig] = None,
     error_message: typing.Union[
         str, collections.Mapping[str, str]
     ] = "This command is currently in cooldown. Try again {cooldown}.",
@@ -747,9 +756,10 @@ def with_cooldown(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should two arguments one of type [str][] and [datetime.datetime][]
-        where the first is the limiting bucket's ID and the second is when said
-        bucket can be used again.
+        This should match the signature `def (str, datetime.timedelta ...) -> Exception`
+        where the arguments are the limiting bucket's ID and when the bucket
+        can be used again, sync dependency injection is supported and the
+        returned [Exception][] is raised.
 
         This takes priority over `error_message`.
     error_message
@@ -1012,7 +1022,7 @@ class ConcurrencyPreExecution:
         bucket_id: str,
         /,
         *,
-        error: typing.Optional[collections.Callable[[str], Exception]] = None,
+        error: typing.Optional[_ConcurrencyErrorSig] = None,
         error_message: typing.Union[
             str, collections.Mapping[str, str]
         ] = "This resource is currently busy; please try again later.",
@@ -1026,7 +1036,9 @@ class ConcurrencyPreExecution:
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This should two one [str][] argument which is the limiting bucket's ID.
+            This should match the signature `def (str, ...) -> Exception` where
+            the first argument is the limiting bucket's ID, sync dependency
+            injection is supported and the returned [Exception][] is raised.
 
             This takes priority over `error_message`.
         error_message
@@ -1086,7 +1098,7 @@ def with_concurrency_limit(
     bucket_id: str,
     /,
     *,
-    error: typing.Optional[collections.Callable[[str], Exception]] = None,
+    error: typing.Optional[_ConcurrencyErrorSig] = None,
     error_message: typing.Union[
         str, collections.Mapping[str, str]
     ] = "This resource is currently busy; please try again later.",
@@ -1107,7 +1119,9 @@ def with_concurrency_limit(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should two one [str][] argument which is the limiting bucket's ID.
+        This should match the signature `def (str, ...) -> Exception` where
+        the first argument is the limiting bucket's ID, sync dependency
+        injection is supported and the returned [Exception][] is raised.
 
         This takes priority over `error_message`.
     error_message
