@@ -418,9 +418,9 @@ pytest-asyncio==0.21.0 ; python_full_version >= "3.9.0" and python_version < "3.
 pytest-cov==4.0.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:2feb1b751d66a8bd934e5edfa2e961d11309dc37b73b0eabe73b5945fee20f6b \
     --hash=sha256:996b79efde6433cdbd0088872dbc5fb3ed7fe1578b68cdbba634f14bb8dd0470
-pytest-sugar==0.9.6 ; python_full_version >= "3.9.0" and python_version < "3.12" \
-    --hash=sha256:30e5225ed2b3cc988a8a672f8bda0fc37bcd92d62e9273937f061112b3f2186d \
-    --hash=sha256:c4793495f3c32e114f0f5416290946c316eb96ad5a3684dcdadda9267e59b2b8
+pytest-sugar==0.9.7 ; python_full_version >= "3.9.0" and python_version < "3.12" \
+    --hash=sha256:8cb5a4e5f8bbcd834622b0235db9e50432f4cbd71fef55b467fe44e43701e062 \
+    --hash=sha256:f1e74c1abfa55f7241cf7088032b6e378566f16b938f3f08905e2cf4494edd46
 pytest-timeout==2.1.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:c07ca07404c612f8abbe22294b23c368e2e5104b521c1790195561f37e1ac3d9 \
     --hash=sha256:f6f50101443ce70ad325ceb4473c4255e9d74e3c7cd0ef827309dfa4c0d975c6

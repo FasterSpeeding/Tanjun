@@ -45,6 +45,9 @@ line-length = 120
 skip-magic-trailing-comma = true
 target-version = ["py39"]
 
+[tool.codespell]
+ignore-regex = "TimeSchedule|Nd"
+
 [tool.coverage.run]
 concurrency = ["multiprocessing"]
 parallel = true
@@ -137,7 +140,6 @@ disable_error_code = ["type-abstract"]
 exclude = ["tanjun/_internal/vendor/"]
 
 [tool.piped]
-codespell_ignore = "TimeSchedule|Nd"
 default_sessions = [
     "reformat",
     "verify-markup",
