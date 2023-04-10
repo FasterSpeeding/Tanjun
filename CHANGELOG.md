@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [2.13.0] - 2023-04-10
 ### Added
 - Support for sending stickers to just [MessageContext.respond][tanjun.abc.MessageContext.respond].
 - Support for localising slash command option choice names.
@@ -892,7 +893,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for python 3.8 in-order to switch over to using collection.abc generic classes due to this being more
   forward compatible.
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.12.0...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.13.0...HEAD
+[2.13.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.12.0...v2.13.0
 [2.12.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.11.4...v2.12.0
 [2.11.4]: https://github.com/FasterSpeeding/Tanjun/compare/v2.11.3...v2.11.4
 [2.11.3]: https://github.com/FasterSpeeding/Tanjun/compare/v2.11.2...v2.11.3
