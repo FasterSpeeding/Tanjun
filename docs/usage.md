@@ -413,8 +413,8 @@ async def command(
 
 [Context.respond][tanjun.abc.Context.respond] is used to respond to a command
 call, this has a similar signature to Hikari's message respond method but will
-only be guaranteed to return a [hikari.messages.Message][] object when
-`ensure_result=True` is passed.
+only be guaranteed to return a [hikari.Message][hikari.messages.Message] object
+when `ensure_result=True` is passed.
 
 ### Ephemeral responses
 
