@@ -357,7 +357,7 @@ def assign_concurrency_limit_example() -> None:
     ) -> None:
         ...
 
- def cooldown_config_example() -> None:
+def cooldown_config_example() -> None:
     client = tanjun.Client.from_gateway_bot(bot)
     (
         tanjun.InMemoryCooldownManager()
