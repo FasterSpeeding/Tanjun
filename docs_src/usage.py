@@ -11,7 +11,6 @@
 
 # pyright: reportUnusedFunction=none
 
-import sys
 import typing
 
 import aiohttp
@@ -20,8 +19,6 @@ import hikari
 
 import tanjun
 from tanjun import annotations
-
-assert sys.version_info >= (3, 10)
 
 
 def gateway_bot_example() -> None:
