@@ -297,7 +297,7 @@ def using_checks_example() -> None:
     @tanjun.with_owner_check(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
-    async def owner_only_command(ctxL tanjun.abc.Context):
+    async def owner_only_command(ctx: tanjun.abc.Context):
         ...
 
 def custom_check_example() -> None:
