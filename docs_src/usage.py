@@ -8,6 +8,8 @@
 #
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
+import typing
+
 import aiohttp
 import alluka
 import hikari
@@ -31,7 +33,7 @@ def rest_bot_example() -> None:
     bot.run()
 
 
-def client_lifetime_example() -> None:
+def client_lifetime_example(bot: hikari.GatewayBotAware) -> None:
     client = tanjun.Client.from_gateway_bot(bot)
 
     @bot.with_client_callback(tanjun.ClientCallbackNames.STARTING)
@@ -83,7 +85,7 @@ def make_loader_example() -> None:
     loader = component.make_loader()
 
 
-def loading_example() -> None:
+def loading_example(bot: hikari.GatewayBotAware) -> None:
     (
         tanjun.Client.from_gateway_bot(bot)
         .load_directory("./bot/components", namespace="bot.components")
@@ -105,15 +107,15 @@ def slash_command_group_example() -> None:
     async def dong_command(ctx: tanjun.abc.SlashContext) -> None:
         ...
 
-    ding_ding_group = ding.make_sub_group("ding", "ding ding group")
+    ding_ding_group = ding_group.make_sub_group("ding", "ding ding group")
 
     @ding_ding_group.as_sub_command("ding", "ding ding ding command")
     async def ding_command(ctx: tanjun.abc.SlashContext) -> None:
         ...
 
 
-def message_command_example() -> None:
-    tanjun.Client.from_gateway_bot(gateway_bot).add_prefix("!")
+def message_command_example(bot: hikari.GatewayBotAware) -> None:
+    tanjun.Client.from_gateway_bot(bot).add_prefix("!")
 
     ...
 
@@ -146,7 +148,7 @@ def message_command_group_example() -> None:
         ...
 
 
-def context_menu_example() -> None:
+def context_menu_example(component: tanjun.Component) -> None:
     @component.with_command
     @tanjun.as_message_menu("name")
     async def message_menu_command(ctx: tanjun.abc.MenuContext, message: hikari.message) -> None:
@@ -156,6 +158,10 @@ def context_menu_example() -> None:
     @tanjun.as_user_menu("name")
     async def user_menu_command(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None:
         ...
+
+
+def get_video() -> str:
+    ...
 
 
 def annotations_example() -> None:
@@ -168,7 +174,7 @@ def annotations_example() -> None:
     from tanjun.annotations import Str
     from tanjun.annotations import User
 
-    @tanjun.with_annotated_args(follow_wrapped=true)
+    @tanjun.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
     async def command(
@@ -203,12 +209,12 @@ def responding_to_commands_example() -> None:
         message = await ctx.respond(
             "message content",
             attachments=[hikari.File("./its/a/mystery.jpeg")],
-            embeds=[hikari.Embed(title=str(author)).set_thumbnail(author.display_avatar_url)],
+            embeds=[hikari.Embed(title=str(ctx.author)).set_thumbnail(ctx.author.display_avatar_url)],
             ensure_result=True,
         )
 
 
-def ephemeral_response_example() -> None:
+def ephemeral_response_example(component: tanjun.Component) -> None:
     # All this command's responses will be ephemeral.
     @component.with_command
     @tanjun.as_slash_command("name", "description", ephemeral_default=True)
@@ -223,7 +229,7 @@ def ephemeral_response_example() -> None:
         await ctx.create_followup("finished the thing", ephemeral=True)  # private response
 
 
-def autocomplete_example() -> None:
+def autocomplete_example(component: tanjun.Component) -> None:
     @component.with_command
     @tanjun.with_str_slash_option("opt1", "description")
     @tanjun.with_str_slash_option("opt2", "description", default=None)
@@ -249,8 +255,10 @@ class Bar:
     ...
 
 
-def set_client_deps_example() -> None:
-    client = tanjun.Client.from_gateway_bot(bot).set_type_dependency(Foo, Foo()).set_type_dependency(Bar, Bar())
+def set_client_deps_example(bot: hikari.GatewayBotAware) -> None:
+    client = tanjun.Client.from_gateway_bot(bot)
+    client.set_type_dependency(Foo, Foo())
+    client.set_type_dependency(Bar, Bar())
 
 
 def require_deps() -> None:
@@ -269,6 +277,10 @@ def standard_check_example() -> None:
     @tanjun.as_slash_command("name", "description", default_member_permissions=hikari.Permissions.BAN_MEMBERS)
     async def command(ctx: tanjun.abc.Context) -> None:
         ...
+
+
+class Db:
+    ...
 
 
 def using_checks_example() -> None:
@@ -309,19 +321,19 @@ def pre_execution_hook_example() -> None:
         ...
 
 
-def post_execution_hook_example() -> None:
+def post_execution_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
     @hooks.with_post_execution  # hooks.add_post_execution
     async def post_execution_hook(ctx: tanjun.abc.Context) -> None:
         ...
 
 
-def success_hook_example() -> None:
+def success_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
     @hooks.with_on_success  # hooks.add_success_hook
     async def success_hook(ctx: tanjun.abc.Context) -> None:
         ...
 
 
-def error_hook_example() -> None:
+def error_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
     @hooks.with_on_error  # hooks.add_on_error
     async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> bool | None:
         ...
@@ -333,7 +345,7 @@ def parser_error_hook_example() -> None:
         ...
 
 
-def concurrency_limiter_config_example() -> None:
+def concurrency_limiter_config_example(bot: hikari.GatewayBotAware) -> None:
     client = tanjun.Client.from_gateway_bot(bot)
     (
         tanjun.InMemoryConcurrencyLimiter()
@@ -353,7 +365,7 @@ def assign_concurrency_limit_example() -> None:
         ...
 
 
-def cooldown_config_example() -> None:
+def cooldown_config_example(bot: hikari.GatewayBotAware) -> None:
     client = tanjun.Client.from_gateway_bot(bot)
     (
         tanjun.InMemoryCooldownManager()
