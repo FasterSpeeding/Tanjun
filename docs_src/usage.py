@@ -289,7 +289,7 @@ def standard_check_example() -> None:
 
 
 class DbResult:
-    banned: bool
+    banned: bool = False
 
 
 class Db:
