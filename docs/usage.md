@@ -12,14 +12,7 @@ gateway-based message and application command execution, and to run Tanjun
 you'll want to link it to a Hikari bot.
 
 ```py
-bot = hikari.impl.GatewayBot("TOKEN")
-client = tanjun.Client.from_gateway_bot(
-    bot, declare_global_commands=True, mention_prefix=True
-)
-
-...
-
-bot.run()
+--8<-- "./docs_src/usage.py:26:31"
 ```
 
 Here a Tanjun client is linked to a gateway bot instance to enable both
@@ -33,10 +26,7 @@ commands and context menus on startup and `mention_prefix=True` allows the
 bot's message commands to be triggered by starting a command call with `@bot`.
 
 ```py
-async def main():
-    bot = hikari.impl.RESTBot("TOKEN", hikari.TokenType.BOT)
-    tanjun.Client.from_rest_bot(bot, bot_managed=True, declare_global_commands=True)
-    bot.run()
+--8<-- "./docs_src/usage.py:35:37"
 ```
 
 And here a Tanjun client is linked to a REST server bot instance to enable
@@ -54,16 +44,7 @@ provide a cross-compatible alternative for these (which also supports dependency
 injection).
 
 ```py
-client = tanjun.Client.from_gateway_bot(bot)
-
-@bot.with_client_callback(tanjun.ClientCallbackNames.STARTING)
-async def on_starting(client: alluka.Injected[tanjun.abc.Client]) -> None:
-    client.set_type_dependency(aiohttp.ClientSession, aiohttp.ClientSession())
-
-async def on_closed(session: alluka.Injected[aiohttp.ClientSession]) -> None:
-    await session.close()
-
-bot.add_client_callback(tanjun.ClientCallbackNames.CLOSED, on_closed)
+--8<-- "./docs_src/usage.py:41:50"
 ```
 
 ## Managing bot functionality
@@ -73,16 +54,7 @@ functionality, storing functionality such as event listeners, commands,
 scheduled callbacks, and client callbacks.
 
 ```py
-component = tanjun.Component()
-
-@component.with_command
-@tanjun.as_slash_command("name", "description")
-async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
-    ...
-
-@component.with_listener()
-async def event_listener(event: hikari.Event) -> None:
-    ...
+--8<-- "./docs_src/usage.py:54:63"
 ```
 
 The `with_` methods on [Component][tanjun.components.Component] allow
@@ -91,11 +63,7 @@ through a decorator call; the relevant `add_` functions allow adding
 functionality through chained calls.
 
 ```py
-@tanjun.as_message_command("name")
-async def command(ctx: tanjun.abc.MessageContext) -> None:
-    ...
-
-component = tanjun.Component().load_from_scope()
+--8<-- "./docs_src/usage.py:67:71"
 ```
 
 Alternatively, functionality which is represented by a dedicated object can be
@@ -115,34 +83,20 @@ add a component to a client, you can also declare "loaders" and "unloaders" for
 a module to more ergonomically load this functionality into a client.
 
 ```py
-component = tanjun.Component().load_from_scope()
-
-@tanjun.as_loader
-def load(client: tanjun.Client) -> None:
-    client.add_component(component)
-
-@tanjun.as_unloader
-def unload(client) -> None:
-    client.remove_component(component)
+--8<-- "./docs_src/usage.py:75:83"
 ```
 
 You can either declare one or more custom loaders and unloaders as shown above
 
 ```py
-component = tanjun.Component().load_from_scope()
-
-loader = component.make_loader()
+--8<-- "./docs_src/usage.py:87:89"
 ```
 
 or use [make_loader][tanjun.components.Component.make_loader] to generate a
 loader and unloader for the component.
 
 ```py
-(
-    tanjun.Client.from_gateway_bot(bot)
-    .load_directory("./bot/components", namespace="bot.components")
-    .load_modules("bot.owner")
-)
+--8<-- "./docs_src/usage.py:93:97"
 ```
 
 Modules with loaders can then be loaded into a client by calling
@@ -166,12 +120,7 @@ All command callbacks must be asynchronous and can use dependency injection.
 ### Slash commands
 
 ```py
-@tanjun.with_str_slash_option("option", "description")
-@tanjun.as_slash_command("name", "description")
-async def slash_command(
-    ctx: tanjun.abc.SlashContext
-) -> None:
-    ...
+--8<-- "./docs_src/usage.py:101:104"
 ```
 
 Slash commands represent the commands you see when you start typing with "/" in
@@ -202,19 +151,7 @@ converters found in [tanjun.conversion][]) similarly to message command
 arguments.
 
 ```py
-ding_group = tanjun.slash_command_group("ding", "ding group")
-
-
-@ding_group.as_sub_command("dong", "dong command")
-async def dong_command(ctx: tanjun.abc.SlashContext) -> None:
-    ...
-
-
-ding_ding_group = ding.make_sub_group("ding", "ding ding group")
-
-@ding_ding_group.as_sub_command("ding", "ding ding ding command")
-async def ding_command(ctx: tanjun.abc.SlashContext) -> None:
-    ...
+--8<-- "./docs_src/usage.py:108:118"
 ```
 
 Slash commands can be stored in groups where the above example will be shown in
@@ -226,19 +163,7 @@ see [slash_command_group][tanjun.commands.slash.slash_command_group].
 ### Message commands
 
 ```py
-tanjun.Client.from_gateway_bot(gateway_bot).add_prefix("!")
-
-...
-
-@tanjun.with_option("reason", "--reason", "-r", default=None)  # This can be triggered as --reason or -r
-@tanjun.with_multi_option("users", "--user", "-u", default=None)  # This can be triggered as --user or -u
-@tanjun.with_greedy_argument("content")
-@tanjun.with_argument("days", converters=int)
-@tanjun.as_message_command("meow command", "description")
-async def message_command(
-    ctx: tanjun.abc.MessageContext
-) -> None
-    ...
+--8<-- "./docs_src/usage.py:122:132"
 ```
 
 Message commands are triggered based on chat messages where the client's
@@ -253,26 +178,7 @@ either [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] or
 [Client.\_\_init\_\_][tanjun.clients.Client.__init__] while creating the bot.
 
 ```py
-# prefixes=["!"]
-
-@tanjun.as_message_command_group("groupy")
-async def groupy_group(ctx: tanjun.abc.MessageContext)
-    ...
-
-
-@groupy_group.as_sub_command("sus drink")
-async def sus_drink_command(ctx: tanjun.abc.MessageContext):
-    ...
-
-
-@groupy_group.as_sub_group("tour")
-async def tour_group(ctx: tanjun.abc.MessageContext):
-    ...
-
-
-@tour_group.as_sub_command("de france")
-async def de_france_command(ctx:tanjun.abc.MessageContext):
-    ...
+--8<-- "./docs_src/usage.py:136:152"
 ```
 
 Message command groups are a collection of message commands under a shared name
@@ -307,15 +213,7 @@ more configuration see [tanjun.parsing][] and for the standard converters see
 ### Context menus
 
 ```py
-@component.with_command
-@tanjun.as_message_menu("name")
-async def message_menu_command(ctx: tanjun.abc.MenuContext, message: hikari.message) -> None:
-    ...
-
-@component.with_command
-@tanjun.as_user_menu("name")
-async def user_menu_command(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None:
-    ...
+--8<-- "./docs_src/usage.py:156:164"
 ```
 
 Context menus represent the application commands shown when you click on a user
@@ -329,24 +227,7 @@ Previously you've seen how to manually declare command options per command
 type, now it's time to go higher.
 
 ```py
-from typing import Annotated
-
-import tanjun
-from tanjun.annotations import Bool, Ranged, Str, User
-
-
-@tanjun.with_annotated_args(follow_wrapped=true)
-@tanjun.as_slash_command("name", "description")
-@tanjun.as_message_command("name")
-async def command(
-    ctx: tanjun.abc.Context,
-    name: Annotated[Str, "description"],
-    age: Annotated[Ranged[13, 130], "an int option with a min, max or 13, 130"],
-    video: Annotated[Converted[get_video], "a string option which is converted with get_video"],
-    user: Annotated[User, "an optional user option which defaults to None"] = None,
-    enabled: Annotated[Bool, "an optional bool option which defaults to True"] = True,
-) -> None:
-    ...
+--8<-- "./docs_src/usage.py:176:197"
 ```
 
 [tanjun.with_annotated_args][tanjun.annotations.with_annotated_args] provides
@@ -377,12 +258,7 @@ When using `follow_wrapped` the relevant decorator will be applied to all the
 compatible `as_{}_command` decorator calls below it in the chain.
 
 ```py
-@tanjun.with_annotated_args(follow_wrapped=True)
-@tanjun.with_guild_check(follow_wrapped=True)
-@tanjun.as_slash_command("name", "description")
-@tanjun.as_message_command("name")
-async def command(ctx: tanjun.abc.Context) -> None:
-    ...
+--8<-- "./docs_src/usage.py:201:206"
 ```
 
 While the previous command examples have typed `ctx` as a context type that's
@@ -394,21 +270,7 @@ types.
 ## Responding to commands
 
 ```py
-@tanjun.with_annotated_args(follow_wrapped=True)
-@tanjun.as_slash_command("name", "description")
-@tanjun.as_message_command("name")
-@tanjun.as_user_menu("name")
-async def command(
-    ctx: tanjun.abc.Context,
-    user: typing.Annotated[tanjun.annotations.User | None, "The user to target"] = None
-) -> None:
-    user = user or ctx.author
-    message = await ctx.respond(
-        "message content",
-        attachments=[hikari.File("./its/a/mystery.jpeg")],
-        embeds=[hikari.Embed(title=str(author)).set_thumbnail(author.display_avatar_url)],
-        ensure_result=True,
-    )
+--8<-- "./docs_src/usage.py:210:223"
 ```
 
 [Context.respond][tanjun.abc.Context.respond] is used to respond to a command
@@ -419,19 +281,7 @@ only be guaranteed to return a [hikari.messages.Message][] object when
 ### Ephemeral responses
 
 ```py
-# All this command's responses will be ephemeral.
-@component.with_command
-@tanjun.as_slash_command("name", "description", ephemeral_default=True)
-async def command_1(ctx: tanjun.abc.SlashContext) -> None:
-    await ctx.respond("hello friend")
-
-
-@component.with_command
-@tanjun.as_user_menu("name", "description")
-async def command_2(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None:
-    await ctx.create_initial_response("Starting the thing", ephemeral=True)  # private response
-    await ctx.respond("meow")  # public response
-    await ctx.create_followup("finished the thing", ephemeral=True)  # private response
+--8<-- "./docs_src/usage.py:227:238"
 ```
 
 Ephemeral responses are a slash command and context menu exclusive feature which
@@ -480,28 +330,7 @@ dynamically return choice suggestions to a user as they type a string option.
 Autocomplete callbacks must be asynchronous and support dependency injection.
 
 ```py
-@component.with_command
-@tanjun.with_str_slash_option("opt1", "description")
-@tanjun.with_str_slash_option("opt2", "description", default=None)
-@tanjun.as_slash_command
-async def slash_command(
-    ctx: tanjun.abc.SlashContext,
-    opt1: str,
-    opt2: str | None,
-) -> None:
-    ...
-
-
-@slash_command.with_str_autocomplete("opt1")
-async def opt1_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
-    await ctx.set_choices((("name", "value"), ("other_name", "other_value")), other_other_name="other_other_value")
-
-
-async def opt2_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
-    await ctx.set_choices({"name": "value", "other_name": "other_value"})
-
-
-slash_command.set_str_autocomplete("opt2", opt2_autocomplete)
+--8<-- "./docs_src/usage.py:242:256"
 ```
 
 To set the results for an autocomplete interaction call
@@ -520,23 +349,13 @@ callbacks, checks, hook callbacks, event listeners, schedule callbacks) through
 [Alluka][alluka].
 
 ```py
-client = (
-    tanjun.Client.from_gateway_bot(bot)
-    .set_type_dependency(Foo, Foo())
-    .set_type_dependency(Bar, Bar())
-)
+--8<-- "./docs_src/usage.py:268:270"
 ```
 
 Here we set the dependencies for the types `Foo` and `Bar`.
 
 ```py
-@tanjun.as_slash_command("name", "description")
-async def command(
-    ctx: tanjun.abc.SlashContext,
-    foo_impl: alluka.Injected[Foo],
-    bar_impl: Bar = alluka.inject(type=Bar),
-) -> None:
-    ...
+--8<-- "./docs_src/usage.py:274:278"
 ```
 
 And here we declare a command callback as taking the client set values for
@@ -597,13 +416,7 @@ Checks are functions that run before command execution to decide whether a
 command or group of commands matches a context and should be called with it.
 
 ```py
-@tanjun.with_guild_check(follow_wrapped=True)
-@tanjun.with_author_permission_check(hikari.Permissions.BAN_MEMBERS)
-@tanjun.with_own_permission_check(hikari.Permissions.BAN_MEMBERS, follow_wrapped=True)
-@tanjun.as_message_command("name")
-@tanjun.as_slash_command("name", "description", default_member_permissions=hikari.Permissions.BAN_MEMBERS)
-async def command(ctx: tanjun.abc.Context) -> None:
-    ...
+--8<-- "./docs_src/usage.py:282:288"
 ```
 
 There's a collection of standard checks in [tanjun.checks][] that are all
@@ -613,26 +426,7 @@ configuration most users will care about for the standard checks is the
 send when they fail.
 
 ```py
-component = (
-    tanjun.Component()
-    .add_check(tanjun.GuildCheck())
-    .add_check(tanjun.AuthorPermissionCheck(hikari.Permissions.BAN_MEMBER))
-    .add_check(tanjun.OwnPermissionCheck(hikari.Permissions.BAN_MEMBER))
-)
-
-@component.with_check
-async def db_check(ctx: tanjun.abc.Context, db: alluka.Injected[Db]) -> None:
-    if (await db..get_user(ctx.author.id)).banned:
-        raise tanjun.CommandError("You are banned from using this bot")
-
-    raise False
-
-
-@tanjun.with_owner_check(follow_wrapped=True)
-@tanjun.as_message_command("name")
-@tanjun.as_slash_command("name", "description")
-async def owner_only_command(ctxL tanjun.abc.Context):
-    ...
+--8<-- "./docs_src/usage.py:301:319"
 ```
 
 Checks (both custom and standard) can be added to clients, components, and
@@ -643,11 +437,7 @@ chain. Checks on a client, component, or command group will be used for every
 child command.
 
 ```py
-def check(ctx: tanjun.abc.Context) -> bool:
-    if ctx.author.discriminator % 2:
-        raise tanjun.CommandError("You are not one of the chosen ones")
-
-    return True
+--8<-- "./docs_src/usage.py:323:327"
 ```
 
 Custom checks can be made by making a function with either the signature
@@ -669,38 +459,28 @@ There are several different kinds of hooks which all support dependency
 injection and may be synchronous or asynchronous:
 
 ```py
-hooks = tanjun.AnyHooks()
-
-@hooks.with_pre_execution  # hooks.add_pre_execution
-async def pre_execution_hook(ctx: tanjun.abc.Context) -> None:
-    ...
+--8<-- "./docs_src/usage.py:331:335"
 ```
 
 Pre-execution hooks are called before the execution of a command but after
 command matching has finished and all the relevant checks have passed.
 
 ```py
-@hooks.with_pre_execution  # hooks.add_pre_execution
-async def pre_execution_hook(ctx: tanjun.abc.Context) -> None:
-    ...
+--8<-- "./docs_src/usage.py:339:341"
 ```
 
 Post-execution hooks are called after a command has finished executing,
 regardless of whether it passed or failed.
 
 ```py
-@hooks.with_on_success  # hooks.add_success_hook
-async def success_hook(ctx: tanjun.abc.Context) -> None:
-    ...
+--8<-- "./docs_src/usage.py:345:347"
 ```
 
 Success hooks are called after a command has finished executing successfully
 (without raising any errors).
 
 ```py
-@hooks.with_on_error  # hooks.add_on_error
-async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> bool | None:
-    ...
+--8<-- "./docs_src/usage.py:351:353"
 ```
 
 Error hooks are called when command's execution is ended early by an error raise
@@ -715,9 +495,7 @@ error and [None][] acts as no vote. In the case of a tie the error will be
 re-raised.
 
 ```py
-@hooks.with_on_parser_error  # hooks.add_on_parser_error
-async def parser_error_hook(ctx: tanjun.abc.Context, error: tanjun.ParserError) -> None:
-    ...
+--8<-- "./docs_src/usage.py:357:359"
 ```
 
 Parser error hooks are called when the argument parsing of a message command
@@ -729,13 +507,7 @@ Concurrency limiters allow you to limit how many calls can be made to a group
 of commands concurrently.
 
 ```py
-client = tanjun.Client.from_gateway_bot(bot)
-(
-    tanjun.InMemoryConcurrencyLimiter()
-    .set_bucket("main_commands", tanjun.BucketResource.USER, 2)
-    .disable_bucket("plugin.meta")
-    .add_to_client(client)
-)
+--8<-- "./docs_src/usage.py:363:369"
 ```
 
 Here [InMemoryConcurrencyLimiter][tanjun.dependencies.InMemoryConcurrencyLimiter]
@@ -750,16 +522,7 @@ being used to set this limiter for a client (note that clients can only have 1
 linked limiter).
 
 ```py
-@tanjun.with_concurrency_limit("main_commands", follow_wrapped=True)
-@tanjun.with_annotated_args(follow_wrapped=True)
-@tanjun.as_message_command("name")
-@tanjun.as_slash_command("name", "description")
-@tanjun.as_user_menu("name")
-async def user_command(
-    ctx: tanjun.abc.Context,
-    user: Annotated[annotations.User, "A user"],
-) -> None:
-    ...
+--8<-- "./docs_src/usage.py:373:379"
 ```
 
 And here we use [with_concurrency_limit][tanjun.dependencies.with_concurrency_limit]
@@ -773,13 +536,7 @@ more information on the resources concurrency can be limited by see
 Cooldowns limit how often a group of commands can be called.
 
 ```py
-client = tanjun.Client.from_gateway_bot(bot)
-(
-    tanjun.InMemoryCooldownManager()
-    .set_bucket("main_commands", tanjun.BucketResource.USER, 5, 60)
-    .disable_bucket("plugin.meta")
-    .add_to_client(client)
-)
+--8<-- "./docs_src/usage.py:383:390"
 ```
 
 Here [InMemoryCooldownManager][tanjun.dependencies.InMemoryCooldownManager]
@@ -794,16 +551,7 @@ being used to set this cooldown manager for a client (note that clients can
 only have 1 linked cooldown manager).
 
 ```py
-@tanjun.with_cooldown("main_commands", follow_wrapped=True)
-@tanjun.with_annotated_args(follow_wrapped=True)
-@tanjun.as_message_command("name")
-@tanjun.as_slash_command("name", "description")
-@tanjun.as_user_menu("name")
-async def user_command(
-    ctx: tanjun.abc.Context,
-    user: Annotated[annotations.User, "A user"],
-) -> None:
-    ...
+--8<-- "./docs_src/usage.py:393:399"
 ```
 
 And here we use [with_cooldown][tanjun.dependencies.with_cooldown]
@@ -823,7 +571,7 @@ of a field. Localisation on Discord is limited to the locales Discord supports
 ### Localising command declarations
 
 ```py
-@tanjun.as_slash_command({hikari.Locale.ES_US: "Hola"}, "description")
+--8<-- "./docs_src/usage.py:403:405"
 ```
 
 For fields which support localisation you've previously seen a single string
@@ -839,22 +587,7 @@ setting/overriding the locale-specific variants used for localised fields such
 as error message responses and application fields globally.
 
 ```py
-import tanjun
-
-client = tanjun.Client.from_gateway_bot(...)
-
-(
-    tanjun.dependencies.BasicLocaliser()
-    .set_overrides(
-        "slash:command name:name",
-        {hikari.Locale.EN_US: "american variant", hikari.Locale.EN_GB: "english variant"}
-    )
-    .set_overrides(
-        "message_menu:command name:check:tanjun.OwnerCheck",
-        {hikari.Locale.JA: "konnichiwa", hikari.Locale.ES_ES: "Hola"}
-    )
-    .add_to_client(client)
-)
+--8<-- "./docs_src/usage.py:409:421"
 ```
 
 Specific fields may be overridden by their ID as shown above. There is no
@@ -878,26 +611,7 @@ It's highly recommended that 3rd party libraries match this format if possible.
 ### Localising command responses
 
 ```py
-LOCALISED_RESPONSES = {
-    hikari.Locale.DA: "Hej",
-    hikari.Locale.DE: "Hallo",
-    hikari.Locale.EN_GB: "Good day fellow sir",
-    hikari.Locale.EN_US: "*shoots you*",
-    hikari.Locale.ES_ES: "Hola",
-    hikari.Locale.FR: "Bonjour, camarade baguette",
-    hikari.Locale.PL: "Musimy szerzyć gejostwo w Strefach wolnych od LGBT, musimy zrobić rajd gejowski",
-    hikari.Locale.SV_SE: "Hej, jag älskar min Blåhaj",
-    hikari.Locale.VI: "Xin chào, Cây nói tiếng Việt",
-    hikari.Locale.TR: "Merhaba",
-    hikari.Locale.CS: "Ahoj",
-    hikari.Locale.ZH_CN: "自由香港",
-    hikari.Locale.JA: "こんにちは、アニメの女の子だったらいいのに",
-    hikari.Locale.ZH_TW: "让台湾自由",
-}
-
-@tanjun.as_slash_command("name", "description")
-async def as_slash_command(ctx: tanjun.abc.SlashContext) -> None:
-    await ctx.respond(LOCALISED_RESPONSES.get(ctx.interaction.locale, "hello"))
+--8<-- "./docs_src/usage.py:425:444"
 ```
 
 [tanjun.abc.AppCommandContext.interaction][] (base class for both
