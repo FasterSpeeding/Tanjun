@@ -22,7 +22,7 @@ def gateway_bot_example() -> None:
 
     bot.run()
 
-    
+
 def rest_bot_example() -> None:
     bot = hikari.impl.RESTBot("TOKEN", hikari.TokenType.BOT)
     tanjun.Client.from_rest_bot(bot, bot_managed=True, declare_global_commands=True)
@@ -40,7 +40,7 @@ def client_lifetime_example() -> None:
         await session.close()
 
     bot.add_client_callback(tanjun.ClientCallbackNames.CLOSED, on_closed)
-    
+
 
 def components_example() -> None:
     component = tanjun.Component()
@@ -110,7 +110,7 @@ def slash_command_group_example() -> None:
     async def ding_command(ctx: tanjun.abc.SlashContext) -> None:
         ...
 
-        
+
 def message_command_example() -> None:
     tanjun.Client.from_gateway_bot(gateway_bot).add_prefix("!")
 
@@ -358,7 +358,7 @@ def assign_concurrency_limit_example() -> None:
         .set_bucket("main_commands", tanjun.BucketResource.USER, 5, 60)
         .disable_bucket("plugin.meta")
         .add_to_client(client)
-    )       
+    )
 
 def assign_cooldown_example() -> None:
     @tanjun.with_cooldown("main_commands", follow_wrapped=True)
@@ -416,4 +416,3 @@ def response_localisation_example() -> None:
     @tanjun.as_slash_command("name", "description")
     async def as_slash_command(ctx: tanjun.abc.SlashContext) -> None:
         await ctx.respond(LOCALISED_RESPONSES.get(ctx.interaction.locale, "hello"))
-
