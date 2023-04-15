@@ -339,7 +339,7 @@ def error_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
         ...
 
 
-def parser_error_hook_example() -> None:
+def parser_error_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
     @hooks.with_on_parser_error  # hooks.add_on_parser_error
     async def parser_error_hook(ctx: tanjun.abc.Context, error: tanjun.ParserError) -> None:
         ...
