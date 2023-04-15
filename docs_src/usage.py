@@ -8,12 +8,12 @@
 #
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
+import aiohttp
 import alluka
 import hikari
 
 import tanjun
 from tanjun import annotations
-import aiohttp
 
 
 def gateway_bot_example() -> None:
