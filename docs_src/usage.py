@@ -174,8 +174,8 @@ def annotations_example() -> None:
 
     from tanjun.annotations import Bool
     from tanjun.annotations import Converted
-    from tanjun.annotations import Ranged
     from tanjun.annotations import Int
+    from tanjun.annotations import Ranged
     from tanjun.annotations import Str
     from tanjun.annotations import User
 
