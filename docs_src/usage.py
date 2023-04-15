@@ -288,7 +288,7 @@ def using_checks_example() -> None:
 
     @component.with_check
     async def db_check(ctx: tanjun.abc.Context, db: alluka.Injected[Db]) -> None:
-        if (await db..get_user(ctx.author.id)).banned:
+        if (await db.get_user(ctx.author.id)).banned:
             raise tanjun.CommandError("You are banned from using this bot")
 
         raise False
