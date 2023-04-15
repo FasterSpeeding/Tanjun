@@ -12,6 +12,8 @@ import alluka
 import hikari
 
 import tanjun
+from tanjun import annotations
+import aiohttp
 
 
 def gateway_bot_example() -> None:
@@ -161,6 +163,7 @@ def annotations_example() -> None:
 
     import tanjun
     from tanjun.annotations import Bool
+    from tanjun.annotations import Converted
     from tanjun.annotations import Ranged
     from tanjun.annotations import Str
     from tanjun.annotations import User
@@ -194,7 +197,7 @@ def responding_to_commands_example() -> None:
     @tanjun.as_message_command("name")
     @tanjun.as_user_menu("name")
     async def command(
-        ctx: tanjun.abc.Context, user: typing.Annotated[tanjun.annotations.User | None, "The user to target"] = None
+        ctx: tanjun.abc.Context, user: typing.Annotated[annotations.User | None, "The user to target"] = None
     ) -> None:
         user = user or ctx.author
         message = await ctx.respond(
@@ -346,7 +349,7 @@ def assign_concurrency_limit_example() -> None:
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_user_menu("name")
-    async def user_command(ctx: tanjun.abc.Context, user: Annotated[annotations.User, "A user"]) -> None:
+    async def user_command(ctx: tanjun.abc.Context, user: typing.Annotated[annotations.User, "A user"]) -> None:
         ...
 
 
@@ -366,7 +369,7 @@ def assign_cooldown_example() -> None:
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_user_menu("name")
-    async def user_command(ctx: tanjun.abc.Context, user: Annotated[annotations.User, "A user"]) -> None:
+    async def user_command(ctx: tanjun.abc.Context, user: typing.Annotated[annotations.User, "A user"]) -> None:
         ...
 
 
