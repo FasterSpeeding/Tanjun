@@ -121,7 +121,7 @@ def message_command_example() -> None:
     @tanjun.with_greedy_argument("content")
     @tanjun.with_argument("days", converters=int)
     @tanjun.as_message_command("meow command", "description")
-    async def message_command(ctx: tanjun.abc.MessageContext) -> None
+    async def message_command(ctx: tanjun.abc.MessageContext) -> None:
         ...
 
 def message_command_group_example() -> None:
