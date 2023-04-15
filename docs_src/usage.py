@@ -10,6 +10,7 @@
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
 
 # pyright: reportUnusedFunction=none
+# pyright: reportUnusedVariable=none
 
 import typing
 
@@ -39,14 +40,14 @@ def rest_bot_example() -> None:
 def client_lifetime_example(bot: hikari.GatewayBotAware) -> None:
     client = tanjun.Client.from_gateway_bot(bot)
 
-    @bot.with_client_callback(tanjun.ClientCallbackNames.STARTING)
+    @client.with_client_callback(tanjun.ClientCallbackNames.STARTING)
     async def on_starting(client: alluka.Injected[tanjun.abc.Client]) -> None:
         client.set_type_dependency(aiohttp.ClientSession, aiohttp.ClientSession())
 
     async def on_closed(session: alluka.Injected[aiohttp.ClientSession]) -> None:
         await session.close()
 
-    bot.add_client_callback(tanjun.ClientCallbackNames.CLOSED, on_closed)
+    client.add_client_callback(tanjun.ClientCallbackNames.CLOSED, on_closed)
 
 
 def components_example() -> None:
@@ -282,15 +283,16 @@ def standard_check_example() -> None:
 
 
 class Db:
-    ...
+    async def get_user(self) -> typing.Any:
+        raise NotImplementedError
 
 
 def using_checks_example() -> None:
     component = (
         tanjun.Component()
         .add_check(tanjun.GuildCheck())
-        .add_check(tanjun.AuthorPermissionCheck(hikari.Permissions.BAN_MEMBER))
-        .add_check(tanjun.OwnPermissionCheck(hikari.Permissions.BAN_MEMBER))
+        .add_check(tanjun.checks.AuthorPermissionCheck(hikari.Permissions.BAN_MEMBERS))
+        .add_check(tanjun.checks.OwnPermissionCheck(hikari.Permissions.BAN_MEMBERS))
     )
 
     @component.with_check
@@ -298,7 +300,7 @@ def using_checks_example() -> None:
         if (await db.get_user(ctx.author.id)).banned:
             raise tanjun.CommandError("You are banned from using this bot")
 
-        raise False
+        return False
 
     @tanjun.with_owner_check(follow_wrapped=True)
     @tanjun.as_message_command("name")
@@ -359,7 +361,7 @@ def concurrency_limiter_config_example(bot: hikari.GatewayBotAware) -> None:
 
 def assign_concurrency_limit_example() -> None:
     @tanjun.with_concurrency_limit("main_commands", follow_wrapped=True)
-    @tanjun.with_annotated_args(follow_wrapped=True)
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_user_menu("name")
@@ -379,7 +381,7 @@ def cooldown_config_example(bot: hikari.GatewayBotAware) -> None:
 
 def assign_cooldown_example() -> None:
     @tanjun.with_cooldown("main_commands", follow_wrapped=True)
-    @tanjun.with_annotated_args(follow_wrapped=True)
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_user_menu("name")
