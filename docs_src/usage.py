@@ -164,7 +164,11 @@ def context_menu_example(component: tanjun.Component) -> None:
         ...
 
 
-def get_video() -> str:
+class Video:
+    ...
+
+
+def get_video(value: str) -> Video:
     ...
 
 
@@ -186,7 +190,7 @@ def annotations_example() -> None:
         ctx: tanjun.abc.Context,
         name: Annotated[Str, "description"],
         age: Annotated[Int, Ranged(13, 130), "an int option with a min, max or 13, 130"],
-        video: Annotated[str, Converted(get_video), "a string option which is converted with get_video"],
+        video: Annotated[Video, Converted(get_video), "a string option which is converted with get_video"],
         user: Annotated[Optional[User], "an optional user option which defaults to None"] = None,
         enabled: Annotated[Bool, "an optional bool option which defaults to True"] = True,
     ) -> None:
@@ -227,7 +231,7 @@ def ephemeral_response_example(component: tanjun.Component) -> None:
         await ctx.respond("hello friend")
 
     @component.with_command
-    @tanjun.as_user_menu("name", "description")
+    @tanjun.as_user_menu("name")
     async def command_2(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None:
         await ctx.create_initial_response("Starting the thing", ephemeral=True)  # private response
         await ctx.respond("meow")  # public response
@@ -239,7 +243,7 @@ def autocomplete_example(component: tanjun.Component) -> None:
     @tanjun.with_str_slash_option("opt1", "description")
     @tanjun.with_str_slash_option("opt2", "description", default=None)
     @tanjun.as_slash_command("name", "description")
-    async def slash_command(ctx: tanjun.abc.SlashContext, opt1: str, opt2: str | None) -> None:
+    async def slash_command(ctx: tanjun.abc.SlashContext, opt1: str, opt2: typing.Optional[str]) -> None:
         ...
 
     @slash_command.with_str_autocomplete("opt1")
@@ -289,14 +293,14 @@ class DbResult:
 
 
 class Db:
-    async def get_user(self) -> DbResult:
+    async def get_user(self, user: hikari.Snowflake) -> DbResult:
         raise NotImplementedError
 
 
 def using_checks_example() -> None:
     component = (
         tanjun.Component()
-        .add_check(tanjun.GuildCheck())
+        .add_check(tanjun.checks.GuildCheck())
         .add_check(tanjun.checks.AuthorPermissionCheck(hikari.Permissions.BAN_MEMBERS))
         .add_check(tanjun.checks.OwnPermissionCheck(hikari.Permissions.BAN_MEMBERS))
     )
