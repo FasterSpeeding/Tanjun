@@ -79,7 +79,7 @@ def as_loader_example() -> None:
         client.add_component(component)
 
     @tanjun.as_unloader
-    def unload(client) -> None:
+    def unload(client: tanjun.Client) -> None:
         client.remove_component(component)
 
 
@@ -155,7 +155,7 @@ def message_command_group_example() -> None:
 def context_menu_example(component: tanjun.Component) -> None:
     @component.with_command
     @tanjun.as_message_menu("name")
-    async def message_menu_command(ctx: tanjun.abc.MenuContext, message: hikari.message) -> None:
+    async def message_menu_command(ctx: tanjun.abc.MenuContext, message: hikari.Message) -> None:
         ...
 
     @component.with_command
@@ -170,10 +170,12 @@ def get_video() -> str:
 
 def annotations_example() -> None:
     from typing import Annotated
+    from typing import Optional
 
     from tanjun.annotations import Bool
     from tanjun.annotations import Converted
     from tanjun.annotations import Ranged
+    from tanjun.annotations import Int
     from tanjun.annotations import Str
     from tanjun.annotations import User
 
@@ -183,9 +185,9 @@ def annotations_example() -> None:
     async def command(
         ctx: tanjun.abc.Context,
         name: Annotated[Str, "description"],
-        age: Annotated[Ranged[13, 130], "an int option with a min, max or 13, 130"],
-        video: Annotated[Converted[get_video], "a string option which is converted with get_video"],
-        user: Annotated[User, "an optional user option which defaults to None"] = None,
+        age: Annotated[Int, Ranged(13, 130), "an int option with a min, max or 13, 130"],
+        video: Annotated[str, Converted(get_video), "a string option which is converted with get_video"],
+        user: Annotated[Optional[User], "an optional user option which defaults to None"] = None,
         enabled: Annotated[Bool, "an optional bool option which defaults to True"] = True,
     ) -> None:
         ...
@@ -206,7 +208,7 @@ def responding_to_commands_example() -> None:
     @tanjun.as_message_command("name")
     @tanjun.as_user_menu("name")
     async def command(
-        ctx: tanjun.abc.Context, user: typing.Annotated[annotations.User | None, "The user to target"] = None
+        ctx: tanjun.abc.Context, user: typing.Annotated[typing.Optional[annotations.User], "The user to target"] = None
     ) -> None:
         user = user or ctx.author
         message = await ctx.respond(
@@ -220,7 +222,7 @@ def responding_to_commands_example() -> None:
 def ephemeral_response_example(component: tanjun.Component) -> None:
     # All this command's responses will be ephemeral.
     @component.with_command
-    @tanjun.as_slash_command("name", "description", ephemeral_default=True)
+    @tanjun.as_slash_command("name", "description", default_to_ephemeral=True)
     async def command_1(ctx: tanjun.abc.SlashContext) -> None:
         await ctx.respond("hello friend")
 
@@ -236,7 +238,7 @@ def autocomplete_example(component: tanjun.Component) -> None:
     @component.with_command
     @tanjun.with_str_slash_option("opt1", "description")
     @tanjun.with_str_slash_option("opt2", "description", default=None)
-    @tanjun.as_slash_command
+    @tanjun.as_slash_command("name", "description")
     async def slash_command(ctx: tanjun.abc.SlashContext, opt1: str, opt2: str | None) -> None:
         ...
 
@@ -282,8 +284,12 @@ def standard_check_example() -> None:
         ...
 
 
+class DbResult:
+    banned: bool
+
+
 class Db:
-    async def get_user(self) -> typing.Any:
+    async def get_user(self) -> DbResult:
         raise NotImplementedError
 
 
@@ -296,7 +302,7 @@ def using_checks_example() -> None:
     )
 
     @component.with_check
-    async def db_check(ctx: tanjun.abc.Context, db: alluka.Injected[Db]) -> None:
+    async def db_check(ctx: tanjun.abc.Context, db: alluka.Injected[Db]) -> bool:
         if (await db.get_user(ctx.author.id)).banned:
             raise tanjun.CommandError("You are banned from using this bot")
 
@@ -339,7 +345,7 @@ def success_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
 
 def error_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
     @hooks.with_on_error  # hooks.add_on_error
-    async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> bool | None:
+    async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> typing.Optional[bool]:
         ...
 
 
