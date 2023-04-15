@@ -128,7 +128,7 @@ def message_command_group_example() -> None:
     # prefixes=["!"]
 
     @tanjun.as_message_command_group("groupy")
-    async def groupy_group(ctx: tanjun.abc.MessageContext)
+    async def groupy_group(ctx: tanjun.abc.MessageContext):
         ...
 
 
