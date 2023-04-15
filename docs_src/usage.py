@@ -8,15 +8,15 @@
 #
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
-import hikari
-import tanjun
 import alluka
+import hikari
+
+import tanjun
+
 
 def gateway_bot_example() -> None:
     bot = hikari.impl.GatewayBot("TOKEN")
-    client = tanjun.Client.from_gateway_bot(
-        bot, declare_global_commands=True, mention_prefix=True
-    )
+    client = tanjun.Client.from_gateway_bot(bot, declare_global_commands=True, mention_prefix=True)
 
     ...
 
@@ -74,10 +74,12 @@ def as_loader_example() -> None:
     def unload(client) -> None:
         client.remove_component(component)
 
+
 def make_loader_example() -> None:
     component = tanjun.Component().load_from_scope()
 
     loader = component.make_loader()
+
 
 def loading_example() -> None:
     (
@@ -86,23 +88,20 @@ def loading_example() -> None:
         .load_modules("bot.owner")
     )
 
+
 def slash_command_example() -> None:
     @tanjun.with_str_slash_option("option", "description")
     @tanjun.as_slash_command("name", "description")
-    async def slash_command(
-        ctx: tanjun.abc.SlashContext
-    ) -> None:
+    async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
         ...
 
 
 def slash_command_group_example() -> None:
     ding_group = tanjun.slash_command_group("ding", "ding group")
 
-
     @ding_group.as_sub_command("dong", "dong command")
     async def dong_command(ctx: tanjun.abc.SlashContext) -> None:
         ...
-
 
     ding_ding_group = ding.make_sub_group("ding", "ding ding group")
 
@@ -124,6 +123,7 @@ def message_command_example() -> None:
     async def message_command(ctx: tanjun.abc.MessageContext) -> None:
         ...
 
+
 def message_command_group_example() -> None:
     # prefixes=["!"]
 
@@ -131,19 +131,16 @@ def message_command_group_example() -> None:
     async def groupy_group(ctx: tanjun.abc.MessageContext):
         ...
 
-
     @groupy_group.as_sub_command("sus drink")
     async def sus_drink_command(ctx: tanjun.abc.MessageContext):
         ...
-
 
     @groupy_group.as_sub_group("tour")
     async def tour_group(ctx: tanjun.abc.MessageContext):
         ...
 
-
     @tour_group.as_sub_command("de france")
-    async def de_france_command(ctx:tanjun.abc.MessageContext):
+    async def de_france_command(ctx: tanjun.abc.MessageContext):
         ...
 
 
@@ -163,8 +160,10 @@ def annotations_example() -> None:
     from typing import Annotated
 
     import tanjun
-    from tanjun.annotations import Bool, Ranged, Str, User
-
+    from tanjun.annotations import Bool
+    from tanjun.annotations import Ranged
+    from tanjun.annotations import Str
+    from tanjun.annotations import User
 
     @tanjun.with_annotated_args(follow_wrapped=true)
     @tanjun.as_slash_command("name", "description")
@@ -178,6 +177,7 @@ def annotations_example() -> None:
         enabled: Annotated[Bool, "an optional bool option which defaults to True"] = True,
     ) -> None:
         ...
+
 
 def wrapped_command_example() -> None:
     @tanjun.with_annotated_args(follow_wrapped=True)
@@ -194,8 +194,7 @@ def responding_to_commands_example() -> None:
     @tanjun.as_message_command("name")
     @tanjun.as_user_menu("name")
     async def command(
-        ctx: tanjun.abc.Context,
-        user: typing.Annotated[tanjun.annotations.User | None, "The user to target"] = None
+        ctx: tanjun.abc.Context, user: typing.Annotated[tanjun.annotations.User | None, "The user to target"] = None
     ) -> None:
         user = user or ctx.author
         message = await ctx.respond(
@@ -205,13 +204,13 @@ def responding_to_commands_example() -> None:
             ensure_result=True,
         )
 
+
 def ephemeral_response_example() -> None:
     # All this command's responses will be ephemeral.
     @component.with_command
     @tanjun.as_slash_command("name", "description", ephemeral_default=True)
     async def command_1(ctx: tanjun.abc.SlashContext) -> None:
         await ctx.respond("hello friend")
-
 
     @component.with_command
     @tanjun.as_user_menu("name", "description")
@@ -220,27 +219,21 @@ def ephemeral_response_example() -> None:
         await ctx.respond("meow")  # public response
         await ctx.create_followup("finished the thing", ephemeral=True)  # private response
 
+
 def autocomplete_example() -> None:
     @component.with_command
     @tanjun.with_str_slash_option("opt1", "description")
     @tanjun.with_str_slash_option("opt2", "description", default=None)
     @tanjun.as_slash_command
-    async def slash_command(
-        ctx: tanjun.abc.SlashContext,
-        opt1: str,
-        opt2: str | None,
-    ) -> None:
+    async def slash_command(ctx: tanjun.abc.SlashContext, opt1: str, opt2: str | None) -> None:
         ...
-
 
     @slash_command.with_str_autocomplete("opt1")
     async def opt1_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
         await ctx.set_choices((("name", "value"), ("other_name", "other_value")), other_other_name="other_other_value")
 
-
     async def opt2_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
         await ctx.set_choices({"name": "value", "other_name": "other_value"})
-
 
     slash_command.set_str_autocomplete("opt2", opt2_autocomplete)
 
@@ -254,20 +247,16 @@ class Bar:
 
 
 def set_client_deps_example() -> None:
-    client = (
-        tanjun.Client.from_gateway_bot(bot)
-        .set_type_dependency(Foo, Foo())
-        .set_type_dependency(Bar, Bar())
-    )
+    client = tanjun.Client.from_gateway_bot(bot).set_type_dependency(Foo, Foo()).set_type_dependency(Bar, Bar())
+
 
 def require_deps() -> None:
     @tanjun.as_slash_command("name", "description")
     async def command(
-        ctx: tanjun.abc.SlashContext,
-        foo_impl: alluka.Injected[Foo],
-        bar_impl: Bar = alluka.inject(type=Bar),
+        ctx: tanjun.abc.SlashContext, foo_impl: alluka.Injected[Foo], bar_impl: Bar = alluka.inject(type=Bar)
     ) -> None:
         ...
+
 
 def standard_check_example() -> None:
     @tanjun.with_guild_check(follow_wrapped=True)
@@ -277,6 +266,7 @@ def standard_check_example() -> None:
     @tanjun.as_slash_command("name", "description", default_member_permissions=hikari.Permissions.BAN_MEMBERS)
     async def command(ctx: tanjun.abc.Context) -> None:
         ...
+
 
 def using_checks_example() -> None:
     component = (
@@ -293,12 +283,12 @@ def using_checks_example() -> None:
 
         raise False
 
-
     @tanjun.with_owner_check(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
     async def owner_only_command(ctx: tanjun.abc.Context):
         ...
+
 
 def custom_check_example() -> None:
     def check(ctx: tanjun.abc.Context) -> bool:
@@ -321,20 +311,24 @@ def post_execution_hook_example() -> None:
     async def post_execution_hook(ctx: tanjun.abc.Context) -> None:
         ...
 
+
 def success_hook_example() -> None:
     @hooks.with_on_success  # hooks.add_success_hook
     async def success_hook(ctx: tanjun.abc.Context) -> None:
         ...
+
 
 def error_hook_example() -> None:
     @hooks.with_on_error  # hooks.add_on_error
     async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> bool | None:
         ...
 
+
 def parser_error_hook_example() -> None:
     @hooks.with_on_parser_error  # hooks.add_on_parser_error
     async def parser_error_hook(ctx: tanjun.abc.Context, error: tanjun.ParserError) -> None:
         ...
+
 
 def concurrency_limiter_config_example() -> None:
     client = tanjun.Client.from_gateway_bot(bot)
@@ -345,17 +339,16 @@ def concurrency_limiter_config_example() -> None:
         .add_to_client(client)
     )
 
+
 def assign_concurrency_limit_example() -> None:
     @tanjun.with_concurrency_limit("main_commands", follow_wrapped=True)
     @tanjun.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_user_menu("name")
-    async def user_command(
-        ctx: tanjun.abc.Context,
-        user: Annotated[annotations.User, "A user"],
-    ) -> None:
+    async def user_command(ctx: tanjun.abc.Context, user: Annotated[annotations.User, "A user"]) -> None:
         ...
+
 
 def cooldown_config_example() -> None:
     client = tanjun.Client.from_gateway_bot(bot)
@@ -366,22 +359,22 @@ def cooldown_config_example() -> None:
         .add_to_client(client)
     )
 
+
 def assign_cooldown_example() -> None:
     @tanjun.with_cooldown("main_commands", follow_wrapped=True)
     @tanjun.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_user_menu("name")
-    async def user_command(
-        ctx: tanjun.abc.Context,
-        user: Annotated[annotations.User, "A user"],
-    ) -> None:
+    async def user_command(ctx: tanjun.abc.Context, user: Annotated[annotations.User, "A user"]) -> None:
         ...
+
 
 def localisation_example() -> None:
     @tanjun.as_slash_command({hikari.Locale.ES_US: "Hola"}, "description")
     async def command(ctx: tanjun.abc.Context) -> None:
         ...
+
 
 def client_localiser_example() -> None:
     import tanjun
@@ -391,15 +384,15 @@ def client_localiser_example() -> None:
     (
         tanjun.dependencies.BasicLocaliser()
         .set_overrides(
-            "slash:command name:name",
-            {hikari.Locale.EN_US: "american variant", hikari.Locale.EN_GB: "english variant"}
+            "slash:command name:name", {hikari.Locale.EN_US: "american variant", hikari.Locale.EN_GB: "english variant"}
         )
         .set_overrides(
             "message_menu:command name:check:tanjun.OwnerCheck",
-            {hikari.Locale.JA: "konnichiwa", hikari.Locale.ES_ES: "Hola"}
+            {hikari.Locale.JA: "konnichiwa", hikari.Locale.ES_ES: "Hola"},
         )
         .add_to_client(client)
     )
+
 
 def response_localisation_example() -> None:
     LOCALISED_RESPONSES = {
