@@ -8,6 +8,10 @@
 #
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
+
+# pyright: reportUnusedFunction=none
+
+import sys
 import typing
 
 import aiohttp
@@ -16,6 +20,8 @@ import hikari
 
 import tanjun
 from tanjun import annotations
+
+assert sys.version_info >= (3, 10)
 
 
 def gateway_bot_example() -> None:
@@ -167,14 +173,13 @@ def get_video() -> str:
 def annotations_example() -> None:
     from typing import Annotated
 
-    import tanjun
     from tanjun.annotations import Bool
     from tanjun.annotations import Converted
     from tanjun.annotations import Ranged
     from tanjun.annotations import Str
     from tanjun.annotations import User
 
-    @tanjun.with_annotated_args(follow_wrapped=True)
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
     async def command(
@@ -189,7 +194,7 @@ def annotations_example() -> None:
 
 
 def wrapped_command_example() -> None:
-    @tanjun.with_annotated_args(follow_wrapped=True)
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.with_guild_check(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
@@ -198,7 +203,7 @@ def wrapped_command_example() -> None:
 
 
 def responding_to_commands_example() -> None:
-    @tanjun.with_annotated_args(follow_wrapped=True)
+    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
     @tanjun.as_user_menu("name")
@@ -386,22 +391,20 @@ def assign_cooldown_example() -> None:
 
 
 def localisation_example() -> None:
-    @tanjun.as_slash_command({hikari.Locale.ES_US: "Hola"}, "description")
+    @tanjun.as_slash_command({hikari.Locale.EN_US: "Hola"}, "description")
     async def command(ctx: tanjun.abc.Context) -> None:
         ...
 
 
-def client_localiser_example() -> None:
-    import tanjun
-
-    client = tanjun.Client.from_gateway_bot(...)
+def client_localiser_example(bot: hikari.GatewayBotAware) -> None:
+    client = tanjun.Client.from_gateway_bot(bot)
 
     (
         tanjun.dependencies.BasicLocaliser()
-        .set_overrides(
+        .set_variants(
             "slash:command name:name", {hikari.Locale.EN_US: "american variant", hikari.Locale.EN_GB: "english variant"}
         )
-        .set_overrides(
+        .set_variants(
             "message_menu:command name:check:tanjun.OwnerCheck",
             {hikari.Locale.JA: "konnichiwa", hikari.Locale.ES_ES: "Hola"},
         )
@@ -410,7 +413,7 @@ def client_localiser_example() -> None:
 
 
 def response_localisation_example() -> None:
-    LOCALISED_RESPONSES = {
+    LOCALISED_RESPONSES: dict[str, str] = {
         hikari.Locale.DA: "Hej",
         hikari.Locale.DE: "Hallo",
         hikari.Locale.EN_GB: "Good day fellow sir",
