@@ -1360,11 +1360,6 @@ While this feature is cross-compatible, there is one key difference: a
 description must be included for options when annotating for a slash command,
 which is done by passing a string value to <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a> (as shown
 above).</p>
-<p>The special generic types offered in <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations">tanjun.annotations</a> (e.g
-<a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Ranged">Ranged</a> and <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Converted">Converted</a>)
-return a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a> instance from their generic calls and can also be
-passed as arguments to Annotated like <code>Annotated[Int, Ranged(13, 130)]</code>, and
-<code>Annotated[Str, Converted(get_video)]</code>.</p>
 <p>This example doesn't demonstrate every feature of this, and More information on
 how arguments are configured through annotations can be found in
 <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations">tanjun.annotations</a>.</p>
@@ -1657,7 +1652,7 @@ of commands concurrently.</p>
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 will manage the concurrency limits for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_bucket">Limiter.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to at most 2 concurrent executions per user,
@@ -1675,7 +1670,7 @@ linked limiter).</p>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">user_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="s2">&quot;A user&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_concurrency_limit">with_concurrency_limit</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_concurrency_limit">with_concurrency_limit</a>
 to mark these commands as using the <code>"main_commands"</code> concurrency limit bucket;
 buckets share their limits for a resource across all the commands under it. For
 more information on the resources concurrency can be limited by see
@@ -1690,7 +1685,7 @@ more information on the resources concurrency can be limited by see
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
 will manage the cooldowns for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager.set_bucket">Manager.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to 5 calls per user every 60 seconds,

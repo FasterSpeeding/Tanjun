@@ -2166,11 +2166,9 @@ of <code>tuple[name, value]</code> or a sequence of choice values.</p>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
     <span class="n">argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">OtherType</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">callback</span><span class="p">,</span> <span class="n">other_callback</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
-    <span class="n">other_argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Converted</span><span class="p">[</span><span class="n">callback</span><span class="p">,</span> <span class="n">other_callback</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>Where <code>Converted[...]</code> follows the same semantics as Converted's <code>__init__</code>.</p>
 
 
 
@@ -2304,7 +2302,6 @@ during parsing.</p>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
     <span class="n">argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Default</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
-    <span class="n">other_argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Default</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
@@ -2312,8 +2309,7 @@ during parsing.</p>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="n">required_argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Default</span><span class="p">[</span><span class="n">Str</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yeet&quot;</span><span class="p">,</span>
-    <span class="n">other_required</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Default</span><span class="p">(),</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">123</span><span class="p">,</span>
+    <span class="n">required_argument</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Default</span><span class="p">(),</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">123</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
@@ -2634,7 +2630,7 @@ commands and flags.</p>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span>
-    <span class="n">greedy_arg</span><span class="p">:</span> <span class="n">Greedy</span><span class="p">[</span><span class="n">Str</span><span class="p">],</span>
+    <span class="n">greedy_arg</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Greedy</span><span class="p">()],</span>
     <span class="n">other_greedy_arg</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Greedy</span><span class="p">()],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -2692,12 +2688,9 @@ but after conversion for message commands.</p>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
     <span class="n">max_and_min</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Length</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="mi">321</span><span class="p">)],</span>
     <span class="n">max_only</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Length</span><span class="p">(</span><span class="mi">123</span><span class="p">)],</span>
-    <span class="n">generic_max_and_min</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">Length</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">13</span><span class="p">],</span> <span class="s2">&quot;meow&quot;</span><span class="p">],</span>
-    <span class="n">generic_max_only</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">Length</span><span class="p">[</span><span class="mi">21</span><span class="p">],</span> <span class="s2">&quot;meow&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>where <code>Length[...]</code> follows the same semantics as Length's <code>__init__</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
@@ -2866,12 +2859,10 @@ length.</p>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
     <span class="n">age</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Max</span><span class="p">(</span><span class="mi">130</span><span class="p">),</span> <span class="s2">&quot;How old are you?&quot;</span><span class="p">],</span>
-    <span class="n">number</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Max</span><span class="p">[</span><span class="mf">130.2</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">number</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Float</span><span class="p">,</span> <span class="n">Max</span><span class="p">(</span><span class="mf">130.2</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>The option's type is inferred from the passed value when using
-<a class="autorefs autorefs-internal" href="#tanjun.annotations.Max">Max</a> as a generic type hint (e.g. <code>Max[18]</code>).</p>
 
 
 
@@ -2985,12 +2976,10 @@ length.</p>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
     <span class="n">age</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Min</span><span class="p">(</span><span class="mi">13</span><span class="p">),</span> <span class="s2">&quot;How old are you?&quot;</span><span class="p">],</span>
-    <span class="n">number</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Min</span><span class="p">[</span><span class="mf">13.9</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">number</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Float</span><span class="p">,</span> <span class="n">Min</span><span class="p">(</span><span class="mf">13.9</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>The option's type is inferred from the passed value when using
-<a class="autorefs autorefs-internal" href="#tanjun.annotations.Min">Min</a> as a generic type hint (e.g. <code>Min[69.4]</code>).</p>
 
 
 
@@ -3289,8 +3278,7 @@ allows for marking positional arguments as optional.</p>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span>
-    <span class="n">positional_arg</span><span class="p">:</span> <span class="n">Positional</span><span class="p">[</span><span class="n">Str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">other_positional_arg</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Positional</span><span class="p">()]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">positional_arg</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="n">Positional</span><span class="p">()]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
@@ -3342,13 +3330,10 @@ allows for marking positional arguments as optional.</p>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
     <span class="n">number_arg</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Ranged</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">69</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
-    <span class="n">other_number_arg</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Ranged</span><span class="p">[</span><span class="mf">13.69</span><span class="p">,</span> <span class="mf">420.69</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">other_number_arg</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Float</span><span class="p">,</span> <span class="n">Ranged</span><span class="p">(</span><span class="mf">13.69</span><span class="p">,</span> <span class="mf">420.69</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
-<p>The option's type is inferred from whether integers or floats are passed
-when using <a class="autorefs autorefs-internal" href="#tanjun.annotations.Ranged">Ranged</a> as a generic type hint (e.g.
-<code>Ranged[123, 666]</code>).</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@with_annotated_args</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
@@ -3521,10 +3506,6 @@ object each time for the following types:</p>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
     <span class="n">user</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">User</span><span class="p">,</span> <span class="n">SnowflakeOr</span><span class="p">(</span><span class="n">parse_id</span><span class="o">=</span><span class="n">parse_user_id</span><span class="p">),</span> <span class="s2">&quot;The user to target.&quot;</span><span class="p">],</span>
-
-    <span class="c1"># The `parse_id` callback is automatically set to the mention format for</span>
-    <span class="c1"># the passed type if applicable when using SnowflakeOr as a generic type-hint.</span>
-    <span class="n">role</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">SnowflakeOr</span><span class="p">[</span><span class="n">Role</span><span class="p">]],</span> <span class="s2">&quot;The role to target.&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">user_id</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Snowflake</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
 </code></pre></div>
@@ -3845,8 +3826,9 @@ this wraps in a decorator call chain.</p>
 <p>To declare arguments you will have to do one of two things:</p>
 <ol>
 <li>
-<p>Using any of the following types as an argument's type-hint (this may be as the
-    first argument to <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a>) will mark it as a command argument:</p>
+<p>Using any of the following types as an argument's type-hint (this may
+    be as the first argument to <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a>) will mark it as a
+    command argument:</p>
 <ul>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Attachment">tanjun.annotations.Attachment</a>*</li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.Bool">tanjun.annotations.Bool</a></li>
@@ -3884,24 +3866,14 @@ this wraps in a decorator call chain.</p>
 </code></pre></div>
 </li>
 <li>
-<p>By assigning <a class="autorefs autorefs-internal" href="#tanjun.annotations.Converted">tanjun.annotations.Converted</a>...</p>
-<p>Either as one of the other arguments to <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a></p>
+<p>By assigning <a class="autorefs autorefs-internal" href="#tanjun.annotations.Converted">tanjun.annotations.Converted</a> as one of the other
+    arguments to <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a>:</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
     <span class="n">value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">OtherType</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">parse_value</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-</code></pre></div>
-<p>or as the type hint</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-    <span class="n">value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Converted</span><span class="p">[</span><span class="n">CustomType</span><span class="o">.</span><span class="n">from_str</span><span class="p">],</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
@@ -3912,7 +3884,7 @@ message commands options as they don't have descriptions.</p>
 <div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">message_command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Str</span><span class="p">,</span>
-    <span class="n">converted</span><span class="p">:</span> <span class="n">Converted</span><span class="p">[</span><span class="n">Type</span><span class="o">.</span><span class="n">from_str</span><span class="p">],</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">Str</span><span class="p">,</span>
     <span class="n">enable</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
