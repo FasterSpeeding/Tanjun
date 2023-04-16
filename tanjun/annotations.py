@@ -333,6 +333,16 @@ def attachment_field(
     !!! warning
         This is currently only supported for slash commands.
 
+    Examples
+    --------
+    ```py
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        field: hikari.Attachment | None = annotations.attachment_field(default=None),
+    ) -> None:
+        ...
+    ```
+
     Parameters
     ----------
     default
@@ -359,6 +369,16 @@ def bool_field(
     slash_name: typing.Optional[str] = None,
 ) -> typing.Union[bool, _T]:
     """Mark a parameter as a bool option using a descriptor.
+
+    Examples
+    --------
+    ```py
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        field: bool | None = annotations.bool_field(default=None),
+    ) -> None:
+        ...
+    ```
 
     Parameters
     ----------
@@ -460,6 +480,14 @@ def channel_field(
 ) -> typing.Union[hikari.PartialChannel, hikari.Snowflake, _T]:
     """Mark a parameter as a channel option using a descriptor.
 
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: hikari.PartialChannel | None = annotations.channel_field(default=None),
+    ) -> None:
+        ...
+    ```
+
     Parameters
     ----------
     aliases
@@ -537,6 +565,14 @@ def float_field(
 ) -> typing.Union[float, _T]:
     """Mark a parameter as a float option using a descriptor.
 
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: float | None = annotations.float_field(default=None),
+    ) -> None:
+        ...
+    ```
+
     Parameters
     ----------
     aliases
@@ -606,6 +642,14 @@ def int_field(
     slash_name: typing.Optional[str] = None,
 ) -> typing.Union[int, _T]:
     """Mark a parameter as a int option using a descriptor.
+
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: int | None = annotations.int_field(default=None),
+    ) -> None:
+        ...
+    ```
 
     Parameters
     ----------
@@ -706,6 +750,14 @@ def member_field(
     slash_name: typing.Optional[str] = None,
 ) -> typing.Union[hikari.Member, hikari.Snowflake, _T]:
     """Mark a parameter as a guild member option using a descriptor.
+
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: hikari.Member | None = annotations.member_field(default=None),
+    ) -> None:
+        ...
+    ```
 
     Parameters
     ----------
@@ -811,6 +863,14 @@ def mentionable_field(
 
     Mentionable options allow both user and roles.
 
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: hikari.Role | hikari.User | None = annotations.mentionable_field(default=None),
+    ) -> None:
+        ...
+    ```
+
     Parameters
     ----------
     aliases
@@ -913,6 +973,14 @@ def role_field(
 ) -> typing.Union[hikari.Role, hikari.Snowflake, _T]:
     """Mark a parameter as a guild role option using a descriptor.
 
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: hikari.Role | None = annotations.role_field(default=None),
+    ) -> None:
+        ...
+    ```
+
     Parameters
     ----------
     aliases
@@ -984,6 +1052,16 @@ def str_field(
     slash_name: typing.Optional[str] = None,
 ) -> typing.Union[str, _T]:
     """Mark a parameter as a string option using a descriptor.
+
+    Examples
+    --------
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: str | None = annotations.str_field(default=None),
+    ) -> None:
+        ...
+    ```
 
     Parameters
     ----------
@@ -1084,6 +1162,16 @@ def user_field(
     slash_name: typing.Optional[str] = None,
 ) -> typing.Union[hikari.User, hikari.Snowflake, _T]:
     """Mark a parameter as a user option using a descriptor.
+
+    Examples
+    --------
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: hikari.User | None = annotations.user_field(default=None),
+    ) -> None:
+        ...
+    ```
 
     Parameters
     ----------
