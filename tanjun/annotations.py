@@ -220,7 +220,7 @@ class _IntEnumConverter(_ConfigIdentifier):
 
 
 class _ChoicesMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Choices(...) too Annotated")
+    @typing_extensions.deprecated("Pass Choices(...) to Annotated")
     def __getitem__(cls, enum_: type[_EnumT], /) -> type[_EnumT]:
         if issubclass(enum_, float):
             type_ = float
@@ -306,7 +306,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
 
 class _ConvertedMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Converted(...) too Annotated")
+    @typing_extensions.deprecated("Pass Converted(...) to Annotated")
     def __getitem__(cls, converters: typing.Union[_ConverterSig[_T], tuple[_ConverterSig[_T]]], /) -> type[_T]:
         if not isinstance(converters, tuple):
             converters = (converters,)
@@ -374,7 +374,7 @@ Snowflake = typing.Annotated[hikari.Snowflake, Converted(conversion.parse_snowfl
 
 
 class _DefaultMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Default(...) too Annotated")
+    @typing_extensions.deprecated("Pass Default(...) to Annotated")
     def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], _T]], /) -> type[_T]:
         if isinstance(value, tuple):
             type_ = value[0]
@@ -547,7 +547,7 @@ class Flag(_ConfigIdentifier):
 
 
 class _PositionalMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Positional(...) too Annotated")
+    @typing_extensions.deprecated("Pass Positional(...) to Annotated")
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
         return typing.cast("type[_T]", typing.Annotated[type_, Positional()])
 
@@ -580,7 +580,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
 
 
 class _GreedyMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Greedy(...) too Annotated")
+    @typing_extensions.deprecated("Pass Greedy(...) to Annotated")
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
         return typing.cast("type[_T]", typing.Annotated[type_, Greedy()])
 
@@ -613,7 +613,7 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
 
 
 class _LengthMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Length(...) too Annotated")
+    @typing_extensions.deprecated("Pass Length(...) to Annotated")
     def __getitem__(cls, value: typing.Union[int, tuple[int, int]], /) -> type[str]:
         if isinstance(value, int):
             obj = Length(value)
@@ -709,7 +709,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
 
 
 class _MaxMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Max(...) too Annotated")
+    @typing_extensions.deprecated("Pass Max(...) to Annotated")
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
             return typing.cast("type[_NumberT]", typing.Annotated[Int, Max(value)])
@@ -756,7 +756,7 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
 
 
 class _MinMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Min(...) too Annotated")
+    @typing_extensions.deprecated("Pass Min(...) to Annotated")
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
             return typing.cast("type[_NumberT]", typing.Annotated[Int, Min(value)])
@@ -872,7 +872,7 @@ class Name(_ConfigIdentifier):
 
 
 class _RangedMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Ranged(...) too Annotated")
+    @typing_extensions.deprecated("Pass Ranged(...) to Annotated")
     def __getitem__(cls, range_: tuple[_NumberT, _NumberT], /) -> type[_NumberT]:
         # This better matches how type checking (well pyright at least) will
         # prefer to go to float if either value is float.
@@ -956,7 +956,7 @@ _SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Sn
 
 
 class _SnowflakeOrMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass SnowflakeOr(...) too Annotated")
+    @typing_extensions.deprecated("Pass SnowflakeOr(...) to Annotated")
     def __getitem__(cls, type_: type[_T], /) -> type[typing.Union[hikari.Snowflake, _T]]:
         for entry in _snoop_annotation_args(type_):
             if not isinstance(entry, _OptionMarker):
@@ -1043,7 +1043,7 @@ class _TypeOverride(_ConfigIdentifier):
 
 
 class _TheseChannelsMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass TheseChannels(...) too Annotated")
+    @typing_extensions.deprecated("Pass TheseChannels(...) to Annotated")
     def __getitem__(
         cls, value: typing.Union[_ChannelTypeIsh, collections.Collection[_ChannelTypeIsh]], /
     ) -> type[hikari.PartialChannel]:
