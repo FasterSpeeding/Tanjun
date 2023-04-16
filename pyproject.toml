@@ -105,6 +105,7 @@ ignore = [
     "E231",    # missing whitespace after ','
 ]
 per-file-ignores = [
+    "docs_src/*.py: D100, D101, D103, E800, FA100, FA101, F841, INP001, N806, TC001, TC101",
     "examples/*.py: D100, D101, D103, E800, FA100, FA101, F401, F403, INP001, TC001",
     "noxfile.py: D100, FA101, F401, F403, INP001",
     "tanjun/py.typed: D100",
@@ -153,7 +154,7 @@ default_sessions = [
 extra_test_installs = ["."]
 path_ignore = "tanjun\\/_internal\\/vendor\\/"
 project_name = "tanjun"
-top_level_targets = ["./examples", "./noxfile.py", "./tanjun", "./tests"]
+top_level_targets = ["./docs_src", "./examples", "./noxfile.py", "./tanjun", "./tests"]
 
 [tool.piped.github_actions.freeze_for_pr]
 [tool.piped.github_actions.lint]
@@ -172,9 +173,12 @@ python_versions = ["3.9", "3.10", "3.11"]
 [tool.piped.github_actions.verify_locks]
 [tool.piped.github_actions.verify_types]
 
+[tool.pycln]
+exclude = "docs_src"
+
 [tool.pyright]
 exclude = ["tanjun/_internal/vendor"]
-include = ["examples", "tanjun", "noxfile.py", "tests"]
+include = ["docs_src", "examples", "tanjun", "noxfile.py", "tests"]
 
 pythonVersion = "3.9"
 typeCheckingMode = "strict"
