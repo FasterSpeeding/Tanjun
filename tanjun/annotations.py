@@ -220,6 +220,7 @@ class _IntEnumConverter(_ConfigIdentifier):
 
 
 class _ChoicesMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass Choices(...) too Annotated")
     def __getitem__(cls, enum_: type[_EnumT], /) -> type[_EnumT]:
         if issubclass(enum_, float):
             type_ = float
@@ -305,6 +306,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
 
 
 class _ConvertedMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass Converted(...) too Annotated")
     def __getitem__(cls, converters: typing.Union[_ConverterSig[_T], tuple[_ConverterSig[_T]]], /) -> type[_T]:
         if not isinstance(converters, tuple):
             converters = (converters,)
@@ -323,12 +325,9 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
     async def command(
         ctx: tanjun.abc.SlashContext,
         argument: Annotated[OtherType, Converted(callback, other_callback), "description"]
-        other_argument: Annotated[Converted[callback, other_callback], "description"],
     ) -> None:
         raise NotImplementedError
     ```
-
-    Where `Converted[...]` follows the same semantics as Converted's `__init__`.
     """
 
     __slots__ = ("_converters",)
@@ -375,6 +374,7 @@ Snowflake = typing.Annotated[hikari.Snowflake, Converted(conversion.parse_snowfl
 
 
 class _DefaultMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass Default(...) too Annotated")
     def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], _T]], /) -> type[_T]:
         if isinstance(value, tuple):
             type_ = value[0]
@@ -395,7 +395,6 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
     async def command(
         ctx: tanjun.abc.Context,
         argument: Annotated[Str, Default(""), "description"],
-        other_argument: Annotated[Default[Str, ""], "description"],
     ) -> None:
         raise NotImplementedError
     ```
@@ -405,8 +404,7 @@ class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context,
-        required_argument: Annotated[Default[Str], "description"] = "yeet",
-        other_required: Annotated[Int, Default(), "description"] = 123,
+        required_argument: Annotated[Int, Default(), "description"] = 123,
     ) -> None:
         raise NotImplementedError
     ```
@@ -549,6 +547,7 @@ class Flag(_ConfigIdentifier):
 
 
 class _PositionalMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass Positional(...) too Annotated")
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
         return typing.cast("type[_T]", typing.Annotated[type_, Positional()])
 
@@ -568,8 +567,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
     @tanjun.as_message_command("message")
     async def command(
         ctx: tanjun.abc.MessageContext,
-        positional_arg: Positional[Str] = None,
-        other_positional_arg: Annotated[Str, Positional()] = None,
+        positional_arg: Annotated[Str, Positional()] = None,
     ) -> None:
         raise NotImplementedError
     ```
@@ -582,6 +580,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
 
 
 class _GreedyMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass Greedy(...) too Annotated")
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
         return typing.cast("type[_T]", typing.Annotated[type_, Greedy()])
 
@@ -600,7 +599,7 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
     @tanjun.as_message_command("message")
     async def command(
         ctx: tanjun.abc.MessageContext,
-        greedy_arg: Greedy[Str],
+        greedy_arg: Annotated[Str, Greedy()],
         other_greedy_arg: Annotated[Str, Greedy()],
     ) -> None:
         raise NotImplementedError
@@ -614,6 +613,7 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
 
 
 class _LengthMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass Length(...) too Annotated")
     def __getitem__(cls, value: typing.Union[int, tuple[int, int]], /) -> type[str]:
         if isinstance(value, int):
             obj = Length(value)
@@ -640,13 +640,9 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
         ctx: tanjun.abc.Context,
         max_and_min: typing.Annotated[Str, Length(123, 321)],
         max_only: typing.Annotated[Str, Length(123)],
-        generic_max_and_min: typing.Annotated[Length[5, 13], "meow"],
-        generic_max_only: typing.Annotated[Length[21], "meow"],
     ) -> None:
         raise NotImplementedError
     ```
-
-    where `Length[...]` follows the same semantics as Length's `__init__`.
 
     ```py
     @with_annotated_args
@@ -713,6 +709,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
 
 
 class _MaxMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass Max(...) too Annotated")
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
             return typing.cast("type[_NumberT]", typing.Annotated[Int, Max(value)])
@@ -731,13 +728,10 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
     async def command(
         ctx: tanjun.abc.Context,
         age: Annotated[Int, Max(130), "How old are you?"],
-        number: Annotated[Max[130.2], "description"],
+        number: Annotated[Float, Max(130.2), "description"],
     ) -> None:
         raise NotImplementedError
     ```
-
-    The option's type is inferred from the passed value when using
-    [Max][tanjun.annotations.Max] as a generic type hint (e.g. `Max[18]`).
     """
 
     __slots__ = ("_value",)
@@ -762,6 +756,7 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
 
 
 class _MinMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass Min(...) too Annotated")
     def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
         if isinstance(value, int):
             return typing.cast("type[_NumberT]", typing.Annotated[Int, Min(value)])
@@ -780,13 +775,10 @@ class Min(_ConfigIdentifier, metaclass=_MinMeta):
     async def command(
         ctx: tanjun.abc.Context,
         age: Annotated[Int, Min(13), "How old are you?"],
-        number: Annotated[Min[13.9], "description"],
+        number: Annotated[Float, Min(13.9), "description"],
     ) -> None:
         raise NotImplementedError
     ```
-
-    The option's type is inferred from the passed value when using
-    [Min][tanjun.annotations.Min] as a generic type hint (e.g. `Min[69.4]`).
     """
 
     __slots__ = ("_value",)
@@ -880,6 +872,7 @@ class Name(_ConfigIdentifier):
 
 
 class _RangedMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass Ranged(...) too Annotated")
     def __getitem__(cls, range_: tuple[_NumberT, _NumberT], /) -> type[_NumberT]:
         # This better matches how type checking (well pyright at least) will
         # prefer to go to float if either value is float.
@@ -901,14 +894,10 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
     async def command(
         ctx: tanjun.abc.Context,
         number_arg: Annotated[Int, Ranged(0, 69), "description"],
-        other_number_arg: Annotated[Ranged[13.69, 420.69], "description"],
+        other_number_arg: Annotated[Float, Ranged(13.69, 420.69), "description"],
     ) -> None:
         raise NotImplementedError
     ```
-
-    The option's type is inferred from whether integers or floats are passed
-    when using [Ranged][tanjun.annotations.Ranged] as a generic type hint (e.g.
-    `Ranged[123, 666]`).
 
     ```py
     @with_annotated_args
@@ -967,6 +956,7 @@ _SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Sn
 
 
 class _SnowflakeOrMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass SnowflakeOr(...) too Annotated")
     def __getitem__(cls, type_: type[_T], /) -> type[typing.Union[hikari.Snowflake, _T]]:
         for entry in _snoop_annotation_args(type_):
             if not isinstance(entry, _OptionMarker):
@@ -1013,10 +1003,6 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
     async def command(
         ctx: tanjun.abc.Context,
         user: Annotated[User, SnowflakeOr(parse_id=parse_user_id), "The user to target."],
-
-        # The `parse_id` callback is automatically set to the mention format for
-        # the passed type if applicable when using SnowflakeOr as a generic type-hint.
-        role: Annotated[Optional[SnowflakeOr[Role]], "The role to target."] = None,
     ) -> None:
         user_id = hikari.Snowflake(user)
     ```
@@ -1057,6 +1043,7 @@ class _TypeOverride(_ConfigIdentifier):
 
 
 class _TheseChannelsMeta(abc.ABCMeta):
+    @typing_extensions.deprecated("Pass TheseChannels(...) too Annotated")
     def __getitem__(
         cls, value: typing.Union[_ChannelTypeIsh, collections.Collection[_ChannelTypeIsh]], /
     ) -> type[hikari.PartialChannel]:
@@ -1475,8 +1462,9 @@ def with_annotated_args(
 
     To declare arguments you will have to do one of two things:
 
-    1. Using any of the following types as an argument's type-hint (this may be as the
-        first argument to [typing.Annotated][]) will mark it as a command argument:
+    1. Using any of the following types as an argument's type-hint (this may
+        be as the first argument to [typing.Annotated][]) will mark it as a
+        command argument:
 
         * [tanjun.annotations.Attachment][]\*
         * [tanjun.annotations.Bool][]
@@ -1515,9 +1503,8 @@ def with_annotated_args(
             raise NotImplementedError
         ```
 
-    2. By assigning [tanjun.annotations.Converted][]...
-
-        Either as one of the other arguments to [typing.Annotated][]
+    2. By assigning [tanjun.annotations.Converted][] as one of the other
+        arguments to [typing.Annotated][]:
 
         ```py
         @tanjun.with_annotated_args(follow_wrapped=True)
@@ -1530,19 +1517,6 @@ def with_annotated_args(
             raise NotImplementedError
         ```
 
-        or as the type hint
-
-        ```py
-        @tanjun.with_annotated_args(follow_wrapped=True)
-        @tanjun.as_message_command("e")
-        @tanjun.as_slash_command("e", "description")
-        async def command(
-            ctx: tanjun.abc.SlashContext,
-            value: Annotated[Converted[CustomType.from_str], "description"],
-        ) -> None:
-            raise NotImplementedError
-        ```
-
     It should be noted that wrapping in [typing.Annotated][] isn't necessary for
     message commands options as they don't have descriptions.
 
@@ -1550,7 +1524,7 @@ def with_annotated_args(
     async def message_command(
         ctx: tanjun.abc.MessageContext,
         name: Str,
-        converted: Converted[Type.from_str],
+        value: Str,
         enable: typing.Optional[Bool] = None,
     ) -> None:
         raise NotImplementedError

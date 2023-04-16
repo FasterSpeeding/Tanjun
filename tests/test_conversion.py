@@ -1778,13 +1778,13 @@ def test_parse_message_id(value: typing.Union[int, str], expected: tuple[typing.
 def test_defragment_url():
     result = tanjun.conversion.defragment_url("https://s//s/s/s/s/d#b")
 
-    assert result == urllib.parse.DefragResult(url="https://s//s/s/s/s/d", fragment="b")  # type: ignore
+    assert result == urllib.parse.DefragResult(url="https://s//s/s/s/s/d", fragment="b")
 
 
 def test_defragment_url_when_wrapped():
     result = tanjun.conversion.defragment_url("<https://s//s/s/s/s/b#a>")
 
-    assert result == urllib.parse.DefragResult(url="https://s//s/s/s/s/b", fragment="a")  # type: ignore
+    assert result == urllib.parse.DefragResult(url="https://s//s/s/s/s/b", fragment="a")
 
 
 def test_parse_url():
