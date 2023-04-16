@@ -3906,6 +3906,14 @@ formats.</p>
 <p>This is currently only supported for slash commands.</p>
 </div>
 
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Attachment</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">attachment_field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
+
   <table>
     <thead>
       <tr>
@@ -3985,6 +3993,14 @@ formats.</p>
   <div class="doc doc-contents ">
   
       <p>Mark a parameter as a bool option using a descriptor.</p>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">bool_field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -4158,6 +4174,12 @@ or <code>aliases</code> is provided.</p>
   <div class="doc doc-contents ">
   
       <p>Mark a parameter as a channel option using a descriptor.</p>
+<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">PartialChannel</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">channel_field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -4366,6 +4388,12 @@ or <code>aliases</code> is provided.</p>
   <div class="doc doc-contents ">
   
       <p>Mark a parameter as a float option using a descriptor.</p>
+<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">float_field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -4539,6 +4567,12 @@ or <code>aliases</code> is provided.</p>
   <div class="doc doc-contents ">
   
       <p>Mark a parameter as a int option using a descriptor.</p>
+<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">int_field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -4712,6 +4746,12 @@ or <code>aliases</code> is provided.</p>
   <div class="doc doc-contents ">
   
       <p>Mark a parameter as a guild member option using a descriptor.</p>
+<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Member</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">member_field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -4904,6 +4944,12 @@ or <code>aliases</code> is provided.</p>
   
       <p>Mark a parameter as a "mentionable" option using a descriptor.</p>
 <p>Mentionable options allow both user and roles.</p>
+<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span> <span class="o">|</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">mentionable_field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -5176,6 +5222,12 @@ this wraps in a decorator call chain.</p>
   <div class="doc doc-contents ">
   
       <p>Mark a parameter as a guild role option using a descriptor.</p>
+<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Role</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">role_field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
@@ -5368,6 +5420,14 @@ or <code>aliases</code> is provided.</p>
   
       <p>Mark a parameter as a string option using a descriptor.</p>
 
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">str_field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
+
   <table>
     <thead>
       <tr>
@@ -5540,6 +5600,14 @@ or <code>aliases</code> is provided.</p>
   <div class="doc doc-contents ">
   
       <p>Mark a parameter as a user option using a descriptor.</p>
+
+<p><strong>Examples:</strong></p>
+    <div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="n">field</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">user_field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
+</code></pre></div>
 
   <table>
     <thead>
