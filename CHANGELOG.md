@@ -9,11 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Using the following classes as generic types (i.e. `Class[...]`):
   * [yuyo.annotations.Converted][]
   * [yuyo.annotations.Default][]
-  * [yuyo.annotations.Positional][]
   * [yuyo.annotations.Greedy][]
   * [yuyo.annotations.Length][]
   * [yuyo.annotations.Max][]
   * [yuyo.annotations.Min][]
+  * [yuyo.annotations.Positional][]
   * [yuyo.annotations.Ranged][]
   * [yuyo.annotations.SnowflakeOr][]
 
