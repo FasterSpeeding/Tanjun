@@ -174,6 +174,7 @@ def get_video(value: str) -> Video:
 
 # isort: off
 
+
 def annotations_example() -> None:
     from typing import Annotated, Optional
 
