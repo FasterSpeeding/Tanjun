@@ -3313,7 +3313,7 @@ def test_with_generic_snowflake_or_for_mentionable():
             ctx: tanjun.abc.Context,
             value: typing.Annotated[annotations.SnowflakeOr[annotations.Mentionable], "se"],  # type: ignore
             value_2: typing.Annotated[
-                annotations.SnowflakeOr[typing.Optional[annotations.Mentionable]], "x"  # type: ignore
+                typing.Optional[annotations.SnowflakeOr[annotations.Mentionable]], "x"  # type: ignore
             ] = None,
         ) -> None:
             ...
