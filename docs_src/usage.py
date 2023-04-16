@@ -172,16 +172,12 @@ def get_video(value: str) -> Video:
     ...
 
 
-def annotations_example() -> None:
-    from typing import Annotated
-    from typing import Optional
+# isort: off
 
-    from tanjun.annotations import Bool
-    from tanjun.annotations import Converted
-    from tanjun.annotations import Int
-    from tanjun.annotations import Ranged
-    from tanjun.annotations import Str
-    from tanjun.annotations import User
+def annotations_example() -> None:
+    from typing import Annotated, Optional
+
+    from tanjun.annotations import Bool, Converted, Int, Ranged, Str, User
 
     @tanjun.annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
@@ -195,6 +191,9 @@ def annotations_example() -> None:
         enabled: Annotated[Bool, "an optional bool option which defaults to True"] = True,
     ) -> None:
         ...
+
+
+# isort: on
 
 
 def wrapped_command_example() -> None:
