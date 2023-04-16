@@ -227,7 +227,7 @@ Previously you've seen how to manually declare command options per command
 type, now it's time to go higher.
 
 ```py
---8<-- "./docs_src/usage.py:176:197"
+--8<-- "./docs_src/usage.py:179:194"
 ```
 
 [tanjun.with_annotated_args][tanjun.annotations.with_annotated_args] provides
