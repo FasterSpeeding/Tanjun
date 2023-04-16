@@ -2364,7 +2364,6 @@ def parse_annotated_args(
             if parameter.default is not parameter.empty and isinstance(parameter.default, _ConfigIdentifier):
                 arg = _ArgConfig(parameter.name, tanjun.NO_DEFAULT, description=descriptions.get(parameter.name))
                 parameter.default.set_config(arg)
-                arg.add_to_msg_cmds(message_commands).add_to_slash_cmds(slash_commands)
 
             else:
                 default = tanjun.NO_DEFAULT if parameter.default is parameter.empty else tanjun.NO_PASS
