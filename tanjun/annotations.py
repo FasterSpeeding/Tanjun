@@ -132,9 +132,7 @@ class _OptionMarker(_ConfigIdentifier):
         return self._type
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        # Ignore this if a TypeOveride has been found as it takes priority.
-        if config.option_type is None:
-            config.option_type = self._type
+        config.set_option_type(self._type)
 
 
 Attachment = typing.Annotated[hikari.Attachment, _OptionMarker(hikari.Attachment)]
@@ -317,7 +315,7 @@ class _Field(_ConfigIdentifier):
         if self._max_value is not None:
             config.max_value = self._max_value
 
-        config.option_type = self._option_type
+        config.set_option_type(self._option_type)
         config.snowflake_converter = self._snowflake_converter or config.snowflake_converter
         config.slash_name = self._slash_name or config.slash_name
 
@@ -1253,6 +1251,16 @@ class _IntEnumConverter(_ConfigIdentifier):
         config.int_converter = self._enum
 
 
+class _EnumConverter(_ConfigIdentifier):
+    __slots__ = ("_converter",)
+
+    def __init__(self, enum: collections.Callable[[str], enum.Enum], /) -> None:
+        self._converter = enum
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.str_converters = [self._converter]
+
+
 class _ChoicesMeta(abc.ABCMeta):
     @typing_extensions.deprecated("Pass Choices(...) to Annotated")
     def __getitem__(cls, enum_: type[_EnumT], /) -> type[_EnumT]:
@@ -1276,7 +1284,7 @@ class _ChoicesMeta(abc.ABCMeta):
 
         # TODO: do we want to wrap the convert callback to give better failed parse messages?
         return typing.cast(
-            "type[_EnumT]", typing.Annotated[enum_, choices, converter, Converted(enum_), _TypeOverride(type_)]
+            "type[_EnumT]", typing.Annotated[enum_, choices, converter, _EnumConverter(enum_), _OptionMarker(type_)]
         )
 
 
@@ -1391,7 +1399,7 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.str_converters = self._converters
-        config.option_type = str
+        config.set_option_type(str)
 
 
 Color = typing.Annotated[hikari.Color, Converted(conversion.to_color)]
@@ -2066,16 +2074,6 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
         config.snowflake_converter = self._parse_id
 
 
-class _TypeOverride(_ConfigIdentifier):
-    __slots__ = ("_override",)
-
-    def __init__(self, override: type[typing.Any], /) -> None:
-        self._override = override
-
-    def set_config(self, config: _ArgConfig, /) -> None:
-        config.option_type = self._override
-
-
 class _TheseChannelsMeta(abc.ABCMeta):
     @typing_extensions.deprecated("Pass TheseChannels(...) to Annotated")
     def __getitem__(
@@ -2208,6 +2206,14 @@ class _ArgConfig:
         self.slash_name: str = key
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
         self.str_converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
+
+    def set_option_type(self, option_type: typing.Any, /) -> None:
+        if self.option_type is not None and option_type != self.option_type:
+            raise RuntimeError(
+                f"Conflicting option types of {self.option_type} and {option_type} found for {self.key} parameter"
+            )
+
+        self.option_type = option_type
 
     def from_annotation(self, annotation: typing.Any, /) -> Self:
         for arg in _snoop_annotation_args(annotation):
