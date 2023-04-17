@@ -34,7 +34,7 @@
 
 import inspect
 import typing
-from unittest import mock
+import mock
 
 import hikari
 import pytest

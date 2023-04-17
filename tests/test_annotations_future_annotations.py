@@ -36,7 +36,7 @@ import re
 import sys
 import typing
 from collections import abc as collections
-from unittest import mock
+import mock
 
 import alluka
 import hikari
@@ -211,11 +211,7 @@ def test_when_wrapping_message_but_not_follow_wrapped_parser_already_set():
 
 
 def test_when_follow_wrapping_and_wrapping_unsupported_command():
-    async def mock_callback(
-        ctx: tanjun.abc.MessageContext, value: annotations.Str, other_value: annotations.Bool = False
-    ) -> None:
-        ...
-
+    mock_callback = mock.AsyncMock()
     command: tanjun.MessageCommand[typing.Any] = tanjun.as_message_command("beep")(
         mock.Mock(tanjun.abc.SlashCommand, callback=mock_callback)
     )

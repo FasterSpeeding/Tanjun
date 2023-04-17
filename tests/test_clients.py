@@ -44,7 +44,7 @@ import textwrap
 import typing
 import uuid
 from collections import abc as collections
-from unittest import mock
+import mock
 
 import hikari
 import pytest
@@ -3170,7 +3170,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                from unittest import mock
+                import mock
 
                 import tanjun
 
@@ -3224,7 +3224,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                from unittest import mock
+                import mock
 
                 import tanjun
 
@@ -3262,7 +3262,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                from unittest import mock
+                import mock
 
                 import tanjun
 
@@ -3304,7 +3304,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                from unittest import mock
+                import mock
 
                 import tanjun
 
@@ -3359,7 +3359,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                from unittest import mock
+                import mock
 
                 import tanjun
 
@@ -3402,7 +3402,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                from unittest import mock
+                import mock
 
                 import tanjun
 
@@ -3487,7 +3487,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                from unittest import mock
+                import mock
 
                 import tanjun
 

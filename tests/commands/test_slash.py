@@ -40,7 +40,7 @@ import re
 import types
 import typing
 from collections import abc as collections
-from unittest import mock
+import mock
 
 import hikari
 import pytest
@@ -1137,9 +1137,7 @@ class TestSlashCommandGroup:
             command_group.add_command(mock.Mock(tanjun.abc.SlashCommandGroup))
 
     def test_as_sub_command(self):
-        async def mock_callback(ctx: tanjun.abc.SlashContext) -> None:
-            raise NotImplementedError
-
+        mock_callback = mock.AsyncMock()
         command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
 
         result = command_group.as_sub_command("nameth", "meowed")(mock_callback)
@@ -1154,9 +1152,7 @@ class TestSlashCommandGroup:
         assert result in command_group.commands
 
     def test_as_sub_command_with_optional_args(self):
-        async def mock_callback(ctx: tanjun.abc.SlashContext) -> None:
-            raise NotImplementedError
-
+        mock_callback =  mock.AsyncMock()
         command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
 
         result = command_group.as_sub_command(
@@ -1326,8 +1322,6 @@ class TestSlashCommand:
 
     @pytest.fixture()
     def command(self) -> tanjun.SlashCommand[typing.Any]:
-        # Unfortunately since 3.10.6 inspect.signature now errors when a mock
-        # object is passed to it so we have to use a real callback.
         @tanjun.as_slash_command("yee", "nsoosos")
         async def mock_command(ctx: tanjun.abc.SlashContext, **kwargs: str) -> None:
             ...
@@ -1337,13 +1331,7 @@ class TestSlashCommand:
     @pytest.mark.asyncio()
     async def test___call__(self):
         mock_callback = mock.AsyncMock()
-
-        # Unfortunately since 3.10.6 inspect.signature now errors when a mock
-        # object is passed to it so we have to wrap this with a real callback.
-        async def callback(*args: typing.Any, **kwargs: typing.Any) -> None:
-            await mock_callback(*args, **kwargs)
-
-        command = tanjun.SlashCommand[typing.Any](callback, "yee", "nsoosos")
+        command = tanjun.SlashCommand[typing.Any](mock_callback, "yee", "nsoosos")
 
         await command(1, 3, a=4, b=5)
 

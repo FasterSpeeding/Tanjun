@@ -31,7 +31,7 @@
 
 # pyright: reportPrivateUsage=none
 
-from unittest import mock
+import mock
 
 import alluka
 

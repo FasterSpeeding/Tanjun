@@ -36,7 +36,7 @@
 import datetime
 import typing
 import urllib.parse
-from unittest import mock
+import mock
 
 import freezegun
 import hikari

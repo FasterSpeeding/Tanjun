@@ -37,7 +37,7 @@
 import types
 import typing
 from collections import abc as collections
-from unittest import mock
+import mock
 
 import pytest
 
@@ -133,9 +133,7 @@ class TestPartialCommand:
         assert command.checks == [mock_check_2, mock_check_3, mock_check_1]
 
     def test_remove_check(self, command: base_command.PartialCommand[typing.Any]):
-        def mock_check(ctx: tanjun.abc.Context) -> bool:
-            raise NotImplementedError
-
+        mock_check = mock.Mock()
         command.add_check(mock_check)
 
         result = command.remove_check(mock_check)
@@ -152,8 +150,7 @@ class TestPartialCommand:
         add_check.assert_called_once_with(mock_check)
 
     def test_with_check_when_already_present(self, command: base_command.PartialCommand[typing.Any]):
-        def mock_check(ctx: tanjun.abc.Context) -> bool:
-            raise NotImplementedError
+        mock_check = mock.Mock()
 
         command.add_check(mock_check).with_check(mock_check)
         assert command.with_check(mock_check) is mock_check

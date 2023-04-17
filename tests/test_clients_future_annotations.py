@@ -33,7 +33,7 @@ from __future__ import annotations
 import inspect
 import sys
 import typing
-from unittest import mock
+import mock
 
 import hikari
 import pytest

@@ -35,7 +35,7 @@
 import asyncio
 import datetime
 import typing
-from unittest import mock
+import mock
 
 import alluka
 import freezegun

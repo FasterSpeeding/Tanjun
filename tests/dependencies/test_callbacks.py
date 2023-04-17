@@ -32,7 +32,7 @@
 # pyright: reportUnknownMemberType=none
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
-from unittest import mock
+import mock
 
 import hikari
 import pytest

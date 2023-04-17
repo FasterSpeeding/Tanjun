@@ -36,7 +36,7 @@ import asyncio
 import datetime
 import time
 import typing
-from unittest import mock
+import mock
 
 import alluka
 import hikari

@@ -35,7 +35,7 @@
 # This leads to too many false-positives around mocks.
 
 import typing
-from unittest import mock
+import mock
 
 import hikari
 import pytest
