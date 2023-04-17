@@ -2518,7 +2518,7 @@ def with_annotated_args(
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
     r"""Set a command's arguments based on its signature.
 
-    To declare arguments you will have to do one of two things:
+    There are 3 ways to mark an argument as a command option:
 
     1. Using any of the following types as an argument's type-hint (this may
         be as the first argument to [typing.Annotated][]) will mark it as a
@@ -2605,7 +2605,7 @@ def with_annotated_args(
         @tanjun.as_slash_command("e", "description")
         async def command(
             ctx: tanjun.abc.SlashContext,
-            value: Annotated[OtherType, Converted(parse_value), "description"],
+            value: Annotated[ParsedType, Converted(parse_value), "description"],
         ) -> None:
             raise NotImplementedError
         ```
