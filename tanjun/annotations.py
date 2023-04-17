@@ -2615,7 +2615,7 @@ def with_annotated_args(
     3. By using any of the following default descriptors as the argument's
         default:
 
-        * [annotations.attachment_field][tanjun.annotations.attachment_field]
+        * [annotations.attachment_field][tanjun.annotations.attachment_field]\*
         * [annotations.bool_field][tanjun.annotations.bool_field]
         * [annotations.channel_field][tanjun.annotations.channel_field]
         * [annotations.float_field][tanjun.annotations.float_field]
@@ -2625,6 +2625,9 @@ def with_annotated_args(
         * [annotations.role_field][tanjun.annotations.role_field]
         * [annotations.str_field][tanjun.annotations.str_field]
         * [annotations.user_field][tanjun.annotations.user_field]
+
+        \* These are specific to slash commands and will raise an exception
+            when set for a message command's parameter which has no real default.
 
         ```py
         @tanjun.with_annotated_args(follow_wrapped=True)
