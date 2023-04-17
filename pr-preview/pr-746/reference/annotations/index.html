@@ -5799,7 +5799,7 @@ or <code>aliases</code> is provided.</p>
   <div class="doc doc-contents ">
   
       <p>Set a command's arguments based on its signature.</p>
-<p>To declare arguments you will have to do one of two things:</p>
+<p>There are 3 ways to mark an argument as a command option:</p>
 <ol>
 <li>
 <p>Using any of the following types as an argument's type-hint (this may be as the
@@ -5884,7 +5884,7 @@ annotations to add extra configuration:</p>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-    <span class="n">value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">OtherType</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">parse_value</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">ParsedType</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">parse_value</span><span class="p">),</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 </code></pre></div>
