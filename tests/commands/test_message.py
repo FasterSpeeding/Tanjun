@@ -38,9 +38,9 @@ import inspect
 import types
 import typing
 from collections import abc as collections
-import mock
 
 import hikari
+import mock
 import pytest
 
 import tanjun
@@ -500,9 +500,7 @@ class TestMessageCommandGroup:
         assert result.names == ["neco"]
         assert result._arg_names is not None
 
-    def test_as_sub_command_with_optional_args(
-        self
-    ):
+    def test_as_sub_command_with_optional_args(self):
         mock_callback = mock.Mock()
         command_group = tanjun.MessageCommandGroup(mock_callback, "meow")
 
@@ -523,9 +521,7 @@ class TestMessageCommandGroup:
         assert result.is_strict is False
         assert result._arg_names is not None
 
-    def test_as_sub_group_with_optional_args(
-        self
-    ):
+    def test_as_sub_group_with_optional_args(self):
         mock_callback = mock.Mock()
         command_group = tanjun.MessageCommandGroup(mock_callback, "meow")
 
@@ -704,9 +700,7 @@ class TestMessageCommandGroup:
         mock_command_3.execute.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_execute_no_pass_through_hooks(
-        self
-    ):
+    async def test_execute_no_pass_through_hooks(self):
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
@@ -769,9 +763,7 @@ class TestMessageCommandGroup:
         mock_command_3.execute.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_execute_falls_back_to_own_callback(
-        self
-    ):
+    async def test_execute_falls_back_to_own_callback(self):
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
@@ -800,9 +792,7 @@ class TestMessageCommandGroup:
         mock_command_2.execute.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_execute_falls_back_to_own_callback_no_pass_through_hooks(
-        self
-    ):
+    async def test_execute_falls_back_to_own_callback_no_pass_through_hooks(self):
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
@@ -830,9 +820,7 @@ class TestMessageCommandGroup:
         mock_command_2.execute.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_execute_falls_back_to_own_callback_no_hooks(
-        self
-    ):
+    async def test_execute_falls_back_to_own_callback_no_hooks(self):
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False

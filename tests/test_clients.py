@@ -44,9 +44,9 @@ import textwrap
 import typing
 import uuid
 from collections import abc as collections
-import mock
 
 import hikari
+import mock
 import pytest
 import typing_extensions
 

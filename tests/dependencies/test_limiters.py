@@ -35,11 +35,11 @@
 import asyncio
 import datetime
 import typing
-import mock
 
 import alluka
 import freezegun
 import hikari
+import mock
 import pytest
 
 import tanjun

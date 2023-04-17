@@ -33,9 +33,9 @@ from __future__ import annotations
 import inspect
 import sys
 import typing
-import mock
 
 import hikari
+import mock
 import pytest
 
 import tanjun

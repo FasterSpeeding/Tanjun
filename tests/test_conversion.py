@@ -36,10 +36,10 @@
 import datetime
 import typing
 import urllib.parse
-import mock
 
 import freezegun
 import hikari
+import mock
 import pytest
 
 import tanjun

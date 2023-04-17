@@ -42,10 +42,10 @@ import traceback
 import types
 import typing
 from collections import abc as collections
-import mock
 
 import alluka
 import freezegun
+import mock
 import pytest
 
 import tanjun

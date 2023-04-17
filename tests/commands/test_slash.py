@@ -40,9 +40,9 @@ import re
 import types
 import typing
 from collections import abc as collections
-import mock
 
 import hikari
+import mock
 import pytest
 
 import tanjun
@@ -1152,7 +1152,7 @@ class TestSlashCommandGroup:
         assert result in command_group.commands
 
     def test_as_sub_command_with_optional_args(self):
-        mock_callback =  mock.AsyncMock()
+        mock_callback = mock.AsyncMock()
         command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
 
         result = command_group.as_sub_command(

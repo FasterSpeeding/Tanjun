@@ -33,9 +33,8 @@
 # pyright: reportUnknownMemberType=none
 # This leads to too many false-positives around mocks.
 
-import mock
-
 import hikari
+import mock
 import pytest
 
 import tanjun

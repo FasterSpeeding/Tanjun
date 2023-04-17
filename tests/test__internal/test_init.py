@@ -34,9 +34,9 @@
 
 import inspect
 import typing
-import mock
 
 import hikari
+import mock
 import pytest
 
 import tanjun
