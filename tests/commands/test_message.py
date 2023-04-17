@@ -490,7 +490,9 @@ class TestMessageCommandGroup:
             command_group.add_command(mock.Mock(names={"aaa", "dsaasd"}))
 
     def test_as_sub_command(self):
-        mock_callback = mock.Mock()
+        async def mock_callback(ctx: tanjun.abc.Context) -> None:
+            ...
+
         other_mock_callback = mock.Mock()
         command_group = tanjun.MessageCommandGroup(other_mock_callback, "meow")
 
@@ -501,7 +503,9 @@ class TestMessageCommandGroup:
         assert result._arg_names is not None
 
     def test_as_sub_command_with_optional_args(self):
-        mock_callback = mock.Mock()
+        async def mock_callback(ctx: tanjun.abc.Context) -> None:
+            ...
+
         command_group = tanjun.MessageCommandGroup(mock_callback, "meow")
 
         result = command_group.as_sub_command("neco", "nyan", validate_arg_keys=False)(mock_callback)
@@ -510,7 +514,9 @@ class TestMessageCommandGroup:
         assert result._arg_names is None
 
     def test_as_sub_group(self):
-        mock_callback = mock.Mock()
+        async def mock_callback(ctx: tanjun.abc.Context) -> None:
+            ...
+
         other_mock_callback = mock.Mock()
         command_group = tanjun.MessageCommandGroup(other_mock_callback, "meow")
 
@@ -522,7 +528,9 @@ class TestMessageCommandGroup:
         assert result._arg_names is not None
 
     def test_as_sub_group_with_optional_args(self):
-        mock_callback = mock.Mock()
+        async def mock_callback(ctx: tanjun.abc.Context) -> None:
+            ...
+
         command_group = tanjun.MessageCommandGroup(mock_callback, "meow")
 
         result = command_group.as_sub_group("now", "viet", "namm", strict=True, validate_arg_keys=False)(mock_callback)

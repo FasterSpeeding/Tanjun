@@ -822,7 +822,7 @@ class TestInMemoryCooldownManager:
                 await asyncio.wait_for(manager._gc(), timeout=0.5)
 
             assert exc_info.value is mock_error
-            sleep.assert_has_awaits([mock.call(10), mock.call(10), mock.call(10)])
+            sleep.assert_has_awaits([mock.call(10), mock.call(10), mock.call(10)])  # type: ignore
 
         mock_bucket_1.cleanup.assert_has_calls([mock.call(), mock.call()])
         mock_bucket_2.cleanup.assert_has_calls([mock.call(), mock.call()])
@@ -1748,7 +1748,7 @@ class TestInMemoryConcurrencyLimiter:
                 await asyncio.wait_for(manager._gc(), timeout=0.5)
 
             assert exc_info.value is mock_error
-            sleep.assert_has_awaits([mock.call(10), mock.call(10), mock.call(10)])
+            sleep.assert_has_awaits([mock.call(10), mock.call(10), mock.call(10)])  # type: ignore
 
         mock_bucket_1.cleanup.assert_has_calls([mock.call(), mock.call()])
         mock_bucket_2.cleanup.assert_has_calls([mock.call(), mock.call()])

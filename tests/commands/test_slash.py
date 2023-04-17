@@ -589,7 +589,7 @@ class TestTrackedOption:
 
         assert result is mock_result
         mock_context.call_with_async_di.assert_has_awaits(
-            [mock.call(mock_converter_1, mock_value), mock.call(mock_converter_2, mock_value)]
+            [mock.call(mock_converter_1, mock_value), mock.call(mock_converter_2, mock_value)]  # type: ignore
         )
 
 
@@ -1137,7 +1137,9 @@ class TestSlashCommandGroup:
             command_group.add_command(mock.Mock(tanjun.abc.SlashCommandGroup))
 
     def test_as_sub_command(self):
-        mock_callback = mock.AsyncMock()
+        async def mock_callback(ctx: tanjun.abc.SlashContext) -> None:
+            raise NotImplementedError
+
         command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
 
         result = command_group.as_sub_command("nameth", "meowed")(mock_callback)
@@ -1152,7 +1154,9 @@ class TestSlashCommandGroup:
         assert result in command_group.commands
 
     def test_as_sub_command_with_optional_args(self):
-        mock_callback = mock.AsyncMock()
+        async def mock_callback(ctx: tanjun.abc.SlashContext) -> None:
+            raise NotImplementedError
+
         command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
 
         result = command_group.as_sub_command(

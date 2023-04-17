@@ -350,7 +350,11 @@ def test_when_wrapping_message_but_not_follow_wrapped_parser_already_set():
 
 
 def test_when_follow_wrapping_and_wrapping_unsupported_command():
-    mock_callback = mock.AsyncMock()
+    async def mock_callback(
+        ctx: tanjun.abc.MessageContext, value: annotations.Str, other_value: annotations.Bool = False
+    ) -> None:
+        ...
+
     command: tanjun.MessageCommand[typing.Any] = tanjun.as_message_command("beep")(
         mock.Mock(tanjun.abc.SlashCommand, callback=mock_callback)
     )

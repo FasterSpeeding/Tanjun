@@ -62,7 +62,7 @@ async def test_gather_checks_handles_failed_check():
     assert await _internal.gather_checks(mock_ctx, (check_1, check_2, check_3)) is False
 
     mock_ctx.call_with_async_di.assert_has_awaits(
-        [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]
+        [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]  # type: ignore
     )
 
 
@@ -77,7 +77,7 @@ async def test_gather_checks_handles_check_failed_by_raise():
     assert await _internal.gather_checks(mock_ctx, (check_1, check_2, check_3)) is False
 
     mock_ctx.call_with_async_di.assert_has_awaits(
-        [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]
+        [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]  # type: ignore
     )
 
 
@@ -92,7 +92,7 @@ async def test_gather_checks():
     assert await _internal.gather_checks(mock_ctx, (check_1, check_2, check_3)) is True
 
     mock_ctx.call_with_async_di.assert_has_awaits(
-        [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]
+        [mock.call(check_1, mock_ctx), mock.call(check_2, mock_ctx), mock.call(check_3, mock_ctx)]  # type: ignore
     )
 
 

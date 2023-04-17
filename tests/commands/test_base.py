@@ -41,7 +41,6 @@ from collections import abc as collections
 import mock
 import pytest
 
-import tanjun
 from tanjun.commands import base as base_command
 
 _T = typing.TypeVar("_T")
