@@ -68,6 +68,16 @@ __all__: list[str] = [
     "Str",
     "TheseChannels",
     "User",
+    "attachment_field",
+    "bool_field",
+    "channel_field",
+    "float_field",
+    "int_field",
+    "member_field",
+    "mentionable_field",
+    "role_field",
+    "str_field",
+    "user_field",
     "with_annotated_args",
 ]
 
@@ -1749,6 +1759,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     def set_config(self, config: _ArgConfig, /) -> None:
         config.min_length = self._min_length
         config.max_length = self._max_length
+        # TODO: set str option type
 
 
 class _MaxMeta(abc.ABCMeta):
@@ -2513,21 +2524,21 @@ def with_annotated_args(
         be as the first argument to [typing.Annotated][]) will mark it as a
         command argument:
 
-        * [tanjun.annotations.Attachment][]\*
-        * [tanjun.annotations.Bool][]
-        * [tanjun.annotations.Channel][]
-        * [tanjun.annotations.InteractionChannel][]\*
-        * [tanjun.annotations.Color][]/[tanjun.annotations.Colour][]
-        * [tanjun.annotations.Datetime][]
-        * [tanjun.annotations.Float][]
-        * [tanjun.annotations.Int][]
-        * [tanjun.annotations.Member][]
-        * [tanjun.annotations.InteractionMember][]\*
-        * [tanjun.annotations.Mentionable][]
-        * [tanjun.annotations.Role][]
-        * [tanjun.annotations.Snowflake][]
-        * [tanjun.annotations.Str][]
-        * [tanjun.annotations.User][]
+        * [annotations.Attachment][tanjun.annotations.Attachment]\*
+        * [annotations.Bool][tanjun.annotations.Bool]
+        * [annotations.Channel][tanjun.annotations.Channel]
+        * [annotations.InteractionChannel][tanjun.annotations.InteractionChannel]\*
+        * [annotations.Color][tanjun.annotations.Color]/[annotations.Colour][tanjun.annotations.Colour]
+        * [annotations.Datetime][tanjun.annotations.Datetime]
+        * [annotations.Float][tanjun.annotations.Float]
+        * [annotations.Int][tanjun.annotations.Int]
+        * [annotations.Member][tanjun.annotations.Member]
+        * [annotations.InteractionMember][tanjun.annotations.InteractionMember]\*
+        * [annotations.Mentionable][tanjun.annotations.Mentionable]
+        * [annotations.Role][tanjun.annotations.Role]
+        * [annotations.Snowflake][tanjun.annotations.Snowflake]
+        * [annotations.Str][tanjun.annotations.Str]
+        * [annotations.User][tanjun.annotations.User]
 
         \* These types are specific to slash commands and will raise an exception
             when set for a message command's parameter which has no real default.
@@ -2550,8 +2561,43 @@ def with_annotated_args(
             raise NotImplementedError
         ```
 
-    2. By assigning [tanjun.annotations.Converted][] as one of the other
-        arguments to [typing.Annotated][]:
+        When doing this the following objects can be included in a field's
+        annotations to add extra configuration:
+
+        * [annotations.Default][tanjun.annotations.Default]
+            Set the default for an option in the annotations (rather than using
+            the argument's actual default).
+        * [annotations.Flag][tanjun.annotations.Flag]
+            Mark an option as being a flag option for message commands.
+        * [annotations.Greedy][tanjun.annotations.Greedy]
+            Mark an option as consuming the rest of the provided positional
+            values for message commands.
+        * [annotations.Length][tanjun.annotations.Length]
+            Set the length restraints for a string option.
+        * [annotations.Min][tanjun.annotations.Min]
+            Set the minimum valid size for float and integer options.
+        * [annotations.Max][tanjun.annotations.Max]
+            Set the maximum valid size for float and integer options.
+        * [annotations.Name][tanjun.annotations.Name]
+            Override the option's name.
+        * [annotations.Positional][tanjun.annotations.Positional]
+            Mark optional arguments as positional for message commands.
+        * [annotations.Ranged][tanjun.annotations.Ranged]
+            Set range constraints for float and integer options.
+        * [annotations.SnowflakeOr][tanjun.annotations.SnowflakeOr]
+            Indicate that a role, user, channel, member, role, or mentionable
+            option should be left as the ID for message commands.
+        * [annotations.TheseChannels][tanjun.annotations.TheseChannels]
+            Constrain the valid channel types for a channel option.
+
+        ```py
+        async def command(
+            ctx: tanjun.abc.SlashContext,
+            name: Annotated[Str, Length(1, 20)],
+            channel: Annotated[Role | hikari.Snowflake | None, SnowflakeOr()] = None,
+        ) -> None:
+            raise NotImplementedError
+        ```
 
         ```py
         @tanjun.with_annotated_args(follow_wrapped=True)
@@ -2560,6 +2606,34 @@ def with_annotated_args(
         async def command(
             ctx: tanjun.abc.SlashContext,
             value: Annotated[OtherType, Converted(parse_value), "description"],
+        ) -> None:
+            raise NotImplementedError
+        ```
+
+        When doing this the option type will always be string.
+
+    3. By using any of the following default descriptors as the argument's
+        default:
+
+        * [annotations.attachment_field][tanjun.annotations.attachment_field]
+        * [annotations.bool_field][tanjun.annotations.bool_field]
+        * [annotations.channel_field][tanjun.annotations.channel_field]
+        * [annotations.float_field][tanjun.annotations.float_field]
+        * [annotations.int_field][tanjun.annotations.int_field]
+        * [annotations.member_field][tanjun.annotations.member_field]
+        * [annotations.mentionable_field][tanjun.annotations.mentionable_field]
+        * [annotations.role_field][tanjun.annotations.role_field]
+        * [annotations.str_field][tanjun.annotations.str_field]
+        * [annotations.user_field][tanjun.annotations.user_field]
+
+        ```py
+        @tanjun.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("e")
+        @tanjun.as_slash_command("e", "description")
+        async def command(
+            ctx: tanjun.abc.SlashContext,
+            user_field: hikari.User | None = annotations.user_field(default=None),
+            field: bool = annotations.bool_field(default=False, empty_value=True),
         ) -> None:
             raise NotImplementedError
         ```
