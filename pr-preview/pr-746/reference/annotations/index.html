@@ -5894,7 +5894,7 @@ annotations to add extra configuration:</p>
 <p>By using any of the following default descriptors as the argument's
     default:</p>
 <ul>
-<li><a class="autorefs autorefs-internal" href="#tanjun.annotations.attachment_field">annotations.attachment_field</a></li>
+<li><a class="autorefs autorefs-internal" href="#tanjun.annotations.attachment_field">annotations.attachment_field</a>*</li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.bool_field">annotations.bool_field</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.channel_field">annotations.channel_field</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.float_field">annotations.float_field</a></li>
@@ -5905,6 +5905,8 @@ annotations to add extra configuration:</p>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.str_field">annotations.str_field</a></li>
 <li><a class="autorefs autorefs-internal" href="#tanjun.annotations.user_field">annotations.user_field</a></li>
 </ul>
+<p>* These are specific to slash commands and will raise an exception
+    when set for a message command's parameter which has no real default.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
