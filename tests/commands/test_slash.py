@@ -40,9 +40,9 @@ import re
 import types
 import typing
 from collections import abc as collections
-from unittest import mock
 
 import hikari
+import mock
 import pytest
 
 import tanjun
@@ -589,7 +589,7 @@ class TestTrackedOption:
 
         assert result is mock_result
         mock_context.call_with_async_di.assert_has_awaits(
-            [mock.call(mock_converter_1, mock_value), mock.call(mock_converter_2, mock_value)]
+            [mock.call(mock_converter_1, mock_value), mock.call(mock_converter_2, mock_value)]  # type: ignore
         )
 
 
@@ -1326,8 +1326,6 @@ class TestSlashCommand:
 
     @pytest.fixture()
     def command(self) -> tanjun.SlashCommand[typing.Any]:
-        # Unfortunately since 3.10.6 inspect.signature now errors when a mock
-        # object is passed to it so we have to use a real callback.
         @tanjun.as_slash_command("yee", "nsoosos")
         async def mock_command(ctx: tanjun.abc.SlashContext, **kwargs: str) -> None:
             ...
@@ -1337,13 +1335,7 @@ class TestSlashCommand:
     @pytest.mark.asyncio()
     async def test___call__(self):
         mock_callback = mock.AsyncMock()
-
-        # Unfortunately since 3.10.6 inspect.signature now errors when a mock
-        # object is passed to it so we have to wrap this with a real callback.
-        async def callback(*args: typing.Any, **kwargs: typing.Any) -> None:
-            await mock_callback(*args, **kwargs)
-
-        command = tanjun.SlashCommand[typing.Any](callback, "yee", "nsoosos")
+        command = tanjun.SlashCommand[typing.Any](mock_callback, "yee", "nsoosos")
 
         await command(1, 3, a=4, b=5)
 

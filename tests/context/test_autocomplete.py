@@ -33,9 +33,8 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
-from unittest import mock
-
 import hikari
+import mock
 import pytest
 from hikari import traits
 

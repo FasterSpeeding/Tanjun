@@ -331,6 +331,9 @@ idna==3.4 ; python_full_version >= "3.9.0" and python_version < "3.12" \
 iniconfig==2.0.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3 \
     --hash=sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374
+mock==5.0.2 ; python_full_version >= "3.9.0" and python_version < "3.12" \
+    --hash=sha256:06f18d7d65b44428202b145a9a36e99c2ee00d1eb992df0caf881d4664377891 \
+    --hash=sha256:0e0bc5ba78b8db3667ad636d964eb963dc97a59f04c6f6214c5f0e4a8f726c56
 multidict==6.0.4 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:01a3a55bd90018c9c080fbb0b9f4891db37d148a0a18722b42f94694f8b6d4c9 \
     --hash=sha256:0b1a97283e0c85772d613878028fec909f003993e1007eafa715b24b377cb9b8 \

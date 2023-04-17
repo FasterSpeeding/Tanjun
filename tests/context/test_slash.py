@@ -38,10 +38,10 @@ import datetime
 import types
 import typing
 from collections import abc as collections
-from unittest import mock
 
 import alluka
 import hikari
+import mock
 import pytest
 
 import tanjun

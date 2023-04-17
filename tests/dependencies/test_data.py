@@ -36,9 +36,9 @@ import asyncio
 import datetime
 import time
 import typing
-from unittest import mock
 
 import alluka
+import mock
 import pytest
 
 import tanjun

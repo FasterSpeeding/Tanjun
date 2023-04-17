@@ -37,9 +37,9 @@ import itertools
 import operator
 import typing
 from collections import abc as collections
-from unittest import mock
 
 import hikari
+import mock
 import pytest
 
 import tanjun
@@ -3060,7 +3060,7 @@ async def test_all_checks():
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
             mock.call(mock_check_3, mock_context),
-        ]
+        ]  # type: ignore
     )
 
 
@@ -3080,7 +3080,7 @@ async def test_all_checks_when_check_raises():
         await check(mock_context)
 
     mock_context.call_with_async_di.assert_has_awaits(
-        [mock.call(mock_check_1, mock_context), mock.call(mock_check_2, mock_context)]
+        [mock.call(mock_check_1, mock_context), mock.call(mock_check_2, mock_context)]  # type: ignore
     )
 
 
@@ -3115,7 +3115,7 @@ async def test_all_checks_when_last_fails():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3134,7 +3134,7 @@ async def test_all_checks_when_any_check_fails():
 
     assert result is False
     mock_context.call_with_async_di.assert_has_awaits(
-        [mock.call(mock_check_1, mock_context), mock.call(mock_check_2, mock_context)]
+        [mock.call(mock_check_1, mock_context), mock.call(mock_check_2, mock_context)]  # type: ignore
     )
 
 
@@ -3187,7 +3187,7 @@ async def test_any_checks_when_last_check_passes():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3220,7 +3220,7 @@ async def test_any_checks_when_check_passes():
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
             mock.call(mock_check_3, mock_context),
-            mock.call(mock_check_4, mock_context),
+            mock.call(mock_check_4, mock_context),  # type: ignore
         ]
     )
 
@@ -3241,7 +3241,7 @@ async def test_any_checks_when_all_fail():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3266,7 +3266,7 @@ async def test_any_checks_when_all_fail_and_error():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3287,7 +3287,7 @@ async def test_any_checks_when_all_fail_and_halt_execution():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3308,7 +3308,7 @@ async def test_any_checks_when_all_fail_and_error_message():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3335,7 +3335,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3367,7 +3367,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict_but_not_app_comma
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3394,7 +3394,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict_defaults():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3426,7 +3426,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict_explicit_default(
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3457,7 +3457,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3497,7 +3497,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_i
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3533,7 +3533,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser_defaults():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3554,7 +3554,7 @@ async def test_any_checks_when_generic_unsuppressed_error_raised():
         await check(mock_context)
 
     mock_context.call_with_async_di.assert_has_awaits(
-        [mock.call(mock_check_1, mock_context), mock.call(mock_check_2, mock_context)]
+        [mock.call(mock_check_1, mock_context), mock.call(mock_check_2, mock_context)]  # type: ignore
     )
 
 
@@ -3579,7 +3579,7 @@ async def test_any_checks_when_generic_error_suppressed():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3597,7 +3597,7 @@ async def test_any_checks_when_halt_execution_not_suppressed():
         await check(mock_context)
 
     mock_context.call_with_async_di.assert_has_awaits(
-        [mock.call(mock_check_1, mock_context), mock.call(mock_check_2, mock_context)]
+        [mock.call(mock_check_1, mock_context), mock.call(mock_check_2, mock_context)]  # type: ignore
     )
 
 
@@ -3617,7 +3617,7 @@ async def test_any_checks_when_halt_execution_suppressed():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 
@@ -3635,7 +3635,7 @@ async def test_any_checks_when_command_error_not_suppressed():
         await check(mock_context)
 
     mock_context.call_with_async_di.assert_has_awaits(
-        [mock.call(mock_check_1, mock_context), mock.call(mock_check_2, mock_context)]
+        [mock.call(mock_check_1, mock_context), mock.call(mock_check_2, mock_context)]  # type: ignore
     )
 
 
@@ -3655,7 +3655,7 @@ async def test_any_checks_when_command_error_suppressed():
         [
             mock.call(mock_check_1, mock_context),
             mock.call(mock_check_2, mock_context),
-            mock.call(mock_check_3, mock_context),
+            mock.call(mock_check_3, mock_context),  # type: ignore
         ]
     )
 

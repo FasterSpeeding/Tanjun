@@ -30,9 +30,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from unittest import mock
-
 import hikari
+import mock
 
 import tanjun
 
