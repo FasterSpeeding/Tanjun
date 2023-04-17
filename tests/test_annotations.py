@@ -5187,6 +5187,127 @@ def test_parse_annotated_args_with_descriptions_argument_for_wrapped_slash_comma
     ]
 
 
+def test_attachment_field():
+    @tanjun.as_slash_command("name", "description")
+    async def command(ctx: tanjun.abc.Context, field: hikari.Attachment = annotations.attachment_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"field": "eeee"})
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.ATTACHMENT, name="field", description="eeee", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["field"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "field"
+    assert tracked_option.name == "field"
+    assert tracked_option.type is hikari.OptionType.ATTACHMENT
+
+
+def test_attachment_field_with_config():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: typing.Union[hikari.Attachment, int] = annotations.attachment_field(
+            description="x", default=7655, slash_name="meow_meow"
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"field": "eeee"})
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.ATTACHMENT, name="meow_meow", description="x", is_required=False)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["meow_meow"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == 7655
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "field"
+    assert tracked_option.name == "meow_meow"
+    assert tracked_option.type is hikari.OptionType.ATTACHMENT
+
+
+def test_bool_field():
+    ...
+
+
+def test_bool_field_with_config():
+    ...
+
+
+def test_channel_field():
+    ...
+
+
+def test_channel_field_with_config():
+    ...
+
+
+def test_float_field():
+    ...
+
+
+def test_float_field_with_config():
+    ...
+
+
+def test_int_field():
+    ...
+
+
+def test_int_field_with_config():
+    ...
+
+
+def test_member_field():
+    ...
+
+
+def test_member_field_with_config():
+    ...
+
+
+def test_mentionable_field():
+    ...
+
+
+def test_mentionable_field_with_config():
+    ...
+
+
+def test_role_field():
+    ...
+
+
+def test_role_field_with_config():
+    ...
+
+
+def test_str_field():
+    ...
+
+
+def test_str_field_with_config():
+    ...
+
+
+def test_user_field():
+    ...
+
+
+def test_user_field_with_config():
+    ...
+
+
 def test_with_unpacked_stdlib_typed_dict():
     class TypedDict(typing.TypedDict):
         amber: typing.Annotated[annotations.User, "umfy"]

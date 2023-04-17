@@ -198,7 +198,8 @@ User = typing.Annotated[hikari.User, _OptionMarker(hikari.User)]
 class _Field(_ConfigIdentifier):
     __slots__ = (
         "_aliases",
-        "_channel_type",
+        "_channel_types",
+        "_choices",
         "_default",
         "_description",
         "_empty_value",
@@ -279,7 +280,7 @@ class _Field(_ConfigIdentifier):
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.aliases = self._aliases or config.aliases
-        config.channel_types = self._channel_type or config.channel_types
+        config.channel_types = self._channel_types or config.channel_types
         config.choices = self._choices or config.choices
 
         if self._default is not tanjun.NO_DEFAULT:
