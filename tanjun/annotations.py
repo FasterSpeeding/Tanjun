@@ -307,10 +307,10 @@ class _Field(_ConfigIdentifier):
         if self._is_positional is not None:
             config.is_positional = self._is_positional
 
-        elif config.is_positional is None and (
-            self._aliases or self._default is not tanjun.NO_DEFAULT or self._empty_value is not tanjun.NO_DEFAULT
-        ):
-            config.is_positional = True
+        elif config.is_positional is None:
+            config.is_positional = (
+                not self._aliases and self._default is tanjun.NO_DEFAULT and self._empty_value is tanjun.NO_DEFAULT
+            )
 
         config.message_name = self._message_name or config.message_name
 
@@ -636,14 +636,20 @@ def float_field(
     )
 
 
+# TODO: aliases and empty_value no-longer markthe option as being a flag.
 def int_field(
     *,
+    # TODO: note about how these have to start with -
+    # Also consider implicitly adding that on
     aliases: typing.Optional[collections.Sequence[str]] = None,
+    # TODO: add doc note about how choices is ignored for message commands
     choices: typing.Optional[collections.Mapping[str, int]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
+    # TODO: note about how this has to start with -
+    # Also consider implicitly adding that on
     message_name: typing.Optional[str] = None,
     min_value: typing.Optional[int] = None,
     max_value: typing.Optional[int] = None,
