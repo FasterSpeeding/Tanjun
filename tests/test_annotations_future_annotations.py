@@ -691,15 +691,17 @@ def test_with_generic_float_choices():
         Blam = 432.123
         Ok = 43.34
 
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("command", "description")
-    @tanjun.as_message_command("command")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        nom: typing.Annotated[annotations.Choices[Choices1], "description"],
-        boom: typing.Annotated[annotations.Choices[Choices1], "bag"] = Choices1.Blam,
-    ):
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("command", "description")
+        @tanjun.as_message_command("command")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            nom: typing.Annotated[annotations.Choices[Choices1], "description"],  # type: ignore
+            boom: typing.Annotated[annotations.Choices[Choices1], "bag"] = Choices1.Blam,  # type: ignore
+        ):
+            ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -786,15 +788,17 @@ def test_with_generic_int_choices():
         Batman = 123
         Bazman = 0
 
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("command", "description")
-    @tanjun.as_message_command("command")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        nat: typing.Annotated[annotations.Choices[Choices2], "meow"],
-        bag: typing.Annotated[annotations.Choices[Choices2], "bagette"] = Choices2.Bazman,
-    ):
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("command", "description")
+        @tanjun.as_message_command("command")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            nat: typing.Annotated[annotations.Choices[Choices2], "meow"],  # type: ignore
+            bag: typing.Annotated[annotations.Choices[Choices2], "bagette"] = Choices2.Bazman,  # type: ignore
+        ):
+            ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -880,15 +884,17 @@ def test_with_generic_str_choices():
         Sis = "pls"
         Catgirl = "uwu"
 
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("command", "description")
-    @tanjun.as_message_command("command")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        ny: typing.Annotated[annotations.Choices[Choices3], "fat"],
-        aa: typing.Annotated[annotations.Choices[Choices3], "bat"] = Choices3.Sis,
-    ):
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("command", "description")
+        @tanjun.as_message_command("command")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            ny: typing.Annotated[annotations.Choices[Choices3], "fat"],  # type: ignore
+            aa: typing.Annotated[annotations.Choices[Choices3], "bat"] = Choices3.Sis,  # type: ignore
+        ):
+            ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -971,7 +977,9 @@ def test_with_generic_choices_when_enum_has_no_other_base():
     class Choices(enum.Enum):
         ...
 
-    with pytest.raises(TypeError, match="Enum must be a subclass of str, float or int"):
+    with pytest.warns(DeprecationWarning), pytest.raises(
+        TypeError, match="Enum must be a subclass of str, float or int"
+    ):
         annotations.Choices[Choices]
 
 
@@ -979,7 +987,9 @@ def test_with_generic_choices_when_enum_isnt_int_str_or_float():
     class Choices(bytes, enum.Enum):
         ...
 
-    with pytest.raises(TypeError, match="Enum must be a subclass of str, float or int"):
+    with pytest.warns(DeprecationWarning), pytest.raises(
+        TypeError, match="Enum must be a subclass of str, float or int"
+    ):
         annotations.Choices[Choices]
 
 
@@ -1068,15 +1078,17 @@ def test_with_generic_converted():
     mock_callback_2 = mock.Mock()
     mock_callback_3 = mock.Mock()
 
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("nyaa", "meow")
-    @tanjun.as_message_command("nyaa")
-    async def command(
-        ctx: tanjun.abc.Context,
-        boo: typing.Annotated[annotations.Converted[mock_callback_1, mock_callback_2], "description"],  # type: ignore
-        bam: typing.Annotated[annotations.Converted[mock_callback_3], "nom"] = None,
-    ) -> None:
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("nyaa", "meow")
+        @tanjun.as_message_command("nyaa")
+        async def command(
+            ctx: tanjun.abc.Context,
+            boo: typing.Annotated[annotations.Converted[mock_callback_1, mock_callback_2], "description"],  # type: ignore
+            bam: typing.Annotated[annotations.Converted[mock_callback_3], "nom"] = None,  # type: ignore
+        ) -> None:
+            ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -1178,14 +1190,18 @@ def test_with_default():
 
 
 def test_with_generic_default():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("name", "description")
-    @tanjun.as_message_command("name")
-    async def command(
-        ctx: tanjun.abc.Context,
-        argument: typing.Annotated[annotations.Default[annotations.Str, "nyaa"], "meow"],  # noqa: F821
-    ) -> None:
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("name", "description")
+        @tanjun.as_message_command("name")
+        async def command(
+            ctx: tanjun.abc.Context,
+            argument: typing.Annotated[
+                annotations.Default[annotations.Str, "nyaa"], "meow"  # noqa: F821  # type: ignore
+            ],
+        ) -> None:
+            ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -1226,7 +1242,7 @@ def test_with_default_overriding_signature_default():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context,
-        argument: typing.Annotated[annotations.Default[annotations.Str, "yeet"], "meow"] = "m",  # noqa: F821
+        argument: typing.Annotated[annotations.Str, annotations.Default("yeet"), "meow"] = "m",  # noqa: F821
     ) -> None:
         ...
 
@@ -1268,7 +1284,7 @@ def test_with_default_unsetting_signature_default():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
     async def command(
-        ctx: tanjun.abc.Context, argument: typing.Annotated[annotations.Default[annotations.Str], "meow"] = "m"
+        ctx: tanjun.abc.Context, argument: typing.Annotated[annotations.Str, annotations.Default(), "meow"] = "m"
     ) -> None:
         ...
 
@@ -1372,7 +1388,9 @@ def test_with_flag_and_deprecated_default():
         @tanjun.as_slash_command("beep", "boop")
         async def callback(
             ctx: tanjun.abc.Context,
-            eep: typing.Annotated[annotations.Int, annotations.Flag(default=1231), "b"] = 545454,
+            eep: typing.Annotated[
+                annotations.Int, annotations.Flag(default=1231), "b"  # pyright: ignore [ reportDeprecated ]
+            ] = 545454,
         ) -> None:
             ...
 
@@ -1476,6 +1494,41 @@ def test_with_positional():
     assert option.default is tanjun.abc.NO_DEFAULT
 
 
+def test_with_generic_positional():
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("name")
+        @tanjun.as_slash_command("boop", "description")
+        async def callback(
+            ctx: tanjun.abc.Context, beep: typing.Annotated[annotations.Positional[annotations.Str], "eat"]  # type: ignore
+        ) -> None:
+            ...
+
+    assert isinstance(callback.parser, tanjun.ShlexParser)
+    assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
+    assert len(callback.parser.arguments) == 1
+    assert len(callback.parser.options) == 0
+    option = callback.parser.arguments[0]
+    assert option.key == "beep"
+    assert option.converters == []
+    assert option.default is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+    assert callback.wrapped_command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING, name="beep", channel_types=None, description="eat", is_required=True
+        )
+    ]
+    assert len(callback.wrapped_command._tracked_options) == 1
+    option = callback.wrapped_command._tracked_options["beep"]
+    assert option.default is tanjun.abc.NO_DEFAULT
+
+
 def test_with_greedy():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
@@ -1497,10 +1550,12 @@ def test_with_greedy():
 
 
 def test_with_generic_greedy():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("command")
-    async def callback(ctx: tanjun.abc.Context, meep: annotations.Greedy[annotations.Str]):
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("command")
+        async def callback(ctx: tanjun.abc.Context, meep: annotations.Greedy[annotations.Str]):  # type: ignore
+            ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert len(callback.parser.arguments) == 1
@@ -1677,15 +1732,17 @@ def test_with_length_when_min_specificed():
 
 
 def test_with_generic_length():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("name", "description")
-    @tanjun.as_message_command("name")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        value: typing.Annotated[annotations.Length[123], "nom"],
-        other_value: typing.Annotated[typing.Optional[annotations.Length[5544]], "meow"] = None,
-    ) -> None:
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("name", "description")
+        @tanjun.as_message_command("name")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            value: typing.Annotated[annotations.Length[123], "nom"],  # type: ignore
+            other_value: typing.Annotated[typing.Optional[annotations.Length[5544]], "meow"] = None,  # type: ignore
+        ) -> None:
+            ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -1757,15 +1814,17 @@ def test_with_generic_length():
 
 
 def test_with_generic_length_when_min_specificed():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("name", "description")
-    @tanjun.as_message_command("name")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        value: typing.Annotated[annotations.Length[43, 5444], "nom"],
-        other_value: typing.Annotated[typing.Optional[annotations.Length[32, 4343]], "meow"] = None,
-    ) -> None:
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("name", "description")
+        @tanjun.as_message_command("name")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            value: typing.Annotated[annotations.Length[43, 5444], "nom"],  # type: ignore
+            other_value: typing.Annotated[typing.Optional[annotations.Length[32, 4343]], "meow"] = None,  # type: ignore
+        ) -> None:
+            ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -1942,15 +2001,17 @@ def test_with_generic_max(
     global value_
     value_ = value
 
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("command", "description")
-    @tanjun.as_message_command("command")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        number: typing.Annotated[annotations.Max[value_], "eee"],
-        other_number: typing.Annotated[annotations.Max[value_], "eep"] = 54234,
-    ):
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("command", "description")
+        @tanjun.as_message_command("command")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            number: typing.Annotated[annotations.Max[value_], "eee"],  # type: ignore
+            other_number: typing.Annotated[annotations.Max[value_], "eep"] = 54234,  # type: ignore
+        ):
+            ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2217,15 +2278,17 @@ def test_with_generic_min(
     global value_
     value_ = value
 
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("command", "description")
-    @tanjun.as_message_command("command")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        number: typing.Annotated[annotations.Min[value_], "bee"],
-        other_number: typing.Annotated[annotations.Min[value_], "buzz"] = 321,
-    ):
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("command", "description")
+        @tanjun.as_message_command("command")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            number: typing.Annotated[annotations.Min[value_], "bee"],  # type: ignore
+            other_number: typing.Annotated[annotations.Min[value_], "buzz"] = 321,  # type: ignore
+        ):
+            ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2755,15 +2818,17 @@ def test_with_generic_ranged(
     min_value_ = min_value
     max_value_ = max_value
 
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("command", "description")
-    @tanjun.as_message_command("command")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        number: typing.Annotated[annotations.Ranged[min_value_, max_value_], "meow"],
-        other_number: typing.Annotated[annotations.Ranged[min_value_, max_value_], "nom"] = 443,
-    ):
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("command", "description")
+        @tanjun.as_message_command("command")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            number: typing.Annotated[annotations.Ranged[min_value_, max_value_], "meow"],  # type: ignore
+            other_number: typing.Annotated[annotations.Ranged[min_value_, max_value_], "nom"] = 443,  # type: ignore
+        ):
+            ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2917,15 +2982,17 @@ def test_with_snowflake_or():
 
 
 def test_with_generic_snowflake_or_for_channel():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("command")
-    @tanjun.as_slash_command("yeet", "description")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        value: typing.Annotated[annotations.SnowflakeOr[annotations.Channel], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Channel]], "x"] = None,
-    ) -> None:
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("command")
+        @tanjun.as_slash_command("yeet", "description")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            value: typing.Annotated[annotations.SnowflakeOr[annotations.Channel], "se"],  # type: ignore
+            value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Channel]], "x"] = None,  # type: ignore
+        ) -> None:
+            ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -2997,15 +3064,17 @@ def test_with_generic_snowflake_or_for_channel():
 
 
 def test_with_generic_snowflake_or_for_member():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("command")
-    @tanjun.as_slash_command("yeet", "description")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        value: typing.Annotated[annotations.SnowflakeOr[annotations.Member], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Member]], "x"] = None,
-    ) -> None:
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("command")
+        @tanjun.as_slash_command("yeet", "description")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            value: typing.Annotated[annotations.SnowflakeOr[annotations.Member], "se"],  # type: ignore
+            value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Member]], "x"] = None,  # type: ignore
+        ) -> None:
+            ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3077,15 +3146,19 @@ def test_with_generic_snowflake_or_for_member():
 
 
 def test_with_generic_snowflake_or_for_mentionable():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("command")
-    @tanjun.as_slash_command("yeet", "description")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        value: typing.Annotated[annotations.SnowflakeOr[annotations.Mentionable], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Mentionable]], "x"] = None,
-    ) -> None:
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("command")
+        @tanjun.as_slash_command("yeet", "description")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            value: typing.Annotated[annotations.SnowflakeOr[annotations.Mentionable], "se"],  # type: ignore
+            value_2: typing.Annotated[
+                typing.Optional[annotations.SnowflakeOr[annotations.Mentionable]], "x"  # type: ignore
+            ] = None,
+        ) -> None:
+            ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3157,15 +3230,17 @@ def test_with_generic_snowflake_or_for_mentionable():
 
 
 def test_with_generic_snowflake_or_for_role():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("command")
-    @tanjun.as_slash_command("yeet", "description")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        value: typing.Annotated[annotations.SnowflakeOr[annotations.Role], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Role]], "x"] = None,
-    ) -> None:
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("command")
+        @tanjun.as_slash_command("yeet", "description")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            value: typing.Annotated[annotations.SnowflakeOr[annotations.Role], "se"],  # type: ignore
+            value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Role]], "x"] = None,  # type: ignore
+        ) -> None:
+            ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3237,15 +3312,17 @@ def test_with_generic_snowflake_or_for_role():
 
 
 def test_with_generic_snowflake_or_for_user():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("command")
-    @tanjun.as_slash_command("yeet", "description")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        value: typing.Annotated[annotations.SnowflakeOr[annotations.User], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.User]], "x"] = None,
-    ) -> None:
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("command")
+        @tanjun.as_slash_command("yeet", "description")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            value: typing.Annotated[annotations.SnowflakeOr[annotations.User], "se"],  # type: ignore
+            value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.User]], "x"] = None,  # type: ignore
+        ) -> None:
+            ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3317,15 +3394,17 @@ def test_with_generic_snowflake_or_for_user():
 
 
 def test_with_generic_snowflake_or():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("command")
-    @tanjun.as_slash_command("yeet", "description")
-    async def callback(
-        ctx: tanjun.abc.Context,
-        value: typing.Annotated[annotations.SnowflakeOr[annotations.Bool], "se"],
-        value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Bool]], "x"] = None,
-    ) -> None:
-        ...
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("command")
+        @tanjun.as_slash_command("yeet", "description")
+        async def callback(
+            ctx: tanjun.abc.Context,
+            value: typing.Annotated[annotations.SnowflakeOr[annotations.Bool], "se"],  # type: ignore
+            value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Bool]], "x"] = None,  # type: ignore
+        ) -> None:
+            ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3519,18 +3598,20 @@ def test_with_these_channels(
     assert option.max_value is None
 
 
-def test_with_generic_these_channels():
-    @annotations.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_slash_command("name", "description")
-    @tanjun.as_message_command("name")
-    async def command(
-        ctx: tanjun.abc.Context,
-        bb: typing.Annotated[annotations.TheseChannels[hikari.GuildChannel], "nep"],
-        bat: typing.Annotated[
-            typing.Optional[annotations.TheseChannels[hikari.GuildVoiceChannel, hikari.PrivateChannel]], "bip"
-        ] = None,
-    ):
-        ...
+def test_with_generic_these_channels():  # noqa: CFQ001
+    with pytest.warns(DeprecationWarning):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_slash_command("name", "description")
+        @tanjun.as_message_command("name")
+        async def command(
+            ctx: tanjun.abc.Context,
+            bb: typing.Annotated[annotations.TheseChannels[hikari.GuildChannel], "nep"],  # type: ignore
+            bat: typing.Annotated[
+                typing.Optional[annotations.TheseChannels[hikari.GuildVoiceChannel, hikari.PrivateChannel]], "bip"  # type: ignore
+            ] = None,
+        ):
+            ...
 
     expected_types_1 = {
         hikari.ChannelType.GUILD_CATEGORY,
@@ -4610,8 +4691,8 @@ def test_when_annotated_not_top_level():
     async def command(
         ctx: tanjun.abc.Context,
         *,
-        value: typing.Union[typing.Annotated[annotations.Positional[annotations.Str], "nyaa"], bool] = False,
-        other_value: typing.Optional[typing.Annotated[annotations.Ranged[123, 432], "meow"]] = None,
+        value: typing.Union[typing.Annotated[annotations.Str, annotations.Positional(), "nyaa"], bool] = False,
+        other_value: typing.Optional[typing.Annotated[annotations.Int, "meow"]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -4622,8 +4703,8 @@ def test_when_annotated_not_top_level():
             name="other_value",
             description="meow",
             is_required=False,
-            min_value=123,
-            max_value=432,
+            min_value=None,
+            max_value=None,
         ),
     ]
 
@@ -4671,8 +4752,8 @@ def test_when_annotated_not_top_level():
     assert option.is_multi is False
     assert option.min_length is None
     assert option.max_length is None
-    assert option.min_value == 123
-    assert option.max_value == 432
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 if sys.version_info >= (3, 10):
@@ -4684,8 +4765,8 @@ if sys.version_info >= (3, 10):
         async def command(
             ctx: tanjun.abc.Context,
             *,
-            value: typing.Annotated[annotations.Positional[annotations.Str], "nyaa"] | bool = False,
-            other_value: typing.Annotated[annotations.Ranged[123, 432], "meow"] | None = None,
+            value: typing.Annotated[annotations.Str, annotations.Positional(), "nyaa"] | bool = False,
+            other_value: typing.Annotated[annotations.Int, "meow"] | None = None,
         ) -> None:
             raise NotImplementedError
 
@@ -4696,8 +4777,8 @@ if sys.version_info >= (3, 10):
                 name="other_value",
                 description="meow",
                 is_required=False,
-                min_value=123,
-                max_value=432,
+                min_value=None,
+                max_value=None,
             ),
         ]
 
@@ -4745,8 +4826,8 @@ if sys.version_info >= (3, 10):
         assert option.is_multi is False
         assert option.min_length is None
         assert option.max_length is None
-        assert option.min_value == 123
-        assert option.max_value == 432
+        assert option.min_value is None
+        assert option.max_value is None
 
 
 def test_when_annotated_handles_unions():
@@ -4756,8 +4837,8 @@ def test_when_annotated_handles_unions():
     async def command(
         ctx: tanjun.abc.Context,
         *,
-        value: typing.Annotated[typing.Union[annotations.Positional[annotations.Str], bool], "nyaa"] = False,
-        other_value: typing.Annotated[typing.Optional[annotations.Ranged[123, 432]], "meow"] = None,
+        value: typing.Annotated[typing.Union[annotations.Str, bool], annotations.Positional(), "nyaa"] = False,
+        other_value: typing.Annotated[typing.Optional[annotations.Int], "meow"] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -4768,8 +4849,8 @@ def test_when_annotated_handles_unions():
             name="other_value",
             description="meow",
             is_required=False,
-            min_value=123,
-            max_value=432,
+            min_value=None,
+            max_value=None,
         ),
     ]
 
@@ -4817,8 +4898,8 @@ def test_when_annotated_handles_unions():
     assert option.is_multi is False
     assert option.min_length is None
     assert option.max_length is None
-    assert option.min_value == 123
-    assert option.max_value == 432
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 if sys.version_info >= (3, 10):
@@ -4830,8 +4911,8 @@ if sys.version_info >= (3, 10):
         async def command(
             ctx: tanjun.abc.Context,
             *,
-            value: typing.Annotated[annotations.Positional[annotations.Str] | bool, "nyaa"] = False,
-            other_value: typing.Annotated[annotations.Ranged[123, 432] | None, "meow"] = None,
+            value: typing.Annotated[annotations.Str | bool, annotations.Positional(), "nyaa"] = False,
+            other_value: typing.Annotated[annotations.Int | None, "meow"] = None,
         ) -> None:
             raise NotImplementedError
 
@@ -4842,8 +4923,8 @@ if sys.version_info >= (3, 10):
                 name="other_value",
                 description="meow",
                 is_required=False,
-                min_value=123,
-                max_value=432,
+                min_value=None,
+                max_value=None,
             ),
         ]
 
@@ -4891,15 +4972,13 @@ if sys.version_info >= (3, 10):
         assert option.is_multi is False
         assert option.min_length is None
         assert option.max_length is None
-        assert option.min_value == 123
-        assert option.max_value == 432
+        assert option.min_value is None
+        assert option.max_value is None
 
 
 def test_parse_annotated_args_with_descriptions_argument():
     @tanjun.as_slash_command("name", "description")
-    async def command(
-        ctx: tanjun.abc.Context, *, echo: annotations.Str, foxy: annotations.Ranged[123, 432] = 232
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, *, echo: annotations.Str, foxy: annotations.Int = 232) -> None:
         raise NotImplementedError
 
     annotations.parse_annotated_args(command, descriptions={"echo": "meow", "foxy": "x3", "unknown": "..."})
@@ -4911,8 +4990,8 @@ def test_parse_annotated_args_with_descriptions_argument():
             name="foxy",
             description="x3",
             is_required=False,
-            min_value=123,
-            max_value=432,
+            min_value=None,
+            max_value=None,
         ),
     ]
 

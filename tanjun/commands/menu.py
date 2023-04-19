@@ -406,7 +406,8 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
     def __init__(
         self,
         callback: _CallbackishT[_AnyMenuCallbackSigT],
-        type_: _MenuTypeT,
+        # TODO: should be _MenuTypeT but pyright broke
+        type_: typing.Any,
         name: typing.Union[str, collections.Mapping[str, str]],
         /,
         *,

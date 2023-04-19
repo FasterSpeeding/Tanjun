@@ -1029,10 +1029,9 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
             if value.isdigit() and _range_check(result := hikari.Snowflake(value)):
                 return [result]
 
-            results = filter(
-                _range_check, map(hikari.Snowflake, (match.groups()[0] for match in regex.finditer(value)))
-            )
-            return [*results, *filter(_range_check, map(hikari.Snowflake, filter(str.isdigit, value.split())))]
+            results = filter(_range_check, (hikari.Snowflake(match.groups()[0]) for match in regex.finditer(value)))
+            other_ids_iter = map(hikari.Snowflake, filter(str.isdigit, value.split()))
+            return [*results, *filter(_range_check, other_ids_iter)]  # pyright: ignore [ reportGeneralTypeIssues ]
 
         try:
             result = hikari.Snowflake(value)
@@ -1506,7 +1505,7 @@ def to_color(argument: _SnowflakeIsh, /) -> hikari.Color:
     return hikari.Color.of(argument)
 
 
-_TYPE_OVERRIDES: dict[collections.Callable[..., typing.Any], collections.Callable[[str], typing.Any]] = {
+_TYPE_OVERRIDES: dict[typing.Any, collections.Callable[[str], typing.Any]] = {
     bool: to_bool,
     bytes: lambda d: bytes(d, "utf-8"),
     bytearray: lambda d: bytearray(d, "utf-8"),
