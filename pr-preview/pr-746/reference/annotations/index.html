@@ -5859,8 +5859,8 @@ annotations to add extra configuration:</p>
 </code></pre></div>
 </li>
 <li>
-<p>By assigning <a class="autorefs autorefs-internal" href="#tanjun.annotations.Converted">tanjun.annotations.Converted</a> as one of the other
-    arguments to <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a>:</p>
+<p>By assigning <a class="autorefs autorefs-internal" href="#tanjun.annotations.Converted">tanjun.Converted</a> as one of
+    the other arguments to <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a>:</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
