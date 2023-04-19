@@ -2605,8 +2605,8 @@ def with_annotated_args(
             raise NotImplementedError
         ```
 
-    2. By assigning [tanjun.annotations.Converted][] as one of the other
-        arguments to [typing.Annotated][]:
+    2. By assigning [tanjun.Converted][tanjun.annotations.Converted] as one of
+        the other arguments to [typing.Annotated][]:
 
         ```py
         @tanjun.with_annotated_args(follow_wrapped=True)
