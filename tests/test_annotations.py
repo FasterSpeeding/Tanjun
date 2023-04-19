@@ -5846,19 +5846,143 @@ def test_int_field_when_default_marks_as_flag_and_other_config():
 
 
 def test_member_field():
-    ...
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, nope: hikari.Member = annotations.member_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"nope": "wowo"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.USER, name="nope", description="wowo", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["nope"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "nope"
+    assert tracked_option.name == "nope"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "nope"
+    assert argument.converters == [tanjun.to_member]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
 
 
 def test_member_field_with_config():
-    ...
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        nope: typing.Union[hikari.Member, hikari.Snowflake, None] = annotations.member_field(
+            default=None, description="fine", greedy=True, or_snowflake=True, positional=True, slash_name="pancake"
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.USER, name="pancake", description="fine", is_required=False)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["pancake"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "nope"
+    assert tracked_option.name == "pancake"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "nope"
+    assert argument.converters == [tanjun.conversion.parse_user_id]
+    assert argument.default is None
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
 
 
 def test_member_field_when_default_marks_as_flag():
-    ...
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, nep: typing.Optional[hikari.Member] = annotations.member_field(default=None)
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "nep"
+    assert option.names == ["--nep"]
+    assert option.converters == [tanjun.to_member]
+    assert option.default is None
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_member_field_when_default_marks_as_flag_and_other_config():
-    ...
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        nep: typing.Union[hikari.Member, bool, None, hikari.Snowflake] = annotations.member_field(
+            aliases=["--ok"], default=None, empty_value=False, message_name="--x", or_snowflake=True
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "nep"
+    assert option.names == ["--x", "--ok"]
+    assert option.converters == [tanjun.conversion.parse_user_id]
+    assert option.default is None
+    assert option.empty_value is False
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_mentionable_field():
