@@ -5840,7 +5840,7 @@ def test_with_unpacked_typed_dict_and_color():
     assert option.min_length is None
     assert option.max_length is None
     assert option.min_value is None
-    assert option.max_value is None 
+    assert option.max_value is None
 
 
 def test_with_unpacked_typed_dict_and_converted():
