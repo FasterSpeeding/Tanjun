@@ -6356,7 +6356,7 @@ def test_str_field_with_config():
     assert len(command._tracked_options) == 1
     tracked_option = command._tracked_options["name"]
     assert tracked_option.converters == [mock_converter_1, mock_converter_2]
-    assert tracked_option.default == ""
+    assert tracked_option.default is None
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
     assert tracked_option.key == "field"
@@ -6370,7 +6370,7 @@ def test_str_field_with_config():
     argument = command.wrapped_command.parser.arguments[0]
     assert argument.key == "field"
     assert argument.converters == [mock_converter_1, mock_converter_2]
-    assert argument.default == ""
+    assert argument.default is None
     assert argument.is_greedy is True
     assert argument.is_multi is False
     assert argument.min_length == 4
