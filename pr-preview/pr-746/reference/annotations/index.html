@@ -3970,7 +3970,7 @@ formats.</p>
 
 
 <a href="#tanjun.annotations.bool_field" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">bool_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">bool_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -3993,25 +3993,6 @@ formats.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
-          <td><code>aliases</code></td>
-          <td class="doc-param-details">
-            <p>Other names this option may be triggered by as a message flag option.</p>
-<p>This does not override <code>message_name</code> and all the aliases must be
-prefixed with "-".</p>
-<p>This is ignored unless <code>default</code> is also passed.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
         <tr>
           <td><code>default</code></td>
           <td class="doc-param-details">
@@ -4087,15 +4068,16 @@ slash commands and flags.</p>
           </td>
         </tr>
         <tr>
-          <td><code>message_name</code></td>
+          <td><code>message_names</code></td>
           <td class="doc-param-details">
-            <p>The name to use for this option in message commands.</p>
-<p>This must be prefixed with "-" and is ignored unless <code>default</code> is also
-passed.</p>
+            <p>The names this option may be triggered by as a message command flag
+option.</p>
+<p>These must all be prefixed with "-" and are ignored unless <code>default</code>
+is also passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -4108,8 +4090,7 @@ passed.</p>
           <td><code>positional</code></td>
           <td class="doc-param-details">
             <p>Whether this should be a positional argument.</p>
-<p>Arguments will be positional by default unless <code>default</code>, <code>empty_value</code>,
-or <code>aliases</code> is provided.</p>
+<p>Arguments will be positional by default unless <code>default</code> is provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -4154,7 +4135,7 @@ or <code>aliases</code> is provided.</p>
 
 
 <a href="#tanjun.annotations.channel_field" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">channel_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channel_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">or_snowflake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">channel_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">channel_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">or_snowflake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -4175,25 +4156,6 @@ or <code>aliases</code> is provided.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
-          <td><code>aliases</code></td>
-          <td class="doc-param-details">
-            <p>Other names this option may be triggered by as a message flag option.</p>
-<p>This does not override <code>message_name</code> and all the aliases must be
-prefixed with "-".</p>
-<p>This is ignored unless <code>default</code> is also passed.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
         <tr>
           <td><code>channel_types</code></td>
           <td class="doc-param-details">
@@ -4286,15 +4248,16 @@ slash commands and flags.</p>
           </td>
         </tr>
         <tr>
-          <td><code>message_name</code></td>
+          <td><code>message_names</code></td>
           <td class="doc-param-details">
-            <p>The name to use for this option in message commands.</p>
-<p>This must be prefixed with "-" and is ignored unless <code>default</code> is also
-passed.</p>
+            <p>The names this option may be triggered by as a message command flag
+option.</p>
+<p>These must all be prefixed with "-" and are ignored unless <code>default</code>
+is also passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -4325,8 +4288,7 @@ calls.</p>
           <td><code>positional</code></td>
           <td class="doc-param-details">
             <p>Whether this should be a positional argument.</p>
-<p>Arguments will be positional by default unless <code>default</code>, <code>empty_value</code>,
-or <code>aliases</code> is provided.</p>
+<p>Arguments will be positional by default unless <code>default</code> is provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -4371,7 +4333,7 @@ or <code>aliases</code> is provided.</p>
 
 
 <a href="#tanjun.annotations.float_field" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">float_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">float_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -4392,25 +4354,6 @@ or <code>aliases</code> is provided.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
-          <td><code>aliases</code></td>
-          <td class="doc-param-details">
-            <p>Other names this option may be triggered by as a message flag option.</p>
-<p>This does not override <code>message_name</code> and all the aliases must be
-prefixed with "-".</p>
-<p>This is ignored unless <code>default</code> is also passed.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
         <tr>
           <td><code>choices</code></td>
           <td class="doc-param-details">
@@ -4503,15 +4446,16 @@ slash commands and flags.</p>
           </td>
         </tr>
         <tr>
-          <td><code>message_name</code></td>
+          <td><code>message_names</code></td>
           <td class="doc-param-details">
-            <p>The name to use for this option in message commands.</p>
-<p>This must be prefixed with "-" and is ignored unless <code>default</code> is also
-passed.</p>
+            <p>The names this option may be triggered by as a message command flag
+option.</p>
+<p>These must all be prefixed with "-" and are ignored unless <code>default</code>
+is also passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -4556,8 +4500,7 @@ passed.</p>
           <td><code>positional</code></td>
           <td class="doc-param-details">
             <p>Whether this should be a positional argument.</p>
-<p>Arguments will be positional by default unless <code>default</code>, <code>empty_value</code>,
-or <code>aliases</code> is provided.</p>
+<p>Arguments will be positional by default unless <code>default</code> is provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -4602,7 +4545,7 @@ or <code>aliases</code> is provided.</p>
 
 
 <a href="#tanjun.annotations.int_field" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">int_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">int_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -4623,25 +4566,6 @@ or <code>aliases</code> is provided.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
-          <td><code>aliases</code></td>
-          <td class="doc-param-details">
-            <p>Other names this option may be triggered by as a message flag option.</p>
-<p>This does not override <code>message_name</code> and all the aliases must be
-prefixed with "-".</p>
-<p>This is ignored unless <code>default</code> is also passed.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
         <tr>
           <td><code>choices</code></td>
           <td class="doc-param-details">
@@ -4734,15 +4658,16 @@ slash commands and flags.</p>
           </td>
         </tr>
         <tr>
-          <td><code>message_name</code></td>
+          <td><code>message_names</code></td>
           <td class="doc-param-details">
-            <p>The name to use for this option in message commands.</p>
-<p>This must be prefixed with "-" and is ignored unless <code>default</code> is also
-passed.</p>
+            <p>The names this option may be triggered by as a message command flag
+option.</p>
+<p>These must all be prefixed with "-" and are ignored unless <code>default</code>
+is also passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -4787,8 +4712,7 @@ passed.</p>
           <td><code>positional</code></td>
           <td class="doc-param-details">
             <p>Whether this should be a positional argument.</p>
-<p>Arguments will be positional by default unless <code>default</code>, <code>empty_value</code>,
-or <code>aliases</code> is provided.</p>
+<p>Arguments will be positional by default unless <code>default</code> is provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -4833,7 +4757,7 @@ or <code>aliases</code> is provided.</p>
 
 
 <a href="#tanjun.annotations.member_field" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">member_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">or_snowflake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">member_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">or_snowflake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -4854,25 +4778,6 @@ or <code>aliases</code> is provided.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
-          <td><code>aliases</code></td>
-          <td class="doc-param-details">
-            <p>Other names this option may be triggered by as a message flag option.</p>
-<p>This does not override <code>message_name</code> and all the aliases must be
-prefixed with "-".</p>
-<p>This is ignored unless <code>default</code> is also passed.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
         <tr>
           <td><code>default</code></td>
           <td class="doc-param-details">
@@ -4948,15 +4853,16 @@ slash commands and flags.</p>
           </td>
         </tr>
         <tr>
-          <td><code>message_name</code></td>
+          <td><code>message_names</code></td>
           <td class="doc-param-details">
-            <p>The name to use for this option in message commands.</p>
-<p>This must be prefixed with "-" and is ignored unless <code>default</code> is also
-passed.</p>
+            <p>The names this option may be triggered by as a message command flag
+option.</p>
+<p>These must all be prefixed with "-" and are ignored unless <code>default</code>
+is also passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -4987,8 +4893,7 @@ calls.</p>
           <td><code>positional</code></td>
           <td class="doc-param-details">
             <p>Whether this should be a positional argument.</p>
-<p>Arguments will be positional by default unless <code>default</code>, <code>empty_value</code>,
-or <code>aliases</code> is provided.</p>
+<p>Arguments will be positional by default unless <code>default</code> is provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5033,7 +4938,7 @@ or <code>aliases</code> is provided.</p>
 
 
 <a href="#tanjun.annotations.mentionable_field" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">mentionable_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">or_snowflake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">mentionable_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">or_snowflake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -5055,25 +4960,6 @@ or <code>aliases</code> is provided.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
-          <td><code>aliases</code></td>
-          <td class="doc-param-details">
-            <p>Other names this option may be triggered by as a message flag option.</p>
-<p>This does not override <code>message_name</code> and all the aliases must be
-prefixed with "-".</p>
-<p>This is ignored unless <code>default</code> is also passed.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
         <tr>
           <td><code>default</code></td>
           <td class="doc-param-details">
@@ -5149,15 +5035,16 @@ slash commands and flags.</p>
           </td>
         </tr>
         <tr>
-          <td><code>message_name</code></td>
+          <td><code>message_names</code></td>
           <td class="doc-param-details">
-            <p>The name to use for this option in message commands.</p>
-<p>This must be prefixed with "-" and is ignored unless <code>default</code> is also
-passed.</p>
+            <p>The names this option may be triggered by as a message command flag
+option.</p>
+<p>These must all be prefixed with "-" and are ignored unless <code>default</code>
+is also passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -5188,8 +5075,7 @@ calls.</p>
           <td><code>positional</code></td>
           <td class="doc-param-details">
             <p>Whether this should be a positional argument.</p>
-<p>Arguments will be positional by default unless <code>default</code>, <code>empty_value</code>,
-or <code>aliases</code> is provided.</p>
+<p>Arguments will be positional by default unless <code>default</code> is provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5315,7 +5201,7 @@ this wraps in a decorator call chain.</p>
 
 
 <a href="#tanjun.annotations.role_field" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">role_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">or_snowflake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">role_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">or_snowflake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -5336,25 +5222,6 @@ this wraps in a decorator call chain.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
-          <td><code>aliases</code></td>
-          <td class="doc-param-details">
-            <p>Other names this option may be triggered by as a message flag option.</p>
-<p>This does not override <code>message_name</code> and all the aliases must be
-prefixed with "-".</p>
-<p>This is ignored unless <code>default</code> is also passed.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
         <tr>
           <td><code>default</code></td>
           <td class="doc-param-details">
@@ -5430,15 +5297,16 @@ slash commands and flags.</p>
           </td>
         </tr>
         <tr>
-          <td><code>message_name</code></td>
+          <td><code>message_names</code></td>
           <td class="doc-param-details">
-            <p>The name to use for this option in message commands.</p>
-<p>This must be prefixed with "-" and is ignored unless <code>default</code> is also
-passed.</p>
+            <p>The names this option may be triggered by as a message command flag
+option.</p>
+<p>These must all be prefixed with "-" and are ignored unless <code>default</code>
+is also passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -5469,8 +5337,7 @@ calls.</p>
           <td><code>positional</code></td>
           <td class="doc-param-details">
             <p>Whether this should be a positional argument.</p>
-<p>Arguments will be positional by default unless <code>default</code>, <code>empty_value</code>,
-or <code>aliases</code> is provided.</p>
+<p>Arguments will be positional by default unless <code>default</code> is provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5515,7 +5382,7 @@ or <code>aliases</code> is provided.</p>
 
 
 <a href="#tanjun.annotations.str_field" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">str_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">str_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -5538,25 +5405,6 @@ or <code>aliases</code> is provided.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
-          <td><code>aliases</code></td>
-          <td class="doc-param-details">
-            <p>Other names this option may be triggered by as a message flag option.</p>
-<p>This does not override <code>message_name</code> and all the aliases must be
-prefixed with "-".</p>
-<p>This is ignored unless <code>default</code> is also passed.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
         <tr>
           <td><code>choices</code></td>
           <td class="doc-param-details">
@@ -5649,15 +5497,16 @@ slash commands and flags.</p>
           </td>
         </tr>
         <tr>
-          <td><code>message_name</code></td>
+          <td><code>message_names</code></td>
           <td class="doc-param-details">
-            <p>The name to use for this option in message commands.</p>
-<p>This must be prefixed with "-" and is ignored unless <code>default</code> is also
-passed.</p>
+            <p>The names this option may be triggered by as a message command flag
+option.</p>
+<p>These must all be prefixed with "-" and are ignored unless <code>default</code>
+is also passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -5702,8 +5551,7 @@ passed.</p>
           <td><code>positional</code></td>
           <td class="doc-param-details">
             <p>Whether this should be a positional argument.</p>
-<p>Arguments will be positional by default unless <code>default</code>, <code>empty_value</code>,
-or <code>aliases</code> is provided.</p>
+<p>Arguments will be positional by default unless <code>default</code> is provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5748,7 +5596,7 @@ or <code>aliases</code> is provided.</p>
 
 
 <a href="#tanjun.annotations.user_field" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">user_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">or_snowflake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">user_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">or_snowflake</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -5771,25 +5619,6 @@ or <code>aliases</code> is provided.</p>
       </tr>
     </thead>
     <tbody>
-        <tr>
-          <td><code>aliases</code></td>
-          <td class="doc-param-details">
-            <p>Other names this option may be triggered by as a message flag option.</p>
-<p>This does not override <code>message_name</code> and all the aliases must be
-prefixed with "-".</p>
-<p>This is ignored unless <code>default</code> is also passed.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>None</code>
-                </span>
-            </p>
-          </td>
-        </tr>
         <tr>
           <td><code>default</code></td>
           <td class="doc-param-details">
@@ -5865,15 +5694,16 @@ slash commands and flags.</p>
           </td>
         </tr>
         <tr>
-          <td><code>message_name</code></td>
+          <td><code>message_names</code></td>
           <td class="doc-param-details">
-            <p>The name to use for this option in message commands.</p>
-<p>This must be prefixed with "-" and is ignored unless <code>default</code> is also
-passed.</p>
+            <p>The names this option may be triggered by as a message command flag
+option.</p>
+<p>These must all be prefixed with "-" and are ignored unless <code>default</code>
+is also passed.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]</code>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>
                 </span>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
@@ -5904,8 +5734,7 @@ calls.</p>
           <td><code>positional</code></td>
           <td class="doc-param-details">
             <p>Whether this should be a positional argument.</p>
-<p>Arguments will be positional by default unless <code>default</code>, <code>empty_value</code>,
-or <code>aliases</code> is provided.</p>
+<p>Arguments will be positional by default unless <code>default</code> is provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
