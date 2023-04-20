@@ -106,6 +106,7 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _T = typing.TypeVar("_T")
+    _OtherT = typing.TypeVar("_OtherT")
     _P = typing_extensions.ParamSpec("_P")
     __ConverterSig = collections.Callable[
         typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
@@ -222,6 +223,7 @@ class _Field(_ConfigIdentifier):
         "_option_type",
         "_slash_name",
         "_snowflake_converter",
+        "_str_converters",
     )
 
     _channel_types: collections.Sequence[_ChannelTypeIsh]
@@ -239,6 +241,7 @@ class _Field(_ConfigIdentifier):
     _option_type: typing.Any
     _slash_name: str
     _snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]]
+    _str_converters: collections.Sequence[_ConverterSig[typing.Any]]
 
     # TODO: _float_converter, _int_converter, _str_converters
 
@@ -262,7 +265,11 @@ class _Field(_ConfigIdentifier):
         positional: typing.Optional[bool] = None,
         slash_name: str = "",
         snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None,
+        str_converters: typing.Union[_ConverterSig[typing.Any], collections.Sequence[_ConverterSig[typing.Any]]] = (),
     ) -> _T:
+        if not isinstance(str_converters, collections.Sequence):
+            str_converters = (str_converters,)
+
         return typing.cast(
             "_T",
             cls(
@@ -281,6 +288,7 @@ class _Field(_ConfigIdentifier):
                 _option_type=option_type,
                 _slash_name=slash_name,
                 _snowflake_converter=snowflake_converter,
+                _str_converters=str_converters,
             ),
         )
 
@@ -319,8 +327,9 @@ class _Field(_ConfigIdentifier):
             config.max_value = self._max_value
 
         config.set_option_type(self._option_type)
-        config.snowflake_converter = self._snowflake_converter or config.snowflake_converter
         config.slash_name = self._slash_name or config.slash_name
+        config.snowflake_converter = self._snowflake_converter or config.snowflake_converter
+        config.str_converters = self._str_converters or config.str_converters
 
 
 def attachment_field(
@@ -1015,6 +1024,7 @@ def role_field(
     )
 
 
+@typing.overload
 def str_field(
     *,
     choices: typing.Optional[collections.Mapping[str, str]] = None,
@@ -1028,6 +1038,41 @@ def str_field(
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
 ) -> typing.Union[str, _T]:
+    ...
+
+
+@typing.overload
+def str_field(
+    *,
+    choices: typing.Optional[collections.Mapping[str, str]] = None,
+    converters: typing.Union[_ConverterSig[_OtherT], collections.Sequence[_ConverterSig[_OtherT]]],
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    min_length: typing.Union[int, None] = None,
+    max_length: typing.Union[int, None] = None,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[_OtherT, _T]:
+    ...
+
+
+def str_field(
+    *,
+    choices: typing.Optional[collections.Mapping[str, str]] = None,
+    converters: typing.Union[_ConverterSig[_OtherT], collections.Sequence[_ConverterSig[_OtherT]]] = (),
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    min_length: typing.Union[int, None] = None,
+    max_length: typing.Union[int, None] = None,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[str, _T, _OtherT]:
     """Mark a parameter as a string option using a descriptor.
 
     Examples
@@ -1046,6 +1091,14 @@ def str_field(
         A mapping of up to 25 names to the choices values for this option.
 
         This is ignored for message command parsing.
+    converters
+        The option's converters.
+
+        This may be either one or multiple converter callbacks used to
+        convert the option's value to the final form.
+        If no converters are provided then the raw value will be passed.
+
+        Only the first converter to pass will be used.
     default
         Default value to pass if this option wasn't provided.
 
@@ -1096,6 +1149,7 @@ def str_field(
         max_length=max_length,
         positional=positional,
         slash_name=slash_name,
+        str_converters=converters,
     )
 
 
@@ -2192,7 +2246,7 @@ class _ArgConfig:
         self.range_or_slice: typing.Union[range, slice, None] = None
         self.slash_name: str = key
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
-        self.str_converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
+        self.str_converters: collections.Sequence[_ConverterSig[typing.Any]] = ()
 
     def set_option_type(self, option_type: typing.Any, /) -> None:
         if self.option_type is not None and option_type != self.option_type:
@@ -2357,7 +2411,7 @@ class _ArgConfig:
             self.slash_name,
             d,
             choices=_ensure_values("choice", str, self.choices),
-            converters=self.str_converters or (),
+            converters=self.str_converters,
             default=self.default,
             key=self.key,
             min_length=self.min_length,

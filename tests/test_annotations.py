@@ -6315,13 +6315,20 @@ def test_str_field():
 
 
 def test_str_field_with_config():
+    def mock_converter_1(_: str) -> int:
+        raise NotImplementedError
+
+    def mock_converter_2(_: str) -> float:
+        raise NotImplementedError
+
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context,
-        field: str = annotations.str_field(
+        field: typing.Union[int, float, None] = annotations.str_field(
             choices={"aaa": "meow", "bbb": "sleep"},
-            default="",
+            converters=[mock_converter_1, mock_converter_2],
+            default=None,
             description="blam",
             greedy=True,
             min_length=4,
@@ -6348,7 +6355,7 @@ def test_str_field_with_config():
 
     assert len(command._tracked_options) == 1
     tracked_option = command._tracked_options["name"]
-    assert tracked_option.converters == []
+    assert tracked_option.converters == [mock_converter_1, mock_converter_2]
     assert tracked_option.default == ""
     assert tracked_option.is_always_float is False
     assert tracked_option.is_only_member is False
@@ -6362,7 +6369,7 @@ def test_str_field_with_config():
     assert len(command.wrapped_command.parser.arguments) == 1
     argument = command.wrapped_command.parser.arguments[0]
     assert argument.key == "field"
-    assert argument.converters == []
+    assert argument.converters == [mock_converter_1, mock_converter_2]
     assert argument.default == ""
     assert argument.is_greedy is True
     assert argument.is_multi is False
@@ -6370,6 +6377,36 @@ def test_str_field_with_config():
     assert argument.max_length == 69
     assert argument.min_value is None
     assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_str_field_with_single_converter():
+    def mock_converter(_: str) -> bool:
+        raise NotImplementedError
+
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, field: bool = annotations.str_field(converters=mock_converter)) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"field": "blam"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="field", description="blam", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["field"]
+    assert tracked_option.converters == [mock_converter]
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "field"
+    assert argument.converters == [mock_converter]
 
     assert len(command.wrapped_command.parser.options) == 0
 
@@ -6401,11 +6438,22 @@ def test_str_field_when_default_marks_as_flag():
 
 
 def test_str_field_when_default_marks_as_flag_and_other_config():
+    def mock_converter_1(_: str) -> int:
+        raise NotImplementedError
+
+    def mock_converter_2(_: str) -> bytes:
+        raise NotImplementedError
+
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context,
-        poison: typing.Union[str, None] = annotations.str_field(
-            default="", empty_value=None, message_names=["--weird", "-o", "--meow"], min_length=10, max_length=100
+        poison: typing.Union[int, bytes, str, None] = annotations.str_field(
+            converters=[mock_converter_1, mock_converter_2],
+            default="",
+            empty_value=None,
+            message_names=["--weird", "-o", "--meow"],
+            min_length=10,
+            max_length=100,
         ),
     ) -> None:
         ...
@@ -6419,7 +6467,7 @@ def test_str_field_when_default_marks_as_flag_and_other_config():
     option = command.parser.options[0]
     assert option.key == "poison"
     assert option.names == ["--weird", "-o", "--meow"]
-    assert option.converters == []
+    assert option.converters == [mock_converter_1, mock_converter_2]
     assert option.default == ""
     assert option.empty_value is None
     assert option.is_multi is False
@@ -6427,6 +6475,28 @@ def test_str_field_when_default_marks_as_flag_and_other_config():
     assert option.max_length == 100
     assert option.min_value is None
     assert option.max_value is None
+
+
+def test_str_field_when_default_marks_as_flag_and_single_converter():
+    def mock_converter(_: str) -> str:
+        raise NotImplementedError
+
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        poison: typing.Union[str, None] = annotations.str_field(converters=mock_converter, default=None),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "poison"
+    assert option.converters == [mock_converter]
 
 
 def test_user_field():
