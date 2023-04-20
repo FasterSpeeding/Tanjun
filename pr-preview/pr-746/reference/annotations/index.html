@@ -5382,7 +5382,7 @@ calls.</p>
 
 
 <a href="#tanjun.annotations.str_field" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">str_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="p">(),</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">str_field</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">empty_value</span><span class="o">=</span><span class="n">tanjun</span><span class="o">.</span><span class="n">NO_DEFAULT</span><span class="p">,</span> <span class="n">greedy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">message_names</span><span class="o">=</span><span class="p">(),</span> <span class="n">min_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">slash_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -5418,6 +5418,26 @@ calls.</p>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
                     <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>converters</code></td>
+          <td class="doc-param-details">
+            <p>The option's converters.</p>
+<p>This may be either one or multiple converter callbacks used to
+convert the option's value to the final form.
+If no converters are provided then the raw value will be passed.</p>
+<p>Only the first converter to pass will be used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.11/library/typing.html#typing.Union">Union</a>[<span title="tanjun.annotations._ConverterSig">_ConverterSig</span>[<span title="tanjun.annotations._OtherT">_OtherT</span>], <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Sequence" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Sequence">Sequence</a>[<span title="tanjun.annotations._ConverterSig">_ConverterSig</span>[<span title="tanjun.annotations._OtherT">_OtherT</span>]]]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>()</code>
                 </span>
             </p>
           </td>
