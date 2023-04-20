@@ -243,7 +243,7 @@ class _Field(_ConfigIdentifier):
     _snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]]
     _str_converters: collections.Sequence[_ConverterSig[typing.Any]]
 
-    # TODO: _float_converter, _int_converter, _str_converters
+    # TODO: _float_converter, _int_converter
 
     @classmethod
     def new(
