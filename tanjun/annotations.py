@@ -394,7 +394,10 @@ def bool_field(
     aliases
         Other names this option may be triggered by as a message flag option.
 
-        This does not override `message_name` and will mark the option as a flag.
+        This does not override `message_name` and all the aliases must be
+        prefixed with "-".
+
+        This is ignored unless `default` is also passed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -407,9 +410,8 @@ def bool_field(
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
-        If not passed then a value will be required.
-        Otherwise, this will mark the option as being a flag for message
-        commands unless `positional=False` is also passed.
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
     greedy
         Whether this option should be marked as "greedy" form message command
         parsing.
@@ -419,6 +421,9 @@ def bool_field(
         slash commands and flags.
     message_name
         The name to use for this option in message commands.
+
+        This must be prefixed with "-" and is ignored unless `default` is also
+        passed.
     positional
         Whether this should be a positional argument.
 
@@ -502,7 +507,10 @@ def channel_field(
     aliases
         Other names this option may be triggered by as a message flag option.
 
-        This does not override `message_name` and will mark the option as a flag.
+        This does not override `message_name` and all the aliases must be
+        prefixed with "-".
+
+        This is ignored unless `default` is also passed.
     channel_types
         Sequence of the channel types allowed for this option.
 
@@ -519,9 +527,8 @@ def channel_field(
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
-        If not passed then a value will be required.
-        Otherwise, this will mark the option as being a flag for message
-        commands unless `positional=False` is also passed.
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
     greedy
         Whether this option should be marked as "greedy" form message command
         parsing.
@@ -531,6 +538,9 @@ def channel_field(
         slash commands and flags.
     message_name
         The name to use for this option in message commands.
+
+        This must be prefixed with "-" and is ignored unless `default` is also
+        passed.
     or_snowflake
         Whether this should just pass the parsed channel ID as a
         [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
@@ -587,7 +597,14 @@ def float_field(
     aliases
         Other names this option may be triggered by as a message flag option.
 
-        This does not override `message_name` and will mark the option as a flag.
+        This does not override `message_name` and all the aliases must be
+        prefixed with "-".
+
+        This is ignored unless `default` is also passed.
+    choices
+        A mapping of up to 25 names to the choices values for this option.
+
+        This is ignored for message command parsing.
     default
         Default value to pass if this option wasn't provided.
 
@@ -600,9 +617,8 @@ def float_field(
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
-        If not passed then a value will be required.
-        Otherwise, this will mark the option as being a flag for message
-        commands unless `positional=False` is also passed.
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
     greedy
         Whether this option should be marked as "greedy" form message command
         parsing.
@@ -612,6 +628,13 @@ def float_field(
         slash commands and flags.
     message_name
         The name to use for this option in message commands.
+
+        This must be prefixed with "-" and is ignored unless `default` is also
+        passed.
+    min_value
+        The minimum allowed value for this argument.
+    max_value
+        The maximum allowed value for this argument.
     positional
         Whether this should be a positional argument.
 
@@ -636,20 +659,14 @@ def float_field(
     )
 
 
-# TODO: aliases and empty_value no-longer markthe option as being a flag.
 def int_field(
     *,
-    # TODO: note about how these have to start with -
-    # Also consider implicitly adding that on
     aliases: typing.Optional[collections.Sequence[str]] = None,
-    # TODO: add doc note about how choices is ignored for message commands
     choices: typing.Optional[collections.Mapping[str, int]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    # TODO: note about how this has to start with -
-    # Also consider implicitly adding that on
     message_name: typing.Optional[str] = None,
     min_value: typing.Optional[int] = None,
     max_value: typing.Optional[int] = None,
@@ -671,7 +688,14 @@ def int_field(
     aliases
         Other names this option may be triggered by as a message flag option.
 
-        This does not override `message_name` and will mark the option as a flag.
+        This does not override `message_name` and all the aliases must be
+        prefixed with "-".
+
+        This is ignored unless `default` is also passed.
+    choices
+        A mapping of up to 25 names to the choices values for this option.
+
+        This is ignored for message command parsing.
     default
         Default value to pass if this option wasn't provided.
 
@@ -684,9 +708,8 @@ def int_field(
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
-        If not passed then a value will be required.
-        Otherwise, this will mark the option as being a flag for message
-        commands unless `positional=False` is also passed.
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
     greedy
         Whether this option should be marked as "greedy" form message command
         parsing.
@@ -696,6 +719,13 @@ def int_field(
         slash commands and flags.
     message_name
         The name to use for this option in message commands.
+
+        This must be prefixed with "-" and is ignored unless `default` is also
+        passed.
+    min_value
+        The minimum allowed value for this argument.
+    max_value
+        The maximum allowed value for this argument.
     positional
         Whether this should be a positional argument.
 
@@ -779,7 +809,10 @@ def member_field(
     aliases
         Other names this option may be triggered by as a message flag option.
 
-        This does not override `message_name` and will mark the option as a flag.
+        This does not override `message_name` and all the aliases must be
+        prefixed with "-".
+
+        This is ignored unless `default` is also passed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -792,9 +825,8 @@ def member_field(
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
-        If not passed then a value will be required.
-        Otherwise, this will mark the option as being a flag for message
-        commands unless `positional=False` is also passed.
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
     greedy
         Whether this option should be marked as "greedy" form message command
         parsing.
@@ -804,6 +836,9 @@ def member_field(
         slash commands and flags.
     message_name
         The name to use for this option in message commands.
+
+        This must be prefixed with "-" and is ignored unless `default` is also
+        passed.
     or_snowflake
         Whether this should just pass the parsed user ID as a
         [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
@@ -891,7 +926,10 @@ def mentionable_field(
     aliases
         Other names this option may be triggered by as a message flag option.
 
-        This does not override `message_name` and will mark the option as a flag.
+        This does not override `message_name` and all the aliases must be
+        prefixed with "-".
+
+        This is ignored unless `default` is also passed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -904,9 +942,8 @@ def mentionable_field(
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
-        If not passed then a value will be required.
-        Otherwise, this will mark the option as being a flag for message
-        commands unless `positional=False` is also passed.
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
     greedy
         Whether this option should be marked as "greedy" form message command
         parsing.
@@ -916,6 +953,9 @@ def mentionable_field(
         slash commands and flags.
     message_name
         The name to use for this option in message commands.
+
+        This must be prefixed with "-" and is ignored unless `default` is also
+        passed.
     or_snowflake
         Whether this should just pass the parsed ID as a
         [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
@@ -1001,7 +1041,10 @@ def role_field(
     aliases
         Other names this option may be triggered by as a message flag option.
 
-        This does not override `message_name` and will mark the option as a flag.
+        This does not override `message_name` and all the aliases must be
+        prefixed with "-".
+
+        This is ignored unless `default` is also passed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -1014,9 +1057,8 @@ def role_field(
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
-        If not passed then a value will be required.
-        Otherwise, this will mark the option as being a flag for message
-        commands unless `positional=False` is also passed.
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
     greedy
         Whether this option should be marked as "greedy" form message command
         parsing.
@@ -1026,6 +1068,9 @@ def role_field(
         slash commands and flags.
     message_name
         The name to use for this option in message commands.
+
+        This must be prefixed with "-" and is ignored unless `default` is also
+        passed.
     or_snowflake
         Whether this should just pass the parsed role ID as a
         [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
@@ -1083,7 +1128,14 @@ def str_field(
     aliases
         Other names this option may be triggered by as a message flag option.
 
-        This does not override `message_name` and will mark the option as a flag.
+        This does not override `message_name` and all the aliases must be
+        prefixed with "-".
+
+        This is ignored unless `default` is also passed.
+    choices
+        A mapping of up to 25 names to the choices values for this option.
+
+        This is ignored for message command parsing.
     default
         Default value to pass if this option wasn't provided.
 
@@ -1096,9 +1148,8 @@ def str_field(
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
-        If not passed then a value will be required.
-        Otherwise, this will mark the option as being a flag for message
-        commands unless `positional=False` is also passed.
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
     greedy
         Whether this option should be marked as "greedy" form message command
         parsing.
@@ -1108,6 +1159,13 @@ def str_field(
         slash commands and flags.
     message_name
         The name to use for this option in message commands.
+
+        This must be prefixed with "-" and is ignored unless `default` is also
+        passed.
+    min_length
+        The minimum length this argument can be.
+    max_length
+        The maximum length this string argument can be.
     positional
         Whether this should be a positional argument.
 
@@ -1193,7 +1251,10 @@ def user_field(
     aliases
         Other names this option may be triggered by as a message flag option.
 
-        This does not override `message_name` and will mark the option as a flag.
+        This does not override `message_name` and all the aliases must be
+        prefixed with "-".
+
+        This is ignored unless `default` is also passed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -1206,9 +1267,8 @@ def user_field(
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
-        If not passed then a value will be required.
-        Otherwise, this will mark the option as being a flag for message
-        commands unless `positional=False` is also passed.
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
     greedy
         Whether this option should be marked as "greedy" form message command
         parsing.
@@ -1218,6 +1278,9 @@ def user_field(
         slash commands and flags.
     message_name
         The name to use for this option in message commands.
+
+        This must be prefixed with "-" and is ignored unless `default` is also
+        passed.
     or_snowflake
         Whether this should just pass the parsed user ID as a
         [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
@@ -1552,7 +1615,8 @@ class Flag(_ConfigIdentifier):
         aliases
             Other names the flag may be triggered by.
 
-            This does not override the argument's name.
+            This does not override the argument's name and all the aliases must
+            be prefixed with "-".
         empty_value
             Value to pass for the argument if the flag is provided without a value.
 
@@ -1738,6 +1802,8 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
         min_or_max_length
             If `max_length` is left as [None][] then this will be used as the
             maximum length and the minimum length will be `0`.
+
+            Otherwise this will be the minimum length this string option can be.
         max_length
             The maximum length this string argument can be.
 
