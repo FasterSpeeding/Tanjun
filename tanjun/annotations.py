@@ -224,20 +224,20 @@ class _Field(_ConfigIdentifier):
         "_snowflake_converter",
     )
 
-    _channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]]
+    _channel_types: collections.Sequence[_ChannelTypeIsh]
     _choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]]
     _default: typing.Any
-    _description: typing.Optional[str]
+    _description: str
     _empty_value: typing.Any
     _is_greedy: typing.Optional[bool]
     _is_positional: typing.Optional[bool]
-    _message_names: typing.Optional[collections.Sequence[str]]
+    _message_names: collections.Sequence[str]
     _min_length: typing.Union[int, None]
     _max_length: typing.Union[int, None]
     _min_value: typing.Union[int, float, None]
     _max_value: typing.Union[int, float, None]
     _option_type: typing.Any
-    _slash_name: typing.Optional[str]
+    _slash_name: str
     _snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]]
 
     # TODO: _float_converter, _int_converter, _str_converters
@@ -248,19 +248,19 @@ class _Field(_ConfigIdentifier):
         option_type: type[_T],
         /,
         *,
-        channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None,
+        channel_types: collections.Sequence[_ChannelTypeIsh] = (),
         choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None,
         default: typing.Any = tanjun.NO_DEFAULT,
-        description: typing.Optional[str] = None,
+        description: str = "",
         empty_value: typing.Any = tanjun.NO_DEFAULT,
         greedy: typing.Optional[bool] = None,
-        message_names: typing.Optional[collections.Sequence[str]] = None,
+        message_names: collections.Sequence[str] = (),
         min_length: typing.Union[int, None] = None,
         max_length: typing.Union[int, None] = None,
         min_value: typing.Union[int, float, None] = None,
         max_value: typing.Union[int, float, None] = None,
         positional: typing.Optional[bool] = None,
-        slash_name: typing.Optional[str] = None,
+        slash_name: str = "",
         snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None,
     ) -> _T:
         return typing.cast(
@@ -324,10 +324,7 @@ class _Field(_ConfigIdentifier):
 
 
 def attachment_field(
-    *,
-    default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
-    slash_name: typing.Optional[str] = None,
+    *, default: _T = tanjun.NO_DEFAULT, description: str = "", slash_name: str = ""
 ) -> typing.Union[hikari.Attachment, _T]:
     """Mark a parameter as an attachment option using a descriptor.
 
@@ -361,12 +358,12 @@ def attachment_field(
 def bool_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[bool, _T]:
     """Mark a parameter as a bool option using a descriptor.
 
@@ -431,15 +428,15 @@ def bool_field(
 @typing.overload
 def channel_field(
     *,
-    channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None,
+    channel_types: collections.Sequence[_ChannelTypeIsh] = (),
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.PartialChannel, _T]:
     ...
 
@@ -447,30 +444,30 @@ def channel_field(
 @typing.overload
 def channel_field(
     *,
-    channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None,
+    channel_types: collections.Sequence[_ChannelTypeIsh] = (),
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.PartialChannel, hikari.Snowflake, _T]:
     ...
 
 
 def channel_field(
     *,
-    channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None,
+    channel_types: collections.Sequence[_ChannelTypeIsh] = (),
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: bool = False,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.PartialChannel, hikari.Snowflake, _T]:
     """Mark a parameter as a channel option using a descriptor.
 
@@ -487,7 +484,7 @@ def channel_field(
     channel_types
         Sequence of the channel types allowed for this option.
 
-        If left as [None][] then all channel types will be allowed.
+        If left as an empty sequence then all channel types will be allowed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -544,14 +541,14 @@ def float_field(
     *,
     choices: typing.Optional[collections.Mapping[str, float]] = None,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     min_value: typing.Optional[float] = None,
     max_value: typing.Optional[float] = None,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[float, _T]:
     """Mark a parameter as a float option using a descriptor.
 
@@ -626,14 +623,14 @@ def int_field(
     *,
     choices: typing.Optional[collections.Mapping[str, int]] = None,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     min_value: typing.Optional[int] = None,
     max_value: typing.Optional[int] = None,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[int, _T]:
     """Mark a parameter as a int option using a descriptor.
 
@@ -708,13 +705,13 @@ def int_field(
 def member_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.Member, _T]:
     ...
 
@@ -723,13 +720,13 @@ def member_field(
 def member_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.Member, hikari.Snowflake, _T]:
     ...
 
@@ -737,13 +734,13 @@ def member_field(
 def member_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: bool = False,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.Member, hikari.Snowflake, _T]:
     """Mark a parameter as a guild member option using a descriptor.
 
@@ -812,13 +809,13 @@ def member_field(
 def mentionable_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.User, hikari.Role, _T]:
     ...
 
@@ -827,13 +824,13 @@ def mentionable_field(
 def mentionable_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.User, hikari.Role, hikari.Snowflake, _T]:
     ...
 
@@ -841,13 +838,13 @@ def mentionable_field(
 def mentionable_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: bool = False,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.User, hikari.Role, hikari.Snowflake, _T]:
     """Mark a parameter as a "mentionable" option using a descriptor.
 
@@ -918,13 +915,13 @@ def mentionable_field(
 def role_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.Role, _T]:
     ...
 
@@ -933,13 +930,13 @@ def role_field(
 def role_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.Role, hikari.Snowflake, _T]:
     ...
 
@@ -947,13 +944,13 @@ def role_field(
 def role_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: bool = False,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.Role, hikari.Snowflake, _T]:
     """Mark a parameter as a guild role option using a descriptor.
 
@@ -1022,14 +1019,14 @@ def str_field(
     *,
     choices: typing.Optional[collections.Mapping[str, str]] = None,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     min_length: typing.Union[int, None] = None,
     max_length: typing.Union[int, None] = None,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[str, _T]:
     """Mark a parameter as a string option using a descriptor.
 
@@ -1106,13 +1103,13 @@ def str_field(
 def user_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.User, _T]:
     ...
 
@@ -1121,13 +1118,13 @@ def user_field(
 def user_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.User, hikari.Snowflake, _T]:
     ...
 
@@ -1135,13 +1132,13 @@ def user_field(
 def user_field(
     *,
     default: _T = tanjun.NO_DEFAULT,
-    description: typing.Optional[str] = None,
+    description: str = "",
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_names: typing.Optional[collections.Sequence[str]] = None,
+    message_names: collections.Sequence[str] = (),
     or_snowflake: bool = False,
     positional: typing.Optional[bool] = None,
-    slash_name: typing.Optional[str] = None,
+    slash_name: str = "",
 ) -> typing.Union[hikari.User, hikari.Snowflake, _T]:
     """Mark a parameter as a user option using a descriptor.
 
@@ -2173,7 +2170,7 @@ class _ArgConfig:
     )
 
     def __init__(self, key: str, default: typing.Any, /, *, description: typing.Optional[str]) -> None:
-        self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
+        self.channel_types: collections.Sequence[_ChannelTypeIsh] = ()
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
         self.default: typing.Any = default
         self.description: typing.Optional[str] = description
@@ -2256,7 +2253,7 @@ class _ArgConfig:
                 converters = converters_
 
             elif self.option_type is hikari.PartialChannel:
-                converters = (conversion.ToChannel(allowed_types=self.channel_types),)
+                converters = (conversion.ToChannel(allowed_types=self.channel_types or None),)
 
             elif not self.has_natural_default:
                 raise RuntimeError(f"{self.option_type!r} is not supported for message commands")
@@ -2329,7 +2326,7 @@ class _ArgConfig:
         ),
         bool: lambda self, c, d: c.add_bool_option(self.slash_name, d, default=self.default, key=self.key),
         hikari.PartialChannel: lambda self, c, d: c.add_channel_option(
-            self.slash_name, d, default=self.default, key=self.key, types=self.channel_types
+            self.slash_name, d, default=self.default, key=self.key, types=self.channel_types or None
         ),
         float: lambda self, c, d: c.add_float_option(
             self.slash_name,
