@@ -6440,7 +6440,7 @@ def test_str_field_when_default_marks_as_flag_and_other_config():
 def test_user_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, fo: hikari.User = annotations.user_field()) -> None:
+    async def command(ctx: tanjun.abc.Context, of: hikari.User = annotations.user_field()) -> None:
         ...
 
     annotations.parse_annotated_args(command, descriptions={"of": "foot"}, follow_wrapped=True)
