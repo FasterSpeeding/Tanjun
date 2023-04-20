@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * [tanjun.annotations.Ranged][]
     * [tanjun.annotations.SnowflakeOr][]
 
+  These can still be passed as other args to `typing.Annotated` after being
+  initialised.
+
 ## [2.13.0] - 2023-04-10
 ### Added
 - Support for sending stickers to just [MessageContext.respond][tanjun.abc.MessageContext.respond].
