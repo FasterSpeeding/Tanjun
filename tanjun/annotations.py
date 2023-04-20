@@ -302,13 +302,6 @@ class _Field(_ConfigIdentifier):
         if self._is_positional is not None:
             config.is_positional = self._is_positional
 
-        elif config.is_positional is None:
-            config.is_positional = (
-                not self._message_names
-                and self._default is tanjun.NO_DEFAULT
-                and self._empty_value is tanjun.NO_DEFAULT
-            )
-
         if self._message_names:
             config.main_message_name = self._message_names[0]
             config.message_names = self._message_names
