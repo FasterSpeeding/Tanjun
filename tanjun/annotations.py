@@ -207,7 +207,6 @@ User = typing.Annotated[hikari.User, _OptionMarker(hikari.User)]
 @dataclasses.dataclass()
 class _Field(_ConfigIdentifier):
     __slots__ = (
-        "_aliases",
         "_channel_types",
         "_choices",
         "_default",
@@ -215,7 +214,7 @@ class _Field(_ConfigIdentifier):
         "_empty_value",
         "_is_greedy",
         "_is_positional",
-        "_message_name",
+        "_message_names",
         "_min_length",
         "_max_length",
         "_min_value",
@@ -225,7 +224,6 @@ class _Field(_ConfigIdentifier):
         "_snowflake_converter",
     )
 
-    _aliases: typing.Optional[collections.Sequence[str]]
     _channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]]
     _choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]]
     _default: typing.Any
@@ -233,7 +231,7 @@ class _Field(_ConfigIdentifier):
     _empty_value: typing.Any
     _is_greedy: typing.Optional[bool]
     _is_positional: typing.Optional[bool]
-    _message_name: typing.Optional[str]
+    _message_names: typing.Optional[collections.Sequence[str]]
     _min_length: typing.Union[int, None]
     _max_length: typing.Union[int, None]
     _min_value: typing.Union[int, float, None]
@@ -250,14 +248,13 @@ class _Field(_ConfigIdentifier):
         option_type: type[_T],
         /,
         *,
-        aliases: typing.Optional[collections.Sequence[str]] = None,
         channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None,
         choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None,
         default: typing.Any = tanjun.NO_DEFAULT,
         description: typing.Optional[str] = None,
         empty_value: typing.Any = tanjun.NO_DEFAULT,
         greedy: typing.Optional[bool] = None,
-        message_name: typing.Optional[str] = None,
+        message_names: typing.Optional[collections.Sequence[str]] = None,
         min_length: typing.Union[int, None] = None,
         max_length: typing.Union[int, None] = None,
         min_value: typing.Union[int, float, None] = None,
@@ -269,7 +266,6 @@ class _Field(_ConfigIdentifier):
         return typing.cast(
             "_T",
             cls(
-                _aliases=aliases,
                 _channel_types=channel_types,
                 _choices=choices,
                 _default=default,
@@ -277,7 +273,7 @@ class _Field(_ConfigIdentifier):
                 _empty_value=empty_value,
                 _is_greedy=greedy,
                 _is_positional=positional,
-                _message_name=message_name,
+                _message_names=message_names,
                 _min_length=min_length,
                 _max_length=max_length,
                 _min_value=min_value,
@@ -289,7 +285,6 @@ class _Field(_ConfigIdentifier):
         )
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        config.aliases = self._aliases or config.aliases
         config.channel_types = self._channel_types or config.channel_types
         config.choices = self._choices or config.choices
 
@@ -309,10 +304,14 @@ class _Field(_ConfigIdentifier):
 
         elif config.is_positional is None:
             config.is_positional = (
-                not self._aliases and self._default is tanjun.NO_DEFAULT and self._empty_value is tanjun.NO_DEFAULT
+                not self._message_names
+                and self._default is tanjun.NO_DEFAULT
+                and self._empty_value is tanjun.NO_DEFAULT
             )
 
-        config.message_name = self._message_name or config.message_name
+        if self._message_names:
+            config.main_message_name = self._message_names[0]
+            config.message_names = self._message_names
 
         if self._min_length is not None:
             config.min_length = self._min_length
@@ -368,12 +367,11 @@ def attachment_field(
 
 def bool_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
 ) -> typing.Union[bool, _T]:
@@ -391,13 +389,6 @@ def bool_field(
 
     Parameters
     ----------
-    aliases
-        Other names this option may be triggered by as a message flag option.
-
-        This does not override `message_name` and all the aliases must be
-        prefixed with "-".
-
-        This is ignored unless `default` is also passed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -419,27 +410,26 @@ def bool_field(
         A greedy option will consume the rest of the positional arguments.
         This can only be applied to one positional argument and is no-op for
         slash commands and flags.
-    message_name
-        The name to use for this option in message commands.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
 
-        This must be prefixed with "-" and is ignored unless `default` is also
-        passed.
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
     positional
         Whether this should be a positional argument.
 
-        Arguments will be positional by default unless `default`, `empty_value`,
-        or `aliases` is provided.
+        Arguments will be positional by default unless `default` is provided.
     slash_name
         The name to use for this option in slash commands.
     """
     return _Field.new(
         bool,
-        aliases=aliases,
         default=default,
         description=description,
         empty_value=empty_value,
         greedy=greedy,
-        message_name=message_name,
+        message_names=message_names,
         positional=positional,
         slash_name=slash_name,
     )
@@ -448,13 +438,12 @@ def bool_field(
 @typing.overload
 def channel_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -465,13 +454,12 @@ def channel_field(
 @typing.overload
 def channel_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -481,13 +469,12 @@ def channel_field(
 
 def channel_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: bool = False,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -504,13 +491,6 @@ def channel_field(
 
     Parameters
     ----------
-    aliases
-        Other names this option may be triggered by as a message flag option.
-
-        This does not override `message_name` and all the aliases must be
-        prefixed with "-".
-
-        This is ignored unless `default` is also passed.
     channel_types
         Sequence of the channel types allowed for this option.
 
@@ -536,11 +516,12 @@ def channel_field(
         A greedy option will consume the rest of the positional arguments.
         This can only be applied to one positional argument and is no-op for
         slash commands and flags.
-    message_name
-        The name to use for this option in message commands.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
 
-        This must be prefixed with "-" and is ignored unless `default` is also
-        passed.
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
     or_snowflake
         Whether this should just pass the parsed channel ID as a
         [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
@@ -548,20 +529,18 @@ def channel_field(
     positional
         Whether this should be a positional argument.
 
-        Arguments will be positional by default unless `default`, `empty_value`,
-        or `aliases` is provided.
+        Arguments will be positional by default unless `default` is provided.
     slash_name
         The name to use for this option in slash commands.
     """
     return _Field.new(
         hikari.PartialChannel,
-        aliases=aliases,
         channel_types=channel_types,
         default=default,
         description=description,
         empty_value=empty_value,
         greedy=greedy,
-        message_name=message_name,
+        message_names=message_names,
         snowflake_converter=conversion.parse_channel_id if or_snowflake else None,
         positional=positional,
         slash_name=slash_name,
@@ -570,13 +549,12 @@ def channel_field(
 
 def float_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     choices: typing.Optional[collections.Mapping[str, float]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     min_value: typing.Optional[float] = None,
     max_value: typing.Optional[float] = None,
     positional: typing.Optional[bool] = None,
@@ -594,13 +572,6 @@ def float_field(
 
     Parameters
     ----------
-    aliases
-        Other names this option may be triggered by as a message flag option.
-
-        This does not override `message_name` and all the aliases must be
-        prefixed with "-".
-
-        This is ignored unless `default` is also passed.
     choices
         A mapping of up to 25 names to the choices values for this option.
 
@@ -626,11 +597,12 @@ def float_field(
         A greedy option will consume the rest of the positional arguments.
         This can only be applied to one positional argument and is no-op for
         slash commands and flags.
-    message_name
-        The name to use for this option in message commands.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
 
-        This must be prefixed with "-" and is ignored unless `default` is also
-        passed.
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
     min_value
         The minimum allowed value for this argument.
     max_value
@@ -638,20 +610,18 @@ def float_field(
     positional
         Whether this should be a positional argument.
 
-        Arguments will be positional by default unless `default`, `empty_value`,
-        or `aliases` is provided.
+        Arguments will be positional by default unless `default` is provided.
     slash_name
         The name to use for this option in slash commands.
     """
     return _Field.new(
         float,
-        aliases=aliases,
         choices=choices,
         default=default,
         description=description,
         empty_value=empty_value,
         greedy=greedy,
-        message_name=message_name,
+        message_names=message_names,
         min_value=min_value,
         max_value=max_value,
         positional=positional,
@@ -661,13 +631,12 @@ def float_field(
 
 def int_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     choices: typing.Optional[collections.Mapping[str, int]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     min_value: typing.Optional[int] = None,
     max_value: typing.Optional[int] = None,
     positional: typing.Optional[bool] = None,
@@ -685,13 +654,6 @@ def int_field(
 
     Parameters
     ----------
-    aliases
-        Other names this option may be triggered by as a message flag option.
-
-        This does not override `message_name` and all the aliases must be
-        prefixed with "-".
-
-        This is ignored unless `default` is also passed.
     choices
         A mapping of up to 25 names to the choices values for this option.
 
@@ -717,11 +679,12 @@ def int_field(
         A greedy option will consume the rest of the positional arguments.
         This can only be applied to one positional argument and is no-op for
         slash commands and flags.
-    message_name
-        The name to use for this option in message commands.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
 
-        This must be prefixed with "-" and is ignored unless `default` is also
-        passed.
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
     min_value
         The minimum allowed value for this argument.
     max_value
@@ -729,20 +692,18 @@ def int_field(
     positional
         Whether this should be a positional argument.
 
-        Arguments will be positional by default unless `default`, `empty_value`,
-        or `aliases` is provided.
+        Arguments will be positional by default unless `default` is provided.
     slash_name
         The name to use for this option in slash commands.
     """
     return _Field.new(
         int,
-        aliases=aliases,
         choices=choices,
         default=default,
         description=description,
         empty_value=empty_value,
         greedy=greedy,
-        message_name=message_name,
+        message_names=message_names,
         min_value=min_value,
         max_value=max_value,
         positional=positional,
@@ -753,12 +714,11 @@ def int_field(
 @typing.overload
 def member_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -769,12 +729,11 @@ def member_field(
 @typing.overload
 def member_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -784,12 +743,11 @@ def member_field(
 
 def member_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: bool = False,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -806,13 +764,6 @@ def member_field(
 
     Parameters
     ----------
-    aliases
-        Other names this option may be triggered by as a message flag option.
-
-        This does not override `message_name` and all the aliases must be
-        prefixed with "-".
-
-        This is ignored unless `default` is also passed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -834,11 +785,12 @@ def member_field(
         A greedy option will consume the rest of the positional arguments.
         This can only be applied to one positional argument and is no-op for
         slash commands and flags.
-    message_name
-        The name to use for this option in message commands.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
 
-        This must be prefixed with "-" and is ignored unless `default` is also
-        passed.
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
     or_snowflake
         Whether this should just pass the parsed user ID as a
         [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
@@ -846,19 +798,17 @@ def member_field(
     positional
         Whether this should be a positional argument.
 
-        Arguments will be positional by default unless `default`, `empty_value`,
-        or `aliases` is provided.
+        Arguments will be positional by default unless `default` is provided.
     slash_name
         The name to use for this option in slash commands.
     """
     return _Field.new(
         hikari.Member,
-        aliases=aliases,
         default=default,
         description=description,
         empty_value=empty_value,
         greedy=greedy,
-        message_name=message_name,
+        message_names=message_names,
         snowflake_converter=conversion.parse_user_id if or_snowflake else None,
         positional=positional,
         slash_name=slash_name,
@@ -868,12 +818,11 @@ def member_field(
 @typing.overload
 def mentionable_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -884,12 +833,11 @@ def mentionable_field(
 @typing.overload
 def mentionable_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -899,12 +847,11 @@ def mentionable_field(
 
 def mentionable_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: bool = False,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -923,13 +870,6 @@ def mentionable_field(
 
     Parameters
     ----------
-    aliases
-        Other names this option may be triggered by as a message flag option.
-
-        This does not override `message_name` and all the aliases must be
-        prefixed with "-".
-
-        This is ignored unless `default` is also passed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -951,11 +891,12 @@ def mentionable_field(
         A greedy option will consume the rest of the positional arguments.
         This can only be applied to one positional argument and is no-op for
         slash commands and flags.
-    message_name
-        The name to use for this option in message commands.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
 
-        This must be prefixed with "-" and is ignored unless `default` is also
-        passed.
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
     or_snowflake
         Whether this should just pass the parsed ID as a
         [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
@@ -963,19 +904,17 @@ def mentionable_field(
     positional
         Whether this should be a positional argument.
 
-        Arguments will be positional by default unless `default`, `empty_value`,
-        or `aliases` is provided.
+        Arguments will be positional by default unless `default` is provided.
     slash_name
         The name to use for this option in slash commands.
     """
     return _Field.new(
         _MentionableUnion,
-        aliases=aliases,
         default=default,
         description=description,
         empty_value=empty_value,
         greedy=greedy,
-        message_name=message_name,
+        message_names=message_names,
         snowflake_converter=conversion.to_snowflake if or_snowflake else None,
         positional=positional,
         slash_name=slash_name,
@@ -985,12 +924,11 @@ def mentionable_field(
 @typing.overload
 def role_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -1001,12 +939,11 @@ def role_field(
 @typing.overload
 def role_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -1016,12 +953,11 @@ def role_field(
 
 def role_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: bool = False,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -1038,13 +974,6 @@ def role_field(
 
     Parameters
     ----------
-    aliases
-        Other names this option may be triggered by as a message flag option.
-
-        This does not override `message_name` and all the aliases must be
-        prefixed with "-".
-
-        This is ignored unless `default` is also passed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -1066,11 +995,12 @@ def role_field(
         A greedy option will consume the rest of the positional arguments.
         This can only be applied to one positional argument and is no-op for
         slash commands and flags.
-    message_name
-        The name to use for this option in message commands.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
 
-        This must be prefixed with "-" and is ignored unless `default` is also
-        passed.
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
     or_snowflake
         Whether this should just pass the parsed role ID as a
         [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
@@ -1078,19 +1008,17 @@ def role_field(
     positional
         Whether this should be a positional argument.
 
-        Arguments will be positional by default unless `default`, `empty_value`,
-        or `aliases` is provided.
+        Arguments will be positional by default unless `default` is provided.
     slash_name
         The name to use for this option in slash commands.
     """
     return _Field.new(
         hikari.Role,
-        aliases=aliases,
         default=default,
         description=description,
         empty_value=empty_value,
         greedy=greedy,
-        message_name=message_name,
+        message_names=message_names,
         snowflake_converter=conversion.parse_role_id if or_snowflake else None,
         positional=positional,
         slash_name=slash_name,
@@ -1099,13 +1027,12 @@ def role_field(
 
 def str_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     choices: typing.Optional[collections.Mapping[str, str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     min_length: typing.Union[int, None] = None,
     max_length: typing.Union[int, None] = None,
     positional: typing.Optional[bool] = None,
@@ -1125,13 +1052,6 @@ def str_field(
 
     Parameters
     ----------
-    aliases
-        Other names this option may be triggered by as a message flag option.
-
-        This does not override `message_name` and all the aliases must be
-        prefixed with "-".
-
-        This is ignored unless `default` is also passed.
     choices
         A mapping of up to 25 names to the choices values for this option.
 
@@ -1157,11 +1077,12 @@ def str_field(
         A greedy option will consume the rest of the positional arguments.
         This can only be applied to one positional argument and is no-op for
         slash commands and flags.
-    message_name
-        The name to use for this option in message commands.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
 
-        This must be prefixed with "-" and is ignored unless `default` is also
-        passed.
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
     min_length
         The minimum length this argument can be.
     max_length
@@ -1169,20 +1090,18 @@ def str_field(
     positional
         Whether this should be a positional argument.
 
-        Arguments will be positional by default unless `default`, `empty_value`,
-        or `aliases` is provided.
+        Arguments will be positional by default unless `default` is provided.
     slash_name
         The name to use for this option in slash commands.
     """
     return _Field.new(
         str,
-        aliases=aliases,
         choices=choices,
         default=default,
         description=description,
         empty_value=empty_value,
         greedy=greedy,
-        message_name=message_name,
+        message_names=message_names,
         min_length=min_length,
         max_length=max_length,
         positional=positional,
@@ -1193,12 +1112,11 @@ def str_field(
 @typing.overload
 def user_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -1209,12 +1127,11 @@ def user_field(
 @typing.overload
 def user_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -1224,12 +1141,11 @@ def user_field(
 
 def user_field(
     *,
-    aliases: typing.Optional[collections.Sequence[str]] = None,
     default: _T = tanjun.NO_DEFAULT,
     description: typing.Optional[str] = None,
     empty_value: _T = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
-    message_name: typing.Optional[str] = None,
+    message_names: typing.Optional[collections.Sequence[str]] = None,
     or_snowflake: bool = False,
     positional: typing.Optional[bool] = None,
     slash_name: typing.Optional[str] = None,
@@ -1248,13 +1164,6 @@ def user_field(
 
     Parameters
     ----------
-    aliases
-        Other names this option may be triggered by as a message flag option.
-
-        This does not override `message_name` and all the aliases must be
-        prefixed with "-".
-
-        This is ignored unless `default` is also passed.
     default
         Default value to pass if this option wasn't provided.
 
@@ -1276,11 +1185,12 @@ def user_field(
         A greedy option will consume the rest of the positional arguments.
         This can only be applied to one positional argument and is no-op for
         slash commands and flags.
-    message_name
-        The name to use for this option in message commands.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
 
-        This must be prefixed with "-" and is ignored unless `default` is also
-        passed.
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
     or_snowflake
         Whether this should just pass the parsed user ID as a
         [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
@@ -1288,19 +1198,17 @@ def user_field(
     positional
         Whether this should be a positional argument.
 
-        Arguments will be positional by default unless `default`, `empty_value`,
-        or `aliases` is provided.
+        Arguments will be positional by default unless `default` is provided.
     slash_name
         The name to use for this option in slash commands.
     """
     return _Field.new(
         hikari.User,
-        aliases=aliases,
         default=default,
         description=description,
         empty_value=empty_value,
         greedy=greedy,
-        message_name=message_name,
+        message_names=message_names,
         snowflake_converter=conversion.parse_user_id if or_snowflake else None,
         positional=positional,
         slash_name=slash_name,
@@ -1664,7 +1572,9 @@ class Flag(_ConfigIdentifier):
         if self._default is not tanjun.NO_DEFAULT:
             config.default = self._default
 
-        config.aliases = self._aliases or config.aliases
+        if self._aliases:
+            config.message_names = [config.main_message_name, *self._aliases]
+
         config.empty_value = self._empty_value
         config.is_positional = False
 
@@ -1994,7 +1904,10 @@ class Name(_ConfigIdentifier):
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.slash_name = self._slash_name or config.slash_name
-        config.message_name = self._message_name or config.message_name
+
+        if self._message_name:
+            config.main_message_name = self._message_name
+            config.message_names = [self._message_name, *config.message_names[1:]]
 
 
 class _RangedMeta(abc.ABCMeta):
@@ -2242,7 +2155,6 @@ _MESSAGE_ID_ONLY: frozenset[typing.Any] = frozenset(
 
 class _ArgConfig:
     __slots__ = (
-        "aliases",
         "channel_types",
         "choices",
         "default",
@@ -2254,11 +2166,12 @@ class _ArgConfig:
         "is_greedy",
         "is_positional",
         "key",
+        "main_message_name",
         "min_length",
         "max_length",
         "min_value",
         "max_value",
-        "message_name",
+        "message_names",
         "option_type",
         "range_or_slice",
         "slash_name",
@@ -2267,7 +2180,6 @@ class _ArgConfig:
     )
 
     def __init__(self, key: str, default: typing.Any, /, *, description: typing.Optional[str]) -> None:
-        self.aliases: typing.Optional[collections.Sequence[str]] = None
         self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
         self.default: typing.Any = default
@@ -2280,11 +2192,12 @@ class _ArgConfig:
         self.is_greedy: typing.Optional[bool] = None
         self.is_positional: typing.Optional[bool] = None
         self.key: str = key
+        self.main_message_name: str = "--" + key.replace("_", "-")
         self.min_length: typing.Optional[int] = None
         self.max_length: typing.Optional[int] = None
         self.min_value: typing.Union[float, int, None] = None
         self.max_value: typing.Union[float, int, None] = None
-        self.message_name: str = "--" + key.replace("_", "-")
+        self.message_names: collections.Sequence[str] = [self.main_message_name]
         self.option_type: typing.Optional[typing.Any] = None
         self.range_or_slice: typing.Union[range, slice, None] = None
         self.slash_name: str = key
@@ -2392,8 +2305,7 @@ class _ArgConfig:
             else:
                 parser.add_option(
                     self.key,
-                    self.message_name,
-                    *self.aliases or (),
+                    *self.message_names,
                     converters=converters,
                     default=self.default,
                     empty_value=self.empty_value,

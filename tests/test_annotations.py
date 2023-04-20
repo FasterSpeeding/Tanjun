@@ -5334,7 +5334,7 @@ def test_bool_field_when_default_marks_as_flag_and_other_config():
     async def command(
         ctx: tanjun.abc.Context,
         fieldy: typing.Optional[bool] = annotations.bool_field(
-            aliases=["-a", "-b"], default=None, empty_value=True, message_name="--meow"
+            default=None, empty_value=True, message_names=["--meow", "-a", "-b"]
         ),
     ) -> None:
         ...
@@ -5491,11 +5491,10 @@ def test_channel_field_when_default_marks_as_flag_and_other_config():
     async def command(
         ctx: tanjun.abc.Context,
         meow: typing.Union[hikari.PartialChannel, int] = annotations.channel_field(
-            aliases=["-x", "--dra"],
             channel_types=[hikari.ChannelType.GUILD_CATEGORY, hikari.ChannelType.GUILD_TEXT],
             default=0,
             empty_value=-1,
-            message_name="--momma",
+            message_names=["--momma", "-x", "--dra"],
             or_snowflake=True,
         ),
     ) -> None:
@@ -5661,10 +5660,9 @@ def test_float_field_when_default_marks_as_flag_and_other_config():
     async def command(
         ctx: tanjun.abc.Context,
         meow: typing.Optional[float] = annotations.float_field(
-            aliases=["-e", "--bleh"],
             default=None,
             empty_value=69.420,
-            message_name="--yeet",
+            message_names=["--yeet", "-e", "--bleh"],
             min_value=543.123,
             max_value=123.543,
         ),
@@ -5821,7 +5819,7 @@ def test_int_field_when_default_marks_as_flag_and_other_config():
     async def command(
         ctx: tanjun.abc.Context,
         nyaa: typing.Optional[int] = annotations.int_field(
-            aliases=["-a", "--alias"], default=None, empty_value=0, message_name="--yee", min_value=-1, max_value=666
+            default=None, empty_value=0, message_names=["--yee", "-a", "--alias"], min_value=-1, max_value=666
         ),
     ) -> None:
         ...
@@ -5961,7 +5959,7 @@ def test_member_field_when_default_marks_as_flag_and_other_config():
     async def command(
         ctx: tanjun.abc.Context,
         nep: typing.Union[hikari.Member, bool, None, hikari.Snowflake] = annotations.member_field(
-            aliases=["--ok"], default=None, empty_value=False, message_name="--x", or_snowflake=True
+            default=None, empty_value=False, message_names=["--x", "--ok"], or_snowflake=True
         ),
     ) -> None:
         ...
@@ -6109,7 +6107,7 @@ def test_mentionable_field_when_default_marks_as_flag_and_other_config():
     async def command(
         ctx: tanjun.abc.Context,
         beep: typing.Union[hikari.User, hikari.Role, None, hikari.Snowflake] = annotations.mentionable_field(
-            aliases=["-e", "-a"], default=hikari.Snowflake(0), empty_value=None, message_name="--aaa", or_snowflake=True
+            default=hikari.Snowflake(0), empty_value=None, message_names=["--aaa", "-e", "-a"], or_snowflake=True
         ),
     ) -> None:
         ...
@@ -6249,10 +6247,9 @@ def test_role_field_when_default_marks_as_flag_and_other_config():
     async def command(
         ctx: tanjun.abc.Context,
         scrubs: typing.Union[hikari.Role, hikari.Snowflake, None] = annotations.role_field(
-            aliases=["--ear", "--nose"],
             default=None,
             empty_value=hikari.Snowflake(69),
-            message_name="--name",
+            message_names=["--name", "--ear", "--nose"],
             or_snowflake=True,
         ),
     ) -> None:
@@ -6408,12 +6405,7 @@ def test_str_field_when_default_marks_as_flag_and_other_config():
     async def command(
         ctx: tanjun.abc.Context,
         poison: typing.Union[str, None] = annotations.str_field(
-            aliases=["-o", "--meow"],
-            default="",
-            empty_value=None,
-            message_name="--weird",
-            min_length=10,
-            max_length=100,
+            default="", empty_value=None, message_names=["--weird", "-o", "--meow"], min_length=10, max_length=100
         ),
     ) -> None:
         ...
@@ -6558,11 +6550,7 @@ def test_user_field_when_default_marks_as_flag_and_other_config():
     async def command(
         ctx: tanjun.abc.Context,
         ut: typing.Union[hikari.User, None, hikari.Snowflake] = annotations.user_field(
-            aliases=["--allied", "-b"],
-            default=None,
-            empty_value=hikari.Snowflake(4),
-            message_name="--name",
-            or_snowflake=True,
+            default=None, empty_value=hikari.Snowflake(4), message_names=["--name", "--allied", "-b"], or_snowflake=True
         ),
     ) -> None:
         ...
