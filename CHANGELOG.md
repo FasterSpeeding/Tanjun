@@ -5,17 +5,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for declaring command options through default descriptors. These
+  descriptors are:
+    * [tanjun.annotations.attachment_field][]
+    * [tanjun.annotations.bool_field][]
+    * [tanjun.annotations.channel_field][]
+    * [tanjun.annotations.float_field][]
+    * [tanjun.annotations.int_field][]
+    * [tanjun.annotations.member_field][]
+    * [tanjun.annotations.mentionable_field][]
+    * [tanjun.annotations.role_field][]
+    * [tanjun.annotations.str_field][]
+    * [tanjun.annotations.user_field][]
+
 ### Deprecated
 - Using the following classes as generic types (i.e. `Class[...]`):
-  * [yuyo.annotations.Converted][]
-  * [yuyo.annotations.Default][]
-  * [yuyo.annotations.Greedy][]
-  * [yuyo.annotations.Length][]
-  * [yuyo.annotations.Max][]
-  * [yuyo.annotations.Min][]
-  * [yuyo.annotations.Positional][]
-  * [yuyo.annotations.Ranged][]
-  * [yuyo.annotations.SnowflakeOr][]
+    * [tanjun.annotations.Converted][]
+    * [tanjun.annotations.Default][]
+    * [tanjun.annotations.Greedy][]
+    * [tanjun.annotations.Length][]
+    * [tanjun.annotations.Max][]
+    * [tanjun.annotations.Min][]
+    * [tanjun.annotations.Positional][]
+    * [tanjun.annotations.Ranged][]
+    * [tanjun.annotations.SnowflakeOr][]
+
+  These can still be passed as other args to `typing.Annotated` after being
+  initialised.
 
 ## [2.13.0] - 2023-04-10
 ### Added

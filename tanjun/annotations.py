@@ -68,10 +68,21 @@ __all__: list[str] = [
     "Str",
     "TheseChannels",
     "User",
+    "attachment_field",
+    "bool_field",
+    "channel_field",
+    "float_field",
+    "int_field",
+    "member_field",
+    "mentionable_field",
+    "role_field",
+    "str_field",
+    "user_field",
     "with_annotated_args",
 ]
 
 import abc
+import dataclasses
 import datetime
 import enum
 import itertools
@@ -95,6 +106,7 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _T = typing.TypeVar("_T")
+    _OtherT = typing.TypeVar("_OtherT")
     _P = typing_extensions.ParamSpec("_P")
     __ConverterSig = collections.Callable[
         typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
@@ -131,30 +143,28 @@ class _OptionMarker(_ConfigIdentifier):
         return self._type
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        # Ignore this if a TypeOveride has been found as it takes priority.
-        if config.option_type is None:
-            config.option_type = self._type
+        config.set_option_type(self._type)
 
 
 Attachment = typing.Annotated[hikari.Attachment, _OptionMarker(hikari.Attachment)]
-"""An argument which accepts a file.
+"""Type-hint for marking an argument which accepts a file.
 
 !!! warning
     This is currently only supported for slash commands.
 """
 
 Bool = typing.Annotated[bool, _OptionMarker(bool)]
-"""An argument which takes a bool-like value."""
+"""Type-hint for marking an argument which takes a bool-like value."""
 
 Channel = typing.Annotated[hikari.PartialChannel, _OptionMarker(hikari.PartialChannel)]
-"""An argument which takes a channel.
+"""Type-hint for marking an argument which takes a channel.
 
 [hikari.InteractionChannel][hikari.interactions.base_interactions.InteractionChannel]
 will be passed for options typed as this when being called as a slash command.
 """
 
 InteractionChannel = typing.Annotated[hikari.InteractionChannel, _OptionMarker(hikari.InteractionChannel)]
-"""An argument which takes a channel with interaction specific metadata.
+"""Type-hint for marking an argument which takes a channel with interaction specific metadata.
 
 !!! warning
     This is only supported for slash commands and will not work for message
@@ -162,20 +172,20 @@ InteractionChannel = typing.Annotated[hikari.InteractionChannel, _OptionMarker(h
 """
 
 Float = typing.Annotated[float, _OptionMarker(float)]
-"""An argument which takes a floating point number."""
+"""Type-hint for marking an argument which takes a floating point number."""
 
 Int = typing.Annotated[int, _OptionMarker(int)]
-"""An argument which takes an integer."""
+"""Type-hint for marking an argument which takes an integer."""
 
 Member = typing.Annotated[hikari.Member, _OptionMarker(hikari.Member)]
-"""An argument which takes a guild member.
+"""Type-hint for marking an argument which takes a guild member.
 
 [hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember]
 will be passed for options typed as this when being called as a slash command.
 """
 
 InteractionMember = typing.Annotated[hikari.InteractionMember, _OptionMarker(hikari.InteractionMember)]
-"""An argument which takes a guild member with interaction specific metadata.
+"""Type-hint for marking an argument which takes an interactio.
 
 !!! warning
     This is only supported for slash commands and will not work for message
@@ -183,16 +193,1070 @@ InteractionMember = typing.Annotated[hikari.InteractionMember, _OptionMarker(hik
 """
 
 Mentionable = typing.Annotated[typing.Union[hikari.User, hikari.Role], _OptionMarker(_MentionableUnion)]
-"""An argument which takes a user or role."""
+"""Type-hint for marking an argument which takes a user or role."""
 
 Role = typing.Annotated[hikari.Role, _OptionMarker(hikari.Role)]
-"""An argument which takes a role."""
+"""Type-hint for marking an argument which takes a role."""
 
 Str = typing.Annotated[str, _OptionMarker(str)]
-"""An argument which takes string input."""
+"""Type-hint for marking an argument which takes string input."""
 
 User = typing.Annotated[hikari.User, _OptionMarker(hikari.User)]
-"""An argument which takes a user."""
+"""Type-hint for marking an argument which takes a user."""
+
+
+@dataclasses.dataclass()
+class _Field(_ConfigIdentifier):
+    __slots__ = (
+        "_channel_types",
+        "_choices",
+        "_default",
+        "_description",
+        "_empty_value",
+        "_is_greedy",
+        "_is_positional",
+        "_message_names",
+        "_min_length",
+        "_max_length",
+        "_min_value",
+        "_max_value",
+        "_option_type",
+        "_slash_name",
+        "_snowflake_converter",
+        "_str_converters",
+    )
+
+    _channel_types: collections.Sequence[_ChannelTypeIsh]
+    _choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]]
+    _default: typing.Any
+    _description: str
+    _empty_value: typing.Any
+    _is_greedy: typing.Optional[bool]
+    _is_positional: typing.Optional[bool]
+    _message_names: collections.Sequence[str]
+    _min_length: typing.Union[int, None]
+    _max_length: typing.Union[int, None]
+    _min_value: typing.Union[int, float, None]
+    _max_value: typing.Union[int, float, None]
+    _option_type: typing.Any
+    _slash_name: str
+    _snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]]
+    _str_converters: collections.Sequence[_ConverterSig[typing.Any]]
+
+    # TODO: _float_converter, _int_converter
+
+    @classmethod
+    def new(
+        cls,
+        option_type: type[_T],
+        /,
+        *,
+        channel_types: collections.Sequence[_ChannelTypeIsh] = (),
+        choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None,
+        default: typing.Any = tanjun.NO_DEFAULT,
+        description: str = "",
+        empty_value: typing.Any = tanjun.NO_DEFAULT,
+        greedy: typing.Optional[bool] = None,
+        message_names: collections.Sequence[str] = (),
+        min_length: typing.Union[int, None] = None,
+        max_length: typing.Union[int, None] = None,
+        min_value: typing.Union[int, float, None] = None,
+        max_value: typing.Union[int, float, None] = None,
+        positional: typing.Optional[bool] = None,
+        slash_name: str = "",
+        snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None,
+        str_converters: typing.Union[_ConverterSig[typing.Any], collections.Sequence[_ConverterSig[typing.Any]]] = (),
+    ) -> _T:
+        if not isinstance(str_converters, collections.Sequence):
+            str_converters = (str_converters,)
+
+        return typing.cast(
+            "_T",
+            cls(
+                _channel_types=channel_types,
+                _choices=choices,
+                _default=default,
+                _description=description,
+                _empty_value=empty_value,
+                _is_greedy=greedy,
+                _is_positional=positional,
+                _message_names=message_names,
+                _min_length=min_length,
+                _max_length=max_length,
+                _min_value=min_value,
+                _max_value=max_value,
+                _option_type=option_type,
+                _slash_name=slash_name,
+                _snowflake_converter=snowflake_converter,
+                _str_converters=str_converters,
+            ),
+        )
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.channel_types = self._channel_types or config.channel_types
+        config.choices = self._choices or config.choices
+
+        if self._default is not tanjun.NO_DEFAULT:
+            config.default = self._default
+
+        config.description = self._description or config.description
+
+        if self._empty_value is not tanjun.NO_DEFAULT:
+            config.empty_value = self._empty_value
+
+        if self._is_greedy is not None:
+            config.is_greedy = self._is_greedy
+
+        if self._is_positional is not None:
+            config.is_positional = self._is_positional
+
+        if self._message_names:
+            config.main_message_name = self._message_names[0]
+            config.message_names = self._message_names
+
+        if self._min_length is not None:
+            config.min_length = self._min_length
+
+        if self._max_length is not None:
+            config.max_length = self._max_length
+
+        if self._min_value is not None:
+            config.min_value = self._min_value
+
+        if self._max_value is not None:
+            config.max_value = self._max_value
+
+        config.set_option_type(self._option_type)
+        config.slash_name = self._slash_name or config.slash_name
+        config.snowflake_converter = self._snowflake_converter or config.snowflake_converter
+        config.str_converters = self._str_converters or config.str_converters
+
+
+def attachment_field(
+    *, default: _T = tanjun.NO_DEFAULT, description: str = "", slash_name: str = ""
+) -> typing.Union[hikari.Attachment, _T]:
+    """Mark a parameter as an attachment option using a descriptor.
+
+    !!! warning
+        This is currently only supported for slash commands.
+
+    Examples
+    --------
+    ```py
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        field: hikari.Attachment | None = annotations.attachment_field(default=None),
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    default
+        Default value to pass if this option wasn't provided.
+
+        If not passed then this option will be required.
+    description
+        The option's description.
+    slash_name
+        The name to use for this option in slash commands.
+    """
+    return _Field.new(hikari.Attachment, default=default, description=description, slash_name=slash_name)
+
+
+def bool_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[bool, _T]:
+    """Mark a parameter as a bool option using a descriptor.
+
+    Examples
+    --------
+    ```py
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        field: bool | None = annotations.bool_field(default=None),
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    default
+        Default value to pass if this option wasn't provided.
+
+        If not passed then this option will be required.
+        Otherwise, this will mark the option as being a flag for message
+        commands unless `positional=False` is also passed.
+    description
+        The option's description.
+    empty_value
+        Value to pass when this is used as a message flag without a value
+        (i.e. `--name`).
+
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
+    greedy
+        Whether this option should be marked as "greedy" form message command
+        parsing.
+
+        A greedy option will consume the rest of the positional arguments.
+        This can only be applied to one positional argument and is no-op for
+        slash commands and flags.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
+
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
+    positional
+        Whether this should be a positional argument.
+
+        Arguments will be positional by default unless `default` is provided.
+    slash_name
+        The name to use for this option in slash commands.
+    """
+    return _Field.new(
+        bool,
+        default=default,
+        description=description,
+        empty_value=empty_value,
+        greedy=greedy,
+        message_names=message_names,
+        positional=positional,
+        slash_name=slash_name,
+    )
+
+
+@typing.overload
+def channel_field(
+    *,
+    channel_types: collections.Sequence[_ChannelTypeIsh] = (),
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: typing.Literal[False] = False,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.PartialChannel, _T]:
+    ...
+
+
+@typing.overload
+def channel_field(
+    *,
+    channel_types: collections.Sequence[_ChannelTypeIsh] = (),
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: typing.Literal[True],
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.PartialChannel, hikari.Snowflake, _T]:
+    ...
+
+
+def channel_field(
+    *,
+    channel_types: collections.Sequence[_ChannelTypeIsh] = (),
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: bool = False,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.PartialChannel, hikari.Snowflake, _T]:
+    """Mark a parameter as a channel option using a descriptor.
+
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: hikari.PartialChannel | None = annotations.channel_field(default=None),
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    channel_types
+        Sequence of the channel types allowed for this option.
+
+        If left as an empty sequence then all channel types will be allowed.
+    default
+        Default value to pass if this option wasn't provided.
+
+        If not passed then this option will be required.
+        Otherwise, this will mark the option as being a flag for message
+        commands unless `positional=False` is also passed.
+    description
+        The option's description.
+    empty_value
+        Value to pass when this is used as a message flag without a value
+        (i.e. `--name`).
+
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
+    greedy
+        Whether this option should be marked as "greedy" form message command
+        parsing.
+
+        A greedy option will consume the rest of the positional arguments.
+        This can only be applied to one positional argument and is no-op for
+        slash commands and flags.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
+
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
+    or_snowflake
+        Whether this should just pass the parsed channel ID as a
+        [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
+        calls.
+    positional
+        Whether this should be a positional argument.
+
+        Arguments will be positional by default unless `default` is provided.
+    slash_name
+        The name to use for this option in slash commands.
+    """
+    return _Field.new(
+        hikari.PartialChannel,
+        channel_types=channel_types,
+        default=default,
+        description=description,
+        empty_value=empty_value,
+        greedy=greedy,
+        message_names=message_names,
+        snowflake_converter=conversion.parse_channel_id if or_snowflake else None,
+        positional=positional,
+        slash_name=slash_name,
+    )
+
+
+def float_field(
+    *,
+    choices: typing.Optional[collections.Mapping[str, float]] = None,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    min_value: typing.Optional[float] = None,
+    max_value: typing.Optional[float] = None,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[float, _T]:
+    """Mark a parameter as a float option using a descriptor.
+
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: float | None = annotations.float_field(default=None),
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    choices
+        A mapping of up to 25 names to the choices values for this option.
+
+        This is ignored for message command parsing.
+    default
+        Default value to pass if this option wasn't provided.
+
+        If not passed then this option will be required.
+        Otherwise, this will mark the option as being a flag for message
+        commands unless `positional=False` is also passed.
+    description
+        The option's description.
+    empty_value
+        Value to pass when this is used as a message flag without a value
+        (i.e. `--name`).
+
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
+    greedy
+        Whether this option should be marked as "greedy" form message command
+        parsing.
+
+        A greedy option will consume the rest of the positional arguments.
+        This can only be applied to one positional argument and is no-op for
+        slash commands and flags.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
+
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
+    min_value
+        The minimum allowed value for this argument.
+    max_value
+        The maximum allowed value for this argument.
+    positional
+        Whether this should be a positional argument.
+
+        Arguments will be positional by default unless `default` is provided.
+    slash_name
+        The name to use for this option in slash commands.
+    """
+    return _Field.new(
+        float,
+        choices=choices,
+        default=default,
+        description=description,
+        empty_value=empty_value,
+        greedy=greedy,
+        message_names=message_names,
+        min_value=min_value,
+        max_value=max_value,
+        positional=positional,
+        slash_name=slash_name,
+    )
+
+
+def int_field(
+    *,
+    choices: typing.Optional[collections.Mapping[str, int]] = None,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    min_value: typing.Optional[int] = None,
+    max_value: typing.Optional[int] = None,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[int, _T]:
+    """Mark a parameter as a int option using a descriptor.
+
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: int | None = annotations.int_field(default=None),
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    choices
+        A mapping of up to 25 names to the choices values for this option.
+
+        This is ignored for message command parsing.
+    default
+        Default value to pass if this option wasn't provided.
+
+        If not passed then this option will be required.
+        Otherwise, this will mark the option as being a flag for message
+        commands unless `positional=False` is also passed.
+    description
+        The option's description.
+    empty_value
+        Value to pass when this is used as a message flag without a value
+        (i.e. `--name`).
+
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
+    greedy
+        Whether this option should be marked as "greedy" form message command
+        parsing.
+
+        A greedy option will consume the rest of the positional arguments.
+        This can only be applied to one positional argument and is no-op for
+        slash commands and flags.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
+
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
+    min_value
+        The minimum allowed value for this argument.
+    max_value
+        The maximum allowed value for this argument.
+    positional
+        Whether this should be a positional argument.
+
+        Arguments will be positional by default unless `default` is provided.
+    slash_name
+        The name to use for this option in slash commands.
+    """
+    return _Field.new(
+        int,
+        choices=choices,
+        default=default,
+        description=description,
+        empty_value=empty_value,
+        greedy=greedy,
+        message_names=message_names,
+        min_value=min_value,
+        max_value=max_value,
+        positional=positional,
+        slash_name=slash_name,
+    )
+
+
+@typing.overload
+def member_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: typing.Literal[False] = False,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.Member, _T]:
+    ...
+
+
+@typing.overload
+def member_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: typing.Literal[True],
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.Member, hikari.Snowflake, _T]:
+    ...
+
+
+def member_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: bool = False,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.Member, hikari.Snowflake, _T]:
+    """Mark a parameter as a guild member option using a descriptor.
+
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: hikari.Member | None = annotations.member_field(default=None),
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    default
+        Default value to pass if this option wasn't provided.
+
+        If not passed then this option will be required.
+        Otherwise, this will mark the option as being a flag for message
+        commands unless `positional=False` is also passed.
+    description
+        The option's description.
+    empty_value
+        Value to pass when this is used as a message flag without a value
+        (i.e. `--name`).
+
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
+    greedy
+        Whether this option should be marked as "greedy" form message command
+        parsing.
+
+        A greedy option will consume the rest of the positional arguments.
+        This can only be applied to one positional argument and is no-op for
+        slash commands and flags.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
+
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
+    or_snowflake
+        Whether this should just pass the parsed user ID as a
+        [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
+        calls.
+    positional
+        Whether this should be a positional argument.
+
+        Arguments will be positional by default unless `default` is provided.
+    slash_name
+        The name to use for this option in slash commands.
+    """
+    return _Field.new(
+        hikari.Member,
+        default=default,
+        description=description,
+        empty_value=empty_value,
+        greedy=greedy,
+        message_names=message_names,
+        snowflake_converter=conversion.parse_user_id if or_snowflake else None,
+        positional=positional,
+        slash_name=slash_name,
+    )
+
+
+@typing.overload
+def mentionable_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: typing.Literal[False] = False,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.User, hikari.Role, _T]:
+    ...
+
+
+@typing.overload
+def mentionable_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: typing.Literal[True],
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.User, hikari.Role, hikari.Snowflake, _T]:
+    ...
+
+
+def mentionable_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: bool = False,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.User, hikari.Role, hikari.Snowflake, _T]:
+    """Mark a parameter as a "mentionable" option using a descriptor.
+
+    Mentionable options allow both user and roles.
+
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: hikari.Role | hikari.User | None = annotations.mentionable_field(default=None),
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    default
+        Default value to pass if this option wasn't provided.
+
+        If not passed then this option will be required.
+        Otherwise, this will mark the option as being a flag for message
+        commands unless `positional=False` is also passed.
+    description
+        The option's description.
+    empty_value
+        Value to pass when this is used as a message flag without a value
+        (i.e. `--name`).
+
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
+    greedy
+        Whether this option should be marked as "greedy" form message command
+        parsing.
+
+        A greedy option will consume the rest of the positional arguments.
+        This can only be applied to one positional argument and is no-op for
+        slash commands and flags.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
+
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
+    or_snowflake
+        Whether this should just pass the parsed ID as a
+        [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
+        calls.
+    positional
+        Whether this should be a positional argument.
+
+        Arguments will be positional by default unless `default` is provided.
+    slash_name
+        The name to use for this option in slash commands.
+    """
+    return _Field.new(
+        _MentionableUnion,
+        default=default,
+        description=description,
+        empty_value=empty_value,
+        greedy=greedy,
+        message_names=message_names,
+        snowflake_converter=conversion.to_snowflake if or_snowflake else None,
+        positional=positional,
+        slash_name=slash_name,
+    )
+
+
+@typing.overload
+def role_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: typing.Literal[False] = False,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.Role, _T]:
+    ...
+
+
+@typing.overload
+def role_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: typing.Literal[True],
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.Role, hikari.Snowflake, _T]:
+    ...
+
+
+def role_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: bool = False,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.Role, hikari.Snowflake, _T]:
+    """Mark a parameter as a guild role option using a descriptor.
+
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: hikari.Role | None = annotations.role_field(default=None),
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    default
+        Default value to pass if this option wasn't provided.
+
+        If not passed then this option will be required.
+        Otherwise, this will mark the option as being a flag for message
+        commands unless `positional=False` is also passed.
+    description
+        The option's description.
+    empty_value
+        Value to pass when this is used as a message flag without a value
+        (i.e. `--name`).
+
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
+    greedy
+        Whether this option should be marked as "greedy" form message command
+        parsing.
+
+        A greedy option will consume the rest of the positional arguments.
+        This can only be applied to one positional argument and is no-op for
+        slash commands and flags.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
+
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
+    or_snowflake
+        Whether this should just pass the parsed role ID as a
+        [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
+        calls.
+    positional
+        Whether this should be a positional argument.
+
+        Arguments will be positional by default unless `default` is provided.
+    slash_name
+        The name to use for this option in slash commands.
+    """
+    return _Field.new(
+        hikari.Role,
+        default=default,
+        description=description,
+        empty_value=empty_value,
+        greedy=greedy,
+        message_names=message_names,
+        snowflake_converter=conversion.parse_role_id if or_snowflake else None,
+        positional=positional,
+        slash_name=slash_name,
+    )
+
+
+@typing.overload
+def str_field(
+    *,
+    choices: typing.Optional[collections.Mapping[str, str]] = None,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    min_length: typing.Union[int, None] = None,
+    max_length: typing.Union[int, None] = None,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[str, _T]:
+    ...
+
+
+@typing.overload
+def str_field(
+    *,
+    choices: typing.Optional[collections.Mapping[str, str]] = None,
+    converters: typing.Union[_ConverterSig[_OtherT], collections.Sequence[_ConverterSig[_OtherT]]],
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    min_length: typing.Union[int, None] = None,
+    max_length: typing.Union[int, None] = None,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[_OtherT, _T]:
+    ...
+
+
+def str_field(
+    *,
+    choices: typing.Optional[collections.Mapping[str, str]] = None,
+    converters: typing.Union[_ConverterSig[_OtherT], collections.Sequence[_ConverterSig[_OtherT]]] = (),
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    min_length: typing.Union[int, None] = None,
+    max_length: typing.Union[int, None] = None,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[str, _T, _OtherT]:
+    """Mark a parameter as a string option using a descriptor.
+
+    Examples
+    --------
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: str | None = annotations.str_field(default=None),
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    choices
+        A mapping of up to 25 names to the choices values for this option.
+
+        This is ignored for message command parsing.
+    converters
+        The option's converters.
+
+        This may be either one or multiple converter callbacks used to
+        convert the option's value to the final form.
+        If no converters are provided then the raw value will be passed.
+
+        Only the first converter to pass will be used.
+    default
+        Default value to pass if this option wasn't provided.
+
+        If not passed then this option will be required.
+        Otherwise, this will mark the option as being a flag for message
+        commands unless `positional=False` is also passed.
+    description
+        The option's description.
+    empty_value
+        Value to pass when this is used as a message flag without a value
+        (i.e. `--name`).
+
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
+    greedy
+        Whether this option should be marked as "greedy" form message command
+        parsing.
+
+        A greedy option will consume the rest of the positional arguments.
+        This can only be applied to one positional argument and is no-op for
+        slash commands and flags.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
+
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
+    min_length
+        The minimum length this argument can be.
+    max_length
+        The maximum length this string argument can be.
+    positional
+        Whether this should be a positional argument.
+
+        Arguments will be positional by default unless `default` is provided.
+    slash_name
+        The name to use for this option in slash commands.
+    """
+    return _Field.new(
+        str,
+        choices=choices,
+        default=default,
+        description=description,
+        empty_value=empty_value,
+        greedy=greedy,
+        message_names=message_names,
+        min_length=min_length,
+        max_length=max_length,
+        positional=positional,
+        slash_name=slash_name,
+        str_converters=converters,
+    )
+
+
+@typing.overload
+def user_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: typing.Literal[False] = False,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.User, _T]:
+    ...
+
+
+@typing.overload
+def user_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: typing.Literal[True],
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.User, hikari.Snowflake, _T]:
+    ...
+
+
+def user_field(
+    *,
+    default: _T = tanjun.NO_DEFAULT,
+    description: str = "",
+    empty_value: _T = tanjun.NO_DEFAULT,
+    greedy: typing.Optional[bool] = None,
+    message_names: collections.Sequence[str] = (),
+    or_snowflake: bool = False,
+    positional: typing.Optional[bool] = None,
+    slash_name: str = "",
+) -> typing.Union[hikari.User, hikari.Snowflake, _T]:
+    """Mark a parameter as a user option using a descriptor.
+
+    Examples
+    --------
+    ```py
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: hikari.User | None = annotations.user_field(default=None),
+    ) -> None:
+        ...
+    ```
+
+    Parameters
+    ----------
+    default
+        Default value to pass if this option wasn't provided.
+
+        If not passed then this option will be required.
+        Otherwise, this will mark the option as being a flag for message
+        commands unless `positional=False` is also passed.
+    description
+        The option's description.
+    empty_value
+        Value to pass when this is used as a message flag without a value
+        (i.e. `--name`).
+
+        If not passed then a value will be required and is ignored unless
+        `default` is also passed.
+    greedy
+        Whether this option should be marked as "greedy" form message command
+        parsing.
+
+        A greedy option will consume the rest of the positional arguments.
+        This can only be applied to one positional argument and is no-op for
+        slash commands and flags.
+    message_names
+        The names this option may be triggered by as a message command flag
+        option.
+
+        These must all be prefixed with "-" and are ignored unless `default`
+        is also passed.
+    or_snowflake
+        Whether this should just pass the parsed user ID as a
+        [hikari.Snowflake][hikari.snowflakes.Snowflake] for message command
+        calls.
+    positional
+        Whether this should be a positional argument.
+
+        Arguments will be positional by default unless `default` is provided.
+    slash_name
+        The name to use for this option in slash commands.
+    """
+    return _Field.new(
+        hikari.User,
+        default=default,
+        description=description,
+        empty_value=empty_value,
+        greedy=greedy,
+        message_names=message_names,
+        snowflake_converter=conversion.parse_user_id if or_snowflake else None,
+        positional=positional,
+        slash_name=slash_name,
+    )
 
 
 class _FloatEnumConverter(_ConfigIdentifier):
@@ -219,6 +1283,16 @@ class _IntEnumConverter(_ConfigIdentifier):
         config.int_converter = self._enum
 
 
+class _EnumConverter(_ConfigIdentifier):
+    __slots__ = ("_converter",)
+
+    def __init__(self, enum: collections.Callable[[str], enum.Enum], /) -> None:
+        self._converter = enum
+
+    def set_config(self, config: _ArgConfig, /) -> None:
+        config.str_converters = [self._converter]
+
+
 class _ChoicesMeta(abc.ABCMeta):
     @typing_extensions.deprecated("Pass Choices(...) to Annotated")
     def __getitem__(cls, enum_: type[_EnumT], /) -> type[_EnumT]:
@@ -242,7 +1316,7 @@ class _ChoicesMeta(abc.ABCMeta):
 
         # TODO: do we want to wrap the convert callback to give better failed parse messages?
         return typing.cast(
-            "type[_EnumT]", typing.Annotated[enum_, choices, converter, Converted(enum_), _TypeOverride(type_)]
+            "type[_EnumT]", typing.Annotated[enum_, choices, converter, _EnumConverter(enum_), _OptionMarker(type_)]
         )
 
 
@@ -357,7 +1431,7 @@ class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.str_converters = self._converters
-        config.option_type = str
+        config.set_option_type(str)
 
 
 Color = typing.Annotated[hikari.Color, Converted(conversion.to_color)]
@@ -493,7 +1567,8 @@ class Flag(_ConfigIdentifier):
         aliases
             Other names the flag may be triggered by.
 
-            This does not override the argument's name.
+            This does not override the argument's name and all the aliases must
+            be prefixed with "-".
         empty_value
             Value to pass for the argument if the flag is provided without a value.
 
@@ -541,7 +1616,9 @@ class Flag(_ConfigIdentifier):
         if self._default is not tanjun.NO_DEFAULT:
             config.default = self._default
 
-        config.aliases = self._aliases or config.aliases
+        if self._aliases:
+            config.message_names = [config.main_message_name, *self._aliases]
+
         config.empty_value = self._empty_value
         config.is_positional = False
 
@@ -679,6 +1756,8 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
         min_or_max_length
             If `max_length` is left as [None][] then this will be used as the
             maximum length and the minimum length will be `0`.
+
+            Otherwise this will be the minimum length this string option can be.
         max_length
             The maximum length this string argument can be.
 
@@ -706,6 +1785,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     def set_config(self, config: _ArgConfig, /) -> None:
         config.min_length = self._min_length
         config.max_length = self._max_length
+        # TODO: validate this is only set for str options
 
 
 class _MaxMeta(abc.ABCMeta):
@@ -868,7 +1948,10 @@ class Name(_ConfigIdentifier):
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.slash_name = self._slash_name or config.slash_name
-        config.message_name = self._message_name or config.message_name
+
+        if self._message_name:
+            config.main_message_name = self._message_name
+            config.message_names = [self._message_name, *config.message_names[1:]]
 
 
 class _RangedMeta(abc.ABCMeta):
@@ -1032,16 +2115,6 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
         config.snowflake_converter = self._parse_id
 
 
-class _TypeOverride(_ConfigIdentifier):
-    __slots__ = ("_override",)
-
-    def __init__(self, override: type[typing.Any], /) -> None:
-        self._override = override
-
-    def set_config(self, config: _ArgConfig, /) -> None:
-        config.option_type = self._override
-
-
 class _TheseChannelsMeta(abc.ABCMeta):
     @typing_extensions.deprecated("Pass TheseChannels(...) to Annotated")
     def __getitem__(
@@ -1126,7 +2199,6 @@ _MESSAGE_ID_ONLY: frozenset[typing.Any] = frozenset(
 
 class _ArgConfig:
     __slots__ = (
-        "aliases",
         "channel_types",
         "choices",
         "default",
@@ -1138,11 +2210,12 @@ class _ArgConfig:
         "is_greedy",
         "is_positional",
         "key",
+        "main_message_name",
         "min_length",
         "max_length",
         "min_value",
         "max_value",
-        "message_name",
+        "message_names",
         "option_type",
         "range_or_slice",
         "slash_name",
@@ -1151,8 +2224,7 @@ class _ArgConfig:
     )
 
     def __init__(self, key: str, default: typing.Any, /, *, description: typing.Optional[str]) -> None:
-        self.aliases: typing.Optional[collections.Sequence[str]] = None
-        self.channel_types: typing.Optional[collections.Sequence[_ChannelTypeIsh]] = None
+        self.channel_types: collections.Sequence[_ChannelTypeIsh] = ()
         self.choices: typing.Optional[collections.Mapping[str, _ChoiceUnion]] = None
         self.default: typing.Any = default
         self.description: typing.Optional[str] = description
@@ -1161,19 +2233,28 @@ class _ArgConfig:
         self.has_natural_default: bool = default is tanjun.NO_PASS
         self.int_converter: typing.Optional[collections.Callable[[int], typing.Any]] = None
         # The float and int converters are just for Choices[Enum].
-        self.is_greedy: bool = False
+        self.is_greedy: typing.Optional[bool] = None
         self.is_positional: typing.Optional[bool] = None
         self.key: str = key
+        self.main_message_name: str = "--" + key.replace("_", "-")
         self.min_length: typing.Optional[int] = None
         self.max_length: typing.Optional[int] = None
         self.min_value: typing.Union[float, int, None] = None
         self.max_value: typing.Union[float, int, None] = None
-        self.message_name: str = "--" + key.replace("_", "-")
-        self.option_type: typing.Optional[type[typing.Any]] = None
+        self.message_names: collections.Sequence[str] = [self.main_message_name]
+        self.option_type: typing.Optional[typing.Any] = None
         self.range_or_slice: typing.Union[range, slice, None] = None
         self.slash_name: str = key
         self.snowflake_converter: typing.Optional[collections.Callable[[str], hikari.Snowflake]] = None
-        self.str_converters: typing.Optional[collections.Sequence[_ConverterSig[typing.Any]]] = None
+        self.str_converters: collections.Sequence[_ConverterSig[typing.Any]] = ()
+
+    def set_option_type(self, option_type: typing.Any, /) -> None:
+        if self.option_type is not None and option_type != self.option_type:
+            raise RuntimeError(
+                f"Conflicting option types of {self.option_type} and {option_type} found for {self.key!r} parameter"
+            )
+
+        self.option_type = option_type
 
     def from_annotation(self, annotation: typing.Any, /) -> Self:
         for arg in _snoop_annotation_args(annotation):
@@ -1226,7 +2307,7 @@ class _ArgConfig:
                 converters = converters_
 
             elif self.option_type is hikari.PartialChannel:
-                converters = (conversion.ToChannel(allowed_types=self.channel_types),)
+                converters = (conversion.ToChannel(allowed_types=self.channel_types or None),)
 
             elif not self.has_natural_default:
                 raise RuntimeError(f"{self.option_type!r} is not supported for message commands")
@@ -1255,7 +2336,7 @@ class _ArgConfig:
                     self.key,
                     converters=converters,
                     default=self.default,
-                    greedy=self.is_greedy,
+                    greedy=False if self.is_greedy is None else self.is_greedy,
                     min_length=self.min_length,
                     max_length=self.max_length,
                     min_value=self.min_value,
@@ -1268,8 +2349,7 @@ class _ArgConfig:
             else:
                 parser.add_option(
                     self.key,
-                    self.message_name,
-                    *self.aliases or (),
+                    *self.message_names,
                     converters=converters,
                     default=self.default,
                     empty_value=self.empty_value,
@@ -1300,7 +2380,7 @@ class _ArgConfig:
         ),
         bool: lambda self, c, d: c.add_bool_option(self.slash_name, d, default=self.default, key=self.key),
         hikari.PartialChannel: lambda self, c, d: c.add_channel_option(
-            self.slash_name, d, default=self.default, key=self.key, types=self.channel_types
+            self.slash_name, d, default=self.default, key=self.key, types=self.channel_types or None
         ),
         float: lambda self, c, d: c.add_float_option(
             self.slash_name,
@@ -1331,7 +2411,7 @@ class _ArgConfig:
             self.slash_name,
             d,
             choices=_ensure_values("choice", str, self.choices),
-            converters=self.str_converters or (),
+            converters=self.str_converters,
             default=self.default,
             key=self.key,
             min_length=self.min_length,
@@ -1415,10 +2495,16 @@ def parse_annotated_args(
             continue
 
         if parameter.kind is not parameter.VAR_KEYWORD:
-            default = tanjun.NO_DEFAULT if parameter.default is parameter.empty else tanjun.NO_PASS
+            if parameter.default is not parameter.empty and isinstance(parameter.default, _ConfigIdentifier):
+                arg = _ArgConfig(parameter.name, tanjun.NO_DEFAULT, description=descriptions.get(parameter.name))
+                parameter.default.set_config(arg)
+
+            else:
+                default = tanjun.NO_DEFAULT if parameter.default is parameter.empty else tanjun.NO_PASS
+                arg = _ArgConfig(parameter.name, default, description=descriptions.get(parameter.name))
+
             (
-                _ArgConfig(parameter.name, default, description=descriptions.get(parameter.name))
-                .from_annotation(parameter.annotation)
+                arg.from_annotation(parameter.annotation)
                 .finalise_slice()
                 .add_to_msg_cmds(message_commands)
                 .add_to_slash_cmds(slash_commands)
@@ -1460,27 +2546,27 @@ def with_annotated_args(
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
     r"""Set a command's arguments based on its signature.
 
-    To declare arguments you will have to do one of two things:
+    There are 3 ways to mark an argument as a command option:
 
     1. Using any of the following types as an argument's type-hint (this may
         be as the first argument to [typing.Annotated][]) will mark it as a
         command argument:
 
-        * [tanjun.annotations.Attachment][]\*
-        * [tanjun.annotations.Bool][]
-        * [tanjun.annotations.Channel][]
-        * [tanjun.annotations.InteractionChannel][]\*
-        * [tanjun.annotations.Color][]/[tanjun.annotations.Colour][]
-        * [tanjun.annotations.Datetime][]
-        * [tanjun.annotations.Float][]
-        * [tanjun.annotations.Int][]
-        * [tanjun.annotations.Member][]
-        * [tanjun.annotations.InteractionMember][]\*
-        * [tanjun.annotations.Mentionable][]
-        * [tanjun.annotations.Role][]
-        * [tanjun.annotations.Snowflake][]
-        * [tanjun.annotations.Str][]
-        * [tanjun.annotations.User][]
+        * [annotations.Attachment][tanjun.annotations.Attachment]\*
+        * [annotations.Bool][tanjun.annotations.Bool]
+        * [annotations.Channel][tanjun.annotations.Channel]
+        * [annotations.InteractionChannel][tanjun.annotations.InteractionChannel]\*
+        * [annotations.Color][tanjun.annotations.Color]/[annotations.Colour][tanjun.annotations.Colour]
+        * [annotations.Datetime][tanjun.annotations.Datetime]
+        * [annotations.Float][tanjun.annotations.Float]
+        * [annotations.Int][tanjun.annotations.Int]
+        * [annotations.Member][tanjun.annotations.Member]
+        * [annotations.InteractionMember][tanjun.annotations.InteractionMember]\*
+        * [annotations.Mentionable][tanjun.annotations.Mentionable]
+        * [annotations.Role][tanjun.annotations.Role]
+        * [annotations.Snowflake][tanjun.annotations.Snowflake]
+        * [annotations.Str][tanjun.annotations.Str]
+        * [annotations.User][tanjun.annotations.User]
 
         \* These types are specific to slash commands and will raise an exception
             when set for a message command's parameter which has no real default.
@@ -1503,8 +2589,46 @@ def with_annotated_args(
             raise NotImplementedError
         ```
 
-    2. By assigning [tanjun.annotations.Converted][] as one of the other
-        arguments to [typing.Annotated][]:
+        When doing this the following objects can be included in a field's
+        annotations to add extra configuration:
+
+        * [annotations.Default][tanjun.annotations.Default]
+            Set the default for an option in the annotations (rather than using
+            the argument's actual default).
+        * [annotations.Flag][tanjun.annotations.Flag]
+            Mark an option as being a flag option for message commands.
+        * [annotations.Greedy][tanjun.annotations.Greedy]
+            Mark an option as consuming the rest of the provided positional
+            values for message commands.
+        * [annotations.Length][tanjun.annotations.Length]
+            Set the length restraints for a string option.
+        * [annotations.Min][tanjun.annotations.Min]
+            Set the minimum valid size for float and integer options.
+        * [annotations.Max][tanjun.annotations.Max]
+            Set the maximum valid size for float and integer options.
+        * [annotations.Name][tanjun.annotations.Name]
+            Override the option's name.
+        * [annotations.Positional][tanjun.annotations.Positional]
+            Mark optional arguments as positional for message commands.
+        * [annotations.Ranged][tanjun.annotations.Ranged]
+            Set range constraints for float and integer options.
+        * [annotations.SnowflakeOr][tanjun.annotations.SnowflakeOr]
+            Indicate that a role, user, channel, member, role, or mentionable
+            option should be left as the ID for message commands.
+        * [annotations.TheseChannels][tanjun.annotations.TheseChannels]
+            Constrain the valid channel types for a channel option.
+
+        ```py
+        async def command(
+            ctx: tanjun.abc.SlashContext,
+            name: Annotated[Str, Length(1, 20)],
+            channel: Annotated[Role | hikari.Snowflake | None, SnowflakeOr()] = None,
+        ) -> None:
+            raise NotImplementedError
+        ```
+
+    2. By assigning [tanjun.Converted][tanjun.annotations.Converted] as one of
+        the other arguments to [typing.Annotated][]:
 
         ```py
         @tanjun.with_annotated_args(follow_wrapped=True)
@@ -1512,7 +2636,38 @@ def with_annotated_args(
         @tanjun.as_slash_command("e", "description")
         async def command(
             ctx: tanjun.abc.SlashContext,
-            value: Annotated[OtherType, Converted(parse_value), "description"],
+            value: Annotated[ParsedType, Converted(parse_value), "description"],
+        ) -> None:
+            raise NotImplementedError
+        ```
+
+        When doing this the option type will always be string.
+
+    3. By using any of the following default descriptors as the argument's
+        default:
+
+        * [annotations.attachment_field][tanjun.annotations.attachment_field]\*
+        * [annotations.bool_field][tanjun.annotations.bool_field]
+        * [annotations.channel_field][tanjun.annotations.channel_field]
+        * [annotations.float_field][tanjun.annotations.float_field]
+        * [annotations.int_field][tanjun.annotations.int_field]
+        * [annotations.member_field][tanjun.annotations.member_field]
+        * [annotations.mentionable_field][tanjun.annotations.mentionable_field]
+        * [annotations.role_field][tanjun.annotations.role_field]
+        * [annotations.str_field][tanjun.annotations.str_field]
+        * [annotations.user_field][tanjun.annotations.user_field]
+
+        \* These are specific to slash commands and will raise an exception
+            when set for a message command's parameter which has no real default.
+
+        ```py
+        @tanjun.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("e")
+        @tanjun.as_slash_command("e", "description")
+        async def command(
+            ctx: tanjun.abc.SlashContext,
+            user_field: hikari.User | None = annotations.user_field(default=None),
+            field: bool = annotations.bool_field(default=False, empty_value=True),
         ) -> None:
             raise NotImplementedError
         ```

@@ -230,16 +230,15 @@ type, now it's time to go higher.
 --8<-- "./docs_src/usage.py:179:194"
 ```
 
-[tanjun.with_annotated_args][tanjun.annotations.with_annotated_args] provides
-a simple way to declare the arguments for both message and slash commands.
-While this feature is cross-compatible, there is one key difference: a
-description must be included for options when annotating for a slash command,
-which is done by passing a string value to [typing.Annotated][] (as shown
-above).
+[tanjun.annotations][] provides a simple way to declare the arguments for both
+message and slash commands. While this feature is cross-compatible, there is
+one key difference: a description must be included for options when annotating
+for a slash command, which is done by passing a string value to
+[typing.Annotated][] (as shown above).
 
 This example doesn't demonstrate every feature of this, and More information on
-how arguments are configured through annotations can be found in
-[tanjun.annotations][].
+how arguments are configured through annotations can be found at
+[tanjun.annotations.with_annotated_args][].
 
 ### Wrapped commands
 

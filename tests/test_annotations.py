@@ -1261,6 +1261,26 @@ def test_with_generic_converted():
     assert option.max_value is None
 
 
+def test_with_converted_type_miss_match():
+    mock_callback_1 = mock.Mock()
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "Conflicting option types of <class 'hikari.messages.Attachment'> "
+            "and <class 'str'> found for 'boo' parameter"
+        ),
+    ):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("nyaa")
+        async def _(
+            ctx: tanjun.abc.Context,
+            boo: typing.Annotated[annotations.Attachment, annotations.Converted(mock_callback_1)],
+        ) -> None:
+            ...
+
+
 def test_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
@@ -5185,6 +5205,1691 @@ def test_parse_annotated_args_with_descriptions_argument_for_wrapped_slash_comma
         hikari.CommandOption(type=hikari.OptionType.USER, name="ruby", description="shining", is_required=True),
         hikari.CommandOption(type=hikari.OptionType.STRING, name="rebecca", description="cool gal", is_required=False),
     ]
+
+
+def test_attachment_field():
+    @tanjun.as_slash_command("name", "description")
+    async def command(ctx: tanjun.abc.Context, field: hikari.Attachment = annotations.attachment_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"field": "eeee"})
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.ATTACHMENT, name="field", description="eeee", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["field"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "field"
+    assert tracked_option.name == "field"
+    assert tracked_option.type is hikari.OptionType.ATTACHMENT
+
+
+def test_attachment_field_with_config():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: typing.Union[hikari.Attachment, int] = annotations.attachment_field(
+            description="x", default=7655, slash_name="meow_meow"
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.ATTACHMENT, name="meow_meow", description="x", is_required=False)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["meow_meow"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == 7655
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "field"
+    assert tracked_option.name == "meow_meow"
+    assert tracked_option.type is hikari.OptionType.ATTACHMENT
+
+
+def test_attachment_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, fobo: annotations.Bool = annotations.attachment_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "Conflicting option types of <class 'hikari.messages.Attachment'> "
+            "and <class 'bool'> found for 'fobo' parameter"
+        ),
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_attachment_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(
+        ctx: tanjun.abc.Context, field: annotations.Attachment = annotations.attachment_field(description="x")
+    ) -> None:
+        ...
+
+
+def test_bool_field():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, field: bool = annotations.bool_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"field": "z"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.BOOLEAN, name="field", description="z", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["field"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "field"
+    assert tracked_option.name == "field"
+    assert tracked_option.type is hikari.OptionType.BOOLEAN
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "field"
+    assert argument.converters == [tanjun.conversion.to_bool]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_bool_field_with_config():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        fieldy: typing.Union[bool, None] = annotations.bool_field(
+            default=None, description="very descriptive", greedy=True, positional=True, slash_name="nyaa"
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+
+    assert len(command.parser.arguments) == 1
+    argument = command.parser.arguments[0]
+    assert argument.key == "fieldy"
+    assert argument.converters == [tanjun.conversion.to_bool]
+    assert argument.default is None
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.parser.options) == 0
+
+
+def test_bool_field_when_default_marks_as_flag():
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, fieldy: bool = annotations.bool_field(default=False)) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "fieldy"
+    assert option.names == ["--fieldy"]
+    assert option.converters == [tanjun.conversion.to_bool]
+    assert option.default is False
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_bool_field_when_default_marks_as_flag_and_other_config():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        fieldy: typing.Optional[bool] = annotations.bool_field(
+            default=None, empty_value=True, message_names=["--meow", "-a", "-b"]
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "fieldy"
+    assert option.names == ["--meow", "-a", "-b"]
+    assert option.converters == [tanjun.conversion.to_bool]
+    assert option.default is None
+    assert option.empty_value is True
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_bool_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, me: annotations.Str = annotations.bool_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError, match="Conflicting option types of <class 'bool'> and <class 'str'> found for 'me' parameter"
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_bool_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Bool = annotations.bool_field(description="x")) -> None:
+        ...
+
+
+def test_channel_field():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, meow: hikari.PartialChannel = annotations.channel_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"meow": "sad"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.CHANNEL, name="meow", description="sad", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["meow"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "meow"
+    assert tracked_option.name == "meow"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "meow"
+    assert len(argument.converters) == 1
+    assert isinstance(argument.converters[0], tanjun.conversion.ToChannel)
+    assert argument.converters[0]._allowed_types is None
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_channel_field_with_config():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        meow: typing.Union[hikari.PartialChannel, hikari.Snowflake, None] = annotations.channel_field(
+            channel_types=[hikari.PrivateChannel, hikari.ChannelType.GUILD_TEXT],
+            default=None,
+            description="descript",
+            greedy=True,
+            or_snowflake=True,
+            positional=True,
+            slash_name="aaa",
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.CHANNEL,
+            channel_types=[hikari.ChannelType.DM, hikari.ChannelType.GROUP_DM, hikari.ChannelType.GUILD_TEXT],
+            name="aaa",
+            description="descript",
+            is_required=False,
+        )
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["aaa"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "meow"
+    assert tracked_option.name == "aaa"
+    assert tracked_option.type is hikari.OptionType.CHANNEL
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "meow"
+    assert len(argument.converters) == 1
+    assert argument.converters == [tanjun.conversion.parse_channel_id]
+    assert argument.default is None
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_channel_field_when_default_marks_as_flag():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, meow: typing.Optional[hikari.PartialChannel] = annotations.channel_field(default=None)
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "meow"
+    assert option.names == ["--meow"]
+    assert len(option.converters) == 1
+    assert isinstance(option.converters[0], tanjun.conversion.ToChannel)
+    assert option.converters[0]._allowed_types is None
+    assert option.default is None
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_channel_field_when_default_marks_as_flag_and_other_config():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        meow: typing.Union[hikari.PartialChannel, int] = annotations.channel_field(
+            channel_types=[hikari.ChannelType.GUILD_CATEGORY, hikari.ChannelType.GUILD_TEXT],
+            default=0,
+            empty_value=-1,
+            message_names=["--momma", "-x", "--dra"],
+            or_snowflake=True,
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "meow"
+    assert option.names == ["--momma", "-x", "--dra"]
+    assert option.converters == [tanjun.conversion.parse_channel_id]
+    assert option.default == 0
+    assert option.empty_value == -1
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_channel_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, xf: annotations.Float = annotations.channel_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "Conflicting option types of <class 'hikari.channels.PartialChannel'> "
+            "and <class 'float'> found for 'xf' parameter"
+        ),
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_channel_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(
+        ctx: tanjun.abc.Context, field: annotations.Channel = annotations.channel_field(description="x")
+    ) -> None:
+        ...
+
+
+def test_float_field():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, special: float = annotations.float_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(
+        command, descriptions={"special": "can't be what you want to be"}, follow_wrapped=True
+    )
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.FLOAT, name="special", description="can't be what you want to be", is_required=True
+        )
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["special"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is True
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "special"
+    assert tracked_option.name == "special"
+    assert tracked_option.type is hikari.OptionType.FLOAT
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "special"
+    assert argument.converters == [float]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_float_field_with_config():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        meowy: typing.Optional[float] = annotations.float_field(
+            choices={"meow": 123.321, "ah": 6543.123, "eto...": 56534.2134, "bleh": 123.543},
+            default=None,
+            description="xxoo",
+            greedy=True,
+            min_value=12.2,
+            max_value=547.5,
+            positional=True,
+            slash_name="bbbbb",
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.FLOAT,
+            name="bbbbb",
+            description="xxoo",
+            choices=[
+                hikari.CommandChoice(name="meow", value=123.321),
+                hikari.CommandChoice(name="ah", value=6543.123),
+                hikari.CommandChoice(name="eto...", value=56534.2134),
+                hikari.CommandChoice(name="bleh", value=123.543),
+            ],
+            is_required=False,
+            min_value=12.2,
+            max_value=547.5,
+        )
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["bbbbb"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is True
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "meowy"
+    assert tracked_option.name == "bbbbb"
+    assert tracked_option.type is hikari.OptionType.FLOAT
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "meowy"
+    assert len(argument.converters) == 1
+    assert argument.converters == [float]
+    assert argument.default is None
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value == 12.2
+    assert argument.max_value == 547.5
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_float_field_when_default_marks_as_flag():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, meow: typing.Optional[float] = annotations.float_field(default=None)
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "meow"
+    assert option.names == ["--meow"]
+    assert option.converters == [float]
+    assert option.default is None
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_float_field_when_default_marks_as_flag_and_other_config():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        meow: typing.Optional[float] = annotations.float_field(
+            default=None,
+            empty_value=69.420,
+            message_names=["--yeet", "-e", "--bleh"],
+            min_value=543.123,
+            max_value=123.543,
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "meow"
+    assert option.names == ["--yeet", "-e", "--bleh"]
+    assert option.converters == [float]
+    assert option.default is None
+    assert option.empty_value == 69.420
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value == 543.123
+    assert option.max_value == 123.543
+
+
+def test_float_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, call: annotations.Int = annotations.float_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError, match="Conflicting option types of <class 'float'> and <class 'int'> found for 'call' parameter"
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_float_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Float = annotations.float_field(description="x")) -> None:
+        ...
+
+
+def test_int_field():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, ni: int = annotations.int_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"ni": "wow"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.INTEGER, name="ni", description="wow", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["ni"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "ni"
+    assert tracked_option.name == "ni"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "ni"
+    assert argument.converters == [int]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_int_field_with_config():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        ni: typing.Optional[int] = annotations.int_field(
+            choices={"me": 10, "you": 3},
+            default=None,
+            description="ooooo",
+            greedy=True,
+            min_value=0,
+            max_value=20,
+            positional=True,
+            slash_name="na",
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            choices=[hikari.CommandChoice(name="me", value=10), hikari.CommandChoice(name="you", value=3)],
+            name="na",
+            description="ooooo",
+            is_required=False,
+            min_value=0,
+            max_value=20,
+        )
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["na"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "ni"
+    assert tracked_option.name == "na"
+    assert tracked_option.type is hikari.OptionType.INTEGER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "ni"
+    assert argument.converters == [int]
+    assert argument.default is None
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value == 0
+    assert argument.max_value == 20
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_int_field_when_default_marks_as_flag():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, nyaa: typing.Optional[int] = annotations.int_field(default=None)
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "nyaa"
+    assert option.names == ["--nyaa"]
+    assert option.converters == [int]
+    assert option.default is None
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_int_field_when_default_marks_as_flag_and_other_config():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        nyaa: typing.Optional[int] = annotations.int_field(
+            default=None, empty_value=0, message_names=["--yee", "-a", "--alias"], min_value=-1, max_value=666
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "nyaa"
+    assert option.names == ["--yee", "-a", "--alias"]
+    assert option.converters == [int]
+    assert option.default is None
+    assert option.empty_value == 0
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value == -1
+    assert option.max_value == 666
+
+
+def test_int_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, meow: annotations.Float = annotations.int_field(description="x")
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError, match="Conflicting option types of <class 'int'> and <class 'float'> found for 'meow' parameter"
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_int_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Int = annotations.int_field(description="x")) -> None:
+        ...
+
+
+def test_member_field():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, nope: hikari.Member = annotations.member_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"nope": "wowo"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.USER, name="nope", description="wowo", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["nope"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "nope"
+    assert tracked_option.name == "nope"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "nope"
+    assert argument.converters == [tanjun.to_member]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_member_field_with_config():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        nope: typing.Union[hikari.Member, hikari.Snowflake, None] = annotations.member_field(
+            default=None, description="fine", greedy=True, or_snowflake=True, positional=True, slash_name="pancake"
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.USER, name="pancake", description="fine", is_required=False)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["pancake"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is True
+    assert tracked_option.key == "nope"
+    assert tracked_option.name == "pancake"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "nope"
+    assert argument.converters == [tanjun.conversion.parse_user_id]
+    assert argument.default is None
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_member_field_when_default_marks_as_flag():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, nep: typing.Optional[hikari.Member] = annotations.member_field(default=None)
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "nep"
+    assert option.names == ["--nep"]
+    assert option.converters == [tanjun.to_member]
+    assert option.default is None
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_member_field_when_default_marks_as_flag_and_other_config():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        nep: typing.Union[hikari.Member, bool, None, hikari.Snowflake] = annotations.member_field(
+            default=None, empty_value=False, message_names=["--x", "--ok"], or_snowflake=True
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "nep"
+    assert option.names == ["--x", "--ok"]
+    assert option.converters == [tanjun.conversion.parse_user_id]
+    assert option.default is None
+    assert option.empty_value is False
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_member_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, freaky: annotations.User = annotations.member_field(description="x")
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "Conflicting option types of <class 'hikari.guilds.Member'> "
+            "and <class 'hikari.users.User'> found for 'freaky' parameter"
+        ),
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_member_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Member = annotations.member_field(description="x")) -> None:
+        ...
+
+
+def test_mentionable_field():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, yes: typing.Union[hikari.User, hikari.Role] = annotations.mentionable_field()
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"yes": "yipee"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.MENTIONABLE, name="yes", description="yipee", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["yes"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "yes"
+    assert tracked_option.name == "yes"
+    assert tracked_option.type is hikari.OptionType.MENTIONABLE
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "yes"
+    assert argument.converters == [tanjun.to_user, tanjun.to_role]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_mentionable_field_with_config():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        idol: typing.Union[hikari.User, hikari.Role, hikari.Snowflake] = annotations.mentionable_field(
+            default=hikari.Snowflake(0),
+            description="You'll be fine",
+            greedy=True,
+            or_snowflake=True,
+            positional=True,
+            slash_name="echo",
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.MENTIONABLE, name="echo", description="You'll be fine", is_required=False
+        )
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["echo"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == 0
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "idol"
+    assert tracked_option.name == "echo"
+    assert tracked_option.type is hikari.OptionType.MENTIONABLE
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "idol"
+    assert argument.converters == [tanjun.to_snowflake]
+    assert argument.default == 0
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+
+def test_mentionable_field_when_default_marks_as_flag():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        nep: typing.Union[hikari.User, hikari.Role, None] = annotations.mentionable_field(default=None),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "nep"
+    assert option.names == ["--nep"]
+    assert option.converters == [tanjun.to_user, tanjun.to_role]
+    assert option.default is None
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_mentionable_field_when_default_marks_as_flag_and_other_config():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        beep: typing.Union[hikari.User, hikari.Role, None, hikari.Snowflake] = annotations.mentionable_field(
+            default=hikari.Snowflake(0), empty_value=None, message_names=["--aaa", "-e", "-a"], or_snowflake=True
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "beep"
+    assert option.names == ["--aaa", "-e", "-a"]
+    assert option.converters == [tanjun.to_snowflake]
+    assert option.default == hikari.Snowflake(0)
+    assert option.empty_value is None
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_mentionable_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        ghost: annotations.Role = annotations.mentionable_field(description="x"),  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=re.escape(
+            "Conflicting option types of typing.Union[hikari.users.User, hikari.guilds.Role] and "
+            "<class 'hikari.guilds.Role'> found for 'ghost' parameter"
+        ),
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_mentionable_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(
+        ctx: tanjun.abc.Context, field: annotations.Mentionable = annotations.mentionable_field(description="x")
+    ) -> None:
+        ...
+
+
+def test_role_field():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, arg: hikari.Role = annotations.role_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"arg": "beet"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.ROLE, name="arg", description="beet", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["arg"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "arg"
+    assert tracked_option.name == "arg"
+    assert tracked_option.type is hikari.OptionType.ROLE
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "arg"
+    assert argument.converters == [tanjun.to_role]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_role_field_with_config():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        arg: typing.Union[hikari.Role, hikari.Snowflake, None] = annotations.role_field(
+            default=None, description="root", greedy=True, or_snowflake=True, positional=True, slash_name="slap"
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.ROLE, name="slap", description="root", is_required=False)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["slap"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "arg"
+    assert tracked_option.name == "slap"
+    assert tracked_option.type is hikari.OptionType.ROLE
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "arg"
+    assert argument.converters == [tanjun.conversion.parse_role_id]
+    assert argument.default is None
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_role_field_when_default_marks_as_flag():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, nep: typing.Union[hikari.Role, None] = annotations.role_field(default=None)
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "nep"
+    assert option.names == ["--nep"]
+    assert option.converters == [tanjun.to_role]
+    assert option.default is None
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_role_field_when_default_marks_as_flag_and_other_config():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        scrubs: typing.Union[hikari.Role, hikari.Snowflake, None] = annotations.role_field(
+            default=None,
+            empty_value=hikari.Snowflake(69),
+            message_names=["--name", "--ear", "--nose"],
+            or_snowflake=True,
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "scrubs"
+    assert option.names == ["--name", "--ear", "--nose"]
+    assert option.converters == [tanjun.conversion.parse_role_id]
+    assert option.default is None
+    assert option.empty_value == hikari.Snowflake(69)
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_role_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, cappy: annotations.Int = annotations.role_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match="Conflicting option types of <class 'hikari.guilds.Role'> and <class 'int'> found for 'cappy' parameter",
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_role_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Role = annotations.role_field(description="x")) -> None:
+        ...
+
+
+def test_str_field():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, field: str = annotations.str_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"field": "root"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="field", description="root", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["field"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "field"
+    assert tracked_option.name == "field"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "field"
+    assert argument.converters == []
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_str_field_with_config():
+    def mock_converter_1(_: str) -> int:
+        raise NotImplementedError
+
+    def mock_converter_2(_: str) -> float:
+        raise NotImplementedError
+
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        field: typing.Union[int, float, None] = annotations.str_field(
+            choices={"aaa": "meow", "bbb": "sleep"},
+            converters=[mock_converter_1, mock_converter_2],
+            default=None,
+            description="blam",
+            greedy=True,
+            min_length=4,
+            max_length=69,
+            positional=True,
+            slash_name="name",
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="name",
+            description="blam",
+            is_required=False,
+            choices=[hikari.CommandChoice(name="aaa", value="meow"), hikari.CommandChoice(name="bbb", value="sleep")],
+            min_length=4,
+            max_length=69,
+        )
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["name"]
+    assert tracked_option.converters == [mock_converter_1, mock_converter_2]
+    assert tracked_option.default is None
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "field"
+    assert tracked_option.name == "name"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "field"
+    assert argument.converters == [mock_converter_1, mock_converter_2]
+    assert argument.default is None
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length == 4
+    assert argument.max_length == 69
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_str_field_with_single_converter():
+    def mock_converter(_: str) -> bool:
+        raise NotImplementedError
+
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, field: bool = annotations.str_field(converters=mock_converter)) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"field": "blam"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="field", description="blam", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["field"]
+    assert tracked_option.converters == [mock_converter]
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "field"
+    assert argument.converters == [mock_converter]
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_str_field_when_default_marks_as_flag():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, poison: typing.Union[str, None] = annotations.str_field(default=None)
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "poison"
+    assert option.names == ["--poison"]
+    assert option.converters == []
+    assert option.default is None
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_str_field_when_default_marks_as_flag_and_other_config():
+    def mock_converter_1(_: str) -> int:
+        raise NotImplementedError
+
+    def mock_converter_2(_: str) -> bytes:
+        raise NotImplementedError
+
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        poison: typing.Union[int, bytes, str, None] = annotations.str_field(
+            converters=[mock_converter_1, mock_converter_2],
+            default="",
+            empty_value=None,
+            message_names=["--weird", "-o", "--meow"],
+            min_length=10,
+            max_length=100,
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "poison"
+    assert option.names == ["--weird", "-o", "--meow"]
+    assert option.converters == [mock_converter_1, mock_converter_2]
+    assert option.default == ""
+    assert option.empty_value is None
+    assert option.is_multi is False
+    assert option.min_length == 10
+    assert option.max_length == 100
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_str_field_when_default_marks_as_flag_and_single_converter():
+    def mock_converter(_: str) -> str:
+        raise NotImplementedError
+
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        poison: typing.Union[str, None] = annotations.str_field(converters=mock_converter, default=None),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "poison"
+    assert option.converters == [mock_converter]
+
+
+def test_str_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, bust: annotations.Int = annotations.str_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError, match="Conflicting option types of <class 'str'> and <class 'int'> found for 'bust' parameter"
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_str_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Str = annotations.str_field(description="x")) -> None:
+        ...
+
+
+def test_user_field():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context, of: hikari.User = annotations.user_field()) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, descriptions={"of": "foot"}, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.USER, name="of", description="foot", is_required=True)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["of"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "of"
+    assert tracked_option.name == "of"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "of"
+    assert argument.converters == [tanjun.to_user]
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_user_field_with_config():
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        scene: typing.Union[hikari.User, hikari.Snowflake] = annotations.user_field(
+            default=hikari.Snowflake(0),
+            description="gm",
+            greedy=True,
+            or_snowflake=True,
+            positional=True,
+            slash_name="easter",
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.USER, name="easter", description="gm", is_required=False)
+    ]
+
+    assert len(command._tracked_options) == 1
+    tracked_option = command._tracked_options["easter"]
+    assert tracked_option.converters == []
+    assert tracked_option.default == hikari.Snowflake(0)
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "scene"
+    assert tracked_option.name == "easter"
+    assert tracked_option.type is hikari.OptionType.USER
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "scene"
+    assert argument.converters == [tanjun.conversion.parse_user_id]
+    assert argument.default == hikari.Snowflake(0)
+    assert argument.is_greedy is True
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 0
+
+
+def test_user_field_when_default_marks_as_flag():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context, sl: typing.Union[hikari.User, None] = annotations.user_field(default=None)
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "sl"
+    assert option.names == ["--sl"]
+    assert option.converters == [tanjun.to_user]
+    assert option.default is None
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_user_field_when_default_marks_as_flag_and_other_config():
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        ut: typing.Union[hikari.User, None, hikari.Snowflake] = annotations.user_field(
+            default=None, empty_value=hikari.Snowflake(4), message_names=["--name", "--allied", "-b"], or_snowflake=True
+        ),
+    ) -> None:
+        ...
+
+    annotations.parse_annotated_args(command, follow_wrapped=True)
+
+    assert isinstance(command.parser, tanjun.ShlexParser)
+    assert len(command.parser.arguments) == 0
+
+    assert len(command.parser.options) == 1
+    option = command.parser.options[0]
+    assert option.key == "ut"
+    assert option.names == ["--name", "--allied", "-b"]
+    assert option.converters == [tanjun.conversion.parse_user_id]
+    assert option.default is None
+    assert option.empty_value == hikari.Snowflake(4)
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
+
+
+def test_user_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, fed: annotations.Member = annotations.user_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "Conflicting option types of <class 'hikari.users.User'> "
+            "and <class 'hikari.guilds.Member'> found for 'fed' parameter"
+        ),
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_user_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.User = annotations.user_field(description="x")) -> None:
+        ...
 
 
 def test_with_unpacked_stdlib_typed_dict():
