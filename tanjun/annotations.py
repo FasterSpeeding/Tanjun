@@ -1785,7 +1785,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     def set_config(self, config: _ArgConfig, /) -> None:
         config.min_length = self._min_length
         config.max_length = self._max_length
-        # TODO: set str option type
+        # TODO: validate this is only set for str options
 
 
 class _MaxMeta(abc.ABCMeta):
@@ -2251,7 +2251,7 @@ class _ArgConfig:
     def set_option_type(self, option_type: typing.Any, /) -> None:
         if self.option_type is not None and option_type != self.option_type:
             raise RuntimeError(
-                f"Conflicting option types of {self.option_type} and {option_type} found for {self.key} parameter"
+                f"Conflicting option types of {self.option_type} and {option_type} found for {self.key!r} parameter"
             )
 
         self.option_type = option_type

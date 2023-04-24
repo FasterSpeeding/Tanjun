@@ -1261,6 +1261,26 @@ def test_with_generic_converted():
     assert option.max_value is None
 
 
+def test_with_converted_type_miss_match():
+    mock_callback_1 = mock.Mock()
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "Conflicting option types of <class 'hikari.messages.Attachment'> "
+            "and <class 'str'> found for 'boo' parameter"
+        ),
+    ):
+
+        @annotations.with_annotated_args(follow_wrapped=True)
+        @tanjun.as_message_command("nyaa")
+        async def _(
+            ctx: tanjun.abc.Context,
+            boo: typing.Annotated[annotations.Attachment, annotations.Converted(mock_callback_1)],
+        ) -> None:
+            ...
+
+
 def test_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
@@ -5236,6 +5256,32 @@ def test_attachment_field_with_config():
     assert tracked_option.type is hikari.OptionType.ATTACHMENT
 
 
+def test_attachment_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, fobo: annotations.Bool = annotations.attachment_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "Conflicting option types of <class 'hikari.messages.Attachment'> "
+            "and <class 'bool'> found for 'fobo' parameter"
+        ),
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_attachment_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(
+        ctx: tanjun.abc.Context, field: annotations.Attachment = annotations.attachment_field(description="x")
+    ) -> None:
+        ...
+
+
 def test_bool_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
@@ -5356,6 +5402,26 @@ def test_bool_field_when_default_marks_as_flag_and_other_config():
     assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
+
+
+def test_bool_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, me: annotations.Str = annotations.bool_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError, match="Conflicting option types of <class 'bool'> and <class 'str'> found for 'me' parameter"
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_bool_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Bool = annotations.bool_field(description="x")) -> None:
+        ...
 
 
 def test_channel_field():
@@ -5517,6 +5583,32 @@ def test_channel_field_when_default_marks_as_flag_and_other_config():
     assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
+
+
+def test_channel_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, xf: annotations.Float = annotations.channel_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "Conflicting option types of <class 'hikari.channels.PartialChannel'> "
+            "and <class 'float'> found for 'xf' parameter"
+        ),
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_channel_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(
+        ctx: tanjun.abc.Context, field: annotations.Channel = annotations.channel_field(description="x")
+    ) -> None:
+        ...
 
 
 def test_float_field():
@@ -5688,6 +5780,26 @@ def test_float_field_when_default_marks_as_flag_and_other_config():
     assert option.max_value == 123.543
 
 
+def test_float_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, call: annotations.Int = annotations.float_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError, match="Conflicting option types of <class 'float'> and <class 'int'> found for 'call' parameter"
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_float_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Float = annotations.float_field(description="x")) -> None:
+        ...
+
+
 def test_int_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
@@ -5843,6 +5955,26 @@ def test_int_field_when_default_marks_as_flag_and_other_config():
     assert option.max_value == 666
 
 
+def test_int_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, meow: annotations.Float = annotations.int_field(description="x")
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError, match="Conflicting option types of <class 'int'> and <class 'float'> found for 'meow' parameter"
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_int_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Int = annotations.int_field(description="x")) -> None:
+        ...
+
+
 def test_member_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
@@ -5981,6 +6113,30 @@ def test_member_field_when_default_marks_as_flag_and_other_config():
     assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
+
+
+def test_member_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, freaky: annotations.User = annotations.member_field(description="x")
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "Conflicting option types of <class 'hikari.guilds.Member'> "
+            "and <class 'hikari.users.User'> found for 'freaky' parameter"
+        ),
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_member_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Member = annotations.member_field(description="x")) -> None:
+        ...
 
 
 def test_mentionable_field():
@@ -6131,6 +6287,33 @@ def test_mentionable_field_when_default_marks_as_flag_and_other_config():
     assert option.max_value is None
 
 
+def test_mentionable_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context,
+        ghost: annotations.Role = annotations.mentionable_field(description="x"),  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=re.escape(
+            "Conflicting option types of typing.Union[hikari.users.User, hikari.guilds.Role] and "
+            "<class 'hikari.guilds.Role'> found for 'ghost' parameter"
+        ),
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_mentionable_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(
+        ctx: tanjun.abc.Context, field: annotations.Mentionable = annotations.mentionable_field(description="x")
+    ) -> None:
+        ...
+
+
 def test_role_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
@@ -6272,6 +6455,27 @@ def test_role_field_when_default_marks_as_flag_and_other_config():
     assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
+
+
+def test_role_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, cappy: annotations.Int = annotations.role_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match="Conflicting option types of <class 'hikari.guilds.Role'> and <class 'int'> found for 'cappy' parameter",
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_role_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Role = annotations.role_field(description="x")) -> None:
+        ...
 
 
 def test_str_field():
@@ -6499,6 +6703,26 @@ def test_str_field_when_default_marks_as_flag_and_single_converter():
     assert option.converters == [mock_converter]
 
 
+def test_str_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, bust: annotations.Int = annotations.str_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError, match="Conflicting option types of <class 'str'> and <class 'int'> found for 'bust' parameter"
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_str_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.Str = annotations.str_field(description="x")) -> None:
+        ...
+
+
 def test_user_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
@@ -6642,6 +6866,30 @@ def test_user_field_when_default_marks_as_flag_and_other_config():
     assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
+
+
+def test_user_field_when_type_mismatch():
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.Context, fed: annotations.Member = annotations.user_field(description="x")  # type: ignore
+    ) -> None:
+        ...
+
+    with pytest.raises(
+        RuntimeError,
+        match=(
+            "Conflicting option types of <class 'hikari.users.User'> "
+            "and <class 'hikari.guilds.Member'> found for 'fed' parameter"
+        ),
+    ):
+        annotations.parse_annotated_args(command)
+
+
+def test_user_field_when_type_match():
+    @annotations.with_annotated_args
+    @tanjun.as_slash_command("name", "description")
+    async def _(ctx: tanjun.abc.Context, field: annotations.User = annotations.user_field(description="x")) -> None:
+        ...
 
 
 def test_with_unpacked_stdlib_typed_dict():
