@@ -236,9 +236,9 @@ one key difference: a description must be included for options when annotating
 for a slash command, which is done by passing a string value to
 [typing.Annotated][] (as shown above).
 
-This example doesn't demonstrate every feature of this, and More information on
-how arguments are configured through annotations can be found at
-[tanjun.annotations.with_annotated_args][].
+This example doesn't demonstrate every feature of this; more information on
+how arguments are configured in a command's signature can be found at
+[tanjun.annotations][].
 
 ### Wrapped commands
 
