@@ -130,7 +130,7 @@ This implementation exposes 3 ways to mark an argument as a command option:
         raise NotImplementedError
     ```
 
-    When doing this the option type will always be string.
+    When doing this the option type will be `str`.
 
 3. By using any of the following default descriptors as the argument's
     default:
