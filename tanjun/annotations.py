@@ -65,7 +65,7 @@ This implementation exposes 3 ways to mark an argument as a command option:
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
     async def command(
-        ctx: tanjun.abc.SlashContext,
+        ctx: tanjun.abc.Context,
 
         # Here the option's description is passed as a string to Annotated:
         # this is necessary for slash commands but ignored for message commands.
@@ -109,9 +109,22 @@ This implementation exposes 3 ways to mark an argument as a command option:
 
     ```py
     async def command(
-        ctx: tanjun.abc.SlashContext,
+        ctx: tanjun.abc.Context,
         name: Annotated[Str, Length(1, 20)],
         channel: Annotated[Role | hikari.Snowflake | None, SnowflakeOr()] = None,
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    It should be noted that wrapping in [typing.Annotated][] isn't necessary for
+    message commands options as they don't have descriptions.
+
+    ```py
+    async def message_command(
+        ctx: tanjun.abc.MessageContext,
+        name: Str,
+        value: Str,
+        enable: typing.Optional[Bool] = None,
     ) -> None:
         raise NotImplementedError
     ```
@@ -124,7 +137,7 @@ This implementation exposes 3 ways to mark an argument as a command option:
     @tanjun.as_message_command("e")
     @tanjun.as_slash_command("e", "description")
     async def command(
-        ctx: tanjun.abc.SlashContext,
+        ctx: tanjun.abc.Context,
         value: Annotated[ParsedType, Converted(parse_value), "description"],
     ) -> None:
         raise NotImplementedError
@@ -154,25 +167,12 @@ This implementation exposes 3 ways to mark an argument as a command option:
     @tanjun.as_message_command("e")
     @tanjun.as_slash_command("e", "description")
     async def command(
-        ctx: tanjun.abc.SlashContext,
+        ctx: tanjun.abc.Context,
         user_field: hikari.User | None = annotations.user_field(default=None),
         field: bool = annotations.bool_field(default=False, empty_value=True),
     ) -> None:
         raise NotImplementedError
     ```
-
-It should be noted that wrapping in [typing.Annotated][] isn't necessary for
-message commands options as they don't have descriptions.
-
-```py
-async def message_command(
-    ctx: tanjun.abc.MessageContext,
-    name: Str,
-    value: Str,
-    enable: typing.Optional[Bool] = None,
-) -> None:
-    raise NotImplementedError
-```
 
 A [typing.TypedDict][] can be used to declare multiple options by
 typing the passed `**kwargs` dict as it using [typing.Unpack][].
