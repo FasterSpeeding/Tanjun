@@ -28,7 +28,170 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Parameter annotation based strategy for declaring slash and message command arguments.
+r"""Parameter annotation based strategy for declaring slash and message command arguments.
+
+[with_annotated_args][tanjun.annotations.with_annotated_args] should be used to
+parse the options for both message commands and slash commands.
+`follow_wrapped=True` should be passed if you want this to parse options for
+all the commands being declared in a decorator call chain.
+
+This implementation exposes 3 ways to mark an argument as a command option:
+
+1. Using any of the following types as an argument's type-hint (this may
+    be as the first argument to [typing.Annotated][]) will mark it as a
+    command argument:
+
+    * [annotations.Attachment][tanjun.annotations.Attachment]\*
+    * [annotations.Bool][tanjun.annotations.Bool]
+    * [annotations.Channel][tanjun.annotations.Channel]
+    * [annotations.InteractionChannel][tanjun.annotations.InteractionChannel]\*
+    * [annotations.Color][tanjun.annotations.Color]/[annotations.Colour][tanjun.annotations.Colour]
+    * [annotations.Datetime][tanjun.annotations.Datetime]
+    * [annotations.Float][tanjun.annotations.Float]
+    * [annotations.Int][tanjun.annotations.Int]
+    * [annotations.Member][tanjun.annotations.Member]
+    * [annotations.InteractionMember][tanjun.annotations.InteractionMember]\*
+    * [annotations.Mentionable][tanjun.annotations.Mentionable]
+    * [annotations.Role][tanjun.annotations.Role]
+    * [annotations.Snowflake][tanjun.annotations.Snowflake]
+    * [annotations.Str][tanjun.annotations.Str]
+    * [annotations.User][tanjun.annotations.User]
+
+    \* These types are specific to slash commands and will raise an exception
+        when set for a message command's parameter which has no real default.
+
+    ```py
+    @tanjun.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("name")
+    @tanjun.as_slash_command("name", "description")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+
+        # Here the option's description is passed as a string to Annotated:
+        # this is necessary for slash commands but ignored for message commands.
+        name: Annotated[Str, "The character's name"],
+
+        # `= False` declares this field as optional, with it defaulting to `False`
+        # if not specified.
+        lawyer: Annotated[Bool, "Whether they're a lawyer"] = False,
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    When doing this the following objects can be included in a field's
+    annotations to add extra configuration:
+
+    * [annotations.Default][tanjun.annotations.Default]
+        Set the default for an option in the annotations (rather than using
+        the argument's actual default).
+    * [annotations.Flag][tanjun.annotations.Flag]
+        Mark an option as being a flag option for message commands.
+    * [annotations.Greedy][tanjun.annotations.Greedy]
+        Mark an option as consuming the rest of the provided positional
+        values for message commands.
+    * [annotations.Length][tanjun.annotations.Length]
+        Set the length restraints for a string option.
+    * [annotations.Min][tanjun.annotations.Min]
+        Set the minimum valid size for float and integer options.
+    * [annotations.Max][tanjun.annotations.Max]
+        Set the maximum valid size for float and integer options.
+    * [annotations.Name][tanjun.annotations.Name]
+        Override the option's name.
+    * [annotations.Positional][tanjun.annotations.Positional]
+        Mark optional arguments as positional for message commands.
+    * [annotations.Ranged][tanjun.annotations.Ranged]
+        Set range constraints for float and integer options.
+    * [annotations.SnowflakeOr][tanjun.annotations.SnowflakeOr]
+        Indicate that a role, user, channel, member, role, or mentionable
+        option should be left as the ID for message commands.
+    * [annotations.TheseChannels][tanjun.annotations.TheseChannels]
+        Constrain the valid channel types for a channel option.
+
+    ```py
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        name: Annotated[Str, Length(1, 20)],
+        channel: Annotated[Role | hikari.Snowflake | None, SnowflakeOr()] = None,
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+2. By assigning [tanjun.Converted][tanjun.annotations.Converted] as one of
+    the other arguments to [typing.Annotated][]:
+
+    ```py
+    @tanjun.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("e")
+    @tanjun.as_slash_command("e", "description")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        value: Annotated[ParsedType, Converted(parse_value), "description"],
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+    When doing this the option type will always be string.
+
+3. By using any of the following default descriptors as the argument's
+    default:
+
+    * [annotations.attachment_field][tanjun.annotations.attachment_field]\*
+    * [annotations.bool_field][tanjun.annotations.bool_field]
+    * [annotations.channel_field][tanjun.annotations.channel_field]
+    * [annotations.float_field][tanjun.annotations.float_field]
+    * [annotations.int_field][tanjun.annotations.int_field]
+    * [annotations.member_field][tanjun.annotations.member_field]
+    * [annotations.mentionable_field][tanjun.annotations.mentionable_field]
+    * [annotations.role_field][tanjun.annotations.role_field]
+    * [annotations.str_field][tanjun.annotations.str_field]
+    * [annotations.user_field][tanjun.annotations.user_field]
+
+    \* These are specific to slash commands and will raise an exception
+        when set for a message command's parameter which has no real default.
+
+    ```py
+    @tanjun.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_message_command("e")
+    @tanjun.as_slash_command("e", "description")
+    async def command(
+        ctx: tanjun.abc.SlashContext,
+        user_field: hikari.User | None = annotations.user_field(default=None),
+        field: bool = annotations.bool_field(default=False, empty_value=True),
+    ) -> None:
+        raise NotImplementedError
+    ```
+
+It should be noted that wrapping in [typing.Annotated][] isn't necessary for
+message commands options as they don't have descriptions.
+
+```py
+async def message_command(
+    ctx: tanjun.abc.MessageContext,
+    name: Str,
+    value: Str,
+    enable: typing.Optional[Bool] = None,
+) -> None:
+    raise NotImplementedError
+```
+
+A [typing.TypedDict][] can be used to declare multiple options by
+typing the passed `**kwargs` dict as it using [typing.Unpack][].
+These options can be marked as optional using [typing.NotRequired][],
+`total=False` or [Default][tanjun.annotations.Default].
+
+```py
+class CommandOptions(typing.TypedDict):
+    argument: Annotated[Str, "A required string argument"]
+    other: NotRequired[Annotated[Bool, "An optional string argument"]]
+
+@tanjun.with_annotated_args(follow_wrapped=True)
+@tanjun.as_message_command("name")
+@tanjun.as_slash_command("name", "description")
+async def command(
+    ctx: tanjun.abc.Context, **kwargs: Unpack[CommandOptions],
+) -> None:
+    raise NotImplementedError
+```
 
 Community Resources:
 
@@ -2546,163 +2709,7 @@ def with_annotated_args(
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
     r"""Set a command's arguments based on its signature.
 
-    There are 3 ways to mark an argument as a command option:
-
-    1. Using any of the following types as an argument's type-hint (this may
-        be as the first argument to [typing.Annotated][]) will mark it as a
-        command argument:
-
-        * [annotations.Attachment][tanjun.annotations.Attachment]\*
-        * [annotations.Bool][tanjun.annotations.Bool]
-        * [annotations.Channel][tanjun.annotations.Channel]
-        * [annotations.InteractionChannel][tanjun.annotations.InteractionChannel]\*
-        * [annotations.Color][tanjun.annotations.Color]/[annotations.Colour][tanjun.annotations.Colour]
-        * [annotations.Datetime][tanjun.annotations.Datetime]
-        * [annotations.Float][tanjun.annotations.Float]
-        * [annotations.Int][tanjun.annotations.Int]
-        * [annotations.Member][tanjun.annotations.Member]
-        * [annotations.InteractionMember][tanjun.annotations.InteractionMember]\*
-        * [annotations.Mentionable][tanjun.annotations.Mentionable]
-        * [annotations.Role][tanjun.annotations.Role]
-        * [annotations.Snowflake][tanjun.annotations.Snowflake]
-        * [annotations.Str][tanjun.annotations.Str]
-        * [annotations.User][tanjun.annotations.User]
-
-        \* These types are specific to slash commands and will raise an exception
-            when set for a message command's parameter which has no real default.
-
-        ```py
-        @tanjun.with_annotated_args(follow_wrapped=True)
-        @tanjun.as_message_command("name")
-        @tanjun.as_slash_command("name", "description")
-        async def command(
-            ctx: tanjun.abc.SlashContext,
-
-            # Here the option's description is passed as a string to Annotated:
-            # this is necessary for slash commands but ignored for message commands.
-            name: Annotated[Str, "The character's name"],
-
-            # `= False` declares this field as optional, with it defaulting to `False`
-            # if not specified.
-            lawyer: Annotated[Bool, "Whether they're a lawyer"] = False,
-        ) -> None:
-            raise NotImplementedError
-        ```
-
-        When doing this the following objects can be included in a field's
-        annotations to add extra configuration:
-
-        * [annotations.Default][tanjun.annotations.Default]
-            Set the default for an option in the annotations (rather than using
-            the argument's actual default).
-        * [annotations.Flag][tanjun.annotations.Flag]
-            Mark an option as being a flag option for message commands.
-        * [annotations.Greedy][tanjun.annotations.Greedy]
-            Mark an option as consuming the rest of the provided positional
-            values for message commands.
-        * [annotations.Length][tanjun.annotations.Length]
-            Set the length restraints for a string option.
-        * [annotations.Min][tanjun.annotations.Min]
-            Set the minimum valid size for float and integer options.
-        * [annotations.Max][tanjun.annotations.Max]
-            Set the maximum valid size for float and integer options.
-        * [annotations.Name][tanjun.annotations.Name]
-            Override the option's name.
-        * [annotations.Positional][tanjun.annotations.Positional]
-            Mark optional arguments as positional for message commands.
-        * [annotations.Ranged][tanjun.annotations.Ranged]
-            Set range constraints for float and integer options.
-        * [annotations.SnowflakeOr][tanjun.annotations.SnowflakeOr]
-            Indicate that a role, user, channel, member, role, or mentionable
-            option should be left as the ID for message commands.
-        * [annotations.TheseChannels][tanjun.annotations.TheseChannels]
-            Constrain the valid channel types for a channel option.
-
-        ```py
-        async def command(
-            ctx: tanjun.abc.SlashContext,
-            name: Annotated[Str, Length(1, 20)],
-            channel: Annotated[Role | hikari.Snowflake | None, SnowflakeOr()] = None,
-        ) -> None:
-            raise NotImplementedError
-        ```
-
-    2. By assigning [tanjun.Converted][tanjun.annotations.Converted] as one of
-        the other arguments to [typing.Annotated][]:
-
-        ```py
-        @tanjun.with_annotated_args(follow_wrapped=True)
-        @tanjun.as_message_command("e")
-        @tanjun.as_slash_command("e", "description")
-        async def command(
-            ctx: tanjun.abc.SlashContext,
-            value: Annotated[ParsedType, Converted(parse_value), "description"],
-        ) -> None:
-            raise NotImplementedError
-        ```
-
-        When doing this the option type will always be string.
-
-    3. By using any of the following default descriptors as the argument's
-        default:
-
-        * [annotations.attachment_field][tanjun.annotations.attachment_field]\*
-        * [annotations.bool_field][tanjun.annotations.bool_field]
-        * [annotations.channel_field][tanjun.annotations.channel_field]
-        * [annotations.float_field][tanjun.annotations.float_field]
-        * [annotations.int_field][tanjun.annotations.int_field]
-        * [annotations.member_field][tanjun.annotations.member_field]
-        * [annotations.mentionable_field][tanjun.annotations.mentionable_field]
-        * [annotations.role_field][tanjun.annotations.role_field]
-        * [annotations.str_field][tanjun.annotations.str_field]
-        * [annotations.user_field][tanjun.annotations.user_field]
-
-        \* These are specific to slash commands and will raise an exception
-            when set for a message command's parameter which has no real default.
-
-        ```py
-        @tanjun.with_annotated_args(follow_wrapped=True)
-        @tanjun.as_message_command("e")
-        @tanjun.as_slash_command("e", "description")
-        async def command(
-            ctx: tanjun.abc.SlashContext,
-            user_field: hikari.User | None = annotations.user_field(default=None),
-            field: bool = annotations.bool_field(default=False, empty_value=True),
-        ) -> None:
-            raise NotImplementedError
-        ```
-
-    It should be noted that wrapping in [typing.Annotated][] isn't necessary for
-    message commands options as they don't have descriptions.
-
-    ```py
-    async def message_command(
-        ctx: tanjun.abc.MessageContext,
-        name: Str,
-        value: Str,
-        enable: typing.Optional[Bool] = None,
-    ) -> None:
-        raise NotImplementedError
-    ```
-
-    A [typing.TypedDict][] can be used to declare multiple options by
-    typing the passed `**kwargs` dict as it using [typing.Unpack][].
-    These options can be marked as optional using [typing.NotRequired][],
-    `total=False` or [Default][tanjun.annotations.Default].
-
-    ```py
-    class CommandOptions(typing.TypedDict):
-        argument: Annotated[Str, "A required string argument"]
-        other: NotRequired[Annotated[Bool, "An optional string argument"]]
-
-    @tanjun.with_annotated_args(follow_wrapped=True)
-    @tanjun.as_message_command("name")
-    @tanjun.as_slash_command("name", "description")
-    async def command(
-        ctx: tanjun.abc.Context, **kwargs: Unpack[CommandOptions],
-    ) -> None:
-        raise NotImplementedError
-    ```
+    For more information on how this works see [tanjun.annotations][].
 
     Parameters
     ----------
