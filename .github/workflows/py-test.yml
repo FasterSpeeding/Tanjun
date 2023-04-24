@@ -31,7 +31,7 @@ jobs:
           submodules: "true"
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435
+        uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -56,7 +56,7 @@ jobs:
           submodules: "true"
 
       - name: Set up Python 3.9
-        uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435
+        uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b
         with:
           python-version: "3.9"
 
@@ -70,7 +70,7 @@ jobs:
           python -m nox -s test-coverage
 
       - name: Upload coverage
-        uses: paambaati/codeclimate-action@ac3f177ece9928d220a8bd1c2f1957926fd3b67e
+        uses: paambaati/codeclimate-action@b649ad206d2e83dafb9ed130deba698aa1b41d78
         env:
           CC_TEST_REPORTER_ID: 117363998d7c6b4bab4ac57348026e1089767e142ccca3eb8cc37da6cf4cc8b9
         with:
