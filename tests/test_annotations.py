@@ -103,7 +103,7 @@ class TestFlag:
         with pytest.warns(
             DeprecationWarning, match=re.escape("Flag.__init__'s `default` argument is deprecated, use Default instead")
         ):
-            flag = annotations.Flag(default=value)  # pyright: ignore [ reportDeprecated ]
+            flag = annotations.Flag(default=value)  # pyright: ignore[reportDeprecated]
 
         with pytest.warns(DeprecationWarning, match=re.escape("Use annotations.Default instead of the default arg")):
             assert flag.default is value
@@ -249,7 +249,7 @@ def test_with_nested_message_command_and_incompatible_parser_set():
 
 
 def test_with_no_annotations():
-    @annotations.with_annotated_args  # pyright: ignore [ reportUnknownArgumentType ]
+    @annotations.with_annotated_args  # pyright: ignore[reportUnknownArgumentType]
     @tanjun.as_slash_command("meow", "nyaa")
     @tanjun.as_message_command("meow")
     async def command(
@@ -278,7 +278,7 @@ def test_with_no_annotations_but_message_parser_already_set():
 
     command.set_parser(tanjun.ShlexParser())
 
-    annotations.with_annotated_args(command)  # pyright: ignore [ reportUnknownArgumentType ]
+    annotations.with_annotated_args(command)  # pyright: ignore[reportUnknownArgumentType]
 
     assert isinstance(command.parser, tanjun.ShlexParser)
     assert command.parser.arguments == []
@@ -1522,7 +1522,7 @@ def test_with_flag_and_deprecated_default():
         async def callback(
             ctx: tanjun.abc.Context,
             eep: typing.Annotated[
-                annotations.Int, annotations.Flag(default=1231), "b"  # pyright: ignore [ reportDeprecated ]
+                annotations.Int, annotations.Flag(default=1231), "b"  # pyright: ignore[reportDeprecated]
             ] = 545454,
         ) -> None:
             ...
@@ -8966,7 +8966,7 @@ def test_with_unpacked_typed_dict_and_user():
 
 def test_ignores_non_typed_dict_class_in_kwargs_unpack():
     class CustomClass:
-        of: typing.Annotated[annotations.User, "maaaa"]  # pyright: ignore [ reportUninitializedInstanceVariable ]
+        of: typing.Annotated[annotations.User, "maaaa"]  # pyright: ignore[reportUninitializedInstanceVariable]
         oo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]  # type: ignore
 
     @annotations.with_annotated_args(follow_wrapped=True)

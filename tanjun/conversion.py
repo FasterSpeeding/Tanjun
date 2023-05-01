@@ -1031,7 +1031,7 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
 
             results = filter(_range_check, (hikari.Snowflake(match.groups()[0]) for match in regex.finditer(value)))
             other_ids_iter = map(hikari.Snowflake, filter(str.isdigit, value.split()))
-            return [*results, *filter(_range_check, other_ids_iter)]  # pyright: ignore [ reportGeneralTypeIssues ]
+            return [*results, *filter(_range_check, other_ids_iter)]  # pyright: ignore[reportGeneralTypeIssues]
 
         try:
             result = hikari.Snowflake(value)
