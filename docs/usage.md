@@ -7,7 +7,7 @@ using Tanjun. A basic Hikari guide can be found [here](https://hg.cursed.solutio
 
 ## Starting with Hikari
 
-Tanjun supports both REST server-based application command execution and
+Tanjun supports both REST server-based application command execution, and
 gateway-based message and application command execution. To run Tanjun
 you'll want to link it to a Hikari bot.
 
@@ -22,7 +22,7 @@ There's no need to directly start or stop the Tanjun client as it'll be managed
 by lifetime events (unless `event_managed=False` is passed).
 
 `declare_global_commands=True` instructs the client to declare the bot's slash
-commands and context menus on startup and `mention_prefix=True` allows the
+commands and context menus on startup, and `mention_prefix=True` allows the
 bot's message commands to be triggered by starting a command call with `@bot`.
 
 ```py
@@ -39,7 +39,7 @@ have the client automatically start when the Rest bot starts.
 ### Client lifetime management
 
 While Hikari's bots provide systems for stating and stopping sub-components,
-these aren't cross-compatible nor Tanjun friendly and Tanjun's client callbacks
+these aren't cross-compatible nor Tanjun friendly; Tanjun's client callbacks
 provide a cross-compatible alternative for these (which also supports dependency
 injection).
 
