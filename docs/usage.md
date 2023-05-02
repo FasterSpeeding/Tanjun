@@ -175,6 +175,7 @@ To allow users to trigger a command by mentioning the bot before the command
 name (e.g. `@BotGirl meow command`) you can pass `mention_prefix=True` to
 either [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] or
 [Client.\_\_init\_\_][tanjun.clients.Client.__init__] while creating the bot.
+Mention prefixes work even if the `MESSAGE_CONTENT` intent is not declared.
 
 ```py
 --8<-- "./docs_src/usage.py:136:152"
