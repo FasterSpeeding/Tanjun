@@ -7,8 +7,8 @@ using Tanjun. A basic Hikari guide can be found [here](https://hg.cursed.solutio
 
 ## Starting with Hikari
 
-Tanjun supports both REST server-based application command execution and
-gateway-based message and application command execution, and to run Tanjun
+Tanjun supports both REST server-based application command execution, and
+gateway-based message and application command execution. To run Tanjun
 you'll want to link it to a Hikari bot.
 
 ```py
@@ -22,7 +22,7 @@ There's no need to directly start or stop the Tanjun client as it'll be managed
 by lifetime events (unless `event_managed=False` is passed).
 
 `declare_global_commands=True` instructs the client to declare the bot's slash
-commands and context menus on startup and `mention_prefix=True` allows the
+commands and context menus on startup, and `mention_prefix=True` allows the
 bot's message commands to be triggered by starting a command call with `@bot`.
 
 ```py
@@ -39,7 +39,7 @@ have the client automatically start when the Rest bot starts.
 ### Client lifetime management
 
 While Hikari's bots provide systems for stating and stopping sub-components,
-these aren't cross-compatible nor Tanjun friendly and Tanjun's client callbacks
+these aren't cross-compatible nor Tanjun friendly; Tanjun's client callbacks
 provide a cross-compatible alternative for these (which also supports dependency
 injection).
 
@@ -108,7 +108,7 @@ load specific modules.
 
 ## Declaring commands
 
-Commands need to be contained within a component to be loaded into a client
+Commands need to be in a component for them to be loaded into a client
 and may be added to a component either directly using
 [Component.add_command][tanjun.components.Component.add_command]/
 [Component.with_command][tanjun.components.Component.with_command]
@@ -124,16 +124,15 @@ All command callbacks must be asynchronous and can use dependency injection.
 ```
 
 Slash commands represent the commands you see when you start typing with "/" in
-Discord's message box and have names (which follow the restraints shown in
-<https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales>)
+Discord's message box and have names (which follow the restraints listed in
+[Discord's documentation](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming))
 and descriptions (which can be up to 100 characters long).
 
-There are several different kinds of slash command arguments which all require
-an argument name and description (both of which have the same constraints as
-the relevant slash command fields) along with type-specific configuration.
-These can be configured using the following decorator functions and their
-`add_{type}_option` equivalent chainable methods on
-[SlashCommand][tanjun.commands.slash.SlashCommand]:
+There are several different kinds of slash command arguments which all need
+a name and description (both of which have the same constraints as the relevant
+slash command fields) along with type-specific configuration. These can be
+configured using the following decorator functions and their `add_{type}_option`
+equivalent chainable methods on [SlashCommand][tanjun.commands.slash.SlashCommand]:
 
 * [with_attachment_slash_option][tanjun.commands.slash.with_attachment_slash_option]
 * [with_bool_slash_option][tanjun.commands.slash.with_bool_slash_option]
@@ -176,6 +175,7 @@ To allow users to trigger a command by mentioning the bot before the command
 name (e.g. `@BotGirl meow command`) you can pass `mention_prefix=True` to
 either [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] or
 [Client.\_\_init\_\_][tanjun.clients.Client.__init__] while creating the bot.
+Mention prefixes work even if the `MESSAGE_CONTENT` intent is not declared.
 
 ```py
 --8<-- "./docs_src/usage.py:136:152"
@@ -412,11 +412,10 @@ command or group of commands matches a context and should be called with it.
 --8<-- "./docs_src/usage.py:282:288"
 ```
 
-There's a collection of standard checks in [tanjun.checks][] that are all
-exported top-level and work with all the command types. The only optional
-configuration most users will care about for the standard checks is the
-`error_message` argument which lets you adjust the response messages these
-send when they fail.
+There's a collection of standard checks in [tanjun.checks][] which work
+with all the command types. The only optional configuration most users
+will care about for the standard checks is the `error_message` argument
+which lets you adjust the response messages these send when they fail.
 
 ```py
 --8<-- "./docs_src/usage.py:301:319"
