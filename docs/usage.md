@@ -412,11 +412,10 @@ command or group of commands matches a context and should be called with it.
 --8<-- "./docs_src/usage.py:282:288"
 ```
 
-There's a collection of standard checks in [tanjun.checks][] that are all
-exported top-level and work with all the command types. The only optional
-configuration most users will care about for the standard checks is the
-`error_message` argument which lets you adjust the response messages these
-send when they fail.
+There's a collection of standard checks in [tanjun.checks][] which work
+with all the command types. The only optional configuration most users
+will care about for the standard checks is the `error_message` argument
+which lets you adjust the response messages these send when they fail.
 
 ```py
 --8<-- "./docs_src/usage.py:301:319"
