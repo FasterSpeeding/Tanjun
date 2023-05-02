@@ -7,7 +7,7 @@ using Tanjun. A basic Hikari guide can be found [here](https://hg.cursed.solutio
 
 ## Starting with Hikari
 
-Tanjun supports both REST server-based application command execution, and
+Tanjun supports both REST server-based application command execution and
 gateway-based message and application command execution. To run Tanjun
 you'll want to link it to a Hikari bot.
 
