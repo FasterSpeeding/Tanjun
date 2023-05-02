@@ -15,7 +15,7 @@
         <link rel="next" href="../reference/">
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.15">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.6">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.113286f1.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ded33207.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.a0c5b2b5.min.css">
@@ -126,7 +126,9 @@
     
       
 
-<header class="md-header" data-md-component="header">
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="Tanjun docs" class="md-header__button md-logo" aria-label="Tanjun docs" data-md-component="logo">
       
@@ -1093,9 +1095,7 @@ using Tanjun. A basic Hikari guide can be found <a href="https://hg.cursed.solut
 gateway-based message and application command execution, and to run Tanjun
 you'll want to link it to a Hikari bot.</p>
 <div class="highlight"><pre><span></span><code><span class="n">bot</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">GatewayBot</span><span class="p">(</span><span class="s2">&quot;TOKEN&quot;</span><span class="p">)</span>
-<span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span>
-    <span class="n">bot</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mention_prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="o">...</span>
 
@@ -1108,10 +1108,9 @@ by lifetime events (unless <code>event_managed=False</code> is passed).</p>
 <p><code>declare_global_commands=True</code> instructs the client to declare the bot's slash
 commands and context menus on startup and <code>mention_prefix=True</code> allows the
 bot's message commands to be triggered by starting a command call with <code>@bot</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="n">bot</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">RESTBot</span><span class="p">(</span><span class="s2">&quot;TOKEN&quot;</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TokenType</span><span class="o">.</span><span class="n">BOT</span><span class="p">)</span>
-    <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">bot_managed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">bot</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><span class="n">bot</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">impl</span><span class="o">.</span><span class="n">RESTBot</span><span class="p">(</span><span class="s2">&quot;TOKEN&quot;</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">TokenType</span><span class="o">.</span><span class="n">BOT</span><span class="p">)</span>
+<span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_rest_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">,</span> <span class="n">bot_managed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">declare_global_commands</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bot</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div>
 <p>And here a Tanjun client is linked to a REST server bot instance to enable
 application command execution.</p>
@@ -1125,14 +1124,14 @@ provide a cross-compatible alternative for these (which also supports dependency
 injection).</p>
 <div class="highlight"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 
-<span class="nd">@bot</span><span class="o">.</span><span class="n">with_client_callback</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">)</span>
+<span class="nd">@client</span><span class="o">.</span><span class="n">with_client_callback</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">STARTING</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">on_starting</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">Injected</span><span class="p">[</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Client</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">,</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">())</span>
 
 <span class="k">async</span> <span class="k">def</span> <span class="nf">on_closed</span><span class="p">(</span><span class="n">session</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">Injected</span><span class="p">[</span><span class="n">aiohttp</span><span class="o">.</span><span class="n">ClientSession</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<span class="n">bot</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSED</span><span class="p">,</span> <span class="n">on_closed</span><span class="p">)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSED</span><span class="p">,</span> <span class="n">on_closed</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="managing-bot-functionality">Managing bot functionality<a class="headerlink" href="#managing-bot-functionality" title="Permanent link">#</a></h2>
 <p><a class="autorefs autorefs-internal" href="../reference/components/#tanjun.components.Component">tanjun.components.Component</a> exists as a way to manage and group bot
@@ -1179,7 +1178,7 @@ a module to more ergonomically load this functionality into a client.</p>
     <span class="n">client</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_unloader</span>
-<span class="k">def</span> <span class="nf">unload</span><span class="p">(</span><span class="n">client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">unload</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">remove_component</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
 </code></pre></div>
 <p>You can either declare one or more custom loaders and unloaders as shown above</p>
@@ -1212,9 +1211,7 @@ using <a class="autorefs autorefs-internal" href="../reference/components/#tanju
 <h3 id="slash-commands">Slash commands<a class="headerlink" href="#slash-commands" title="Permanent link">#</a></h3>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;option&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">slash_command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">slash_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
 <p>Slash commands represent the commands you see when you start typing with "/" in
@@ -1244,13 +1241,11 @@ converters found in <a class="autorefs autorefs-internal" href="../reference/con
 arguments.</p>
 <div class="highlight"><pre><span></span><code><span class="n">ding_group</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">slash_command_group</span><span class="p">(</span><span class="s2">&quot;ding&quot;</span><span class="p">,</span> <span class="s2">&quot;ding group&quot;</span><span class="p">)</span>
 
-
 <span class="nd">@ding_group</span><span class="o">.</span><span class="n">as_sub_command</span><span class="p">(</span><span class="s2">&quot;dong&quot;</span><span class="p">,</span> <span class="s2">&quot;dong command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">dong_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 
-
-<span class="n">ding_ding_group</span> <span class="o">=</span> <span class="n">ding</span><span class="o">.</span><span class="n">make_sub_group</span><span class="p">(</span><span class="s2">&quot;ding&quot;</span><span class="p">,</span> <span class="s2">&quot;ding ding group&quot;</span><span class="p">)</span>
+<span class="n">ding_ding_group</span> <span class="o">=</span> <span class="n">ding_group</span><span class="o">.</span><span class="n">make_sub_group</span><span class="p">(</span><span class="s2">&quot;ding&quot;</span><span class="p">,</span> <span class="s2">&quot;ding ding group&quot;</span><span class="p">)</span>
 
 <span class="nd">@ding_ding_group</span><span class="o">.</span><span class="n">as_sub_command</span><span class="p">(</span><span class="s2">&quot;ding&quot;</span><span class="p">,</span> <span class="s2">&quot;ding ding ding command&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">ding_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1262,7 +1257,7 @@ groups, slash command groups cannot be directly called as commands and can only
 be nested once. For more information on how slash command groups are configured
 see <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.commands.slash.slash_command_group">slash_command_group</a>.</p>
 <h3 id="message-commands">Message commands<a class="headerlink" href="#message-commands" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">gateway_bot</span><span class="p">)</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s2">&quot;!&quot;</span><span class="p">)</span>
 
 <span class="o">...</span>
 
@@ -1271,9 +1266,7 @@ see <a class="autorefs autorefs-internal" href="../reference/commands/#tanjun.co
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_greedy_argument</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_argument</span><span class="p">(</span><span class="s2">&quot;days&quot;</span><span class="p">,</span> <span class="n">converters</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;meow command&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">message_command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">message_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
 <p>Message commands are triggered based on chat messages where the client's
@@ -1288,22 +1281,19 @@ either <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.
 <div class="highlight"><pre><span></span><code><span class="c1"># prefixes=[&quot;!&quot;]</span>
 
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command_group</span><span class="p">(</span><span class="s2">&quot;groupy&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">groupy_group</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">groupy_group</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">):</span>
     <span class="o">...</span>
-
 
 <span class="nd">@groupy_group</span><span class="o">.</span><span class="n">as_sub_command</span><span class="p">(</span><span class="s2">&quot;sus drink&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">sus_drink_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">):</span>
     <span class="o">...</span>
 
-
 <span class="nd">@groupy_group</span><span class="o">.</span><span class="n">as_sub_group</span><span class="p">(</span><span class="s2">&quot;tour&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">tour_group</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">):</span>
     <span class="o">...</span>
 
-
 <span class="nd">@tour_group</span><span class="o">.</span><span class="n">as_sub_command</span><span class="p">(</span><span class="s2">&quot;de france&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">de_france_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span><span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">de_france_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MessageContext</span><span class="p">):</span>
     <span class="o">...</span>
 </code></pre></div>
 <p>Message command groups are a collection of message commands under a shared name
@@ -1332,7 +1322,7 @@ more configuration see <a class="autorefs autorefs-internal" href="../reference/
 <h3 id="context-menus">Context menus<a class="headerlink" href="#context-menus" title="Permanent link">#</a></h3>
 <div class="highlight"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_menu</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">message_menu_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">message_menu_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Message</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 
 <span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
@@ -1347,38 +1337,30 @@ commands see <a class="autorefs autorefs-internal" href="../reference/commands/#
 <h3 id="annotation-based-command-declaration">Annotation based command declaration<a class="headerlink" href="#annotation-based-command-declaration" title="Permanent link">#</a></h3>
 <p>Previously you've seen how to manually declare command options per command
 type, now it's time to go higher.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Annotated</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">import</span> <span class="nn">tanjun</span>
-<span class="kn">from</span> <span class="nn">tanjun.annotations</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Ranged</span><span class="p">,</span> <span class="n">Str</span><span class="p">,</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">tanjun.annotations</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Converted</span><span class="p">,</span> <span class="n">Int</span><span class="p">,</span> <span class="n">Ranged</span><span class="p">,</span> <span class="n">Str</span><span class="p">,</span> <span class="n">User</span>
 
-
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="n">true</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
     <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Str</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">],</span>
-    <span class="n">age</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Ranged</span><span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">130</span><span class="p">],</span> <span class="s2">&quot;an int option with a min, max of 13, 130&quot;</span><span class="p">],</span>
-    <span class="n">video</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Converted</span><span class="p">[</span><span class="n">get_video</span><span class="p">],</span> <span class="s2">&quot;a required string option which is converted with get_video&quot;</span><span class="p">],</span>
-    <span class="n">user</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">User</span><span class="p">,</span> <span class="s2">&quot;a user option which defaults to None&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">age</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Int</span><span class="p">,</span> <span class="n">Ranged</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">130</span><span class="p">),</span> <span class="s2">&quot;an int option with a min, max of 13, 130&quot;</span><span class="p">],</span>
+    <span class="n">video</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Video</span><span class="p">,</span> <span class="n">Converted</span><span class="p">(</span><span class="n">get_video</span><span class="p">),</span> <span class="s2">&quot;a required string option which is converted with get_video&quot;</span><span class="p">],</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">User</span><span class="p">],</span> <span class="s2">&quot;a user option which defaults to None&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">enabled</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">Bool</span><span class="p">,</span> <span class="s2">&quot;a bool option which defaults to True&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p><a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.with_annotated_args">tanjun.with_annotated_args</a> provides
-a simple way to declare the arguments for both message and slash commands.
-While this feature is cross-compatible, there is one key difference: a
-description must be included for options when annotating for a slash command,
-which is done by passing a string value to <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a> (as shown
-above).</p>
-<p>The special generic types offered in <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations">tanjun.annotations</a> (e.g
-<a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Ranged">Ranged</a> and <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations.Converted">Converted</a>)
-return a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a> instance from their generic calls and can also be
-passed as arguments to Annotated like <code>Annotated[Int, Ranged(13, 130)]</code>, and
-<code>Annotated[Str, Converted(get_video)]</code>.</p>
-<p>This example doesn't demonstrate every feature of this, and More information on
-how arguments are configured through annotations can be found in
+<p><a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations">tanjun.annotations</a> provides a simple way to declare the arguments for both
+message and slash commands. While this feature is cross-compatible, there is
+one key difference: a description must be included for options when annotating
+for a slash command, which is done by passing a string value to
+<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#typing.Annotated">typing.Annotated</a> (as shown above).</p>
+<p>This example doesn't demonstrate every feature of this; more information on
+how arguments are configured in a command's signature can be found at
 <a class="autorefs autorefs-internal" href="../reference/annotations/#tanjun.annotations">tanjun.annotations</a>.</p>
 <h3 id="wrapped-commands">Wrapped commands<a class="headerlink" href="#wrapped-commands" title="Permanent link">#</a></h3>
 <p>When creating multiple command types in a decorator call chain, standard
@@ -1387,7 +1369,7 @@ decorators which can be applied to multiple command types often have a
 commands in a chain if <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> is passed for it.</p>
 <p>When using <code>follow_wrapped</code> the relevant decorator will be applied to all the
 compatible <code>as_{}_command</code> decorator calls below it in the chain.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_guild_check</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
@@ -1400,36 +1382,34 @@ specific to the command type, it's worth noting that
 and may be used as the type for <code>ctx</code> when a callback supports multiple command
 types.</p>
 <h2 id="responding-to-commands">Responding to commands<a class="headerlink" href="#responding-to-commands" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_user_menu</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">tanjun</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">User</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;The user to target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">User</span><span class="p">],</span> <span class="s2">&quot;The user to target&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="n">ctx</span><span class="o">.</span><span class="n">author</span>
     <span class="n">message</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span>
         <span class="s2">&quot;message content&quot;</span><span class="p">,</span>
         <span class="n">attachments</span><span class="o">=</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;./its/a/mystery.jpeg&quot;</span><span class="p">)],</span>
-        <span class="n">embeds</span><span class="o">=</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">author</span><span class="p">))</span><span class="o">.</span><span class="n">set_thumbnail</span><span class="p">(</span><span class="n">author</span><span class="o">.</span><span class="n">display_avatar_url</span><span class="p">)],</span>
+        <span class="n">embeds</span><span class="o">=</span><span class="p">[</span><span class="n">hikari</span><span class="o">.</span><span class="n">Embed</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">author</span><span class="p">))</span><span class="o">.</span><span class="n">set_thumbnail</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">display_avatar_url</span><span class="p">)],</span>
         <span class="n">ensure_result</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div>
 <p><a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context.respond">Context.respond</a> is used to respond to a command
 call, this has a similar signature to Hikari's message respond method but will
-only be guaranteed to return a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.messages.Message</a> object when
-<code>ensure_result=True</code> is passed.</p>
+only be guaranteed to return a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.Message</a> object
+when <code>ensure_result=True</code> is passed.</p>
 <h3 id="ephemeral-responses">Ephemeral responses<a class="headerlink" href="#ephemeral-responses" title="Permanent link">#</a></h3>
 <div class="highlight"><pre><span></span><code><span class="c1"># All this command&#39;s responses will be ephemeral.</span>
 <span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="n">ephemeral_default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command_1</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;hello friend&quot;</span><span class="p">)</span>
 
-
 <span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_user_menu</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_user_menu</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command_2</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MenuContext</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">hikari</span><span class="o">.</span><span class="n">User</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">create_initial_response</span><span class="p">(</span><span class="s2">&quot;Starting the thing&quot;</span><span class="p">,</span> <span class="n">ephemeral</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># private response</span>
     <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">respond</span><span class="p">(</span><span class="s2">&quot;meow&quot;</span><span class="p">)</span>  <span class="c1"># public response</span>
@@ -1475,23 +1455,16 @@ dynamically return choice suggestions to a user as they type a string option.</p
 <div class="highlight"><pre><span></span><code><span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;opt1&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;opt2&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">slash_command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-    <span class="n">opt1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">opt2</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">slash_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">opt1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">opt2</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
-
 
 <span class="nd">@slash_command</span><span class="o">.</span><span class="n">with_str_autocomplete</span><span class="p">(</span><span class="s2">&quot;opt1&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">opt1_autocomplete</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_choices</span><span class="p">(((</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;other_name&quot;</span><span class="p">,</span> <span class="s2">&quot;other_value&quot;</span><span class="p">)),</span> <span class="n">other_other_name</span><span class="o">=</span><span class="s2">&quot;other_other_value&quot;</span><span class="p">)</span>
 
-
 <span class="k">async</span> <span class="k">def</span> <span class="nf">opt2_autocomplete</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">AutocompleteContext</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">set_choices</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;other_name&quot;</span><span class="p">:</span> <span class="s2">&quot;other_value&quot;</span><span class="p">})</span>
-
 
 <span class="n">slash_command</span><span class="o">.</span><span class="n">set_str_autocomplete</span><span class="p">(</span><span class="s2">&quot;opt2&quot;</span><span class="p">,</span> <span class="n">opt2_autocomplete</span><span class="p">)</span>
 </code></pre></div>
@@ -1506,18 +1479,14 @@ as these do not support deferrals.</p>
 handling global state for most of the callbacks it takes (e.g. command
 callbacks, checks, hook callbacks, event listeners, schedule callbacks) through
 <a class="autorefs autorefs-external" href="https://alluka.cursed.solutions/reference/#alluka">Alluka</a>.</p>
-<div class="highlight"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
-    <span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">Foo</span><span class="p">,</span> <span class="n">Foo</span><span class="p">())</span>
-    <span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">Bar</span><span class="p">,</span> <span class="n">Bar</span><span class="p">())</span>
-<span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
+<span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">Foo</span><span class="p">,</span> <span class="n">Foo</span><span class="p">())</span>
+<span class="n">client</span><span class="o">.</span><span class="n">set_type_dependency</span><span class="p">(</span><span class="n">Bar</span><span class="p">,</span> <span class="n">Bar</span><span class="p">())</span>
 </code></pre></div>
 <p>Here we set the dependencies for the types <code>Foo</code> and <code>Bar</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
-    <span class="n">foo_impl</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">Injected</span><span class="p">[</span><span class="n">Foo</span><span class="p">],</span>
-    <span class="n">bar_impl</span><span class="p">:</span> <span class="n">Bar</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">Bar</span><span class="p">),</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">foo_impl</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">Injected</span><span class="p">[</span><span class="n">Foo</span><span class="p">],</span> <span class="n">bar_impl</span><span class="p">:</span> <span class="n">Bar</span> <span class="o">=</span> <span class="n">alluka</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">Bar</span><span class="p">)</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
@@ -1588,23 +1557,22 @@ configuration most users will care about for the standard checks is the
 send when they fail.</p>
 <div class="highlight"><pre><span></span><code><span class="n">component</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">()</span>
-    <span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">GuildCheck</span><span class="p">())</span>
-    <span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">AuthorPermissionCheck</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">BAN_MEMBER</span><span class="p">))</span>
-    <span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">OwnPermissionCheck</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">BAN_MEMBER</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">checks</span><span class="o">.</span><span class="n">GuildCheck</span><span class="p">())</span>
+    <span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">checks</span><span class="o">.</span><span class="n">AuthorPermissionCheck</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">BAN_MEMBERS</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">add_check</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">checks</span><span class="o">.</span><span class="n">OwnPermissionCheck</span><span class="p">(</span><span class="n">hikari</span><span class="o">.</span><span class="n">Permissions</span><span class="o">.</span><span class="n">BAN_MEMBERS</span><span class="p">))</span>
 <span class="p">)</span>
 
 <span class="nd">@component</span><span class="o">.</span><span class="n">with_check</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">db_check</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">Injected</span><span class="p">[</span><span class="n">Db</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="k">if</span> <span class="p">(</span><span class="k">await</span> <span class="n">db</span><span class="o">..</span><span class="n">get_user</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">id</span><span class="p">))</span><span class="o">.</span><span class="n">banned</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">db_check</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">alluka</span><span class="o">.</span><span class="n">Injected</span><span class="p">[</span><span class="n">Db</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">get_user</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">id</span><span class="p">))</span><span class="o">.</span><span class="n">banned</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">CommandError</span><span class="p">(</span><span class="s2">&quot;You are banned from using this bot&quot;</span><span class="p">)</span>
 
-    <span class="k">raise</span> <span class="kc">False</span>
-
+    <span class="k">return</span> <span class="kc">False</span>
 
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_owner_check</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">owner_only_command</span><span class="p">(</span><span class="n">ctxL</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">):</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">owner_only_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">):</span>
     <span class="o">...</span>
 </code></pre></div>
 <p>Checks (both custom and standard) can be added to clients, components, and
@@ -1641,8 +1609,8 @@ injection and may be synchronous or asynchronous:</p>
 </code></pre></div>
 <p>Pre-execution hooks are called before the execution of a command but after
 command matching has finished and all the relevant checks have passed.</p>
-<div class="highlight"><pre><span></span><code><span class="nd">@hooks</span><span class="o">.</span><span class="n">with_pre_execution</span>  <span class="c1"># hooks.add_pre_execution</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">pre_execution_hook</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@hooks</span><span class="o">.</span><span class="n">with_post_execution</span>  <span class="c1"># hooks.add_post_execution</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">post_execution_hook</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
 <p>Post-execution hooks are called after a command has finished executing,
@@ -1654,7 +1622,7 @@ regardless of whether it passed or failed.</p>
 <p>Success hooks are called after a command has finished executing successfully
 (without raising any errors).</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@hooks</span><span class="o">.</span><span class="n">with_on_error</span>  <span class="c1"># hooks.add_on_error</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">error_hook</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">error_hook</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
     <span class="o">...</span>
 </code></pre></div>
 <p>Error hooks are called when command's execution is ended early by an error raise
@@ -1694,21 +1662,18 @@ as unconfigured buckets will default to the configuration for the <code>"default
 being used to set this limiter for a client (note that clients can only have 1
 linked limiter).</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_concurrency_limit</span><span class="p">(</span><span class="s2">&quot;main_commands&quot;</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_user_menu</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">user_command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="n">user</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="s2">&quot;A user&quot;</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">user_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="s2">&quot;A user&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
-<p>And here we use <a class="autorefs autorefs-internal" href="../reference/#tanjun.with_concurrency_limit">with_concurrency_limit</a>
+<p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_concurrency_limit">with_concurrency_limit</a>
 to mark these commands as using the <code>"main_commands"</code> concurrency limit bucket;
 buckets share their limits for a resource across all the commands under it. For
 more information on the resources concurrency can be limited by see
-<a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.BucketResource">BucketResource</a>.</p>
+<a class="autorefs autorefs-internal" href="../reference/#tanjun.BucketResource">BucketResource</a>.</p>
 <h3 id="cooldowns">Cooldowns<a class="headerlink" href="#cooldowns" title="Permanent link">#</a></h3>
 <p>Cooldowns limit how often a group of commands can be called.</p>
 <div class="highlight"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
@@ -1719,7 +1684,7 @@ more information on the resources concurrency can be limited by see
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
 will manage the cooldowns for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager.set_bucket">Manager.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to 5 calls per user every 60 seconds,
@@ -1730,21 +1695,18 @@ unconfigured buckets will default to the configuration for the <code>"default"</
 being used to set this cooldown manager for a client (note that clients can
 only have 1 linked cooldown manager).</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_cooldown</span><span class="p">(</span><span class="s2">&quot;main_commands&quot;</span><span class="p">,</span> <span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nd">@tanjun</span><span class="o">.</span><span class="n">annotations</span><span class="o">.</span><span class="n">with_annotated_args</span><span class="p">(</span><span class="n">follow_wrapped</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_message_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_user_menu</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">user_command</span><span class="p">(</span>
-    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
-    <span class="n">user</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="s2">&quot;A user&quot;</span><span class="p">],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">user_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Annotated</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="s2">&quot;A user&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="o">...</span>
 </code></pre></div>
 <p>And here we use <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.with_cooldown">with_cooldown</a>
 to mark these commands as using the <code>"main_commands"</code> cooldown bucket;
 buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
-<a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.BucketResource">BucketResource</a>.</p>
+<a class="autorefs autorefs-internal" href="../reference/#tanjun.BucketResource">BucketResource</a>.</p>
 <h2 id="localisation">Localisation<a class="headerlink" href="#localisation" title="Permanent link">#</a></h2>
 <p><a href="https://en.wikipedia.org/wiki/Language_localisation">Localisation</a> allows for
 tailoring the declarations and responses of slash commands and context menu
@@ -1752,7 +1714,9 @@ commands to match specific regions by providing multiple translations
 of a field. Localisation on Discord is limited to the locales Discord supports
 (listed at <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/locales/#hikari.locales.Locale">hikari.locales.Locale</a>).</p>
 <h3 id="localising-command-declarations">Localising command declarations<a class="headerlink" href="#localising-command-declarations" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">({</span><span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">ES_US</span><span class="p">:</span> <span class="s2">&quot;Hola&quot;</span><span class="p">},</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">({</span><span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_US</span><span class="p">:</span> <span class="s2">&quot;Hola&quot;</span><span class="p">},</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="o">...</span>
 </code></pre></div>
 <p>For fields which support localisation you've previously seen a single string
 being passed to them: this value is used as a default for all locales and for
@@ -1763,19 +1727,16 @@ fields.</p>
 <p>Tanjun also provides an optional global localiser which allows for
 setting/overriding the locale-specific variants used for localised fields such
 as error message responses and application fields globally.</p>
-<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
-
-<span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
 
 <span class="p">(</span>
     <span class="n">tanjun</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">BasicLocaliser</span><span class="p">()</span>
-    <span class="o">.</span><span class="n">set_overrides</span><span class="p">(</span>
-        <span class="s2">&quot;slash:command name:name&quot;</span><span class="p">,</span>
-        <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_US</span><span class="p">:</span> <span class="s2">&quot;american variant&quot;</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_GB</span><span class="p">:</span> <span class="s2">&quot;english variant&quot;</span><span class="p">}</span>
+    <span class="o">.</span><span class="n">set_variants</span><span class="p">(</span>
+        <span class="s2">&quot;slash:command name:name&quot;</span><span class="p">,</span> <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_US</span><span class="p">:</span> <span class="s2">&quot;american variant&quot;</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_GB</span><span class="p">:</span> <span class="s2">&quot;english variant&quot;</span><span class="p">}</span>
     <span class="p">)</span>
-    <span class="o">.</span><span class="n">set_overrides</span><span class="p">(</span>
+    <span class="o">.</span><span class="n">set_variants</span><span class="p">(</span>
         <span class="s2">&quot;message_menu:command name:check:tanjun.OwnerCheck&quot;</span><span class="p">,</span>
-        <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">JA</span><span class="p">:</span> <span class="s2">&quot;konnichiwa&quot;</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">ES_ES</span><span class="p">:</span> <span class="s2">&quot;Hola&quot;</span><span class="p">}</span>
+        <span class="p">{</span><span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">JA</span><span class="p">:</span> <span class="s2">&quot;konnichiwa&quot;</span><span class="p">,</span> <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">ES_ES</span><span class="p">:</span> <span class="s2">&quot;Hola&quot;</span><span class="p">},</span>
     <span class="p">)</span>
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
@@ -1789,6 +1750,7 @@ use the following formats unless explicitly overridden:</p>
 <li>Command names: <code>f"{command_type}:{command_name}:name"</code></li>
 <li>Slash option names: <code>f"slash:{command_name}:option.name:{option_name}"</code></li>
 <li>Slash option descriptions: <code>f"slash:{command_name}:option.description:{option_name}"</code></li>
+<li>Slash option choice names: <code>f"slash:{command_name}:choice.name:{choice_name}"</code></li>
 </ul>
 <p><code>command_type</code> may be one of <code>"message_menu"</code>, <code>"slash"</code> or <code>"user_menu"</code>,
 <code>command_name</code> will be the full name of the command (including parent command
@@ -1796,7 +1758,7 @@ names in the path), and standard check names will always be prefixed with
 <code>"tanjun."</code>.</p>
 <p>It's highly recommended that 3rd party libraries match this format if possible.</p>
 <h3 id="localising-command-responses">Localising command responses<a class="headerlink" href="#localising-command-responses" title="Permanent link">#</a></h3>
-<div class="highlight"><pre><span></span><code><span class="n">LOCALISED_RESPONSES</span> <span class="o">=</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="n">LOCALISED_RESPONSES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">DA</span><span class="p">:</span> <span class="s2">&quot;Hej&quot;</span><span class="p">,</span>
     <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">DE</span><span class="p">:</span> <span class="s2">&quot;Hallo&quot;</span><span class="p">,</span>
     <span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_GB</span><span class="p">:</span> <span class="s2">&quot;Good day fellow sir&quot;</span><span class="p">,</span>
@@ -1864,7 +1826,7 @@ specific languages within your own code.</p>
     <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.2a6f1dda.min.js"></script>
+      <script src="../assets/javascripts/bundle.51198bba.min.js"></script>
       
     
   </body>
