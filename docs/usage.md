@@ -108,7 +108,7 @@ load specific modules.
 
 ## Declaring commands
 
-Commands need to be contained within a component to be loaded into a client
+Commands need to be in a component for them to be loaded into a client
 and may be added to a component either directly using
 [Component.add_command][tanjun.components.Component.add_command]/
 [Component.with_command][tanjun.components.Component.with_command]
