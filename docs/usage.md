@@ -125,7 +125,7 @@ All command callbacks must be asynchronous and can use dependency injection.
 
 Slash commands represent the commands you see when you start typing with "/" in
 Discord's message box and have names (which follow the restraints listed in
-[Discord's documentation](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming)
+[Discord's documentation](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming))
 and descriptions (which can be up to 100 characters long).
 
 There are several different kinds of slash command arguments which all need
