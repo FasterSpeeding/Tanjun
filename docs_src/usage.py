@@ -186,10 +186,10 @@ def annotations_example() -> None:
     async def command(
         ctx: tanjun.abc.Context,
         name: Annotated[Str, "description"],
-        age: Annotated[Int, Ranged(13, 130), "an int option with a min, max or 13, 130"],
-        video: Annotated[Video, Converted(get_video), "a string option which is converted with get_video"],
-        user: Annotated[Optional[User], "an optional user option which defaults to None"] = None,
-        enabled: Annotated[Bool, "an optional bool option which defaults to True"] = True,
+        age: Annotated[Int, Ranged(13, 130), "an int option with a min, max of 13, 130"],
+        video: Annotated[Video, Converted(get_video), "a required string option which is converted with get_video"],
+        user: Annotated[Optional[User], "a user option which defaults to None"] = None,
+        enabled: Annotated[Bool, "a bool option which defaults to True"] = True,
     ) -> None:
         ...
 
