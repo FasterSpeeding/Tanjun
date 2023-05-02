@@ -124,16 +124,15 @@ All command callbacks must be asynchronous and can use dependency injection.
 ```
 
 Slash commands represent the commands you see when you start typing with "/" in
-Discord's message box and have names (which follow the restraints shown in
-<https://discord.com/developers/docs/dispatch/field-values#predefined-field-values-accepted-locales>)
+Discord's message box and have names (which follow the restraints listed in
+[Discord's documentation](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming)
 and descriptions (which can be up to 100 characters long).
 
-There are several different kinds of slash command arguments which all require
-an argument name and description (both of which have the same constraints as
-the relevant slash command fields) along with type-specific configuration.
-These can be configured using the following decorator functions and their
-`add_{type}_option` equivalent chainable methods on
-[SlashCommand][tanjun.commands.slash.SlashCommand]:
+There are several different kinds of slash command arguments which all need
+a name and description (both of which have the same constraints as the relevant
+slash command fields) along with type-specific configuration. These can be
+configured using the following decorator functions and their `add_{type}_option`
+equivalent chainable methods on [SlashCommand][tanjun.commands.slash.SlashCommand]:
 
 * [with_attachment_slash_option][tanjun.commands.slash.with_attachment_slash_option]
 * [with_bool_slash_option][tanjun.commands.slash.with_bool_slash_option]
