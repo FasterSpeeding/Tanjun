@@ -1763,7 +1763,7 @@ class Client(tanjun.Client):
     def set_autocomplete_ctx_maker(
         self, maker: _AutocompleteContextMakerProto = context.AutocompleteContext, /
     ) -> Self:
-        """Set the autocomplete context maker to use when creating contexts.
+        r"""Set the autocomplete context maker to use when creating contexts.
 
         !!! warning
             The caller must return an instance of [tanjun.context.AutocompleteContext][]
@@ -1777,8 +1777,8 @@ class Client(tanjun.Client):
             The autocomplete context maker to use.
 
             This is a callback which should match the signature of
-            [tanjun.context.AutocompleteContext.__init__][] and return
-            an instance of [tanjun.context.AutocompleteContext][].
+            [AutocompleteContext.\_\_init\_\_][tanjun.context.AutocompleteContext.__init__]
+            and return an instance of [tanjun.context.AutocompleteContext][].
 
         Returns
         -------
@@ -1789,7 +1789,7 @@ class Client(tanjun.Client):
         return self
 
     def set_menu_ctx_maker(self, maker: _MenuContextMakerProto = context.MenuContext, /) -> Self:
-        """Set the autocomplete context maker to use when creating contexts.
+        r"""Set the autocomplete context maker to use when creating contexts.
 
         !!! warning
             The caller must return an instance of [tanjun.context.MenuContext][]
@@ -1803,8 +1803,8 @@ class Client(tanjun.Client):
             The autocomplete context maker to use.
 
             This is a callback which should match the signature of
-            [tanjun.context.MenuContext.__init__][] and return
-            an instance of [tanjun.context.MenuContext][].
+            [MenuContext.\_\_init\_\_][tanjun.context.MenuContext.__init__]
+            and return an instance of [tanjun.context.MenuContext][].
 
         Returns
         -------
