@@ -7864,8 +7864,8 @@ due to this client relying on implementation detail of
           <td class="doc-param-details">
             <p>The autocomplete context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext.__init__">tanjun.context.AutocompleteContext.<strong>init</strong></a> and return
-an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.context.AutocompleteContext</a>.</p>
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext.__init__">AutocompleteContext.__init__</a>
+and return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.context.AutocompleteContext</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -8175,10 +8175,11 @@ should default to ephemeral.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Alias of [tanjun.Client.declare_global_commands][].</p>
+      <p>Alias of <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">deprecated</p>
-<p>Since v2.1.1a1; use [tanjun.Client.declare_global_commands][] instead.</p>
+<p>Since v2.1.1a1; use <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>
+instead.</p>
 </div>
 
   </div>
@@ -8200,8 +8201,9 @@ should default to ephemeral.</p>
   <div class="doc doc-contents ">
   
       <p>Set type based dependency injection based on the hikari traits found in <code>bot</code>.</p>
-<p>This is a short hand for calling [tanjun.Client.add_type_dependency][] for all
-the hikari trait types <code>bot</code> is valid for with bot.</p>
+<p>This is a short hand for calling
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.set_type_dependency">Client.set_type_dependency</a>
+for all the hikari trait types <code>bot</code> is valid for with bot.</p>
 
   <table>
     <thead>
@@ -8500,8 +8502,8 @@ due to this client relying on implementation detail of
           <td class="doc-param-details">
             <p>The autocomplete context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext.__init__">tanjun.context.MenuContext.<strong>init</strong></a> and return
-an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext">tanjun.context.MenuContext</a>.</p>
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext.__init__">MenuContext.__init__</a>
+and return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext">tanjun.context.MenuContext</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -11186,8 +11188,10 @@ stack frame inspection when <code>scope</code> is not provided.</p>
   
       <p>Make a loader/unloader for this component.</p>
 <p>This enables loading, unloading and reloading of this component into a
-client by targeting the module using [tanjun.Client.load_modules][],
-[tanjun.Client.unload_modules][] and [tanjun.Client.reload_modules][].</p>
+client by targeting the module using
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.load_modules">Client.load_modules</a>,
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.unload_modules">Client.unload_modules</a> and
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.reload_modules">Client.reload_modules</a>.</p>
 
   <table>
     <thead>
@@ -15297,7 +15301,7 @@ has been called.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
+the command should be bulk set by [tanjun.abc.Client.declare_global_commands]
 or when <code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition note">
@@ -15465,8 +15469,17 @@ will be used.</p>
             <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>.</p>
 <p>This can either wrap a raw command callback or another callable command instance
 (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
-and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+and will manage loading the other command into a component when using</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>[Component.load_from_scope][tanjun.components.Component.load_from_scope].</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            
           </td>
         </tr>
     </tbody>
@@ -17019,9 +17032,10 @@ if not applicable.</p>
       <p>Initialise a slash command.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
-or when <code>declare_global_commands</code> is True</p>
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">tanjun.abc.Client.declare_global_commands</a> or when
+<code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -19919,9 +19933,10 @@ be callable functions themselves.</p>
       <p>Initialise a slash command group.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine
-whether the command should be bulk set by [tanjun.Client.declare_global_commands][]
-or when <code>declare_global_commands</code> is True</p>
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">tanjun.abc.Client.declare_global_commands</a> or when
+<code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -20868,7 +20883,8 @@ positional arguments, returns <a class="autorefs autorefs-external" href="https:
       <p>Mark a callback as being used to load Tanjun components from a module.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is only necessary if you wish to use [tanjun.Client.load_modules][].</p>
+<p>This is only necessary if you wish to use
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.load_modules">Client.load_modules</a>.</p>
 </div>
 
   <table>
@@ -21034,7 +21050,7 @@ as opposed to <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client
 <p>This can either wrap a raw command callback or another callable command instance
 (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
 and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
           </td>
         </tr>
     </tbody>
@@ -21152,7 +21168,7 @@ enforces that command names are unique to a single command within the group.</p>
 <p>This can either wrap a raw command callback or another callable command instance
 (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
 and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
           </td>
         </tr>
     </tbody>
@@ -21180,7 +21196,7 @@ and will manage loading the other command into a component when using
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
+the command should be bulk set by [tanjun.abc.Client.declare_global_commands]
 or when <code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition note">
@@ -21328,7 +21344,7 @@ will be used.</p>
 <p>This can either wrap a raw command callback or another callable command instance
 (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
 and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
           </td>
         </tr>
     </tbody>
@@ -21455,9 +21471,10 @@ and will manage loading the other command into a component when using
       <p>Build a <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a> by decorating a function.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
-or when <code>declare_global_commands</code> is True</p>
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">tanjun.abc.Client.declare_global_commands</a> or when
+<code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -21659,7 +21676,7 @@ ones.</p>
 <p>This can either wrap a raw command callback or another callable command instance
 (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a> <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
 and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
           </td>
         </tr>
     </tbody>
@@ -21972,8 +21989,8 @@ positional arguments, returns <a class="autorefs autorefs-external" href="https:
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is the inverse of <a class="autorefs autorefs-internal" href="#tanjun.as_loader">tanjun.as_loader</a> and is only necessary if
-you wish to use the [tanjun.Client.unload_modules][] or
-[tanjun.Client.reload_modules][].</p>
+you wish to use the <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.unload_modules">Client.unload_modules</a>
+or <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.reload_modules">Client.reload_modules</a>.</p>
 </div>
 
   <table>
@@ -22067,7 +22084,7 @@ as opposed to <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
+the command should be bulk set by [tanjun.abc.Client.declare_global_commands]
 or when <code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition note">
@@ -22217,7 +22234,7 @@ will be used.</p>
 <p>This can either wrap a raw command callback or another callable command instance
 (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
 and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
           </td>
         </tr>
     </tbody>
@@ -22487,9 +22504,10 @@ ignored for command groups within other slash command groups.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
-or when <code>declare_global_commands</code> is True</p>
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">tanjun.abc.Client.declare_global_commands</a> or when
+<code>declare_global_commands</code> is True</p>
 </div>
 
 <p><strong>Examples:</strong></p>
