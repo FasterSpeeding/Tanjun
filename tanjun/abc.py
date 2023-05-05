@@ -561,11 +561,7 @@ class Context(alluka.Context):
         Parameters
         ----------
         content
-            The content to edit the initial response with.
-
-            If provided, the message contents. If
-            [hikari.UNDEFINED][hikari.undefined.UNDEFINED], then nothing will
-            be sent in the content. Any other value here will be cast to a [str][].
+            If provided, the message content to edit the initial response with.
 
             If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
             `embeds` kwarg is provided, then this will instead update the embed.
@@ -677,11 +673,7 @@ class Context(alluka.Context):
         Parameters
         ----------
         content
-            The content to edit the initial response with.
-
-            If provided, the message contents. If
-            [hikari.UNDEFINED][hikari.undefined.UNDEFINED], then nothing will
-            be sent in the content. Any other value here will be cast to a [str][].
+            If provided, the content to edit the last response with.
 
             If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
             `embeds` kwarg is provided, then this will instead update the embed.
@@ -862,11 +854,7 @@ class Context(alluka.Context):
         Parameters
         ----------
         content
-            The content to respond with.
-
-            If provided, the message contents. If
-            [hikari.UNDEFINED][hikari.undefined.UNDEFINED], then nothing will
-            be sent in the content. Any other value here will be cast to a [str][].
+            If provided, the message content to respond with.
 
             If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
             `embeds` kwarg is provided, then this will instead be treated as an
@@ -1036,11 +1024,7 @@ class MessageContext(Context, abc.ABC):
         Parameters
         ----------
         content
-            The content to respond with.
-
-            If provided, the message contents. If
-            [hikari.UNDEFINED][hikari.undefined.UNDEFINED], then nothing will
-            be sent in the content. Any other value here will be cast to a [str][].
+            If provided, the message content to respond with.
 
             If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
             `embeds` kwarg is provided, then this will instead be treated as an
@@ -1511,9 +1495,7 @@ class AppCommandContext(Context, abc.ABC):
         Parameters
         ----------
         content
-            If provided, the message contents. If
-            [hikari.UNDEFINED][hikari.undefined.UNDEFINED], then nothing will
-            be sent in the content. Any other value here will be cast to a [str][].
+            If provided, the message content to send.
 
             If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
             `embeds` kwarg is provided, then this will instead be treated as an
@@ -1636,9 +1618,7 @@ class AppCommandContext(Context, abc.ABC):
         Parameters
         ----------
         content
-            If provided, the message contents. If
-            [hikari.UNDEFINED][hikari.undefined.UNDEFINED], then nothing will
-            be sent in the content. Any other value here will be cast to a [str][].
+            If provided, the message content to respond with.
 
             If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
             `embeds` kwarg is provided, then this will instead be treated as an
