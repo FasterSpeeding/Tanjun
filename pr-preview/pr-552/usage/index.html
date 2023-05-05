@@ -1134,9 +1134,9 @@ injection).</p>
 <span class="n">client</span><span class="o">.</span><span class="n">add_client_callback</span><span class="p">(</span><span class="n">tanjun</span><span class="o">.</span><span class="n">ClientCallbackNames</span><span class="o">.</span><span class="n">CLOSED</span><span class="p">,</span> <span class="n">on_closed</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="managing-bot-functionality">Managing bot functionality<a class="headerlink" href="#managing-bot-functionality" title="Permanent link">#</a></h2>
-<p><a class="autorefs autorefs-internal" href="../reference/components/#tanjun.components.Component">tanjun.components.Component</a> exists as a way to manage and group bot
-functionality, storing functionality such as event listeners, commands,
-scheduled callbacks, and client callbacks.</p>
+<p><a class="autorefs autorefs-internal" href="../reference/components/#tanjun.components.Component">tanjun.Component</a> exists as a way to manage and
+group bot functionality, storing functionality such as event listeners,
+commands, scheduled callbacks, and client callbacks.</p>
 <div class="highlight"><pre><span></span><code><span class="n">component</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">()</span>
 
 <span class="nd">@component</span><span class="o">.</span><span class="n">with_command</span>
@@ -1428,7 +1428,7 @@ component level
 (using <a class="autorefs autorefs-internal" href="../reference/components/#tanjun.components.Component.set_ephemeral_default">Component.set_ephemeral_default</a>),
 or for a specific command (by passing <code>default_to_ephemeral=True</code> while
 creating a command) to have any relevant application command responses default
-to ephemeral (including calls to <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context.respond">tanjun.abc.Context.respond</a>).</p>
+to ephemeral (including calls to <a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Context.respond">Context.respond</a>).</p>
 <h3 id="deferrals">Deferrals<a class="headerlink" href="#deferrals" title="Permanent link">#</a></h3>
 <p>Slash commands and context menus traditionally need to give an initial response
 within 3 seconds. If you don't have a response message ready within 3 seconds,
@@ -1502,18 +1502,19 @@ dependencies) can be found <a href="https://alluka.cursed.solutions/usage/">here
 <p>The following types are registered globally as type dependencies:</p>
 <ul>
 <li><a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Client">tanjun.abc.Client</a></li>
-<li><a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client">tanjun.clients.Client</a></li>
+<li><a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client">tanjun.Client</a></li>
 <li><a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.owners.AbstractOwners">tanjun.dependencies.AbstractOwners</a> (for use with the standard owner check).</li>
 <li><code>tanjun.LazyConstant[hikari.OwnUser]</code> (for use with <code>tanjun.inject_lc(hikari.OwnUser)</code>)</li>
-<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/rest/#hikari.api.rest.RESTClient">hikari.api.rest.RESTClient</a></li>
-<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/cache/#hikari.api.cache.Cache">hikari.api.cache.Cache</a> *</li>
-<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/event_manager/#hikari.api.event_manager.EventManager">hikari.api.event_manager.EventManager</a> *</li>
-<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/interaction_server/#hikari.api.interaction_server.InteractionServer">hikari.api.interaction_server.InteractionServer</a> *</li>
-<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.ShardAware">hikari.traits.ShardAware</a> *</li>
-<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/voice/#hikari.api.voice.VoiceComponent">hikari.api.voice.VoiceComponent</a> *</li>
+<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/rest/#hikari.api.rest.RESTClient">hikari.api.RESTClient</a></li>
+<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/cache/#hikari.api.cache.Cache">hikari.api.Cache</a> *</li>
+<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/event_manager/#hikari.api.event_manager.EventManager">hikari.api.EventManager</a> *</li>
+<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/interaction_server/#hikari.api.interaction_server.InteractionServer">hikari.api.InteractionServer</a> *</li>
+<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.ShardAware">hikari.ShardAware</a> *</li>
+<li><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/voice/#hikari.api.voice.VoiceComponent">hikari.api.VoiceComponent</a> *</li>
 </ul>
 <p>* These type dependencies are only registered if the relevant Hikari component
-    was included while creating the <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client">tanjun.clients.Client</a> instance.</p>
+    was included while creating the <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client">tanjun.Client</a>
+    instance.</p>
 <p>The following type dependencies are available in specific contexts:</p>
 <ul>
 <li><a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.AutocompleteContext">tanjun.abc.AutocompleteContext</a>: slash command autocomplete execution</li>
@@ -1529,7 +1530,7 @@ TODO: this needs a consistency fix before being documented -->
 <ul>
 <li><a class="autorefs autorefs-internal" href="../reference/abc/#tanjun.abc.Component">tanjun.abc.Component</a>: Command execution (excluding client checks)</li>
 </ul>
-<!-- * [hikari.events.base_events.Event][] TODO: implement this-->
+<!-- * [hikari.events.Event][hikari.events.base_events.Event] TODO: implement this-->
 
 <p>Both <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client.from_gateway_bot">Client.from_gateway_bot</a> and
 <a class="autorefs autorefs-internal" href="../reference/clients/#tanjun.clients.Client.from_rest_bot">Client.from_rest_bot</a> register type
@@ -1650,7 +1651,7 @@ of commands concurrently.</p>
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 will manage the concurrency limits for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_bucket">Limiter.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to at most 2 concurrent executions per user,
@@ -1672,7 +1673,7 @@ linked limiter).</p>
 to mark these commands as using the <code>"main_commands"</code> concurrency limit bucket;
 buckets share their limits for a resource across all the commands under it. For
 more information on the resources concurrency can be limited by see
-<a class="autorefs autorefs-internal" href="../reference/#tanjun.BucketResource">BucketResource</a>.</p>
+<a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.BucketResource">BucketResource</a>.</p>
 <h3 id="cooldowns">Cooldowns<a class="headerlink" href="#cooldowns" title="Permanent link">#</a></h3>
 <p>Cooldowns limit how often a group of commands can be called.</p>
 <div class="highlight"><pre><span></span><code><span class="n">client</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="o">.</span><span class="n">from_gateway_bot</span><span class="p">(</span><span class="n">bot</span><span class="p">)</span>
@@ -1683,7 +1684,7 @@ more information on the resources concurrency can be limited by see
     <span class="o">.</span><span class="n">add_to_client</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
 <span class="p">)</span>
 </code></pre></div>
-<p>Here <a class="autorefs autorefs-internal" href="../reference/#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<p>Here <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
 will manage the cooldowns for all the commands in this bot instance with
 <a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager.set_bucket">Manager.set_bucket</a>
 being called to limit the bucket <code>"main_commands"</code> to 5 calls per user every 60 seconds,
@@ -1705,13 +1706,13 @@ only have 1 linked cooldown manager).</p>
 to mark these commands as using the <code>"main_commands"</code> cooldown bucket;
 buckets share their cooldowns for a resource across all the commands under it.
 For more information on the resources cooldowns can be set for see
-<a class="autorefs autorefs-internal" href="../reference/#tanjun.BucketResource">BucketResource</a>.</p>
+<a class="autorefs autorefs-internal" href="../reference/dependencies/#tanjun.dependencies.limiters.BucketResource">BucketResource</a>.</p>
 <h2 id="localisation">Localisation<a class="headerlink" href="#localisation" title="Permanent link">#</a></h2>
 <p><a href="https://en.wikipedia.org/wiki/Language_localisation">Localisation</a> allows for
 tailoring the declarations and responses of slash commands and context menu
 commands to match specific regions by providing multiple translations
 of a field. Localisation on Discord is limited to the locales Discord supports
-(listed at <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/locales/#hikari.locales.Locale">hikari.locales.Locale</a>).</p>
+(listed at <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/locales/#hikari.locales.Locale">hikari.Locale</a>).</p>
 <h3 id="localising-command-declarations">Localising command declarations<a class="headerlink" href="#localising-command-declarations" title="Permanent link">#</a></h3>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">({</span><span class="n">hikari</span><span class="o">.</span><span class="n">Locale</span><span class="o">.</span><span class="n">EN_US</span><span class="p">:</span> <span class="s2">&quot;Hola&quot;</span><span class="p">},</span> <span class="s2">&quot;description&quot;</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

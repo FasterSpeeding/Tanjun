@@ -1669,7 +1669,7 @@
 
   <div class="doc doc-contents ">
   
-      <p>Alias of <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>.</p>
+      <p>Alias of <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.ClientCallbackNames">ClientCallbackNames</a>.</p>
   </div>
 
 </div>
@@ -1725,7 +1725,7 @@ bot must always be started before the Tanjun client.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default this client includes a parser error handling hook which will
-by overwritten if you call <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.set_hooks">tanjun.Client.set_hooks</a>.</p>
+by overwritten if you call <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.set_hooks">Client.set_hooks</a>.</p>
 </div>
 
 
@@ -2000,7 +2000,8 @@ by overwritten if you call <a class="autorefs autorefs-internal" href="#tanjun.c
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For a quicker way to initiate this client around a standard bot aware
-client, see <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.from_gateway_bot">tanjun.Client.from_gateway_bot</a> and <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.from_rest_bot">tanjun.Client.from_rest_bot</a>.</p>
+client, see <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.from_gateway_bot">Client.from_gateway_bot</a>
+and <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.from_rest_bot">Client.from_rest_bot</a>.</p>
 </div>
 
   <table>
@@ -2611,7 +2612,7 @@ prefixes.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Build a <a class="autorefs autorefs-internal" href="../#tanjun.Client">tanjun.Client</a> from a gateway bot.</p>
+      <p>Build a <a class="autorefs autorefs-internal" href="../#tanjun.Client">Client</a> from a gateway bot.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This defaults the client to human only mode and sets type
@@ -2796,11 +2797,11 @@ of existing commands to update.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Build a <a class="autorefs autorefs-internal" href="../#tanjun.Client">tanjun.Client</a> from a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.RESTBotAware">hikari.traits.RESTBotAware</a> instance.</p>
+      <p>Build a <a class="autorefs autorefs-internal" href="../#tanjun.Client">Client</a> from a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.RESTBotAware">hikari.RESTBotAware</a> instance.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This sets type dependency injectors for the hikari traits present in
-<code>bot</code> (including <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.RESTBotAware">hikari.traits.RESTBotAware</a>).</p>
+<code>bot</code> (including <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.RESTBotAware">hikari.RESTBotAware</a>).</p>
 </div>
 
   <table>
@@ -3292,9 +3293,11 @@ of existing commands to update.</p>
   <div class="doc doc-contents ">
   
       <p>Start the client.</p>
-<p>If <code>mention_prefix</code> was passed to <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.__init__">tanjun.Client.__init__</a>
-or <a class="autorefs autorefs-internal" href="#tanjun.clients.Client.from_gateway_bot">tanjun.Client.from_gateway_bot</a> then this function may make a fetch request
-to Discord if it cannot get the current user from the cache.</p>
+<p>If <code>mention_prefix</code> was passed to
+<a class="autorefs autorefs-internal" href="#tanjun.clients.Client.__init__">Client.__init__</a> or
+<a class="autorefs autorefs-internal" href="#tanjun.clients.Client.from_gateway_bot">Client.from_gateway_bot</a> then this
+function may make a fetch request to Discord if it cannot get the
+current user from the cache.</p>
 
   <table>
     <thead>
@@ -3535,10 +3538,11 @@ This may lead to unexpected behaviour.</p>
       <p>Set the autocomplete context maker to use when creating contexts.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The caller must return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.context.AutocompleteContext</a>
+<p>The caller must return an instance of
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.AutocompleteContext</a>
 rather than just any implementation of the AutocompleteContext abc
 due to this client relying on implementation detail of
-<a class="autorefs autorefs-internal" href="../context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.context.AutocompleteContext</a>.</p>
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.AutocompleteContext</a>.</p>
 </div>
 
   <table>
@@ -3554,8 +3558,9 @@ due to this client relying on implementation detail of
           <td class="doc-param-details">
             <p>The autocomplete context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="../context/#tanjun.context.autocomplete.AutocompleteContext.__init__">AutocompleteContext.__init__</a>
-and return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.context.AutocompleteContext</a>.</p>
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.autocomplete.AutocompleteContext.__init__">tanjun.AutocompleteContext.__init__</a>
+and return an instance of
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.AutocompleteContext</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -4173,10 +4178,11 @@ only be done if you know what you're doing.</p>
       <p>Set the autocomplete context maker to use when creating contexts.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The caller must return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.menu.MenuContext">tanjun.context.MenuContext</a>
+<p>The caller must return an instance of
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.menu.MenuContext">tanjun.MenuContext</a>
 rather than just any implementation of the MenuContext abc
 due to this client relying on implementation detail of
-<a class="autorefs autorefs-internal" href="../context/#tanjun.context.menu.MenuContext">tanjun.context.MenuContext</a>.</p>
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.menu.MenuContext">tanjun.MenuContext</a>.</p>
 </div>
 
   <table>
@@ -4192,8 +4198,8 @@ due to this client relying on implementation detail of
           <td class="doc-param-details">
             <p>The autocomplete context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="../context/#tanjun.context.menu.MenuContext.__init__">MenuContext.__init__</a>
-and return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.menu.MenuContext">tanjun.context.MenuContext</a>.</p>
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.menu.MenuContext.__init__">tanjun.MenuContext.__init__</a>
+and return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.menu.MenuContext">tanjun.MenuContext</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -4415,7 +4421,8 @@ only be done if you know what you're doing.</p>
             </span>
           </td>
           <td class="doc-raises-details">
-            <p>If <code>accepts</code> is set to anything other than <a class="autorefs autorefs-internal" href="#tanjun.clients.MessageAcceptsEnum.NONE">tanjun.clients.MessageAcceptsEnum.NONE</a>
+            <p>If <code>accepts</code> is set to anything other than
+<a class="autorefs autorefs-internal" href="#tanjun.clients.MessageAcceptsEnum.NONE">MessageAcceptsEnum.NONE</a>
 when the client doesn't have a linked event manager.</p>
           </td>
         </tr>
@@ -4443,10 +4450,11 @@ when the client doesn't have a linked event manager.</p>
       <p>Set the message context maker to use when creating context for a message.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The caller must return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext">tanjun.context.MessageContext</a>
+<p>The caller must return an instance of
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext">tanjun.MessageContext</a>
 rather than just any implementation of the MessageContext abc due to
 this client relying on implementation detail of
-<a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext">tanjun.context.MessageContext</a>.</p>
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext">tanjun.MessageContext</a>.</p>
 </div>
 
   <table>
@@ -4462,8 +4470,8 @@ this client relying on implementation detail of
           <td class="doc-param-details">
             <p>The message context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext.__init__">tanjun.context.MessageContext.__init__</a>
-and return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext">tanjun.context.MessageContext</a>.</p>
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext.__init__">tanjun.MessageContext.__init__</a>
+and return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.message.MessageContext">tanjun.MessageContext</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -4658,10 +4666,11 @@ Dependency injection is supported for this callback's keyword arguments.</p>
       <p>Set the slash context maker to use when creating context for a slash command.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The caller must return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext">tanjun.context.SlashContext</a>
+<p>The caller must return an instance of
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext">tanjun.SlashContext</a>
 rather than just any implementation of the SlashContext abc due to
 this client relying on implementation detail of
-<a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext">tanjun.context.SlashContext</a>.</p>
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext">tanjun.SlashContext</a>.</p>
 </div>
 
   <table>
@@ -4677,8 +4686,8 @@ this client relying on implementation detail of
           <td class="doc-param-details">
             <p>The slash context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext.__init__">tanjun.context.SlashContext.__init__</a>
-and return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext">tanjun.context.SlashContext</a>.</p>
+<a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext.__init__">tanjun.SlashContext.__init__</a>
+and return an instance of <a class="autorefs autorefs-internal" href="../context/#tanjun.context.slash.SlashContext">tanjun.SlashContext</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5135,7 +5144,7 @@ Dependency injection is supported for this callback's keyword arguments.</p>
         Bases: <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a></code>, <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/enum.html#module-enum">enum</a>.<a class="autorefs autorefs-external" title="enum.Enum" href="https://docs.python.org/3.11/library/enum.html#enum.Enum">Enum</a></code></p>
 
   
-      <p>The possible configurations for which events <a class="autorefs autorefs-internal" href="../#tanjun.Client">tanjun.Client</a> should execute commands based on.</p>
+      <p>The possible configurations for which events <a class="autorefs autorefs-internal" href="../#tanjun.Client">Client</a> should execute commands based on.</p>
 
 
 
@@ -5329,7 +5338,7 @@ message create events.</p>
           <td><code>callback</code></td>
           <td class="doc-param-details">
             <p>The callback used to load Tanjun components from a module.</p>
-<p>This should take one argument of type <a class="autorefs autorefs-internal" href="../#tanjun.Client">tanjun.Client</a> (or
+<p>This should take one argument of type <a class="autorefs autorefs-internal" href="../#tanjun.Client">Client</a> (or
 <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client">tanjun.abc.Client</a> if <code>standard_impl</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>), return nothing
 and will be expected to initiate and add utilities such as components
 to the provided client.</p>
@@ -5348,8 +5357,8 @@ to the provided client.</p>
         <tr>
           <td><code>standard_impl</code></td>
           <td class="doc-param-details">
-            <p>Whether this loader should only allow instances of <a class="autorefs autorefs-internal" href="../#tanjun.Client">tanjun.Client</a>
-as opposed to <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client">tanjun.abc.Client</a>.</p>
+            <p>Whether this loader should only allow instances of
+<a class="autorefs autorefs-internal" href="../#tanjun.Client">Client</a> as opposed to <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client">tanjun.abc.Client</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5407,8 +5416,9 @@ as opposed to <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Cli
       <p>Mark a callback as being used to unload a module's utilities from a client.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is the inverse of <a class="autorefs autorefs-internal" href="../#tanjun.as_loader">tanjun.as_loader</a> and is only necessary if
-you wish to use the <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.unload_modules">Client.unload_modules</a>
+<p>This is the inverse of <a class="autorefs autorefs-internal" href="../#tanjun.as_loader">as_loader</a> and is only
+necessary if you wish to use the
+<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.unload_modules">Client.unload_modules</a>
 or <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.reload_modules">Client.reload_modules</a>.</p>
 </div>
 
@@ -5424,7 +5434,7 @@ or <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.reload_
           <td><code>callback</code></td>
           <td class="doc-param-details">
             <p>The callback used to unload Tanjun components from a module.</p>
-<p>This should take one argument of type <a class="autorefs autorefs-internal" href="../#tanjun.Client">tanjun.Client</a> (or
+<p>This should take one argument of type <a class="autorefs autorefs-internal" href="../#tanjun.Client">Client</a> (or
 <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client">tanjun.abc.Client</a> if <code>standard_impl</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>), return nothing
 and will be expected to remove utilities such as components from the
 provided client.</p>
@@ -5443,8 +5453,8 @@ provided client.</p>
         <tr>
           <td><code>standard_impl</code></td>
           <td class="doc-param-details">
-            <p>Whether this unloader should only allow instances of <a class="autorefs autorefs-internal" href="../#tanjun.Client">tanjun.Client</a>
-as opposed to <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client">tanjun.abc.Client</a>.</p>
+            <p>Whether this unloader should only allow instances of
+<a class="autorefs autorefs-internal" href="../#tanjun.Client">Client</a> as opposed to <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client">tanjun.abc.Client</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -5504,7 +5514,7 @@ as opposed to <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Cli
   <div class="doc doc-contents ">
   
       <p>Handle message parser errors.</p>
-<p>This is the default message parser error hook included by <a class="autorefs autorefs-internal" href="../#tanjun.Client">tanjun.Client</a>.</p>
+<p>This is the default message parser error hook included by <a class="autorefs autorefs-internal" href="../#tanjun.Client">Client</a>.</p>
 
   </div>
 

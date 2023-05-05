@@ -1712,8 +1712,8 @@ if the value is <code>True</code>.</p>
           <td class="doc-param-details">
             <p>The content to respond with.</p>
 <p>If provided, the message contents. If
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
-in the content.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.UNDEFINED</a>, then nothing will
+be sent in the content.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -1864,8 +1864,9 @@ mentions.</p>
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.users.PartialUser</a>
-derivatives to enforce mentioning specific users.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.PartialUser</a> derivatives to
+enforce mentioning specific users.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -1884,8 +1885,9 @@ derivatives to enforce mentioning specific users.</p>
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.guilds.PartialRole</a>
-derivatives to enforce mentioning specific roles.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.PartialRole</a> derivatives to
+enforce mentioning specific roles.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -1977,8 +1979,9 @@ derivatives to enforce mentioning specific roles.</p>
           <td><code>ensure_result</code></td>
           <td class="doc-param-details">
             <p>Ensure that this call will always return a message object.</p>
-<p>If <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> then this will always return <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.messages.Message</a>,
-otherwise this will return <code>hikari.Message | None</code>.</p>
+<p>If <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> then this will always return
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.Message</a>, otherwise this will
+return <code>hikari.Message | None</code>.</p>
 <p>It's worth noting that, under certain scenarios within the slash
 command flow, this may lead to an extre request being made.</p>
             <p>

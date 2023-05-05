@@ -5123,7 +5123,7 @@
 
   <div class="doc doc-contents ">
   
-      <p>Deprecated alias of <a class="autorefs autorefs-internal" href="#tanjun.abc.AutocompleteSig">tanjun.abc.AutocompleteSig</a>.</p>
+      <p>Deprecated alias of <a class="autorefs autorefs-internal" href="#tanjun.abc.AutocompleteSig">AutocompleteSig</a>.</p>
   </div>
 
 </div>
@@ -5148,7 +5148,7 @@
   
       <p>Type hint of the signature an autocomplete callback should have.</p>
 <p>This represents the signature
-<code>async def (tanjun.abc.AutocompleteContext, int | str | float) -&gt; None</code>
+<code>async def (AutocompleteContext, int | str | float) -&gt; None</code>
 where dependency injection is supported.</p>
   </div>
 
@@ -5175,8 +5175,8 @@ where dependency injection is supported.</p>
       <p>Type hint of a generic context check used with Tanjun commands.</p>
 <p>This may be registered with a command, client or component to add a rule
 which decides whether it should execute for each context passed to it.</p>
-<p>This represents the signatures <code>def (tanjun.abc.Context, ...) -&gt; bool | None</code>
-and <code>async def (tanjun.abc.Context, ...) -&gt; bool | None</code> where dependency
+<p>This represents the signatures <code>def (Context, ...) -&gt; bool | None</code>
+and <code>async def (Context, ...) -&gt; bool | None</code> where dependency
 injection is  supported.</p>
 <p>Check callbacks may either return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a> to indicate that the current
 command(s) don't match the context (without stopping execution) or raise
@@ -5231,8 +5231,8 @@ early and marked as not found.</p>
 <p>This will be called whenever an unexpected <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a> is raised during the
 execution stage of a command (ignoring <a class="autorefs autorefs-internal" href="../#tanjun.ParserError">tanjun.ParserError</a> and expected
 <a class="autorefs autorefs-internal" href="../#tanjun.TanjunError">tanjun.TanjunError</a> subclasses).</p>
-<p>This represents the signatures <code>def (tanjun.abc.Context, Exception, ...) -&gt; bool | None</code>
-and <code>async def (tanjun.abc.Context, Exception, ...) -&gt; bool | None</code> where
+<p>This represents the signatures <code>def (Context, Exception, ...) -&gt; bool | None</code>
+and <code>async def (Context, Exception, ...) -&gt; bool | None</code> where
 dependency injection is supported.</p>
 <p><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> is returned to indicate that the exception should be suppressed and
 <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a> is returned to indicate that the exception should be re-raised.</p>
@@ -5259,8 +5259,8 @@ dependency injection is supported.</p>
   <div class="doc doc-contents ">
   
       <p>Type hint of the callback used as a general command hook.</p>
-<p>This represents the signatures <code>def (tanjun.abc.Context, ...) -&gt; None</code> and
-<code>async def (tanjun.abc.Context, ...) -&gt; None</code> where dependency injection is
+<p>This represents the signatures <code>def (Context, ...) -&gt; None</code> and
+<code>async def (Context, ...) -&gt; None</code> where dependency injection is
 supported.</p>
   </div>
 
@@ -5311,8 +5311,8 @@ dependency injection is supported.</p>
   
       <p>Type hint of a context menu command callback.</p>
 <p>This represents the signature
-<code>async def (tanjun.abc.MenuContext, hikari.Message, ...) -&gt; None</code> or
-<code>async def (tanjun.abc.MenuContext, hikari.InteractionMember, ...) -&gt;  None</code>
+<code>async def (MenuContext, hikari.Message, ...) -&gt; None</code> or
+<code>async def (MenuContext, hikari.InteractionMember, ...) -&gt;  None</code>
 where dependency injection is supported.</p>
   </div>
 
@@ -5336,7 +5336,7 @@ where dependency injection is supported.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Deprecated alias of <a class="autorefs autorefs-internal" href="#tanjun.abc.MenuCallbackSig">tanjun.abc.MenuCallbackSig</a>.</p>
+      <p>Deprecated alias of <a class="autorefs autorefs-internal" href="#tanjun.abc.MenuCallbackSig">MenuCallbackSig</a>.</p>
   </div>
 
 </div>
@@ -5383,7 +5383,7 @@ where dependency injection is supported.</p>
   <div class="doc doc-contents ">
   
       <p>Type hint of a message command callback.</p>
-<p>This represents the signature <code>async def (tanjun.abc.MessageContext, ...) -&gt; None</code>
+<p>This represents the signature <code>async def (MessageContext, ...) -&gt; None</code>
 where dependency injection is supported.</p>
   </div>
 
@@ -5433,8 +5433,8 @@ where dependency injection is supported.</p>
       <p>Type hint of a client callback.</p>
 <p>The positional arguments this is guaranteed depend on the event name its being
 subscribed to (more information the standard client callbacks can be found at
-<a class="autorefs autorefs-internal" href="#tanjun.abc.ClientCallbackNames">tanjun.abc.ClientCallbackNames</a>) and may be either synchronous or asynchronous but must
-return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a>.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.abc.ClientCallbackNames">ClientCallbackNames</a>) and may be either
+synchronous or asynchronous but must return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a>.</p>
   </div>
 
 </div>
@@ -5506,8 +5506,8 @@ return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/
       <p>Type hint of the callback used as a command parser error hook.</p>
 <p>This will be called whenever an parser <a class="autorefs autorefs-internal" href="../errors/#tanjun.errors.ParserError">ParserError</a>
 is raised during the execution stage of a command.</p>
-<p>This represents the signatures <code>def (tanjun.abc.Context, tanjun.ParserError, ...) -&gt; None</code>
-and <code>async def (tanjun.abc.Context, tanjun.ParserError, ...) -&gt; None</code> where
+<p>This represents the signatures <code>def (Context, tanjun.ParserError, ...) -&gt; None</code>
+and <code>async def (Context, tanjun.ParserError, ...) -&gt; None</code> where
 dependency injection is supported.</p>
 <p>Parser errors are always suppressed (unlike general errors).</p>
   </div>
@@ -5533,7 +5533,7 @@ dependency injection is supported.</p>
   <div class="doc doc-contents ">
   
       <p>Type hint of a slash command callback.</p>
-<p>This represents the signature <code>async def (tanjun.abc.SlashContext, ...) -&gt; None</code>
+<p>This represents the signature <code>async def (SlashContext, ...) -&gt; None</code>
 where dependency injection is supported.</p>
   </div>
 
@@ -5602,8 +5602,8 @@ where dependency injection is supported.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.default_member_permissions" class="headerlink" title="Permanent link">#</a></h3>
@@ -5635,8 +5635,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.defaults_to_ephemeral" class="headerlink" title="Permanent link">#</a></h3>
@@ -5670,8 +5670,8 @@ component or client is used.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.is_dm_enabled" class="headerlink" title="Permanent link">#</a></h3>
@@ -5704,8 +5704,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.is_global" class="headerlink" title="Permanent link">#</a></h3>
@@ -5733,8 +5733,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.name" class="headerlink" title="Permanent link">#</a></h3>
@@ -5757,8 +5757,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.tracked_command" class="headerlink" title="Permanent link">#</a></h3>
@@ -5781,8 +5781,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.tracked_command_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -5805,8 +5805,8 @@ is inherited regardless of what it's set as on the child command.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommand.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -6012,8 +6012,8 @@ globally or for a specific guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.defaults_to_ephemeral" class="headerlink" title="Permanent link">#</a></h3>
@@ -6042,8 +6042,8 @@ unless the <code>flags</code> field is provided for the methods which support it
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.expires_at" class="headerlink" title="Permanent link">#</a></h3>
@@ -6054,7 +6054,8 @@ unless the <code>flags</code> field is provided for the methods which support it
   
       <p>When this application command context expires.</p>
 <p>After this time is reached, the message/response methods on this
-context will always raise <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.NotFoundError">hikari.errors.NotFoundError</a>.</p>
+context will always raise
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.NotFoundError">hikari.NotFoundError</a>.</p>
   </div>
 
 </div>
@@ -6068,8 +6069,8 @@ context will always raise <a class="autorefs autorefs-external" href="https://do
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.has_been_deferred" class="headerlink" title="Permanent link">#</a></h3>
@@ -6099,8 +6100,8 @@ will need to be used to create the initial response rather than
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.interaction" class="headerlink" title="Permanent link">#</a></h3>
@@ -6123,8 +6124,8 @@ will need to be used to create the initial response rather than
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.member" class="headerlink" title="Permanent link">#</a></h3>
@@ -6147,8 +6148,8 @@ will need to be used to create the initial response rather than
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -6173,8 +6174,8 @@ will need to be used to create the initial response rather than
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.create_followup" class="headerlink" title="Permanent link">#</a></h3>
@@ -6187,7 +6188,8 @@ will need to be used to create the initial response rather than
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Calling this on a context which hasn't had an initial response yet
-will lead to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.NotFoundError">hikari.errors.NotFoundError</a> being raised.</p>
+will lead to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.NotFoundError">hikari.NotFoundError</a>
+being raised.</p>
 </div>
 
   <table>
@@ -6201,16 +6203,16 @@ will lead to a <a class="autorefs autorefs-external" href="https://docs.hikari-p
         <tr>
           <td><code>content</code></td>
           <td class="doc-param-details">
-            <p>If provided, the message contents. If
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
-in the content. Any other value here will be cast to a
-<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
-<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.embeds.Embed</a> and no <code>embed</code> kwarg is
-provided, then this will instead update the embed. This allows for
-simpler syntax when sending an embed alone.</p>
-<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.files.Resource</a>, then the
-content is instead treated as an attachment if no <code>attachment</code> and
-no <code>attachments</code> kwargs are provided.</p>
+            <p>The content to send.</p>
+<p>If provided, the message contents. If
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.UNDEFINED</a>, then nothing will
+be sent in the content. Any other value here will be cast to a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
+<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.Embed</a> and no <code>embed</code> nor
+<code>embeds</code> kwarg is provided, then this will instead be treated as an
+embed. This allows for simpler syntax when sending an embed alone.</p>
+<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.Resource</a>,
+then the content is instead treated as an attachment if no
+<code>attachment</code> and no <code>attachments</code> kwargs are provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -6381,7 +6383,8 @@ mentions.</p>
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.users.PartialUser</a>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.PartialUser</a>
 derivatives to enforce mentioning specific users.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -6399,9 +6402,10 @@ derivatives to enforce mentioning specific users.</p>
           <td><code>role_mentions</code></td>
           <td class="doc-param-details">
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
-If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.
-Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.guilds.PartialRole</a>
+If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
+<p>Alternatively this may be a collection of
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.PartialRole</a>
 derivatives to enforce mentioning specific roles.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -6537,8 +6541,8 @@ and <code>components</code> are passed or both <code>embed</code> and <code>embe
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.create_initial_response" class="headerlink" title="Permanent link">#</a></h3>
@@ -6551,9 +6555,10 @@ and <code>components</code> are passed or both <code>embed</code> and <code>embe
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Calling this on a context which already has an initial response
-will result in this raising a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.NotFoundError">hikari.errors.NotFoundError</a>.
-This includes if the REST interaction server has already responded
-to the request and deferrals.</p>
+will result in this raising a
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.NotFoundError">hikari.NotFoundError</a>. This includes
+if the REST interaction server has already responded to the
+request and deferrals.</p>
 </div>
 
   <table>
@@ -6567,17 +6572,16 @@ to the request and deferrals.</p>
         <tr>
           <td><code>content</code></td>
           <td class="doc-param-details">
-            <p>The content to edit the last response with.</p>
+            <p>The content to send.</p>
 <p>If provided, the message contents. If
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
-in the content. Any other value here will be cast to a
-<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
-<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.embeds.Embed</a> and no <code>embed</code> nor <code>embeds</code> kwarg
-is provided, then this will instead update the embed. This allows
-for simpler syntax when sending an embed alone.</p>
-<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.files.Resource</a>, then the
-content is instead treated as an attachment if no <code>attachment</code> and
-no <code>attachments</code> kwargs are provided.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.UNDEFINED</a>, then nothing will
+be sent in the content. Any other value here will be cast to a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
+<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.Embed</a> and no <code>embed</code> nor
+<code>embeds</code> kwarg is provided, then this will instead be treated as an
+embed. This allows for simpler syntax when sending an embed alone.</p>
+<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.Resource</a>,
+then the content is instead treated as an attachment if no
+<code>attachment</code> and no <code>attachments</code> kwargs are provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -6622,28 +6626,6 @@ passed flags.</p>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
                     <code>False</code>
-                </span>
-            </p>
-          </td>
-        </tr>
-        <tr>
-          <td><code>content</code></td>
-          <td class="doc-param-details">
-            <p>If provided, the message contents. If
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
-in the content. Any other value here will be cast to a
-<code>str</code>.</p>
-<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.embeds.Embed</a> and no <code>embed</code> nor <code>embeds</code> kwarg
-is provided, then this will instead update the embed. This allows
-for simpler syntax when sending an embed alone.</p>
-            <p>
-                <span class="doc-param-annotation">
-                  <b>TYPE:</b>
-                    <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.UndefinedOr">UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.11/library/typing.html#typing.Any">Any</a>]</code>
-                </span>
-                <span class="doc-param-default">
-                  <b>DEFAULT:</b> 
-                    <code>hikari.UNDEFINED</code>
                 </span>
             </p>
           </td>
@@ -6752,7 +6734,7 @@ in this message.</p>
           <td class="doc-param-details">
             <p>If provided, the message flags this response should have.</p>
 <p>As of writing the only message flag which can be set here is
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.MessageFlag.EPHEMERAL">hikari.messages.MessageFlag.EPHEMERAL</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.MessageFlag.EPHEMERAL">hikari.MessageFlag.EPHEMERAL</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -6802,11 +6784,11 @@ mentions.</p>
         <tr>
           <td><code>user_mentions</code></td>
           <td class="doc-param-details">
-            <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all user mentions will be detected.
-If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, all user mentions will be ignored
-if appearing in the message body.</p>
+            <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
+If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.users.PartialUser</a>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.PartialUser</a>
 derivatives to enforce mentioning specific users.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -6823,11 +6805,11 @@ derivatives to enforce mentioning specific users.</p>
         <tr>
           <td><code>role_mentions</code></td>
           <td class="doc-param-details">
-            <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all role mentions will be detected.
-If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, all role mentions will be ignored
-if appearing in the message body.</p>
+            <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
+If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-[hikari.snowflakes.Snowflake], or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.guilds.PartialRole</a>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.PartialRole</a>
 derivatives to enforce mentioning specific roles.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -6937,8 +6919,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.create_modal_response" class="headerlink" title="Permanent link">#</a></h3>
@@ -7107,8 +7089,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.defer" class="headerlink" title="Permanent link">#</a></h3>
@@ -7182,8 +7164,8 @@ passed flags.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AppCommandContext.mark_not_found" class="headerlink" title="Permanent link">#</a></h3>
@@ -7296,8 +7278,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.author" class="headerlink" title="Permanent link">#</a></h3>
@@ -7320,8 +7302,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.cache" class="headerlink" title="Permanent link">#</a></h3>
@@ -7344,8 +7326,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.channel_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -7368,8 +7350,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.client" class="headerlink" title="Permanent link">#</a></h3>
@@ -7378,7 +7360,7 @@ on this context will default to being ephemeral.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Tanjun <a class="autorefs autorefs-internal" href="#tanjun.abc.Client">tanjun.abc.Client</a> implementation this context was spawned by.</p>
+      <p>Tanjun <a class="autorefs autorefs-internal" href="#tanjun.abc.Client">Client</a> implementation this context was spawned by.</p>
   </div>
 
 </div>
@@ -7392,8 +7374,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.created_at" class="headerlink" title="Permanent link">#</a></h3>
@@ -7420,8 +7402,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.events" class="headerlink" title="Permanent link">#</a></h3>
@@ -7444,8 +7426,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.focused" class="headerlink" title="Permanent link">#</a></h3>
@@ -7468,8 +7450,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.guild_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -7493,8 +7475,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.has_responded" class="headerlink" title="Permanent link">#</a></h3>
@@ -7517,8 +7499,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.interaction" class="headerlink" title="Permanent link">#</a></h3>
@@ -7541,8 +7523,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.member" class="headerlink" title="Permanent link">#</a></h3>
@@ -7566,8 +7548,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.options" class="headerlink" title="Permanent link">#</a></h3>
@@ -7590,8 +7572,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.rest" class="headerlink" title="Permanent link">#</a></h3>
@@ -7614,8 +7596,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.server" class="headerlink" title="Permanent link">#</a></h3>
@@ -7638,8 +7620,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.shard" class="headerlink" title="Permanent link">#</a></h3>
@@ -7651,8 +7633,8 @@ on this context will default to being ephemeral.</p>
       <p>Shard that triggered the context.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This will be <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> if <a class="autorefs autorefs-internal" href="#tanjun.abc.AutocompleteContext.shards">tanjun.abc.AutocompleteContext.shards</a> is also
-<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a>.</p>
+<p>This will be <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> if <a class="autorefs autorefs-internal" href="#tanjun.abc.AutocompleteContext.shards">AutocompleteContext.shards</a>
+is also <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a>.</p>
 </div>
   </div>
 
@@ -7667,8 +7649,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.shards" class="headerlink" title="Permanent link">#</a></h3>
@@ -7691,8 +7673,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.triggering_name" class="headerlink" title="Permanent link">#</a></h3>
@@ -7715,8 +7697,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.voice" class="headerlink" title="Permanent link">#</a></h3>
@@ -7741,8 +7723,8 @@ on this context will default to being ephemeral.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.fetch_channel" class="headerlink" title="Permanent link">#</a></h3>
@@ -7754,8 +7736,11 @@ on this context will default to being ephemeral.</p>
       <p>Fetch the channel the context was invoked in.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This performs an API call. Consider using <a class="autorefs autorefs-internal" href="#tanjun.abc.AutocompleteContext.get_channel">tanjun.abc.AutocompleteContext.get_channel</a>
-if you have <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILD_CHANNELS">hikari.api.config.CacheComponents.GUILD_CHANNELS</a> cache component enabled.</p>
+<p>This performs an API call. Consider using
+<a class="autorefs autorefs-internal" href="#tanjun.abc.AutocompleteContext.get_channel">AutocompleteContext.get_channel</a>
+if you have the
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILD_CHANNELS">hikari.api.CacheComponents.GUILD_CHANNELS</a>
+cache component enabled.</p>
 </div>
 
   <table>
@@ -7865,8 +7850,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.fetch_guild" class="headerlink" title="Permanent link">#</a></h3>
@@ -7878,8 +7863,11 @@ longer than <code>max_rate_limit</code> when making a request.</p>
       <p>Fetch the guild the context was invoked in.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This performs an API call. Consider using <a class="autorefs autorefs-internal" href="#tanjun.abc.AutocompleteContext.get_guild">tanjun.abc.AutocompleteContext.get_guild</a>
-if you have <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILDS">hikari.api.config.CacheComponents.GUILDS</a> cache component enabled.</p>
+<p>This performs an API call. Consider using
+<a class="autorefs autorefs-internal" href="#tanjun.abc.AutocompleteContext.get_guild">AutocompleteContext.get_guild</a>
+if you have the
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILDS">hikari.api.CacheComponents.GUILDS</a>
+cache component enabled.</p>
 </div>
 
   <table>
@@ -7991,7 +7979,9 @@ longer than <code>max_rate_limit</code> when making a request.</p>
       <p>Retrieve the channel the context was invoked in from the cache.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This method requires the <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILD_CHANNELS">hikari.api.config.CacheComponents.GUILD_CHANNELS</a> cache component.</p>
+<p>This method requires the
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILD_CHANNELS">hikari.api.CacheComponents.GUILD_CHANNELS</a>
+cache component.</p>
 </div>
 
   <table>
@@ -8042,7 +8032,9 @@ is DM channel.</p>
       <p>Fetch the guild that the context was invoked in.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This method requires <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILDS">hikari.api.config.CacheComponents.GUILDS</a> cache component enabled.</p>
+<p>This method requires the
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILDS">hikari.api.CacheComponents.GUILDS</a>
+cache component.</p>
 </div>
 
   <table>
@@ -8080,8 +8072,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.AutocompleteContext.set_choices" class="headerlink" title="Permanent link">#</a></h3>
@@ -8223,8 +8215,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.BaseSlashCommand.parent" class="headerlink" title="Permanent link">#</a></h3>
@@ -8247,8 +8239,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.BaseSlashCommand.tracked_command" class="headerlink" title="Permanent link">#</a></h3>
@@ -8271,8 +8263,8 @@ is DM channel.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.BaseSlashCommand.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -8484,8 +8476,8 @@ provided hikari clients.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.cache" class="headerlink" title="Permanent link">#</a></h3>
@@ -8508,8 +8500,8 @@ provided hikari clients.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.components" class="headerlink" title="Permanent link">#</a></h3>
@@ -8532,8 +8524,8 @@ provided hikari clients.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.default_app_cmd_permissions" class="headerlink" title="Permanent link">#</a></h3>
@@ -8543,8 +8535,10 @@ provided hikari clients.</p>
   <div class="doc doc-contents ">
   
       <p>Default required guild member permissions for the commands in this client.</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.default_app_cmd_permissions">tanjun.abc.Component.default_app_cmd_permissions</a> and
-<a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.default_member_permissions">tanjun.abc.AppCommand.default_member_permissions</a>; this defaults to no
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Component.default_app_cmd_permissions">Component.default_app_cmd_permissions</a> and
+<a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.default_member_permissions">AppCommand.default_member_permissions</a>;
+this defaults to no
 required permissions.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -8563,8 +8557,8 @@ required permissions.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.defaults_to_ephemeral" class="headerlink" title="Permanent link">#</a></h3>
@@ -8583,9 +8577,10 @@ unless the <code>flags</code> field is provided for the methods which support it
 <p>This defaults to <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.defaults_to_ephemeral">tanjun.abc.AppCommand.defaults_to_ephemeral</a>
-and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.defaults_to_ephemeral">tanjun.abc.Component.defaults_to_ephemeral</a> and only effects
-slash command execution.</p>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.defaults_to_ephemeral">AppCommand.defaults_to_ephemeral</a>
+and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.defaults_to_ephemeral">Component.defaults_to_ephemeral</a>
+and only effects slash command execution.</p>
 </div>
   </div>
 
@@ -8600,8 +8595,8 @@ slash command execution.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.dms_enabled_for_app_cmds" class="headerlink" title="Permanent link">#</a></h3>
@@ -8614,8 +8609,9 @@ slash command execution.</p>
 <p>This defaults to <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.is_dm_enabled">tanjun.abc.AppCommand.is_dm_enabled</a>
-and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enabled_for_app_cmds">tanjun.abc.Component.dms_enabled_for_app_cmds</a>.</p>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.is_dm_enabled">AppCommand.is_dm_enabled</a>
+and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enabled_for_app_cmds">Component.dms_enabled_for_app_cmds</a>.</p>
 </div>
   </div>
 
@@ -8630,8 +8626,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.events" class="headerlink" title="Permanent link">#</a></h3>
@@ -8655,8 +8651,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.injector" class="headerlink" title="Permanent link">#</a></h3>
@@ -8679,8 +8675,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.is_alive" class="headerlink" title="Permanent link">#</a></h3>
@@ -8703,8 +8699,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.is_case_sensitive" class="headerlink" title="Permanent link">#</a></h3>
@@ -8727,8 +8723,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.listeners" class="headerlink" title="Permanent link">#</a></h3>
@@ -8751,8 +8747,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.loop" class="headerlink" title="Permanent link">#</a></h3>
@@ -8775,8 +8771,8 @@ and <a class="autorefs autorefs-internal" href="#tanjun.abc.Component.dms_enable
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.metadata" class="headerlink" title="Permanent link">#</a></h3>
@@ -8804,8 +8800,8 @@ the client.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.prefixes" class="headerlink" title="Permanent link">#</a></h3>
@@ -8830,8 +8826,8 @@ to this command client.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.rest" class="headerlink" title="Permanent link">#</a></h3>
@@ -8854,8 +8850,8 @@ to this command client.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.server" class="headerlink" title="Permanent link">#</a></h3>
@@ -8879,8 +8875,8 @@ to this command client.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.shards" class="headerlink" title="Permanent link">#</a></h3>
@@ -8903,8 +8899,8 @@ to this command client.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.voice" class="headerlink" title="Permanent link">#</a></h3>
@@ -9333,8 +9329,8 @@ message command's name based on command_name.startswith(name).</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.clear_application_commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -9364,7 +9360,7 @@ being per-guild if targeting a specific guild otherwise globally).</p>
           <td class="doc-param-details">
             <p>The application to clear commands for.</p>
 <p>If left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this will be inferred from the authorization
-being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.rest">tanjun.abc.Client.rest</a>.</p>
+being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.rest">Client.rest</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -9410,8 +9406,8 @@ being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.res
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.declare_application_command" class="headerlink" title="Permanent link">#</a></h3>
@@ -9453,7 +9449,7 @@ command's name).</p>
           <td class="doc-param-details">
             <p>The application to register the command with.</p>
 <p>If left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this will be inferred from the authorization
-being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.rest">tanjun.abc.Client.rest</a>.</p>
+being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.rest">Client.rest</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -9536,8 +9532,8 @@ being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.res
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.declare_application_commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -9603,7 +9599,7 @@ being lost.</p>
           <td class="doc-param-details">
             <p>The application to register the commands with.</p>
 <p>If left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this will be inferred from the authorization
-being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.rest">tanjun.abc.Client.rest</a>.</p>
+being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.rest">Client.rest</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -9749,8 +9745,8 @@ only 200 application command creates per day (per guild or globally).</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.declare_global_commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -9805,7 +9801,7 @@ take priority over this for their relevant command type.</p>
           <td class="doc-param-details">
             <p>Object or ID of the application to set the global commands for.</p>
 <p>If left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this will be inferred from the authorization
-being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.rest">tanjun.abc.Client.rest</a>.</p>
+being used by <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.rest">Client.rest</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -9926,8 +9922,8 @@ only 200 application command creates per day (per guild or globally).</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.dispatch_client_callback" class="headerlink" title="Permanent link">#</a></h3>
@@ -10544,8 +10540,8 @@ only 200 application command creates per day (per guild or globally).</p>
   <div class="doc doc-contents ">
   
       <p>Load entities into this client from the modules in a directory.</p>
-<p>The same loading rules for <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a> mostly
-apply here but modules with no loaders are quietly ignored.</p>
+<p>The same loading rules for <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.load_modules">Client.load_modules</a>
+mostly apply here but modules with no loaders are quietly ignored.</p>
 
   <table>
     <thead>
@@ -10574,9 +10570,10 @@ apply here but modules with no loaders are quietly ignored.</p>
 from, if applicable.</p>
 <p>This work as <code>{namespace}.{file.name.removesuffix(".py")}</code> and will
 have the same behaviour as when a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a> is passed to
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a> if passed.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Client.load_modules">Client.load_modules</a> if passed.</p>
 <p>If left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this will have the same behaviour as when
-a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/pathlib.html#pathlib.Path">pathlib.Path</a> is passed to <a class="autorefs autorefs-internal" href="#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a>.</p>
+a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/pathlib.html#pathlib.Path">pathlib.Path</a> is passed to
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Client.load_modules">Client.load_modules</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -10660,8 +10657,8 @@ The source error can be found at <a class="autorefs autorefs-internal" href="../
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.load_directory_async" class="headerlink" title="Permanent link">#</a></h3>
@@ -10837,8 +10834,8 @@ The source error can be found at <a class="autorefs autorefs-internal" href="../
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.load_modules_async" class="headerlink" title="Permanent link">#</a></h3>
@@ -10899,7 +10896,7 @@ which handles loading and one which handles unloading present.</p>
           <td class="doc-param-details">
             <p>Paths of one or more module to unload.</p>
 <p>These should be the same paths which were passed to
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a>.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Client.load_modules">Client.load_modules</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -11024,8 +11021,8 @@ error can be found at <a class="autorefs autorefs-internal" href="../errors/#tan
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Client.reload_modules_async" class="headerlink" title="Permanent link">#</a></h3>
@@ -11873,7 +11870,7 @@ used to find unloaders.</p>
 
 <p><strong>Examples:</strong></p>
     <p>For this to work the module has to have at least one unloading enabled
-<a class="autorefs autorefs-internal" href="#tanjun.abc.ClientLoader">tanjun.abc.ClientLoader</a> present.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.abc.ClientLoader">ClientLoader</a> present.</p>
 <div class="highlight"><pre><span></span><code><span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_unloader</span>
 <span class="k">def</span> <span class="nf">unload_component</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">client</span><span class="o">.</span><span class="n">remove_component_by_name</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -11896,7 +11893,7 @@ used to find unloaders.</p>
           <td class="doc-param-details">
             <p>Path of one or more modules to unload.</p>
 <p>These should be the same path(s) which were passed to
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a>.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Client.load_modules">Client.load_modules</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -12135,8 +12132,8 @@ the callback's type-hints.</p>
             <p>Decorator callback used to register the event callback.</p>
 <p>The callback must be a coroutine function which returns <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and
 always takes at least one positional arg of type
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/events/base_events/#hikari.events.base_events.Event">hikari.events.base_events.Event</a> regardless of client
-implementation detail.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/events/base_events/#hikari.events.base_events.Event">hikari.events.Event</a>
+regardless of client implementation detail.</p>
           </td>
         </tr>
     </tbody>
@@ -12158,8 +12155,8 @@ implementation detail.</p>
           </td>
           <td class="doc-raises-details">
             <p>If nothing was passed for <code>event_types</code> and no subclasses of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/events/base_events/#hikari.events.base_events.Event">hikari.events.base_events.Event</a> are found in the type-hint
-for the callback's first argument.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/events/base_events/#hikari.events.base_events.Event">hikari.events.Event</a>
+are found in the type-hint for the callback's first argument.</p>
           </td>
         </tr>
     </tbody>
@@ -12194,7 +12191,7 @@ for the callback's first argument.</p>
 
   
       <p>Enum of the standard client callback names.</p>
-<p>These should be dispatched by all <a class="autorefs autorefs-internal" href="#tanjun.abc.Client">tanjun.abc.Client</a> implementations.</p>
+<p>These should be dispatched by all <a class="autorefs autorefs-internal" href="#tanjun.abc.Client">Client</a> implementations.</p>
 
 
 
@@ -12280,7 +12277,8 @@ for the callback's first argument.</p>
 <p>This event isn't dispatched for components which were registered while
 the client is inactive.</p>
 </div>
-<p>The first positional argument is the <a class="autorefs autorefs-internal" href="#tanjun.abc.Component">tanjun.abc.Component</a> being added.</p>
+<p>The first positional argument is the <a class="autorefs autorefs-internal" href="#tanjun.abc.Component">Component</a>
+being added.</p>
   </div>
 
 </div>
@@ -12309,7 +12307,8 @@ the client is inactive.</p>
 <p>This event isn't dispatched for components which were removed while
 the client is inactive.</p>
 </div>
-<p>The first positional argument is the <a class="autorefs autorefs-internal" href="#tanjun.abc.Component">tanjun.abc.Component</a> being removed.</p>
+<p>The first positional argument is the <a class="autorefs autorefs-internal" href="#tanjun.abc.Component">Component</a>
+being removed.</p>
   </div>
 
 </div>
@@ -12333,7 +12332,8 @@ the client is inactive.</p>
   <div class="doc doc-contents ">
   
       <p>Called when a menu command is not found.</p>
-<p><a class="autorefs autorefs-internal" href="#tanjun.abc.MenuContext">tanjun.abc.MenuContext</a> is provided as the first positional argument.</p>
+<p><a class="autorefs autorefs-internal" href="#tanjun.abc.MenuContext">MenuContext</a> is provided as the first positional
+argument.</p>
   </div>
 
 </div>
@@ -12357,7 +12357,8 @@ the client is inactive.</p>
   <div class="doc doc-contents ">
   
       <p>Called when a message command is not found.</p>
-<p><a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext">tanjun.abc.MessageContext</a> is provided as the first positional argument.</p>
+<p><a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext">MessageContext</a> is provided as the first
+positional argument.</p>
   </div>
 
 </div>
@@ -12381,7 +12382,8 @@ the client is inactive.</p>
   <div class="doc doc-contents ">
   
       <p>Called when a slash command is not found.</p>
-<p><a class="autorefs autorefs-internal" href="#tanjun.abc.SlashContext">tanjun.abc.SlashContext</a> is provided as the first positional argument.</p>
+<p><a class="autorefs autorefs-internal" href="#tanjun.abc.SlashContext">SlashContext</a> is provided as the first positional
+argument.</p>
   </div>
 
 </div>
@@ -12483,8 +12485,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.ClientLoader.has_load" class="headerlink" title="Permanent link">#</a></h3>
@@ -12507,8 +12509,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.ClientLoader.has_unload" class="headerlink" title="Permanent link">#</a></h3>
@@ -12710,8 +12712,8 @@ into a tanjun client.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.client" class="headerlink" title="Permanent link">#</a></h3>
@@ -12734,8 +12736,8 @@ into a tanjun client.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.default_app_cmd_permissions" class="headerlink" title="Permanent link">#</a></h3>
@@ -12745,7 +12747,8 @@ into a tanjun client.</p>
   <div class="doc doc-contents ">
   
       <p>Default required guild member permissions for the commands in this component.</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.default_member_permissions">tanjun.abc.AppCommand.default_member_permissions</a>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.default_member_permissions">AppCommand.default_member_permissions</a>
 and if this is <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then the default from the parent client is used.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -12764,8 +12767,8 @@ and if this is <a class="autorefs autorefs-external" href="https://docs.python.o
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.defaults_to_ephemeral" class="headerlink" title="Permanent link">#</a></h3>
@@ -12783,7 +12786,8 @@ and if this is <a class="autorefs autorefs-external" href="https://docs.python.o
 unless the <code>flags</code> field is provided for the methods which support it.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.defaults_to_ephemeral">tanjun.abc.AppCommand.defaults_to_ephemeral</a>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.defaults_to_ephemeral">AppCommand.defaults_to_ephemeral</a>
 and only effects slash command execution; if this is <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then
 the default from the parent client is used.</p>
 </div>
@@ -12800,8 +12804,8 @@ the default from the parent client is used.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.dms_enabled_for_app_cmds" class="headerlink" title="Permanent link">#</a></h3>
@@ -12813,9 +12817,10 @@ the default from the parent client is used.</p>
       <p>Whether application commands in this component should be enabled in DMs.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.is_dm_enabled">tanjun.abc.AppCommand.is_dm_enabled</a> and
-if both that and this are <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then the default from the parent
-client is used.</p>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="#tanjun.abc.AppCommand.is_dm_enabled">AppCommand.is_dm_enabled</a>
+and if both that and this are <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then the default from the
+parent client is used.</p>
 </div>
   </div>
 
@@ -12830,8 +12835,8 @@ client is used.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.is_case_sensitive" class="headerlink" title="Permanent link">#</a></h3>
@@ -12855,8 +12860,8 @@ client is used.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.listeners" class="headerlink" title="Permanent link">#</a></h3>
@@ -12879,8 +12884,8 @@ client is used.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.loop" class="headerlink" title="Permanent link">#</a></h3>
@@ -12903,8 +12908,8 @@ client is used.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.menu_commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -12927,8 +12932,8 @@ client is used.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.message_commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -12951,8 +12956,8 @@ client is used.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.metadata" class="headerlink" title="Permanent link">#</a></h3>
@@ -12980,8 +12985,8 @@ the component.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.name" class="headerlink" title="Permanent link">#</a></h3>
@@ -13008,8 +13013,8 @@ the component.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.slash_commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -13491,8 +13496,8 @@ the top level command name.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.close" class="headerlink" title="Permanent link">#</a></h3>
@@ -13640,8 +13645,8 @@ component with a matching autocomplete.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.execute_menu" class="headerlink" title="Permanent link">#</a></h3>
@@ -13760,8 +13765,8 @@ execute with the current context.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.execute_message" class="headerlink" title="Permanent link">#</a></h3>
@@ -13880,8 +13885,8 @@ execute with the current context.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.execute_slash" class="headerlink" title="Permanent link">#</a></h3>
@@ -14000,8 +14005,8 @@ execute with the current context.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Component.open" class="headerlink" title="Permanent link">#</a></h3>
@@ -14551,8 +14556,8 @@ the callback's type-hints.</p>
           </td>
           <td class="doc-raises-details">
             <p>If nothing was passed for <code>event_types</code> and no subclasses of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/events/base_events/#hikari.events.base_events.Event">hikari.events.base_events.Event</a> are found in the type-hint
-for the callback's first argument.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/events/base_events/#hikari.events.base_events.Event">hikari.events.Event</a>
+are found in the type-hint for the callback's first argument.</p>
           </td>
         </tr>
     </tbody>
@@ -14873,8 +14878,8 @@ for the callback's first argument.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.author" class="headerlink" title="Permanent link">#</a></h3>
@@ -14897,8 +14902,8 @@ for the callback's first argument.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.cache" class="headerlink" title="Permanent link">#</a></h3>
@@ -14921,8 +14926,8 @@ for the callback's first argument.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.channel_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -14945,8 +14950,8 @@ for the callback's first argument.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.client" class="headerlink" title="Permanent link">#</a></h3>
@@ -14955,7 +14960,7 @@ for the callback's first argument.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Tanjun <a class="autorefs autorefs-internal" href="#tanjun.abc.Client">tanjun.abc.Client</a> implementation this context was spawned by.</p>
+      <p>Tanjun <a class="autorefs autorefs-internal" href="#tanjun.abc.Client">Client</a> implementation this context was spawned by.</p>
   </div>
 
 </div>
@@ -14969,8 +14974,8 @@ for the callback's first argument.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.command" class="headerlink" title="Permanent link">#</a></h3>
@@ -14998,8 +15003,8 @@ specific command but never during command execution.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.component" class="headerlink" title="Permanent link">#</a></h3>
@@ -15008,7 +15013,7 @@ specific command but never during command execution.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Object of the <a class="autorefs autorefs-internal" href="#tanjun.abc.Component">tanjun.abc.Component</a> this context is bound to.</p>
+      <p>Object of the <a class="autorefs autorefs-internal" href="#tanjun.abc.Component">Component</a> this context is bound to.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will only be <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> before this has been bound to a
@@ -15027,8 +15032,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.created_at" class="headerlink" title="Permanent link">#</a></h3>
@@ -15051,8 +15056,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.events" class="headerlink" title="Permanent link">#</a></h3>
@@ -15075,8 +15080,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.guild_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -15100,8 +15105,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.has_responded" class="headerlink" title="Permanent link">#</a></h3>
@@ -15124,8 +15129,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.is_human" class="headerlink" title="Permanent link">#</a></h3>
@@ -15149,8 +15154,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.member" class="headerlink" title="Permanent link">#</a></h3>
@@ -15174,8 +15179,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.rest" class="headerlink" title="Permanent link">#</a></h3>
@@ -15198,8 +15203,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.server" class="headerlink" title="Permanent link">#</a></h3>
@@ -15222,8 +15227,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.shard" class="headerlink" title="Permanent link">#</a></h3>
@@ -15235,7 +15240,8 @@ specific command but never during command execution nor checks.</p>
       <p>Shard that triggered the context.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This will be <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> if <a class="autorefs autorefs-internal" href="#tanjun.abc.Context.shards">tanjun.abc.Context.shards</a> is also <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a>.</p>
+<p>This will be <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> if <a class="autorefs autorefs-internal" href="#tanjun.abc.Context.shards">Context.shards</a>
+is also <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a>.</p>
 </div>
   </div>
 
@@ -15250,8 +15256,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.shards" class="headerlink" title="Permanent link">#</a></h3>
@@ -15274,8 +15280,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.triggering_name" class="headerlink" title="Permanent link">#</a></h3>
@@ -15298,8 +15304,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.voice" class="headerlink" title="Permanent link">#</a></h3>
@@ -15324,8 +15330,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.delete_initial_response" class="headerlink" title="Permanent link">#</a></h3>
@@ -15370,8 +15376,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.delete_last_response" class="headerlink" title="Permanent link">#</a></h3>
@@ -15416,8 +15422,8 @@ specific command but never during command execution nor checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.edit_initial_response" class="headerlink" title="Permanent link">#</a></h3>
@@ -15441,15 +15447,14 @@ specific command but never during command execution nor checks.</p>
           <td class="doc-param-details">
             <p>The content to edit the initial response with.</p>
 <p>If provided, the message contents. If
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
-in the content. Any other value here will be cast to a
-<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
-<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.embeds.Embed</a> and no <code>embed</code> nor <code>embeds</code> kwarg
-is provided, then this will instead update the embed. This allows
-for simpler syntax when sending an embed alone.</p>
-<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.files.Resource</a>, then the
-content is instead treated as an attachment if no <code>attachment</code> and
-no <code>attachments</code> kwargs are provided.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.UNDEFINED</a>, then nothing will
+be sent in the content. Any other value here will be cast to a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
+<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.Embed</a> and no <code>embed</code> nor
+<code>embeds</code> kwarg is provided, then this will instead update the embed.
+This allows for simpler syntax when sending an embed alone.</p>
+<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.Resource</a>,
+then the content is instead treated as an attachment if no
+<code>attachment</code> and no <code>attachments</code> kwargs are provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -15602,9 +15607,10 @@ mentions.</p>
           <td><code>user_mentions</code></td>
           <td class="doc-param-details">
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
-If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.
-Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.users.PartialUser</a>
+If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
+<p>Alternatively this may be a collection of
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.PartialUser</a>
 derivatives to enforce mentioning specific users.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -15622,9 +15628,10 @@ derivatives to enforce mentioning specific users.</p>
           <td><code>role_mentions</code></td>
           <td class="doc-param-details">
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
-If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.
-Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.guilds.PartialRole</a>
+If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
+<p>Alternatively this may be a collection of
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.PartialRole</a>
 derivatives to enforce mentioning specific roles.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -15767,8 +15774,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.edit_last_response" class="headerlink" title="Permanent link">#</a></h3>
@@ -15790,17 +15797,16 @@ longer than <code>max_rate_limit</code> when making a request.</p>
         <tr>
           <td><code>content</code></td>
           <td class="doc-param-details">
-            <p>The content to edit the last response with.</p>
+            <p>The content to edit the initial response with.</p>
 <p>If provided, the message contents. If
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
-in the content. Any other value here will be cast to a
-<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
-<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.embeds.Embed</a> and no <code>embed</code> nor <code>embeds</code> kwarg
-is provided, then this will instead update the embed. This allows
-for simpler syntax when sending an embed alone.</p>
-<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.files.Resource</a>, then the
-content is instead treated as an attachment if no <code>attachment</code> and
-no <code>attachments</code> kwargs are provided.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.UNDEFINED</a>, then nothing will
+be sent in the content. Any other value here will be cast to a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
+<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.Embed</a> and no <code>embed</code> nor
+<code>embeds</code> kwarg is provided, then this will instead update the embed.
+This allows for simpler syntax when sending an embed alone.</p>
+<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.Resource</a>,
+then the content is instead treated as an attachment if no
+<code>attachment</code> and no <code>attachments</code> kwargs are provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -15955,7 +15961,8 @@ mentions.</p>
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.users.PartialUser</a>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.PartialUser</a>
 derivatives to enforce mentioning specific users.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -15975,7 +15982,8 @@ derivatives to enforce mentioning specific users.</p>
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.guilds.PartialRole</a>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.PartialRole</a>
 derivatives to enforce mentioning specific roles.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -16118,8 +16126,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.fetch_channel" class="headerlink" title="Permanent link">#</a></h3>
@@ -16131,8 +16139,10 @@ longer than <code>max_rate_limit</code> when making a request.</p>
       <p>Fetch the channel the context was invoked in.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This performs an API call. Consider using <a class="autorefs autorefs-internal" href="#tanjun.abc.Context.get_channel">tanjun.abc.Context.get_channel</a>
-if you have <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILD_CHANNELS">hikari.api.config.CacheComponents.GUILD_CHANNELS</a> cache component enabled.</p>
+<p>This performs an API call. Consider using
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context.get_channel">Context.get_channel</a>if you have the
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILD_CHANNELS">hikari.api.CacheComponents.GUILD_CHANNELS</a>
+cache component enabled.</p>
 </div>
 
   <table>
@@ -16242,8 +16252,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.fetch_guild" class="headerlink" title="Permanent link">#</a></h3>
@@ -16255,8 +16265,10 @@ longer than <code>max_rate_limit</code> when making a request.</p>
       <p>Fetch the guild the context was invoked in.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This performs an API call. Consider using <a class="autorefs autorefs-internal" href="#tanjun.abc.Context.get_guild">tanjun.abc.Context.get_guild</a>
-if you have <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILDS">hikari.api.config.CacheComponents.GUILDS</a> cache component enabled.</p>
+<p>This performs an API call. Consider using
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context.get_guild">Context.get_guild</a> if you have the
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILDS">hikari.api.CacheComponents.GUILDS</a>
+cache component enabled.</p>
 </div>
 
   <table>
@@ -16356,8 +16368,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.fetch_initial_response" class="headerlink" title="Permanent link">#</a></h3>
@@ -16402,8 +16414,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.fetch_last_response" class="headerlink" title="Permanent link">#</a></h3>
@@ -16460,7 +16472,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
       <p>Retrieve the channel the context was invoked in from the cache.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This method requires the <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILD_CHANNELS">hikari.api.config.CacheComponents.GUILD_CHANNELS</a>
+<p>This method requires the
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILD_CHANNELS">hikari.api.CacheComponents.GUILD_CHANNELS</a>
 cache component.</p>
 </div>
 
@@ -16512,8 +16525,9 @@ is DM channel.</p>
       <p>Fetch the guild that the context was invoked in.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This method requires <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILDS">hikari.api.config.CacheComponents.GUILDS</a> cache
-component enabled.</p>
+<p>This method requires the
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/config/#hikari.api.config.CacheComponents.GUILDS">hikari.api.CacheComponents.GUILDS</a>
+cache component.</p>
 </div>
 
   <table>
@@ -16551,8 +16565,8 @@ component enabled.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.Context.respond" class="headerlink" title="Permanent link">#</a></h3>
@@ -16576,15 +16590,14 @@ component enabled.</p>
           <td class="doc-param-details">
             <p>The content to respond with.</p>
 <p>If provided, the message contents. If
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
-in the content. Any other value here will be cast to a
-<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
-<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.embeds.Embed</a> and no <code>embed</code> nor <code>embeds</code> kwarg
-is provided, then this will instead update the embed. This allows
-for simpler syntax when sending an embed alone.</p>
-<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.files.Resource</a>, then the
-content is instead treated as an attachment if no <code>attachment</code> and
-no <code>attachments</code> kwargs are provided.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.UNDEFINED</a>, then nothing will
+be sent in the content. Any other value here will be cast to a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
+<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.Embed</a> and no <code>embed</code> nor
+<code>embeds</code> kwarg is provided, then this will instead be treated as an
+embed. This allows for simpler syntax when sending an embed alone.</p>
+<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.Resource</a>,
+then the content is instead treated as an attachment if no
+<code>attachment</code> and no <code>attachments</code> kwargs are provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -16601,8 +16614,9 @@ no <code>attachments</code> kwargs are provided.</p>
           <td><code>ensure_result</code></td>
           <td class="doc-param-details">
             <p>Ensure that this call will always return a message object.</p>
-<p>If <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> then this will always return <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.messages.Message</a>,
-otherwise this will return <code>hikari.Message | None</code>.</p>
+<p>If <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> then this will always return
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">Message</a>, otherwise this will return
+<code>hikari.Message | None</code>.</p>
 <p>It's worth noting that, under certain scenarios within the slash
 command flow, this may lead to an extre request being made.</p>
             <p>
@@ -16757,7 +16771,8 @@ mentions.</p>
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.users.PartialUser</a>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.PartialUser</a>
 derivatives to enforce mentioning specific users.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -16777,7 +16792,8 @@ derivatives to enforce mentioning specific users.</p>
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.guilds.PartialRole</a>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.PartialRole</a>
 derivatives to enforce mentioning specific roles.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -16959,8 +16975,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.ExecutableCommand.checks" class="headerlink" title="Permanent link">#</a></h3>
@@ -16983,8 +16999,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.ExecutableCommand.component" class="headerlink" title="Permanent link">#</a></h3>
@@ -17007,8 +17023,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.ExecutableCommand.hooks" class="headerlink" title="Permanent link">#</a></h3>
@@ -17031,8 +17047,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.ExecutableCommand.metadata" class="headerlink" title="Permanent link">#</a></h3>
@@ -17484,7 +17500,7 @@ the command.</p>
           <td class="doc-param-details">
             <p>The callback to add to this hook.</p>
 <p>This callback should take two positional arguments (of type
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">tanjun.abc.Context</a> and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a>) and may be either
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">Context</a> and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a>) and may be either
 synchronous or asynchronous.</p>
 <p>Returning <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> indicates that the error should be suppressed,
 <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a> that it should be re-raised and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> that no decision has
@@ -17559,7 +17575,7 @@ other error hooks make by majority rule.</p>
           <td class="doc-param-details">
             <p>The callback to add to this hook.</p>
 <p>This callback should take two positional arguments (of type
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">tanjun.abc.Context</a> and <a class="autorefs autorefs-internal" href="../#tanjun.ParserError">tanjun.ParserError</a>),
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">Context</a> and <a class="autorefs autorefs-internal" href="../#tanjun.ParserError">tanjun.ParserError</a>),
 return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either synchronous or asynchronous.</p>
 <p>It's worth noting that this unlike general error handlers, this will
 always suppress the error.</p>
@@ -17632,7 +17648,7 @@ always suppress the error.</p>
           <td class="doc-param-details">
             <p>The callback to add to this hook.</p>
 <p>This callback should take one positional argument (of type
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">tanjun.abc.Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
 synchronous or asynchronous.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -17703,7 +17719,7 @@ synchronous or asynchronous.</p>
           <td class="doc-param-details">
             <p>The callback to add to this hook.</p>
 <p>This callback should take one positional argument (of type
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">tanjun.abc.Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
 synchronous or asynchronous.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -17774,7 +17790,7 @@ synchronous or asynchronous.</p>
           <td class="doc-param-details">
             <p>The callback to add to this hook.</p>
 <p>This callback should take one positional argument (of type
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">tanjun.abc.Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
 synchronous or asynchronous.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -17862,7 +17878,7 @@ synchronous or asynchronous.</p>
           <td class="doc-param-details">
             <p>The callback to add to this hook.</p>
 <p>This callback should take two positional arguments (of type
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">tanjun.abc.Context</a> and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a>) and may be either
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">Context</a> and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a>) and may be either
 synchronous or asynchronous.</p>
 <p>Returning <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> indicates that the error should be suppressed,
 <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a> that it should be re-raised and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> that no decision
@@ -17945,8 +17961,8 @@ other error hooks make by majority rule.</p>
           <td class="doc-param-details">
             <p>The parser error callback to add to this hook.</p>
 <p>This callback should take two positional arguments (of type
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">tanjun.abc.Context</a> and <a class="autorefs autorefs-internal" href="../#tanjun.ParserError">tanjun.ParserError</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a>
-and may be either synchronous or asynchronous.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">Context</a> and <a class="autorefs autorefs-internal" href="../#tanjun.ParserError">tanjun.ParserError</a>), return
+<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either synchronous or asynchronous.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -18024,7 +18040,7 @@ and may be either synchronous or asynchronous.</p>
           <td class="doc-param-details">
             <p>The success callback to add to this hook.</p>
 <p>This callback should take one positional argument (of type
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">tanjun.abc.Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
 synchronous or asynchronous.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -18103,7 +18119,7 @@ synchronous or asynchronous.</p>
           <td class="doc-param-details">
             <p>The post-execution callback to add to this hook.</p>
 <p>This callback should take one positional argument (of type
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">tanjun.abc.Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
 synchronous or asynchronous.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -18182,7 +18198,7 @@ synchronous or asynchronous.</p>
           <td class="doc-param-details">
             <p>The pre-execution callback to add to this hook.</p>
 <p>This callback should take one positional argument (of type
-<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">tanjun.abc.Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
+<a class="autorefs autorefs-internal" href="#tanjun.abc.Context">Context</a>), return <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> and may be either
 synchronous or asynchronous.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -18267,8 +18283,8 @@ synchronous or asynchronous.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuCommand.callback" class="headerlink" title="Permanent link">#</a></h3>
@@ -18291,8 +18307,8 @@ synchronous or asynchronous.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuCommand.tracked_command" class="headerlink" title="Permanent link">#</a></h3>
@@ -18315,8 +18331,8 @@ synchronous or asynchronous.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuCommand.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -18454,8 +18470,8 @@ globally or for a specific guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuContext.command" class="headerlink" title="Permanent link">#</a></h3>
@@ -18484,8 +18500,8 @@ component/client checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuContext.target" class="headerlink" title="Permanent link">#</a></h3>
@@ -18508,8 +18524,8 @@ component/client checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuContext.target_id" class="headerlink" title="Permanent link">#</a></h3>
@@ -18532,8 +18548,8 @@ component/client checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MenuContext.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -18863,8 +18879,8 @@ user isn't in the current guild.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageCommand.callback" class="headerlink" title="Permanent link">#</a></h3>
@@ -18892,8 +18908,8 @@ matches the message.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageCommand.names" class="headerlink" title="Permanent link">#</a></h3>
@@ -18916,8 +18932,8 @@ matches the message.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageCommand.parent" class="headerlink" title="Permanent link">#</a></h3>
@@ -18940,8 +18956,8 @@ matches the message.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageCommand.parser" class="headerlink" title="Permanent link">#</a></h3>
@@ -19234,8 +19250,8 @@ matches the message.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageCommandGroup.commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -19527,8 +19543,8 @@ matches the message.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageContext.command" class="headerlink" title="Permanent link">#</a></h3>
@@ -19557,8 +19573,8 @@ nor client/component check execution.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageContext.content" class="headerlink" title="Permanent link">#</a></h3>
@@ -19581,8 +19597,8 @@ nor client/component check execution.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageContext.message" class="headerlink" title="Permanent link">#</a></h3>
@@ -19605,8 +19621,8 @@ nor client/component check execution.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageContext.triggering_prefix" class="headerlink" title="Permanent link">#</a></h3>
@@ -19631,8 +19647,8 @@ nor client/component check execution.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageContext.respond" class="headerlink" title="Permanent link">#</a></h3>
@@ -19656,15 +19672,14 @@ nor client/component check execution.</p>
           <td class="doc-param-details">
             <p>The content to respond with.</p>
 <p>If provided, the message contents. If
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
-in the content. Any other value here will be cast to a
-<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
-<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.embeds.Embed</a> and no <code>embed</code> nor <code>embeds</code> kwarg
-is provided, then this will instead update the embed. This allows
-for simpler syntax when sending an embed alone.</p>
-<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.files.Resource</a>, then the
-content is instead treated as an attachment if no <code>attachment</code> and
-no <code>attachments</code> kwargs are provided.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.UNDEFINED</a>, then nothing will
+be sent in the content. Any other value here will be cast to a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>.</p>
+<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.Embed</a> and no <code>embed</code> nor
+<code>embeds</code> kwarg is provided, then this will instead be treated as an
+embed. This allows for simpler syntax when sending an embed alone.</p>
+<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.Resource</a>,
+then the content is instead treated as an attachment if no
+<code>attachment</code> and no <code>attachments</code> kwargs are provided.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -19731,7 +19746,8 @@ always be immedieatly available.</p>
           <td><code>reply</code></td>
           <td class="doc-param-details">
             <p>Whether to reply instead of sending the content to the context.</p>
-<p>Passing <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> here indicates a reply to <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.message">tanjun.abc.MessageContext.message</a>.</p>
+<p>Passing <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> here indicates a reply to
+<a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.message">MessageContext.message</a>.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -19899,7 +19915,8 @@ mentions.</p>
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.users.PartialUser</a>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.PartialUser</a>
 derivatives to enforce mentioning specific users.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -19917,9 +19934,10 @@ derivatives to enforce mentioning specific users.</p>
           <td><code>role_mentions</code></td>
           <td class="doc-param-details">
             <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
-If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.
-Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.guilds.PartialRole</a>
+If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
+<p>Alternatively this may be a collection of
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.PartialRole</a>
 derivatives to enforce mentioning specific roles.</p>
             <p>
                 <span class="doc-param-annotation">
@@ -20148,8 +20166,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.MessageParser.parse" class="headerlink" title="Permanent link">#</a></h3>
@@ -20162,7 +20180,7 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This relies on the prefix and command name(s) having been removed
-from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.content">tanjun.abc.MessageContext.content</a>.</p>
+from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.content">MessageContext.content</a>.</p>
 </div>
 
   <table>
@@ -20361,8 +20379,8 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashCommand.callback" class="headerlink" title="Permanent link">#</a></h3>
@@ -20385,8 +20403,8 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashCommand.float_autocompletes" class="headerlink" title="Permanent link">#</a></h3>
@@ -20409,8 +20427,8 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashCommand.int_autocompletes" class="headerlink" title="Permanent link">#</a></h3>
@@ -20433,8 +20451,8 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashCommand.str_autocompletes" class="headerlink" title="Permanent link">#</a></h3>
@@ -20477,8 +20495,8 @@ from <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageContext.cont
       <p>Standard interface of a slash command group.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Unlike <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageCommandGroup">tanjun.abc.MessageCommandGroup</a>, slash command groups do not
-have their own callback.</p>
+<p>Unlike <a class="autorefs autorefs-internal" href="#tanjun.abc.MessageCommandGroup">MessageCommandGroup</a>, slash
+command groups do not have their own callback.</p>
 </div>
 
 
@@ -20502,8 +20520,8 @@ have their own callback.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashCommandGroup.commands" class="headerlink" title="Permanent link">#</a></h3>
@@ -20791,8 +20809,8 @@ have their own callback.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashContext.command" class="headerlink" title="Permanent link">#</a></h3>
@@ -20821,8 +20839,8 @@ component/client checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashContext.options" class="headerlink" title="Permanent link">#</a></h3>
@@ -20845,8 +20863,8 @@ component/client checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashContext.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -20956,8 +20974,8 @@ component/client checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashOption.name" class="headerlink" title="Permanent link">#</a></h3>
@@ -20980,8 +20998,8 @@ component/client checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashOption.type" class="headerlink" title="Permanent link">#</a></h3>
@@ -21004,8 +21022,8 @@ component/client checks.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#tanjun.abc.SlashOption.value" class="headerlink" title="Permanent link">#</a></h3>
@@ -21061,7 +21079,7 @@ this will be the entity's ID.</p>
             </span>
           </td>
           <td class="doc-raises-details">
-            <p>If <a class="autorefs autorefs-internal" href="#tanjun.abc.SlashOption.type">tanjun.abc.SlashOption.type</a> is not BOOLEAN.</p>
+            <p>If <a class="autorefs autorefs-internal" href="#tanjun.abc.SlashOption.type">SlashOption.type</a> is not BOOLEAN.</p>
           </td>
         </tr>
     </tbody>
@@ -21106,7 +21124,7 @@ this will be the entity's ID.</p>
             </span>
           </td>
           <td class="doc-raises-details">
-            <p>If <a class="autorefs autorefs-internal" href="#tanjun.abc.SlashOption.type">tanjun.abc.SlashOption.type</a> is not FLOAT.</p>
+            <p>If <a class="autorefs autorefs-internal" href="#tanjun.abc.SlashOption.type">SlashOption.type</a> is not FLOAT.</p>
           </td>
         </tr>
         <tr>
@@ -21162,7 +21180,7 @@ when it's a malformed (incomplete) float.</p>
             </span>
           </td>
           <td class="doc-raises-details">
-            <p>If <a class="autorefs autorefs-internal" href="#tanjun.abc.SlashOption.type">tanjun.abc.SlashOption.type</a> is not INTEGER.</p>
+            <p>If <a class="autorefs autorefs-internal" href="#tanjun.abc.SlashOption.type">SlashOption.type</a> is not INTEGER.</p>
           </td>
         </tr>
         <tr>
@@ -21582,9 +21600,10 @@ target a user.</p>
       <p>Resolve this option to a user object.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This will resolve to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.Member">hikari.guilds.Member</a> first if the relevant
-command was executed within a guild and the option targeted one of
-the guild's members, otherwise it will resolve to <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.User">hikari.users.User</a>.</p>
+<p>This will resolve to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.Member">hikari.Member</a> first
+if the relevant command was executed within a guild and the option
+targeted one of the guild's members, otherwise it will resolve to
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.User">hikari.User</a>.</p>
 <p>It's also worth noting that hikari.Member inherits from hikari.User
 meaning that the return value of this can always be treated as a
 user.</p>
@@ -21738,8 +21757,8 @@ user.</p>
             </span>
           </td>
           <td class="doc-raises-details">
-            <p>If <a class="autorefs autorefs-internal" href="#tanjun.abc.SlashOption.type">tanjun.abc.SlashOption.type</a> is not one of CHANNEL, MENTIONABLE, ROLE
-or USER.</p>
+            <p>If <a class="autorefs autorefs-internal" href="#tanjun.abc.SlashOption.type">SlashOption.type</a> is not one of
+CHANNEL, MENTIONABLE, ROLE or USER.</p>
           </td>
         </tr>
     </tbody>
@@ -21784,7 +21803,7 @@ or USER.</p>
             </span>
           </td>
           <td class="doc-raises-details">
-            <p>If <a class="autorefs autorefs-internal" href="#tanjun.abc.SlashOption.type">tanjun.abc.SlashOption.type</a> is not STRING.</p>
+            <p>If <a class="autorefs autorefs-internal" href="#tanjun.abc.SlashOption.type">SlashOption.type</a> is not STRING.</p>
           </td>
         </tr>
     </tbody>
