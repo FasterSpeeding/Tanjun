@@ -95,7 +95,7 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
         This can either wrap a raw command callback or another callable command instance
         (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
         and will manage loading the other command into a component when using
-        [tanjun.Component.load_from_scope][].
+        [Component.load_from_scope][tanjun.components.Component.load_from_scope].
     """
 
     def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
@@ -152,7 +152,7 @@ def as_message_command_group(
         This can either wrap a raw command callback or another callable command instance
         (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
         and will manage loading the other command into a component when using
-        [tanjun.Component.load_from_scope][].
+        [Component.load_from_scope][tanjun.components.Component.load_from_scope].
     """
 
     def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:

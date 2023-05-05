@@ -121,8 +121,8 @@ class CacheIterator(hikari.LazyIterator[_ValueT]):
         """Get the length of the target resource.
 
         !!! note
-            Unlike [tanjun.dependencies.CacheIterator.count][], this method
-            will not deplete the iterator.
+            Unlike [tanjun.dependencies.CacheIterator.count][hikari.iterators.LazyIterator.count],
+            this method will not deplete the iterator.
 
         Returns
         -------

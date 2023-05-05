@@ -1415,8 +1415,10 @@ class Component(tanjun.Component):
         """Make a loader/unloader for this component.
 
         This enables loading, unloading and reloading of this component into a
-        client by targeting the module using [tanjun.Client.load_modules][],
-        [tanjun.Client.unload_modules][] and [tanjun.Client.reload_modules][].
+        client by targeting the module using
+        [Client.load_modules][tanjun.abc.Client.load_modules],
+        [Client.unload_modules][tanjun.abc.Client.unload_modules] and
+        [Client.reload_modules][tanjun.abc.Client.reload_modules].
 
         Parameters
         ----------

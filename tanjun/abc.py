@@ -1371,10 +1371,12 @@ class AppCommandContext(Context, abc.ABC):
     def defaults_to_ephemeral(self) -> bool:
         """Whether the context is marked as defaulting to ephemeral response.
 
-        This effects calls to [tanjun.abc.SlashContext.create_followup][],
-        [tanjun.abc.SlashContext.create_initial_response][], [tanjun.abc.SlashContext.defer][]
-        and [tanjun.abc.SlashContext.respond][] unless the `flags` field is
-        provided for the methods which support it.
+        This effects calls to
+        [AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup],
+        [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response],
+        [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer]
+        and [AppCommandContext.respond][tanjun.abc.Context.respond]
+        unless the `flags` field is provided for the methods which support it.
         """
 
     @property
@@ -1392,10 +1394,10 @@ class AppCommandContext(Context, abc.ABC):
         """Whether the initial response for this context has been deferred.
 
         !!! warning
-            If this is [True][] when [tanjun.abc.SlashContext.has_responded][]
-            is [False][] then [tanjun.abc.SlashContext.edit_initial_response][]
+            If this is [True][] when [AppCommandContext.has_responded][tanjun.abc.Context.has_responded]
+            is [False][] then [AppCommandContext.edit_initial_response][tanjun.abc.Context.edit_initial_response]
             will need to be used to create the initial response rather than
-            [tanjun.abc.SlashContext.create_initial_response][].
+            [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response].
         """
 
     @property
@@ -2688,9 +2690,11 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         """Whether contexts executed by this command should default to ephemeral responses.
 
-        This effects calls to [tanjun.abc.SlashContext.create_followup][],
-        [tanjun.abc.SlashContext.create_initial_response][],
-        [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
+        This effects calls to
+        [AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup],
+        [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response],
+        [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer] and
+        [AppCommandContext.respond][tanjun.abc.Context.respond]
         unless the `flags` field is provided for the methods which support it.
 
         !!! note
@@ -3254,9 +3258,11 @@ class Component(abc.ABC):
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         """Whether slash contexts executed in this component should default to ephemeral responses.
 
-        This effects calls to [tanjun.abc.SlashContext.create_followup][],
-        [tanjun.abc.SlashContext.create_initial_response][],
-        [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
+        This effects calls to
+        [AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup],
+        [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response],
+        [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer] and
+        [AppCommandContext.respond][tanjun.abc.Context.respond]
         unless the `flags` field is provided for the methods which support it.
 
         !!! note
@@ -3912,9 +3918,11 @@ class Client(abc.ABC):
     def defaults_to_ephemeral(self) -> bool:
         """Whether slash contexts spawned by this client should default to ephemeral responses.
 
-        This effects calls to [tanjun.abc.SlashContext.create_followup][],
-        [tanjun.abc.SlashContext.create_initial_response][],
-        [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
+        This effects calls to
+        [AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup],
+        [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response],
+        [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer] and
+        [AppCommandContext.respond][tanjun.abc.Context.respond]
         unless the `flags` field is provided for the methods which support it.
 
         This defaults to [False][].

@@ -283,7 +283,8 @@ def as_loader(
     """Mark a callback as being used to load Tanjun components from a module.
 
     !!! note
-        This is only necessary if you wish to use [tanjun.Client.load_modules][].
+        This is only necessary if you wish to use
+        [Client.load_modules][tanjun.abc.Client.load_modules].
 
     Parameters
     ----------
@@ -359,8 +360,8 @@ def as_unloader(
 
     !!! note
         This is the inverse of [tanjun.as_loader][] and is only necessary if
-        you wish to use the [tanjun.Client.unload_modules][] or
-        [tanjun.Client.reload_modules][].
+        you wish to use the [Client.unload_modules][tanjun.abc.Client.unload_modules]
+        or [Client.reload_modules][tanjun.abc.Client.reload_modules].
 
     Parameters
     ----------
@@ -1347,10 +1348,11 @@ class Client(tanjun.Client):
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
-        """Alias of [tanjun.Client.declare_global_commands][].
+        """Alias of [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands].
 
         !!! warning "deprecated"
-            Since v2.1.1a1; use [tanjun.Client.declare_global_commands][] instead.
+            Since v2.1.1a1; use [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
+            instead.
         """
         return await self.declare_global_commands(application=application, guild=guild, force=force)
 
@@ -1655,8 +1657,9 @@ class Client(tanjun.Client):
     def set_hikari_trait_injectors(self, bot: hikari.RESTAware, /) -> Self:
         """Set type based dependency injection based on the hikari traits found in `bot`.
 
-        This is a short hand for calling [tanjun.Client.add_type_dependency][] for all
-        the hikari trait types `bot` is valid for with bot.
+        This is a short hand for calling
+        [Client.set_type_dependency][tanjun.abc.Client.set_type_dependency]
+        for all the hikari trait types `bot` is valid for with bot.
 
         Parameters
         ----------
