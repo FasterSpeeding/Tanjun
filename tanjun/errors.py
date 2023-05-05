@@ -143,11 +143,15 @@ class CommandError(TanjunError):
         Parameters
         ----------
         content
-            The content to respond with.
+            If provided, the message content to respond with.
 
-            If provided, the message contents. If
-            [hikari.UNDEFINED][hikari.undefined.UNDEFINED], then nothing will
-            be sent in the content.
+            If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
+            `embeds` kwarg is provided, then this will instead be treated as an
+            embed. This allows for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a [hikari.Resource][hikari.files.Resource],
+            then the content is instead treated as an attachment if no
+            `attachment` and no `attachments` kwargs are provided.
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
