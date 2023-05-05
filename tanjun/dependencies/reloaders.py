@@ -270,10 +270,11 @@ class HotReloader:
 
             This work as `{namespace}.{file.name.removesuffix(".py")}` and will
             have the same behaviour as when a [str][] is passed to
-            [tanjun.abc.Client.load_modules][] if passed.
+            [Client.load_modules][tanjun.abc.Client.load_modules] if passed.
 
             If left as [None][] then this will have the same behaviour as when
-            a [pathlib.Path][] is passed to [tanjun.abc.Client.load_modules][].
+            a [pathlib.Path][] is passed to
+            [Client.load_modules][tanjun.abc.Client.load_modules].
 
 
         Returns

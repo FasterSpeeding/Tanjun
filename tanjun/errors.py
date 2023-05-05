@@ -146,8 +146,8 @@ class CommandError(TanjunError):
             The content to respond with.
 
             If provided, the message contents. If
-            [hikari.undefined.UNDEFINED][], then nothing will be sent
-            in the content.
+            [hikari.UNDEFINED][hikari.undefined.UNDEFINED], then nothing will
+            be sent in the content.
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
@@ -174,15 +174,17 @@ class CommandError(TanjunError):
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
-            derivatives to enforce mentioning specific users.
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialUser][hikari.users.PartialUser] derivatives to
+            enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
-            derivatives to enforce mentioning specific roles.
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialRole][hikari.guilds.PartialRole] derivatives to
+            enforce mentioning specific roles.
 
         Raises
         ------
@@ -240,8 +242,9 @@ class CommandError(TanjunError):
         ensure_result
             Ensure that this call will always return a message object.
 
-            If [True][] then this will always return [hikari.messages.Message][],
-            otherwise this will return `hikari.Message | None`.
+            If [True][] then this will always return
+            [hikari.Message][hikari.messages.Message], otherwise this will
+            return `hikari.Message | None`.
 
             It's worth noting that, under certain scenarios within the slash
             command flow, this may lead to an extre request being made.

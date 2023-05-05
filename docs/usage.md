@@ -49,9 +49,9 @@ injection).
 
 ## Managing bot functionality
 
-[tanjun.components.Component][] exists as a way to manage and group bot
-functionality, storing functionality such as event listeners, commands,
-scheduled callbacks, and client callbacks.
+[tanjun.Component][tanjun.components.Component] exists as a way to manage and
+group bot functionality, storing functionality such as event listeners,
+commands, scheduled callbacks, and client callbacks.
 
 ```py
 --8<-- "./docs_src/usage.py:54:63"
@@ -290,7 +290,7 @@ component level
 (using [Component.set_ephemeral_default][tanjun.components.Component.set_ephemeral_default]),
 or for a specific command (by passing `default_to_ephemeral=True` while
 creating a command) to have any relevant application command responses default
-to ephemeral (including calls to [tanjun.abc.Context.respond][]).
+to ephemeral (including calls to [Context.respond][tanjun.abc.Context.respond]).
 
 ### Deferrals
 
@@ -366,18 +366,19 @@ dependencies) can be found [here](https://alluka.cursed.solutions/usage/).
 The following types are registered globally as type dependencies:
 
 * [tanjun.abc.Client][]
-* [tanjun.clients.Client][]
+* [tanjun.Client][tanjun.clients.Client]
 * [tanjun.dependencies.AbstractOwners][] (for use with the standard owner check).
 * `tanjun.LazyConstant[hikari.OwnUser]` (for use with `tanjun.inject_lc(hikari.OwnUser)`)
-* [hikari.api.rest.RESTClient][]
-* [hikari.api.cache.Cache][] \*
-* [hikari.api.event_manager.EventManager][] \*
-* [hikari.api.interaction_server.InteractionServer][] \*
-* [hikari.traits.ShardAware][] \*
-* [hikari.api.voice.VoiceComponent][] \*
+* [hikari.api.RESTClient][hikari.api.rest.RESTClient]
+* [hikari.api.Cache][hikari.api.cache.Cache] \*
+* [hikari.api.EventManager][hikari.api.event_manager.EventManager] \*
+* [hikari.api.InteractionServer][hikari.api.interaction_server.InteractionServer] \*
+* [hikari.ShardAware][hikari.traits.ShardAware] \*
+* [hikari.api.VoiceComponent][hikari.api.voice.VoiceComponent] \*
 
 \* These type dependencies are only registered if the relevant Hikari component
-    was included while creating the [tanjun.clients.Client][] instance.
+    was included while creating the [tanjun.Client][tanjun.clients.Client]
+    instance.
 
 The following type dependencies are available in specific contexts:
 
@@ -391,7 +392,7 @@ The following type dependencies are available in specific contexts:
 * [tanjun.abc.SlashCommand][]: slash command execution (excluding any checks)
 TODO: this needs a consistency fix before being documented -->
 * [tanjun.abc.Component][]: Command execution (excluding client checks)
-<!-- * [hikari.events.base_events.Event][] TODO: implement this-->
+<!-- * [hikari.events.Event][hikari.events.base_events.Event] TODO: implement this-->
 
 Both [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] and
 [Client.from_rest_bot][tanjun.clients.Client.from_rest_bot] register type
@@ -558,7 +559,7 @@ For more information on the resources cooldowns can be set for see
 tailoring the declarations and responses of slash commands and context menu
 commands to match specific regions by providing multiple translations
 of a field. Localisation on Discord is limited to the locales Discord supports
-(listed at [hikari.locales.Locale][]).
+(listed at [hikari.Locale][hikari.locales.Locale]).
 
 ### Localising command declarations
 
