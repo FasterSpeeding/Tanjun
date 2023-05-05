@@ -1511,8 +1511,6 @@ class AppCommandContext(Context, abc.ABC):
         Parameters
         ----------
         content
-            The content to send.
-
             If provided, the message contents. If
             [hikari.UNDEFINED][hikari.undefined.UNDEFINED], then nothing will
             be sent in the content. Any other value here will be cast to a [str][].
@@ -1638,8 +1636,6 @@ class AppCommandContext(Context, abc.ABC):
         Parameters
         ----------
         content
-            The content to send.
-
             If provided, the message contents. If
             [hikari.UNDEFINED][hikari.undefined.UNDEFINED], then nothing will
             be sent in the content. Any other value here will be cast to a [str][].
