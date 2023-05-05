@@ -1295,7 +1295,7 @@ class Client(tanjun.Client):
         """Prefix getter method set for this client.
 
         For more information on this callback's signature see
-        [tanjun.clients.PrefixGetterSig][].
+        [PrefixGetterSig][tanjun.clients.PrefixGetterSig].
         """
         return self._prefix_getter
 

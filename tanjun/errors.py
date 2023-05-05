@@ -475,7 +475,7 @@ class FailedModuleLoad(TanjunError):
 class FailedModuleImport(FailedModuleLoad):
     """Error raised when a module failed to import.
 
-    This is a specialisation of [tanjun.errors.FailedModuleLoad][].
+    This is a specialisation of [FailedModuleLoad][tanjun.errors.FailedModuleLoad].
     """
 
 

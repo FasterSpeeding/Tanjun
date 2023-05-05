@@ -238,7 +238,7 @@ _ThreadCacheT = async_cache.SfCache[hikari.GuildThreadChannel]
 class ToChannel(BaseConverter):
     """Standard converter for channels mentions/IDs.
 
-    For a standard instance of this see [tanjun.conversion.to_channel][].
+    For a standard instance of this see [to_channel][tanjun.conversion.to_channel].
     """
 
     __slots__ = ("_allowed_types", "_allowed_types_repr", "_dms_enabled", "_guilds_enabled", "_threads_enabled")

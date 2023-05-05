@@ -402,7 +402,9 @@ class GuildCheck(_Check):
 
 
 class AuthorPermissionCheck(_Check):
-    """Standard author permission check callback registered by
+    """Standard author permission check callback.
+
+    This is registered by
     [with_author_permission_check][tanjun.checks.with_author_permission_check].
 
     This check will only pass if the current author has the specified permission.
@@ -485,7 +487,9 @@ _MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
 
 
 class OwnPermissionCheck(_Check):
-    """Standard own permission check callback registered by
+    """Standard own permission check callback.
+
+    This is registered by
     [with_own_permission_check][tanjun.checks.with_own_permission_check].
 
     This check will only pass if the current bot user has the specified permission.
