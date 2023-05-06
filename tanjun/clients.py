@@ -436,7 +436,7 @@ class MessageAcceptsEnum(str, enum.Enum):
 
         Returns
         -------
-        type[hikari.events.MessageCreateEvent] | None
+        type[hikari.events.message_events.MessageCreateEvent] | None
             The type object of the MessageCreateEvent class this mode will
             register a listener for.
 
