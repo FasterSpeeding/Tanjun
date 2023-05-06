@@ -2427,7 +2427,7 @@ class Client(tanjun.Client):
 
         Returns
         -------
-        hikari.Snowflake
+        hikari.snowflakes.Snowflake
             The application ID of the application this client is linked to.
         """
         if self._cached_application_id:
@@ -2991,7 +2991,7 @@ class Client(tanjun.Client):
 
         Returns
         -------
-        hikari.api.InteractionAutocompleteBuilder
+        hikari.api.special_endpoints.InteractionAutocompleteBuilder
             The initial response to send back to Discord.
         """
         loop = asyncio.get_running_loop()
@@ -3021,9 +3021,9 @@ class Client(tanjun.Client):
 
         Returns
         -------
-        hikari.api.InteractionMessageBuilder | hikari.api.InteractionDeferredBuilder | hikari.api.InteractionModalBuilder
+        hikari.api.special_endpoints.InteractionMessageBuilder | hikari.api.special_endpoints.InteractionDeferredBuilder | hikari.api.special_endpoints.InteractionModalBuilder
             The initial response to send back to Discord.
-        """
+        """  # noqa: E501
         loop = asyncio.get_running_loop()
         future: asyncio.Future[_AppCmdResponse] = loop.create_future()
 

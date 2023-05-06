@@ -420,7 +420,7 @@ def with_attachment_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda command: command.add_attachment_option(
@@ -460,7 +460,7 @@ def with_str_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_str_option(
@@ -508,7 +508,7 @@ def with_int_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_int_option(
@@ -557,7 +557,7 @@ def with_float_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_float_option(
@@ -601,7 +601,7 @@ def with_bool_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_bool_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -638,7 +638,7 @@ def with_user_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_user_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -672,7 +672,7 @@ def with_member_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_member_option(name, description, default=default, key=key)
@@ -708,7 +708,7 @@ def with_channel_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_channel_option(
@@ -741,7 +741,7 @@ def with_role_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_role_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -776,7 +776,7 @@ def with_mentionable_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_mentionable_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)

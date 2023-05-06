@@ -431,7 +431,7 @@ class Context(alluka.Context):
 
         Returns
         -------
-        hikari.TextableChannel
+        hikari.channels.TextableChannel
             The textable DM or guild channel the context was invoked in.
 
         Raises
@@ -464,7 +464,7 @@ class Context(alluka.Context):
 
         Returns
         -------
-        hikari.Guild | None
+        hikari.guilds.Guild | None
             An optional guild the context was invoked in.
             [None][] will be returned if the context was invoked in a DM channel.
 
@@ -494,7 +494,7 @@ class Context(alluka.Context):
 
         Returns
         -------
-        hikari.TextableGuildChannel | None
+        hikari.channels.TextableGuildChannel | None
             An optional guild channel the context was invoked in.
             [None][] will be returned if the channel was not found or if it
             is DM channel.
@@ -511,7 +511,7 @@ class Context(alluka.Context):
 
         Returns
         -------
-        hikari.Guild | None
+        hikari.guilds.Guild | None
             An optional guild the context was invoked in.
             [None][] will be returned if the guild was not found.
         """
@@ -614,7 +614,7 @@ class Context(alluka.Context):
 
         Returns
         -------
-        hikari.Message
+        hikari.messages.Message
             The message that has been edited.
 
         Raises
@@ -726,7 +726,7 @@ class Context(alluka.Context):
 
         Returns
         -------
-        hikari.Message
+        hikari.messages.Message
             The message that has been edited.
 
         Raises
@@ -914,7 +914,7 @@ class Context(alluka.Context):
 
         Returns
         -------
-        hikari.Message | None
+        hikari.messages.Message | None
             The message that has been created if it was immedieatly available or
             `ensure_result` was set to [True][], else [None][].
 
@@ -1091,7 +1091,7 @@ class MessageContext(Context, abc.ABC):
 
         Returns
         -------
-        hikari.Message
+        hikari.messages.Message
             The message that has been created.
 
         Raises
@@ -1217,14 +1217,14 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.Attachment | hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User
+        hikari.messages.Attachment | hikari.interactions.base_interactions.InteractionChannel | hikari.interactions.base_interactions.InteractionMember | hikari.guilds.Role | hikari.users.User
             The object value of this option.
 
         Raises
         ------
         TypeError
             If the option isn't resolvable.
-        """
+        """  # noqa: E501
 
     @abc.abstractmethod
     def resolve_to_attachment(self) -> hikari.Attachment:
@@ -1232,7 +1232,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.Attachment
+        hikari.files.Attachment
             The attachment object.
 
         Raises
@@ -1247,7 +1247,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.InteractionChannel
+        hikari.interactions.base_interactions.InteractionChannel
             The channel object.
 
         Raises
@@ -1280,7 +1280,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.InteractionMember | _T
+        hikari.interactions.base_interactions.InteractionMember | _T
             The member object or `default` if it was provided and this option
             was a user type but had no member.
 
@@ -1308,7 +1308,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.Role | hikari.User | hikari.Member
+        hikari.guilds.Role | hikari.users.User | hikari.guilds.Member
             The mentionable object.
 
         Raises
@@ -1323,7 +1323,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.Role
+        hikari.guilds.Role
             The role object.
 
         Raises
@@ -1350,7 +1350,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.User | hikari.Member
+        hikari.users.User | hikari.guilds.Member
             The user object.
 
         Raises
@@ -1558,7 +1558,7 @@ class AppCommandContext(Context, abc.ABC):
 
         Returns
         -------
-        hikari.Message
+        hikari.messages.Message
             The created message object.
 
         Raises
@@ -1810,7 +1810,7 @@ class MenuContext(AppCommandContext, abc.ABC):
 
         Returns
         -------
-        hikari.Member
+        hikari.interactions.base_interactions.InteractionMember
             The resolved member.
 
         Raises
@@ -1830,7 +1830,7 @@ class MenuContext(AppCommandContext, abc.ABC):
 
         Returns
         -------
-        hikari.Message
+        hikari.messages.Message
             The resolved message.
 
         Raises
@@ -1845,7 +1845,7 @@ class MenuContext(AppCommandContext, abc.ABC):
 
         Returns
         -------
-        hikari.User | hikari.Member
+        hikari.users.User | hikari.guilds.Member
             The resolved user.
 
         Raises
@@ -2015,7 +2015,7 @@ class AutocompleteContext(alluka.Context):
 
         Returns
         -------
-        hikari.TextableChannel
+        hikari.channels.TextableChannel
             The textable DM or guild channel the context was invoked in.
 
         Raises
@@ -2049,7 +2049,7 @@ class AutocompleteContext(alluka.Context):
 
         Returns
         -------
-        hikari.Guild | None
+        hikari.guilds.Guild | None
             An optional guild the context was invoked in.
             [None][] will be returned if the context was invoked in a DM channel.
 
@@ -2079,7 +2079,7 @@ class AutocompleteContext(alluka.Context):
 
         Returns
         -------
-        hikari.TextableGuildChannel | None
+        hikari.channels.TextableGuildChannel | None
             An optional guild channel the context was invoked in.
             [None][] will be returned if the channel was not found or if it
             is DM channel.
@@ -2096,7 +2096,7 @@ class AutocompleteContext(alluka.Context):
 
         Returns
         -------
-        hikari.Guild | None
+        hikari.guilds.Guild | None
             An optional guild the context was invoked in.
             [None][] will be returned if the guild was not found.
         """
@@ -2760,7 +2760,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
 
         Returns
         -------
-        hikari.api.CommandBuilder
+        hikari.api.special_endpoints.CommandBuilder
             A builder object for this command. Use to declare this command on
             globally or for a specific guild.
         """
@@ -2829,7 +2829,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
 
         Returns
         -------
-        hikari.api.SlashCommandBuilder
+        hikari.api.special_endpoints.SlashCommandBuilder
             A builder object for this command. Use to declare this command on
             globally or for a specific guild.
         """
@@ -2932,7 +2932,7 @@ class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCallbackSigT, _Me
 
         Returns
         -------
-        hikari.api.ContextMenuCommandBuilder
+        hikari.api.special_endpoints.ContextMenuCommandBuilder
             A builder object for this command. Use to declare this command on
             globally or for a specific guild.
         """
@@ -4195,7 +4195,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        hikari.PartialCommand
+        hikari.channels.PartialCommand
             API representation of the command that was registered.
         """
 
@@ -4260,7 +4260,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        collections.abc.Sequence[hikari.PartialCommand]
+        collections.abc.Sequence[hikari.commands.PartialCommand]
             API representations of the commands which were registered.
 
         Raises

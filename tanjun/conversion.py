@@ -981,7 +981,7 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSigProto:
 
         Returns
         -------
-        hikari.Snowflake
+        hikari.snowflakes.Snowflake
             The parsed snowflake.
 
         Raises
@@ -1027,7 +1027,7 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
 
         Returns
         -------
-        list[hikari.Snowflake]
+        list[hikari.snowflakes.Snowflake]
             List of the IDs found in the string.
         """
         if isinstance(value, str):
@@ -1255,7 +1255,7 @@ def parse_message_id(
 
     Returns
     -------
-    tuple[hikari.Snowflake | None, hikari.Snowflake]
+    tuple[hikari.snowflakes.Snowflake | None, hikari.snowflakes.Snowflake]
         The parsed channel and message IDs.
 
     Raises

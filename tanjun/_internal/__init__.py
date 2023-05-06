@@ -223,7 +223,7 @@ def infer_listener_types(
 
     Returns
     -------
-    collections.Sequence[type[hikari.Event]]
+    collections.Sequence[type[hikari.events.base_events.Event]]
         Sequence of the listener types for this callback.
 
     Raises

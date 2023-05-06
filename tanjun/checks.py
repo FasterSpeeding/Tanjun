@@ -687,7 +687,7 @@ def with_guild_check(
 
     Returns
     -------
-    tanjun.abc.ExecutableCommanmd
+    tanjun.abc.ExecutableCommand
         The command this check was added to.
     """
     return _optional_kwargs(
