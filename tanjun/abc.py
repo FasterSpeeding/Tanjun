@@ -436,19 +436,19 @@ class Context(alluka.Context):
 
         Raises
         ------
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `READ_MESSAGES` permission in the channel.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -470,16 +470,16 @@ class Context(alluka.Context):
 
         Raises
         ------
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are not part of the guild.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the guild is not found.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -522,7 +522,7 @@ class Context(alluka.Context):
 
         Raises
         ------
-        LookupError, hikari.NotFoundError
+        LookupError, hikari.errors.NotFoundError
             The last context has no initial response.
         """
 
@@ -532,7 +532,7 @@ class Context(alluka.Context):
 
         Raises
         ------
-        LookupError, hikari.NotFoundError
+        LookupError, hikari.errors.NotFoundError
             The last context has no responses.
         """
 
@@ -628,23 +628,23 @@ class Context(alluka.Context):
 
             If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
             invalid image URLs in embeds; too many components.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `SEND_MESSAGES` in the channel or the
             person you are trying to message has the DM's disabled.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -740,23 +740,23 @@ class Context(alluka.Context):
 
             If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
             invalid image URLs in embeds; too many components.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `SEND_MESSAGES` in the channel or the
             person you are trying to message has the DM's disabled.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -766,7 +766,7 @@ class Context(alluka.Context):
 
         Raises
         ------
-        LookupError, hikari.NotFoundError
+        LookupError, hikari.errors.NotFoundError
             The response was not found.
         """
 
@@ -776,7 +776,7 @@ class Context(alluka.Context):
 
         Raises
         ------
-        LookupError, hikari.NotFoundError
+        LookupError, hikari.errors.NotFoundError
             The response was not found.
         """
 
@@ -929,23 +929,23 @@ class Context(alluka.Context):
 
             If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
             invalid image URLs in embeds; too many components.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `SEND_MESSAGES` in the channel or the
             person you are trying to message has the DM's disabled.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -1105,24 +1105,24 @@ class MessageContext(Context, abc.ABC):
             If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed
             or both `sticker` and `stickers` are passed.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
             invalid image URLs in embeds; if `reply` is not found or not in the
             same channel as `channel`; too many components.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `SEND_MESSAGES` in the channel or the
             person you are trying to message has the DM's disabled.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -1563,10 +1563,10 @@ class AppCommandContext(Context, abc.ABC):
 
         Raises
         ------
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the current interaction is not found or it hasn't had an initial
             response yet.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This can be raised if the file is too large; if the embed exceeds
             the defined limits; if the message content is specified only and
             empty or greater than `2000` characters; if neither content, file
@@ -1690,20 +1690,20 @@ class AppCommandContext(Context, abc.ABC):
 
             If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; invalid image URLs in embeds.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the interaction is not found or if the interaction's initial
             response has already been created.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -1738,17 +1738,17 @@ class AppCommandContext(Context, abc.ABC):
         ------
         ValueError
             If both `component` and `components` are specified or if none are specified.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             When the requests' data is outside Discord's accept ranges/validation.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the interaction is not found or if the interaction's initial
             response has already been created or deferred.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -1835,8 +1835,8 @@ class MenuContext(AppCommandContext, abc.ABC):
 
         Raises
         ------
-        TypeEror
-        if the context is not for a message menu.
+        TypeError
+            if the context is not for a message menu.
         """
 
     @abc.abstractmethod
@@ -2020,19 +2020,19 @@ class AutocompleteContext(alluka.Context):
 
         Raises
         ------
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `READ_MESSAGES` permission in the channel.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -2055,16 +2055,16 @@ class AutocompleteContext(alluka.Context):
 
         Raises
         ------
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are not part of the guild.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the guild is not found.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -3047,7 +3047,7 @@ class MessageParser(abc.ABC):
 
         Raises
         ------
-        tanjun.ParserError
+        tanjun.errors.ParserError
             If the message could not be parsed.
         """
 
@@ -3718,9 +3718,9 @@ class Component(abc.ABC):
 
         Raises
         ------
-        tanjun.CommandError
+        tanjun.errors.CommandError
             To end the command's execution with an error response message.
-        tanjun.HaltExecution
+        tanjun.errors.HaltExecution
             To indicate that the client should stop searching for commands to
             execute with the current context.
         """
@@ -3750,9 +3750,9 @@ class Component(abc.ABC):
 
         Raises
         ------
-        tanjun.CommandError
+        tanjun.errors.CommandError
             To end the command's execution with an error response message.
-        tanjun.HaltExecution
+        tanjun.errors.HaltExecution
             To indicate that the client should stop searching for commands to
             execute with the current context.
         """
@@ -3781,9 +3781,9 @@ class Component(abc.ABC):
 
         Raises
         ------
-        tanjun.CommandError
+        tanjun.errors.CommandError
             To end the command's execution with an error response message.
-        tanjun.HaltExecution
+        tanjun.errors.HaltExecution
             To indicate that the client should stop searching for commands to
             execute with the current context.
         """
@@ -4715,7 +4715,7 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.FailedModuleLoad
+        tanjun.errors.FailedModuleLoad
             If any of the modules in this directory failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
@@ -4785,14 +4785,14 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.FailedModuleLoad
+        tanjun.errors.FailedModuleLoad
             If the new version of a module failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
             The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
-        tanjun.ModuleStateConflict
+        tanjun.errors.ModuleStateConflict
             If the module is already loaded.
-        tanjun.ModuleMissingLoaders
+        tanjun.errors.ModuleMissingLoaders
             If no loaders are found in the module.
         ModuleNotFoundError
             If the module is not found.
@@ -4850,11 +4850,11 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.ModuleStateConflict
+        tanjun.errors.ModuleStateConflict
             If the module hasn't been loaded.
-        tanjun.ModuleMissingUnloaders
+        tanjun.errors.ModuleMissingUnloaders
             If no unloaders are found in the module.
-        tanjun.FailedModuleUnload
+        tanjun.errors.FailedModuleUnload
             If the old version of a module failed to unload.
 
             This indicates that one of its unloaders raised. The source
@@ -4889,21 +4889,21 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.FailedModuleLoad
+        tanjun.errors.FailedModuleLoad
             If the new version of a module failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
             The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
-        tanjun.FailedModuleUnload
+        tanjun.errors.FailedModuleUnload
             If the old version of a module failed to unload.
 
             This indicates that one of its unloaders raised. The source
             error can be found at [tanjun.FailedModuleUnload.__cause__][].
-        tanjun.ModuleStateConflict
+        tanjun.errors.ModuleStateConflict
             If the module hasn't been loaded.
-        tanjun.ModuleMissingLoaders
+        tanjun.errors.ModuleMissingLoaders
             If no loaders are found in the new state of the module.
-        tanjun.ModuleMissingUnloaders
+        tanjun.errors.ModuleMissingUnloaders
             If no unloaders are found in the current state of the module.
         ModuleNotFoundError
             If the module can no-longer be found at the provided path.
