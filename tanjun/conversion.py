@@ -1540,9 +1540,9 @@ to_emoji: typing.Final[ToEmoji] = ToEmoji()
     [hikari.CustomEmoji][hikari.emojis.CustomEmoji] or
     [hikari.UnicodeEmoji][hikari.emojis.UnicodeEmoji] without making any cache
     or REST calls then you can just use the relevant
-    [hikari.Emoji.parse][hikari.emojis.Emoji.parse],
-    [hikari.CustomEmoji.parse][hikari.emojis.CustomEmoji.parse] or
-    [hikari.UnicodeEmoji.parse][hikari.emojis.UnicodeEmoji.parse] methods.
+    [Emoji.parse][hikari.emojis.Emoji.parse],
+    [CustomEmoji.parse][hikari.emojis.CustomEmoji.parse] or
+    [UnicodeEmoji.parse][hikari.emojis.UnicodeEmoji.parse] methods.
 """
 
 to_guild: typing.Final[ToGuild] = ToGuild()
