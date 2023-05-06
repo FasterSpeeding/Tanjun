@@ -608,10 +608,9 @@ It's highly recommended that 3rd party libraries match this format if possible.
 ```
 
 [tanjun.abc.AppCommandContext.interaction][] (base class for both
-[tanjun.abc.SlashContext][] and [tanjun.abc.MenuContext][]) both have the
-fields `guild_locale` and `locale` which provide the set locale of the guild
-and the user triggering the command respectively.
-This [locale][hikari.locales.Locale] can be used to localise responses to
-specific languages within your own code.
+[tanjun.abc.SlashContext][] and [tanjun.abc.MenuContext][]) has the fields
+`guild_locale` and `locale` which provide the set locale of the guild and the
+user triggering the command respectively. This [locale][hikari.locales.Locale]
+can be used to localise responses to specific languages within your own code.
 
 <!-- # TODO: some day, document buildings commands using the flient interface -->

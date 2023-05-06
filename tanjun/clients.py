@@ -1601,10 +1601,11 @@ class Client(tanjun.Client):
         permissions
             The default member permissions needed for this client's application commands.
 
-            This may be overridden by [tanjun.abc.AppCommand.default_member_permissions][]
-            and [tanjun.abc.Component.default_app_cmd_permissions][]; if this is
-            left as [None][] then this config will be inherited from the parent
-            client.
+            This may be overridden by
+            [AppCommand.default_member_permissions][tanjun.abc.AppCommand.default_member_permissions]
+            and [Component.default_app_cmd_permissions][tanjun.abc.Component.default_app_cmd_permissions];
+            if this is left as [None][] then this config will be inherited from
+            the parent client.
 
         Returns
         -------
@@ -1622,10 +1623,11 @@ class Client(tanjun.Client):
         state
             Whether to enable this client's commands in DMs.
 
-            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][]
-            and [tanjun.abc.Component.dms_enabled_for_app_cmds][]; if this is
-            left as [None][] then this config will be inherited from the parent
-            client.
+            This may be overridden by
+            [AppCommand.is_dm_enabled][tanjun.abc.AppCommand.is_dm_enabled]
+            and [Component.dms_enabled_for_app_cmds][tanjun.abc.Component.dms_enabled_for_app_cmds];
+            if this is left as [None][] then this config will be inherited from
+            the parent client.
 
         Returns
         -------

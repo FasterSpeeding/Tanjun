@@ -4687,7 +4687,7 @@ class Client(abc.ABC):
     def load_directory(
         self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> Self:
-        """Load entities into this client from the modules in a directory.
+        r"""Load entities into this client from the modules in a directory.
 
         The same loading rules for [Client.load_modules][tanjun.abc.Client.load_modules]
         mostly apply here but modules with no loaders are quietly ignored.
@@ -4719,7 +4719,8 @@ class Client(abc.ABC):
             If any of the modules in this directory failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
-            The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
+            The source error can be found at
+            [FailedModuleLoad.\_\_cause\_\_][FailedModuleLoad.__cause__].
 
             Modules with no loaders are ignored.
         ModuleNotFoundError
@@ -4741,7 +4742,7 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def load_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
-        """Load entities into this client from modules based on present loaders.
+        r"""Load entities into this client from modules based on present loaders.
 
         !!! note
             If an `__all__` is present in the target module then it will be
@@ -4789,7 +4790,8 @@ class Client(abc.ABC):
             If the new version of a module failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
-            The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
+            The source error can be found at
+            [FailedModuleLoad.\_\_cause\_\_][FailedModuleLoad.__cause__].
         tanjun.errors.ModuleStateConflict
             If the module is already loaded.
         tanjun.errors.ModuleMissingLoaders
@@ -4811,7 +4813,7 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
-        """Unload entities from this client based on unloaders in one or more modules.
+        r"""Unload entities from this client based on unloaders in one or more modules.
 
         !!! note
             If an `__all__` is present in the target module then it will be
@@ -4857,13 +4859,14 @@ class Client(abc.ABC):
         tanjun.errors.FailedModuleUnload
             If the old version of a module failed to unload.
 
-            This indicates that one of its unloaders raised. The source
-            error can be found at [tanjun.FailedModuleUnload.__cause__][].
+            This indicates that one of its unloaders raised. The source error
+            can be found at
+            [FailedModuleUnload.\_\_cause\_\_][FailedModuleUnload.__cause__].
         """
 
     @abc.abstractmethod
     def reload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
-        """Reload entities in this client based on the loaders in loaded module(s).
+        r"""Reload entities in this client based on the loaders in loaded module(s).
 
         !!! note
             If an `__all__` is present in the target module then it will be
@@ -4893,12 +4896,14 @@ class Client(abc.ABC):
             If the new version of a module failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
-            The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
+            The source error can be found at
+            [FailedModuleLoad.\_\_cause\_\_][FailedModuleLoad.__cause__].
         tanjun.errors.FailedModuleUnload
             If the old version of a module failed to unload.
 
             This indicates that one of its unloaders raised. The source
-            error can be found at [tanjun.FailedModuleUnload.__cause__][].
+            error can be found at
+            [FailedModuleUnload.\_\_cause\_\_][FailedModuleUnload.__cause__].
         tanjun.errors.ModuleStateConflict
             If the module hasn't been loaded.
         tanjun.errors.ModuleMissingLoaders

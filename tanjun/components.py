@@ -444,7 +444,8 @@ class Component(tanjun.Component):
             If this is left as [None][] then this config will be inherited from
             the parent client.
 
-            This may be overridden by [tanjun.abc.AppCommand.default_member_permissions][]
+            This may be overridden by
+            [AppCommand.default_member_permissions][tanjun.abc.AppCommand.default_member_permissions]
             and if this is left as [None][] then this config will be inherited
             from the parent client.
 
@@ -464,7 +465,8 @@ class Component(tanjun.Component):
         state
             Whether to enable this component's commands in DMs.
 
-            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][]
+            This may be overridden by
+            [AppCommand.is_dm_enabled][tanjun.abc.AppCommand.is_dm_enabled]
             and if this is left as [None][] then this config will be inherited
             from the parent client.
 
