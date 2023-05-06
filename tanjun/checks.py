@@ -251,7 +251,7 @@ class NsfwCheck(_Check):
 
 
 class SfwCheck(_Check):
-    """Standard SFW check callback registered by [tanjun.with_sfw_check][].
+    """Standard SFW check callback registered by [with_sfw_check][tanjun.checks.with_sfw_check].
 
     This check will only pass if the current channel is SFW.
     """
