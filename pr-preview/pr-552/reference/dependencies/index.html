@@ -2524,8 +2524,8 @@ unique per-parent resource.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.AsyncCache.get" class="headerlink" title="Permanent link">#</a></h4>
@@ -2737,8 +2737,8 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.CacheIterator.len" class="headerlink" title="Permanent link">#</a></h4>
@@ -2858,8 +2858,8 @@ doesn't exist.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.ChannelBoundCache.get_from_channel" class="headerlink" title="Permanent link">#</a></h4>
@@ -3178,8 +3178,8 @@ which indicates that the cache is sure that the entry doesn't exist.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.GuildBoundCache.get_from_guild" class="headerlink" title="Permanent link">#</a></h4>
@@ -3479,8 +3479,8 @@ cache store.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.async_cache.SingleStoreCache.get" class="headerlink" title="Permanent link">#</a></h4>
@@ -3769,7 +3769,7 @@ client is not bound to a Bot token.</p>
       <p>Injected type used to hold and generate lazy constants.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="../#tanjun.inject_lc">inject_lc</a>.</p>
+<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.inject_lc">inject_lc</a>.</p>
 </div>
 
 
@@ -4344,7 +4344,7 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
       <p>Make an injected callback which resolves a LazyConstant.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is internally used by <a class="autorefs autorefs-internal" href="../#tanjun.inject_lc">inject_lc</a>.</p>
+<p>This is internally used by <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.inject_lc">inject_lc</a>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -4474,8 +4474,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractConcurrencyLimiter.release" class="headerlink" title="Permanent link">#</a></h4>
@@ -4499,8 +4499,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractConcurrencyLimiter.try_acquire" class="headerlink" title="Permanent link">#</a></h4>
@@ -4620,8 +4620,8 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown" class="headerlink" title="Permanent link">#</a></h4>
@@ -4719,8 +4719,8 @@ if it's in cooldown else <a class="autorefs autorefs-external" href="https://doc
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.limiters.AbstractCooldownManager.increment_cooldown" class="headerlink" title="Permanent link">#</a></h4>
@@ -6114,7 +6114,7 @@ if limit is less 0 or negative.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 
@@ -6890,8 +6890,8 @@ localised values.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
       <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
 <a href="#tanjun.dependencies.owners.AbstractOwners.check_ownership" class="headerlink" title="Permanent link">#</a></h4>
