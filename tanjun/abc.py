@@ -867,8 +867,8 @@ class Context(alluka.Context):
             Ensure that this call will always return a message object.
 
             If [True][] then this will always return
-            [Message][hikari.messages.Message], otherwise this will return
-            `hikari.Message | None`.
+            [hikari.Message][hikari.messages.Message], otherwise this will
+            return `hikari.Message | None`.
 
             It's worth noting that, under certain scenarios within the slash
             command flow, this may lead to an extre request being made.
