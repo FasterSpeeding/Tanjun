@@ -623,7 +623,7 @@ def with_user_slash_option(
 
     !!! note
         This may result in
-        [hikari.interactions.InteractionMember][hikari.interactions.base_interactions.InteractionMember]
+        [hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember]
         or [hikari.User][hikari.users.User] if the user isn't in the current
         guild or if this command was executed in a DM channel.
 
@@ -659,7 +659,7 @@ def with_member_slash_option(
 
     !!! note
         This will always result in
-        [hikari.interactions.InteractionMember][hikari.interactions.base_interactions.InteractionMember].
+        [hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember].
 
     Examples
     --------
@@ -695,7 +695,7 @@ def with_channel_slash_option(
 
     !!! note
         This will always result in
-        [hikari.interactions.InteractionChannel][hikari.interactions.base_interactions.InteractionChannel].
+        [hikari.InteractionChannel][hikari.interactions.base_interactions.InteractionChannel].
 
     Examples
     --------
@@ -2474,7 +2474,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         !!! note
             This may result in
-            [hikari.interactions.InteractionMember][hikari.interactions.base_interactions.InteractionMember]
+            [hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember]
             or [hikari.User][hikari.users.User] if the user isn't in the
             current guild or if this command was executed in a DM channel.
 
@@ -2547,7 +2547,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         !!! note
             This will always result in
-            [hikari.interactions.InteractionMember][hikari.interactions.base_interactions.InteractionMember].
+            [hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember].
 
         !!! warning
             Unlike the other options, this is an artificial option which adds
@@ -2619,7 +2619,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         !!! note
             This will always result in
-            [hikari.interactions.InteractionChannel][hikari.interactions.base_interactions.InteractionChannel].
+            [hikari.InteractionChannel][hikari.interactions.base_interactions.InteractionChannel].
 
         Parameters
         ----------
