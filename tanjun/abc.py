@@ -2215,7 +2215,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.ErrorHookSig
+        callback : ErrorHookSig
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
@@ -2291,7 +2291,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.ParserHookSig
+        callback : ParserHookSig
             The parser error callback to add to this hook.
 
             This callback should take two positional arguments (of type
@@ -2359,7 +2359,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.HookSig
+        callback : HookSig
             The post-execution callback to add to this hook.
 
             This callback should take one positional argument (of type
@@ -2427,7 +2427,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.HookSig
+        callback : HookSig
             The pre-execution callback to add to this hook.
 
             This callback should take one positional argument (of type
@@ -2495,7 +2495,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.HookSig
+        callback : HookSig
             The success callback to add to this hook.
 
             This callback should take one positional argument (of type
