@@ -576,7 +576,7 @@ def bool_field(
         The names this option may be triggered by as a message command flag
         option.
 
-        These must all be prefixed with "-" and are ignored unless `default`
+        These must all be prefixed with `"-"` and are ignored unless `default`
         is also passed.
     positional
         Whether this should be a positional argument.
@@ -682,7 +682,7 @@ def channel_field(
         The names this option may be triggered by as a message command flag
         option.
 
-        These must all be prefixed with "-" and are ignored unless `default`
+        These must all be prefixed with `"-"` and are ignored unless `default`
         is also passed.
     or_snowflake
         Whether this should just pass the parsed channel ID as a
@@ -763,7 +763,7 @@ def float_field(
         The names this option may be triggered by as a message command flag
         option.
 
-        These must all be prefixed with "-" and are ignored unless `default`
+        These must all be prefixed with `"-"` and are ignored unless `default`
         is also passed.
     min_value
         The minimum allowed value for this argument.
@@ -845,7 +845,7 @@ def int_field(
         The names this option may be triggered by as a message command flag
         option.
 
-        These must all be prefixed with "-" and are ignored unless `default`
+        These must all be prefixed with `"-"` and are ignored unless `default`
         is also passed.
     min_value
         The minimum allowed value for this argument.
@@ -951,7 +951,7 @@ def member_field(
         The names this option may be triggered by as a message command flag
         option.
 
-        These must all be prefixed with "-" and are ignored unless `default`
+        These must all be prefixed with `"-"` and are ignored unless `default`
         is also passed.
     or_snowflake
         Whether this should just pass the parsed user ID as a
@@ -1057,7 +1057,7 @@ def mentionable_field(
         The names this option may be triggered by as a message command flag
         option.
 
-        These must all be prefixed with "-" and are ignored unless `default`
+        These must all be prefixed with `"-"` and are ignored unless `default`
         is also passed.
     or_snowflake
         Whether this should just pass the parsed ID as a
@@ -1161,7 +1161,7 @@ def role_field(
         The names this option may be triggered by as a message command flag
         option.
 
-        These must all be prefixed with "-" and are ignored unless `default`
+        These must all be prefixed with `"-"` and are ignored unless `default`
         is also passed.
     or_snowflake
         Whether this should just pass the parsed role ID as a
@@ -1287,7 +1287,7 @@ def str_field(
         The names this option may be triggered by as a message command flag
         option.
 
-        These must all be prefixed with "-" and are ignored unless `default`
+        These must all be prefixed with `"-"` and are ignored unless `default`
         is also passed.
     min_length
         The minimum length this argument can be.
@@ -1396,7 +1396,7 @@ def user_field(
         The names this option may be triggered by as a message command flag
         option.
 
-        These must all be prefixed with "-" and are ignored unless `default`
+        These must all be prefixed with `"-"` and are ignored unless `default`
         is also passed.
     or_snowflake
         Whether this should just pass the parsed user ID as a
@@ -1731,7 +1731,7 @@ class Flag(_ConfigIdentifier):
             Other names the flag may be triggered by.
 
             This does not override the argument's name and all the aliases must
-            be prefixed with "-".
+            be prefixed with `"-"`.
         empty_value
             Value to pass for the argument if the flag is provided without a value.
 
