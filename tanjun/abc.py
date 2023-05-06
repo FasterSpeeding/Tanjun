@@ -4195,7 +4195,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        hikari.channels.PartialCommand
+        hikari.commands.PartialCommand
             API representation of the command that was registered.
         """
 
