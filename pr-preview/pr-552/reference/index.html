@@ -15011,7 +15011,7 @@ if limit is less 0 or negative.</p>
       <p>Injected type used to hold and generate lazy constants.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.inject_lc">inject_lc</a>.</p>
+<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="#tanjun.inject_lc">inject_lc</a>.</p>
 </div>
 
 
@@ -17624,7 +17624,7 @@ the option is required without the actual value being used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will always result in
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.interactions.InteractionChannel</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.InteractionChannel</a>.</p>
 </div>
 
   <table>
@@ -18341,7 +18341,7 @@ the option is required without the actual value being used and the
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will always result in
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.interactions.InteractionMember</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.InteractionMember</a>.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -19098,7 +19098,7 @@ the option is required without the actual value being used and the
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This may result in
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.interactions.InteractionMember</a>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.InteractionMember</a>
 or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.User">hikari.User</a> if the user isn't in the
 current guild or if this command was executed in a DM channel.</p>
 </div>
@@ -22436,7 +22436,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -23675,7 +23675,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will always result in
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.interactions.InteractionChannel</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.InteractionChannel</a>.</p>
 </div>
 
 <p><strong>Examples:</strong></p>
@@ -23810,7 +23810,7 @@ command wraps in a decorator call chain.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 
@@ -23934,8 +23934,8 @@ command wraps in a decorator call chain.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
@@ -24685,7 +24685,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will always result in
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.interactions.InteractionMember</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.InteractionMember</a>.</p>
 </div>
 
 <p><strong>Examples:</strong></p>
@@ -26306,7 +26306,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This may result in
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.interactions.InteractionMember</a>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.InteractionMember</a>
 or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.User">hikari.User</a> if the user isn't in the current
 guild or if this command was executed in a DM channel.</p>
 </div>
