@@ -4720,7 +4720,7 @@ class Client(abc.ABC):
 
             This includes if it failed to import or if one of its loaders raised.
             The source error can be found at
-            [FailedModuleLoad.\_\_cause\_\_][FailedModuleLoad.__cause__].
+            [FailedModuleLoad.\_\_cause\_\_][tanjun.errors.FailedModuleLoad.__cause__].
 
             Modules with no loaders are ignored.
         ModuleNotFoundError
@@ -4791,7 +4791,7 @@ class Client(abc.ABC):
 
             This includes if it failed to import or if one of its loaders raised.
             The source error can be found at
-            [FailedModuleLoad.\_\_cause\_\_][FailedModuleLoad.__cause__].
+            [FailedModuleLoad.\_\_cause\_\_][tanjun.errors.FailedModuleLoad.__cause__].
         tanjun.errors.ModuleStateConflict
             If the module is already loaded.
         tanjun.errors.ModuleMissingLoaders
@@ -4861,7 +4861,7 @@ class Client(abc.ABC):
 
             This indicates that one of its unloaders raised. The source error
             can be found at
-            [FailedModuleUnload.\_\_cause\_\_][FailedModuleUnload.__cause__].
+            [FailedModuleUnload.\_\_cause\_\_][tanjun.errors.FailedModuleUnload.__cause__].
         """
 
     @abc.abstractmethod
@@ -4897,13 +4897,13 @@ class Client(abc.ABC):
 
             This includes if it failed to import or if one of its loaders raised.
             The source error can be found at
-            [FailedModuleLoad.\_\_cause\_\_][FailedModuleLoad.__cause__].
+            [FailedModuleLoad.\_\_cause\_\_][tanjun.errors.FailedModuleLoad.__cause__].
         tanjun.errors.FailedModuleUnload
             If the old version of a module failed to unload.
 
             This indicates that one of its unloaders raised. The source
             error can be found at
-            [FailedModuleUnload.\_\_cause\_\_][FailedModuleUnload.__cause__].
+            [FailedModuleUnload.\_\_cause\_\_][tanjun.errors.FailedModuleUnload.__cause__].
         tanjun.errors.ModuleStateConflict
             If the module hasn't been loaded.
         tanjun.errors.ModuleMissingLoaders

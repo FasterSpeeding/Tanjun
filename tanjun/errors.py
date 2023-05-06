@@ -455,13 +455,13 @@ class ModuleStateConflict(ValueError, TanjunError):
 
 
 class FailedModuleLoad(TanjunError):
-    """Error raised when a module fails to load.
+    r"""Error raised when a module fails to load.
 
     This may be raised by the module failing to import or by one of
     its loaders erroring.
 
     This source error can be accessed at
-    [FailedModuleLoad.__cause__][tanjun.errors.FailedModuleLoad.__cause__].
+    [FailedModuleLoad.\_\_cause\_\_][tanjun.errors.FailedModuleLoad.__cause__].
     """
 
     __cause__: Exception
@@ -484,13 +484,13 @@ class FailedModuleImport(FailedModuleLoad):
 
 
 class FailedModuleUnload(TanjunError):
-    """Error raised when a module fails to unload.
+    r"""Error raised when a module fails to unload.
 
     This may be raised by the module failing to import or by one
     of its unloaders erroring.
 
     The source error can be accessed at
-    [FailedModuleUnload.__cause__][tanjun.errors.FailedModuleUnload.__cause__].
+    [FailedModuleUnload.\_\_cause\_\_][tanjun.errors.FailedModuleUnload.__cause__].
     """
 
     __cause__: Exception
