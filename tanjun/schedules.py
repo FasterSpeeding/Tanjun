@@ -463,7 +463,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Examples
         --------
         ```py
-        @component.with_schedule()
+        @component.with_schedule
         @tanjun.as_interval(1, max_runs=20)
         async def interval():
             global counter
@@ -494,7 +494,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Examples
         --------
         ```py
-        @component.with_schedule()
+        @component.with_schedule
         @tanjun.as_interval(1, max_runs=20)
         async def interval():
             global counter
