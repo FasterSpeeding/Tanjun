@@ -426,7 +426,7 @@ class Context(alluka.Context):
         !!! note
             This performs an API call. Consider using
             [Context.get_channel][tanjun.abc.Context.get_channel]if you have the
-            [hikari.api.CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
+            [CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
             cache component enabled.
 
         Returns
@@ -459,7 +459,7 @@ class Context(alluka.Context):
         !!! note
             This performs an API call. Consider using
             [Context.get_guild][tanjun.abc.Context.get_guild] if you have the
-            [hikari.api.CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
+            [CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
             cache component enabled.
 
         Returns
@@ -489,7 +489,7 @@ class Context(alluka.Context):
 
         !!! note
             This method requires the
-            [hikari.api.CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
+            [CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
             cache component.
 
         Returns
@@ -506,7 +506,7 @@ class Context(alluka.Context):
 
         !!! note
             This method requires the
-            [hikari.api.CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
+            [CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
             cache component.
 
         Returns
@@ -1656,7 +1656,7 @@ class AppCommandContext(Context, abc.ABC):
             If provided, the message flags this response should have.
 
             As of writing the only message flag which can be set here is
-            [hikari.MessageFlag.EPHEMERAL][hikari.messages.MessageFlag.EPHEMERAL].
+            [MessageFlag.EPHEMERAL][hikari.messages.MessageFlag.EPHEMERAL].
         tts
             If provided, whether the message will be read out by a screen
             reader using Discord's TTS (text-to-speech) system.
@@ -2010,7 +2010,7 @@ class AutocompleteContext(alluka.Context):
             This performs an API call. Consider using
             [AutocompleteContext.get_channel][tanjun.abc.AutocompleteContext.get_channel]
             if you have the
-            [hikari.api.CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
+            [CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
             cache component enabled.
 
         Returns
@@ -2044,7 +2044,7 @@ class AutocompleteContext(alluka.Context):
             This performs an API call. Consider using
             [AutocompleteContext.get_guild][tanjun.abc.AutocompleteContext.get_guild]
             if you have the
-            [hikari.api.CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
+            [CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
             cache component enabled.
 
         Returns
@@ -2074,7 +2074,7 @@ class AutocompleteContext(alluka.Context):
 
         !!! note
             This method requires the
-            [hikari.api.CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
+            [CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
             cache component.
 
         Returns
@@ -2091,7 +2091,7 @@ class AutocompleteContext(alluka.Context):
 
         !!! note
             This method requires the
-            [hikari.api.CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
+            [CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
             cache component.
 
         Returns

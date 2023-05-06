@@ -445,9 +445,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         type_ : hikari.commands.CommandType
             The type of menu command this is.
 
-            Only [hikari.CommandType.USER][hikari.commands.CommandType.USER]
-            and [hikari.CommandType.MESSAGE][hikari.commands.CommandType.MESSAGE]
-            are valid here.
+            Only [CommandType.USER][hikari.commands.CommandType.USER] and
+            [CommandType.MESSAGE][hikari.commands.CommandType.MESSAGE] are
+            valid here.
         name
             The command's name (supports [localisation][]).
 
