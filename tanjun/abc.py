@@ -1232,7 +1232,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.files.Attachment
+        hikari.messages.Attachment
             The attachment object.
 
         Raises
