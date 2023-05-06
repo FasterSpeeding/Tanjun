@@ -233,7 +233,7 @@ def infer_listener_types(
         a type hint.
     TypeError
         If the callback's first positional argument doesn't have any
-        [hiari.Event][hiari.events.base_events.Event] subclasses in it.
+        [hikari.Event][hikari.events.base_events.Event] subclasses in it.
     """
     try:
         signature = inspect.Signature.from_callable(callback, eval_str=True)
