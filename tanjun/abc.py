@@ -3609,8 +3609,8 @@ class Component(abc.ABC):
         ------
         ValueError
             If nothing was passed for `event_types` and no subclasses of
-            [hikari.events.Event][hikari.events.base_events.Event]
-            are found in the type-hint for the callback's first argument.
+            [hikari.Event][hikari.events.base_events.Event] are found in the
+            type-hint for the callback's first argument.
         """
 
     @abc.abstractmethod
@@ -4556,15 +4556,15 @@ class Client(abc.ABC):
 
             The callback must be a coroutine function which returns [None][] and
             always takes at least one positional arg of type
-            [hikari.events.Event][hikari.events.base_events.Event]
-            regardless of client implementation detail.
+            [hikari.Event][hikari.events.base_events.Event] regardless of
+            client implementation detail.
 
         Raises
         ------
         ValueError
             If nothing was passed for `event_types` and no subclasses of
-            [hikari.events.Event][hikari.events.base_events.Event]
-            are found in the type-hint for the callback's first argument.
+            [hikari.Event][hikari.events.base_events.Event] are found in the
+            type-hint for the callback's first argument.
         """
 
     @abc.abstractmethod

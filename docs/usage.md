@@ -392,7 +392,7 @@ The following type dependencies are available in specific contexts:
 * [tanjun.abc.SlashCommand][]: slash command execution (excluding any checks)
 TODO: this needs a consistency fix before being documented -->
 * [tanjun.abc.Component][]: Command execution (excluding client checks)
-<!-- * [hikari.events.Event][hikari.events.base_events.Event] TODO: implement this-->
+<!-- * [hikari.Event][hikari.events.base_events.Event] TODO: implement this-->
 
 Both [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] and
 [Client.from_rest_bot][tanjun.clients.Client.from_rest_bot] register type
