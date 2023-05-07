@@ -371,11 +371,9 @@ def concurrency_limiter_config_example(bot: hikari.GatewayBotAware) -> None:
 
 def assign_concurrency_limit_example() -> None:
     @tanjun.with_concurrency_limit("main_commands", follow_wrapped=True)
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
-    @tanjun.as_user_menu("name")
-    async def user_command(ctx: tanjun.abc.Context, user: typing.Annotated[annotations.User, "A user"]) -> None:
+    async def user_command(ctx: tanjun.abc.Context) -> None:
         ...
 
 
@@ -391,11 +389,9 @@ def cooldown_config_example(bot: hikari.GatewayBotAware) -> None:
 
 def assign_cooldown_example() -> None:
     @tanjun.with_cooldown("main_commands", follow_wrapped=True)
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
-    @tanjun.as_user_menu("name")
-    async def user_command(ctx: tanjun.abc.Context, user: typing.Annotated[annotations.User, "A user"]) -> None:
+    async def user_command(ctx: tanjun.abc.Context) -> None:
         ...
 
 

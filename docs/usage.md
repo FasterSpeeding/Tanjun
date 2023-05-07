@@ -47,6 +47,10 @@ injection).
 --8<-- "./docs_src/usage.py:41:50"
 ```
 
+This system isn't just for life time management; there are other client events
+you can listen for which are all listed at
+[ClientCallbackNames][tanjun.abc.ClientCallbackNames].
+
 ## Managing bot functionality
 
 [tanjun.Component][tanjun.components.Component] exists as a way to manage and
@@ -515,7 +519,7 @@ being used to set this limiter for a client (note that clients can only have 1
 linked limiter).
 
 ```py
---8<-- "./docs_src/usage.py:373:379"
+--8<-- "./docs_src/usage.py:373:377"
 ```
 
 And here we use [with_concurrency_limit][tanjun.dependencies.with_concurrency_limit]
@@ -529,7 +533,7 @@ more information on the resources concurrency can be limited by see
 Cooldowns limit how often a group of commands can be called.
 
 ```py
---8<-- "./docs_src/usage.py:383:390"
+--8<-- "./docs_src/usage.py:381:387"
 ```
 
 Here [InMemoryCooldownManager][tanjun.dependencies.InMemoryCooldownManager]
@@ -544,7 +548,7 @@ being used to set this cooldown manager for a client (note that clients can
 only have 1 linked cooldown manager).
 
 ```py
---8<-- "./docs_src/usage.py:393:399"
+--8<-- "./docs_src/usage.py:391:395"
 ```
 
 And here we use [with_cooldown][tanjun.dependencies.with_cooldown]
@@ -564,7 +568,7 @@ of a field. Localisation on Discord is limited to the locales Discord supports
 ### Localising command declarations
 
 ```py
---8<-- "./docs_src/usage.py:403:405"
+--8<-- "./docs_src/usage.py:399:401"
 ```
 
 For fields which support localisation you've previously seen a single string
@@ -580,7 +584,7 @@ setting/overriding the locale-specific variants used for localised fields such
 as error message responses and application fields globally.
 
 ```py
---8<-- "./docs_src/usage.py:409:421"
+--8<-- "./docs_src/usage.py:405:417"
 ```
 
 Specific fields may be overridden by their ID as shown above. There is no
@@ -604,7 +608,7 @@ It's highly recommended that 3rd party libraries match this format if possible.
 ### Localising command responses
 
 ```py
---8<-- "./docs_src/usage.py:425:444"
+--8<-- "./docs_src/usage.py:421:440"
 ```
 
 [tanjun.abc.AppCommandContext.interaction][] (base class for both
