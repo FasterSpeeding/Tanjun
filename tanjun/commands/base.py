@@ -41,6 +41,7 @@ from .. import components
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
+
     from typing_extensions import Self
 
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)

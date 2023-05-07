@@ -45,6 +45,7 @@ from . import base
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
+
     from typing_extensions import Self
 
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])

@@ -44,6 +44,7 @@ from .. import dependencies
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
+
     from typing_extensions import Self
 
 
