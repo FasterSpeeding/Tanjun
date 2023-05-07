@@ -106,7 +106,7 @@ ignore = [
 ]
 per-file-ignores = [
     "docs_src/*.py: D100, D101, D103, E800, FA100, FA101, F841, INP001, N806, TC001, TC101",
-    "examples/*.py: D100, D101, D103, E800, FA100, FA101, F401, F403, INP001, TC001",
+    "examples/*.py: D100, D101, D103, E800, FA100, FA101, F401, F403, INP001, TC001, TC003",
     "noxfile.py: D100, FA101, F401, F403, INP001",
     "tanjun/py.typed: D100",
     "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101",
