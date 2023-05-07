@@ -35,7 +35,6 @@ __all__: list[str] = ["MessageCommand", "MessageCommandGroup", "as_message_comma
 
 import copy
 import typing
-from collections import abc as collections
 
 from .. import _internal
 from .. import abc as tanjun
@@ -45,6 +44,7 @@ from .. import hooks as hooks_
 from . import base
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
     from typing_extensions import Self
 
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
