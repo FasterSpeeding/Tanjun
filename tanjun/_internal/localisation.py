@@ -35,7 +35,6 @@ __all__: list[str] = []
 
 import itertools
 import typing
-from collections import abc as collections
 
 import hikari
 
@@ -44,6 +43,7 @@ from .. import abc as tanjun
 from .. import dependencies
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
     from typing_extensions import Self
 
 
