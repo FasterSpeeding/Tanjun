@@ -96,7 +96,7 @@ ignore = [
     "IFS001",  # "use a oneliner here".
     "N818",    # Exceptions should have an "Error" suffix in their name
     "SIM105",  # Use contextlib.suppress
-    "TC003",   # Avoid specifying long messages outside the exception class (this hits way too many std exceptions rn)
+    "TRY003",  # Avoid specifying long messages outside the exception class (this hits way too many std exceptions rn)
     "T101",    # TO-DO comment detection (T102 is FIX-ME and T103 is XXX).
     "W503",    # line break before binary operator.
     "W504",    # line break before binary operator (again, I guess).
