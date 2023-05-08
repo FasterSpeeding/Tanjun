@@ -143,11 +143,15 @@ class CommandError(TanjunError):
         Parameters
         ----------
         content
-            The content to respond with.
+            If provided, the message content to respond with.
 
-            If provided, the message contents. If
-            [hikari.undefined.UNDEFINED][], then nothing will be sent
-            in the content.
+            If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
+            `embeds` kwarg is provided, then this will instead be treated as an
+            embed. This allows for simpler syntax when sending an embed alone.
+
+            Likewise, if this is a [hikari.Resource][hikari.files.Resource],
+            then the content is instead treated as an attachment if no
+            `attachment` and no `attachments` kwargs are provided.
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
@@ -174,15 +178,17 @@ class CommandError(TanjunError):
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
-            derivatives to enforce mentioning specific users.
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialUser][hikari.users.PartialUser] derivatives to
+            enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
-            derivatives to enforce mentioning specific roles.
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialRole][hikari.guilds.PartialRole] derivatives to
+            enforce mentioning specific roles.
 
         Raises
         ------
@@ -240,8 +246,9 @@ class CommandError(TanjunError):
         ensure_result
             Ensure that this call will always return a message object.
 
-            If [True][] then this will always return [hikari.messages.Message][],
-            otherwise this will return `hikari.Message | None`.
+            If [True][] then this will always return
+            [hikari.Message][hikari.messages.Message], otherwise this will
+            return `hikari.Message | None`.
 
             It's worth noting that, under certain scenarios within the slash
             command flow, this may lead to an extre request being made.
@@ -251,23 +258,23 @@ class CommandError(TanjunError):
         ValueError
             If `delete_after` would be more than 15 minutes after the slash
             command was called.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
             invalid image URLs in embeds; too many components.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `SEND_MESSAGES` in the channel or the
             person you are trying to message has the DM's disabled.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
         return await ctx.respond(
@@ -448,13 +455,13 @@ class ModuleStateConflict(ValueError, TanjunError):
 
 
 class FailedModuleLoad(TanjunError):
-    """Error raised when a module fails to load.
+    r"""Error raised when a module fails to load.
 
     This may be raised by the module failing to import or by one of
     its loaders erroring.
 
     This source error can be accessed at
-    [FailedModuleLoad.__cause__][tanjun.errors.FailedModuleLoad.__cause__].
+    [FailedModuleLoad.\_\_cause\_\_][tanjun.errors.FailedModuleLoad.__cause__].
     """
 
     __cause__: Exception
@@ -472,18 +479,18 @@ class FailedModuleLoad(TanjunError):
 class FailedModuleImport(FailedModuleLoad):
     """Error raised when a module failed to import.
 
-    This is a specialisation of [tanjun.errors.FailedModuleLoad][].
+    This is a specialisation of [FailedModuleLoad][tanjun.errors.FailedModuleLoad].
     """
 
 
 class FailedModuleUnload(TanjunError):
-    """Error raised when a module fails to unload.
+    r"""Error raised when a module fails to unload.
 
     This may be raised by the module failing to import or by one
     of its unloaders erroring.
 
     The source error can be accessed at
-    [FailedModuleUnload.__cause__][tanjun.errors.FailedModuleUnload.__cause__].
+    [FailedModuleUnload.\_\_cause\_\_][tanjun.errors.FailedModuleUnload.__cause__].
     """
 
     __cause__: Exception

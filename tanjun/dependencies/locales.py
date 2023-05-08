@@ -67,7 +67,7 @@ class AbstractLocaliser(abc.ABC):
         tag
             The "IETF lang tag" to localise the string to.
 
-            This should usually be a [hikari.locales.Locale][].
+            This should usually be a [hikari.Locale][hikari.locales.Locale].
         **kwargs
             Key-word arguments to pass to the string as format args.
 
@@ -83,7 +83,7 @@ class AbstractLocaliser(abc.ABC):
 
 
 AbstractLocalizer = AbstractLocaliser
-"""Alias of `AbstractLocaliser`."""
+"""Alias of [AbstractLocaliser][tanjun.dependencies.AbstractLocaliser]."""
 
 
 class BasicLocaliser(AbstractLocaliser):
@@ -146,7 +146,8 @@ class BasicLocaliser(AbstractLocaliser):
             This may be in any format but the formats used by the standard
             implementations can be found at [client-localiser][].
         variants
-            Mapping of [hikari.locales.Locale][]s to the localised values.
+            Mapping of [hikari.Locale][hikari.locales.Locale]s to the
+            localised values.
 
         Returns
         -------
@@ -161,4 +162,4 @@ class BasicLocaliser(AbstractLocaliser):
 
 
 BasicLocalizer = BasicLocaliser
-"""Alias of `BasicLocaliser`."""
+"""Alias of [BasicLocaliser][tanjun.dependencies.BasicLocaliser]."""

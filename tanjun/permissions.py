@@ -134,7 +134,7 @@ def calculate_permissions(
 
     Returns
     -------
-    hikari.Permission
+    hikari.permissions.Permissions
         Value of the member's permissions either within the guild or specified
         guild channel.
     """
@@ -200,7 +200,7 @@ async def fetch_permissions(
 
     Returns
     -------
-    hikari.Permissions
+    hikari.permissions.Permissions
         The calculated permissions.
     """
     # The ordering of how this adds and removes permissions does matter.
@@ -265,7 +265,7 @@ def calculate_everyone_permissions(
 
     Returns
     -------
-    hikari.Permissions
+    hikari.permissions.Permissions
         The calculated permissions.
     """
     # The ordering of how this adds and removes permissions does matter.
@@ -312,7 +312,7 @@ async def fetch_everyone_permissions(
 
     Returns
     -------
-    hikari.Permissions
+    hikari.permissions.Permissions
         The calculated permissions.
     """
     # The ordering of how this adds and removes permissions does matter.

@@ -128,8 +128,8 @@ MetaEventSig = collections.Callable[..., typing.Union[_CoroT[None], None]]
 
 The positional arguments this is guaranteed depend on the event name its being
 subscribed to (more information the standard client callbacks can be found at
-[tanjun.abc.ClientCallbackNames][]) and may be either synchronous or asynchronous but must
-return [None][].
+[ClientCallbackNames][tanjun.abc.ClientCallbackNames]) and may be either
+synchronous or asynchronous but must return [None][].
 """
 
 # 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
@@ -148,7 +148,7 @@ if typing.TYPE_CHECKING:
     """Type hint of the signature an autocomplete callback should have.
 
     This represents the signature
-    `async def (tanjun.abc.AutocompleteContext, int | str | float) -> None`
+    `async def (AutocompleteContext, int | str | float) -> None`
     where dependency injection is supported.
     """
 
@@ -159,8 +159,8 @@ if typing.TYPE_CHECKING:
     This may be registered with a command, client or component to add a rule
     which decides whether it should execute for each context passed to it.
 
-    This represents the signatures `def (tanjun.abc.Context, ...) -> bool | None`
-    and `async def (tanjun.abc.Context, ...) -> bool | None` where dependency
+    This represents the signatures `def (Context, ...) -> bool | None`
+    and `async def (Context, ...) -> bool | None` where dependency
     injection is  supported.
 
     Check callbacks may either return [False][] to indicate that the current
@@ -179,8 +179,8 @@ if typing.TYPE_CHECKING:
     """Type hint of a context menu command callback.
 
     This represents the signature
-    `async def (tanjun.abc.MenuContext, hikari.Message, ...) -> None` or
-    `async def (tanjun.abc.MenuContext, hikari.InteractionMember, ...) ->  None`
+    `async def (MenuContext, hikari.Message, ...) -> None` or
+    `async def (MenuContext, hikari.InteractionMember, ...) ->  None`
     where dependency injection is supported.
     """
 
@@ -189,14 +189,14 @@ if typing.TYPE_CHECKING:
     MessageCallbackSig = _CommandCallbackSig["MessageContext", ...]
     """Type hint of a message command callback.
 
-    This represents the signature `async def (tanjun.abc.MessageContext, ...) -> None`
+    This represents the signature `async def (MessageContext, ...) -> None`
     where dependency injection is supported.
     """
 
     SlashCallbackSig = _CommandCallbackSig["SlashContext", ...]
     """Type hint of a slash command callback.
 
-    This represents the signature `async def (tanjun.abc.SlashContext, ...) -> None`
+    This represents the signature `async def (SlashContext, ...) -> None`
     where dependency injection is supported.
     """
 
@@ -211,8 +211,8 @@ if typing.TYPE_CHECKING:
     execution stage of a command (ignoring [tanjun.ParserError][] and expected
     [tanjun.TanjunError][] subclasses).
 
-    This represents the signatures `def (tanjun.abc.Context, Exception, ...) -> bool | None`
-    and `async def (tanjun.abc.Context, Exception, ...) -> bool | None` where
+    This represents the signatures `def (Context, Exception, ...) -> bool | None`
+    and `async def (Context, Exception, ...) -> bool | None` where
     dependency injection is supported.
 
     [True][] is returned to indicate that the exception should be suppressed and
@@ -229,8 +229,8 @@ if typing.TYPE_CHECKING:
     This will be called whenever an parser [ParserError][tanjun.errors.ParserError]
     is raised during the execution stage of a command.
 
-    This represents the signatures `def (tanjun.abc.Context, tanjun.ParserError, ...) -> None`
-    and `async def (tanjun.abc.Context, tanjun.ParserError, ...) -> None` where
+    This represents the signatures `def (Context, tanjun.ParserError, ...) -> None`
+    and `async def (Context, tanjun.ParserError, ...) -> None` where
     dependency injection is supported.
 
     Parser errors are always suppressed (unlike general errors).
@@ -241,8 +241,8 @@ if typing.TYPE_CHECKING:
     HookSig = _HookSig[_ContextT_contra, ...]
     """Type hint of the callback used as a general command hook.
 
-    This represents the signatures `def (tanjun.abc.Context, ...) -> None` and
-    `async def (tanjun.abc.Context, ...) -> None` where dependency injection is
+    This represents the signatures `def (Context, ...) -> None` and
+    `async def (Context, ...) -> None` where dependency injection is
     supported.
     """
 
@@ -274,10 +274,10 @@ else:
 
 
 AutocompleteCallbackSig = AutocompleteSig[_AutocompleteValueT]
-"""Deprecated alias of [tanjun.abc.AutocompleteSig][]."""
+"""Deprecated alias of [AutocompleteSig][tanjun.abc.AutocompleteSig]."""
 
 MenuCommandCallbackSig = MenuCallbackSig[_MenuValueT]
-"""Deprecated alias of [tanjun.abc.MenuCallbackSig][]."""
+"""Deprecated alias of [MenuCallbackSig][tanjun.abc.MenuCallbackSig]."""
 
 _MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound=MenuCallbackSig[typing.Any])
 _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=MessageCallbackSig)
@@ -319,12 +319,12 @@ class Context(alluka.Context):
     @property
     @abc.abstractmethod
     def client(self) -> Client:
-        """Tanjun [tanjun.abc.Client][] implementation this context was spawned by."""
+        """Tanjun [Client][tanjun.abc.Client] implementation this context was spawned by."""
 
     @property
     @abc.abstractmethod
     def component(self) -> typing.Optional[Component]:
-        """Object of the [tanjun.abc.Component][] this context is bound to.
+        """Object of the [Component][tanjun.abc.Component] this context is bound to.
 
         !!! note
             This will only be [None][] before this has been bound to a
@@ -396,7 +396,8 @@ class Context(alluka.Context):
         """Shard that triggered the context.
 
         !!! note
-            This will be [None][] if [tanjun.abc.Context.shards][] is also [None][].
+            This will be [None][] if [Context.shards][tanjun.abc.Context.shards]
+            is also [None][].
         """
 
     @property
@@ -423,29 +424,31 @@ class Context(alluka.Context):
         """Fetch the channel the context was invoked in.
 
         !!! note
-            This performs an API call. Consider using [tanjun.abc.Context.get_channel][]
-            if you have [hikari.api.config.CacheComponents.GUILD_CHANNELS][] cache component enabled.
+            This performs an API call. Consider using
+            [Context.get_channel][tanjun.abc.Context.get_channel]if you have the
+            [CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
+            cache component enabled.
 
         Returns
         -------
-        hikari.TextableChannel
+        hikari.channels.TextableChannel
             The textable DM or guild channel the context was invoked in.
 
         Raises
         ------
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `READ_MESSAGES` permission in the channel.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -454,27 +457,29 @@ class Context(alluka.Context):
         """Fetch the guild the context was invoked in.
 
         !!! note
-            This performs an API call. Consider using [tanjun.abc.Context.get_guild][]
-            if you have [hikari.api.config.CacheComponents.GUILDS][] cache component enabled.
+            This performs an API call. Consider using
+            [Context.get_guild][tanjun.abc.Context.get_guild] if you have the
+            [CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
+            cache component enabled.
 
         Returns
         -------
-        hikari.Guild | None
+        hikari.guilds.Guild | None
             An optional guild the context was invoked in.
             [None][] will be returned if the context was invoked in a DM channel.
 
         Raises
         ------
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are not part of the guild.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the guild is not found.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -483,12 +488,13 @@ class Context(alluka.Context):
         """Retrieve the channel the context was invoked in from the cache.
 
         !!! note
-            This method requires the [hikari.api.config.CacheComponents.GUILD_CHANNELS][]
+            This method requires the
+            [CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
             cache component.
 
         Returns
         -------
-        hikari.TextableGuildChannel | None
+        hikari.channels.TextableGuildChannel | None
             An optional guild channel the context was invoked in.
             [None][] will be returned if the channel was not found or if it
             is DM channel.
@@ -499,12 +505,13 @@ class Context(alluka.Context):
         """Fetch the guild that the context was invoked in.
 
         !!! note
-            This method requires [hikari.api.config.CacheComponents.GUILDS][] cache
-            component enabled.
+            This method requires the
+            [CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
+            cache component.
 
         Returns
         -------
-        hikari.Guild | None
+        hikari.guilds.Guild | None
             An optional guild the context was invoked in.
             [None][] will be returned if the guild was not found.
         """
@@ -515,7 +522,7 @@ class Context(alluka.Context):
 
         Raises
         ------
-        LookupError, hikari.NotFoundError
+        LookupError, hikari.errors.NotFoundError
             The last context has no initial response.
         """
 
@@ -525,7 +532,7 @@ class Context(alluka.Context):
 
         Raises
         ------
-        LookupError, hikari.NotFoundError
+        LookupError, hikari.errors.NotFoundError
             The last context has no responses.
         """
 
@@ -554,20 +561,15 @@ class Context(alluka.Context):
         Parameters
         ----------
         content
-            The content to edit the initial response with.
+            If provided, the message content to edit the initial response with.
 
-            If provided, the message contents. If
-            [hikari.undefined.UNDEFINED][], then nothing will be sent
-            in the content. Any other value here will be cast to a
-            [str][].
+            If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
+            `embeds` kwarg is provided, then this will instead update the embed.
+            This allows for simpler syntax when sending an embed alone.
 
-            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
-            is provided, then this will instead update the embed. This allows
-            for simpler syntax when sending an embed alone.
-
-            Likewise, if this is a [hikari.files.Resource][], then the
-            content is instead treated as an attachment if no `attachment` and
-            no `attachments` kwargs are provided.
+            Likewise, if this is a [hikari.Resource][hikari.files.Resource],
+            then the content is instead treated as an attachment if no
+            `attachment` and no `attachments` kwargs are provided.
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
@@ -596,19 +598,23 @@ class Context(alluka.Context):
         user_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
+
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialUser][hikari.users.PartialUser]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
+
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialRole][hikari.guilds.PartialRole]
             derivatives to enforce mentioning specific roles.
 
         Returns
         -------
-        hikari.Message
+        hikari.messages.Message
             The message that has been edited.
 
         Raises
@@ -622,23 +628,23 @@ class Context(alluka.Context):
 
             If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
             invalid image URLs in embeds; too many components.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `SEND_MESSAGES` in the channel or the
             person you are trying to message has the DM's disabled.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -667,20 +673,15 @@ class Context(alluka.Context):
         Parameters
         ----------
         content
-            The content to edit the last response with.
+            If provided, the content to edit the last response with.
 
-            If provided, the message contents. If
-            [hikari.undefined.UNDEFINED][], then nothing will be sent
-            in the content. Any other value here will be cast to a
-            [str][].
+            If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
+            `embeds` kwarg is provided, then this will instead update the embed.
+            This allows for simpler syntax when sending an embed alone.
 
-            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
-            is provided, then this will instead update the embed. This allows
-            for simpler syntax when sending an embed alone.
-
-            Likewise, if this is a [hikari.files.Resource][], then the
-            content is instead treated as an attachment if no `attachment` and
-            no `attachments` kwargs are provided.
+            Likewise, if this is a [hikari.Resource][hikari.files.Resource],
+            then the content is instead treated as an attachment if no
+            `attachment` and no `attachments` kwargs are provided.
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
@@ -711,19 +712,21 @@ class Context(alluka.Context):
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialUser][hikari.users.PartialUser]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialRole][hikari.guilds.PartialRole]
             derivatives to enforce mentioning specific roles.
 
         Returns
         -------
-        hikari.Message
+        hikari.messages.Message
             The message that has been edited.
 
         Raises
@@ -737,23 +740,23 @@ class Context(alluka.Context):
 
             If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
             invalid image URLs in embeds; too many components.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `SEND_MESSAGES` in the channel or the
             person you are trying to message has the DM's disabled.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -763,7 +766,7 @@ class Context(alluka.Context):
 
         Raises
         ------
-        LookupError, hikari.NotFoundError
+        LookupError, hikari.errors.NotFoundError
             The response was not found.
         """
 
@@ -773,7 +776,7 @@ class Context(alluka.Context):
 
         Raises
         ------
-        LookupError, hikari.NotFoundError
+        LookupError, hikari.errors.NotFoundError
             The response was not found.
         """
 
@@ -851,25 +854,21 @@ class Context(alluka.Context):
         Parameters
         ----------
         content
-            The content to respond with.
+            If provided, the message content to respond with.
 
-            If provided, the message contents. If
-            [hikari.undefined.UNDEFINED][], then nothing will be sent
-            in the content. Any other value here will be cast to a
-            [str][].
+            If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
+            `embeds` kwarg is provided, then this will instead be treated as an
+            embed. This allows for simpler syntax when sending an embed alone.
 
-            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
-            is provided, then this will instead update the embed. This allows
-            for simpler syntax when sending an embed alone.
-
-            Likewise, if this is a [hikari.files.Resource][], then the
-            content is instead treated as an attachment if no `attachment` and
-            no `attachments` kwargs are provided.
+            Likewise, if this is a [hikari.Resource][hikari.files.Resource],
+            then the content is instead treated as an attachment if no
+            `attachment` and no `attachments` kwargs are provided.
         ensure_result
             Ensure that this call will always return a message object.
 
-            If [True][] then this will always return [hikari.messages.Message][],
-            otherwise this will return `hikari.Message | None`.
+            If [True][] then this will always return
+            [hikari.Message][hikari.messages.Message], otherwise this will
+            return `hikari.Message | None`.
 
             It's worth noting that, under certain scenarios within the slash
             command flow, this may lead to an extre request being made.
@@ -901,19 +900,21 @@ class Context(alluka.Context):
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialUser][hikari.users.PartialUser]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialRole][hikari.guilds.PartialRole]
             derivatives to enforce mentioning specific roles.
 
         Returns
         -------
-        hikari.Message | None
+        hikari.messages.Message | None
             The message that has been created if it was immedieatly available or
             `ensure_result` was set to [True][], else [None][].
 
@@ -928,23 +929,23 @@ class Context(alluka.Context):
 
             If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
             invalid image URLs in embeds; too many components.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `SEND_MESSAGES` in the channel or the
             person you are trying to message has the DM's disabled.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -1023,20 +1024,15 @@ class MessageContext(Context, abc.ABC):
         Parameters
         ----------
         content
-            The content to respond with.
+            If provided, the message content to respond with.
 
-            If provided, the message contents. If
-            [hikari.undefined.UNDEFINED][], then nothing will be sent
-            in the content. Any other value here will be cast to a
-            [str][].
+            If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
+            `embeds` kwarg is provided, then this will instead be treated as an
+            embed. This allows for simpler syntax when sending an embed alone.
 
-            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
-            is provided, then this will instead update the embed. This allows
-            for simpler syntax when sending an embed alone.
-
-            Likewise, if this is a [hikari.files.Resource][], then the
-            content is instead treated as an attachment if no `attachment` and
-            no `attachments` kwargs are provided.
+            Likewise, if this is a [hikari.Resource][hikari.files.Resource],
+            then the content is instead treated as an attachment if no
+            `attachment` and no `attachments` kwargs are provided.
         ensure_result
             Ensure this method call will return a message object.
 
@@ -1049,7 +1045,8 @@ class MessageContext(Context, abc.ABC):
         reply
             Whether to reply instead of sending the content to the context.
 
-            Passing [True][] here indicates a reply to [tanjun.abc.MessageContext.message][].
+            Passing [True][] here indicates a reply to
+            [MessageContext.message][tanjun.abc.MessageContext.message].
         attachment
             A singular attachment to respond with.
         attachments
@@ -1080,18 +1077,21 @@ class MessageContext(Context, abc.ABC):
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialUser][hikari.users.PartialUser]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
+
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialRole][hikari.guilds.PartialRole]
             derivatives to enforce mentioning specific roles.
 
         Returns
         -------
-        hikari.Message
+        hikari.messages.Message
             The message that has been created.
 
         Raises
@@ -1105,24 +1105,24 @@ class MessageContext(Context, abc.ABC):
             If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed
             or both `sticker` and `stickers` are passed.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no attachments or embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; too many attachments; attachments that are too large;
             invalid image URLs in embeds; if `reply` is not found or not in the
             same channel as `channel`; too many components.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `SEND_MESSAGES` in the channel or the
             person you are trying to message has the DM's disabled.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -1159,7 +1159,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If [tanjun.abc.SlashOption.type][] is not BOOLEAN.
+            If [SlashOption.type][tanjun.abc.SlashOption.type] is not BOOLEAN.
         """
 
     @abc.abstractmethod
@@ -1169,7 +1169,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If [tanjun.abc.SlashOption.type][] is not FLOAT.
+            If [SlashOption.type][tanjun.abc.SlashOption.type] is not FLOAT.
         ValueError
             If called on the focused option for an autocomplete interaction
             when it's a malformed (incomplete) float.
@@ -1182,7 +1182,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If [tanjun.abc.SlashOption.type][] is not INTEGER.
+            If [SlashOption.type][tanjun.abc.SlashOption.type] is not INTEGER.
         ValueError
             If called on the focused option for an autocomplete interaction
             when it's a malformed (incomplete) integer.
@@ -1195,8 +1195,8 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If [tanjun.abc.SlashOption.type][] is not one of CHANNEL, MENTIONABLE, ROLE
-            or USER.
+            If [SlashOption.type][tanjun.abc.SlashOption.type] is not one of
+            CHANNEL, MENTIONABLE, ROLE or USER.
         """
 
     @abc.abstractmethod
@@ -1206,7 +1206,7 @@ class SlashOption(abc.ABC):
         Raises
         ------
         TypeError
-            If [tanjun.abc.SlashOption.type][] is not STRING.
+            If [SlashOption.type][tanjun.abc.SlashOption.type] is not STRING.
         """
 
     @abc.abstractmethod
@@ -1217,14 +1217,14 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.Attachment | hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User
+        hikari.messages.Attachment | hikari.interactions.base_interactions.InteractionChannel | hikari.interactions.base_interactions.InteractionMember | hikari.guilds.Role | hikari.users.User
             The object value of this option.
 
         Raises
         ------
         TypeError
             If the option isn't resolvable.
-        """
+        """  # noqa: E501
 
     @abc.abstractmethod
     def resolve_to_attachment(self) -> hikari.Attachment:
@@ -1232,7 +1232,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.Attachment
+        hikari.messages.Attachment
             The attachment object.
 
         Raises
@@ -1247,7 +1247,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.InteractionChannel
+        hikari.interactions.base_interactions.InteractionChannel
             The channel object.
 
         Raises
@@ -1280,7 +1280,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.InteractionMember | _T
+        hikari.interactions.base_interactions.InteractionMember | _T
             The member object or `default` if it was provided and this option
             was a user type but had no member.
 
@@ -1308,7 +1308,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.Role | hikari.User | hikari.Member
+        hikari.guilds.Role | hikari.users.User | hikari.guilds.Member
             The mentionable object.
 
         Raises
@@ -1323,7 +1323,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.Role
+        hikari.guilds.Role
             The role object.
 
         Raises
@@ -1339,9 +1339,10 @@ class SlashOption(abc.ABC):
         """Resolve this option to a user object.
 
         !!! note
-            This will resolve to a [hikari.guilds.Member][] first if the relevant
-            command was executed within a guild and the option targeted one of
-            the guild's members, otherwise it will resolve to [hikari.users.User][].
+            This will resolve to a [hikari.Member][hikari.guilds.Member] first
+            if the relevant command was executed within a guild and the option
+            targeted one of the guild's members, otherwise it will resolve to
+            [hikari.User][hikari.users.User].
 
             It's also worth noting that hikari.Member inherits from hikari.User
             meaning that the return value of this can always be treated as a
@@ -1349,7 +1350,7 @@ class SlashOption(abc.ABC):
 
         Returns
         -------
-        hikari.User | hikari.Member
+        hikari.users.User | hikari.guilds.Member
             The user object.
 
         Raises
@@ -1371,10 +1372,12 @@ class AppCommandContext(Context, abc.ABC):
     def defaults_to_ephemeral(self) -> bool:
         """Whether the context is marked as defaulting to ephemeral response.
 
-        This effects calls to [tanjun.abc.SlashContext.create_followup][],
-        [tanjun.abc.SlashContext.create_initial_response][], [tanjun.abc.SlashContext.defer][]
-        and [tanjun.abc.SlashContext.respond][] unless the `flags` field is
-        provided for the methods which support it.
+        This effects calls to
+        [AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup],
+        [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response],
+        [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer]
+        and [AppCommandContext.respond][tanjun.abc.Context.respond]
+        unless the `flags` field is provided for the methods which support it.
         """
 
     @property
@@ -1383,7 +1386,8 @@ class AppCommandContext(Context, abc.ABC):
         """When this application command context expires.
 
         After this time is reached, the message/response methods on this
-        context will always raise [hikari.errors.NotFoundError][].
+        context will always raise
+        [hikari.NotFoundError][hikari.errors.NotFoundError].
         """
 
     @property
@@ -1392,10 +1396,10 @@ class AppCommandContext(Context, abc.ABC):
         """Whether the initial response for this context has been deferred.
 
         !!! warning
-            If this is [True][] when [tanjun.abc.SlashContext.has_responded][]
-            is [False][] then [tanjun.abc.SlashContext.edit_initial_response][]
+            If this is [True][] when [AppCommandContext.has_responded][tanjun.abc.Context.has_responded]
+            is [False][] then [AppCommandContext.edit_initial_response][tanjun.abc.Context.edit_initial_response]
             will need to be used to create the initial response rather than
-            [tanjun.abc.SlashContext.create_initial_response][].
+            [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response].
         """
 
     @property
@@ -1485,23 +1489,21 @@ class AppCommandContext(Context, abc.ABC):
 
         !!! warning
             Calling this on a context which hasn't had an initial response yet
-            will lead to a [hikari.errors.NotFoundError][] being raised.
+            will lead to a [hikari.NotFoundError][hikari.errors.NotFoundError]
+            being raised.
 
         Parameters
         ----------
         content
-            If provided, the message contents. If
-            [hikari.undefined.UNDEFINED][], then nothing will be sent
-            in the content. Any other value here will be cast to a
-            [str][].
+            If provided, the message content to send.
 
-            If this is a [hikari.embeds.Embed][] and no `embed` kwarg is
-            provided, then this will instead update the embed. This allows for
-            simpler syntax when sending an embed alone.
+            If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
+            `embeds` kwarg is provided, then this will instead be treated as an
+            embed. This allows for simpler syntax when sending an embed alone.
 
-            Likewise, if this is a [hikari.files.Resource][], then the
-            content is instead treated as an attachment if no `attachment` and
-            no `attachments` kwargs are provided.
+            Likewise, if this is a [hikari.Resource][hikari.files.Resource],
+            then the content is instead treated as an attachment if no
+            `attachment` and no `attachments` kwargs are provided.
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
@@ -1535,13 +1537,16 @@ class AppCommandContext(Context, abc.ABC):
             If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialUser][hikari.users.PartialUser]
             derivatives to enforce mentioning specific users.
         role_mentions
             If provided, and [True][], all mentions will be parsed.
             If provided, and [False][], no mentions will be parsed.
+
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.guilds.PartialRole][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialRole][hikari.guilds.PartialRole]
             derivatives to enforce mentioning specific roles.
         tts
             If provided, whether the message will be sent as a TTS message.
@@ -1553,15 +1558,15 @@ class AppCommandContext(Context, abc.ABC):
 
         Returns
         -------
-        hikari.Message
+        hikari.messages.Message
             The created message object.
 
         Raises
         ------
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the current interaction is not found or it hasn't had an initial
             response yet.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This can be raised if the file is too large; if the embed exceeds
             the defined limits; if the message content is specified only and
             empty or greater than `2000` characters; if neither content, file
@@ -1605,27 +1610,23 @@ class AppCommandContext(Context, abc.ABC):
 
         !!! warning
             Calling this on a context which already has an initial response
-            will result in this raising a [hikari.errors.NotFoundError][].
-            This includes if the REST interaction server has already responded
-            to the request and deferrals.
+            will result in this raising a
+            [hikari.NotFoundError][hikari.errors.NotFoundError]. This includes
+            if the REST interaction server has already responded to the
+            request and deferrals.
 
         Parameters
         ----------
         content
-            The content to edit the last response with.
+            If provided, the message content to respond with.
 
-            If provided, the message contents. If
-            [hikari.undefined.UNDEFINED][], then nothing will be sent
-            in the content. Any other value here will be cast to a
-            [str][].
+            If this is a [hikari.Embed][hikari.embeds.Embed] and no `embed` nor
+            `embeds` kwarg is provided, then this will instead be treated as an
+            embed. This allows for simpler syntax when sending an embed alone.
 
-            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
-            is provided, then this will instead update the embed. This allows
-            for simpler syntax when sending an embed alone.
-
-            Likewise, if this is a [hikari.files.Resource][], then the
-            content is instead treated as an attachment if no `attachment` and
-            no `attachments` kwargs are provided.
+            Likewise, if this is a [hikari.Resource][hikari.files.Resource],
+            then the content is instead treated as an attachment if no
+            `attachment` and no `attachments` kwargs are provided.
         delete_after
             If provided, the seconds after which the response message should be deleted.
 
@@ -1636,15 +1637,6 @@ class AppCommandContext(Context, abc.ABC):
 
             Passing [True][] here is a shorthand for including `1 << 64` in the
             passed flags.
-        content
-            If provided, the message contents. If
-            [hikari.undefined.UNDEFINED][], then nothing will be sent
-            in the content. Any other value here will be cast to a
-            `str`.
-
-            If this is a [hikari.embeds.Embed][] and no `embed` nor `embeds` kwarg
-            is provided, then this will instead update the embed. This allows
-            for simpler syntax when sending an embed alone.
         attachment
             If provided, the message attachment. This can be a resource,
             or string of a path on your computer or a URL.
@@ -1664,7 +1656,7 @@ class AppCommandContext(Context, abc.ABC):
             If provided, the message flags this response should have.
 
             As of writing the only message flag which can be set here is
-            [hikari.messages.MessageFlag.EPHEMERAL][].
+            [MessageFlag.EPHEMERAL][hikari.messages.MessageFlag.EPHEMERAL].
         tts
             If provided, whether the message will be read out by a screen
             reader using Discord's TTS (text-to-speech) system.
@@ -1672,20 +1664,20 @@ class AppCommandContext(Context, abc.ABC):
             If provided, whether the message should parse @everyone/@here
             mentions.
         user_mentions
-            If provided, and [True][], all user mentions will be detected.
-            If provided, and [False][], all user mentions will be ignored
-            if appearing in the message body.
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake][], or [hikari.users.PartialUser][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialUser][hikari.users.PartialUser]
             derivatives to enforce mentioning specific users.
         role_mentions
-            If provided, and [True][], all role mentions will be detected.
-            If provided, and [False][], all role mentions will be ignored
-            if appearing in the message body.
+            If provided, and [True][], all mentions will be parsed.
+            If provided, and [False][], no mentions will be parsed.
 
             Alternatively this may be a collection of
-            [hikari.snowflakes.Snowflake], or [hikari.guilds.PartialRole][]
+            [hikari.Snowflake][hikari.snowflakes.Snowflake], or
+            [hikari.PartialRole][hikari.guilds.PartialRole]
             derivatives to enforce mentioning specific roles.
 
         Raises
@@ -1698,20 +1690,20 @@ class AppCommandContext(Context, abc.ABC):
 
             If both `attachment` and `attachments` are passed or both `component`
             and `components` are passed or both `embed` and `embeds` are passed.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             This may be raised in several discrete situations, such as messages
             being empty with no embeds; messages with more than
             2000 characters in them, embeds that exceed one of the many embed
             limits; invalid image URLs in embeds.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the interaction is not found or if the interaction's initial
             response has already been created.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -1746,17 +1738,17 @@ class AppCommandContext(Context, abc.ABC):
         ------
         ValueError
             If both `component` and `components` are specified or if none are specified.
-        hikari.BadRequestError
+        hikari.errors.BadRequestError
             When the requests' data is outside Discord's accept ranges/validation.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the interaction is not found or if the interaction's initial
             response has already been created or deferred.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -1818,7 +1810,7 @@ class MenuContext(AppCommandContext, abc.ABC):
 
         Returns
         -------
-        hikari.Member
+        hikari.interactions.base_interactions.InteractionMember
             The resolved member.
 
         Raises
@@ -1838,13 +1830,13 @@ class MenuContext(AppCommandContext, abc.ABC):
 
         Returns
         -------
-        hikari.Message
+        hikari.messages.Message
             The resolved message.
 
         Raises
         ------
-        TypeEror
-        if the context is not for a message menu.
+        TypeError
+            if the context is not for a message menu.
         """
 
     @abc.abstractmethod
@@ -1853,7 +1845,7 @@ class MenuContext(AppCommandContext, abc.ABC):
 
         Returns
         -------
-        hikari.User | hikari.Member
+        hikari.users.User | hikari.guilds.Member
             The resolved user.
 
         Raises
@@ -1923,7 +1915,7 @@ class AutocompleteContext(alluka.Context):
     @property
     @abc.abstractmethod
     def client(self) -> Client:
-        """Tanjun [tanjun.abc.Client][] implementation this context was spawned by."""
+        """Tanjun [Client][tanjun.abc.Client] implementation this context was spawned by."""
 
     @property
     @abc.abstractmethod
@@ -1976,8 +1968,8 @@ class AutocompleteContext(alluka.Context):
         """Shard that triggered the context.
 
         !!! note
-            This will be [None][] if [tanjun.abc.AutocompleteContext.shards][] is also
-            [None][].
+            This will be [None][] if [AutocompleteContext.shards][tanjun.abc.AutocompleteContext.shards]
+            is also [None][].
         """
 
     @property
@@ -2015,29 +2007,32 @@ class AutocompleteContext(alluka.Context):
         """Fetch the channel the context was invoked in.
 
         !!! note
-            This performs an API call. Consider using [tanjun.abc.AutocompleteContext.get_channel][]
-            if you have [hikari.api.config.CacheComponents.GUILD_CHANNELS][] cache component enabled.
+            This performs an API call. Consider using
+            [AutocompleteContext.get_channel][tanjun.abc.AutocompleteContext.get_channel]
+            if you have the
+            [CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
+            cache component enabled.
 
         Returns
         -------
-        hikari.TextableChannel
+        hikari.channels.TextableChannel
             The textable DM or guild channel the context was invoked in.
 
         Raises
         ------
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are missing the `READ_MESSAGES` permission in the channel.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the channel is not found.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -2046,27 +2041,30 @@ class AutocompleteContext(alluka.Context):
         """Fetch the guild the context was invoked in.
 
         !!! note
-            This performs an API call. Consider using [tanjun.abc.AutocompleteContext.get_guild][]
-            if you have [hikari.api.config.CacheComponents.GUILDS][] cache component enabled.
+            This performs an API call. Consider using
+            [AutocompleteContext.get_guild][tanjun.abc.AutocompleteContext.get_guild]
+            if you have the
+            [CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
+            cache component enabled.
 
         Returns
         -------
-        hikari.Guild | None
+        hikari.guilds.Guild | None
             An optional guild the context was invoked in.
             [None][] will be returned if the context was invoked in a DM channel.
 
         Raises
         ------
-        hikari.ForbiddenError
+        hikari.errors.ForbiddenError
             If you are not part of the guild.
-        hikari.NotFoundError
+        hikari.errors.NotFoundError
             If the guild is not found.
-        hikari.UnauthorizedError
+        hikari.errors.UnauthorizedError
             If you are unauthorized to make the request (invalid/missing token).
-        hikari.RateLimitTooLongError
+        hikari.errors.RateLimitTooLongError
             Raised in the event that a rate limit occurs that is
             longer than `max_rate_limit` when making a request.
-        hikari.InternalServerError
+        hikari.errors.InternalServerError
             If an internal error occurs on Discord while handling the request.
         """
 
@@ -2075,11 +2073,13 @@ class AutocompleteContext(alluka.Context):
         """Retrieve the channel the context was invoked in from the cache.
 
         !!! note
-            This method requires the [hikari.api.config.CacheComponents.GUILD_CHANNELS][] cache component.
+            This method requires the
+            [CacheComponents.GUILD_CHANNELS][hikari.api.config.CacheComponents.GUILD_CHANNELS]
+            cache component.
 
         Returns
         -------
-        hikari.TextableGuildChannel | None
+        hikari.channels.TextableGuildChannel | None
             An optional guild channel the context was invoked in.
             [None][] will be returned if the channel was not found or if it
             is DM channel.
@@ -2090,11 +2090,13 @@ class AutocompleteContext(alluka.Context):
         """Fetch the guild that the context was invoked in.
 
         !!! note
-            This method requires [hikari.api.config.CacheComponents.GUILDS][] cache component enabled.
+            This method requires the
+            [CacheComponents.GUILDS][hikari.api.config.CacheComponents.GUILDS]
+            cache component.
 
         Returns
         -------
-        hikari.Guild | None
+        hikari.guilds.Guild | None
             An optional guild the context was invoked in.
             [None][] will be returned if the guild was not found.
         """
@@ -2155,7 +2157,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            [tanjun.abc.Context][] and [Exception][]) and may be either
+            [Context][tanjun.abc.Context] and [Exception][]) and may be either
             synchronous or asynchronous.
 
             Returning [True][] indicates that the error should be suppressed,
@@ -2213,11 +2215,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.ErrorHookSig
+        callback : ErrorHookSig
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            [tanjun.abc.Context][] and [Exception][]) and may be either
+            [Context][tanjun.abc.Context] and [Exception][]) and may be either
             synchronous or asynchronous.
 
             Returning [True][] indicates that the error should be suppressed,
@@ -2241,7 +2243,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            [tanjun.abc.Context][] and [tanjun.ParserError][]),
+            [Context][tanjun.abc.Context] and [tanjun.ParserError][]),
             return [None][] and may be either synchronous or asynchronous.
 
             It's worth noting that this unlike general error handlers, this will
@@ -2289,12 +2291,12 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.ParserHookSig
+        callback : ParserHookSig
             The parser error callback to add to this hook.
 
             This callback should take two positional arguments (of type
-            [tanjun.abc.Context][] and [tanjun.ParserError][]), return [None][]
-            and may be either synchronous or asynchronous.
+            [Context][tanjun.abc.Context] and [tanjun.ParserError][]), return
+            [None][] and may be either synchronous or asynchronous.
 
         Returns
         -------
@@ -2312,7 +2314,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [tanjun.abc.Context][]), return [None][] and may be either
+            [Context][tanjun.abc.Context]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2357,11 +2359,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.HookSig
+        callback : HookSig
             The post-execution callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [tanjun.abc.Context][]), return [None][] and may be either
+            [Context][tanjun.abc.Context]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2380,7 +2382,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [tanjun.abc.Context][]), return [None][] and may be either
+            [Context][tanjun.abc.Context]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2425,11 +2427,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.HookSig
+        callback : HookSig
             The pre-execution callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [tanjun.abc.Context][]), return [None][] and may be either
+            [Context][tanjun.abc.Context]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2448,7 +2450,7 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
             The callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [tanjun.abc.Context][]), return [None][] and may be either
+            [Context][tanjun.abc.Context]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2493,11 +2495,11 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
         Parameters
         ----------
-        callback : tanjun.abc.HookSig
+        callback : HookSig
             The success callback to add to this hook.
 
             This callback should take one positional argument (of type
-            [tanjun.abc.Context][]), return [None][] and may be either
+            [Context][tanjun.abc.Context]), return [None][] and may be either
             synchronous or asynchronous.
 
         Returns
@@ -2688,9 +2690,11 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         """Whether contexts executed by this command should default to ephemeral responses.
 
-        This effects calls to [tanjun.abc.SlashContext.create_followup][],
-        [tanjun.abc.SlashContext.create_initial_response][],
-        [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
+        This effects calls to
+        [AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup],
+        [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response],
+        [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer] and
+        [AppCommandContext.respond][tanjun.abc.Context.respond]
         unless the `flags` field is provided for the methods which support it.
 
         !!! note
@@ -2756,7 +2760,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
 
         Returns
         -------
-        hikari.api.CommandBuilder
+        hikari.api.special_endpoints.CommandBuilder
             A builder object for this command. Use to declare this command on
             globally or for a specific guild.
         """
@@ -2825,7 +2829,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
 
         Returns
         -------
-        hikari.api.SlashCommandBuilder
+        hikari.api.special_endpoints.SlashCommandBuilder
             A builder object for this command. Use to declare this command on
             globally or for a specific guild.
         """
@@ -2928,7 +2932,7 @@ class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCallbackSigT, _Me
 
         Returns
         -------
-        hikari.api.ContextMenuCommandBuilder
+        hikari.api.special_endpoints.ContextMenuCommandBuilder
             A builder object for this command. Use to declare this command on
             globally or for a specific guild.
         """
@@ -2938,8 +2942,8 @@ class SlashCommandGroup(BaseSlashCommand, abc.ABC):
     """Standard interface of a slash command group.
 
     !!! note
-        Unlike [tanjun.abc.MessageCommandGroup][], slash command groups do not
-        have their own callback.
+        Unlike [MessageCommandGroup][tanjun.abc.MessageCommandGroup], slash
+        command groups do not have their own callback.
     """
 
     __slots__ = ()
@@ -3029,7 +3033,7 @@ class MessageParser(abc.ABC):
 
         !!! warning
             This relies on the prefix and command name(s) having been removed
-            from [tanjun.abc.MessageContext.content][].
+            from [MessageContext.content][tanjun.abc.MessageContext.content].
 
         Parameters
         ----------
@@ -3043,7 +3047,7 @@ class MessageParser(abc.ABC):
 
         Raises
         ------
-        tanjun.ParserError
+        tanjun.errors.ParserError
             If the message could not be parsed.
         """
 
@@ -3242,7 +3246,8 @@ class Component(abc.ABC):
     def default_app_cmd_permissions(self) -> typing.Optional[hikari.Permissions]:
         """Default required guild member permissions for the commands in this component.
 
-        This may be overridden by [tanjun.abc.AppCommand.default_member_permissions][]
+        This may be overridden by
+        [AppCommand.default_member_permissions][tanjun.abc.AppCommand.default_member_permissions]
         and if this is [None][] then the default from the parent client is used.
 
         !!! warning
@@ -3254,13 +3259,16 @@ class Component(abc.ABC):
     def defaults_to_ephemeral(self) -> typing.Optional[bool]:
         """Whether slash contexts executed in this component should default to ephemeral responses.
 
-        This effects calls to [tanjun.abc.SlashContext.create_followup][],
-        [tanjun.abc.SlashContext.create_initial_response][],
-        [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
+        This effects calls to
+        [AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup],
+        [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response],
+        [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer] and
+        [AppCommandContext.respond][tanjun.abc.Context.respond]
         unless the `flags` field is provided for the methods which support it.
 
         !!! note
-            This may be overridden by [tanjun.abc.AppCommand.defaults_to_ephemeral][]
+            This may be overridden by
+            [AppCommand.defaults_to_ephemeral][tanjun.abc.AppCommand.defaults_to_ephemeral]
             and only effects slash command execution; if this is [None][] then
             the default from the parent client is used.
         """
@@ -3271,9 +3279,10 @@ class Component(abc.ABC):
         """Whether application commands in this component should be enabled in DMs.
 
         !!! note
-            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][] and
-            if both that and this are [None][] then the default from the parent
-            client is used.
+            This may be overridden by
+            [AppCommand.is_dm_enabled][tanjun.abc.AppCommand.is_dm_enabled]
+            and if both that and this are [None][] then the default from the
+            parent client is used.
         """
 
     @property
@@ -3600,8 +3609,8 @@ class Component(abc.ABC):
         ------
         ValueError
             If nothing was passed for `event_types` and no subclasses of
-            [hikari.events.base_events.Event][] are found in the type-hint
-            for the callback's first argument.
+            [hikari.Event][hikari.events.base_events.Event] are found in the
+            type-hint for the callback's first argument.
         """
 
     @abc.abstractmethod
@@ -3709,9 +3718,9 @@ class Component(abc.ABC):
 
         Raises
         ------
-        tanjun.CommandError
+        tanjun.errors.CommandError
             To end the command's execution with an error response message.
-        tanjun.HaltExecution
+        tanjun.errors.HaltExecution
             To indicate that the client should stop searching for commands to
             execute with the current context.
         """
@@ -3741,9 +3750,9 @@ class Component(abc.ABC):
 
         Raises
         ------
-        tanjun.CommandError
+        tanjun.errors.CommandError
             To end the command's execution with an error response message.
-        tanjun.HaltExecution
+        tanjun.errors.HaltExecution
             To indicate that the client should stop searching for commands to
             execute with the current context.
         """
@@ -3772,9 +3781,9 @@ class Component(abc.ABC):
 
         Raises
         ------
-        tanjun.CommandError
+        tanjun.errors.CommandError
             To end the command's execution with an error response message.
-        tanjun.HaltExecution
+        tanjun.errors.HaltExecution
             To indicate that the client should stop searching for commands to
             execute with the current context.
         """
@@ -3809,7 +3818,7 @@ class Component(abc.ABC):
 class ClientCallbackNames(str, enum.Enum):
     """Enum of the standard client callback names.
 
-    These should be dispatched by all [tanjun.abc.Client][] implementations.
+    These should be dispatched by all [Client][tanjun.abc.Client] implementations.
     """
 
     CLOSED = "closed"
@@ -3831,7 +3840,8 @@ class ClientCallbackNames(str, enum.Enum):
         This event isn't dispatched for components which were registered while
         the client is inactive.
 
-    The first positional argument is the [tanjun.abc.Component][] being added.
+    The first positional argument is the [Component][tanjun.abc.Component]
+    being added.
     """
 
     COMPONENT_REMOVED = "component_removed"
@@ -3841,25 +3851,29 @@ class ClientCallbackNames(str, enum.Enum):
         This event isn't dispatched for components which were removed while
         the client is inactive.
 
-    The first positional argument is the [tanjun.abc.Component][] being removed.
+    The first positional argument is the [Component][tanjun.abc.Component]
+    being removed.
     """
 
     MENU_COMMAND_NOT_FOUND = "menu_command_not_found"
     """Called when a menu command is not found.
 
-    [tanjun.abc.MenuContext][] is provided as the first positional argument.
+    [MenuContext][tanjun.abc.MenuContext] is provided as the first positional
+    argument.
     """
 
     MESSAGE_COMMAND_NOT_FOUND = "message_command_not_found"
     """Called when a message command is not found.
 
-    [tanjun.abc.MessageContext][] is provided as the first positional argument.
+    [MessageContext][tanjun.abc.MessageContext] is provided as the first
+    positional argument.
     """
 
     SLASH_COMMAND_NOT_FOUND = "slash_command_not_found"
     """Called when a slash command is not found.
 
-    [tanjun.abc.SlashContext][] is provided as the first positional argument.
+    [SlashContext][tanjun.abc.SlashContext] is provided as the first positional
+    argument.
     """
 
     STARTED = "started"
@@ -3899,8 +3913,10 @@ class Client(abc.ABC):
     def default_app_cmd_permissions(self) -> hikari.Permissions:
         """Default required guild member permissions for the commands in this client.
 
-        This may be overridden by [tanjun.abc.Component.default_app_cmd_permissions][] and
-        [tanjun.abc.AppCommand.default_member_permissions][]; this defaults to no
+        This may be overridden by
+        [Component.default_app_cmd_permissions][tanjun.abc.Component.default_app_cmd_permissions] and
+        [AppCommand.default_member_permissions][tanjun.abc.AppCommand.default_member_permissions];
+        this defaults to no
         required permissions.
 
         !!! warning
@@ -3912,17 +3928,20 @@ class Client(abc.ABC):
     def defaults_to_ephemeral(self) -> bool:
         """Whether slash contexts spawned by this client should default to ephemeral responses.
 
-        This effects calls to [tanjun.abc.SlashContext.create_followup][],
-        [tanjun.abc.SlashContext.create_initial_response][],
-        [tanjun.abc.SlashContext.defer][] and [tanjun.abc.SlashContext.respond][]
+        This effects calls to
+        [AppCommandContext.create_followup][tanjun.abc.AppCommandContext.create_followup],
+        [AppCommandContext.create_initial_response][tanjun.abc.AppCommandContext.create_initial_response],
+        [AppCommandContext.defer][tanjun.abc.AppCommandContext.defer] and
+        [AppCommandContext.respond][tanjun.abc.Context.respond]
         unless the `flags` field is provided for the methods which support it.
 
         This defaults to [False][].
 
         !!! note
-            This may be overridden by [tanjun.abc.AppCommand.defaults_to_ephemeral][]
-            and [tanjun.abc.Component.defaults_to_ephemeral][] and only effects
-            slash command execution.
+            This may be overridden by
+            [AppCommand.defaults_to_ephemeral][tanjun.abc.AppCommand.defaults_to_ephemeral]
+            and [Component.defaults_to_ephemeral][tanjun.abc.Component.defaults_to_ephemeral]
+            and only effects slash command execution.
         """
 
     @property
@@ -3933,8 +3952,9 @@ class Client(abc.ABC):
         This defaults to [True][].
 
         !!! note
-            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][]
-            and [tanjun.abc.Component.dms_enabled_for_app_cmds][].
+            This may be overridden by
+            [AppCommand.is_dm_enabled][tanjun.abc.AppCommand.is_dm_enabled]
+            and [Component.dms_enabled_for_app_cmds][tanjun.abc.Component.dms_enabled_for_app_cmds].
         """
 
     @property
@@ -4034,7 +4054,7 @@ class Client(abc.ABC):
             The application to clear commands for.
 
             If left as [None][] then this will be inferred from the authorization
-            being used by [tanjun.abc.Client.rest][].
+            being used by [Client.rest][tanjun.abc.Client.rest].
         guild
             Object or ID of the guild to clear commands for.
 
@@ -4076,7 +4096,7 @@ class Client(abc.ABC):
             Object or ID of the application to set the global commands for.
 
             If left as [None][] then this will be inferred from the authorization
-            being used by [tanjun.abc.Client.rest][].
+            being used by [Client.rest][tanjun.abc.Client.rest].
         guild
             Object or ID of the guild to set the global commands to.
 
@@ -4165,7 +4185,7 @@ class Client(abc.ABC):
             The application to register the command with.
 
             If left as [None][] then this will be inferred from the authorization
-            being used by [tanjun.abc.Client.rest][].
+            being used by [Client.rest][tanjun.abc.Client.rest].
         command_id
             ID of the command to update.
         guild
@@ -4175,7 +4195,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        hikari.PartialCommand
+        hikari.commands.PartialCommand
             API representation of the command that was registered.
         """
 
@@ -4219,7 +4239,7 @@ class Client(abc.ABC):
             The application to register the commands with.
 
             If left as [None][] then this will be inferred from the authorization
-            being used by [tanjun.abc.Client.rest][].
+            being used by [Client.rest][tanjun.abc.Client.rest].
         guild
             Object or ID of the guild to register the commands with.
 
@@ -4240,7 +4260,7 @@ class Client(abc.ABC):
 
         Returns
         -------
-        collections.abc.Sequence[hikari.PartialCommand]
+        collections.abc.Sequence[hikari.commands.PartialCommand]
             API representations of the commands which were registered.
 
         Raises
@@ -4536,15 +4556,15 @@ class Client(abc.ABC):
 
             The callback must be a coroutine function which returns [None][] and
             always takes at least one positional arg of type
-            [hikari.events.base_events.Event][] regardless of client
-            implementation detail.
+            [hikari.Event][hikari.events.base_events.Event] regardless of
+            client implementation detail.
 
         Raises
         ------
         ValueError
             If nothing was passed for `event_types` and no subclasses of
-            [hikari.events.base_events.Event][] are found in the type-hint
-            for the callback's first argument.
+            [hikari.Event][hikari.events.base_events.Event] are found in the
+            type-hint for the callback's first argument.
         """
 
     @abc.abstractmethod
@@ -4667,10 +4687,10 @@ class Client(abc.ABC):
     def load_directory(
         self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> Self:
-        """Load entities into this client from the modules in a directory.
+        r"""Load entities into this client from the modules in a directory.
 
-        The same loading rules for [tanjun.abc.Client.load_modules][] mostly
-        apply here but modules with no loaders are quietly ignored.
+        The same loading rules for [Client.load_modules][tanjun.abc.Client.load_modules]
+        mostly apply here but modules with no loaders are quietly ignored.
 
         Parameters
         ----------
@@ -4682,10 +4702,11 @@ class Client(abc.ABC):
 
             This work as `{namespace}.{file.name.removesuffix(".py")}` and will
             have the same behaviour as when a [str][] is passed to
-            [tanjun.abc.Client.load_modules][] if passed.
+            [Client.load_modules][tanjun.abc.Client.load_modules] if passed.
 
             If left as [None][] then this will have the same behaviour as when
-            a [pathlib.Path][] is passed to [tanjun.abc.Client.load_modules][].
+            a [pathlib.Path][] is passed to
+            [Client.load_modules][tanjun.abc.Client.load_modules].
 
         Returns
         -------
@@ -4694,11 +4715,12 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.FailedModuleLoad
+        tanjun.errors.FailedModuleLoad
             If any of the modules in this directory failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
-            The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
+            The source error can be found at
+            [FailedModuleLoad.\_\_cause\_\_][tanjun.errors.FailedModuleLoad.__cause__].
 
             Modules with no loaders are ignored.
         ModuleNotFoundError
@@ -4709,18 +4731,18 @@ class Client(abc.ABC):
     async def load_directory_async(
         self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
     ) -> None:
-        """Asynchronous variant of [tanjun.abc.Client.load_directory][].
+        """Asynchronous variant of [Client.load_directory][tanjun.abc.Client.load_directory].
 
-        Unlike [tanjun.abc.Client.load_directory][], this method will run
-        blocking code in a background thread.
+        Unlike [Client.load_directory][tanjun.abc.Client.load_directory], this
+        method will run blocking code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [tanjun.abc.Client.load_directory][].
+        documentation for [Client.load_directory][tanjun.abc.Client.load_directory].
         """
 
     @abc.abstractmethod
     def load_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
-        """Load entities into this client from modules based on present loaders.
+        r"""Load entities into this client from modules based on present loaders.
 
         !!! note
             If an `__all__` is present in the target module then it will be
@@ -4764,14 +4786,15 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.FailedModuleLoad
+        tanjun.errors.FailedModuleLoad
             If the new version of a module failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
-            The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
-        tanjun.ModuleStateConflict
+            The source error can be found at
+            [FailedModuleLoad.\_\_cause\_\_][tanjun.errors.FailedModuleLoad.__cause__].
+        tanjun.errors.ModuleStateConflict
             If the module is already loaded.
-        tanjun.ModuleMissingLoaders
+        tanjun.errors.ModuleMissingLoaders
             If no loaders are found in the module.
         ModuleNotFoundError
             If the module is not found.
@@ -4779,18 +4802,18 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     async def load_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
-        """Asynchronous variant of [tanjun.abc.Client.load_modules][].
+        """Asynchronous variant of [Client.load_modules][tanjun.abc.Client.load_modules].
 
-        Unlike [tanjun.abc.Client.load_modules][], this method will run blocking
-        code in a background thread.
+        Unlike [Client.load_modules][tanjun.abc.Client.load_modules], this
+        method will run blocking code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [tanjun.abc.Client.load_modules][].
+        documentation for [Client.load_modules][tanjun.abc.Client.load_modules].
         """
 
     @abc.abstractmethod
     def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
-        """Unload entities from this client based on unloaders in one or more modules.
+        r"""Unload entities from this client based on unloaders in one or more modules.
 
         !!! note
             If an `__all__` is present in the target module then it will be
@@ -4799,7 +4822,7 @@ class Client(abc.ABC):
         Examples
         --------
         For this to work the module has to have at least one unloading enabled
-        [tanjun.abc.ClientLoader][] present.
+        [ClientLoader][tanjun.abc.ClientLoader] present.
 
         ```py
         @tanjun.as_unloader
@@ -4820,7 +4843,7 @@ class Client(abc.ABC):
             Path of one or more modules to unload.
 
             These should be the same path(s) which were passed to
-            [tanjun.abc.Client.load_modules][].
+            [Client.load_modules][tanjun.abc.Client.load_modules].
 
         Returns
         -------
@@ -4829,20 +4852,21 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.ModuleStateConflict
+        tanjun.errors.ModuleStateConflict
             If the module hasn't been loaded.
-        tanjun.ModuleMissingUnloaders
+        tanjun.errors.ModuleMissingUnloaders
             If no unloaders are found in the module.
-        tanjun.FailedModuleUnload
+        tanjun.errors.FailedModuleUnload
             If the old version of a module failed to unload.
 
-            This indicates that one of its unloaders raised. The source
-            error can be found at [tanjun.FailedModuleUnload.__cause__][].
+            This indicates that one of its unloaders raised. The source error
+            can be found at
+            [FailedModuleUnload.\_\_cause\_\_][tanjun.errors.FailedModuleUnload.__cause__].
         """
 
     @abc.abstractmethod
     def reload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
-        """Reload entities in this client based on the loaders in loaded module(s).
+        r"""Reload entities in this client based on the loaders in loaded module(s).
 
         !!! note
             If an `__all__` is present in the target module then it will be
@@ -4859,7 +4883,7 @@ class Client(abc.ABC):
             Paths of one or more module to unload.
 
             These should be the same paths which were passed to
-            [tanjun.abc.Client.load_modules][].
+            [Client.load_modules][tanjun.abc.Client.load_modules].
 
         Returns
         -------
@@ -4868,21 +4892,23 @@ class Client(abc.ABC):
 
         Raises
         ------
-        tanjun.FailedModuleLoad
+        tanjun.errors.FailedModuleLoad
             If the new version of a module failed to load.
 
             This includes if it failed to import or if one of its loaders raised.
-            The source error can be found at [tanjun.FailedModuleLoad.__cause__][].
-        tanjun.FailedModuleUnload
+            The source error can be found at
+            [FailedModuleLoad.\_\_cause\_\_][tanjun.errors.FailedModuleLoad.__cause__].
+        tanjun.errors.FailedModuleUnload
             If the old version of a module failed to unload.
 
             This indicates that one of its unloaders raised. The source
-            error can be found at [tanjun.FailedModuleUnload.__cause__][].
-        tanjun.ModuleStateConflict
+            error can be found at
+            [FailedModuleUnload.\_\_cause\_\_][tanjun.errors.FailedModuleUnload.__cause__].
+        tanjun.errors.ModuleStateConflict
             If the module hasn't been loaded.
-        tanjun.ModuleMissingLoaders
+        tanjun.errors.ModuleMissingLoaders
             If no loaders are found in the new state of the module.
-        tanjun.ModuleMissingUnloaders
+        tanjun.errors.ModuleMissingUnloaders
             If no unloaders are found in the current state of the module.
         ModuleNotFoundError
             If the module can no-longer be found at the provided path.
@@ -4890,13 +4916,13 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     async def reload_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
-        """Asynchronous variant of [tanjun.abc.Client.reload_modules][].
+        """Asynchronous variant of [Client.reload_modules][tanjun.abc.Client.reload_modules].
 
-        Unlike [tanjun.abc.Client.reload_modules][], this method will run
-        blocking code in a background thread.
+        Unlike [Client.reload_modules][tanjun.abc.Client.reload_modules], this
+        method will run blocking code in a background thread.
 
         For more information on the behaviour of this method see the
-        documentation for [tanjun.abc.Client.reload_modules][].
+        documentation for [Client.reload_modules][tanjun.abc.Client.reload_modules].
         """
 
     @abc.abstractmethod

@@ -60,7 +60,7 @@ async def fetch_my_user(
 
     Returns
     -------
-    hikari.OwnUser
+    hikari.users.OwnUser
         The current user.
 
     Raises

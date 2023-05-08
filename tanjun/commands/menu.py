@@ -96,11 +96,12 @@ def as_message_menu(
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _AsMsgResultProto:
-    """Build a message [tanjun.MenuCommand][] by decorating a function.
+    """Build a message [MenuCommand][tanjun.MenuCommand] by decorating a function.
 
     !!! note
-        Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by [tanjun.Client.declare_global_commands][]
+        Under the standard implementation, `is_global` is used to
+        determine whether the command should be bulk set by
+        [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
         or when `declare_global_commands` is True
 
     !!! note
@@ -148,12 +149,13 @@ def as_message_menu(
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.MenuCallbackSig], MenuCommand]
-        The decorator callback used to make a [tanjun.MenuCommand][].
+        The decorator callback used to make a [MenuCommand][tanjun.MenuCommand].
 
-        This can either wrap a raw command callback or another callable command instance
-        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
-        and will manage loading the other command into a component when using
-        [tanjun.Component.load_from_scope][].
+        This can either wrap a raw command callback or another callable command
+        instance (e.g. [MenuCommand][tanjun.MenuCommand], [tanjun.MessageCommand][],
+        [tanjun.SlashCommand][]) and will manage loading the other command into
+        a component when using
+        [Component.load_from_scope][tanjun.components.Component.load_from_scope].
 
     Raises
     ------
@@ -215,11 +217,12 @@ def as_user_menu(
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
 ) -> _AsUserResultProto:
-    """Build a user [tanjun.MenuCommand][] by decorating a function.
+    """Build a user [MenuCommand][tanjun.MenuCommand] by decorating a function.
 
     !!! note
-        Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by [tanjun.Client.declare_global_commands][]
+        Under the standard implementation, `is_global` is used to
+        determine whether the command should be bulk set by
+        [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
         or when `declare_global_commands` is True
 
     !!! note
@@ -269,12 +272,13 @@ def as_user_menu(
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.MenuCallbackSig], MenuCommand]
-        The decorator callback used to make a [tanjun.MenuCommand][].
+        The decorator callback used to make a [MenuCommand][tanjun.MenuCommand].
 
-        This can either wrap a raw command callback or another callable command instance
-        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
-        and will manage loading the other command into a component when using
-        [tanjun.Component.load_from_scope][].
+        This can either wrap a raw command callback or another callable command
+        instance (e.g. [MenuCommand][tanjun.MenuCommand], [tanjun.MessageCommand][],
+        [tanjun.SlashCommand][]) and will manage loading the other command into
+        a component when using
+        [Component.load_from_scope][tanjun.components.Component.load_from_scope].
 
     Raises
     ------
@@ -421,8 +425,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         """Initialise a user or message menu command.
 
         !!! note
-            Under the standard implementation, `is_global` is used to determine whether
-            the command should be bulk set by [tanjun.Client.declare_global_commands][]
+            Under the standard implementation, `is_global` is used to
+            determine whether the command should be bulk set by
+            [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
             or when `declare_global_commands` is True
 
         !!! note
@@ -440,8 +445,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         type_ : hikari.commands.CommandType
             The type of menu command this is.
 
-            Only [hikari.commands.CommandType.USER][] and [hikari.commands.CommandType.MESSAGE][]
-            are valid here.
+            Only [CommandType.USER][hikari.commands.CommandType.USER] and
+            [CommandType.MESSAGE][hikari.commands.CommandType.MESSAGE] are
+            valid here.
         name
             The command's name (supports [localisation][]).
 
@@ -471,12 +477,13 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         Returns
         -------
         collections.abc.Callable[[tanjun.abc.MenuCallbackSig], MenuCommand]
-            The decorator callback used to make a [tanjun.MenuCommand][].
+            The decorator callback used to make a [MenuCommand][tanjun.MenuCommand].
 
-            This can either wrap a raw command callback or another callable command instance
-            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][], [tanjun.SlashCommand][])
-            and will manage loading the other command into a component when using
-            [tanjun.Component.load_from_scope][].
+            This can either wrap a raw command callback or another callable command
+            instance (e.g. [MenuCommand][tanjun.MenuCommand], [tanjun.MessageCommand][],
+            [tanjun.SlashCommand][]) and will manage loading the other command into
+            a component when using
+            [Component.load_from_scope][tanjun.components.Component.load_from_scope].
 
         Raises
         ------

@@ -174,8 +174,9 @@ def slash_command_group(
         ignored for command groups within other slash command groups.
 
     !!! note
-        Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by [tanjun.Client.declare_global_commands][]
+        Under the standard implementation, `is_global` is used to
+        determine whether the command should be bulk set by
+        [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
         or when `declare_global_commands` is True
 
     Examples
@@ -276,11 +277,12 @@ def as_slash_command(
     sort_options: bool = True,
     validate_arg_keys: bool = True,
 ) -> _AsSlashResultProto:
-    r"""Build a [tanjun.SlashCommand][] by decorating a function.
+    r"""Build a [SlashCommand][tanjun.SlashCommand] by decorating a function.
 
     !!! note
-        Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by [tanjun.Client.declare_global_commands][]
+        Under the standard implementation, `is_global` is used to
+        determine whether the command should be bulk set by
+        [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
         or when `declare_global_commands` is True
 
     !!! warning
@@ -346,12 +348,13 @@ def as_slash_command(
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.SlashCallbackSig], SlashCommand]
-        The decorator callback used to make a [tanjun.SlashCommand][].
+        The decorator callback used to make a [SlashCommand][tanjun.SlashCommand].
 
-        This can either wrap a raw command callback or another callable command instance
-        (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][] [tanjun.SlashCommand][])
-        and will manage loading the other command into a component when using
-        [tanjun.Component.load_from_scope][].
+        This can either wrap a raw command callback or another callable command
+        instance (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][],
+        [SlashCommand][tanjun.SlashCommand]) and will manage loading the other
+        command into a component when using
+        [Component.load_from_scope][tanjun.components.Component.load_from_scope].
 
     Raises
     ------
@@ -404,7 +407,7 @@ def with_attachment_slash_option(
     """Add an attachment option to a slash command.
 
     For more information on this function's parameters see
-    [tanjun.SlashCommand.add_attachment_option][].
+    [SlashCommand.add_attachment_option][tanjun.SlashCommand.add_attachment_option].
 
     Examples
     --------
@@ -417,7 +420,7 @@ def with_attachment_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda command: command.add_attachment_option(
@@ -444,7 +447,7 @@ def with_str_slash_option(
     """Add a string option to a slash command.
 
     For more information on this function's parameters see
-    [tanjun.commands.SlashCommand.add_str_option][].
+    [SlashCommand.add_str_option][tanjun.commands.SlashCommand.add_str_option].
 
     Examples
     --------
@@ -457,7 +460,7 @@ def with_str_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_str_option(
@@ -492,7 +495,7 @@ def with_int_slash_option(
     """Add an integer option to a slash command.
 
     For information on this function's parameters see
-    [tanjun.SlashCommand.add_int_option][].
+    [SlashCommand.add_int_option][tanjun.SlashCommand.add_int_option].
 
     Examples
     --------
@@ -505,7 +508,7 @@ def with_int_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_int_option(
@@ -541,7 +544,7 @@ def with_float_slash_option(
     """Add a float option to a slash command.
 
     For information on this function's parameters see
-    [tanjun.SlashCommand.add_float_option][].
+    [SlashCommand.add_float_option][tanjun.SlashCommand.add_float_option].
 
     Examples
     --------
@@ -554,7 +557,7 @@ def with_float_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_float_option(
@@ -585,7 +588,7 @@ def with_bool_slash_option(
     """Add a boolean option to a slash command.
 
     For information on this function's parameters see
-    [tanjun.SlashCommand.add_bool_option][].
+    [SlashCommand.add_bool_option][tanjun.SlashCommand.add_bool_option].
 
     Examples
     --------
@@ -598,7 +601,7 @@ def with_bool_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_bool_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -616,12 +619,13 @@ def with_user_slash_option(
     """Add a user option to a slash command.
 
     For information on this function's parameters see
-    [tanjun.SlashCommand.add_user_option][].
+    [SlashCommand.add_user_option][tanjun.SlashCommand.add_user_option].
 
     !!! note
-        This may result in [hikari.interactions.base_interactions.InteractionMember][] or
-        [hikari.users.User][] if the user isn't in the current guild or if this
-        command was executed in a DM channel.
+        This may result in
+        [hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember]
+        or [hikari.User][hikari.users.User] if the user isn't in the current
+        guild or if this command was executed in a DM channel.
 
     Examples
     --------
@@ -634,7 +638,7 @@ def with_user_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_user_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -651,10 +655,11 @@ def with_member_slash_option(
     """Add a member option to a slash command.
 
     For information on this function's arguments see
-    [tanjun.SlashCommand.add_member_option][].
+    [SlashCommand.add_member_option][tanjun.SlashCommand.add_member_option].
 
     !!! note
-        This will always result in [hikari.interactions.base_interactions.InteractionMember][].
+        This will always result in
+        [hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember].
 
     Examples
     --------
@@ -667,7 +672,7 @@ def with_member_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_member_option(name, description, default=default, key=key)
@@ -686,10 +691,11 @@ def with_channel_slash_option(
     """Add a channel option to a slash command.
 
     For information on this function's parameters see
-    [tanjun.SlashCommand.add_channel_option][].
+    [SlashCommand.add_channel_option][tanjun.SlashCommand.add_channel_option].
 
     !!! note
-        This will always result in [hikari.interactions.base_interactions.InteractionChannel][].
+        This will always result in
+        [hikari.InteractionChannel][hikari.interactions.base_interactions.InteractionChannel].
 
     Examples
     --------
@@ -702,7 +708,7 @@ def with_channel_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_channel_option(
@@ -722,7 +728,7 @@ def with_role_slash_option(
     """Add a role option to a slash command.
 
     For information on this function's parameters see
-    [tanjun.SlashCommand.add_role_option][].
+    [SlashCommand.add_role_option][tanjun.SlashCommand.add_role_option].
 
     Examples
     --------
@@ -735,7 +741,7 @@ def with_role_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_role_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -753,7 +759,7 @@ def with_mentionable_slash_option(
     """Add a mentionable option to a slash command.
 
     For information on this function's arguments see
-    [tanjun.SlashCommand.add_mentionable_option][].
+    [SlashCommand.add_mentionable_option][tanjun.SlashCommand.add_mentionable_option].
 
     !!! note
         This may target roles, guild members or users and results in
@@ -770,7 +776,7 @@ def with_mentionable_slash_option(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.SlashCommand], tanjun.SlashCommand]
+    collections.abc.Callable[[SlashCommand], SlashCommand]
         Decorator callback which adds the option to the command.
     """
     return lambda c: c.add_mentionable_option(name, description, default=default, key=key, pass_as_kwarg=pass_as_kwarg)
@@ -1065,8 +1071,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         r"""Initialise a slash command group.
 
         !!! note
-            Under the standard implementation, `is_global` is used to determine
-            whether the command should be bulk set by [tanjun.Client.declare_global_commands][]
+            Under the standard implementation, `is_global` is used to
+            determine whether the command should be bulk set by
+            [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
             or when `declare_global_commands` is True
 
         !!! warning
@@ -1233,7 +1240,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         sort_options: bool = True,
         validate_arg_keys: bool = True,
     ) -> collections.Callable[[_CallbackishT[_SlashCallbackSigT]], SlashCommand[_SlashCallbackSigT]]:
-        r"""Build a [tanjun.SlashCommand][] in this command group by decorating a function.
+        r"""Build a [SlashCommand][tanjun.SlashCommand] in this command group by decorating a function.
 
         !!! note
             If you want your first response to be ephemeral while using
@@ -1272,8 +1279,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         collections.abc.Callable[[tanjun.abc.SlashCallbackSig], SlashCommand]
             The decorator callback used to make a sub-command.
 
-            This can either wrap a raw command callback or another callable command instance
-            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][] [tanjun.SlashCommand][]).
+            This can either wrap a raw command callback or another callable command
+            instance (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][],
+            [SlashCommand][tanjun.SlashCommand]).
 
         Raises
         ------
@@ -1513,8 +1521,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         r"""Initialise a slash command.
 
         !!! note
-            Under the standard implementation, `is_global` is used to determine whether
-            the command should be bulk set by [tanjun.Client.declare_global_commands][]
+            Under the standard implementation, `is_global` is used to
+            determine whether the command should be bulk set by
+            [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
             or when `declare_global_commands` is True
 
         !!! warning
@@ -1801,7 +1810,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         r"""Add an attachment option to the slash command.
 
         !!! note
-            This will result in options of type [hikari.messages.Attachment][].
+            This will result in options of type
+            [hikari.Attachment][hikari.messages.Attachment].
 
         Parameters
         ----------
@@ -2463,9 +2473,10 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         r"""Add a user option to a slash command.
 
         !!! note
-            This may result in [hikari.interactions.base_interactions.InteractionMember][]
-            or [hikari.users.User][] if the user isn't in the current guild or if this
-            command was executed in a DM channel.
+            This may result in
+            [hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember]
+            or [hikari.User][hikari.users.User] if the user isn't in the
+            current guild or if this command was executed in a DM channel.
 
         Parameters
         ----------
@@ -2536,7 +2547,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         !!! note
             This will always result in
-            [hikari.interactions.base_interactions.InteractionMember][].
+            [hikari.InteractionMember][hikari.interactions.base_interactions.InteractionMember].
 
         !!! warning
             Unlike the other options, this is an artificial option which adds
@@ -2608,7 +2619,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         !!! note
             This will always result in
-            [hikari.interactions.base_interactions.InteractionChannel][].
+            [hikari.InteractionChannel][hikari.interactions.base_interactions.InteractionChannel].
 
         Parameters
         ----------
