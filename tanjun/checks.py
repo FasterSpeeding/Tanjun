@@ -143,7 +143,7 @@ class _Check:
 
 
 class OwnerCheck(_Check):
-    """Standard owner check callback registered by [tanjun.with_owner_check][].
+    """Standard owner check callback registered by [with_owner_check][tanjun.checks.with_owner_check].
 
     This check will only pass if the author of the command is a bot owner.
     """
@@ -200,7 +200,7 @@ async def _get_is_nsfw(ctx: tanjun.Context, /, *, dm_default: bool) -> bool:
 
 
 class NsfwCheck(_Check):
-    """Standard NSFW check callback registered by [tanjun.with_nsfw_check][].
+    """Standard NSFW check callback registered by [with_nsfw_check][tanjun.checks.with_nsfw_check].
 
     This check will only pass if the current channel is NSFW.
     """
@@ -251,7 +251,7 @@ class NsfwCheck(_Check):
 
 
 class SfwCheck(_Check):
-    """Standard SFW check callback registered by [tanjun.with_sfw_check][].
+    """Standard SFW check callback registered by [with_sfw_check][tanjun.checks.with_sfw_check].
 
     This check will only pass if the current channel is SFW.
     """
@@ -302,7 +302,7 @@ class SfwCheck(_Check):
 
 
 class DmCheck(_Check):
-    """Standard DM check callback registered by [tanjun.with_dm_check][].
+    """Standard DM check callback registered by [with_dm_check][tanjun.checks.with_dm_check].
 
     This check will only pass if the current channel is a DM channel.
     """
@@ -351,7 +351,7 @@ class DmCheck(_Check):
 
 
 class GuildCheck(_Check):
-    """Standard guild check callback registered by [tanjun.with_guild_check][].
+    """Standard guild check callback registered by [with_guild_check][tanjun.checks.with_guild_check].
 
     This check will only pass if the current channel is in a guild.
     """
@@ -402,7 +402,10 @@ class GuildCheck(_Check):
 
 
 class AuthorPermissionCheck(_Check):
-    """Standard author permission check callback registered by [tanjun.with_author_permission_check][].
+    """Standard author permission check callback.
+
+    This is registered by
+    [with_author_permission_check][tanjun.checks.with_author_permission_check].
 
     This check will only pass if the current author has the specified permission.
     """
@@ -429,8 +432,9 @@ class AuthorPermissionCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This should take 1 positional argument of type [hikari.permissions.Permissions][]
-            which represents the missing permissions required for this command to run.
+            This should take 1 positional argument of type
+            [hikari.Permissions][hikari.permissions.Permissions] which
+            represents the missing permissions required for this command to run.
 
             This takes priority over `error_message`.
         error_message
@@ -483,7 +487,10 @@ _MemberCacheT = typing.Optional[dependencies.SfGuildBound[hikari.Member]]
 
 
 class OwnPermissionCheck(_Check):
-    """Standard own permission check callback registered by [tanjun.with_own_permission_check][].
+    """Standard own permission check callback.
+
+    This is registered by
+    [with_own_permission_check][tanjun.checks.with_own_permission_check].
 
     This check will only pass if the current bot user has the specified permission.
     """
@@ -510,8 +517,9 @@ class OwnPermissionCheck(_Check):
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This should take 1 positional argument of type [hikari.permissions.Permissions][]
-            which represents the missing permissions required for this command to run.
+            This should take 1 positional argument of type
+            [hikari.Permissions][hikari.permissions.Permissions] which
+            represents the missing permissions required for this command to run.
 
             This takes priority over `error_message`.
         error_message
@@ -679,7 +687,7 @@ def with_guild_check(
 
     Returns
     -------
-    tanjun.abc.ExecutableCommanmd
+    tanjun.abc.ExecutableCommand
         The command this check was added to.
     """
     return _optional_kwargs(
@@ -896,8 +904,9 @@ def with_author_permission_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should take 1 positional argument of type [hikari.permissions.Permissions][]
-        which represents the missing permissions required for this command to run.
+        This should take 1 positional argument of type
+        [hikari.Permissions][hikari.permissions.Permissions] which represents
+        the missing permissions required for this command to run.
 
         This takes priority over `error_message`.
     error_message
@@ -952,8 +961,9 @@ def with_own_permission_check(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should take 1 positional argument of type [hikari.permissions.Permissions][]
-        which represents the missing permissions required for this command to run.
+        This should take 1 positional argument of type
+        [hikari.Permissions][hikari.permissions.Permissions] which represents
+        the missing permissions required for this command to run.
 
         This takes priority over `error_message`.
     error_message

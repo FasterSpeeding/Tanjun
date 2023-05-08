@@ -78,7 +78,7 @@ where dependency injection is supported.
 
 
 class AbstractComponentLoader(abc.ABC):
-    """Abstract interface used for loading utility into a standard [tanjun.Component][]."""
+    """Abstract interface used for loading utility into a standard [Component][tanjun.Component]."""
 
     __slots__ = ()
 
@@ -355,10 +355,10 @@ class Component(tanjun.Component):
 
         !!! note
             This will detect entries from the calling scope which implement
-            [tanjun.components.AbstractComponentLoader][] unless `scope` is passed
-            but this isn't possible in a stack-less python implementation; in
-            stack-less environments the scope will have to be explicitly passed as
-            `scope`.
+            [AbstractComponentLoader][tanjun.components.AbstractComponentLoader]
+            unless `scope` is passed but this isn't possible in a stack-less
+            python implementation; in stack-less environments the scope will
+            have to be explicitly passed as `scope`.
 
         Parameters
         ----------
@@ -370,7 +370,8 @@ class Component(tanjun.Component):
             be needed when the local scope is different from the global scope.
         scope
             The scope to detect entries which implement
-            [tanjun.components.AbstractComponentLoader][] from.
+            [AbstractComponentLoader][tanjun.components.AbstractComponentLoader]
+            from.
 
             This overrides the default usage of stackframe introspection.
 
@@ -443,7 +444,8 @@ class Component(tanjun.Component):
             If this is left as [None][] then this config will be inherited from
             the parent client.
 
-            This may be overridden by [tanjun.abc.AppCommand.default_member_permissions][]
+            This may be overridden by
+            [AppCommand.default_member_permissions][tanjun.abc.AppCommand.default_member_permissions]
             and if this is left as [None][] then this config will be inherited
             from the parent client.
 
@@ -463,7 +465,8 @@ class Component(tanjun.Component):
         state
             Whether to enable this component's commands in DMs.
 
-            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][]
+            This may be overridden by
+            [AppCommand.is_dm_enabled][tanjun.abc.AppCommand.is_dm_enabled]
             and if this is left as [None][] then this config will be inherited
             from the parent client.
 
@@ -1415,8 +1418,10 @@ class Component(tanjun.Component):
         """Make a loader/unloader for this component.
 
         This enables loading, unloading and reloading of this component into a
-        client by targeting the module using [tanjun.Client.load_modules][],
-        [tanjun.Client.unload_modules][] and [tanjun.Client.reload_modules][].
+        client by targeting the module using
+        [Client.load_modules][tanjun.abc.Client.load_modules],
+        [Client.unload_modules][tanjun.abc.Client.unload_modules] and
+        [Client.reload_modules][tanjun.abc.Client.reload_modules].
 
         Parameters
         ----------

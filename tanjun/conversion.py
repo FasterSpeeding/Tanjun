@@ -142,9 +142,9 @@ class BaseConverter:
         which will be needed if said async cache isn't implemented.
 
         !!! note
-            Unless [tanjun.conversion.BaseConverter.requires_cache][] is [True][],
-            these cache components aren't necessary but simply avoid the converter
-            from falling back to REST requests.
+            Unless [BaseConverter.requires_cache][tanjun.conversion.BaseConverter.requires_cache]
+            is [True][], these cache components aren't necessary but simply
+            avoid the converter from falling back to REST requests.
         """
         return []
 
@@ -162,9 +162,10 @@ class BaseConverter:
         """Whether this converter relies on the relevant cache stores to work.
 
         If this is [True][] then this converter will not function properly
-        in an environment [tanjun.conversion.BaseConverter.intents][] or
-        [tanjun.conversion.BaseConverter.cache_components][] isn't satisfied
-        and will never fallback to REST requests.
+        in an environment
+        [BaseConverter.intents][tanjun.conversion.BaseConverter.intents] or
+        [BaseConverter.cache_components][tanjun.conversion.BaseConverter.cache_components]
+        isn't satisfied and will never fallback to REST requests.
         """
         return False
 
@@ -237,7 +238,7 @@ _ThreadCacheT = async_cache.SfCache[hikari.GuildThreadChannel]
 class ToChannel(BaseConverter):
     """Standard converter for channels mentions/IDs.
 
-    For a standard instance of this see [tanjun.conversion.to_channel][].
+    For a standard instance of this see [to_channel][tanjun.conversion.to_channel].
     """
 
     __slots__ = ("_allowed_types", "_allowed_types_repr", "_dms_enabled", "_guilds_enabled", "_threads_enabled")
@@ -389,7 +390,7 @@ class ToChannel(BaseConverter):
 
 @typing_extensions.deprecated("Use ToChannel instead")
 class ChannelConverter(ToChannel):
-    """Deprecated alias of [tanjun.conversion.ToChannel][]."""
+    """Deprecated alias of [ToChannel][tanjun.conversion.ToChannel]."""
 
     __slots__ = ()
 
@@ -400,12 +401,14 @@ _EmojiCacheT = async_cache.SfCache[hikari.KnownCustomEmoji]
 class ToEmoji(BaseConverter):
     """Standard converter for custom emojis.
 
-    For a standard instance of this see [tanjun.conversion.to_emoji][].
+    For a standard instance of this see [to_emoji][tanjun.conversion.to_emoji].
 
     !!! note
-        If you just want to convert inpute to a [hikari.emojis.Emoji][],
-        [hikari.emojis.CustomEmoji][] or [hikari.emojis.UnicodeEmoji][] without
-        making any cache or REST calls then you can just use the relevant
+        If you just want to convert inpute to a
+        [hikari.Emoji][hikari.emojis.Emoji],
+        [hikari.CustomEmoji][hikari.emojis.CustomEmoji] or
+        [hikari.UnicodeEmoji][hikari.emojis.UnicodeEmoji] without making any
+        cache or REST calls then you can just use the relevant
         [Emoji.parse][hikari.emojis.Emoji.parse],
         [CustomEmoji.parse][hikari.emojis.CustomEmoji.parse] or
         [UnicodeEmoji.parse][hikari.emojis.UnicodeEmoji.parse] methods.
@@ -453,7 +456,7 @@ class ToEmoji(BaseConverter):
 
 @typing_extensions.deprecated("Use ToEmoji")
 class EmojiConverter(ToEmoji):
-    """Deprecated alias of [tanjun.conversion.ToEmoji][]."""
+    """Deprecated alias of [ToEmoji][tanjun.conversion.ToEmoji]."""
 
     __slots__ = ()
 
@@ -464,7 +467,7 @@ _GuildCacheT = async_cache.SfCache[hikari.Guild]
 class ToGuild(BaseConverter):
     """Standard converter for guilds.
 
-    For a standard instance of this see [tanjun.conversion.to_guild][].
+    For a standard instance of this see [to_guild][tanjun.conversion.to_guild].
     """
 
     __slots__ = ()
@@ -507,7 +510,7 @@ class ToGuild(BaseConverter):
 
 @typing_extensions.deprecated("Use ToGuild")
 class GuildConverter(ToGuild):
-    """Deprecated alias of [tanjun.conversion.ToGuild][]."""
+    """Deprecated alias of [ToGuild][tanjun.conversion.ToGuild]."""
 
     __slots__ = ()
 
@@ -556,7 +559,7 @@ class ToInvite(BaseConverter):
 
 @typing_extensions.deprecated("Use ToInvite")
 class InviteConverter(ToInvite):
-    """Deprecated alias of [tanjun.conversion.ToInvite][]."""
+    """Deprecated alias of [ToInvite][tanjun.conversion.ToInvite]."""
 
     __slots__ = ()
 
@@ -564,10 +567,12 @@ class InviteConverter(ToInvite):
 class ToInviteWithMetadata(BaseConverter):
     """Standard converter for invites with metadata.
 
-    For a standard instance of this see [tanjun.conversion.to_invite_with_metadata][].
+    For a standard instance of this see
+    [to_invite_with_metadata][tanjun.conversion.to_invite_with_metadata].
 
     !!! note
-        Unlike [tanjun.conversion.InviteConverter][], this converter is cache dependent.
+        Unlike [InviteConverter][tanjun.conversion.InviteConverter], this
+        converter is cache dependent.
     """
 
     __slots__ = ()
@@ -601,7 +606,7 @@ class ToInviteWithMetadata(BaseConverter):
 
 @typing_extensions.deprecated("Use ToInviteWithMetadata")
 class InviteWithMetadataConverter(ToInviteWithMetadata):
-    """Deprecated alias of [tanjun.conversion.ToInviteWithMetadata][]."""
+    """Deprecated alias of [ToInviteWithMetadata][tanjun.conversion.ToInviteWithMetadata]."""
 
     __slots__ = ()
 
@@ -612,7 +617,7 @@ _MemberCacheT = async_cache.SfGuildBound[hikari.Member]
 class ToMember(BaseConverter):
     """Standard converter for guild members.
 
-    For a standard instance of this see [tanjun.conversion.to_member][].
+    For a standard instance of this see [to_member][tanjun.conversion.to_member].
 
     This converter allows both mentions, raw IDs and partial usernames/nicknames
     and only works within a guild context.
@@ -674,7 +679,7 @@ class ToMember(BaseConverter):
 
 @typing_extensions.deprecated("Use ToMember")
 class MemberConverter(ToMember):
-    """Deprecated alias of [tanjun.conversion.ToMember][]."""
+    """Deprecated alias of [ToMember][tanjun.conversion.ToMember]."""
 
     __slots__ = ()
 
@@ -685,7 +690,7 @@ _PresenceCacheT = async_cache.SfGuildBound[hikari.MemberPresence]
 class ToPresence(BaseConverter):
     """Standard converter for presences.
 
-    For a standard instance of this see [tanjun.conversion.to_presence][].
+    For a standard instance of this see [to_presence][tanjun.conversion.to_presence].
 
     This converter is cache dependent and only works in a guild context.
     """
@@ -731,7 +736,7 @@ class ToPresence(BaseConverter):
 
 @typing_extensions.deprecated("Use ToPresence")
 class PresenceConverter(ToPresence):
-    """Deprecated alias of [tanjun.conversion.ToPresence][]."""
+    """Deprecated alias of [ToPresence][tanjun.conversion.ToPresence]."""
 
     __slots__ = ()
 
@@ -742,7 +747,7 @@ _RoleCacheT = async_cache.SfCache[hikari.Role]
 class ToRole(BaseConverter):
     """Standard converter for guild roles.
 
-    For a standard instance of this see [tanjun.conversion.to_role][].
+    For a standard instance of this see [to_role][tanjun.conversion.to_role].
     """
 
     __slots__ = ()
@@ -783,7 +788,7 @@ class ToRole(BaseConverter):
 
 @typing_extensions.deprecated("Use ToRole")
 class RoleConverter(ToRole):
-    """Deprecated alias of [tanjun.conversion.ToRole][]."""
+    """Deprecated alias of [ToRole][tanjun.conversion.ToRole]."""
 
     __slots__ = ()
 
@@ -794,7 +799,7 @@ _UserCacheT = async_cache.SfCache[hikari.User]
 class ToUser(BaseConverter):
     """Standard converter for users.
 
-    For a standard instance of this see [tanjun.conversion.to_user][].
+    For a standard instance of this see [to_user][tanjun.conversion.to_user].
     """
 
     __slots__ = ()
@@ -838,7 +843,7 @@ class ToUser(BaseConverter):
 
 @typing_extensions.deprecated("Use ToUser")
 class UserConverter(ToUser):
-    """Deprecated alias of [tanjun.conversion.ToUser][]."""
+    """Deprecated alias of [ToUser][tanjun.conversion.ToUser]."""
 
     __slots__ = ()
 
@@ -849,7 +854,7 @@ _MessageCacheT = async_cache.SfCache[hikari.Message]
 class ToMessage(BaseConverter):
     """Standard converter for messages.
 
-    For a standard instance of this see [tanjun.conversion.to_message][].
+    For a standard instance of this see [to_message][tanjun.conversion.to_message].
     """
 
     __slots__ = ()
@@ -902,7 +907,7 @@ _VoiceStateCacheT = async_cache.SfGuildBound[hikari.VoiceState]
 class ToVoiceState(BaseConverter):
     """Standard converter for voice states.
 
-    For a standard instance of this see [tanjun.conversion.to_voice_state][].
+    For a standard instance of this see [to_voice_state][tanjun.conversion.to_voice_state].
 
     !!! note
         This converter is cache dependent and only works in a guild context.
@@ -950,7 +955,7 @@ class ToVoiceState(BaseConverter):
 
 @typing_extensions.deprecated("Use ToVoiceState")
 class VoiceStateConverter(ToVoiceState):
-    """Deprecated alias of [tanjun.conversion.ToVoiceState][]."""
+    """Deprecated alias of [ToVoiceState][tanjun.conversion.ToVoiceState]."""
 
     __slots__ = ()
 
@@ -976,7 +981,7 @@ def _make_snowflake_parser(regex: re.Pattern[str], /) -> _IDMatcherSigProto:
 
         Returns
         -------
-        hikari.Snowflake
+        hikari.snowflakes.Snowflake
             The parsed snowflake.
 
         Raises
@@ -1022,7 +1027,7 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
 
         Returns
         -------
-        list[hikari.Snowflake]
+        list[hikari.snowflakes.Snowflake]
             List of the IDs found in the string.
         """
         if isinstance(value, str):
@@ -1250,7 +1255,7 @@ def parse_message_id(
 
     Returns
     -------
-    tuple[hikari.Snowflake | None, hikari.Snowflake]
+    tuple[hikari.snowflakes.Snowflake | None, hikari.snowflakes.Snowflake]
         The parsed channel and message IDs.
 
     Raises
@@ -1488,7 +1493,7 @@ def to_bool(value: str, /) -> bool:
 
 
 def to_color(argument: _SnowflakeIsh, /) -> hikari.Color:
-    """Convert user input to a [hikari.colors.Color][] object."""
+    """Convert user input to a [hikari.Color][hikari.colors.Color] object."""
     if isinstance(argument, str):
         values = argument.split(" ")
         if all(value.isdigit() for value in values):
@@ -1522,52 +1527,54 @@ def override_type(cls: parsing.ConverterSig[typing.Any], /) -> parsing.Converter
 
 
 to_channel: typing.Final[ToChannel] = ToChannel()
-"""Convert user input to a [hikari.channels.PartialChannel][] object."""
+"""Convert user input to a [hikari.PartialChannel][hikari.channels.PartialChannel] object."""
 
 to_colour: typing.Final[collections.Callable[[_SnowflakeIsh], hikari.Color]] = to_color
-"""Convert user input to a [hikari.colors.Color][] object."""
+"""Convert user input to a [hikari.Color][hikari.colors.Color] object."""
 
 to_emoji: typing.Final[ToEmoji] = ToEmoji()
-"""Convert user input to a cached [hikari.emojis.KnownCustomEmoji][] object.
+"""Convert user input to a cached [hikari.KnownCustomEmoji][hikari.emojis.KnownCustomEmoji] object.
 
 !!! note
-    If you just want to convert input to a [hikari.emojis.Emoji][],
-    [hikari.emojis.CustomEmoji][] or [hikari.emojis.UnicodeEmoji][] without
-    making any cache or REST calls then you can just use the relevant
-    [hikari.emojis.Emoji.parse][], [hikari.emojis.CustomEmoji.parse][] or
-    [hikari.emojis.UnicodeEmoji.parse][] methods.
+    If you just want to convert input to a [hikari.Emoji][hikari.emojis.Emoji],
+    [hikari.CustomEmoji][hikari.emojis.CustomEmoji] or
+    [hikari.UnicodeEmoji][hikari.emojis.UnicodeEmoji] without making any cache
+    or REST calls then you can just use the relevant
+    [Emoji.parse][hikari.emojis.Emoji.parse],
+    [CustomEmoji.parse][hikari.emojis.CustomEmoji.parse] or
+    [UnicodeEmoji.parse][hikari.emojis.UnicodeEmoji.parse] methods.
 """
 
 to_guild: typing.Final[ToGuild] = ToGuild()
-"""Convert user input to a [hikari.guilds.Guild][] object."""
+"""Convert user input to a [hikari.Guild][hikari.guilds.Guild] object."""
 
 to_invite: typing.Final[ToInvite] = ToInvite()
-"""Convert user input to a cached [hikari.invites.InviteWithMetadata][] object."""
+"""Convert user input to a cached [hikari.InviteWithMetadata][hikari.invites.InviteWithMetadata] object."""
 
 to_invite_with_metadata: typing.Final[ToInviteWithMetadata] = ToInviteWithMetadata()
-"""Convert user input to a [hikari.invites.Invite][] object."""
+"""Convert user input to a [hikari.Invite][hikari.invites.Invite] object."""
 
 to_member: typing.Final[ToMember] = ToMember()
-"""Convert user input to a [hikari.guilds.Member][] object."""
+"""Convert user input to a [hikari.Member][hikari.guilds.Member] object."""
 
 to_presence: typing.Final[ToPresence] = ToPresence()
-"""Convert user input to a cached [hikari.presences.MemberPresence][]."""
+"""Convert user input to a cached [hikari.MemberPresence][hikari.presences.MemberPresence]."""
 
 to_role: typing.Final[ToRole] = ToRole()
-"""Convert user input to a [hikari.guilds.Role][] object."""
+"""Convert user input to a [hikari.Role][hikari.guilds.Role] object."""
 
 to_snowflake: typing.Final[collections.Callable[[_SnowflakeIsh], hikari.Snowflake]] = parse_snowflake
-"""Convert user input to a [hikari.snowflakes.Snowflake][].
+"""Convert user input to a [hikari.Snowflake][hikari.snowflakes.Snowflake].
 
 !!! note
     This also range validates the input.
 """
 
 to_user: typing.Final[ToUser] = ToUser()
-"""Convert user input to a [hikari.users.User][] object."""
+"""Convert user input to a [hikari.User][hikari.users.User] object."""
 
 to_message: typing.Final[ToMessage] = ToMessage()
-"""Convert user input to a [hikari.messages.Message][] object."""
+"""Convert user input to a [hikari.Message][hikari.messages.Message] object."""
 
 to_voice_state: typing.Final[ToVoiceState] = ToVoiceState()
-"""Convert user input to a cached [hikari.voices.VoiceState][]."""
+"""Convert user input to a cached [hikari.VoiceState][hikari.voices.VoiceState]."""
