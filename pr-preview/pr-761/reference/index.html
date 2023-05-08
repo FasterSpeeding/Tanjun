@@ -5297,8 +5297,8 @@
 
 <p><strong>Examples:</strong></p>
     <p>A Tanjun client can be quickly initialised from a Hikari gateway bot through
-<a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.from_gateway_bot">tanjun.Client.from_gateway_bot</a>, this enables both slash (interaction) and message
-command execution:</p>
+<a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.from_gateway_bot">Client.from_gateway_bot</a>, this enables both
+slash (interaction) and message command execution:</p>
 <div class="highlight"><pre><span></span><code><span class="n">bot</span> <span class="o">=</span> <span class="n">hikari</span><span class="o">.</span><span class="n">GatewayBot</span><span class="p">(</span><span class="s2">&quot;BOT_TOKEN&quot;</span><span class="p">)</span>
 
 <span class="c1"># As a note, unless event_managed=False is passed here then this client</span>
@@ -5509,7 +5509,7 @@ that cover making a bot from scratch through to advanced concepts like Dependenc
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/channels/#hikari.channels.PartialChannel">hikari.channels.PartialChannel</a> object.</p>
+      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/channels/#hikari.channels.PartialChannel">hikari.PartialChannel</a> object.</p>
   </div>
 
 </div>
@@ -5532,7 +5532,7 @@ that cover making a bot from scratch through to advanced concepts like Dependenc
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/colors/#hikari.colors.Color">hikari.colors.Color</a> object.</p>
+      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/colors/#hikari.colors.Color">hikari.Color</a> object.</p>
   </div>
 
 </div>
@@ -5555,14 +5555,16 @@ that cover making a bot from scratch through to advanced concepts like Dependenc
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a cached <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.KnownCustomEmoji">hikari.emojis.KnownCustomEmoji</a> object.</p>
+      <p>Convert user input to a cached <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.KnownCustomEmoji">hikari.KnownCustomEmoji</a> object.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you just want to convert input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.Emoji">hikari.emojis.Emoji</a>,
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.CustomEmoji">hikari.emojis.CustomEmoji</a> or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.UnicodeEmoji">hikari.emojis.UnicodeEmoji</a> without
-making any cache or REST calls then you can just use the relevant
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.Emoji.parse">hikari.emojis.Emoji.parse</a>, <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.CustomEmoji.parse">hikari.emojis.CustomEmoji.parse</a> or
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.UnicodeEmoji.parse">hikari.emojis.UnicodeEmoji.parse</a> methods.</p>
+<p>If you just want to convert input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.Emoji">hikari.Emoji</a>,
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.CustomEmoji">hikari.CustomEmoji</a> or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.UnicodeEmoji">hikari.UnicodeEmoji</a> without making any cache
+or REST calls then you can just use the relevant
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.Emoji.parse">Emoji.parse</a>,
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.CustomEmoji.parse">CustomEmoji.parse</a> or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/emojis/#hikari.emojis.UnicodeEmoji.parse">UnicodeEmoji.parse</a> methods.</p>
 </div>
   </div>
 
@@ -5586,7 +5588,7 @@ making any cache or REST calls then you can just use the relevant
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.Guild">hikari.guilds.Guild</a> object.</p>
+      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.Guild">hikari.Guild</a> object.</p>
   </div>
 
 </div>
@@ -5609,7 +5611,7 @@ making any cache or REST calls then you can just use the relevant
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a cached <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/invites/#hikari.invites.InviteWithMetadata">hikari.invites.InviteWithMetadata</a> object.</p>
+      <p>Convert user input to a cached <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/invites/#hikari.invites.InviteWithMetadata">hikari.InviteWithMetadata</a> object.</p>
   </div>
 
 </div>
@@ -5632,7 +5634,7 @@ making any cache or REST calls then you can just use the relevant
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/invites/#hikari.invites.Invite">hikari.invites.Invite</a> object.</p>
+      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/invites/#hikari.invites.Invite">hikari.Invite</a> object.</p>
   </div>
 
 </div>
@@ -5655,7 +5657,7 @@ making any cache or REST calls then you can just use the relevant
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.Member">hikari.guilds.Member</a> object.</p>
+      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.Member">hikari.Member</a> object.</p>
   </div>
 
 </div>
@@ -5678,7 +5680,7 @@ making any cache or REST calls then you can just use the relevant
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.messages.Message</a> object.</p>
+      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.Message</a> object.</p>
   </div>
 
 </div>
@@ -5701,7 +5703,7 @@ making any cache or REST calls then you can just use the relevant
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a cached <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/presences/#hikari.presences.MemberPresence">hikari.presences.MemberPresence</a>.</p>
+      <p>Convert user input to a cached <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/presences/#hikari.presences.MemberPresence">hikari.MemberPresence</a>.</p>
   </div>
 
 </div>
@@ -5724,7 +5726,7 @@ making any cache or REST calls then you can just use the relevant
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.Role">hikari.guilds.Role</a> object.</p>
+      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.Role">hikari.Role</a> object.</p>
   </div>
 
 </div>
@@ -5747,7 +5749,7 @@ making any cache or REST calls then you can just use the relevant
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>.</p>
+      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This also range validates the input.</p>
@@ -5774,7 +5776,7 @@ making any cache or REST calls then you can just use the relevant
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.User">hikari.users.User</a> object.</p>
+      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.User">hikari.User</a> object.</p>
   </div>
 
 </div>
@@ -5797,7 +5799,7 @@ making any cache or REST calls then you can just use the relevant
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a cached <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/voices/#hikari.voices.VoiceState">hikari.voices.VoiceState</a>.</p>
+      <p>Convert user input to a cached <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/voices/#hikari.voices.VoiceState">hikari.VoiceState</a>.</p>
   </div>
 
 </div>
@@ -6035,7 +6037,7 @@ bot must always be started before the Tanjun client.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>By default this client includes a parser error handling hook which will
-by overwritten if you call <a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.set_hooks">tanjun.Client.set_hooks</a>.</p>
+by overwritten if you call <a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.set_hooks">Client.set_hooks</a>.</p>
 </div>
 
 
@@ -6238,7 +6240,7 @@ by overwritten if you call <a class="autorefs autorefs-internal" href="clients/#
   
       <p>Prefix getter method set for this client.</p>
 <p>For more information on this callback's signature see
-<a class="autorefs autorefs-internal" href="clients/#tanjun.clients.PrefixGetterSig">tanjun.clients.PrefixGetterSig</a>.</p>
+<a class="autorefs autorefs-internal" href="clients/#tanjun.clients.PrefixGetterSig">PrefixGetterSig</a>.</p>
   </div>
 
 </div>
@@ -6310,7 +6312,8 @@ by overwritten if you call <a class="autorefs autorefs-internal" href="clients/#
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For a quicker way to initiate this client around a standard bot aware
-client, see <a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.from_gateway_bot">tanjun.Client.from_gateway_bot</a> and <a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.from_rest_bot">tanjun.Client.from_rest_bot</a>.</p>
+client, see <a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.from_gateway_bot">Client.from_gateway_bot</a>
+and <a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.from_rest_bot">Client.from_rest_bot</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -6614,7 +6617,7 @@ prefixes.</p>
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.Snowflake">Snowflake</span></code>
+            <code><a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.snowflakes">snowflakes</span>.<a class="autorefs autorefs-external" title="hikari.snowflakes.Snowflake" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">Snowflake</a></code>
         – <p>The application ID of the application this client is linked to.</p>
       </li>
   </ul>
@@ -6641,7 +6644,7 @@ prefixes.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Build a <a class="autorefs autorefs-internal" href="#tanjun.Client">tanjun.Client</a> from a gateway bot.</p>
+      <p>Build a <a class="autorefs autorefs-internal" href="#tanjun.Client">Client</a> from a gateway bot.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This defaults the client to human only mode and sets type
@@ -6735,11 +6738,11 @@ of existing commands to update.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Build a <a class="autorefs autorefs-internal" href="#tanjun.Client">tanjun.Client</a> from a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.RESTBotAware">hikari.traits.RESTBotAware</a> instance.</p>
+      <p>Build a <a class="autorefs autorefs-internal" href="#tanjun.Client">Client</a> from a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.RESTBotAware">hikari.RESTBotAware</a> instance.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This sets type dependency injectors for the hikari traits present in
-<code>bot</code> (including <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.RESTBotAware">hikari.traits.RESTBotAware</a>).</p>
+<code>bot</code> (including <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#hikari.traits.RESTBotAware">hikari.RESTBotAware</a>).</p>
 </div>
 
   <p>Parameters:</p>
@@ -6839,7 +6842,7 @@ of existing commands to update.</p>
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.api">api</span>.<span title="hikari.api.InteractionAutocompleteBuilder">InteractionAutocompleteBuilder</span></code>
+            <code><a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.api">api</span>.<a class="autorefs autorefs-external" title="hikari.api.special_endpoints" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/special_endpoints/#module-hikari.api.special_endpoints">special_endpoints</a>.<a class="autorefs autorefs-external" title="hikari.api.special_endpoints.InteractionAutocompleteBuilder" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/special_endpoints/#hikari.api.special_endpoints.InteractionAutocompleteBuilder">InteractionAutocompleteBuilder</a></code>
         – <p>The initial response to send back to Discord.</p>
       </li>
   </ul>
@@ -6880,7 +6883,7 @@ of existing commands to update.</p>
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.api">api</span>.<span title="hikari.api.InteractionMessageBuilder">InteractionMessageBuilder</span> | <a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.api">api</span>.<span title="hikari.api.InteractionDeferredBuilder">InteractionDeferredBuilder</span> | <a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.api">api</span>.<span title="hikari.api.InteractionModalBuilder">InteractionModalBuilder</span></code>
+            <code><a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.api">api</span>.<a class="autorefs autorefs-external" title="hikari.api.special_endpoints" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/special_endpoints/#module-hikari.api.special_endpoints">special_endpoints</a>.<a class="autorefs autorefs-external" title="hikari.api.special_endpoints.InteractionMessageBuilder" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/special_endpoints/#hikari.api.special_endpoints.InteractionMessageBuilder">InteractionMessageBuilder</a> | <a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.api">api</span>.<a class="autorefs autorefs-external" title="hikari.api.special_endpoints" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/special_endpoints/#module-hikari.api.special_endpoints">special_endpoints</a>.<a class="autorefs autorefs-external" title="hikari.api.special_endpoints.InteractionDeferredBuilder" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/special_endpoints/#hikari.api.special_endpoints.InteractionDeferredBuilder">InteractionDeferredBuilder</a> | <a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.api">api</span>.<a class="autorefs autorefs-external" title="hikari.api.special_endpoints" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/special_endpoints/#module-hikari.api.special_endpoints">special_endpoints</a>.<a class="autorefs autorefs-external" title="hikari.api.special_endpoints.InteractionModalBuilder" href="https://docs.hikari-py.dev/en/latest/reference/hikari/api/special_endpoints/#hikari.api.special_endpoints.InteractionModalBuilder">InteractionModalBuilder</a></code>
         – <p>The initial response to send back to Discord.</p>
       </li>
   </ul>
@@ -7041,9 +7044,11 @@ of existing commands to update.</p>
   <div class="doc doc-contents ">
   
       <p>Start the client.</p>
-<p>If <code>mention_prefix</code> was passed to <a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.__init__">tanjun.Client.__init__</a>
-or <a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.from_gateway_bot">tanjun.Client.from_gateway_bot</a> then this function may make a fetch request
-to Discord if it cannot get the current user from the cache.</p>
+<p>If <code>mention_prefix</code> was passed to
+<a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.__init__">Client.__init__</a> or
+<a class="autorefs autorefs-internal" href="clients/#tanjun.clients.Client.from_gateway_bot">Client.from_gateway_bot</a> then this
+function may make a fetch request to Discord if it cannot get the
+current user from the cache.</p>
 
   <p>Raises:</p>
   <ul>
@@ -7193,10 +7198,11 @@ This may lead to unexpected behaviour.</p>
       <p>Set the autocomplete context maker to use when creating contexts.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The caller must return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.context.AutocompleteContext</a>
+<p>The caller must return an instance of
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.AutocompleteContext</a>
 rather than just any implementation of the AutocompleteContext abc
 due to this client relying on implementation detail of
-<a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.context.AutocompleteContext</a>.</p>
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.AutocompleteContext</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -7206,8 +7212,9 @@ due to this client relying on implementation detail of
             (<code><span title="tanjun.clients._AutocompleteContextMakerProto">_AutocompleteContextMakerProto</span></code>)
         – <p>The autocomplete context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext.__init__">tanjun.context.AutocompleteContext.<strong>init</strong></a> and return
-an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.context.AutocompleteContext</a>.</p>
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext.__init__">tanjun.AutocompleteContext.__init__</a>
+and return an instance of
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.autocomplete.AutocompleteContext">tanjun.AutocompleteContext</a>.</p>
       </li>
   </ul>
 
@@ -7279,10 +7286,11 @@ an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.conte
         <b>permissions</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.11/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/functions.html#int">int</a>, <a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.Permissions">Permissions</span>]</code>)
         – <p>The default member permissions needed for this client's application commands.</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.AppCommand.default_member_permissions">tanjun.abc.AppCommand.default_member_permissions</a>
-and <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Component.default_app_cmd_permissions">tanjun.abc.Component.default_app_cmd_permissions</a>; if this is
-left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this config will be inherited from the parent
-client.</p>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.AppCommand.default_member_permissions">AppCommand.default_member_permissions</a>
+and <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Component.default_app_cmd_permissions">Component.default_app_cmd_permissions</a>;
+if this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this config will be inherited from
+the parent client.</p>
       </li>
   </ul>
 
@@ -7320,10 +7328,11 @@ client.</p>
         <b>state</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/functions.html#bool">bool</a></code>)
         – <p>Whether to enable this client's commands in DMs.</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.AppCommand.is_dm_enabled">tanjun.abc.AppCommand.is_dm_enabled</a>
-and <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Component.dms_enabled_for_app_cmds">tanjun.abc.Component.dms_enabled_for_app_cmds</a>; if this is
-left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this config will be inherited from the parent
-client.</p>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.AppCommand.is_dm_enabled">AppCommand.is_dm_enabled</a>
+and <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Component.dms_enabled_for_app_cmds">Component.dms_enabled_for_app_cmds</a>;
+if this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this config will be inherited from
+the parent client.</p>
       </li>
   </ul>
 
@@ -7397,10 +7406,11 @@ should default to ephemeral.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Alias of [tanjun.Client.declare_global_commands][].</p>
+      <p>Alias of <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">deprecated</p>
-<p>Since v2.1.1a1; use [tanjun.Client.declare_global_commands][] instead.</p>
+<p>Since v2.1.1a1; use <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>
+instead.</p>
 </div>
 
   </div>
@@ -7422,8 +7432,9 @@ should default to ephemeral.</p>
   <div class="doc doc-contents ">
   
       <p>Set type based dependency injection based on the hikari traits found in <code>bot</code>.</p>
-<p>This is a short hand for calling [tanjun.Client.add_type_dependency][] for all
-the hikari trait types <code>bot</code> is valid for with bot.</p>
+<p>This is a short hand for calling
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.set_type_dependency">Client.set_type_dependency</a>
+for all the hikari trait types <code>bot</code> is valid for with bot.</p>
 
   <p>Parameters:</p>
   <ul>
@@ -7604,10 +7615,11 @@ only be done if you know what you're doing.</p>
       <p>Set the autocomplete context maker to use when creating contexts.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The caller must return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext">tanjun.context.MenuContext</a>
+<p>The caller must return an instance of
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext">tanjun.MenuContext</a>
 rather than just any implementation of the MenuContext abc
 due to this client relying on implementation detail of
-<a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext">tanjun.context.MenuContext</a>.</p>
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext">tanjun.MenuContext</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -7617,8 +7629,8 @@ due to this client relying on implementation detail of
             (<code><span title="tanjun.clients._MenuContextMakerProto">_MenuContextMakerProto</span></code>)
         – <p>The autocomplete context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext.__init__">tanjun.context.MenuContext.<strong>init</strong></a> and return
-an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext">tanjun.context.MenuContext</a>.</p>
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext.__init__">tanjun.MenuContext.__init__</a>
+and return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.menu.MenuContext">tanjun.MenuContext</a>.</p>
       </li>
   </ul>
 
@@ -7745,7 +7757,8 @@ only be done if you know what you're doing.</p>
       <li class="field-body">
             <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#ValueError">ValueError</a></code>
           –
-        <p>If <code>accepts</code> is set to anything other than <a class="autorefs autorefs-internal" href="clients/#tanjun.clients.MessageAcceptsEnum.NONE">tanjun.clients.MessageAcceptsEnum.NONE</a>
+        <p>If <code>accepts</code> is set to anything other than
+<a class="autorefs autorefs-internal" href="clients/#tanjun.clients.MessageAcceptsEnum.NONE">MessageAcceptsEnum.NONE</a>
 when the client doesn't have a linked event manager.</p>
       </li>
   </ul>
@@ -7771,10 +7784,11 @@ when the client doesn't have a linked event manager.</p>
       <p>Set the message context maker to use when creating context for a message.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The caller must return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.message.MessageContext">tanjun.context.MessageContext</a>
+<p>The caller must return an instance of
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.message.MessageContext">tanjun.MessageContext</a>
 rather than just any implementation of the MessageContext abc due to
 this client relying on implementation detail of
-<a class="autorefs autorefs-internal" href="context/#tanjun.context.message.MessageContext">tanjun.context.MessageContext</a>.</p>
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.message.MessageContext">tanjun.MessageContext</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -7784,8 +7798,8 @@ this client relying on implementation detail of
             (<code><span title="tanjun.clients._MessageContextMakerProto">_MessageContextMakerProto</span></code>)
         – <p>The message context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="context/#tanjun.context.message.MessageContext.__init__">tanjun.context.MessageContext.__init__</a>
-and return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.message.MessageContext">tanjun.context.MessageContext</a>.</p>
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.message.MessageContext.__init__">tanjun.MessageContext.__init__</a>
+and return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.message.MessageContext">tanjun.MessageContext</a>.</p>
       </li>
   </ul>
 
@@ -7901,10 +7915,11 @@ Dependency injection is supported for this callback's keyword arguments.</p>
       <p>Set the slash context maker to use when creating context for a slash command.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The caller must return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.slash.SlashContext">tanjun.context.SlashContext</a>
+<p>The caller must return an instance of
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.slash.SlashContext">tanjun.SlashContext</a>
 rather than just any implementation of the SlashContext abc due to
 this client relying on implementation detail of
-<a class="autorefs autorefs-internal" href="context/#tanjun.context.slash.SlashContext">tanjun.context.SlashContext</a>.</p>
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.slash.SlashContext">tanjun.SlashContext</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -7914,8 +7929,8 @@ this client relying on implementation detail of
             (<code><span title="tanjun.clients._SlashContextMakerProto">_SlashContextMakerProto</span></code>)
         – <p>The slash context maker to use.</p>
 <p>This is a callback which should match the signature of
-<a class="autorefs autorefs-internal" href="context/#tanjun.context.slash.SlashContext.__init__">tanjun.context.SlashContext.__init__</a>
-and return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.slash.SlashContext">tanjun.context.SlashContext</a>.</p>
+<a class="autorefs autorefs-internal" href="context/#tanjun.context.slash.SlashContext.__init__">tanjun.SlashContext.__init__</a>
+and return an instance of <a class="autorefs autorefs-internal" href="context/#tanjun.context.slash.SlashContext">tanjun.SlashContext</a>.</p>
       </li>
   </ul>
 
@@ -8120,7 +8135,7 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 
   
       <p>Enum of the standard client callback names.</p>
-<p>These should be dispatched by all <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client">tanjun.abc.Client</a> implementations.</p>
+<p>These should be dispatched by all <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client">Client</a> implementations.</p>
 
 
 
@@ -8206,7 +8221,8 @@ Dependency injection is supported for this callback's keyword arguments.</p>
 <p>This event isn't dispatched for components which were registered while
 the client is inactive.</p>
 </div>
-<p>The first positional argument is the <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Component">tanjun.abc.Component</a> being added.</p>
+<p>The first positional argument is the <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Component">Component</a>
+being added.</p>
   </div>
 
 </div>
@@ -8235,7 +8251,8 @@ the client is inactive.</p>
 <p>This event isn't dispatched for components which were removed while
 the client is inactive.</p>
 </div>
-<p>The first positional argument is the <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Component">tanjun.abc.Component</a> being removed.</p>
+<p>The first positional argument is the <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Component">Component</a>
+being removed.</p>
   </div>
 
 </div>
@@ -8259,7 +8276,8 @@ the client is inactive.</p>
   <div class="doc doc-contents ">
   
       <p>Called when a menu command is not found.</p>
-<p><a class="autorefs autorefs-internal" href="abc/#tanjun.abc.MenuContext">tanjun.abc.MenuContext</a> is provided as the first positional argument.</p>
+<p><a class="autorefs autorefs-internal" href="abc/#tanjun.abc.MenuContext">MenuContext</a> is provided as the first positional
+argument.</p>
   </div>
 
 </div>
@@ -8283,7 +8301,8 @@ the client is inactive.</p>
   <div class="doc doc-contents ">
   
       <p>Called when a message command is not found.</p>
-<p><a class="autorefs autorefs-internal" href="abc/#tanjun.abc.MessageContext">tanjun.abc.MessageContext</a> is provided as the first positional argument.</p>
+<p><a class="autorefs autorefs-internal" href="abc/#tanjun.abc.MessageContext">MessageContext</a> is provided as the first
+positional argument.</p>
   </div>
 
 </div>
@@ -8307,7 +8326,8 @@ the client is inactive.</p>
   <div class="doc doc-contents ">
   
       <p>Called when a slash command is not found.</p>
-<p><a class="autorefs autorefs-internal" href="abc/#tanjun.abc.SlashContext">tanjun.abc.SlashContext</a> is provided as the first positional argument.</p>
+<p><a class="autorefs autorefs-internal" href="abc/#tanjun.abc.SlashContext">SlashContext</a> is provided as the first positional
+argument.</p>
   </div>
 
 </div>
@@ -8409,8 +8429,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.attachments" class="headerlink" title="Permanent link">#</a></h3>
@@ -8433,8 +8453,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.components" class="headerlink" title="Permanent link">#</a></h3>
@@ -8457,8 +8477,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.content" class="headerlink" title="Permanent link">#</a></h3>
@@ -8481,8 +8501,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.delete_after" class="headerlink" title="Permanent link">#</a></h3>
@@ -8505,8 +8525,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.embeds" class="headerlink" title="Permanent link">#</a></h3>
@@ -8529,8 +8549,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.mentions_everyone" class="headerlink" title="Permanent link">#</a></h3>
@@ -8553,8 +8573,8 @@ the client is inactive.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.role_mentions" class="headerlink" title="Permanent link">#</a></h3>
@@ -8581,8 +8601,8 @@ if the value is <code>True</code>.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.user_mentions" class="headerlink" title="Permanent link">#</a></h3>
@@ -8623,10 +8643,13 @@ if the value is <code>True</code>.</p>
       <li class="field-body">
         <b>content</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.UndefinedOr">UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.11/library/typing.html#typing.Any">Any</a>]</code>)
-        – <p>The content to respond with.</p>
-<p>If provided, the message contents. If
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
-in the content.</p>
+        – <p>If provided, the message content to respond with.</p>
+<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.Embed</a> and no <code>embed</code> nor
+<code>embeds</code> kwarg is provided, then this will instead be treated as an
+embed. This allows for simpler syntax when sending an embed alone.</p>
+<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.Resource</a>,
+then the content is instead treated as an attachment if no
+<code>attachment</code> and no <code>attachments</code> kwargs are provided.</p>
       </li>
       <li class="field-body">
         <b>delete_after</b>
@@ -8678,8 +8701,9 @@ mentions.</p>
         – <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.users.PartialUser</a>
-derivatives to enforce mentioning specific users.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.PartialUser</a> derivatives to
+enforce mentioning specific users.</p>
       </li>
       <li class="field-body">
         <b>role_mentions</b>
@@ -8687,8 +8711,9 @@ derivatives to enforce mentioning specific users.</p>
         – <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.guilds.PartialRole</a>
-derivatives to enforce mentioning specific roles.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.PartialRole</a> derivatives to
+enforce mentioning specific roles.</p>
       </li>
   </ul>
 
@@ -8743,8 +8768,9 @@ derivatives to enforce mentioning specific roles.</p>
         <b>ensure_result</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/functions.html#bool">bool</a></code>)
         – <p>Ensure that this call will always return a message object.</p>
-<p>If <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> then this will always return <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.messages.Message</a>,
-otherwise this will return <code>hikari.Message | None</code>.</p>
+<p>If <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> then this will always return
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.Message</a>, otherwise this will
+return <code>hikari.Message | None</code>.</p>
 <p>It's worth noting that, under certain scenarios within the slash
 command flow, this may lead to an extre request being made.</p>
       </li>
@@ -8759,7 +8785,7 @@ command flow, this may lead to an extre request being made.</p>
 command was called.</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.BadRequestError">BadRequestError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.BadRequestError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.BadRequestError">BadRequestError</a></code>
           –
         <p>This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
@@ -8768,29 +8794,29 @@ limits; too many attachments; attachments that are too large;
 invalid image URLs in embeds; too many components.</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.UnauthorizedError">UnauthorizedError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.UnauthorizedError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.UnauthorizedError">UnauthorizedError</a></code>
           –
         <p>If you are unauthorized to make the request (invalid/missing token).</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.ForbiddenError">ForbiddenError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.ForbiddenError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.ForbiddenError">ForbiddenError</a></code>
           –
         <p>If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.NotFoundError">NotFoundError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.NotFoundError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.NotFoundError">NotFoundError</a></code>
           –
         <p>If the channel is not found.</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.RateLimitTooLongError">RateLimitTooLongError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.RateLimitTooLongError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.RateLimitTooLongError">RateLimitTooLongError</a></code>
           –
         <p>Raised in the event that a rate limit occurs that is
 longer than <code>max_rate_limit</code> when making a request.</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.InternalServerError">InternalServerError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.InternalServerError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.InternalServerError">InternalServerError</a></code>
           –
         <p>If an internal error occurs on Discord while handling the request.</p>
       </li>
@@ -9381,10 +9407,10 @@ which are owned by command groups.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will detect entries from the calling scope which implement
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.AbstractComponentLoader">tanjun.components.AbstractComponentLoader</a> unless <code>scope</code> is passed
-but this isn't possible in a stack-less python implementation; in
-stack-less environments the scope will have to be explicitly passed as
-<code>scope</code>.</p>
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.AbstractComponentLoader">AbstractComponentLoader</a>
+unless <code>scope</code> is passed but this isn't possible in a stack-less
+python implementation; in stack-less environments the scope will
+have to be explicitly passed as <code>scope</code>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -9401,7 +9427,8 @@ be needed when the local scope is different from the global scope.</p>
         <b>scope</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.11/library/typing.html#typing.Any">Any</a>]]</code>)
         – <p>The scope to detect entries which implement
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.AbstractComponentLoader">tanjun.components.AbstractComponentLoader</a> from.</p>
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.AbstractComponentLoader">AbstractComponentLoader</a>
+from.</p>
 <p>This overrides the default usage of stackframe introspection.</p>
       </li>
   </ul>
@@ -9449,8 +9476,10 @@ stack frame inspection when <code>scope</code> is not provided.</p>
   
       <p>Make a loader/unloader for this component.</p>
 <p>This enables loading, unloading and reloading of this component into a
-client by targeting the module using [tanjun.Client.load_modules][],
-[tanjun.Client.unload_modules][] and [tanjun.Client.reload_modules][].</p>
+client by targeting the module using
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.load_modules">Client.load_modules</a>,
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.unload_modules">Client.unload_modules</a> and
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.reload_modules">Client.reload_modules</a>.</p>
 
   <p>Parameters:</p>
   <ul>
@@ -9719,7 +9748,8 @@ setting will be used.</p>
         – <p>The default member permissions needed for this component's application commands.</p>
 <p>If this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this config will be inherited from
 the parent client.</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.AppCommand.default_member_permissions">tanjun.abc.AppCommand.default_member_permissions</a>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.AppCommand.default_member_permissions">AppCommand.default_member_permissions</a>
 and if this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this config will be inherited
 from the parent client.</p>
       </li>
@@ -9759,7 +9789,8 @@ from the parent client.</p>
         <b>state</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/functions.html#bool">bool</a>]</code>)
         – <p>Whether to enable this component's commands in DMs.</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.AppCommand.is_dm_enabled">tanjun.abc.AppCommand.is_dm_enabled</a>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.AppCommand.is_dm_enabled">AppCommand.is_dm_enabled</a>
 and if this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this config will be inherited
 from the parent client.</p>
       </li>
@@ -10298,8 +10329,8 @@ take use injected dependencies.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.ConversionError.errors" class="headerlink" title="Permanent link">#</a></h3>
@@ -10421,7 +10452,7 @@ take use injected dependencies.</p>
 
   
       <p>Error raised when a module failed to import.</p>
-<p>This is a specialisation of <a class="autorefs autorefs-internal" href="errors/#tanjun.errors.FailedModuleLoad">tanjun.errors.FailedModuleLoad</a>.</p>
+<p>This is a specialisation of <a class="autorefs autorefs-internal" href="errors/#tanjun.errors.FailedModuleLoad">FailedModuleLoad</a>.</p>
 
 
 
@@ -10449,7 +10480,7 @@ take use injected dependencies.</p>
 <p>This may be raised by the module failing to import or by one of
 its loaders erroring.</p>
 <p>This source error can be accessed at
-<a class="autorefs autorefs-internal" href="errors/#tanjun.errors.FailedModuleLoad.__cause__">FailedModuleLoad.<strong>cause</strong></a>.</p>
+<a class="autorefs autorefs-internal" href="errors/#tanjun.errors.FailedModuleLoad.__cause__">FailedModuleLoad.__cause__</a>.</p>
 
 
 
@@ -10539,7 +10570,7 @@ its loaders erroring.</p>
 <p>This may be raised by the module failing to import or by one
 of its unloaders erroring.</p>
 <p>The source error can be accessed at
-<a class="autorefs autorefs-internal" href="errors/#tanjun.errors.FailedModuleUnload.__cause__">FailedModuleUnload.<strong>cause</strong></a>.</p>
+<a class="autorefs autorefs-internal" href="errors/#tanjun.errors.FailedModuleUnload.__cause__">FailedModuleUnload.__cause__</a>.</p>
 
 
 
@@ -11124,9 +11155,10 @@ will not scan sub-directories.</p>
 from, if applicable.</p>
 <p>This work as <code>{namespace}.{file.name.removesuffix(".py")}</code> and will
 have the same behaviour as when a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a> is passed to
-<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a> if passed.</p>
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.load_modules">Client.load_modules</a> if passed.</p>
 <p>If left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this will have the same behaviour as when
-a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/pathlib.html#pathlib.Path">pathlib.Path</a> is passed to <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a>.</p>
+a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/pathlib.html#pathlib.Path">pathlib.Path</a> is passed to
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.load_modules">Client.load_modules</a>.</p>
       </li>
   </ul>
 
@@ -11169,11 +11201,11 @@ a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/libra
 
   <div class="doc doc-contents ">
   
-      <p>Asynchronous variant of <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_directory">tanjun.dependencies.reloaders.HotReloader.add_directory</a>.</p>
-<p>Unlike <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_directory">tanjun.dependencies.reloaders.HotReloader.add_directory</a>,
+      <p>Asynchronous variant of <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_directory">HotReloader.add_directory</a>.</p>
+<p>Unlike <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_directory">HotReloader.add_directory</a>,
 this method will run blocking code in a background thread.</p>
 <p>For more information on the behaviour of this method see the
-documentation for <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_directory">tanjun.dependencies.reloaders.HotReloader.add_directory</a>.</p>
+documentation for <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_directory">HotReloader.add_directory</a>.</p>
 
   </div>
 
@@ -11242,11 +11274,11 @@ for how [pathlib.Path][] and <a class="autorefs autorefs-external" href="https:/
 
   <div class="doc doc-contents ">
   
-      <p>Asynchronous variant of <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_modules">tanjun.dependencies.reloaders.HotReloader.add_modules</a>.</p>
-<p>Unlike <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_modules">tanjun.dependencies.reloaders.HotReloader.add_modules</a>,
+      <p>Asynchronous variant of <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_modules">HotReloader.add_modules</a>.</p>
+<p>Unlike <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_modules">HotReloader.add_modules</a>,
 this method will run blocking code in a background thread.</p>
 <p>For more information on the behaviour of this method see the
-documentation for <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a>.</p>
+documentation for <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.reloaders.HotReloader.add_modules">HotReloader.add_modules</a>.</p>
 
   </div>
 
@@ -12050,7 +12082,7 @@ if limit is less 0 or negative.</p>
       <p>Injected type used to hold and generate lazy constants.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.inject_lc">inject_lc</a>.</p>
+<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="#tanjun.inject_lc">inject_lc</a>.</p>
 </div>
 
 
@@ -12310,8 +12342,9 @@ has been called.</p>
       <p>Initialise a user or message menu command.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>
 or when <code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition note">
@@ -12334,8 +12367,9 @@ and may use dependency injection to access other services.</p>
         <b>type_</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.commands" href="https://docs.hikari-py.dev/en/latest/reference/hikari/commands/#module-hikari.commands">commands</a>.<a class="autorefs autorefs-external" title="hikari.commands.CommandType" href="https://docs.hikari-py.dev/en/latest/reference/hikari/commands/#hikari.commands.CommandType">CommandType</a></code>)
         – <p>The type of menu command this is.</p>
-<p>Only <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/commands/#hikari.commands.CommandType.USER">hikari.commands.CommandType.USER</a> and <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/commands/#hikari.commands.CommandType.MESSAGE">hikari.commands.CommandType.MESSAGE</a>
-are valid here.</p>
+<p>Only <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/commands/#hikari.commands.CommandType.USER">CommandType.USER</a> and
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/commands/#hikari.commands.CommandType.MESSAGE">CommandType.MESSAGE</a> are
+valid here.</p>
       </li>
       <li class="field-body">
         <b>name</b>
@@ -12382,11 +12416,12 @@ will be used.</p>
   <ul>
       <li class="field-body">
             <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MenuCallbackSig" href="abc/#tanjun.abc.MenuCallbackSig">MenuCallbackSig</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.menu.MenuCommand" href="commands/#tanjun.commands.menu.MenuCommand">MenuCommand</a>]</code>
-        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>.</p>
-<p>This can either wrap a raw command callback or another callable command instance
-(e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
-and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">MenuCommand</a>.</p>
+<p>This can either wrap a raw command callback or another callable command
+instance (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>,
+<a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>) and will manage loading the other command into
+a component when using
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
       </li>
   </ul>
 
@@ -12472,7 +12507,7 @@ default for contexts used by this command.</p>
         Bases: <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a></code>, <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/enum.html#module-enum">enum</a>.<a class="autorefs autorefs-external" title="enum.Enum" href="https://docs.python.org/3.11/library/enum.html#enum.Enum">Enum</a></code></p>
 
   
-      <p>The possible configurations for which events <a class="autorefs autorefs-internal" href="#tanjun.Client">tanjun.Client</a> should execute commands based on.</p>
+      <p>The possible configurations for which events <a class="autorefs autorefs-internal" href="#tanjun.Client">Client</a> should execute commands based on.</p>
 
 
 
@@ -12599,7 +12634,7 @@ default for contexts used by this command.</p>
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/functions.html#type">type</a>[<a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.events">events</span>.<span title="hikari.events.MessageCreateEvent">MessageCreateEvent</span>] | None</code>
+            <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/functions.html#type">type</a>[<a class="autorefs autorefs-external" title="hikari.traits" href="https://docs.hikari-py.dev/en/latest/reference/hikari/traits/#module-hikari.traits">hikari</a>.<span title="hikari.traits.events">events</span>.<a class="autorefs autorefs-external" title="hikari.events.message_events" href="https://docs.hikari-py.dev/en/latest/reference/hikari/events/message_events/#module-hikari.events.message_events">message_events</a>.<a class="autorefs autorefs-external" title="hikari.events.message_events.MessageCreateEvent" href="https://docs.hikari-py.dev/en/latest/reference/hikari/events/message_events/#hikari.events.message_events.MessageCreateEvent">MessageCreateEvent</a>] | None</code>
         – <p>The type object of the MessageCreateEvent class this mode will
 register a listener for.</p>
 <p>This will be <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> if this mode disables listening to
@@ -12902,8 +12937,9 @@ command group.</p>
       <li class="field-body">
             <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCallbackSig" href="abc/#tanjun.abc.MessageCallbackSig">MessageCallbackSig</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.message.MessageCommand" href="commands/#tanjun.commands.message.MessageCommand">MessageCommand</a>]</code>
         – <p>The decorator callback used to make a sub-command.</p>
-<p>This can either wrap a raw command callback or another callable command instance
-(e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>).</p>
+<p>This can either wrap a raw command callback or another callable command
+instance (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">MessageCommand</a>,
+<a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>).</p>
       </li>
   </ul>
 
@@ -12958,8 +12994,9 @@ enforces that command names are unique to a single command within the group.</p>
       <li class="field-body">
             <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCallbackSig" href="abc/#tanjun.abc.MessageCallbackSig">MessageCallbackSig</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.message.MessageCommand" href="commands/#tanjun.commands.message.MessageCommand">MessageCommand</a>]</code>
         – <p>The decorator callback used to make a sub-command group.</p>
-<p>This can either wrap a raw command callback or another callable command instance
-(e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>).</p>
+<p>This can either wrap a raw command callback or another callable command
+instance (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">MessageCommand</a>,
+<a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>).</p>
       </li>
   </ul>
 
@@ -13373,8 +13410,8 @@ enforces that command names are unique to a single command within the group.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.ParserError.message" class="headerlink" title="Permanent link">#</a></h3>
@@ -13401,8 +13438,8 @@ enforces that command names are unique to a single command within the group.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.ParserError.parameter" class="headerlink" title="Permanent link">#</a></h3>
@@ -13598,8 +13635,9 @@ if not applicable.</p>
       <p>Initialise a slash command.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>
 or when <code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition warning">
@@ -13719,7 +13757,8 @@ ones.</p>
       <p>Add an attachment option to the slash command.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This will result in options of type <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Attachment">hikari.messages.Attachment</a>.</p>
+<p>This will result in options of type
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Attachment">hikari.Attachment</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -13893,7 +13932,7 @@ the option is required without the actual value being used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will always result in
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.interactions.base_interactions.InteractionChannel</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.InteractionChannel</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -14241,7 +14280,7 @@ the option is required without the actual value being used and the
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will always result in
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.interactions.base_interactions.InteractionMember</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.InteractionMember</a>.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -14637,9 +14676,10 @@ the option is required without the actual value being used and the
       <p>Add a user option to a slash command.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This may result in <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.interactions.base_interactions.InteractionMember</a>
-or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.User">hikari.users.User</a> if the user isn't in the current guild or if this
-command was executed in a DM channel.</p>
+<p>This may result in
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.InteractionMember</a>
+or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.User">hikari.User</a> if the user isn't in the
+current guild or if this command was executed in a DM channel.</p>
 </div>
 
   <p>Parameters:</p>
@@ -15130,8 +15170,9 @@ be callable functions themselves.</p>
       <p>Initialise a slash command group.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine
-whether the command should be bulk set by [tanjun.Client.declare_global_commands][]
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>
 or when <code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition warning">
@@ -15256,7 +15297,7 @@ will be used.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Build a <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a> in this command group by decorating a function.</p>
+      <p>Build a <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">SlashCommand</a> in this command group by decorating a function.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you want your first response to be ephemeral while using
@@ -15312,8 +15353,9 @@ ones.</p>
       <li class="field-body">
             <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCallbackSig" href="abc/#tanjun.abc.SlashCallbackSig">SlashCallbackSig</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>The decorator callback used to make a sub-command.</p>
-<p>This can either wrap a raw command callback or another callable command instance
-(e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a> <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>).</p>
+<p>This can either wrap a raw command callback or another callable command
+instance (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>,
+<a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">SlashCommand</a>).</p>
       </li>
   </ul>
 
@@ -15693,7 +15735,8 @@ positional arguments, returns <a class="autorefs autorefs-external" href="https:
       <p>Mark a callback as being used to load Tanjun components from a module.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is only necessary if you wish to use [tanjun.Client.load_modules][].</p>
+<p>This is only necessary if you wish to use
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.load_modules">Client.load_modules</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -15702,7 +15745,7 @@ positional arguments, returns <a class="autorefs autorefs-external" href="https:
         <b>callback</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.11/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="abc/#tanjun.abc.Client">Client</a>], None], <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.clients.Client" href="clients/#tanjun.clients.Client">Client</a>], None], None]</code>)
         – <p>The callback used to load Tanjun components from a module.</p>
-<p>This should take one argument of type <a class="autorefs autorefs-internal" href="#tanjun.Client">tanjun.Client</a> (or
+<p>This should take one argument of type <a class="autorefs autorefs-internal" href="#tanjun.Client">Client</a> (or
 <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client">tanjun.abc.Client</a> if <code>standard_impl</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>), return nothing
 and will be expected to initiate and add utilities such as components
 to the provided client.</p>
@@ -15710,8 +15753,8 @@ to the provided client.</p>
       <li class="field-body">
         <b>standard_impl</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/functions.html#bool">bool</a></code>)
-        – <p>Whether this loader should only allow instances of <a class="autorefs autorefs-internal" href="#tanjun.Client">tanjun.Client</a>
-as opposed to <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client">tanjun.abc.Client</a>.</p>
+        – <p>Whether this loader should only allow instances of
+<a class="autorefs autorefs-internal" href="#tanjun.Client">Client</a> as opposed to <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client">tanjun.abc.Client</a>.</p>
       </li>
   </ul>
 
@@ -15766,11 +15809,12 @@ as opposed to <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client
   <ul>
       <li class="field-body">
             <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCallbackSig" href="abc/#tanjun.abc.MessageCallbackSig">MessageCallbackSig</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.message.MessageCommand" href="commands/#tanjun.commands.message.MessageCommand">MessageCommand</a>]</code>
-        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>.</p>
-<p>This can either wrap a raw command callback or another callable command instance
-(e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
-and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">MessageCommand</a>.</p>
+<p>This can either wrap a raw command callback or another callable command
+instance (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">MessageCommand</a>,
+<a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>) and will manage loading the other command into
+a component when using
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
       </li>
   </ul>
 
@@ -15824,11 +15868,12 @@ enforces that command names are unique to a single command within the group.</p>
   <ul>
       <li class="field-body">
             <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MessageCallbackSig" href="abc/#tanjun.abc.MessageCallbackSig">MessageCallbackSig</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.message.MessageCommand" href="commands/#tanjun.commands.message.MessageCommand">MessageCommand</a>]</code>
-        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MessageCommandGroup">tanjun.MessageCommandGroup</a>.</p>
-<p>This can either wrap a raw command callback or another callable command instance
-(e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
-and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MessageCommandGroup">MessageCommandGroup</a>.</p>
+<p>This can either wrap a raw command callback or another callable command
+instance (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">MessageCommandGroup</a>,
+<a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>) and will manage loading the other command into
+a component when using
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
       </li>
   </ul>
 
@@ -15850,11 +15895,12 @@ and will manage loading the other command into a component when using
 
   <div class="doc doc-contents ">
   
-      <p>Build a message <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a> by decorating a function.</p>
+      <p>Build a message <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">MenuCommand</a> by decorating a function.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>
 or when <code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition note">
@@ -15918,11 +15964,12 @@ will be used.</p>
   <ul>
       <li class="field-body">
             <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MenuCallbackSig" href="abc/#tanjun.abc.MenuCallbackSig">MenuCallbackSig</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.menu.MenuCommand" href="commands/#tanjun.commands.menu.MenuCommand">MenuCommand</a>]</code>
-        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>.</p>
-<p>This can either wrap a raw command callback or another callable command instance
-(e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
-and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">MenuCommand</a>.</p>
+<p>This can either wrap a raw command callback or another callable command
+instance (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>,
+<a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>) and will manage loading the other command into
+a component when using
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
       </li>
   </ul>
 
@@ -16005,11 +16052,12 @@ and will manage loading the other command into a component when using
 
   <div class="doc doc-contents ">
   
-      <p>Build a <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a> by decorating a function.</p>
+      <p>Build a <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">SlashCommand</a> by decorating a function.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>
 or when <code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition warning">
@@ -16099,11 +16147,12 @@ ones.</p>
   <ul>
       <li class="field-body">
             <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCallbackSig" href="abc/#tanjun.abc.SlashCallbackSig">SlashCallbackSig</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
-        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>.</p>
-<p>This can either wrap a raw command callback or another callable command instance
-(e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a> <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
-and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">SlashCommand</a>.</p>
+<p>This can either wrap a raw command callback or another callable command
+instance (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>,
+<a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">SlashCommand</a>) and will manage loading the other
+command into a component when using
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
       </li>
   </ul>
 
@@ -16270,9 +16319,10 @@ positional arguments, returns <a class="autorefs autorefs-external" href="https:
       <p>Mark a callback as being used to unload a module's utilities from a client.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is the inverse of <a class="autorefs autorefs-internal" href="#tanjun.as_loader">tanjun.as_loader</a> and is only necessary if
-you wish to use the [tanjun.Client.unload_modules][] or
-[tanjun.Client.reload_modules][].</p>
+<p>This is the inverse of <a class="autorefs autorefs-internal" href="#tanjun.as_loader">as_loader</a> and is only
+necessary if you wish to use the
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.unload_modules">Client.unload_modules</a>
+or <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.reload_modules">Client.reload_modules</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -16281,7 +16331,7 @@ you wish to use the [tanjun.Client.unload_modules][] or
         <b>callback</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Union" href="https://docs.python.org/3.11/library/typing.html#typing.Union">Union</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.clients.Client" href="clients/#tanjun.clients.Client">Client</a>], None], <a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.Client" href="abc/#tanjun.abc.Client">Client</a>], None], None]</code>)
         – <p>The callback used to unload Tanjun components from a module.</p>
-<p>This should take one argument of type <a class="autorefs autorefs-internal" href="#tanjun.Client">tanjun.Client</a> (or
+<p>This should take one argument of type <a class="autorefs autorefs-internal" href="#tanjun.Client">Client</a> (or
 <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client">tanjun.abc.Client</a> if <code>standard_impl</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>), return nothing
 and will be expected to remove utilities such as components from the
 provided client.</p>
@@ -16289,8 +16339,8 @@ provided client.</p>
       <li class="field-body">
         <b>standard_impl</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/functions.html#bool">bool</a></code>)
-        – <p>Whether this unloader should only allow instances of <a class="autorefs autorefs-internal" href="#tanjun.Client">tanjun.Client</a>
-as opposed to <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client">tanjun.abc.Client</a>.</p>
+        – <p>Whether this unloader should only allow instances of
+<a class="autorefs autorefs-internal" href="#tanjun.Client">Client</a> as opposed to <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client">tanjun.abc.Client</a>.</p>
       </li>
   </ul>
 
@@ -16320,11 +16370,12 @@ as opposed to <a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client
 
   <div class="doc doc-contents ">
   
-      <p>Build a user <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a> by decorating a function.</p>
+      <p>Build a user <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">MenuCommand</a> by decorating a function.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>
 or when <code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition note">
@@ -16390,11 +16441,12 @@ will be used.</p>
   <ul>
       <li class="field-body">
             <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.MenuCallbackSig" href="abc/#tanjun.abc.MenuCallbackSig">MenuCallbackSig</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.menu.MenuCommand" href="commands/#tanjun.commands.menu.MenuCommand">MenuCommand</a>]</code>
-        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>.</p>
-<p>This can either wrap a raw command callback or another callable command instance
-(e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">tanjun.MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>)
-and will manage loading the other command into a component when using
-<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">tanjun.Component.load_from_scope</a>.</p>
+        – <p>The decorator callback used to make a <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">MenuCommand</a>.</p>
+<p>This can either wrap a raw command callback or another callable command
+instance (e.g. <a class="autorefs autorefs-internal" href="#tanjun.MenuCommand">MenuCommand</a>, <a class="autorefs autorefs-internal" href="#tanjun.MessageCommand">tanjun.MessageCommand</a>,
+<a class="autorefs autorefs-internal" href="#tanjun.SlashCommand">tanjun.SlashCommand</a>) and will manage loading the other command into
+a component when using
+<a class="autorefs autorefs-internal" href="components/#tanjun.components.Component.load_from_scope">Component.load_from_scope</a>.</p>
       </li>
   </ul>
 
@@ -16501,7 +16553,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -16573,8 +16625,9 @@ ignored for command groups within other slash command groups.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Under the standard implementation, <code>is_global</code> is used to determine whether
-the command should be bulk set by [tanjun.Client.declare_global_commands][]
+<p>Under the standard implementation, <code>is_global</code> is used to
+determine whether the command should be bulk set by
+<a class="autorefs autorefs-internal" href="abc/#tanjun.abc.Client.declare_global_commands">Client.declare_global_commands</a>
 or when <code>declare_global_commands</code> is True</p>
 </div>
 
@@ -16724,7 +16777,7 @@ will be used.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/colors/#hikari.colors.Color">hikari.colors.Color</a> object.</p>
+      <p>Convert user input to a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/colors/#hikari.colors.Color">hikari.Color</a> object.</p>
 
   </div>
 
@@ -17042,7 +17095,7 @@ linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-ex
   
       <p>Add an attachment option to a slash command.</p>
 <p>For more information on this function's parameters see
-<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_attachment_option">tanjun.SlashCommand.add_attachment_option</a>.</p>
+<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_attachment_option">SlashCommand.add_attachment_option</a>.</p>
 
 <p><strong>Examples:</strong></p>
     <div class="highlight"><pre><span></span><code><span class="nd">@with_attachment_slash_option</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;A name.&quot;</span><span class="p">)</span>
@@ -17054,7 +17107,7 @@ linked to where <code>validate_arg_keys</code> is <a class="autorefs autorefs-ex
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>]</code>
+            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>Decorator callback which adds the option to the command.</p>
       </li>
   </ul>
@@ -17095,8 +17148,9 @@ a DM context (e.g. can't have any moderation permissions)</p>
         <b>error</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.Permissions">Permissions</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a>]]</code>)
         – <p>Callback used to create a custom error to raise if the check fails.</p>
-<p>This should take 1 positional argument of type <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.permissions.Permissions</a>
-which represents the missing permissions required for this command to run.</p>
+<p>This should take 1 positional argument of type
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.Permissions</a> which represents
+the missing permissions required for this command to run.</p>
 <p>This takes priority over <code>error_message</code>.</p>
       </li>
       <li class="field-body">
@@ -17151,7 +17205,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   
       <p>Add a boolean option to a slash command.</p>
 <p>For information on this function's parameters see
-<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_bool_option">tanjun.SlashCommand.add_bool_option</a>.</p>
+<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_bool_option">SlashCommand.add_bool_option</a>.</p>
 
 <p><strong>Examples:</strong></p>
     <div class="highlight"><pre><span></span><code><span class="nd">@with_bool_slash_option</span><span class="p">(</span><span class="s2">&quot;flag&quot;</span><span class="p">,</span> <span class="s2">&quot;Whether this flag should be enabled.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -17163,7 +17217,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>]</code>
+            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>Decorator callback which adds the option to the command.</p>
       </li>
   </ul>
@@ -17188,10 +17242,11 @@ end the execution search when it fails instead of returning <a class="autorefs a
   
       <p>Add a channel option to a slash command.</p>
 <p>For information on this function's parameters see
-<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_channel_option">tanjun.SlashCommand.add_channel_option</a>.</p>
+<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_channel_option">SlashCommand.add_channel_option</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This will always result in <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.interactions.base_interactions.InteractionChannel</a>.</p>
+<p>This will always result in
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionChannel">hikari.InteractionChannel</a>.</p>
 </div>
 
 <p><strong>Examples:</strong></p>
@@ -17204,7 +17259,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>]</code>
+            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>Decorator callback which adds the option to the command.</p>
       </li>
   </ul>
@@ -17275,7 +17330,7 @@ command wraps in a decorator call chain.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 
@@ -17339,8 +17394,8 @@ command wraps in a decorator call chain.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="dependencies/#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
@@ -17474,7 +17529,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   
       <p>Add a float option to a slash command.</p>
 <p>For information on this function's parameters see
-<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_float_option">tanjun.SlashCommand.add_float_option</a>.</p>
+<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_float_option">SlashCommand.add_float_option</a>.</p>
 
 <p><strong>Examples:</strong></p>
     <div class="highlight"><pre><span></span><code><span class="nd">@with_float_slash_option</span><span class="p">(</span><span class="s2">&quot;float_value&quot;</span><span class="p">,</span> <span class="s2">&quot;Float value.&quot;</span><span class="p">)</span>
@@ -17486,7 +17541,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>]</code>
+            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>Decorator callback which adds the option to the command.</p>
       </li>
   </ul>
@@ -17672,7 +17727,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<span title="tanjun.abc.ExecutableCommanmd">ExecutableCommanmd</span></code>
+            <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.ExecutableCommand" href="abc/#tanjun.abc.ExecutableCommand">ExecutableCommand</a></code>
         – <p>The command this check was added to.</p>
       </li>
   </ul>
@@ -17697,7 +17752,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   
       <p>Add an integer option to a slash command.</p>
 <p>For information on this function's parameters see
-<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_int_option">tanjun.SlashCommand.add_int_option</a>.</p>
+<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_int_option">SlashCommand.add_int_option</a>.</p>
 
 <p><strong>Examples:</strong></p>
     <div class="highlight"><pre><span></span><code><span class="nd">@with_int_slash_option</span><span class="p">(</span><span class="s2">&quot;int_value&quot;</span><span class="p">,</span> <span class="s2">&quot;Int value.&quot;</span><span class="p">)</span>
@@ -17709,7 +17764,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>]</code>
+            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>Decorator callback which adds the option to the command.</p>
       </li>
   </ul>
@@ -17734,10 +17789,11 @@ end the execution search when it fails instead of returning <a class="autorefs a
   
       <p>Add a member option to a slash command.</p>
 <p>For information on this function's arguments see
-<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_member_option">tanjun.SlashCommand.add_member_option</a>.</p>
+<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_member_option">SlashCommand.add_member_option</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This will always result in <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.interactions.base_interactions.InteractionMember</a>.</p>
+<p>This will always result in
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.InteractionMember</a>.</p>
 </div>
 
 <p><strong>Examples:</strong></p>
@@ -17750,7 +17806,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>]</code>
+            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>Decorator callback which adds the option to the command.</p>
       </li>
   </ul>
@@ -17775,7 +17831,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   
       <p>Add a mentionable option to a slash command.</p>
 <p>For information on this function's arguments see
-<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_mentionable_option">tanjun.SlashCommand.add_mentionable_option</a>.</p>
+<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_mentionable_option">SlashCommand.add_mentionable_option</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This may target roles, guild members or users and results in
@@ -17792,7 +17848,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>]</code>
+            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>Decorator callback which adds the option to the command.</p>
       </li>
   </ul>
@@ -18277,8 +18333,9 @@ a DM context (e.g. can't have any moderation permissions)</p>
         <b>error</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.Permissions">Permissions</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a>]]</code>)
         – <p>Callback used to create a custom error to raise if the check fails.</p>
-<p>This should take 1 positional argument of type <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.permissions.Permissions</a>
-which represents the missing permissions required for this command to run.</p>
+<p>This should take 1 positional argument of type
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.Permissions</a> which represents
+the missing permissions required for this command to run.</p>
 <p>This takes priority over <code>error_message</code>.</p>
       </li>
       <li class="field-body">
@@ -18451,7 +18508,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   
       <p>Add a role option to a slash command.</p>
 <p>For information on this function's parameters see
-<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_role_option">tanjun.SlashCommand.add_role_option</a>.</p>
+<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_role_option">SlashCommand.add_role_option</a>.</p>
 
 <p><strong>Examples:</strong></p>
     <div class="highlight"><pre><span></span><code><span class="nd">@with_role_slash_option</span><span class="p">(</span><span class="s2">&quot;role&quot;</span><span class="p">,</span> <span class="s2">&quot;Role to target.&quot;</span><span class="p">)</span>
@@ -18463,7 +18520,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>]</code>
+            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>Decorator callback which adds the option to the command.</p>
       </li>
   </ul>
@@ -18553,7 +18610,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   
       <p>Add a string option to a slash command.</p>
 <p>For more information on this function's parameters see
-<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_str_option">tanjun.commands.SlashCommand.add_str_option</a>.</p>
+<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_str_option">SlashCommand.add_str_option</a>.</p>
 
 <p><strong>Examples:</strong></p>
     <div class="highlight"><pre><span></span><code><span class="nd">@with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;A name.&quot;</span><span class="p">)</span>
@@ -18565,7 +18622,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>]</code>
+            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>Decorator callback which adds the option to the command.</p>
       </li>
   </ul>
@@ -18590,12 +18647,13 @@ end the execution search when it fails instead of returning <a class="autorefs a
   
       <p>Add a user option to a slash command.</p>
 <p>For information on this function's parameters see
-<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_user_option">tanjun.SlashCommand.add_user_option</a>.</p>
+<a class="autorefs autorefs-internal" href="commands/#tanjun.commands.slash.SlashCommand.add_user_option">SlashCommand.add_user_option</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This may result in <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.interactions.base_interactions.InteractionMember</a> or
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.User">hikari.users.User</a> if the user isn't in the current guild or if this
-command was executed in a DM channel.</p>
+<p>This may result in
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/interactions/base_interactions/#hikari.interactions.base_interactions.InteractionMember">hikari.InteractionMember</a>
+or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.User">hikari.User</a> if the user isn't in the current
+guild or if this command was executed in a DM channel.</p>
 </div>
 
 <p><strong>Examples:</strong></p>
@@ -18608,7 +18666,7 @@ command was executed in a DM channel.</p>
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.abc" href="abc/#tanjun.abc">tanjun</a>.<a class="autorefs autorefs-internal" title="tanjun.abc.SlashCommand" href="abc/#tanjun.abc.SlashCommand">SlashCommand</a>]</code>
+            <code><a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<span title="collections.abc.abc">abc</span>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>], <a class="autorefs autorefs-internal" title="tanjun.commands.slash.SlashCommand" href="commands/#tanjun.commands.slash.SlashCommand">SlashCommand</a>]</code>
         – <p>Decorator callback which adds the option to the command.</p>
       </li>
   </ul>

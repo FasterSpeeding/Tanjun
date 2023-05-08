@@ -1128,7 +1128,9 @@
         Bases: <code><span title="tanjun.checks._Check">_Check</span></code></p>
 
   
-      <p>Standard author permission check callback registered by <a class="autorefs autorefs-internal" href="../#tanjun.with_author_permission_check">tanjun.with_author_permission_check</a>.</p>
+      <p>Standard author permission check callback.</p>
+<p>This is registered by
+<a class="autorefs autorefs-internal" href="#tanjun.checks.with_author_permission_check">with_author_permission_check</a>.</p>
 <p>This check will only pass if the current author has the specified permission.</p>
 
 
@@ -1172,8 +1174,9 @@
         <b>error</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.Permissions">Permissions</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a>]]</code>)
         – <p>Callback used to create a custom error to raise if the check fails.</p>
-<p>This should take 1 positional argument of type <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.permissions.Permissions</a>
-which represents the missing permissions required for this command to run.</p>
+<p>This should take 1 positional argument of type
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.Permissions</a> which
+represents the missing permissions required for this command to run.</p>
 <p>This takes priority over <code>error_message</code>.</p>
       </li>
       <li class="field-body">
@@ -1222,7 +1225,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
         Bases: <code><span title="tanjun.checks._Check">_Check</span></code></p>
 
   
-      <p>Standard DM check callback registered by <a class="autorefs autorefs-internal" href="../#tanjun.with_dm_check">tanjun.with_dm_check</a>.</p>
+      <p>Standard DM check callback registered by <a class="autorefs autorefs-internal" href="#tanjun.checks.with_dm_check">with_dm_check</a>.</p>
 <p>This check will only pass if the current channel is a DM channel.</p>
 
 
@@ -1309,7 +1312,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
         Bases: <code><span title="tanjun.checks._Check">_Check</span></code></p>
 
   
-      <p>Standard guild check callback registered by <a class="autorefs autorefs-internal" href="../#tanjun.with_guild_check">tanjun.with_guild_check</a>.</p>
+      <p>Standard guild check callback registered by <a class="autorefs autorefs-internal" href="#tanjun.checks.with_guild_check">with_guild_check</a>.</p>
 <p>This check will only pass if the current channel is in a guild.</p>
 
 
@@ -1396,7 +1399,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
         Bases: <code><span title="tanjun.checks._Check">_Check</span></code></p>
 
   
-      <p>Standard NSFW check callback registered by <a class="autorefs autorefs-internal" href="../#tanjun.with_nsfw_check">tanjun.with_nsfw_check</a>.</p>
+      <p>Standard NSFW check callback registered by <a class="autorefs autorefs-internal" href="#tanjun.checks.with_nsfw_check">with_nsfw_check</a>.</p>
 <p>This check will only pass if the current channel is NSFW.</p>
 
 
@@ -1483,7 +1486,9 @@ end the execution search when it fails instead of returning <a class="autorefs a
         Bases: <code><span title="tanjun.checks._Check">_Check</span></code></p>
 
   
-      <p>Standard own permission check callback registered by <a class="autorefs autorefs-internal" href="../#tanjun.with_own_permission_check">tanjun.with_own_permission_check</a>.</p>
+      <p>Standard own permission check callback.</p>
+<p>This is registered by
+<a class="autorefs autorefs-internal" href="#tanjun.checks.with_own_permission_check">with_own_permission_check</a>.</p>
 <p>This check will only pass if the current bot user has the specified permission.</p>
 
 
@@ -1527,8 +1532,9 @@ end the execution search when it fails instead of returning <a class="autorefs a
         <b>error</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.Permissions">Permissions</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a>]]</code>)
         – <p>Callback used to create a custom error to raise if the check fails.</p>
-<p>This should take 1 positional argument of type <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.permissions.Permissions</a>
-which represents the missing permissions required for this command to run.</p>
+<p>This should take 1 positional argument of type
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.Permissions</a> which
+represents the missing permissions required for this command to run.</p>
 <p>This takes priority over <code>error_message</code>.</p>
       </li>
       <li class="field-body">
@@ -1577,7 +1583,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
         Bases: <code><span title="tanjun.checks._Check">_Check</span></code></p>
 
   
-      <p>Standard owner check callback registered by <a class="autorefs autorefs-internal" href="../#tanjun.with_owner_check">tanjun.with_owner_check</a>.</p>
+      <p>Standard owner check callback registered by <a class="autorefs autorefs-internal" href="#tanjun.checks.with_owner_check">with_owner_check</a>.</p>
 <p>This check will only pass if the author of the command is a bot owner.</p>
 
 
@@ -1664,7 +1670,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
         Bases: <code><span title="tanjun.checks._Check">_Check</span></code></p>
 
   
-      <p>Standard SFW check callback registered by <a class="autorefs autorefs-internal" href="../#tanjun.with_sfw_check">tanjun.with_sfw_check</a>.</p>
+      <p>Standard SFW check callback registered by <a class="autorefs autorefs-internal" href="#tanjun.checks.with_sfw_check">with_sfw_check</a>.</p>
 <p>This check will only pass if the current channel is SFW.</p>
 
 
@@ -2006,8 +2012,9 @@ a DM context (e.g. can't have any moderation permissions)</p>
         <b>error</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.Permissions">Permissions</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a>]]</code>)
         – <p>Callback used to create a custom error to raise if the check fails.</p>
-<p>This should take 1 positional argument of type <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.permissions.Permissions</a>
-which represents the missing permissions required for this command to run.</p>
+<p>This should take 1 positional argument of type
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.Permissions</a> which represents
+the missing permissions required for this command to run.</p>
 <p>This takes priority over <code>error_message</code>.</p>
       </li>
       <li class="field-body">
@@ -2210,7 +2217,7 @@ end the execution search when it fails instead of returning <a class="autorefs a
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<span title="tanjun.abc.ExecutableCommanmd">ExecutableCommanmd</span></code>
+            <code><a class="autorefs autorefs-internal" title="tanjun.abc" href="../abc/#tanjun.abc">tanjun</a>.<span title="tanjun.abc.abc">abc</span>.<a class="autorefs autorefs-internal" title="tanjun.abc.ExecutableCommand" href="../abc/#tanjun.abc.ExecutableCommand">ExecutableCommand</a></code>
         – <p>The command this check was added to.</p>
       </li>
   </ul>
@@ -2316,8 +2323,9 @@ a DM context (e.g. can't have any moderation permissions)</p>
         <b>error</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.Permissions">Permissions</span>], <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/exceptions.html#Exception">Exception</a>]]</code>)
         – <p>Callback used to create a custom error to raise if the check fails.</p>
-<p>This should take 1 positional argument of type <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.permissions.Permissions</a>
-which represents the missing permissions required for this command to run.</p>
+<p>This should take 1 positional argument of type
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/permissions/#hikari.permissions.Permissions">hikari.Permissions</a> which represents
+the missing permissions required for this command to run.</p>
 <p>This takes priority over <code>error_message</code>.</p>
       </li>
       <li class="field-body">

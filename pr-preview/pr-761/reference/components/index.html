@@ -1301,7 +1301,7 @@ where dependency injection is supported.</p>
         Bases: <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/abc.html#module-abc">abc</a>.<a class="autorefs autorefs-external" title="abc.ABC" href="https://docs.python.org/3.11/library/abc.html#abc.ABC">ABC</a></code></p>
 
   
-      <p>Abstract interface used for loading utility into a standard <a class="autorefs autorefs-internal" href="../#tanjun.Component">tanjun.Component</a>.</p>
+      <p>Abstract interface used for loading utility into a standard <a class="autorefs autorefs-internal" href="../#tanjun.Component">Component</a>.</p>
 
 
 
@@ -1931,10 +1931,10 @@ which are owned by command groups.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will detect entries from the calling scope which implement
-<a class="autorefs autorefs-internal" href="#tanjun.components.AbstractComponentLoader">tanjun.components.AbstractComponentLoader</a> unless <code>scope</code> is passed
-but this isn't possible in a stack-less python implementation; in
-stack-less environments the scope will have to be explicitly passed as
-<code>scope</code>.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.components.AbstractComponentLoader">AbstractComponentLoader</a>
+unless <code>scope</code> is passed but this isn't possible in a stack-less
+python implementation; in stack-less environments the scope will
+have to be explicitly passed as <code>scope</code>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -1951,7 +1951,8 @@ be needed when the local scope is different from the global scope.</p>
         <b>scope</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.11/library/typing.html#typing.Any">Any</a>]]</code>)
         – <p>The scope to detect entries which implement
-<a class="autorefs autorefs-internal" href="#tanjun.components.AbstractComponentLoader">tanjun.components.AbstractComponentLoader</a> from.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.components.AbstractComponentLoader">AbstractComponentLoader</a>
+from.</p>
 <p>This overrides the default usage of stackframe introspection.</p>
       </li>
   </ul>
@@ -1999,8 +2000,10 @@ stack frame inspection when <code>scope</code> is not provided.</p>
   
       <p>Make a loader/unloader for this component.</p>
 <p>This enables loading, unloading and reloading of this component into a
-client by targeting the module using [tanjun.Client.load_modules][],
-[tanjun.Client.unload_modules][] and [tanjun.Client.reload_modules][].</p>
+client by targeting the module using
+<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.load_modules">Client.load_modules</a>,
+<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.unload_modules">Client.unload_modules</a> and
+<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.reload_modules">Client.reload_modules</a>.</p>
 
   <p>Parameters:</p>
   <ul>
@@ -2269,7 +2272,8 @@ setting will be used.</p>
         – <p>The default member permissions needed for this component's application commands.</p>
 <p>If this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this config will be inherited from
 the parent client.</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.AppCommand.default_member_permissions">tanjun.abc.AppCommand.default_member_permissions</a>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.AppCommand.default_member_permissions">AppCommand.default_member_permissions</a>
 and if this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this config will be inherited
 from the parent client.</p>
       </li>
@@ -2309,7 +2313,8 @@ from the parent client.</p>
         <b>state</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/functions.html#bool">bool</a>]</code>)
         – <p>Whether to enable this component's commands in DMs.</p>
-<p>This may be overridden by <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.AppCommand.is_dm_enabled">tanjun.abc.AppCommand.is_dm_enabled</a>
+<p>This may be overridden by
+<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.AppCommand.is_dm_enabled">AppCommand.is_dm_enabled</a>
 and if this is left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this config will be inherited
 from the parent client.</p>
       </li>

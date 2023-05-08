@@ -2424,7 +2424,7 @@ registered with the client:</p>
 
   <div class="doc doc-contents ">
   
-      <p>Alias of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.async_cache.AsyncCache">tanjun.dependencies.AsyncCache</a> where the key is a snowflake.</p>
+      <p>Alias of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.async_cache.AsyncCache">AsyncCache</a> where the key is a snowflake.</p>
   </div>
 
 </div>
@@ -2447,7 +2447,7 @@ registered with the client:</p>
 
   <div class="doc doc-contents ">
   
-      <p>Alias of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.async_cache.ChannelBoundCache">tanjun.dependencies.ChannelBoundCache</a> where the key is a snowflake.</p>
+      <p>Alias of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.async_cache.ChannelBoundCache">ChannelBoundCache</a> where the key is a snowflake.</p>
   </div>
 
 </div>
@@ -2470,7 +2470,7 @@ registered with the client:</p>
 
   <div class="doc doc-contents ">
   
-      <p>Alias of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.async_cache.GuildBoundCache">tanjun.dependencies.GuildBoundCache</a> where the key is a snowflake.</p>
+      <p>Alias of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.async_cache.GuildBoundCache">GuildBoundCache</a> where the key is a snowflake.</p>
   </div>
 
 </div>
@@ -2495,8 +2495,10 @@ registered with the client:</p>
       <p>Abstract interface of a cache which stores globally identifiable resources.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This will never be implemented for resources such as <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.Member">hikari.guilds.Member</a>
-and <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/presences/#hikari.presences.MemberPresence">hikari.presences.MemberPresence</a> which are only unique per-parent resource.</p>
+<p>This will never be implemented for resources such as
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.Member">hikari.Member</a> and
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/presences/#hikari.presences.MemberPresence">hikari.MemberPresence</a> which are only
+unique per-parent resource.</p>
 </div>
 
 
@@ -2601,7 +2603,7 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For more information on how this is used, see the documentation for
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator">hikari.iterators.LazyIterator</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator">hikari.LazyIterator</a>.</p>
 </div>
 
   <p>Returns:</p>
@@ -2642,7 +2644,7 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
   
       <p>Abstract interface of a cache resource asynchronous iterator.</p>
 <p>For more information on how this is used, see the documentation for
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator">hikari.iterators.LazyIterator</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator">hikari.LazyIterator</a>.</p>
 
 
 
@@ -2680,8 +2682,8 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
       <p>Get the length of the target resource.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Unlike [tanjun.dependencies.CacheIterator.count][], this method
-will not deplete the iterator.</p>
+<p>Unlike <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator.count">CacheIterator.count</a>,
+this method will not deplete the iterator.</p>
 </div>
 
   <p>Returns:</p>
@@ -2859,7 +2861,7 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For more information on how this is used, see the documentation for
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator">hikari.iterators.LazyIterator</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator">hikari.LazyIterator</a>.</p>
 </div>
 
   <p>Returns:</p>
@@ -3077,7 +3079,7 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For more information on how this is used, see the documentation for
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator">hikari.iterators.LazyIterator</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator">hikari.LazyIterator</a>.</p>
 </div>
 
   <p>Returns:</p>
@@ -3114,7 +3116,7 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For more information on how this is used, see the documentation for
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator">hikari.iterators.LazyIterator</a>.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/iterators/#hikari.iterators.LazyIterator">hikari.LazyIterator</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -3165,7 +3167,8 @@ caught as <code>CacheMissError and otherwise would need to be before</code>Cache
       <p>Abstract interface of a cache which stores one resource.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is mostly just for the <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.OwnUser">hikari.users.OwnUser</a> cache store.</p>
+<p>This is mostly just for the <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.OwnUser">hikari.OwnUser</a>
+cache store.</p>
 </div>
 
 
@@ -3323,7 +3326,7 @@ dependency.</p>
   <p>Returns:</p>
   <ul>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.OwnUser">OwnUser</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.users" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#module-hikari.users">users</a>.<a class="autorefs autorefs-external" title="hikari.users.OwnUser" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.OwnUser">OwnUser</a></code>
         – <p>The current user.</p>
       </li>
   </ul>
@@ -3394,7 +3397,7 @@ client is not bound to a Bot token.</p>
       <p>Injected type used to hold and generate lazy constants.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.inject_lc">inject_lc</a>.</p>
+<p>To easily resolve this type use <a class="autorefs autorefs-internal" href="../#tanjun.inject_lc">inject_lc</a>.</p>
 </div>
 
 
@@ -3600,7 +3603,7 @@ has been called.</p>
       <p>Cache the result of a callback within a dependency injection context.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is internally used by <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.cached_inject">cached_inject</a>.</p>
+<p>This is internally used by <a class="autorefs autorefs-internal" href="../#tanjun.cached_inject">cached_inject</a>.</p>
 </div>
 
   <p>Parameters:</p>
@@ -3727,7 +3730,7 @@ If expire_after is not less than or equal to 0 seconds.</p>
 should also be assigned to a parameter's default to be used.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="../#tanjun.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -3789,11 +3792,11 @@ must've been set as a type dependency for the passed <code>type_</code>.</p>
       <p>Make an injected callback which resolves a LazyConstant.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This is internally used by <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.inject_lc">inject_lc</a>.</p>
+<p>This is internally used by <a class="autorefs autorefs-internal" href="../#tanjun.inject_lc">inject_lc</a>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For this to work, a <a class="autorefs autorefs-internal" href="#tanjun.dependencies.data.LazyConstant">LazyConstant</a>
+<p>For this to work, a <a class="autorefs autorefs-internal" href="../#tanjun.LazyConstant">LazyConstant</a>
 must've been set as a type dependency for the passed <code>type_</code>.</p>
 </div>
 
@@ -5092,7 +5095,7 @@ if limit is less 0 or negative.</p>
 <p class="admonition-title">Warning</p>
 <p>Concurrency limiters will only work if there's a setup injected
 <a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.AbstractConcurrencyLimiter">AbstractConcurrencyLimiter</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
+<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryConcurrencyLimiter">InMemoryConcurrencyLimiter</a>
 being usable as a standard in-memory concurrency manager.</p>
 </div>
 
@@ -5156,8 +5159,8 @@ command wraps in a decorator call chain.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Cooldowns will only work if there's a setup injected
-<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
-<a class="autorefs autorefs-internal" href="#tanjun.dependencies.limiters.InMemoryCooldownManager">InMemoryCooldownManager</a>
+<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryCooldownManager">AbstractCooldownManager</a> dependency with
+<a class="autorefs autorefs-internal" href="../#tanjun.InMemoryCooldownManager">InMemoryCooldownManager</a>
 being usable as a standard in-memory cooldown manager.</p>
 </div>
 
@@ -5260,7 +5263,7 @@ hook to the command.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Alias of <code>AbstractLocaliser</code>.</p>
+      <p>Alias of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.locales.AbstractLocaliser">AbstractLocaliser</a>.</p>
   </div>
 
 </div>
@@ -5283,7 +5286,7 @@ hook to the command.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Alias of <code>BasicLocaliser</code>.</p>
+      <p>Alias of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.locales.BasicLocaliser">BasicLocaliser</a>.</p>
   </div>
 
 </div>
@@ -5378,7 +5381,7 @@ implementations can be found at <a class="autorefs autorefs-internal" href="../.
         <b>tag</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a></code>)
         – <p>The "IETF lang tag" to localise the string to.</p>
-<p>This should usually be a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/locales/#hikari.locales.Locale">hikari.locales.Locale</a>.</p>
+<p>This should usually be a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/locales/#hikari.locales.Locale">hikari.Locale</a>.</p>
       </li>
       <li class="field-body">
         <b>**kwargs</b>
@@ -5540,7 +5543,8 @@ implementations can be found at <a class="autorefs autorefs-internal" href="../.
       <li class="field-body">
         <b>variants</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.11/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="collections.abc" href="https://docs.python.org/3.11/library/collections.abc.html#module-collections.abc">collections</a>.<a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.11/library/collections.abc.html#collections.abc.Mapping">Mapping</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a>]]</code>)
-        – <p>Mapping of <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/locales/#hikari.locales.Locale">hikari.locales.Locale</a>s to the localised values.</p>
+        – <p>Mapping of <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/locales/#hikari.locales.Locale">hikari.Locale</a>s to the
+localised values.</p>
       </li>
   </ul>
 
@@ -5943,9 +5947,10 @@ will not scan sub-directories.</p>
 from, if applicable.</p>
 <p>This work as <code>{namespace}.{file.name.removesuffix(".py")}</code> and will
 have the same behaviour as when a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/stdtypes.html#str">str</a> is passed to
-<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a> if passed.</p>
+<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.load_modules">Client.load_modules</a> if passed.</p>
 <p>If left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#None">None</a> then this will have the same behaviour as when
-a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/pathlib.html#pathlib.Path">pathlib.Path</a> is passed to <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a>.</p>
+a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/pathlib.html#pathlib.Path">pathlib.Path</a> is passed to
+<a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.load_modules">Client.load_modules</a>.</p>
       </li>
   </ul>
 
@@ -5988,11 +5993,11 @@ a <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/libra
 
   <div class="doc doc-contents ">
   
-      <p>Asynchronous variant of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_directory">tanjun.dependencies.reloaders.HotReloader.add_directory</a>.</p>
-<p>Unlike <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_directory">tanjun.dependencies.reloaders.HotReloader.add_directory</a>,
+      <p>Asynchronous variant of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_directory">HotReloader.add_directory</a>.</p>
+<p>Unlike <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_directory">HotReloader.add_directory</a>,
 this method will run blocking code in a background thread.</p>
 <p>For more information on the behaviour of this method see the
-documentation for <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_directory">tanjun.dependencies.reloaders.HotReloader.add_directory</a>.</p>
+documentation for <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_directory">HotReloader.add_directory</a>.</p>
 
   </div>
 
@@ -6061,11 +6066,11 @@ for how [pathlib.Path][] and <a class="autorefs autorefs-external" href="https:/
 
   <div class="doc doc-contents ">
   
-      <p>Asynchronous variant of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_modules">tanjun.dependencies.reloaders.HotReloader.add_modules</a>.</p>
-<p>Unlike <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_modules">tanjun.dependencies.reloaders.HotReloader.add_modules</a>,
+      <p>Asynchronous variant of <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_modules">HotReloader.add_modules</a>.</p>
+<p>Unlike <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_modules">HotReloader.add_modules</a>,
 this method will run blocking code in a background thread.</p>
 <p>For more information on the behaviour of this method see the
-documentation for <a class="autorefs autorefs-internal" href="../abc/#tanjun.abc.Client.load_modules">tanjun.abc.Client.load_modules</a>.</p>
+documentation for <a class="autorefs autorefs-internal" href="#tanjun.dependencies.reloaders.HotReloader.add_modules">HotReloader.add_modules</a>.</p>
 
   </div>
 

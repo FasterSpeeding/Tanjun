@@ -1490,8 +1490,8 @@
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.attachments" class="headerlink" title="Permanent link">#</a></h3>
@@ -1514,8 +1514,8 @@
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.components" class="headerlink" title="Permanent link">#</a></h3>
@@ -1538,8 +1538,8 @@
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.content" class="headerlink" title="Permanent link">#</a></h3>
@@ -1562,8 +1562,8 @@
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.delete_after" class="headerlink" title="Permanent link">#</a></h3>
@@ -1586,8 +1586,8 @@
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.embeds" class="headerlink" title="Permanent link">#</a></h3>
@@ -1610,8 +1610,8 @@
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.mentions_everyone" class="headerlink" title="Permanent link">#</a></h3>
@@ -1634,8 +1634,8 @@
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.role_mentions" class="headerlink" title="Permanent link">#</a></h3>
@@ -1662,8 +1662,8 @@ if the value is <code>True</code>.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.CommandError.user_mentions" class="headerlink" title="Permanent link">#</a></h3>
@@ -1704,10 +1704,13 @@ if the value is <code>True</code>.</p>
       <li class="field-body">
         <b>content</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.UndefinedOr">UndefinedOr</span>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3.11/library/typing.html#typing.Any">Any</a>]</code>)
-        – <p>The content to respond with.</p>
-<p>If provided, the message contents. If
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/undefined/#hikari.undefined.UNDEFINED">hikari.undefined.UNDEFINED</a>, then nothing will be sent
-in the content.</p>
+        – <p>If provided, the message content to respond with.</p>
+<p>If this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/embeds/#hikari.embeds.Embed">hikari.Embed</a> and no <code>embed</code> nor
+<code>embeds</code> kwarg is provided, then this will instead be treated as an
+embed. This allows for simpler syntax when sending an embed alone.</p>
+<p>Likewise, if this is a <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/files/#hikari.files.Resource">hikari.Resource</a>,
+then the content is instead treated as an attachment if no
+<code>attachment</code> and no <code>attachments</code> kwargs are provided.</p>
       </li>
       <li class="field-body">
         <b>delete_after</b>
@@ -1759,8 +1762,9 @@ mentions.</p>
         – <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.users.PartialUser</a>
-derivatives to enforce mentioning specific users.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/users/#hikari.users.PartialUser">hikari.PartialUser</a> derivatives to
+enforce mentioning specific users.</p>
       </li>
       <li class="field-body">
         <b>role_mentions</b>
@@ -1768,8 +1772,9 @@ derivatives to enforce mentioning specific users.</p>
         – <p>If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a>, all mentions will be parsed.
 If provided, and <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#False">False</a>, no mentions will be parsed.</p>
 <p>Alternatively this may be a collection of
-<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.snowflakes.Snowflake</a>, or <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.guilds.PartialRole</a>
-derivatives to enforce mentioning specific roles.</p>
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/snowflakes/#hikari.snowflakes.Snowflake">hikari.Snowflake</a>, or
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/guilds/#hikari.guilds.PartialRole">hikari.PartialRole</a> derivatives to
+enforce mentioning specific roles.</p>
       </li>
   </ul>
 
@@ -1824,8 +1829,9 @@ derivatives to enforce mentioning specific roles.</p>
         <b>ensure_result</b>
             (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/functions.html#bool">bool</a></code>)
         – <p>Ensure that this call will always return a message object.</p>
-<p>If <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> then this will always return <a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.messages.Message</a>,
-otherwise this will return <code>hikari.Message | None</code>.</p>
+<p>If <a class="autorefs autorefs-external" href="https://docs.python.org/3.11/library/constants.html#True">True</a> then this will always return
+<a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/messages/#hikari.messages.Message">hikari.Message</a>, otherwise this will
+return <code>hikari.Message | None</code>.</p>
 <p>It's worth noting that, under certain scenarios within the slash
 command flow, this may lead to an extre request being made.</p>
       </li>
@@ -1840,7 +1846,7 @@ command flow, this may lead to an extre request being made.</p>
 command was called.</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.BadRequestError">BadRequestError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.BadRequestError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.BadRequestError">BadRequestError</a></code>
           –
         <p>This may be raised in several discrete situations, such as messages
 being empty with no attachments or embeds; messages with more than
@@ -1849,29 +1855,29 @@ limits; too many attachments; attachments that are too large;
 invalid image URLs in embeds; too many components.</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.UnauthorizedError">UnauthorizedError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.UnauthorizedError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.UnauthorizedError">UnauthorizedError</a></code>
           –
         <p>If you are unauthorized to make the request (invalid/missing token).</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.ForbiddenError">ForbiddenError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.ForbiddenError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.ForbiddenError">ForbiddenError</a></code>
           –
         <p>If you are missing the <code>SEND_MESSAGES</code> in the channel or the
 person you are trying to message has the DM's disabled.</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.NotFoundError">NotFoundError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.NotFoundError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.NotFoundError">NotFoundError</a></code>
           –
         <p>If the channel is not found.</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.RateLimitTooLongError">RateLimitTooLongError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.RateLimitTooLongError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.RateLimitTooLongError">RateLimitTooLongError</a></code>
           –
         <p>Raised in the event that a rate limit occurs that is
 longer than <code>max_rate_limit</code> when making a request.</p>
       </li>
       <li class="field-body">
-            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<span title="hikari.InternalServerError">InternalServerError</span></code>
+            <code><a class="autorefs autorefs-external" href="https://docs.hikari-py.dev/en/latest/reference/hikari/#module-hikari">hikari</a>.<a class="autorefs autorefs-external" title="hikari.errors" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#module-hikari.errors">errors</a>.<a class="autorefs autorefs-external" title="hikari.errors.InternalServerError" href="https://docs.hikari-py.dev/en/latest/reference/hikari/errors/#hikari.errors.InternalServerError">InternalServerError</a></code>
           –
         <p>If an internal error occurs on Discord while handling the request.</p>
       </li>
@@ -1928,8 +1934,8 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.ConversionError.errors" class="headerlink" title="Permanent link">#</a></h3>
@@ -2051,7 +2057,7 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 
   
       <p>Error raised when a module failed to import.</p>
-<p>This is a specialisation of <a class="autorefs autorefs-internal" href="#tanjun.errors.FailedModuleLoad">tanjun.errors.FailedModuleLoad</a>.</p>
+<p>This is a specialisation of <a class="autorefs autorefs-internal" href="#tanjun.errors.FailedModuleLoad">FailedModuleLoad</a>.</p>
 
 
 
@@ -2079,7 +2085,7 @@ longer than <code>max_rate_limit</code> when making a request.</p>
 <p>This may be raised by the module failing to import or by one of
 its loaders erroring.</p>
 <p>This source error can be accessed at
-<a class="autorefs autorefs-internal" href="#tanjun.errors.FailedModuleLoad.__cause__">FailedModuleLoad.<strong>cause</strong></a>.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.errors.FailedModuleLoad.__cause__">FailedModuleLoad.__cause__</a>.</p>
 
 
 
@@ -2169,7 +2175,7 @@ its loaders erroring.</p>
 <p>This may be raised by the module failing to import or by one
 of its unloaders erroring.</p>
 <p>The source error can be accessed at
-<a class="autorefs autorefs-internal" href="#tanjun.errors.FailedModuleUnload.__cause__">FailedModuleUnload.<strong>cause</strong></a>.</p>
+<a class="autorefs autorefs-internal" href="#tanjun.errors.FailedModuleUnload.__cause__">FailedModuleUnload.__cause__</a>.</p>
 
 
 
@@ -2687,8 +2693,8 @@ other commands from being tried.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.ParserError.message" class="headerlink" title="Permanent link">#</a></h3>
@@ -2715,8 +2721,8 @@ other commands from being tried.</p>
 
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
   </span>
 
 <a href="#tanjun.errors.ParserError.parameter" class="headerlink" title="Permanent link">#</a></h3>
