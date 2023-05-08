@@ -1615,7 +1615,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         self._wrapped_command = _wrapped_command
 
     if typing.TYPE_CHECKING:
-        __call__: _SlashCallbackSigT  # pyright: ignore[reportUninitializedInstanceVariable]
+        __call__: _SlashCallbackSigT
 
     else:
 
