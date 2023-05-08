@@ -33,8 +33,8 @@
 Examples
 --------
 A Tanjun client can be quickly initialised from a Hikari gateway bot through
-[tanjun.Client.from_gateway_bot][], this enables both slash (interaction) and message
-command execution:
+[Client.from_gateway_bot][tanjun.Client.from_gateway_bot], this enables both
+slash (interaction) and message command execution:
 
 ```py
 bot = hikari.GatewayBot("BOT_TOKEN")

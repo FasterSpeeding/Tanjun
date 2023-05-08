@@ -38,7 +38,7 @@ have the client automatically start when the Rest bot starts.
 
 ### Client lifetime management
 
-While Hikari's bots provide systems for stating and stopping sub-components,
+While Hikari's bots provide systems for starting and stopping sub-components,
 these aren't cross-compatible nor Tanjun friendly; Tanjun's client callbacks
 provide a cross-compatible alternative for these (which also supports dependency
 injection).
@@ -49,9 +49,9 @@ injection).
 
 ## Managing bot functionality
 
-[tanjun.components.Component][] exists as a way to manage and group bot
-functionality, storing functionality such as event listeners, commands,
-scheduled callbacks, and client callbacks.
+[tanjun.Component][tanjun.components.Component] exists as a way to manage and
+group bot functionality, storing functionality such as event listeners,
+commands, scheduled callbacks, and client callbacks.
 
 ```py
 --8<-- "./docs_src/usage.py:54:63"
@@ -290,7 +290,7 @@ component level
 (using [Component.set_ephemeral_default][tanjun.components.Component.set_ephemeral_default]),
 or for a specific command (by passing `default_to_ephemeral=True` while
 creating a command) to have any relevant application command responses default
-to ephemeral (including calls to [tanjun.abc.Context.respond][]).
+to ephemeral (including calls to [Context.respond][tanjun.abc.Context.respond]).
 
 ### Deferrals
 
@@ -366,18 +366,19 @@ dependencies) can be found [here](https://alluka.cursed.solutions/usage/).
 The following types are registered globally as type dependencies:
 
 * [tanjun.abc.Client][]
-* [tanjun.clients.Client][]
+* [tanjun.Client][tanjun.clients.Client]
 * [tanjun.dependencies.AbstractOwners][] (for use with the standard owner check).
 * `tanjun.LazyConstant[hikari.OwnUser]` (for use with `tanjun.inject_lc(hikari.OwnUser)`)
-* [hikari.api.rest.RESTClient][]
-* [hikari.api.cache.Cache][] \*
-* [hikari.api.event_manager.EventManager][] \*
-* [hikari.api.interaction_server.InteractionServer][] \*
-* [hikari.traits.ShardAware][] \*
-* [hikari.api.voice.VoiceComponent][] \*
+* [hikari.api.RESTClient][hikari.api.rest.RESTClient]
+* [hikari.api.Cache][hikari.api.cache.Cache] \*
+* [hikari.api.EventManager][hikari.api.event_manager.EventManager] \*
+* [hikari.api.InteractionServer][hikari.api.interaction_server.InteractionServer] \*
+* [hikari.ShardAware][hikari.traits.ShardAware] \*
+* [hikari.api.VoiceComponent][hikari.api.voice.VoiceComponent] \*
 
 \* These type dependencies are only registered if the relevant Hikari component
-    was included while creating the [tanjun.clients.Client][] instance.
+    was included while creating the [tanjun.Client][tanjun.clients.Client]
+    instance.
 
 The following type dependencies are available in specific contexts:
 
@@ -391,7 +392,7 @@ The following type dependencies are available in specific contexts:
 * [tanjun.abc.SlashCommand][]: slash command execution (excluding any checks)
 TODO: this needs a consistency fix before being documented -->
 * [tanjun.abc.Component][]: Command execution (excluding client checks)
-<!-- * [hikari.events.base_events.Event][] TODO: implement this-->
+<!-- * [hikari.Event][hikari.events.base_events.Event] TODO: implement this-->
 
 Both [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] and
 [Client.from_rest_bot][tanjun.clients.Client.from_rest_bot] register type
@@ -514,7 +515,7 @@ being used to set this limiter for a client (note that clients can only have 1
 linked limiter).
 
 ```py
---8<-- "./docs_src/usage.py:373:379"
+--8<-- "./docs_src/usage.py:373:377"
 ```
 
 And here we use [with_concurrency_limit][tanjun.dependencies.with_concurrency_limit]
@@ -528,7 +529,7 @@ more information on the resources concurrency can be limited by see
 Cooldowns limit how often a group of commands can be called.
 
 ```py
---8<-- "./docs_src/usage.py:383:390"
+--8<-- "./docs_src/usage.py:381:387"
 ```
 
 Here [InMemoryCooldownManager][tanjun.dependencies.InMemoryCooldownManager]
@@ -543,7 +544,7 @@ being used to set this cooldown manager for a client (note that clients can
 only have 1 linked cooldown manager).
 
 ```py
---8<-- "./docs_src/usage.py:393:399"
+--8<-- "./docs_src/usage.py:391:395"
 ```
 
 And here we use [with_cooldown][tanjun.dependencies.with_cooldown]
@@ -558,12 +559,12 @@ For more information on the resources cooldowns can be set for see
 tailoring the declarations and responses of slash commands and context menu
 commands to match specific regions by providing multiple translations
 of a field. Localisation on Discord is limited to the locales Discord supports
-(listed at [hikari.locales.Locale][]).
+(listed at [hikari.Locale][hikari.locales.Locale]).
 
 ### Localising command declarations
 
 ```py
---8<-- "./docs_src/usage.py:403:405"
+--8<-- "./docs_src/usage.py:399:401"
 ```
 
 For fields which support localisation you've previously seen a single string
@@ -579,7 +580,7 @@ setting/overriding the locale-specific variants used for localised fields such
 as error message responses and application fields globally.
 
 ```py
---8<-- "./docs_src/usage.py:409:421"
+--8<-- "./docs_src/usage.py:405:417"
 ```
 
 Specific fields may be overridden by their ID as shown above. There is no
@@ -603,14 +604,13 @@ It's highly recommended that 3rd party libraries match this format if possible.
 ### Localising command responses
 
 ```py
---8<-- "./docs_src/usage.py:425:444"
+--8<-- "./docs_src/usage.py:421:440"
 ```
 
 [tanjun.abc.AppCommandContext.interaction][] (base class for both
-[tanjun.abc.SlashContext][] and [tanjun.abc.MenuContext][]) both have the
-fields `guild_locale` and `locale` which provide the set locale of the guild
-and the user triggering the command respectively.
-This [locale][hikari.locales.Locale] can be used to localise responses to
-specific languages within your own code.
+[tanjun.abc.SlashContext][] and [tanjun.abc.MenuContext][]) has the fields
+`guild_locale` and `locale` which provide the set locale of the guild and the
+user triggering the command respectively. This [locale][hikari.locales.Locale]
+can be used to localise responses to specific languages within your own code.
 
 <!-- # TODO: some day, document buildings commands using the flient interface -->
