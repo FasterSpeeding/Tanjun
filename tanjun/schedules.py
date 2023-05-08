@@ -280,7 +280,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         return self._iteration_count
 
     if typing.TYPE_CHECKING:
-        __call__: _CallbackSigT  # pyright: ignore[reportUninitializedInstanceVariable]
+        __call__: _CallbackSigT
 
     else:
 
@@ -463,7 +463,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Examples
         --------
         ```py
-        @component.with_schedule()
+        @component.with_schedule
         @tanjun.as_interval(1, max_runs=20)
         async def interval():
             global counter
@@ -494,7 +494,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         Examples
         --------
         ```py
-        @component.with_schedule()
+        @component.with_schedule
         @tanjun.as_interval(1, max_runs=20)
         async def interval():
             global counter
@@ -1027,7 +1027,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         return self._task is not None
 
     if typing.TYPE_CHECKING:
-        __call__: _CallbackSigT  # pyright: ignore[reportUninitializedInstanceVariable]
+        __call__: _CallbackSigT
 
     else:
 

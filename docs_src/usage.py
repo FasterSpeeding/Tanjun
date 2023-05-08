@@ -186,10 +186,10 @@ def annotations_example() -> None:
     async def command(
         ctx: tanjun.abc.Context,
         name: Annotated[Str, "description"],
-        age: Annotated[Int, Ranged(13, 130), "an int option with a min, max or 13, 130"],
-        video: Annotated[Video, Converted(get_video), "a string option which is converted with get_video"],
-        user: Annotated[Optional[User], "an optional user option which defaults to None"] = None,
-        enabled: Annotated[Bool, "an optional bool option which defaults to True"] = True,
+        age: Annotated[Int, Ranged(13, 130), "an int option with a min, max of 13, 130"],
+        video: Annotated[Video, Converted(get_video), "a required string option which is converted with get_video"],
+        user: Annotated[Optional[User], "a user option which defaults to None"] = None,
+        enabled: Annotated[Bool, "a bool option which defaults to True"] = True,
     ) -> None:
         ...
 
@@ -371,11 +371,9 @@ def concurrency_limiter_config_example(bot: hikari.GatewayBotAware) -> None:
 
 def assign_concurrency_limit_example() -> None:
     @tanjun.with_concurrency_limit("main_commands", follow_wrapped=True)
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
-    @tanjun.as_user_menu("name")
-    async def user_command(ctx: tanjun.abc.Context, user: typing.Annotated[annotations.User, "A user"]) -> None:
+    async def user_command(ctx: tanjun.abc.Context) -> None:
         ...
 
 
@@ -391,11 +389,9 @@ def cooldown_config_example(bot: hikari.GatewayBotAware) -> None:
 
 def assign_cooldown_example() -> None:
     @tanjun.with_cooldown("main_commands", follow_wrapped=True)
-    @tanjun.annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
-    @tanjun.as_user_menu("name")
-    async def user_command(ctx: tanjun.abc.Context, user: typing.Annotated[annotations.User, "A user"]) -> None:
+    async def user_command(ctx: tanjun.abc.Context) -> None:
         ...
 
 

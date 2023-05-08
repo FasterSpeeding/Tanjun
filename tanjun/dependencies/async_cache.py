@@ -111,7 +111,7 @@ class CacheIterator(hikari.LazyIterator[_ValueT]):
     """Abstract interface of a cache resource asynchronous iterator.
 
     For more information on how this is used, see the documentation for
-    [hikari.iterators.LazyIterator][].
+    [hikari.LazyIterator][hikari.iterators.LazyIterator].
     """
 
     __slots__ = ()
@@ -121,8 +121,8 @@ class CacheIterator(hikari.LazyIterator[_ValueT]):
         """Get the length of the target resource.
 
         !!! note
-            Unlike [tanjun.dependencies.CacheIterator.count][], this method
-            will not deplete the iterator.
+            Unlike [CacheIterator.count][hikari.iterators.LazyIterator.count],
+            this method will not deplete the iterator.
 
         Returns
         -------
@@ -135,7 +135,8 @@ class SingleStoreCache(abc.ABC, typing.Generic[_ValueT]):
     """Abstract interface of a cache which stores one resource.
 
     !!! note
-        This is mostly just for the [hikari.users.OwnUser][] cache store.
+        This is mostly just for the [hikari.OwnUser][hikari.users.OwnUser]
+        cache store.
     """
 
     __slots__ = ()
@@ -177,8 +178,10 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
     """Abstract interface of a cache which stores globally identifiable resources.
 
     !!! note
-        This will never be implemented for resources such as [hikari.guilds.Member][]
-        and [hikari.presences.MemberPresence][] which are only unique per-parent resource.
+        This will never be implemented for resources such as
+        [hikari.Member][hikari.guilds.Member] and
+        [hikari.MemberPresence][hikari.presences.MemberPresence] which are only
+        unique per-parent resource.
     """
 
     __slots__ = ()
@@ -223,7 +226,7 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         !!! note
             For more information on how this is used, see the documentation for
-            [hikari.iterators.LazyIterator][].
+            [hikari.LazyIterator][hikari.iterators.LazyIterator].
 
         Returns
         -------
@@ -233,7 +236,7 @@ class AsyncCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
 
 SfCache = AsyncCache[hikari.Snowflakeish, _ValueT]
-"""Alias of [tanjun.dependencies.AsyncCache][] where the key is a snowflake."""
+"""Alias of [AsyncCache][tanjun.dependencies.AsyncCache] where the key is a snowflake."""
 
 
 class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
@@ -300,7 +303,7 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         !!! note
             For more information on how this is used, see the documentation for
-            [hikari.iterators.LazyIterator][].
+            [hikari.LazyIterator][hikari.iterators.LazyIterator].
 
         Returns
         -------
@@ -310,7 +313,7 @@ class ChannelBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
 
 SfChannelBound = ChannelBoundCache[hikari.Snowflakeish, _ValueT]
-"""Alias of [tanjun.dependencies.ChannelBoundCache][] where the key is a snowflake."""
+"""Alias of [ChannelBoundCache][tanjun.dependencies.ChannelBoundCache] where the key is a snowflake."""
 
 
 class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
@@ -362,7 +365,7 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         !!! note
             For more information on how this is used, see the documentation for
-            [hikari.iterators.LazyIterator][].
+            [hikari.LazyIterator][hikari.iterators.LazyIterator].
 
         Parameters
         ----------
@@ -381,7 +384,7 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
         !!! note
             For more information on how this is used, see the documentation for
-            [hikari.iterators.LazyIterator][].
+            [hikari.LazyIterator][hikari.iterators.LazyIterator].
 
         Returns
         -------
@@ -391,4 +394,4 @@ class GuildBoundCache(abc.ABC, typing.Generic[_KeyT, _ValueT]):
 
 
 SfGuildBound = GuildBoundCache[hikari.Snowflakeish, _ValueT]
-"""Alias of [tanjun.dependencies.GuildBoundCache][] where the key is a snowflake."""
+"""Alias of [GuildBoundCache][tanjun.dependencies.GuildBoundCache] where the key is a snowflake."""

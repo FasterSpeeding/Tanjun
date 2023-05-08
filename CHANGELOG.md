@@ -248,7 +248,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 - [tanjun.annotations.Flag.default][] and the `default` argument for
-  [tanjun.annotations.Flag.\_\_init\_\_][tanjun.annotations.Flag.__init__][].
+  [tanjun.annotations.Flag.\_\_init\_\_][tanjun.annotations.Flag.__init__].
   [tanjun.annotations.Default][] should be used instead.
 
 ### Fixed

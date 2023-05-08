@@ -283,20 +283,21 @@ def as_loader(
     """Mark a callback as being used to load Tanjun components from a module.
 
     !!! note
-        This is only necessary if you wish to use [tanjun.Client.load_modules][].
+        This is only necessary if you wish to use
+        [Client.load_modules][tanjun.abc.Client.load_modules].
 
     Parameters
     ----------
     callback
         The callback used to load Tanjun components from a module.
 
-        This should take one argument of type [tanjun.Client][] (or
+        This should take one argument of type [Client][tanjun.Client] (or
         [tanjun.abc.Client][] if `standard_impl` is [False][]), return nothing
         and will be expected to initiate and add utilities such as components
         to the provided client.
     standard_impl
-        Whether this loader should only allow instances of [tanjun.Client][]
-        as opposed to [tanjun.abc.Client][].
+        Whether this loader should only allow instances of
+        [Client][tanjun.Client] as opposed to [tanjun.abc.Client][].
 
     Returns
     -------
@@ -358,22 +359,23 @@ def as_unloader(
     """Mark a callback as being used to unload a module's utilities from a client.
 
     !!! note
-        This is the inverse of [tanjun.as_loader][] and is only necessary if
-        you wish to use the [tanjun.Client.unload_modules][] or
-        [tanjun.Client.reload_modules][].
+        This is the inverse of [as_loader][tanjun.as_loader] and is only
+        necessary if you wish to use the
+        [Client.unload_modules][tanjun.abc.Client.unload_modules]
+        or [Client.reload_modules][tanjun.abc.Client.reload_modules].
 
     Parameters
     ----------
     callback
         The callback used to unload Tanjun components from a module.
 
-        This should take one argument of type [tanjun.Client][] (or
+        This should take one argument of type [Client][tanjun.Client] (or
         [tanjun.abc.Client][] if `standard_impl` is [False][]), return nothing
         and will be expected to remove utilities such as components from the
         provided client.
     standard_impl
-        Whether this unloader should only allow instances of [tanjun.Client][]
-        as opposed to [tanjun.abc.Client][].
+        Whether this unloader should only allow instances of
+        [Client][tanjun.Client] as opposed to [tanjun.abc.Client][].
 
     Returns
     -------
@@ -392,7 +394,7 @@ def as_unloader(
 
 
 ClientCallbackNames = tanjun.ClientCallbackNames
-"""Alias of [tanjun.abc.ClientCallbackNames][]."""
+"""Alias of [ClientCallbackNames][tanjun.abc.ClientCallbackNames]."""
 
 
 class InteractionAcceptsEnum(enum.IntFlag):
@@ -415,7 +417,7 @@ class InteractionAcceptsEnum(enum.IntFlag):
 
 
 class MessageAcceptsEnum(str, enum.Enum):
-    """The possible configurations for which events [tanjun.Client][] should execute commands based on."""
+    """The possible configurations for which events [Client][tanjun.Client] should execute commands based on."""
 
     ALL = "ALL"
     """Set the client to execute commands based on both DM and guild message create events."""
@@ -434,7 +436,7 @@ class MessageAcceptsEnum(str, enum.Enum):
 
         Returns
         -------
-        type[hikari.events.MessageCreateEvent] | None
+        type[hikari.events.message_events.MessageCreateEvent] | None
             The type object of the MessageCreateEvent class this mode will
             register a listener for.
 
@@ -468,7 +470,7 @@ async def _wrap_client_callback(client: Client, callback: tanjun.MetaEventSig, a
 async def on_parser_error(ctx: tanjun.Context, error: errors.ParserError, /) -> None:
     """Handle message parser errors.
 
-    This is the default message parser error hook included by [tanjun.Client][].
+    This is the default message parser error hook included by [Client][tanjun.Client].
     """
     await ctx.respond(error.message)
 
@@ -535,7 +537,7 @@ class Client(tanjun.Client):
 
     !!! note
         By default this client includes a parser error handling hook which will
-        by overwritten if you call [tanjun.Client.set_hooks][].
+        by overwritten if you call [Client.set_hooks][tanjun.Client.set_hooks].
     """
 
     __slots__ = (
@@ -651,7 +653,8 @@ class Client(tanjun.Client):
 
         !!! note
             For a quicker way to initiate this client around a standard bot aware
-            client, see [tanjun.Client.from_gateway_bot][] and [tanjun.Client.from_rest_bot][].
+            client, see [Client.from_gateway_bot][tanjun.Client.from_gateway_bot]
+            and [Client.from_rest_bot][tanjun.Client.from_rest_bot].
 
         Parameters
         ----------
@@ -955,7 +958,7 @@ class Client(tanjun.Client):
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
-        """Build a [tanjun.Client][] from a gateway bot.
+        """Build a [Client][tanjun.Client] from a gateway bot.
 
         !!! note
             This defaults the client to human only mode and sets type
@@ -1084,11 +1087,11 @@ class Client(tanjun.Client):
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
     ) -> Client:
-        """Build a [tanjun.Client][] from a [hikari.traits.RESTBotAware][] instance.
+        """Build a [Client][tanjun.Client] from a [hikari.RESTBotAware][hikari.traits.RESTBotAware] instance.
 
         !!! note
             This sets type dependency injectors for the hikari traits present in
-            `bot` (including [hikari.traits.RESTBotAware][]).
+            `bot` (including [hikari.RESTBotAware][hikari.traits.RESTBotAware]).
 
         Parameters
         ----------
@@ -1292,7 +1295,7 @@ class Client(tanjun.Client):
         """Prefix getter method set for this client.
 
         For more information on this callback's signature see
-        [tanjun.clients.PrefixGetterSig][].
+        [PrefixGetterSig][tanjun.clients.PrefixGetterSig].
         """
         return self._prefix_getter
 
@@ -1347,10 +1350,11 @@ class Client(tanjun.Client):
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
-        """Alias of [tanjun.Client.declare_global_commands][].
+        """Alias of [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands].
 
         !!! warning "deprecated"
-            Since v2.1.1a1; use [tanjun.Client.declare_global_commands][] instead.
+            Since v2.1.1a1; use [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
+            instead.
         """
         return await self.declare_global_commands(application=application, guild=guild, force=force)
 
@@ -1597,10 +1601,11 @@ class Client(tanjun.Client):
         permissions
             The default member permissions needed for this client's application commands.
 
-            This may be overridden by [tanjun.abc.AppCommand.default_member_permissions][]
-            and [tanjun.abc.Component.default_app_cmd_permissions][]; if this is
-            left as [None][] then this config will be inherited from the parent
-            client.
+            This may be overridden by
+            [AppCommand.default_member_permissions][tanjun.abc.AppCommand.default_member_permissions]
+            and [Component.default_app_cmd_permissions][tanjun.abc.Component.default_app_cmd_permissions];
+            if this is left as [None][] then this config will be inherited from
+            the parent client.
 
         Returns
         -------
@@ -1618,10 +1623,11 @@ class Client(tanjun.Client):
         state
             Whether to enable this client's commands in DMs.
 
-            This may be overridden by [tanjun.abc.AppCommand.is_dm_enabled][]
-            and [tanjun.abc.Component.dms_enabled_for_app_cmds][]; if this is
-            left as [None][] then this config will be inherited from the parent
-            client.
+            This may be overridden by
+            [AppCommand.is_dm_enabled][tanjun.abc.AppCommand.is_dm_enabled]
+            and [Component.dms_enabled_for_app_cmds][tanjun.abc.Component.dms_enabled_for_app_cmds];
+            if this is left as [None][] then this config will be inherited from
+            the parent client.
 
         Returns
         -------
@@ -1655,8 +1661,9 @@ class Client(tanjun.Client):
     def set_hikari_trait_injectors(self, bot: hikari.RESTAware, /) -> Self:
         """Set type based dependency injection based on the hikari traits found in `bot`.
 
-        This is a short hand for calling [tanjun.Client.add_type_dependency][] for all
-        the hikari trait types `bot` is valid for with bot.
+        This is a short hand for calling
+        [Client.set_type_dependency][tanjun.abc.Client.set_type_dependency]
+        for all the hikari trait types `bot` is valid for with bot.
 
         Parameters
         ----------
@@ -1748,7 +1755,8 @@ class Client(tanjun.Client):
         RuntimeError
             If called while the client is running.
         ValueError
-            If `accepts` is set to anything other than [tanjun.clients.MessageAcceptsEnum.NONE][]
+            If `accepts` is set to anything other than
+            [MessageAcceptsEnum.NONE][tanjun.clients.MessageAcceptsEnum.NONE]
             when the client doesn't have a linked event manager.
         """
         if accepts.get_event_type() and not self._events:
@@ -1763,13 +1771,14 @@ class Client(tanjun.Client):
     def set_autocomplete_ctx_maker(
         self, maker: _AutocompleteContextMakerProto = context.AutocompleteContext, /
     ) -> Self:
-        """Set the autocomplete context maker to use when creating contexts.
+        r"""Set the autocomplete context maker to use when creating contexts.
 
         !!! warning
-            The caller must return an instance of [tanjun.context.AutocompleteContext][]
+            The caller must return an instance of
+            [tanjun.AutocompleteContext][tanjun.context.AutocompleteContext]
             rather than just any implementation of the AutocompleteContext abc
             due to this client relying on implementation detail of
-            [tanjun.context.AutocompleteContext][].
+            [tanjun.AutocompleteContext][tanjun.context.AutocompleteContext].
 
         Parameters
         ----------
@@ -1777,8 +1786,9 @@ class Client(tanjun.Client):
             The autocomplete context maker to use.
 
             This is a callback which should match the signature of
-            [tanjun.context.AutocompleteContext.__init__][] and return
-            an instance of [tanjun.context.AutocompleteContext][].
+            [tanjun.AutocompleteContext.\_\_init\_\_][tanjun.context.AutocompleteContext.__init__]
+            and return an instance of
+            [tanjun.AutocompleteContext][tanjun.context.AutocompleteContext].
 
         Returns
         -------
@@ -1789,13 +1799,14 @@ class Client(tanjun.Client):
         return self
 
     def set_menu_ctx_maker(self, maker: _MenuContextMakerProto = context.MenuContext, /) -> Self:
-        """Set the autocomplete context maker to use when creating contexts.
+        r"""Set the autocomplete context maker to use when creating contexts.
 
         !!! warning
-            The caller must return an instance of [tanjun.context.MenuContext][]
+            The caller must return an instance of
+            [tanjun.MenuContext][tanjun.context.MenuContext]
             rather than just any implementation of the MenuContext abc
             due to this client relying on implementation detail of
-            [tanjun.context.MenuContext][].
+            [tanjun.MenuContext][tanjun.context.MenuContext].
 
         Parameters
         ----------
@@ -1803,8 +1814,8 @@ class Client(tanjun.Client):
             The autocomplete context maker to use.
 
             This is a callback which should match the signature of
-            [tanjun.context.MenuContext.__init__][] and return
-            an instance of [tanjun.context.MenuContext][].
+            [tanjun.MenuContext.\_\_init\_\_][tanjun.context.MenuContext.__init__]
+            and return an instance of [tanjun.MenuContext][tanjun.context.MenuContext].
 
         Returns
         -------
@@ -1818,10 +1829,11 @@ class Client(tanjun.Client):
         r"""Set the message context maker to use when creating context for a message.
 
         !!! warning
-            The caller must return an instance of [tanjun.context.MessageContext][]
+            The caller must return an instance of
+            [tanjun.MessageContext][tanjun.context.MessageContext]
             rather than just any implementation of the MessageContext abc due to
             this client relying on implementation detail of
-            [tanjun.context.MessageContext][].
+            [tanjun.MessageContext][tanjun.context.MessageContext].
 
         Parameters
         ----------
@@ -1829,8 +1841,8 @@ class Client(tanjun.Client):
             The message context maker to use.
 
             This is a callback which should match the signature of
-            [tanjun.context.MessageContext.\_\_init\_\_][tanjun.context.MessageContext.__init__]
-            and return an instance of [tanjun.context.MessageContext][].
+            [tanjun.MessageContext.\_\_init\_\_][tanjun.context.MessageContext.__init__]
+            and return an instance of [tanjun.MessageContext][tanjun.context.MessageContext].
 
         Returns
         -------
@@ -1849,10 +1861,11 @@ class Client(tanjun.Client):
         r"""Set the slash context maker to use when creating context for a slash command.
 
         !!! warning
-            The caller must return an instance of [tanjun.context.SlashContext][]
+            The caller must return an instance of
+            [tanjun.SlashContext][tanjun.context.SlashContext]
             rather than just any implementation of the SlashContext abc due to
             this client relying on implementation detail of
-            [tanjun.context.SlashContext][].
+            [tanjun.SlashContext][tanjun.context.SlashContext].
 
         Parameters
         ----------
@@ -1860,8 +1873,8 @@ class Client(tanjun.Client):
             The slash context maker to use.
 
             This is a callback which should match the signature of
-            [tanjun.context.SlashContext.\_\_init\_\_][tanjun.context.SlashContext.__init__]
-            and return an instance of [tanjun.context.SlashContext][].
+            [tanjun.SlashContext.\_\_init\_\_][tanjun.context.SlashContext.__init__]
+            and return an instance of [tanjun.SlashContext][tanjun.context.SlashContext].
 
         Returns
         -------
@@ -2351,9 +2364,11 @@ class Client(tanjun.Client):
     async def open(self, *, register_listeners: bool = True) -> None:
         r"""Start the client.
 
-        If `mention_prefix` was passed to [tanjun.Client.\_\_init\_\_][tanjun.Client.__init__]
-        or [tanjun.Client.from_gateway_bot][] then this function may make a fetch request
-        to Discord if it cannot get the current user from the cache.
+        If `mention_prefix` was passed to
+        [Client.\_\_init\_\_][tanjun.Client.__init__] or
+        [Client.from_gateway_bot][tanjun.Client.from_gateway_bot] then this
+        function may make a fetch request to Discord if it cannot get the
+        current user from the cache.
 
         Raises
         ------
@@ -2414,7 +2429,7 @@ class Client(tanjun.Client):
 
         Returns
         -------
-        hikari.Snowflake
+        hikari.snowflakes.Snowflake
             The application ID of the application this client is linked to.
         """
         if self._cached_application_id:
@@ -2978,7 +2993,7 @@ class Client(tanjun.Client):
 
         Returns
         -------
-        hikari.api.InteractionAutocompleteBuilder
+        hikari.api.special_endpoints.InteractionAutocompleteBuilder
             The initial response to send back to Discord.
         """
         loop = asyncio.get_running_loop()
@@ -3008,9 +3023,9 @@ class Client(tanjun.Client):
 
         Returns
         -------
-        hikari.api.InteractionMessageBuilder | hikari.api.InteractionDeferredBuilder | hikari.api.InteractionModalBuilder
+        hikari.api.special_endpoints.InteractionMessageBuilder | hikari.api.special_endpoints.InteractionDeferredBuilder | hikari.api.special_endpoints.InteractionModalBuilder
             The initial response to send back to Discord.
-        """
+        """  # noqa: E501
         loop = asyncio.get_running_loop()
         future: asyncio.Future[_AppCmdResponse] = loop.create_future()
 

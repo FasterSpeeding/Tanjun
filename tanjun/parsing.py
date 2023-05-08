@@ -1628,7 +1628,7 @@ class Parameter:
         """Whether this parameter is "multi".
 
         Multi parameters will be passed a list of all the values provided for
-        this parameter (with each entry being converted separately.)
+        this parameter (with each entry being converted separately).
         """
         return self._is_multi
 
