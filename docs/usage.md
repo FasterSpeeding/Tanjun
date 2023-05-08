@@ -47,10 +47,6 @@ injection).
 --8<-- "./docs_src/usage.py:41:50"
 ```
 
-This system isn't just for life time management; there are other client events
-you can listen for which are all listed at
-[ClientCallbackNames][tanjun.abc.ClientCallbackNames].
-
 ## Managing bot functionality
 
 [tanjun.Component][tanjun.components.Component] exists as a way to manage and
