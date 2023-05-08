@@ -243,7 +243,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         return f"Command <{self._names}>"
 
     if typing.TYPE_CHECKING:
-        __call__: _MessageCallbackSigT  # pyright: ignore[reportUninitializedInstanceVariable]
+        __call__: _MessageCallbackSigT
 
     else:
 
