@@ -37,8 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `error` callback can now also be [None][] when it's unknown.
 
 ### Deprecated
-- [AbstractCooldownManager.check_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown] and
-  [AbstractCooldownManager.increment_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.increment_cooldown]
+- `AbstractCooldownManager.check_cooldown` and `AbstractCooldownManager.increment_cooldown`
   in favour of the [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire]
   and [AbstractCooldownManager.release][tanjun.dependencies.limiters.AbstractCooldownManager.release] interfaces.
 

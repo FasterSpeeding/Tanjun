@@ -38,7 +38,6 @@ import re
 import typing
 
 import alluka
-import freezegun
 import hikari
 import mock
 import pytest
@@ -53,50 +52,6 @@ def _now() -> datetime.datetime:
 
 class TestAbstractCooldownManager:
     @pytest.mark.asyncio()
-    async def test_increment_cooldown(self):
-        mock_try_acquire = mock.AsyncMock()
-        mock_release = mock.AsyncMock()
-
-        class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
-            __slots__ = ()
-
-            try_acquire = mock_try_acquire
-            release = mock_release
-            check = check_cooldown = mock.AsyncMock()
-
-        manager = CooldownManager()
-
-        mock_context = mock.Mock()
-
-        with pytest.warns(DeprecationWarning):
-            await manager.increment_cooldown("catgirl neko", mock_context)
-
-        mock_try_acquire.assert_awaited_once_with("catgirl neko", mock_context)
-        mock_release.assert_awaited_once_with("catgirl neko", mock_context)
-
-    @pytest.mark.asyncio()
-    async def test_increment_cooldown_when_resource_depleted(self):
-        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(None))
-        mock_release = mock.AsyncMock()
-
-        class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
-            __slots__ = ()
-
-            try_acquire = mock_try_acquire
-            release = mock_release
-            check = check_cooldown = mock.AsyncMock()
-
-        manager = CooldownManager()
-
-        mock_context = mock.Mock()
-
-        with pytest.warns(DeprecationWarning):
-            await manager.increment_cooldown("catgirl neko", mock_context)
-
-        mock_try_acquire.assert_awaited_once_with("catgirl neko", mock_context)
-        mock_release.assert_not_called()
-
-    @pytest.mark.asyncio()
     async def test_acquire(self):
         mock_try_acquire = mock.AsyncMock()
         mock_release = mock.AsyncMock()
@@ -108,7 +63,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = check_cooldown = mock.AsyncMock()
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -132,7 +87,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = check_cooldown = mock.AsyncMock()
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -162,7 +117,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = check_cooldown = mock.AsyncMock()
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -185,7 +140,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = check_cooldown = mock.AsyncMock()
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -211,7 +166,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = check_cooldown = mock.AsyncMock()
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -236,7 +191,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = check_cooldown = mock.AsyncMock()
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
         acquire = manager.acquire("oop", mock_ctx)
@@ -265,7 +220,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = check_cooldown = mock.AsyncMock()
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -1356,159 +1311,6 @@ class TestInMemoryCooldownManager:
         await manager.release("meowers meowers", mock_context)
 
         mock_bucket.release.assert_awaited_once_with("meowers meowers", mock_context)
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown(self):
-        mock_bucket = mock.AsyncMock()
-        mock_bucket.into_inner.return_value = mock.Mock()
-        mock_ctx = mock.Mock()
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        manager._buckets["echo"] = mock_bucket
-
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
-            result = await manager.check_cooldown("echo", mock_ctx)
-
-        assert result is None
-        mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
-        mock_bucket.into_inner.return_value.check.assert_called_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_for_acquired_context(self):
-        mock_resource = mock.Mock()
-        mock_ctx = mock.Mock()
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        manager._acquiring_ctxs["mortal", mock_ctx] = mock_resource
-
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
-            result = await manager.check_cooldown("mortal", mock_ctx)
-
-        assert result is None
-        mock_resource.check.assert_called_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_when_cooldown_depleted(self):
-        date = _now()
-        mock_bucket = mock.AsyncMock()
-        mock_bucket.into_inner.return_value.check = mock.Mock(
-            side_effect=tanjun.dependencies.limiters.CooldownDepleted(date)
-        )
-        mock_ctx = mock.Mock()
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        manager._buckets["meep"] = mock_bucket
-
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
-            result = await manager.check_cooldown("meep", mock_ctx)
-
-        assert result is date
-        mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
-        mock_bucket.into_inner.return_value.check.assert_called_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_for_acquired_context_when_cooldown_depleted(self):
-        date = _now()
-        mock_resource = mock.Mock()
-        mock_resource.check.side_effect = tanjun.dependencies.limiters.CooldownDepleted(date)
-        mock_ctx = mock.Mock()
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        manager._acquiring_ctxs[("eeep", mock_ctx)] = mock_resource
-
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
-            result = await manager.check_cooldown("eeep", mock_ctx)
-
-        assert result is date
-        mock_resource.check.assert_called_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_when_cooldown_depleted_unknown_wait_until(self):
-        mock_bucket = mock.AsyncMock()
-        mock_bucket.into_inner.return_value.check = mock.Mock(
-            side_effect=tanjun.dependencies.limiters.CooldownDepleted(None)
-        )
-        mock_ctx = mock.Mock()
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        manager._buckets["flirt"] = mock_bucket
-
-        date = datetime.datetime(2022, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
-        with freezegun.freeze_time(date), pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
-            result = await manager.check_cooldown("flirt", mock_ctx)
-
-        assert result == datetime.datetime(2022, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
-        mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
-        mock_bucket.into_inner.return_value.check.assert_called_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_for_acquired_context_when_cooldown_depleted_unknown_wait_until(self):
-        mock_resource = mock.Mock()
-        mock_resource.check.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
-        mock_ctx = mock.Mock()
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        manager._acquiring_ctxs[("mother", mock_ctx)] = mock_resource
-
-        date = datetime.datetime(2021, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
-        with freezegun.freeze_time(date), pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
-            result = await manager.check_cooldown("mother", mock_ctx)
-
-        assert result == datetime.datetime(2021, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
-        mock_resource.check.assert_called_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_when_increment(self):
-        mock_try_acquire = mock.AsyncMock()
-        mock_release = mock.AsyncMock()
-        mock_ctx = mock.Mock()
-
-        class CooldownManager(tanjun.InMemoryCooldownManager):
-            try_acquire = mock_try_acquire
-            release = mock_release
-
-        manager = CooldownManager()
-
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
-            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
-
-        assert result is None
-        mock_try_acquire.assert_awaited_once_with("yeet", mock_ctx)
-        mock_release.assert_awaited_once_with("yeet", mock_ctx)
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_when_increment_and_cooldown_depleted(self):
-        date = _now()
-        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(date))
-        mock_release = mock.AsyncMock()
-        mock_ctx = mock.Mock()
-
-        class CooldownManager(tanjun.InMemoryCooldownManager):
-            try_acquire = mock_try_acquire
-            release = mock_release
-
-        manager = CooldownManager()
-
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
-            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
-
-        assert result is date
-        mock_try_acquire.assert_awaited_once_with("yeet", mock_ctx)
-        mock_release.assert_not_called()
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_when_increment_and_cooldown_depleted_with_unknown_wait_until(self):
-        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(None))
-        mock_release = mock.AsyncMock()
-        mock_ctx = mock.Mock()
-
-        class CooldownManager(tanjun.InMemoryCooldownManager):
-            try_acquire = mock_try_acquire
-            release = mock_release
-
-        manager = CooldownManager()
-
-        date = datetime.datetime(2023, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
-        with freezegun.freeze_time(date), pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
-            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
-
-        assert result == datetime.datetime(2023, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
-        mock_try_acquire.assert_awaited_once_with("yeet", mock_ctx)
-        mock_release.assert_not_called()
 
     def test_close(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()

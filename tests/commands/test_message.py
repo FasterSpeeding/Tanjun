@@ -139,7 +139,7 @@ class TestMessageCommand:
     def test___init___when_command_object(
         self,
         inner_command: typing.Union[
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MenuCommand[typing.Any, typing.Any]
+            tanjun.SlashCommand[tanjun.abc.SlashCallbackSig], tanjun.MenuCommand[typing.Any, typing.Any]
         ],
     ):
         assert tanjun.MessageCommand(inner_command, "woow").callback is inner_command.callback

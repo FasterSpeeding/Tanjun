@@ -139,7 +139,6 @@ __all__: list[str] = [
     "as_message_command",
     "as_message_command_group",
     "as_message_menu",
-    "as_self_injecting",
     "as_slash_command",
     "as_time_schedule",
     "as_unloader",
@@ -157,7 +156,6 @@ __all__: list[str] = [
     "inject",
     "inject_lc",
     "injected",
-    "injecting",
     "parsing",
     "permissions",
     "schedules",
@@ -178,7 +176,6 @@ __all__: list[str] = [
     "to_snowflake",
     "to_user",
     "to_voice_state",
-    "utilities",
     "with_all_checks",
     "with_any_checks",
     "with_argument",
@@ -216,7 +213,6 @@ from . import abc
 from . import annotations
 from . import context
 from . import permissions
-from . import utilities
 from .abc import ClientCallbackNames
 from .checks import with_all_checks
 from .checks import with_any_checks
@@ -300,7 +296,6 @@ from .hooks import Hooks
 from .hooks import MenuHooks
 from .hooks import MessageHooks
 from .hooks import SlashHooks
-from .injecting import as_self_injecting
 from .parsing import ShlexParser
 from .parsing import with_argument
 from .parsing import with_greedy_argument

@@ -54,7 +54,6 @@ import itertools
 import logging
 import pathlib
 import typing
-import warnings
 from collections import abc as collections
 
 import alluka
@@ -581,7 +580,6 @@ class Client(tanjun.Client):
         "_voice",
     )
 
-    @typing.overload
     def __init__(
         self,
         rest: hikari.api.RESTClient,
@@ -600,54 +598,6 @@ class Client(tanjun.Client):
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-    ) -> None:
-        ...
-
-    @typing.overload
-    @typing_extensions.deprecated("Use the declare_global_commands arg instead")
-    def __init__(
-        self,
-        rest: hikari.api.RESTClient,
-        *,
-        cache: typing.Optional[hikari.api.Cache] = None,
-        events: typing.Optional[hikari.api.EventManager] = None,
-        server: typing.Optional[hikari.api.InteractionServer] = None,
-        shards: typing.Optional[hikari.ShardAware] = None,
-        voice: typing.Optional[hikari.api.VoiceComponent] = None,
-        event_managed: bool = False,
-        injector: typing.Optional[alluka.abc.Client] = None,
-        mention_prefix: bool = False,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
-        ] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        _stack_level: int = 0,
-    ) -> None:
-        ...
-
-    def __init__(
-        self,
-        rest: hikari.api.RESTClient,
-        *,
-        cache: typing.Optional[hikari.api.Cache] = None,
-        events: typing.Optional[hikari.api.EventManager] = None,
-        server: typing.Optional[hikari.api.InteractionServer] = None,
-        shards: typing.Optional[hikari.ShardAware] = None,
-        voice: typing.Optional[hikari.api.VoiceComponent] = None,
-        event_managed: bool = False,
-        injector: typing.Optional[alluka.abc.Client] = None,
-        mention_prefix: bool = False,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
-        ] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        _stack_level: int = 0,
     ) -> None:
         """Initialise a Tanjun client.
 
@@ -818,12 +768,7 @@ class Client(tanjun.Client):
 
         dependencies.set_standard_dependencies(self)
         self._schedule_startup_registers(
-            set_global_commands,
-            declare_global_commands,
-            command_ids,
-            message_ids=message_ids,
-            user_ids=user_ids,
-            _stack_level=_stack_level,
+            declare_global_commands, command_ids, message_ids=message_ids, user_ids=user_ids
         )
 
     def _maybe_set_type_dep(self, type_: type[_T], value: typing.Optional[_T], /) -> Self:
@@ -834,24 +779,13 @@ class Client(tanjun.Client):
 
     def _schedule_startup_registers(
         self,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        _stack_level: int = 0,
     ) -> None:
-        if set_global_commands:
-            warnings.warn(
-                "The `set_global_commands` argument is deprecated since v2.1.1a1. "
-                "Use `declare_global_commands` instead.",
-                DeprecationWarning,
-                stacklevel=3 + _stack_level,
-            )
-
-        declare_global_commands = declare_global_commands or set_global_commands
         if isinstance(declare_global_commands, collections.Sequence):
             if command_ids and len(declare_global_commands) > 1:
                 raise ValueError(
@@ -902,7 +836,6 @@ class Client(tanjun.Client):
             task.add_done_callback(self._remove_task)
 
     @classmethod
-    @typing.overload
     def from_gateway_bot(
         cls,
         bot: _GatewayBotProto,
@@ -914,46 +847,6 @@ class Client(tanjun.Client):
         declare_global_commands: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-    ) -> Client:
-        ...
-
-    @classmethod
-    @typing.overload
-    @typing_extensions.deprecated("Use the declare_global_commands arg instead")
-    def from_gateway_bot(
-        cls,
-        bot: _GatewayBotProto,
-        /,
-        *,
-        event_managed: bool = True,
-        injector: typing.Optional[alluka.abc.Client] = None,
-        mention_prefix: bool = False,
-        declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
-        ] = False,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-    ) -> Client:
-        ...
-
-    @classmethod
-    def from_gateway_bot(
-        cls,
-        bot: _GatewayBotProto,
-        /,
-        *,
-        event_managed: bool = True,
-        injector: typing.Optional[alluka.abc.Client] = None,
-        mention_prefix: bool = False,
-        declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
-        ] = False,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
@@ -1023,18 +916,15 @@ class Client(tanjun.Client):
                 injector=injector,
                 mention_prefix=mention_prefix,
                 declare_global_commands=declare_global_commands,
-                set_global_commands=set_global_commands,
                 command_ids=command_ids,
                 message_ids=message_ids,
                 user_ids=user_ids,
-                _stack_level=1,
             )
             .set_human_only()
             .set_hikari_trait_injectors(bot)
         )
 
     @classmethod
-    @typing.overload
     def from_rest_bot(
         cls,
         bot: hikari.RESTBotAware,
@@ -1045,44 +935,6 @@ class Client(tanjun.Client):
             hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
         ] = False,
         injector: typing.Optional[alluka.abc.Client] = None,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-    ) -> Client:
-        ...
-
-    @classmethod
-    @typing.overload
-    @typing_extensions.deprecated("Use the declare_global_commands arg instead")
-    def from_rest_bot(
-        cls,
-        bot: hikari.RESTBotAware,
-        /,
-        *,
-        bot_managed: bool = False,
-        declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
-        ] = False,
-        injector: typing.Optional[alluka.abc.Client] = None,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-    ) -> Client:
-        ...
-
-    @classmethod
-    def from_rest_bot(
-        cls,
-        bot: hikari.RESTBotAware,
-        /,
-        *,
-        bot_managed: bool = False,
-        declare_global_commands: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialGuild], hikari.SnowflakeishOr[hikari.PartialGuild], bool
-        ] = False,
-        injector: typing.Optional[alluka.abc.Client] = None,
-        set_global_commands: typing.Union[hikari.SnowflakeishOr[hikari.PartialGuild], bool] = False,
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
@@ -1144,11 +996,9 @@ class Client(tanjun.Client):
             server=bot.interaction_server,
             declare_global_commands=declare_global_commands,
             injector=injector,
-            set_global_commands=set_global_commands,
             command_ids=command_ids,
             message_ids=message_ids,
             user_ids=user_ids,
-            _stack_level=1,
         ).set_hikari_trait_injectors(bot)
 
         if bot_managed:
@@ -1341,22 +1191,6 @@ class Client(tanjun.Client):
             application = self._cached_application_id or await self.fetch_rest_application_id()
 
         await self._rest.set_application_commands(application, (), guild=guild)
-
-    @typing_extensions.deprecated("Use declare_global_commands instead")
-    async def set_global_commands(
-        self,
-        *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
-        guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-        force: bool = False,
-    ) -> collections.Sequence[hikari.PartialCommand]:
-        """Alias of [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands].
-
-        !!! warning "deprecated"
-            Since v2.1.1a1; use [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
-            instead.
-        """
-        return await self.declare_global_commands(application=application, guild=guild, force=force)
 
     async def declare_global_commands(
         self,
