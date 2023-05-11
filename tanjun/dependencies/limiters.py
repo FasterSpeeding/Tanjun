@@ -55,6 +55,7 @@ import typing
 
 import alluka
 import hikari
+import typing_extensions
 
 from .. import _internal
 from .. import abc as tanjun
@@ -71,7 +72,6 @@ if typing.TYPE_CHECKING:
     import types
     from collections import abc as collections
 
-    import typing_extensions
     from typing_extensions import Self
 
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
