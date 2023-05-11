@@ -55,7 +55,7 @@ plugins:
             - https://alluka.cursed.solutions/objects.inv
             - https://sake.cursed.solutions/objects.inv
           options:
-            docstring_section_style: list
+            docstring_section_style: table
             docstring_style: numpy
             inherited_members: true
             merge_init_into_class: false
