@@ -1044,7 +1044,7 @@ class _ConcurrencyLimit:
 
         return False
 
-    def release(self) -> None:
+    def release(self, _: str, __: tanjun.Context, /) -> None:
         if self.counter > 0:
             self.counter -= 1
             return
@@ -1058,6 +1058,21 @@ class _ConcurrencyLimit:
     def has_expired(self) -> bool:
         # Expiration doesn't actually matter for cases where the limit is -1.
         return self.counter == 0
+
+
+class ConcurrencyResource(abc.ABC):
+    __slots__ = ()
+
+    def cleanup(self) -> None:
+        ...
+
+    @abc.abstractmethod
+    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> bool:
+        ...
+
+    @abc.abstractmethod
+    async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
+        ...
 
 
 class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
@@ -1083,13 +1098,17 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     ```
     """
 
-    __slots__ = ("_acquiring_ctxs", "_buckets", "_default_bucket_template", "_gc_task")
+    __slots__ = ("_acquiring_ctxs", "_buckets", "_custom_buckets", "_custom_resources", "_default_bucket", "_gc_task")
 
     def __init__(self) -> None:
-        self._acquiring_ctxs: dict[tuple[str, tanjun.Context], _ConcurrencyLimit] = {}
+        self._acquiring_ctxs: dict[
+            tuple[str, tanjun.Context], typing.Union[_ConcurrencyLimit, ConcurrencyResource]
+        ] = {}
         self._buckets: dict[str, _BaseResource[_ConcurrencyLimit]] = {}
-        self._default_bucket_template: _BaseResource[_ConcurrencyLimit] = _FlatResource(
-            BucketResource.USER, lambda: _ConcurrencyLimit(1)
+        self._custom_buckets: dict[str, ConcurrencyResource] = {}
+        self._custom_resources: dict[int, ConcurrencyResource] = {}
+        self._default_bucket: collections.Callable[[str], object] = lambda bucket: self.set_bucket(
+            bucket, BucketResource.USER, 1
         )
         self._gc_task: typing.Optional[asyncio.Task[None]] = None
 
@@ -1098,6 +1117,9 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             await asyncio.sleep(10)
             for bucket in self._buckets.values():
                 bucket.cleanup()
+
+            for custom_bucket in self._custom_buckets.values():
+                custom_bucket.cleanup()
 
     def add_to_client(self, client: tanjun.Client, /) -> None:
         """Add this concurrency manager to a tanjun client.
@@ -1148,10 +1170,17 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
     async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> bool:
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
+        if resource := self._custom_buckets.get(bucket_id):
+            if result := await resource.try_acquire(bucket_id, ctx):
+                self._acquiring_ctxs[(bucket_id, ctx)] = resource
+
+            return result
+
         bucket = self._buckets.get(bucket_id)
         if not bucket:
             _LOGGER.info("No concurrency limit found for %r, falling back to 'default' bucket", bucket_id)
-            bucket = self._buckets[bucket_id] = self._default_bucket_template.copy()
+            self._default_bucket(bucket_id)
+            return await self.try_acquire(bucket_id, ctx)
 
         # incrementing a bucket multiple times for the same context could lead
         # to weird edge cases based on how we internally track this, so we
@@ -1167,7 +1196,10 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
         if limit := self._acquiring_ctxs.pop((bucket_id, ctx), None):
-            limit.release()
+            result = limit.release(bucket_id, ctx)
+
+            if asyncio.iscoroutine(result):
+                await result
 
     def disable_bucket(self, bucket_id: str, /) -> Self:
         """Disable a concurrency limit bucket.
@@ -1189,13 +1221,14 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         Self
             This concurrency manager to allow for chaining.
         """
-        bucket = self._buckets[bucket_id] = _GlobalResource(lambda: _ConcurrencyLimit(-1))
+        self._custom_buckets.pop(bucket_id, None)
+        self._buckets[bucket_id] = _GlobalResource(lambda: _ConcurrencyLimit(-1))
         if bucket_id == "default":
-            self._default_bucket_template = bucket.copy()
+            self._default_bucket = lambda bucket: self.disable_bucket(bucket)
 
         return self
 
-    def set_bucket(self, bucket_id: str, resource: BucketResource, limit: int, /) -> Self:
+    def set_bucket(self, bucket_id: str, resource: typing.Union[BucketResource, int], limit: int, /) -> Self:
         """Set the concurrency limit for a specific bucket.
 
         !!! note
@@ -1225,9 +1258,19 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
-        bucket = self._buckets[bucket_id] = _to_bucket(BucketResource(resource), lambda: _ConcurrencyLimit(limit))
+        try:
+            resource = BucketResource(resource)
+
+        except ValueError:
+            self._custom_buckets[bucket_id] = self._custom_resources[resource]
+            self._buckets.pop(bucket_id, None)
+
+        else:
+            self._custom_buckets.pop(bucket_id, None)
+            self._buckets[bucket_id] = _to_bucket(resource, lambda: _ConcurrencyLimit(limit))
+
         if bucket_id == "default":
-            self._default_bucket_template = bucket.copy()
+            self._default_bucket = lambda bucket: self.set_bucket(bucket, resource, limit)
 
         return self
 
