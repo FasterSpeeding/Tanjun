@@ -80,6 +80,7 @@ if typing.TYPE_CHECKING:
 
 _InnerResourceT = typing.TypeVar("_InnerResourceT", bound="_InnerResourceProto")
 
+_DEFAULT_KEY = "default"
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
 
 
@@ -116,7 +117,8 @@ class AbstractCooldownManager(abc.ABC):
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Deprecated function for incrementing a cooldown.
 
-        Use [AbstractCooldownManager.check_cooldown][yuyo.limiters.AbstractCooldownManager.check_cooldown]
+        Use
+        [AbstractCooldownManager.check_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown]
         with `increment=True` instead.
         """
         await self.check_cooldown(bucket_id, ctx, increment=True)
@@ -778,7 +780,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         self._buckets[bucket_id] = _StandardCooldownResource(
             _GlobalResource(_MakeCooldown(limit=-1, reset_after=datetime.timedelta(-1)))
         )
-        if bucket_id == "default":
+        if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.disable_bucket(bucket)
 
         return self
@@ -816,9 +818,11 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         Raises
         ------
         ValueError
-            If an invalid resource type is given.
-            If reset_after or limit are negative, 0 or invalid.
-            if limit is less 0 or negative.
+            If any of the following cases are met:
+
+            * If an invalid `resource` is passed.
+            * If reset_after or limit are negative, 0 or invalid.
+            * If limit is less 0 or negative.
         """
         if not isinstance(reset_after, datetime.timedelta):
             reset_after = datetime.timedelta(seconds=reset_after)
@@ -840,9 +844,27 @@ class InMemoryCooldownManager(AbstractCooldownManager):
                 _to_bucket(BucketResource(resource), _MakeCooldown(limit=limit, reset_after=reset_after))
             )
 
-        if bucket_id == "default":
+        if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.set_bucket(bucket, resource, limit, reset_after)
 
+        return self
+
+    def set_resource(self, resource_id: int, resource: CooldownResource, /) -> Self:
+        """Set a custom cooldown limit resource.
+
+        Parameters
+        ----------
+        resource_id
+            Integer ID for this resource.
+        resource
+            Class which represents this resource.
+
+        Returns
+        -------
+        Self
+            The cooldown manager to allow call chaining.
+        """
+        self._custom_resources[resource_id] = resource
         return self
 
 
@@ -1068,11 +1090,24 @@ class ConcurrencyResource(abc.ABC):
 
     @abc.abstractmethod
     async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> bool:
-        ...
+        """Try to acquire a concurrency lock on a bucket.
+
+        Parameters
+        ----------
+        bucket_id
+            The concurrency bucket to acquire.
+        ctx
+            The context to acquire this resource lock with.
+
+        Returns
+        -------
+        bool
+            Whether the lock was acquired.
+        """
 
     @abc.abstractmethod
     async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
-        ...
+        """Release a concurrency lock on a bucket."""
 
 
 class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
@@ -1223,7 +1258,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         """
         self._custom_buckets.pop(bucket_id, None)
         self._buckets[bucket_id] = _GlobalResource(lambda: _ConcurrencyLimit(-1))
-        if bucket_id == "default":
+        if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.disable_bucket(bucket)
 
         return self
@@ -1252,8 +1287,10 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         Raises
         ------
         ValueError
-            If an invalid resource type is given.
-            if limit is less 0 or negative.
+            If any of the following cases are met:
+
+            * If an invalid `resource` is passed.
+            * If limit is less 0 or negative.
         """
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
@@ -1269,9 +1306,27 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             self._custom_buckets.pop(bucket_id, None)
             self._buckets[bucket_id] = _to_bucket(resource, lambda: _ConcurrencyLimit(limit))
 
-        if bucket_id == "default":
+        if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.set_bucket(bucket, resource, limit)
 
+        return self
+
+    def set_resource(self, resource_id: int, resource: ConcurrencyResource, /) -> Self:
+        """Set a custom concurrency limit resource.
+
+        Parameters
+        ----------
+        resource_id
+            Integer ID for this resource.
+        resource
+            Class which represents this resource.
+
+        Returns
+        -------
+        Self
+            The concurrency manager to allow call chaining.
+        """
+        self._custom_resources[resource_id] = resource
         return self
 
 
