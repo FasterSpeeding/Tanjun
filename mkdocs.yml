@@ -55,7 +55,6 @@ plugins:
             - https://alluka.cursed.solutions/objects.inv
             - https://sake.cursed.solutions/objects.inv
           options:
-            annotations_path: brief
             docstring_section_style: list
             docstring_style: numpy
             inherited_members: true
