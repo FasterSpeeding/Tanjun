@@ -150,7 +150,14 @@ class AbstractConcurrencyLimiter(abc.ABC):
         """Release a concurrency lock on a bucket."""
 
     def acquire(
-        self, bucket_id: str, ctx: tanjun.Context, /, *, error: collections.Callable[[], Exception] = lambda: errors.CommandError("This resource is currently busy; please try again later.")
+        self,
+        bucket_id: str,
+        ctx: tanjun.Context,
+        /,
+        *,
+        error: collections.Callable[[], Exception] = lambda: errors.CommandError(
+            "This resource is currently busy; please try again later."
+        ),
     ) -> contextlib.AbstractAsyncContextManager[None]:
         """Acquire an concurrency lock on a bucket through an async context manager.
 
