@@ -89,7 +89,11 @@ _ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
 
 
 def _add_to_command(command: _CommandT, check: tanjun.AnyCheckSig, follow_wrapped: bool) -> _CommandT:
-    return _internal.apply_to_wrapped(command, lambda c: c.add_check(check), command, follow_wrapped=follow_wrapped)
+    if follow_wrapped:
+        for wrapped in _internal.collect_wrapped(command):
+            wrapped.add_check(check)
+
+    return command.add_check(check)
 
 
 def _optional_kwargs(

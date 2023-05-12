@@ -3147,7 +3147,7 @@ def test_with_all_checks():
     with mock.patch.object(tanjun.checks, "all_checks") as all_checks:
         result = tanjun.with_all_checks(mock_check_1, mock_check_2, mock_check_3)(mock_command)
 
-    assert result is mock_command
+    assert result is mock_command.add_check.return_value
     mock_command.add_check.assert_called_once_with(all_checks.return_value)
     all_checks.assert_called_once_with(mock_check_1, mock_check_2, mock_check_3)
 
