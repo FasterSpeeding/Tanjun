@@ -48,6 +48,24 @@ from tanjun.context import base as base_context
 
 class TestAbstractCooldownManager:
     @pytest.mark.asyncio()
+    async def test_increment_cooldown(self):
+        mock_check_cooldown = mock.AsyncMock()
+
+        class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
+            __slots__ = ()
+
+            check_cooldown = mock_check_cooldown
+
+        manager = CooldownManager()
+
+        mock_context = mock.Mock()
+
+        with pytest.warns(DeprecationWarning):
+            await manager.increment_cooldown("catgirl neko", mock_context)
+
+        mock_check_cooldown.assert_awaited_once_with("catgirl neko", mock_context, increment=True)
+
+    @pytest.mark.asyncio()
     async def test_acquire(self):
         mock_try_acquire = mock.AsyncMock(return_value=None)
         mock_ctx = mock.Mock()
@@ -1209,37 +1227,6 @@ class TestInMemoryCooldownManager:
         mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
         mock_inner.increment.assert_not_called()
         mock_inner.must_wait_until.assert_called_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_increment_cooldown(self):
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        mock_context = mock.Mock()
-        mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_inner: typing.Any = mock_bucket.into_inner.return_value
-        manager._buckets["catgirl neko"] = mock_bucket
-
-        result = await manager.increment_cooldown("catgirl neko", mock_context)
-
-        assert result is None
-        mock_bucket.into_inner.assert_awaited_once_with(mock_context)
-        mock_inner.increment.assert_called_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_increment_cooldown_falls_back_to_default(self):
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        mock_context = mock.Mock()
-        mock_bucket = mock.Mock()
-        mock_bucket.copy.return_value.into_inner = mock.AsyncMock(return_value=mock.Mock())
-        mock_inner = mock_bucket.copy.return_value.into_inner.return_value
-        manager._default_bucket = mock_bucket
-
-        result = await manager.increment_cooldown("69", mock_context)
-
-        assert result is None
-        assert manager._buckets["69"] is mock_bucket.copy.return_value
-        mock_bucket.copy.assert_called_once_with()
-        mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
-        mock_inner.increment.assert_called_once_with()
 
     def test_close(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
