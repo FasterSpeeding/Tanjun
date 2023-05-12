@@ -691,9 +691,9 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if not bucket and increment:
             _LOGGER.info("No cooldown found for %r, falling back to 'default' bucket", bucket_id)
             self._default_bucket(bucket_id)
-            bucket = self._buckets[bucket_id]
+            return await self.check_cooldown(bucket_id, ctx, increment=increment)
 
-        elif not bucket:
+        if not bucket:
             return None
 
         if increment:
