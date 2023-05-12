@@ -48,11 +48,9 @@ __all__: list[str] = [
 
 import abc
 import asyncio
-import contextlib
 import datetime
 import enum
 import logging
-import types
 import typing
 
 import alluka
@@ -69,6 +67,8 @@ from . import locales
 from . import owners
 
 if typing.TYPE_CHECKING:
+    import contextlib
+    import types
     from collections import abc as collections
 
     from typing_extensions import Self
