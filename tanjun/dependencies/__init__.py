@@ -43,6 +43,7 @@ __all__: list[str] = [
     "BucketResource",
     "CacheIterator",
     "CacheMissError",
+    "add_cooldown", "add_concurrency_limit",
     "ChannelBoundCache",
     "ConcurrencyPostExecution",
     "ConcurrencyPreExecution",
@@ -96,6 +97,8 @@ from .limiters import AbstractCooldownManager
 from .limiters import BucketResource
 from .limiters import ConcurrencyPostExecution
 from .limiters import ConcurrencyPreExecution
+from .limiters import add_cooldown
+from .limiters import add_concurrency_limit
 from .limiters import CooldownPreExecution
 from .limiters import InMemoryConcurrencyLimiter
 from .limiters import InMemoryCooldownManager
