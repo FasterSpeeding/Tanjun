@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   functions.
 - [AbstractConcurrencyLimiter.acquire][tanjun.dependencies.limiters.AbstractConcurrencyLimiter.acquire]
   method which returns an async context manager which acquires and releases a
-  cooldown lock for .
+  cooldown lock for you.
 
 ## [2.14.0] - 2023-04-24
 ### Added
