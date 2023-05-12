@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [dependencies.add_concurrency_limit][tanjun.dependencies.limiters.add_concurrency_limit]
   functions which act as non-decorator equivalents of the relevant `"with_`
   functions.
+- [AbstractConcurrencyLimiter.acquire][tanjun.dependencies.limiters.AbstractConcurrencyLimiter.acquire]
+  method which returns an async context manager which acquires and releases a
+  cooldown lock for .
 
 ## [2.14.0] - 2023-04-24
 ### Added
