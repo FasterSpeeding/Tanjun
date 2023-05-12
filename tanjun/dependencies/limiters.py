@@ -48,9 +48,11 @@ __all__: list[str] = [
 
 import abc
 import asyncio
+import contextlib
 import datetime
 import enum
 import logging
+import types
 import typing
 
 import alluka
@@ -146,6 +148,75 @@ class AbstractConcurrencyLimiter(abc.ABC):
     @abc.abstractmethod
     async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Release a concurrency lock on a bucket."""
+
+    def acquire(
+        self, bucket_id: str, ctx: tanjun.Context, /, *, error: collections.Callable[[], Exception] = lambda: errors.CommandError("This resource is currently busy; please try again later.")
+    ) -> contextlib.AbstractAsyncContextManager[None]:
+        """Acquire an concurrency lock on a bucket through an async context manager.
+
+        Parameters
+        ----------
+        bucket_id
+            The concurrency bucket to acquire.
+        ctx
+            The context to acquire this resource lock with.
+        error
+            Callback which returns the error that's raised when the lock
+            couldn't be acquired due to being at it's limit.
+
+            This will be raised on entering the returned context manager and
+            defaults to an English command error.
+
+        Returns
+        -------
+        contextlib.AbstractAsyncContextManager[None]
+            The context manager which'll acquire and release this concurrency lock.
+
+        Raises
+        ------
+        tanjun.errors.CommandError
+            The default error that's raised while entering the returned async
+            context manager if it couldn't acquire the lock.
+        """
+        return _Acquire(self, bucket_id, ctx, error)
+
+
+class _Acquire:
+    __slots__ = ("_acquired", "_bucket_id", "_ctx", "_error", "_limiter")
+
+    def __init__(
+        self,
+        limiter: AbstractConcurrencyLimiter,
+        bucket_id: str,
+        ctx: tanjun.Context,
+        error: collections.Callable[[], Exception],
+        /,
+    ) -> None:
+        self._acquired = False
+        self._bucket_id = bucket_id
+        self._ctx = ctx
+        self._error = error
+        self._limiter = limiter
+
+    async def __aenter__(self) -> None:
+        if self._acquired:
+            raise RuntimeError("Already acquired")
+
+        self._acquired = await self._limiter.try_acquire(self._bucket_id, self._ctx)
+        if not self._acquired:
+            raise self._error()
+
+    async def __aexit__(
+        self,
+        exc_type: typing.Optional[type[BaseException]],
+        exc: typing.Optional[BaseException],
+        exc_traceback: typing.Optional[types.TracebackType],
+    ) -> None:
+        if not self._acquired:
+            raise RuntimeError("Not acquired")
+
+        self._acquired = False
+        await asyncio.shield(self._limiter.release(self._bucket_id, self._ctx))
 
 
 class BucketResource(int, enum.Enum):
