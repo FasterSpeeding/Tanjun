@@ -75,6 +75,7 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
+    _OtherCommandT = typing.TypeVar("_OtherCommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _InnerResourceSig = collections.Callable[[], "_InnerResourceT"]
 
 
@@ -673,7 +674,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     ```
     """
 
-    __slots__ = ("_buckets", "_custom_resources", "_default_bucket", "_gc_task")
+    __slots__ = ("_buckets", "_custom_resources", "_default_bucket", "_gc_task", "_resources")
 
     def __init__(self) -> None:
         self._buckets: dict[str, CooldownResource] = {}
