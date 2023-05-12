@@ -768,8 +768,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         self,
         bucket_id: str,
         resource: typing.Union[BucketResource, int],
-        limit: int,
-        reset_after: typing.Union[int, float, datetime.timedelta],
+        limit: int = 2,
+        reset_after: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(seconds=5),
         /,
     ) -> Self:
         """Set the cooldown for a specific bucket.
@@ -786,8 +786,12 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             The type of resource to target for the cooldown.
         limit
             The number of uses per cooldown period.
+
+            This is ignored for custom resources.
         reset_after
             The cooldown period.
+
+            This is ignored for custom resources.
 
         Returns
         -------
@@ -1196,7 +1200,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         return self
 
-    def set_bucket(self, bucket_id: str, resource: typing.Union[BucketResource, int], limit: int, /) -> Self:
+    def set_bucket(self, bucket_id: str, resource: typing.Union[BucketResource, int], limit: int = 1, /) -> Self:
         """Set the concurrency limit for a specific bucket.
 
         !!! note
@@ -1211,6 +1215,8 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             The type of resource to target for the concurrency limit.
         limit
             The maximum number of concurrent uses to allow.
+
+            This is ignored for custom resources.
 
         Returns
         -------
