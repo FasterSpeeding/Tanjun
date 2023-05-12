@@ -211,7 +211,7 @@ class _Acquire:
 
         self._acquired = await self._limiter.try_acquire(self._bucket_id, self._ctx)
         if not self._acquired:
-            raise self._error()
+            raise self._error()  # noqa: R102
 
     async def __aexit__(
         self,
