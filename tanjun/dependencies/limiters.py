@@ -112,7 +112,6 @@ class AbstractCooldownManager(abc.ABC):
             if it's in cooldown else [None][].
         """
 
-    @abc.abstractmethod
     @typing_extensions.deprecated("Use .check_cooldown with increment=True")
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Deprecated function for incrementing a cooldown.
@@ -1085,9 +1084,6 @@ class _ConcurrencyLimit:
 class ConcurrencyResource(abc.ABC):
     __slots__ = ()
 
-    def cleanup(self) -> None:
-        ...
-
     @abc.abstractmethod
     async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> bool:
         """Try to acquire a concurrency lock on a bucket.
@@ -1152,9 +1148,6 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             await asyncio.sleep(10)
             for bucket in self._buckets.values():
                 bucket.cleanup()
-
-            for custom_bucket in self._custom_buckets.values():
-                custom_bucket.cleanup()
 
     def add_to_client(self, client: tanjun.Client, /) -> None:
         """Add this concurrency manager to a tanjun client.
