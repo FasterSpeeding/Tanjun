@@ -39,6 +39,7 @@ __all__: list[str] = [
     "ConcurrencyPreExecution",
     "CooldownPreExecution",
     "InMemoryConcurrencyLimiter",
+    "add_cooldown", "add_concurrency_limit",
     "InMemoryCooldownManager",
     "with_concurrency_limit",
     "with_cooldown",
