@@ -688,13 +688,13 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             return await resource.check_cooldown(bucket_id, ctx, increment=increment)
 
         bucket = self._buckets.get(bucket_id)
-        if not bucket and increment:
+        if not bucket:
+            if not increment:
+                return None
+
             _LOGGER.info("No cooldown found for %r, falling back to 'default' bucket", bucket_id)
             self._default_bucket(bucket_id)
             return await self.check_cooldown(bucket_id, ctx, increment=increment)
-
-        if not bucket:
-            return None
 
         if increment:
             resource = await bucket.into_inner(ctx)

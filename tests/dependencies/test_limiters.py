@@ -1187,46 +1187,19 @@ class TestInMemoryCooldownManager:
 
     @pytest.mark.asyncio()
     async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket(self):
-        manager = tanjun.dependencies.InMemoryCooldownManager()
+        manager = tanjun.dependencies.InMemoryCooldownManager().set_bucket(
+            "default", tanjun.BucketResource.USER, 10, 60
+        )
         mock_context = mock.Mock()
-        mock_bucket = mock.Mock()
-        mock_bucket.copy.return_value = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_inner: typing.Any = mock_bucket.copy.return_value.into_inner.return_value
-        mock_inner.increment.return_value = mock_inner
-        mock_inner.must_wait_until.return_value = None
-
-        manager._default_bucket = mock_bucket
 
         result = await manager.check_cooldown("ok", mock_context, increment=True)
 
         assert result is None
-        assert manager._buckets["ok"] is mock_bucket.copy.return_value
-        mock_bucket.copy.assert_called_once_with()
-        mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
-        mock_inner.increment.assert_called_once_with()
-        mock_inner.must_wait_until.assert_called_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket_when_wait_until_returns_time(
-        self,
-    ):
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        mock_context = mock.Mock()
-        mock_bucket = mock.Mock()
-        mock_bucket.copy.return_value = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_inner: typing.Any = mock_bucket.copy.return_value.into_inner.return_value
-        mock_inner.increment.return_value = mock_inner
-
-        manager._default_bucket = mock_bucket
-
-        result = await manager.check_cooldown("ok", mock_context, increment=True)
-
-        assert result is mock_inner.must_wait_until.return_value
-        assert manager._buckets["ok"] is mock_bucket.copy.return_value
-        mock_bucket.copy.assert_called_once_with()
-        mock_bucket.copy.return_value.into_inner.assert_awaited_once_with(mock_context)
-        mock_inner.increment.assert_not_called()
-        mock_inner.must_wait_until.assert_called_once_with()
+        bucket = manager._buckets["ok"]
+        assert isinstance(bucket, tanjun.dependencies.limiters._FlatResource)
+        assert bucket.resource is tanjun.BucketResource.USER
+        assert bucket.make_resource().limit == 10
+        assert bucket.make_resource().reset_after == datetime.timedelta(seconds=60)
 
     def test_close(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -1291,7 +1264,6 @@ class TestInMemoryCooldownManager:
             assert result is manager
             assert manager._buckets["kitten"] is cooldown_bucket.return_value
             assert manager._default_bucket is default_bucket
-            cooldown_bucket.return_value.copy.assert_not_called()
 
             assert cooldown_bucket.call_count == 1
             assert len(cooldown_bucket.call_args.args) == 1
@@ -1309,12 +1281,13 @@ class TestInMemoryCooldownManager:
         with mock.patch.object(tanjun.dependencies.limiters, "_GlobalResource") as cooldown_bucket:
             result = manager.disable_bucket("default")
 
+            manager._default_bucket("echo")
+
             assert result is manager
             assert manager._buckets["default"] is cooldown_bucket.return_value
-            assert manager._default_bucket is cooldown_bucket.return_value.copy.return_value
-            cooldown_bucket.return_value.copy.assert_called_once_with()
+            assert manager._buckets["echo"] is cooldown_bucket.return_value
 
-            assert cooldown_bucket.call_count == 1
+            assert cooldown_bucket.call_count == 2
             assert len(cooldown_bucket.call_args.args) == 1
             assert len(cooldown_bucket.call_args.kwargs) == 0
 
@@ -1344,7 +1317,6 @@ class TestInMemoryCooldownManager:
             assert result is manager
             assert manager._buckets["gay catgirl"] is cooldown_bucket.return_value
             assert manager._default_bucket is default_bucket
-            cooldown_bucket.return_value.copy.assert_not_called()
 
             assert cooldown_bucket.call_count == 1
             assert len(cooldown_bucket.call_args.args) == 2
@@ -1421,12 +1393,13 @@ class TestInMemoryCooldownManager:
         with mock.patch.object(tanjun.dependencies.limiters, "_FlatResource") as cooldown_bucket:
             result = manager.set_bucket("default", tanjun.BucketResource.USER, 777, 666.0)
 
+            manager._default_bucket("yeet")
+
             assert result is manager
             assert manager._buckets["default"] is cooldown_bucket.return_value
-            assert manager._default_bucket is cooldown_bucket.return_value.copy.return_value
-            cooldown_bucket.return_value.copy.assert_called_once_with()
+            assert manager._buckets["yeet"] is cooldown_bucket.return_value
 
-            assert cooldown_bucket.call_count == 1
+            assert cooldown_bucket.call_count == 2
             assert len(cooldown_bucket.call_args.args) == 2
             assert len(cooldown_bucket.call_args.kwargs) == 0
             assert cooldown_bucket.call_args.args[0] is tanjun.BucketResource.USER
@@ -2178,7 +2151,7 @@ class TestInMemoryConcurrencyLimiter:
         await manager.release("nya", mock_context)
 
         assert ("nya", mock_context) not in manager._acquiring_ctxs
-        mock_limiter.release.assert_called_once_with()
+        mock_limiter.release.assert_called_once_with("nya", mock_context)
 
     @pytest.mark.asyncio()
     async def test_release_for_unknown_context(self):
@@ -2197,7 +2170,6 @@ class TestInMemoryConcurrencyLimiter:
             assert result is manager
             assert manager._buckets["kitty cat"] is cooldown_bucket.return_value
             assert manager._default_bucket is default_bucket
-            cooldown_bucket.return_value.copy.assert_not_called()
 
             assert cooldown_bucket.call_count == 1
             assert len(cooldown_bucket.call_args.args) == 1
@@ -2214,12 +2186,13 @@ class TestInMemoryConcurrencyLimiter:
         with mock.patch.object(tanjun.dependencies.limiters, "_GlobalResource") as cooldown_bucket:
             result = manager.disable_bucket("default")
 
+            manager._default_bucket("bruce")
+
             assert result is manager
             assert manager._buckets["default"] is cooldown_bucket.return_value
-            assert manager._default_bucket is cooldown_bucket.return_value.copy.return_value
-            cooldown_bucket.return_value.copy.assert_called_once_with()
+            assert manager._buckets["bruce"] is cooldown_bucket.return_value
 
-            assert cooldown_bucket.call_count == 1
+            assert cooldown_bucket.call_count == 2
             assert len(cooldown_bucket.call_args.args) == 1
             assert len(cooldown_bucket.call_args.kwargs) == 0
 
@@ -2248,7 +2221,6 @@ class TestInMemoryConcurrencyLimiter:
             assert result is manager
             assert manager._buckets["gay catgirl"] is cooldown_bucket.return_value
             assert manager._default_bucket is default_bucket
-            cooldown_bucket.return_value.copy.assert_not_called()
 
             assert cooldown_bucket.call_count == 1
             assert len(cooldown_bucket.call_args.args) == 2
@@ -2300,12 +2272,13 @@ class TestInMemoryConcurrencyLimiter:
         with mock.patch.object(tanjun.dependencies.limiters, "_FlatResource") as cooldown_bucket:
             result = manager.set_bucket("default", tanjun.BucketResource.USER, 697)
 
+            manager._default_bucket("beep")
+
             assert result is manager
             assert manager._buckets["default"] is cooldown_bucket.return_value
-            assert manager._default_bucket is cooldown_bucket.return_value.copy.return_value
-            cooldown_bucket.return_value.copy.assert_called_once_with()
+            assert manager._buckets["beep"] is cooldown_bucket.return_value
 
-            assert cooldown_bucket.call_count == 1
+            assert cooldown_bucket.call_count == 2
             assert len(cooldown_bucket.call_args.args) == 2
             assert len(cooldown_bucket.call_args.kwargs) == 0
             assert cooldown_bucket.call_args.args[0] is tanjun.BucketResource.USER
