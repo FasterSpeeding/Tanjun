@@ -845,7 +845,6 @@ class TestFlatResource:
         }
 
 
-
 class TestMemberResource:
     @pytest.mark.asyncio()
     async def test_into_inner(self) -> None:

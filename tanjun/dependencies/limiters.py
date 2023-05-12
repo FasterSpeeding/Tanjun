@@ -594,7 +594,7 @@ def _to_bucket(
     return _FlatResource(resource, make_resource)
 
 
-class CooldownResource(abc.ABC):
+class AbstractCooldownResource(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
@@ -621,10 +621,10 @@ class CooldownResource(abc.ABC):
         """
 
     def cleanup(self) -> None:
-        ...
+        ...  # TODO: doc or remove
 
 
-class _StandardCooldownResource(CooldownResource):
+class _StandardCooldownResource(AbstractCooldownResource):
     __slots__ = ("_buckets",)
 
     def __init__(self, buckets: _BaseResource[_Cooldown], /) -> None:
@@ -677,13 +677,13 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     __slots__ = ("_buckets", "_custom_resources", "_default_bucket", "_gc_task", "_resources")
 
     def __init__(self) -> None:
-        self._buckets: dict[str, CooldownResource] = {}
-        self._custom_resources: dict[int, CooldownResource] = {}
+        self._buckets: dict[str, AbstractCooldownResource] = {}
+        self._custom_resources: dict[int, AbstractCooldownResource] = {}
         self._default_bucket: collections.Callable[[str], object] = lambda bucket_id: self.set_bucket(
             bucket_id, BucketResource.USER, 2, datetime.timedelta(seconds=5)
         )
         self._gc_task: typing.Optional[asyncio.Task[None]] = None
-        self._resources: dict[int, CooldownResource] = {}
+        self._resources: dict[int, AbstractCooldownResource] = {}
 
     async def _gc(self) -> None:
         while True:
@@ -849,7 +849,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         return self
 
-    def set_resource(self, resource_id: int, resource: CooldownResource, /) -> Self:
+    def set_resource(self, resource_id: int, resource: AbstractCooldownResource, /) -> Self:
         """Set a custom cooldown limit resource.
 
         Parameters
@@ -1042,7 +1042,7 @@ class _ConcurrencyLimit:
         return self.counter == 0
 
 
-class ConcurrencyResource(abc.ABC):
+class AbstractConcurrencyResource(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
@@ -1094,11 +1094,11 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
     def __init__(self) -> None:
         self._acquiring_ctxs: dict[
-            tuple[str, tanjun.Context], typing.Union[_ConcurrencyLimit, ConcurrencyResource]
+            tuple[str, tanjun.Context], typing.Union[_ConcurrencyLimit, AbstractConcurrencyResource]
         ] = {}
         self._buckets: dict[str, _BaseResource[_ConcurrencyLimit]] = {}
-        self._custom_buckets: dict[str, ConcurrencyResource] = {}
-        self._custom_resources: dict[int, ConcurrencyResource] = {}
+        self._custom_buckets: dict[str, AbstractConcurrencyResource] = {}
+        self._custom_resources: dict[int, AbstractConcurrencyResource] = {}
         self._default_bucket: collections.Callable[[str], object] = lambda bucket: self.set_bucket(
             bucket, BucketResource.USER, 1
         )
@@ -1265,7 +1265,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         return self
 
-    def set_resource(self, resource_id: int, resource: ConcurrencyResource, /) -> Self:
+    def set_resource(self, resource_id: int, resource: AbstractConcurrencyResource, /) -> Self:
         """Set a custom concurrency limit resource.
 
         Parameters
