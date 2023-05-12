@@ -2427,5 +2427,11 @@ def test_with_concurrency_limit_when_follow_wrapping_and_wrapping_unsupported_co
     mock_command.hooks.add_post_execution.assert_called_once_with(post_execution.return_value)
     mock_command.wrapped_command.hooks.add_pre_execution.assert_called_once_with(pre_execution.return_value)
     mock_command.wrapped_command.hooks.add_post_execution.assert_called_once_with(post_execution.return_value)
-    pre_execution.assert_called_once_with("bucket me", error=mock_error_callback, error_message="aye message")
-    post_execution.assert_called_once_with("bucket me")
+    pre_execution.assert_has_calls(
+        [
+            mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
+            mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
+            mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
+        ]
+    )
+    post_execution.assert_has_calls([mock.call("bucket me"), mock.call("bucket me"), mock.call("bucket me")])
