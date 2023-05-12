@@ -620,36 +620,6 @@ class AbstractCooldownResource(abc.ABC):
             if it's in cooldown else [None][].
         """
 
-    def cleanup(self) -> None:
-        ...  # TODO: doc or remove
-
-
-class _StandardCooldownResource(AbstractCooldownResource):
-    __slots__ = ("_buckets",)
-
-    def __init__(self, buckets: _BaseResource[_Cooldown], /) -> None:
-        self._buckets = buckets
-
-    async def check_cooldown(
-        self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
-    ) -> typing.Optional[datetime.datetime]:
-        bucket: typing.Optional[_Cooldown]
-        if increment:
-            bucket = await self._buckets.into_inner(ctx)
-            if cooldown := bucket.must_wait_until():
-                return cooldown
-
-            bucket.increment()
-            return None
-
-        if bucket := await self._buckets.try_into_inner(ctx):
-            return bucket.must_wait_until()
-
-        return None  # MyPy compat
-
-    def cleanup(self) -> None:
-        self._buckets.cleanup()
-
 
 class InMemoryCooldownManager(AbstractCooldownManager):
     """In-memory standard implementation of [AbstractCooldownManager][tanjun.dependencies.AbstractCooldownManager].
@@ -674,16 +644,16 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     ```
     """
 
-    __slots__ = ("_buckets", "_custom_resources", "_default_bucket", "_gc_task", "_resources")
+    __slots__ = ("_buckets", "_custom_buckets", "_custom_resources", "_default_bucket", "_gc_task")
 
     def __init__(self) -> None:
-        self._buckets: dict[str, AbstractCooldownResource] = {}
+        self._buckets: dict[str, _BaseResource[_Cooldown]] = {}
+        self._custom_buckets: dict[str, AbstractCooldownResource] = {}
         self._custom_resources: dict[int, AbstractCooldownResource] = {}
         self._default_bucket: collections.Callable[[str], object] = lambda bucket_id: self.set_bucket(
             bucket_id, BucketResource.USER, 2, datetime.timedelta(seconds=5)
         )
         self._gc_task: typing.Optional[asyncio.Task[None]] = None
-        self._resources: dict[int, AbstractCooldownResource] = {}
 
     async def _gc(self) -> None:
         while True:
@@ -714,17 +684,27 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
     ) -> typing.Optional[datetime.datetime]:
         # <<inherited docstring from AbstractCooldownManager>>.
+        if resource := self._custom_buckets.get(bucket_id):
+            return await resource.check_cooldown(bucket_id, ctx, increment=increment)
+
+        bucket = self._buckets.get(bucket_id)
+        if not bucket and increment:
+            _LOGGER.info("No cooldown found for %r, falling back to 'default' bucket", bucket_id)
+            self._default_bucket(bucket_id)
+            bucket = self._buckets[bucket_id]
+
+        elif not bucket:
+            return None
+
         if increment:
-            bucket = self._buckets.get(bucket_id)
-            if not bucket:
-                _LOGGER.info("No cooldown found for %r, falling back to 'default' bucket", bucket_id)
-                self._default_bucket(bucket_id)
-                bucket = self._buckets[bucket_id]
+            resource = await bucket.into_inner(ctx)
+            if cooldown := resource.must_wait_until():
+                return cooldown
 
-            return await bucket.check_cooldown(bucket_id, ctx, increment=True)
+            resource.increment()
 
-        if resource := self._buckets.get(bucket_id):
-            return await resource.check_cooldown(bucket_id, ctx)
+        elif resource := await bucket.try_into_inner(ctx):
+            return resource.must_wait_until()
 
         return None  # MyPy compat
 
@@ -777,9 +757,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             This cooldown manager to allow for chaining.
         """
         # A limit of -1 is special cased to mean no limit and reset_after is ignored in this scenario.
-        self._buckets[bucket_id] = _StandardCooldownResource(
-            _GlobalResource(_MakeCooldown(limit=-1, reset_after=datetime.timedelta(-1)))
-        )
+        self._buckets[bucket_id] = _GlobalResource(_MakeCooldown(limit=-1, reset_after=datetime.timedelta(-1)))
         if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.disable_bucket(bucket)
 
@@ -837,12 +815,12 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             resource = BucketResource(resource)
 
         except ValueError:
-            self._buckets[bucket_id] = self._custom_resources[resource]
+            self._custom_buckets[bucket_id] = self._custom_resources[resource]
+            self._buckets.pop(bucket_id, None)
 
         else:
-            self._buckets[bucket_id] = _StandardCooldownResource(
-                _to_bucket(BucketResource(resource), _MakeCooldown(limit=limit, reset_after=reset_after))
-            )
+            self._custom_buckets.pop(bucket_id, None)
+            self._buckets[bucket_id] = _to_bucket(resource, _MakeCooldown(limit=limit, reset_after=reset_after))
 
         if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.set_bucket(bucket, resource, limit, reset_after)
