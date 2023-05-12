@@ -757,6 +757,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             This cooldown manager to allow for chaining.
         """
         # A limit of -1 is special cased to mean no limit and reset_after is ignored in this scenario.
+        self._custom_buckets.pop(bucket_id, None)
         self._buckets[bucket_id] = _GlobalResource(_MakeCooldown(limit=-1, reset_after=datetime.timedelta(-1)))
         if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.disable_bucket(bucket)
