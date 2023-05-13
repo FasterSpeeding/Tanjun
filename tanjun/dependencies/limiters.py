@@ -644,12 +644,11 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     ```
     """
 
-    __slots__ = ("_buckets", "_custom_buckets", "_custom_resources", "_default_bucket", "_gc_task")
+    __slots__ = ("_buckets", "_custom_buckets", "_default_bucket", "_gc_task")
 
     def __init__(self) -> None:
         self._buckets: dict[str, _BaseResource[_Cooldown]] = {}
         self._custom_buckets: dict[str, AbstractCooldownResource] = {}
-        self._custom_resources: dict[int, AbstractCooldownResource] = {}
         self._default_bucket: collections.Callable[[str], object] = lambda bucket_id: self.set_bucket(
             bucket_id, BucketResource.USER, 2, datetime.timedelta(seconds=5)
         )
@@ -757,8 +756,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             This cooldown manager to allow for chaining.
         """
         # A limit of -1 is special cased to mean no limit and reset_after is ignored in this scenario.
-        self._custom_buckets.pop(bucket_id, None)
         self._buckets[bucket_id] = _GlobalResource(_MakeCooldown(limit=-1, reset_after=datetime.timedelta(-1)))
+        self._custom_buckets.pop(bucket_id, None)
         if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.disable_bucket(bucket)
 
@@ -767,7 +766,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     def set_bucket(
         self,
         bucket_id: str,
-        resource: typing.Union[BucketResource, int],
+        resource: BucketResource,
         limit: int = 2,
         reset_after: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(seconds=5),
         /,
@@ -816,38 +815,38 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
-        try:
-            resource = BucketResource(resource)
-
-        except ValueError:
-            self._custom_buckets[bucket_id] = self._custom_resources[resource]
-            self._buckets.pop(bucket_id, None)
-
-        else:
-            self._custom_buckets.pop(bucket_id, None)
-            self._buckets[bucket_id] = _to_bucket(resource, _MakeCooldown(limit=limit, reset_after=reset_after))
+        self._buckets[bucket_id] = _to_bucket(
+            BucketResource(resource), _MakeCooldown(limit=limit, reset_after=reset_after)
+        )
+        self._custom_buckets.pop(bucket_id, None)
 
         if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.set_bucket(bucket, resource, limit, reset_after)
 
         return self
 
-    def set_resource(self, resource_id: int, resource: AbstractCooldownResource, /) -> Self:
+    def set_custom_resource(self, resource: AbstractCooldownResource, /, *bucket_ids: str) -> Self:
         """Set a custom cooldown limit resource.
 
         Parameters
         ----------
-        resource_id
-            Integer ID for this resource.
         resource
-            Class which represents this resource.
+            Object which handles the cooldowns for these buckets.
+        bucket_ids
+            IDs of buckets to set this custom resource for.
 
         Returns
         -------
         Self
             The cooldown manager to allow call chaining.
         """
-        self._custom_resources[resource_id] = resource
+        for bucket_id in bucket_ids:
+            self._buckets.pop(bucket_id, None)
+            self._custom_buckets[bucket_id] = resource
+
+            if bucket_id == _DEFAULT_KEY:
+                self._default_bucket = lambda bucket: self.set_custom_resource(resource, bucket)
+
         return self
 
 
@@ -1073,7 +1072,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     ```
     """
 
-    __slots__ = ("_acquiring_ctxs", "_buckets", "_custom_buckets", "_custom_resources", "_default_bucket", "_gc_task")
+    __slots__ = ("_acquiring_ctxs", "_buckets", "_custom_buckets", "_default_bucket", "_gc_task")
 
     def __init__(self) -> None:
         self._acquiring_ctxs: dict[
@@ -1081,7 +1080,6 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         ] = {}
         self._buckets: dict[str, _BaseResource[_ConcurrencyLimit]] = {}
         self._custom_buckets: dict[str, AbstractConcurrencyResource] = {}
-        self._custom_resources: dict[int, AbstractConcurrencyResource] = {}
         self._default_bucket: collections.Callable[[str], object] = lambda bucket: self.set_bucket(
             bucket, BucketResource.USER, 1
         )
@@ -1193,8 +1191,8 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         Self
             This concurrency manager to allow for chaining.
         """
-        self._custom_buckets.pop(bucket_id, None)
         self._buckets[bucket_id] = _GlobalResource(lambda: _ConcurrencyLimit(-1))
+        self._custom_buckets.pop(bucket_id, None)
         if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.disable_bucket(bucket)
 
@@ -1234,38 +1232,36 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         if limit <= 0:
             raise ValueError("limit must be greater than 0")
 
-        try:
-            resource = BucketResource(resource)
-
-        except ValueError:
-            self._custom_buckets[bucket_id] = self._custom_resources[resource]
-            self._buckets.pop(bucket_id, None)
-
-        else:
-            self._custom_buckets.pop(bucket_id, None)
-            self._buckets[bucket_id] = _to_bucket(resource, lambda: _ConcurrencyLimit(limit))
+        self._buckets[bucket_id] = _to_bucket(BucketResource(resource), lambda: _ConcurrencyLimit(limit))
+        self._custom_buckets.pop(bucket_id, None)
 
         if bucket_id == _DEFAULT_KEY:
             self._default_bucket = lambda bucket: self.set_bucket(bucket, resource, limit)
 
         return self
 
-    def set_resource(self, resource_id: int, resource: AbstractConcurrencyResource, /) -> Self:
+    def set_custom_resource(self, resource: AbstractConcurrencyResource, /, *bucket_ids: str) -> Self:
         """Set a custom concurrency limit resource.
 
         Parameters
         ----------
-        resource_id
-            Integer ID for this resource.
         resource
-            Class which represents this resource.
+            Object which handles the concurrency limits for these buckets.
+        bucket_ids
+            IDs of buckets to set this custom resource for.
 
         Returns
         -------
         Self
             The concurrency manager to allow call chaining.
         """
-        self._custom_resources[resource_id] = resource
+        for bucket_id in bucket_ids:
+            self._buckets.pop(bucket_id, None)
+            self._custom_buckets[bucket_id] = resource
+
+            if bucket_id == _DEFAULT_KEY:
+                self._default_bucket = lambda bucket: self.set_custom_resource(resource, bucket)
+
         return self
 
 
