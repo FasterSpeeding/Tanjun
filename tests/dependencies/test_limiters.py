@@ -2126,16 +2126,13 @@ class TestInMemoryConcurrencyLimiter:
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
         mock_inner: typing.Any = mock_bucket.into_inner.return_value
         mock_inner.acquire.return_value = True
-        mock_bucket_template = mock.Mock()
-        mock_bucket_template.copy.return_value = mock_bucket
         mock_context = mock.Mock()
         manager = tanjun.InMemoryConcurrencyLimiter()
-        manager._default_bucket = mock_bucket_template
+        manager._default_bucket = lambda name: manager._buckets.__setitem__(name, mock_bucket)
 
         result = await manager.try_acquire("yeet", mock_context)
 
         assert result is True
-        mock_bucket_template.copy.assert_called_once_with()
         mock_bucket.into_inner.assert_called_once_with(mock_context)
         mock_inner.acquire.assert_called_once_with()
         assert manager._acquiring_ctxs[("yeet", mock_context)] is mock_inner
