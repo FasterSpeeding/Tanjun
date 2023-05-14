@@ -101,7 +101,7 @@ class AbstractCooldownManager(abc.ABC):
         bucket_id
             The cooldown bucket to check.
         ctx
-            The context of the command.
+            The context of the command call.
         increment
             Whether this call should increment the bucket's use counter if
             it isn't depleted.
@@ -595,6 +595,12 @@ def _to_bucket(
 
 
 class AbstractCooldownBucket(abc.ABC):
+    """Interface used for implementing custom cooldown buckets for the standard manager.
+
+    For more information see
+    [InMemoryCooldownManager.set_custom_bucket][tanjun.dependencies.limiters.InMemoryCooldownManager.set_custom_bucket].
+    """
+
     __slots__ = ()
 
     @abc.abstractmethod
@@ -785,12 +791,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             The type of resource to target for the cooldown.
         limit
             The number of uses per cooldown period.
-
-            This is ignored for custom resources.
         reset_after
             The cooldown period.
-
-            This is ignored for custom resources.
 
         Returns
         -------
@@ -1025,6 +1027,12 @@ class _ConcurrencyLimit:
 
 
 class AbstractConcurrencyBucket(abc.ABC):
+    """Interface used for implementing custom concurrency limiter buckets for the standard manager.
+
+    For more information see
+    [InMemoryConcurrencyLimiter.set_custom_bucket][tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_custom_bucket].
+    """
+
     __slots__ = ()
 
     @abc.abstractmethod
@@ -1213,8 +1221,6 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             The type of resource to target for the concurrency limit.
         limit
             The maximum number of concurrent uses to allow.
-
-            This is ignored for custom resources.
 
         Returns
         -------

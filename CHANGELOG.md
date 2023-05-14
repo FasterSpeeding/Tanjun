@@ -16,6 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [AbstractConcurrencyLimiter.acquire][tanjun.dependencies.limiters.AbstractConcurrencyLimiter.acquire]
   method which returns an async context manager which acquires and releases a
   concurrency lock for you.
+- System for using custom cooldown bucket implementations with the standard
+  cooldown manager using
+  [InMemoryCooldownManager.set_custom_bucket][tanjun.dependencies.limiters.InMemoryCooldownManager.set_custom_bucket].
+- System for using custom concurrency limiter bucket implementations with the
+  standard concurrency limiter manager using
+  [InMemoryConcurrencyLimiter.set_custom_bucket][tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_custom_bucket].
+
+### Deprecated
+- [AbstractCooldownManager.increment_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.increment_cooldown].
 
 ## [2.14.0] - 2023-04-24
 ### Added
