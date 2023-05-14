@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [InMemoryConcurrencyLimiter.set_custom_bucket][tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_custom_bucket].
 
 ### Deprecated
+- [AbstractCooldownManager.check_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown].
 - [AbstractCooldownManager.increment_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.increment_cooldown].
 
 ## [2.14.0] - 2023-04-24

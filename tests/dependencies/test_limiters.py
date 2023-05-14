@@ -55,6 +55,7 @@ class TestAbstractCooldownManager:
             __slots__ = ()
 
             check_cooldown = mock_check_cooldown
+            decrement = mock.AsyncMock()
 
         manager = CooldownManager()
 
