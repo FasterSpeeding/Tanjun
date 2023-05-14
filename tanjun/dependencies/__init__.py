@@ -32,10 +32,10 @@
 from __future__ import annotations
 
 __all__: list[str] = [
+    "AbstractConcurrencyBucket",
     "AbstractConcurrencyLimiter",
-    "AbstractConcurrencyResource",
+    "AbstractCooldownBucket",
     "AbstractCooldownManager",
-    "AbstractCooldownResource",
     "AbstractLocaliser",
     "AbstractLocalizer",
     "AbstractOwners",
@@ -95,10 +95,10 @@ from .callbacks import fetch_my_user
 from .data import LazyConstant
 from .data import cached_inject
 from .data import inject_lc
+from .limiters import AbstractConcurrencyBucket
 from .limiters import AbstractConcurrencyLimiter
-from .limiters import AbstractConcurrencyResource
+from .limiters import AbstractCooldownBucket
 from .limiters import AbstractCooldownManager
-from .limiters import AbstractCooldownResource
 from .limiters import BucketResource
 from .limiters import ConcurrencyPostExecution
 from .limiters import ConcurrencyPreExecution

@@ -214,7 +214,7 @@ class AbstractConcurrencyLimiter(abc.ABC):
         bucket_id
             The concurrency bucket to acquire.
         ctx
-            The context to acquire this resource lock with.
+            The context to acquire this bucket lock with.
 
         Returns
         -------
@@ -594,7 +594,7 @@ def _to_bucket(
     return _FlatResource(resource, make_resource)
 
 
-class AbstractCooldownResource(abc.ABC):
+class AbstractCooldownBucket(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
@@ -648,7 +648,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
     def __init__(self) -> None:
         self._buckets: dict[str, _BaseResource[_Cooldown]] = {}
-        self._custom_buckets: dict[str, AbstractCooldownResource] = {}
+        self._custom_buckets: dict[str, AbstractCooldownBucket] = {}
         self._default_bucket: collections.Callable[[str], object] = lambda bucket_id: self.set_bucket(
             bucket_id, BucketResource.USER, 2, datetime.timedelta(seconds=5)
         )
@@ -825,7 +825,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         return self
 
-    def set_custom_resource(self, resource: AbstractCooldownResource, /, *bucket_ids: str) -> Self:
+    def set_custom_bucket(self, resource: AbstractCooldownBucket, /, *bucket_ids: str) -> Self:
         """Set a custom cooldown limit resource.
 
         Parameters
@@ -845,7 +845,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             self._custom_buckets[bucket_id] = resource
 
             if bucket_id == _DEFAULT_KEY:
-                self._default_bucket = lambda bucket: self.set_custom_resource(resource, bucket)
+                self._default_bucket = lambda bucket: self.set_custom_bucket(resource, bucket)
 
         return self
 
@@ -1024,7 +1024,7 @@ class _ConcurrencyLimit:
         return self.counter == 0
 
 
-class AbstractConcurrencyResource(abc.ABC):
+class AbstractConcurrencyBucket(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
@@ -1036,7 +1036,7 @@ class AbstractConcurrencyResource(abc.ABC):
         bucket_id
             The concurrency bucket to acquire.
         ctx
-            The context to acquire this resource lock with.
+            The context to acquire this bucket lock with.
 
         Returns
         -------
@@ -1076,10 +1076,10 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
     def __init__(self) -> None:
         self._acquiring_ctxs: dict[
-            tuple[str, tanjun.Context], typing.Union[_ConcurrencyLimit, AbstractConcurrencyResource]
+            tuple[str, tanjun.Context], typing.Union[_ConcurrencyLimit, AbstractConcurrencyBucket]
         ] = {}
         self._buckets: dict[str, _BaseResource[_ConcurrencyLimit]] = {}
-        self._custom_buckets: dict[str, AbstractConcurrencyResource] = {}
+        self._custom_buckets: dict[str, AbstractConcurrencyBucket] = {}
         self._default_bucket: collections.Callable[[str], object] = lambda bucket: self.set_bucket(
             bucket, BucketResource.USER, 1
         )
@@ -1240,7 +1240,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         return self
 
-    def set_custom_resource(self, resource: AbstractConcurrencyResource, /, *bucket_ids: str) -> Self:
+    def set_custom_bucket(self, resource: AbstractConcurrencyBucket, /, *bucket_ids: str) -> Self:
         """Set a custom concurrency limit resource.
 
         Parameters
@@ -1260,7 +1260,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             self._custom_buckets[bucket_id] = resource
 
             if bucket_id == _DEFAULT_KEY:
-                self._default_bucket = lambda bucket: self.set_custom_resource(resource, bucket)
+                self._default_bucket = lambda bucket: self.set_custom_bucket(resource, bucket)
 
         return self
 
