@@ -767,8 +767,7 @@ def with_cooldown(
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
-        A decorator that adds a [CooldownPreExecution][tanjun.dependencies.CooldownPreExecution]
-        hook to the command.
+        A decorator which adds the relevant cooldown hooks.
     """
     return lambda command: _internal.apply_to_wrapped(
         command,
@@ -1037,14 +1036,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
 
 class ConcurrencyPreExecution:
-    """Pre-execution hook used to acquire a bucket concurrency limiter.
-
-    !!! note
-        For a concurrency limiter to work properly, both
-        [ConcurrencyPreExecution][tanjun.dependencies.ConcurrencyPreExecution]
-        and [ConcurrencyPostExecution][tanjun.dependencies.ConcurrencyPostExecution]
-        hooks must be registered for a command scope.
-    """
+    """Pre-execution hook used to acquire a bucket concurrency limiter."""
 
     __slots__ = ("_bucket_id", "_error", "_error_message", "__weakref__")
 
@@ -1098,14 +1090,7 @@ class ConcurrencyPreExecution:
 
 
 class ConcurrencyPostExecution:
-    """Post-execution hook used to release a bucket concurrency limiter.
-
-    !!! note
-        For a concurrency limiter to work properly, both
-        [ConcurrencyPreExecution][tanjun.dependencies.ConcurrencyPreExecution]
-        and [ConcurrencyPostExecution][tanjun.dependencies.ConcurrencyPostExecution]
-        hooks must be registered for a command scope.
-    """
+    """Post-execution hook used to release a bucket concurrency limiter."""
 
     __slots__ = ("_bucket_id", "__weakref__")
 
@@ -1164,7 +1149,7 @@ def with_concurrency_limit(
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
-        A decorator that adds the concurrency limiter hooks to a command.
+        A decorator which adds the concurrency limiter hooks to a command.
     """
     return lambda command: _internal.apply_to_wrapped(
         command,
