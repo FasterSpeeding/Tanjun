@@ -1243,9 +1243,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     __slots__ = ("_acquiring_ctxs", "_buckets", "_custom_buckets", "_default_bucket", "_gc_task")
 
     def __init__(self) -> None:
-        self._acquiring_ctxs: dict[
-            tuple[str, tanjun.Context], typing.Union[_ConcurrencyLimit, AbstractConcurrencyBucket]
-        ] = {}
+        self._acquiring_ctxs: dict[tuple[str, tanjun.Context], _ConcurrencyLimit] = {}
         self._buckets: dict[str, _BaseResource[_ConcurrencyLimit]] = {}
         self._custom_buckets: dict[str, AbstractConcurrencyBucket] = {}
         self._default_bucket: collections.Callable[[str], object] = lambda bucket: self.set_bucket(
@@ -1309,10 +1307,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
     async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> bool:
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
         if resource := self._custom_buckets.get(bucket_id):
-            if result := await resource.try_acquire(bucket_id, ctx):
-                self._acquiring_ctxs[(bucket_id, ctx)] = resource
-
-            return result
+            return await resource.try_acquire(bucket_id, ctx)
 
         bucket = self._buckets.get(bucket_id)
         if not bucket:
@@ -1333,11 +1328,11 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
     async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
-        if limit := self._acquiring_ctxs.pop((bucket_id, ctx), None):
-            result = limit.release(bucket_id, ctx)
+        if custom_bucket := self._custom_buckets.get(bucket_id):
+            return await custom_bucket.release(bucket_id, ctx)
 
-            if asyncio.iscoroutine(result):
-                await result
+        if limit := self._acquiring_ctxs.pop((bucket_id, ctx), None):
+            limit.release(bucket_id, ctx)
 
         else:
             raise ResourceNotTracked("Context is not acquired")
