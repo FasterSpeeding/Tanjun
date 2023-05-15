@@ -112,45 +112,55 @@ class AbstractCooldownManager(abc.ABC):
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
     ) -> typing.Optional[datetime.datetime]:
-        """Check if a bucket is on cooldown for the provided context.
+        """Deprecated method.
 
-        Parameters
-        ----------
-        bucket_id
-            The cooldown bucket to check.
-        ctx
-            The context of the command call.
-        increment
-            Whether this call should increment the bucket's use counter if
-            it isn't depleted.
-
-        Returns
-        -------
-        datetime.datetime | None
-            When this command will next be usable for the provided context
-            if it's in cooldown else [None][].
+        Use
+        [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire] to increment or
+        [AbstractCooldownManager.check][tanjun.dependencies.limiters.AbstractCooldownManager.check] to check.
         """
         if increment:
             try:
-                await self.increment(bucket_id, ctx)
+                await self.acquire(bucket_id, ctx)
 
             except CooldownDepleted as exc:
                 return exc.wait_until
 
             else:
+                await self.release(bucket_id, ctx)
                 return None
 
         return await self.check(bucket_id, ctx)
 
-    @typing_extensions.deprecated("Use .increment")
+    @typing_extensions.deprecated("Use .acquire and .release")
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Deprecated function for incrementing a cooldown.
 
         Use
-        [AbstractCooldownManager.check_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown]
-        with `increment=True` instead.
+        [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire]
+        and [AbstractCooldownManager.release][tanjun.dependencies.limiters.AbstractCooldownManager.release].
         """
-        await self.check_cooldown(bucket_id, ctx, increment=True)
+        try:
+            await self.acquire(bucket_id, ctx)
+
+        except ResourceDepleted:
+            pass
+
+    @abc.abstractmethod
+    async def acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
+        """Increment a bucket's cooldown.
+
+        Parameters
+        ----------
+        bucket_id
+            The bucket to increment a cooldown for.
+        ctx
+            Context of the command call
+
+        Raises
+        ------
+        ResourceDepleted
+            If the cooldown couldn't be acquired.
+        """
 
     @abc.abstractmethod
     async def check(self, bucket_id: str, ctx: tanjun.Context, /) -> typing.Optional[datetime.datetime]:
@@ -171,8 +181,8 @@ class AbstractCooldownManager(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def decrement(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
-        """Decrement a bucket's cooldown.
+    async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
+        """Release a bucket's cooldown.
 
         Parameters
         ----------
@@ -188,22 +198,6 @@ class AbstractCooldownManager(abc.ABC):
             towards the cooldown.
         """
 
-    @abc.abstractmethod
-    async def increment(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
-        """Increment a bucket's cooldown.
-
-        Parameters
-        ----------
-        bucket_id
-            The bucket to increment a cooldown for.
-        ctx
-            Context of the command call
-
-        Raises
-        ------
-        CooldownDepleted
-            Raised when the bucket failed to increment due to being depleted.
-        """
 
     def acquire(
         self,
@@ -510,33 +504,39 @@ def _now() -> datetime.datetime:
 
 
 class _Cooldown:
-    __slots__ = ("counter", "limit", "reset_after", "resets_at")
+    __slots__ = ("contexts", "counter", "limit", "reset_after", "resets_at")
 
     def __init__(self, *, limit: int, reset_after: datetime.timedelta) -> None:
+        self.contexts: set[tanjun.Context] = set()
         self.counter = 0
         self.limit = limit
         self.reset_after = reset_after
         self.resets_at = _now() + reset_after
 
+    def _count(self) -> int:
+        return self.counter + len(self.contexts)
+
+    def _reset(self) -> None:
+        self.contexts.clear()
+        self.counter = 0
+
     def has_expired(self) -> bool:
         # Expiration doesn't actually matter for cases where the limit is -1.
         return _now() >= self.resets_at
 
-    def increment(self) -> Self:
+    def increment(self, ctx: tanjun.Context, /) -> Self:
         # A limit of -1 is special cased to mean no limit, so there's no need to increment the counter.
         if self.limit == -1:
             return self
 
-        if self.counter == 0:
+        if self._count() == 0:
             self.resets_at = _now() + self.reset_after
 
         elif (current_time := _now()) >= self.resets_at:
-            self.counter = 0
+            self._reset()
             self.resets_at = current_time + self.reset_after
 
-        if self.counter < self.limit:
-            self.counter += 1
-
+        self.contexts.add(ctx)
         return self
 
     def must_wait_until(self) -> typing.Optional[datetime.datetime]:
@@ -544,10 +544,20 @@ class _Cooldown:
         if self.limit == -1:
             return None
 
-        if self.counter >= self.limit and self.resets_at > _now():
+        if self._count() >= self.limit and self.resets_at > _now():
             return self.resets_at
 
         return None  # MyPy compat
+
+    def unlock(self, ctx: tanjun.Context, /) -> bool:
+        try:
+            self.contexts.remove(ctx)
+            self.counter += 1
+
+        except KeyError:
+            return False
+
+        return True
 
 
 class _MakeCooldown:
@@ -699,6 +709,23 @@ class AbstractCooldownBucket(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
+    async def acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
+        """Increment a bucket's cooldown.
+
+        Parameters
+        ----------
+        bucket_id
+            The bucket to increment a cooldown for.
+        ctx
+            Context of the command call
+
+        Raises
+        ------
+        ResourceDepleted
+            If the cooldown couldn't be acquired.
+        """
+
+    @abc.abstractmethod
     async def check(self, bucket_id: str, ctx: tanjun.Context, /) -> typing.Optional[datetime.datetime]:
         """Check if a bucket is on cooldown for the provided context.
 
@@ -717,8 +744,8 @@ class AbstractCooldownBucket(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def decrement(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
-        """Decrement a bucket's cooldown.
+    async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
+        """Release a bucket's cooldown.
 
         Parameters
         ----------
@@ -732,23 +759,6 @@ class AbstractCooldownBucket(abc.ABC):
         ResourceNotTracked
             If the passed bucket ID and context are not currently contributing
             towards the cooldown.
-        """
-
-    @abc.abstractmethod
-    async def increment(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
-        """Increment a bucket's cooldown.
-
-        Parameters
-        ----------
-        bucket_id
-            The cooldown bucket to check.
-        ctx
-            The context of the command call.
-
-        Raises
-        ------
-        CooldownDepleted
-            Raised when the bucket failed to increment due to being depleted.
         """
 
 
@@ -774,9 +784,10 @@ class InMemoryCooldownManager(AbstractCooldownManager):
     ```
     """
 
-    __slots__ = ("_buckets", "_custom_buckets", "_default_bucket", "_gc_task")
+    __slots__ = ("_acquiring_ctxs", "_buckets", "_custom_buckets", "_default_bucket", "_gc_task")
 
     def __init__(self) -> None:
+        self._acquiring_ctxs: dict[tuple[str, tanjun.Context], _Cooldown] = {}
         self._buckets: dict[str, _BaseResource[_Cooldown]] = {}
         self._custom_buckets: dict[str, AbstractCooldownBucket] = {}
         self._default_bucket: collections.Callable[[str], object] = lambda bucket_id: self.set_bucket(
@@ -809,35 +820,52 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             assert client.loop is not None
             self.open(_loop=client.loop)
 
-    async def check(self, bucket_id: str, ctx: tanjun.Context, /) -> typing.Optional[datetime.datetime]:
-        # <<inherited docstring from AbstractCooldownManager>>.
+    async def acquire(self, bucket_id: str, ctx: tanjun.Context) -> None:
         if resource := self._custom_buckets.get(bucket_id):
-            return await resource.check(bucket_id, ctx)
-
-        if (bucket := self._buckets.get(bucket_id)) and (resource := await bucket.into_inner(ctx)):
-            return resource.must_wait_until()
-
-        return None  # MyPy compat
-
-    async def decrement(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
-        ...
-
-    async def increment(self, bucket_id: str, ctx: tanjun.Context) -> None:
-        if resource := self._custom_buckets.get(bucket_id):
-            await resource.increment(bucket_id, ctx)
+            await resource.acquire(bucket_id, ctx)
             return
 
         bucket = self._buckets.get(bucket_id)
         if not bucket:
             _LOGGER.info("No cooldown found for %r, falling back to 'default' bucket", bucket_id)
             self._default_bucket(bucket_id)
-            return await self.increment(bucket_id, ctx)
+            return await self.acquire(bucket_id, ctx)
+
+        # incrementing a bucket multiple times for the same context could lead
+        # to weird edge cases based on how we internally track this, so we
+        # internally de-duplicate this.
+        elif (bucket_id, ctx) in self._acquiring_ctxs:
+            return  # This won't ever be the case if it just had to make a new bucket, hence the elif.
 
         resource = await bucket.into_inner(ctx)
         if cooldown := resource.must_wait_until():
             raise CooldownDepleted(cooldown)
 
-        resource.increment()
+        resource.increment(ctx)
+        self._acquiring_ctxs[(bucket_id, ctx)] = resource
+
+    async def check(self, bucket_id: str, ctx: tanjun.Context, /) -> typing.Optional[datetime.datetime]:
+        # <<inherited docstring from AbstractCooldownManager>>.
+        if resource := self._custom_buckets.get(bucket_id):
+            return await resource.check(bucket_id, ctx)
+
+        if resource := self._acquiring_ctxs.get((bucket_id, ctx)):
+            return resource.must_wait_until()
+
+        if (bucket := self._buckets.get(bucket_id)) and (resource := await bucket.into_inner(ctx)):
+            return resource.must_wait_until()
+
+        return None  # MyPy compat
+
+    async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
+        if resource := self._custom_buckets.get(bucket_id):
+            return await resource.release(bucket_id, ctx)
+
+        if resource := self._acquiring_ctxs.pop((bucket_id, ctx)):
+            resource.unlock(ctx)
+            return
+
+        raise ResourceNotTracked()  # noqa: R102
 
     def close(self) -> None:
         """Stop the cooldown manager.
@@ -1064,13 +1092,32 @@ class CooldownPreExecution:
             elif await owner_check.check_ownership(ctx.client, ctx.author):
                 return
 
-        if wait_until := await cooldowns.check_cooldown(self._bucket_id, ctx, increment=True):
-            if self._error:
-                raise self._error(self._bucket_id, wait_until) from None
+        try:
+            await cooldowns.acquire(self._bucket_id, ctx)
 
-            wait_until_repr = conversion.from_datetime(wait_until, style="R")
+        except CooldownDepleted as exc:
+            if self._error:
+                raise self._error(self._bucket_id, exc.wait_until) from None
+
+            wait_until_repr = conversion.from_datetime(exc.wait_until, style="R")
             message = self._error_message.localise(ctx, localiser, "check", "tanjun.cooldown", cooldown=wait_until_repr)
-            raise errors.CommandError(message)
+            raise errors.CommandError(message) from None
+
+
+class CooldownPostExecution:
+    """Post-execution hook used to manager a command's cooldown."""
+
+    __slots__ = ("_bucket_id", "__weakref__")
+
+    def __init__(self, bucket_id: str, /) -> None:
+        self._bucket_id = bucket_id
+
+    async def __call__(self, ctx: tanjun.Context, /, *, cooldowns: alluka.Injected[AbstractCooldownManager]) -> None:
+        try:
+            await cooldowns.release(self._bucket_id, ctx)
+
+        except ResourceNotTracked:
+            pass
 
 
 def with_cooldown(
@@ -1123,6 +1170,7 @@ def with_cooldown(
     pre_execution = CooldownPreExecution(
         bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt
     )
+    post_execution = CooldownPostExecution(bucket_id)
 
     def decorator(command: _OtherCommandT, /, *, _recursing: bool = False) -> _OtherCommandT:
         hooks_ = command.hooks
@@ -1131,6 +1179,7 @@ def with_cooldown(
             command.set_hooks(hooks_)
 
         hooks_.add_pre_execution(pre_execution)
+        hooks_.add_post_execution(post_execution)
         if follow_wrapped and not _recursing:
             for wrapped in _internal.collect_wrapped(command):
                 decorator(wrapped, _recursing=True)
