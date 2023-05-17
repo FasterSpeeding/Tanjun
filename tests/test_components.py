@@ -754,10 +754,7 @@ class TestComponent:
 
         assert result is mock_command
         add_command.assert_has_calls(
-            [
-                mock.call(mock_command.copy.return_value),
-                mock.call(mock_command.wrapped_command.copy.return_value),
-            ]
+            [mock.call(mock_command.copy.return_value), mock.call(mock_command.wrapped_command.copy.return_value)]
         )
         mock_command.copy.assert_called_once_with()
         mock_command.wrapped_command.copy.assert_called_once_with()

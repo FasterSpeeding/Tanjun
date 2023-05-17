@@ -1598,11 +1598,21 @@ def test_with_cooldown_when_follow_wrapping():
     any_hooks.assert_has_calls([mock.call(), mock.call()])
     mock_hooks_1.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
     mock_hooks_2.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
-    mock_pre_execution.assert_has_calls([
-        mock.call("catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False),
-        mock.call("catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False),
-        mock.call("catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False),
-        mock.call("catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False),]
+    mock_pre_execution.assert_has_calls(
+        [
+            mock.call(
+                "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+            ),
+            mock.call(
+                "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+            ),
+            mock.call(
+                "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+            ),
+            mock.call(
+                "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+            ),
+        ]
     )
     mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
     mock_command.wrapped_command.set_hooks.assert_called_once_with(mock_hooks_1)
@@ -1668,8 +1678,20 @@ def test_with_cooldown_when_follow_wrapping_and_wrapping_unsupported_command():
         )(mock_command)
 
         mock_pre_execution.assert_has_calls(
-            [mock.call("catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False),
-            mock.call("catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False),]
+            [
+                mock.call(
+                    "catgirl x catgirl",
+                    error=mock_error_callback,
+                    error_message="pussy cat pussy cat",
+                    owners_exempt=False,
+                ),
+                mock.call(
+                    "catgirl x catgirl",
+                    error=mock_error_callback,
+                    error_message="pussy cat pussy cat",
+                    owners_exempt=False,
+                ),
+            ]
         )
         mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
         mock_command.wrapped_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
@@ -2360,19 +2382,16 @@ def test_with_concurrency_limit_when_follow_wrapping():
     mock_command.wrapped_command.wrapped_command.wrapped_command.set_hooks.assert_called_once_with(mock_hooks_2)
     mock_hooks_2.add_pre_execution.assert_called_once_with(pre_execution.return_value)
     mock_hooks_2.add_post_execution.assert_called_once_with(post_execution.return_value)
-    pre_execution.assert_has_calls([
-        mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
-        mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
-        mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
-        mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
-    ])
-    post_execution.assert_has_calls(
+    pre_execution.assert_has_calls(
         [
-            mock.call("bucket me"),
-            mock.call("bucket me"),
-            mock.call("bucket me"),
-            mock.call("bucket me"),
+            mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
+            mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
+            mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
+            mock.call("bucket me", error=mock_error_callback, error_message="aye message"),
         ]
+    )
+    post_execution.assert_has_calls(
+        [mock.call("bucket me"), mock.call("bucket me"), mock.call("bucket me"), mock.call("bucket me")]
     )
 
 
