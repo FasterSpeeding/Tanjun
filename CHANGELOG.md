@@ -23,9 +23,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   standard concurrency limiter manager using
   [InMemoryConcurrencyLimiter.set_custom_bucket][tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_custom_bucket].
 
+### Changed
+- [InMemoryCooldownManager][tanjun.dependencies.limiters.InMemoryCooldownManager]
+  now waits until the command call has finished before letting the the
+- The datetime passed to [with_cooldowntanjun.dependencies.limiters.with_cooldown]'s
+  `error` callback can now also be [None][] when it's unknown.
+
 ### Deprecated
-- [AbstractCooldownManager.check_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown].
-- [AbstractCooldownManager.increment_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.increment_cooldown].
+- [AbstractCooldownManager.check_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown]
+  in favour of
+  [AbstractCooldownManager.check][tanjun.dependencies.limiters.AbstractCooldownManager.check] interface.
+- [AbstractCooldownManager.increment_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.increment_cooldown]
+  in favour of [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire]
+  and [AbstractCooldownManager.release][tanjun.dependencies.limiters.AbstractCooldownManager.release].
 
 ## [2.14.0] - 2023-04-24
 ### Added

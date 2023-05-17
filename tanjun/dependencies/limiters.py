@@ -75,12 +75,12 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
-    _OtherCommandT = typing.TypeVar("_OtherCommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _InnerResourceSig = collections.Callable[[], "_InnerResourceT"]
 
 
 _InnerResourceT = typing.TypeVar("_InnerResourceT", bound="_InnerResourceProto")
 
+_ASSUMED_COOLDOWN_DELTA = datetime.timedelta(seconds=60)
 _DEFAULT_KEY = "default"
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun")
 
@@ -96,10 +96,10 @@ class ResourceNotTracked(Exception):
 class CooldownDepleted(ResourceDepleted):
     """Raised when a cooldown bucket is already depleted."""
 
-    wait_until: datetime.datetime
-    """When this resource will next be available."""
+    wait_until: typing.Optional[datetime.datetime]
+    """When this resource will next be available, if known."""
 
-    def __init__(self, wait_until: datetime.datetime, /) -> None:
+    def __init__(self, wait_until: typing.Optional[datetime.datetime], /) -> None:
         self.wait_until = wait_until
 
 
@@ -123,13 +123,19 @@ class AbstractCooldownManager(abc.ABC):
                 await self.acquire(bucket_id, ctx)
 
             except CooldownDepleted as exc:
-                return exc.wait_until
+                return exc.wait_until or (_now() + _ASSUMED_COOLDOWN_DELTA)
 
             else:
                 await self.release(bucket_id, ctx)
-                return None
 
-        return await self.check(bucket_id, ctx)
+        else:
+            try:
+                await self.check(bucket_id, ctx)
+
+            except CooldownDepleted as exc:
+                return exc.wait_until or (_now() + _ASSUMED_COOLDOWN_DELTA)
+
+        return None  # MyPy compat
 
     @typing_extensions.deprecated("Use .acquire and .release")
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
@@ -144,6 +150,9 @@ class AbstractCooldownManager(abc.ABC):
 
         except ResourceDepleted:
             pass
+
+        else:
+            await self.release(bucket_id, ctx)
 
     @abc.abstractmethod
     async def acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
@@ -163,7 +172,7 @@ class AbstractCooldownManager(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def check(self, bucket_id: str, ctx: tanjun.Context, /) -> typing.Optional[datetime.datetime]:
+    async def check(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Check if a bucket is on cooldown for the provided context.
 
         Parameters
@@ -173,11 +182,10 @@ class AbstractCooldownManager(abc.ABC):
         ctx
             The context of the command call.
 
-        Returns
-        -------
-        datetime.datetime | None
-            When this command will next be usable for the provided context
-            if it's in cooldown else [None][].
+        Raises
+        ------
+        CooldownDepleted
+            If the cooldown bucket is depelted for this context.
         """
 
     @abc.abstractmethod
@@ -504,55 +512,54 @@ def _now() -> datetime.datetime:
 
 
 class _Cooldown:
-    __slots__ = ("contexts", "counter", "limit", "reset_after", "resets_at")
+    __slots__ = ("limit", "locked", "reset_after", "uses")
 
     def __init__(self, *, limit: int, reset_after: datetime.timedelta) -> None:
-        self.contexts: set[tanjun.Context] = set()
-        self.counter = 0
         self.limit = limit
+        self.locked: set[tanjun.Context] = set()
         self.reset_after = reset_after
-        self.resets_at = _now() + reset_after
+        self.uses: list[datetime.datetime] = []
 
     def _count(self) -> int:
-        return self.counter + len(self.contexts)
+        reset_offset = _now() - self.reset_after
 
-    def _reset(self) -> None:
-        self.contexts.clear()
-        self.counter = 0
+        while self.uses and self.uses[0] < reset_offset:
+            self.uses.pop(0)
+
+        return len(self.uses) + len(self.locked)
+
+    def check(self) -> Self:
+        # A limit of -1 is special cased to mean no limit, so we don't need to wait.
+        if self.limit == -1:
+            return self
+
+        if self._count() >= self.limit:
+            try:
+                wait_until = self.uses[0]
+
+            except IndexError:
+                wait_until = None
+
+            raise CooldownDepleted(wait_until)
+
+        return self
 
     def has_expired(self) -> bool:
         # Expiration doesn't actually matter for cases where the limit is -1.
-        return _now() >= self.resets_at
+        return self._count() == 0
 
     def increment(self, ctx: tanjun.Context, /) -> Self:
         # A limit of -1 is special cased to mean no limit, so there's no need to increment the counter.
         if self.limit == -1:
             return self
 
-        if self._count() == 0:
-            self.resets_at = _now() + self.reset_after
-
-        elif (current_time := _now()) >= self.resets_at:
-            self._reset()
-            self.resets_at = current_time + self.reset_after
-
-        self.contexts.add(ctx)
+        self.locked.add(ctx)
         return self
-
-    def must_wait_until(self) -> typing.Optional[datetime.datetime]:
-        # A limit of -1 is special cased to mean no limit, so we don't need to wait.
-        if self.limit == -1:
-            return None
-
-        if self._count() >= self.limit and self.resets_at > _now():
-            return self.resets_at
-
-        return None  # MyPy compat
 
     def unlock(self, ctx: tanjun.Context, /) -> bool:
         try:
-            self.contexts.remove(ctx)
-            self.counter += 1
+            self.locked.remove(ctx)
+            self.uses.append(_now())
 
         except KeyError:
             return False
@@ -726,7 +733,7 @@ class AbstractCooldownBucket(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def check(self, bucket_id: str, ctx: tanjun.Context, /) -> typing.Optional[datetime.datetime]:
+    async def check(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Check if a bucket is on cooldown for the provided context.
 
         Parameters
@@ -736,11 +743,10 @@ class AbstractCooldownBucket(abc.ABC):
         ctx
             The context of the command call.
 
-        Returns
-        -------
-        datetime.datetime | None
-            When this command will next be usable for the provided context
-            if it's in cooldown else [None][].
+        Raises
+        ------
+        CooldownDepleted
+            If the cooldown bucket is depelted for this context.
         """
 
     @abc.abstractmethod
@@ -838,22 +844,16 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             return  # This won't ever be the case if it just had to make a new bucket, hence the elif.
 
         resource = await bucket.into_inner(ctx)
-        if cooldown := resource.must_wait_until():
-            raise CooldownDepleted(cooldown)
+        self._acquiring_ctxs[(bucket_id, ctx)] = resource.check().increment(ctx)
 
-        resource.increment(ctx)
-        self._acquiring_ctxs[(bucket_id, ctx)] = resource
-
-    async def check(self, bucket_id: str, ctx: tanjun.Context, /) -> typing.Optional[datetime.datetime]:
+    async def check(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractCooldownManager>>.
         if resource := self._custom_buckets.get(bucket_id):
             return await resource.check(bucket_id, ctx)
 
-        if resource := self._acquiring_ctxs.get((bucket_id, ctx)):
-            return resource.must_wait_until()
-
-        if (bucket := self._buckets.get(bucket_id)) and (resource := await bucket.into_inner(ctx)):
-            return resource.must_wait_until()
+        resource = self._acquiring_ctxs.get((bucket_id, ctx))
+        if resource or (bucket := self._buckets.get(bucket_id)) and (resource := await bucket.into_inner(ctx)):
+            resource.check()
 
         return None  # MyPy compat
 
@@ -1042,7 +1042,7 @@ class CooldownPreExecution:
         bucket_id: str,
         /,
         *,
-        error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
+        error: typing.Optional[collections.Callable[[str, typing.Optional[datetime.datetime]], Exception]] = None,
         error_message: typing.Union[
             str, collections.Mapping[str, str]
         ] = "This command is currently in cooldown. Try again {cooldown}.",
@@ -1057,9 +1057,9 @@ class CooldownPreExecution:
         error
             Callback used to create a custom error to raise if the check fails.
 
-            This should two arguments one of type [str][] and [datetime.datetime][]
+            This should two arguments one of type [str][] and `datetime.datetime | None`
             where the first is the limiting bucket's ID and the second is when said
-            bucket can be used again.
+            bucket can be used again if known.
 
             This takes priority over `error_message`.
         error_message
@@ -1099,7 +1099,7 @@ class CooldownPreExecution:
             if self._error:
                 raise self._error(self._bucket_id, exc.wait_until) from None
 
-            wait_until_repr = conversion.from_datetime(exc.wait_until, style="R")
+            wait_until_repr = conversion.from_datetime(exc.wait_until, style="R") if exc.wait_until else None
             message = self._error_message.localise(ctx, localiser, "check", "tanjun.cooldown", cooldown=wait_until_repr)
             raise errors.CommandError(message) from None
 
@@ -1124,7 +1124,7 @@ def with_cooldown(
     bucket_id: str,
     /,
     *,
-    error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
+    error: typing.Optional[collections.Callable[[str, typing.Optional[datetime.datetime]], Exception]] = None,
     error_message: typing.Union[
         str, collections.Mapping[str, str]
     ] = "This command is currently in cooldown. Try again {cooldown}.",
@@ -1146,9 +1146,9 @@ def with_cooldown(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should two arguments one of type [str][] and [datetime.datetime][]
+        This should two arguments one of type [str][] and `datetime.datetime | None`
         where the first is the limiting bucket's ID and the second is when said
-        bucket can be used again.
+        bucket can be used again if known.
 
         This takes priority over `error_message`.
     error_message
@@ -1180,7 +1180,7 @@ def add_cooldown(
     bucket_id: str,
     /,
     *,
-    error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
+    error: typing.Optional[collections.Callable[[str, typing.Optional[datetime.datetime]], Exception]] = None,
     error_message: typing.Union[
         str, collections.Mapping[str, str]
     ] = "This command is currently in cooldown. Try again {cooldown}.",
@@ -1203,9 +1203,9 @@ def add_cooldown(
     error
         Callback used to create a custom error to raise if the check fails.
 
-        This should two arguments one of type [str][] and [datetime.datetime][]
+        This should two arguments one of type [str][] and `datetime.datetime | None`
         where the first is the limiting bucket's ID and the second is when said
-        bucket can be used again.
+        bucket can be used again if known.
 
         This takes priority over `error_message`.
     error_message
