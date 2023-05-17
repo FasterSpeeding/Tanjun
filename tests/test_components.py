@@ -748,20 +748,19 @@ class TestComponent:
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
         )()
         mock_command = mock.Mock()
-        mock_command.copy.return_value.wrapped_command = mock.Mock(tanjun.abc.ExecutableCommand)
-        mock_command.copy.return_value.wrapped_command.copy.return_value.wrapped_command = None
-
+        mock_command.wrapped_command = mock.Mock(tanjun.abc.ExecutableCommand)
+        mock_command.wrapped_command.wrapped_command = None
         result = component.with_command(copy=True, follow_wrapped=True)(mock_command)
 
         assert result is mock_command
         add_command.assert_has_calls(
             [
                 mock.call(mock_command.copy.return_value),
-                mock.call(mock_command.copy.return_value.wrapped_command.copy.return_value),
+                mock.call(mock_command.wrapped_command.copy.return_value),
             ]
         )
         mock_command.copy.assert_called_once_with()
-        mock_command.copy.return_value.wrapped_command.copy.assert_called_once_with()
+        mock_command.wrapped_command.copy.assert_called_once_with()
 
     def test_add_menu_command(self):
         mock_command = mock.Mock(type=hikari.CommandType.USER)
