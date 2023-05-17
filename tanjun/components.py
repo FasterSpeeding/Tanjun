@@ -102,13 +102,12 @@ def _with_command(
     follow_wrapped: bool = False,
 ) -> _WithCommandReturnSig[_CommandT]:
     def decorator(command: _CommandT, /, *, _recursing: bool = False) -> _CommandT:
-        target_command = command.copy() if copy else command
-        add_command(target_command)
-        if follow_wrapped and not _recursing:
-            for wrapped in _internal.collect_wrapped(target_command):
-                decorator(typing.cast("_CommandT", wrapped), _recursing=True)
-
-        return command
+        return _internal.apply_to_wrapped(
+            command,
+            lambda c: add_command(typing.cast("_CommandT", c.copy() if copy else c)),
+            command,
+            follow_wrapped=follow_wrapped,
+        )
 
     return decorator(maybe_command) if maybe_command else decorator
 

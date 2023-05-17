@@ -322,6 +322,36 @@ def collect_wrapped(command: tanjun.ExecutableCommand[typing.Any], /) -> list[ta
     return results
 
 
+def apply_to_wrapped(
+    command: tanjun.ExecutableCommand[typing.Any],
+    callback: collections.Callable[[tanjun.ExecutableCommand[typing.Any]], object],
+    return_value: _T,
+    /,
+    *,
+    follow_wrapped: bool = True,
+) -> _T:
+    """Apply a callback to all the commands in a decorator call chain.
+
+    Parameters
+    ----------
+    command
+        The top-level command object.
+    callback
+        Callback each wrapped command should be passed to.
+    return_value
+        Value to return from this function call.
+    follow_wrapped
+        Whether this should apply the callback to wrapped commands.
+    """
+    callback(command)
+
+    if follow_wrapped:
+        for wrapped in collect_wrapped(command):
+            callback(wrapped)
+
+    return return_value
+
+
 _OptionT = typing.TypeVar("_OptionT", bound=hikari.CommandInteractionOption)
 SUB_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset(
     [hikari.OptionType.SUB_COMMAND, hikari.OptionType.SUB_COMMAND_GROUP]

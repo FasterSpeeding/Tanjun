@@ -1167,26 +1167,65 @@ def with_cooldown(
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator which adds the relevant cooldown hooks.
     """
+    return lambda command: _internal.apply_to_wrapped(
+        command,
+        lambda c: add_cooldown(c, bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt),
+        command,
+        follow_wrapped=follow_wrapped,
+    )
+
+
+def add_cooldown(
+    command: tanjun.ExecutableCommand[typing.Any],
+    bucket_id: str,
+    /,
+    *,
+    error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
+    error_message: typing.Union[
+        str, collections.Mapping[str, str]
+    ] = "This command is currently in cooldown. Try again {cooldown}.",
+    owners_exempt: bool = True,
+) -> None:
+    """Add a pre-execution hook used to manage a command's cooldown.
+
+    !!! warning
+        Cooldowns will only work if there's a setup injected
+        [AbstractCooldownManager][tanjun.dependencies.InMemoryCooldownManager] dependency with
+        [InMemoryCooldownManager][tanjun.dependencies.InMemoryCooldownManager]
+        being usable as a standard in-memory cooldown manager.
+
+    Parameters
+    ----------
+    command
+        The command to add a cooldown to.
+    bucket_id
+        The cooldown bucket's ID.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This should two arguments one of type [str][] and [datetime.datetime][]
+        where the first is the limiting bucket's ID and the second is when said
+        bucket can be used again.
+
+        This takes priority over `error_message`.
+    error_message
+        The error message to send in response as a command error if the check fails.
+
+        This supports [localisation][] and uses the check name
+        `"tanjun.cooldown"` for global overrides.
+    owners_exempt
+        Whether owners should be exempt from the cooldown.
+    """
     pre_execution = CooldownPreExecution(
         bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt
     )
     post_execution = CooldownPostExecution(bucket_id)
+    hooks_ = command.hooks
+    if not hooks_:
+        hooks_ = hooks.AnyHooks()
+        command.set_hooks(hooks_)
 
-    def decorator(command: _OtherCommandT, /, *, _recursing: bool = False) -> _OtherCommandT:
-        hooks_ = command.hooks
-        if not hooks_:
-            hooks_ = hooks.AnyHooks()
-            command.set_hooks(hooks_)
-
-        hooks_.add_pre_execution(pre_execution)
-        hooks_.add_post_execution(post_execution)
-        if follow_wrapped and not _recursing:
-            for wrapped in _internal.collect_wrapped(command):
-                decorator(wrapped, _recursing=True)
-
-        return command
-
-    return decorator
+    hooks_.add_pre_execution(pre_execution).add_post_execution(post_execution)
 
 
 class _ConcurrencyLimit:
@@ -1611,20 +1650,54 @@ def with_concurrency_limit(
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator which adds the concurrency limiter hooks to a command.
     """
+    return lambda command: _internal.apply_to_wrapped(
+        command,
+        lambda c: add_concurrency_limit(c, bucket_id, error=error, error_message=error_message),
+        command,
+        follow_wrapped=follow_wrapped,
+    )
+
+
+def add_concurrency_limit(
+    command: tanjun.ExecutableCommand[typing.Any],
+    bucket_id: str,
+    /,
+    *,
+    error: typing.Optional[collections.Callable[[str], Exception]] = None,
+    error_message: typing.Union[
+        str, collections.Mapping[str, str]
+    ] = "This resource is currently busy; please try again later.",
+) -> None:
+    """Add the hooks used to manage a command's concurrency limit.
+
+    !!! warning
+        Concurrency limiters will only work if there's a setup injected
+        [AbstractConcurrencyLimiter][tanjun.dependencies.AbstractConcurrencyLimiter] dependency with
+        [InMemoryConcurrencyLimiter][tanjun.dependencies.InMemoryConcurrencyLimiter]
+        being usable as a standard in-memory concurrency manager.
+
+    Parameters
+    ----------
+    command
+        The command to add the concurrency limit to.
+    bucket_id
+        The concurrency limit bucket's ID.
+    error
+        Callback used to create a custom error to raise if the check fails.
+        This should two one [str][] argument which is the limiting bucket's ID.
+        This takes priority over `error_message`.
+    error_message
+        The error message to send in response as a command error if this fails
+        to acquire the concurrency limit.
+        This supports [localisation][] and uses the check name
+        `"tanjun.concurrency"` for global overrides.
+    """
     pre_execution = ConcurrencyPreExecution(bucket_id, error=error, error_message=error_message)
     post_execution = ConcurrencyPostExecution(bucket_id)
 
-    def decorator(command: _OtherCommandT, /, *, _recursing: bool = False) -> _OtherCommandT:
-        hooks_ = command.hooks
-        if not hooks_:
-            hooks_ = hooks.AnyHooks()
-            command.set_hooks(hooks_)
+    hooks_ = command.hooks
+    if not hooks_:
+        hooks_ = hooks.AnyHooks()
+        command.set_hooks(hooks_)
 
-        hooks_.add_pre_execution(pre_execution).add_post_execution(post_execution)
-        if follow_wrapped and not _recursing:
-            for wrapped in _internal.collect_wrapped(command):
-                decorator(wrapped, _recursing=True)
-
-        return command
-
-    return decorator
+    hooks_.add_pre_execution(pre_execution).add_post_execution(post_execution)
