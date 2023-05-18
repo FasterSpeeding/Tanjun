@@ -609,7 +609,7 @@ class TestBaseSlashCommand:
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
             + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
-            stub_class(tanjun.commands.BaseSlashCommand, args=(name, "desccc"))
+            stub_class(tanjun.commands.slash.BaseSlashCommand, args=(name, "desccc"))
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test__init__with_invalid_localised_name(self, name: str):
@@ -619,7 +619,7 @@ class TestBaseSlashCommand:
             + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             stub_class(
-                tanjun.commands.BaseSlashCommand,
+                tanjun.commands.slash.BaseSlashCommand,
                 args=({hikari.Locale.CS: "yeet", hikari.Locale.HI: "bye", hikari.Locale.NL: name}, "desccc"),
             )
 
@@ -631,7 +631,7 @@ class TestBaseSlashCommand:
             + re.escape(r"`^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$`"),
         ):
             stub_class(
-                tanjun.commands.BaseSlashCommand,
+                tanjun.commands.slash.BaseSlashCommand,
                 args=(
                     {hikari.Locale.CS: "yeet", hikari.Locale.HI: "bye", "default": name, hikari.Locale.NL: "oop"},
                     "desccc",
@@ -644,19 +644,19 @@ class TestBaseSlashCommand:
 
     def test__init__when_name_too_long(self):
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
-            stub_class(tanjun.commands.BaseSlashCommand, args=("x" * 33, "description"))
+            stub_class(tanjun.commands.slash.BaseSlashCommand, args=("x" * 33, "description"))
 
     def test__init__when_localised_name_too_long(self):
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             stub_class(
-                tanjun.commands.BaseSlashCommand,
+                tanjun.commands.slash.BaseSlashCommand,
                 args=({hikari.Locale.DE: "x" * 33, hikari.Locale.JA: "op", hikari.Locale.KO: "opop"}, "description"),
             )
 
     def test__init__when_localised_default_name_too_long(self):
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             stub_class(
-                tanjun.commands.BaseSlashCommand,
+                tanjun.commands.slash.BaseSlashCommand,
                 args=(
                     {hikari.Locale.DE: "noooo", "default": "x" * 33, hikari.Locale.JA: "op", hikari.Locale.KO: "opop"},
                     "description",
@@ -665,12 +665,12 @@ class TestBaseSlashCommand:
 
     def test__init__when_name_too_short(self):
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
-            stub_class(tanjun.commands.BaseSlashCommand, args=("", "description"))
+            stub_class(tanjun.commands.slash.BaseSlashCommand, args=("", "description"))
 
     def test__init__when_localised_name_too_short(self):
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             stub_class(
-                tanjun.commands.BaseSlashCommand,
+                tanjun.commands.slash.BaseSlashCommand,
                 args=(
                     {hikari.Locale.JA: "konnichiwa", hikari.Locale.EN_US: "hello", hikari.Locale.BG: ""},
                     "description",
@@ -680,7 +680,7 @@ class TestBaseSlashCommand:
     def test__init__when_localised_default_name_too_short(self):
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             stub_class(
-                tanjun.commands.BaseSlashCommand,
+                tanjun.commands.slash.BaseSlashCommand,
                 args=(
                     {
                         hikari.Locale.JA: "konnichiwa",
@@ -694,19 +694,19 @@ class TestBaseSlashCommand:
 
     def test__init__when_name_isnt_lowercase(self):
         with pytest.raises(ValueError, match="Invalid name provided, 'VooDOo' must be lowercase"):
-            stub_class(tanjun.commands.BaseSlashCommand, args=("VooDOo", "desccc"))
+            stub_class(tanjun.commands.slash.BaseSlashCommand, args=("VooDOo", "desccc"))
 
     def test__init__when_localised_name_isnt_lowercase(self):
         with pytest.raises(ValueError, match="Invalid name provided, 'BeepBeep' must be lowercase"):
             stub_class(
-                tanjun.commands.BaseSlashCommand,
+                tanjun.commands.slash.BaseSlashCommand,
                 args=({hikari.Locale.DE: "im_a_very_good_german", hikari.Locale.ES_ES: "BeepBeep"}, "desccc"),
             )
 
     def test__init__when_localised_default_name_isnt_lowercase(self):
         with pytest.raises(ValueError, match="Invalid name provided, 'WoreLSA' must be lowercase"):
             stub_class(
-                tanjun.commands.BaseSlashCommand,
+                tanjun.commands.slash.BaseSlashCommand,
                 args=(
                     {"default": "WoreLSA", hikari.Locale.DE: "im_a_very_good_german", hikari.Locale.ES_ES: "que"},
                     "desccc",
@@ -719,49 +719,50 @@ class TestBaseSlashCommand:
 
     def test__init__when_description_too_long(self):
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
-            stub_class(tanjun.commands.BaseSlashCommand, args=("gary", "x" * 101))
+            stub_class(tanjun.commands.slash.BaseSlashCommand, args=("gary", "x" * 101))
 
     def test__init__when_localised_description_too_long(self):
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             stub_class(
-                tanjun.commands.BaseSlashCommand,
+                tanjun.commands.slash.BaseSlashCommand,
                 args=("gary", {hikari.Locale.ES_ES: "x" * 101, hikari.Locale.EL: "el salvador"}),
             )
 
     def test__init__when_localised_default_description_too_long(self):
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             stub_class(
-                tanjun.commands.BaseSlashCommand, args=("gary", {"default": "x" * 101, hikari.Locale.EL: "el salvador"})
+                tanjun.commands.slash.BaseSlashCommand,
+                args=("gary", {"default": "x" * 101, hikari.Locale.EL: "el salvador"}),
             )
 
     def test__init__when_description_too_short(self):
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
-            stub_class(tanjun.commands.BaseSlashCommand, args=("gary", ""))
+            stub_class(tanjun.commands.slash.BaseSlashCommand, args=("gary", ""))
 
     def test__init__when_localised_description_too_short(self):
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             stub_class(
-                tanjun.commands.BaseSlashCommand, args=("gary", {hikari.Locale.EL: "", hikari.Locale.CS: "essa"})
+                tanjun.commands.slash.BaseSlashCommand, args=("gary", {hikari.Locale.EL: "", hikari.Locale.CS: "essa"})
             )
 
     def test__init__when_localised_default_description_too_short(self):
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
-            stub_class(tanjun.commands.BaseSlashCommand, args=("gary", {"default": "", hikari.Locale.CS: "essa"}))
+            stub_class(tanjun.commands.slash.BaseSlashCommand, args=("gary", {"default": "", hikari.Locale.CS: "essa"}))
 
     def test_default_member_permissions_property(self):
         command = stub_class(
-            tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"default_member_permissions": 54312312}
+            tanjun.commands.slash.BaseSlashCommand, args=("hi", "no"), kwargs={"default_member_permissions": 54312312}
         )
 
         assert command.default_member_permissions == 54312312
 
     def test_defaults_to_ephemeral_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"))
+        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=("hi", "no"))
 
         assert command.set_ephemeral_default(True).defaults_to_ephemeral is True
 
     def test_description_properties(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "desccc"))
+        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=("hi", "desccc"))
 
         assert command.description == "desccc"
         assert command.description_localisations == {}
@@ -769,7 +770,7 @@ class TestBaseSlashCommand:
 
     def test_description_properties_when_localised(self):
         command = stub_class(
-            tanjun.commands.BaseSlashCommand,
+            tanjun.commands.slash.BaseSlashCommand,
             args=(
                 "meow",
                 {
@@ -792,7 +793,7 @@ class TestBaseSlashCommand:
 
     def test_description_properties_when_localised_implicit_default(self):
         command = stub_class(
-            tanjun.commands.BaseSlashCommand,
+            tanjun.commands.slash.BaseSlashCommand,
             args=("eep", {hikari.Locale.HU: "how are you", hikari.Locale.JA: "nihongo", hikari.Locale.TR: "no"}),
         )
 
@@ -806,7 +807,7 @@ class TestBaseSlashCommand:
 
     def test_description_properties_when_dict_without_localisations(self):
         command = stub_class(
-            tanjun.commands.BaseSlashCommand, args=("meep", {"default": "ok girl boss", "id": "idididid"})
+            tanjun.commands.slash.BaseSlashCommand, args=("meep", {"default": "ok girl boss", "id": "idididid"})
         )
 
         assert command.description == "ok girl boss"
@@ -814,17 +815,17 @@ class TestBaseSlashCommand:
         assert command._descriptions.id == "idididid"
 
     def test_is_dm_enabled_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"dm_enabled": False})
+        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=("hi", "no"), kwargs={"dm_enabled": False})
 
         assert command.is_dm_enabled is False
 
     def test_is_global_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yeet", "No"), kwargs={"is_global": False})
+        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=("yeet", "No"), kwargs={"is_global": False})
 
         assert command.is_global is False
 
     def test_name_properties(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
+        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=("yee", "nsoosos"))
 
         assert command.name == "yee"
         assert command.name_localisations == {}
@@ -832,7 +833,7 @@ class TestBaseSlashCommand:
 
     def test_name_properties_when_localised(self):
         command = stub_class(
-            tanjun.commands.BaseSlashCommand,
+            tanjun.commands.slash.BaseSlashCommand,
             args=(
                 {
                     hikari.Locale.EN_GB: "not gun",
@@ -855,7 +856,7 @@ class TestBaseSlashCommand:
 
     def test_name_properties_when_localised_implicit_default(self):
         command = stub_class(
-            tanjun.commands.BaseSlashCommand,
+            tanjun.commands.slash.BaseSlashCommand,
             args=({hikari.Locale.HI: "hug", hikari.Locale.HR: "human eaters", hikari.Locale.KO: "kyoto"}, "o"),
         )
 
@@ -868,7 +869,9 @@ class TestBaseSlashCommand:
         assert command._names.id is None
 
     def test_name_properties_when_dict_without_localisations(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=({"default": "this_default", "id": "meep"}, "boop"))
+        command = stub_class(
+            tanjun.commands.slash.BaseSlashCommand, args=({"default": "this_default", "id": "meep"}, "boop")
+        )
 
         assert command.name == "this_default"
         assert command.name_localisations == {}
@@ -876,18 +879,18 @@ class TestBaseSlashCommand:
 
     def test_parent_property(self):
         mock_parent = mock.Mock()
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
+        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=("yee", "nsoosos"))
 
         assert command.set_parent(mock_parent).parent is mock_parent
 
     def test_tracked_command_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
+        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=("yee", "nsoosos"))
         mock_command = mock.Mock(hikari.SlashCommand)
 
         assert command.set_tracked_command(mock_command).tracked_command is mock_command
 
     def test_tracked_command_id_property(self):
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
+        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=("yee", "nsoosos"))
         mock_command = mock.Mock(hikari.SlashCommand)
 
         assert command.set_tracked_command(mock_command).tracked_command_id is mock_command.id
@@ -900,7 +903,7 @@ class TestBaseSlashCommand:
         mock_context = mock.Mock()
 
         command = (
-            stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
+            stub_class(tanjun.commands.slash.BaseSlashCommand, args=("yee", "nsoosos"))
             .add_check(mock_callback)
             .add_check(mock_other_callback)
         )
@@ -916,17 +919,17 @@ class TestBaseSlashCommand:
     @pytest.mark.skip(reason="TODO")
     def test_copy(self):
         mock_parent = mock.MagicMock()
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
+        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=("yee", "nsoosos"))
 
         result = command.copy(parent=mock_parent)
 
         assert result is not command
-        assert isinstance(result, tanjun.commands.BaseSlashCommand)
+        assert isinstance(result, tanjun.commands.slash.BaseSlashCommand)
         assert result.parent is mock_parent
 
     def test_load_into_component_when_no_parent(self):
         mock_component = mock.Mock()
-        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
+        command = stub_class(tanjun.commands.slash.BaseSlashCommand, args=("yee", "nsoosos"))
 
         command.load_into_component(mock_component)
 
@@ -1350,7 +1353,7 @@ class TestSlashCommand:
     def test_load_into_component(self, command: tanjun.SlashCommand[typing.Any]):
         mock_component = mock.Mock()
 
-        with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
+        with mock.patch.object(tanjun.commands.slash.BaseSlashCommand, "load_into_component") as load_into_component:
             command.load_into_component(mock_component)
 
             load_into_component.assert_called_once_with(mock_component)
@@ -1360,7 +1363,7 @@ class TestSlashCommand:
         mock_other_command = mock.Mock()
         command._wrapped_command = mock_other_command
 
-        with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
+        with mock.patch.object(tanjun.commands.slash.BaseSlashCommand, "load_into_component") as load_into_component:
             command.load_into_component(mock_component)
 
             load_into_component.assert_called_once_with(mock_component)
@@ -1372,7 +1375,7 @@ class TestSlashCommand:
         mock_other_command = mock.Mock(tanjun.components.AbstractComponentLoader)
         command._wrapped_command = mock_other_command
 
-        with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
+        with mock.patch.object(tanjun.commands.slash.BaseSlashCommand, "load_into_component") as load_into_component:
             command.load_into_component(mock_component)
 
             load_into_component.assert_called_once_with(mock_component)

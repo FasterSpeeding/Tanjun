@@ -32,8 +32,6 @@
 from __future__ import annotations
 
 __all__: list[str] = [
-    "ALL_PERMISSIONS",
-    "DM_PERMISSIONS",
     "calculate_everyone_permissions",
     "calculate_permissions",
     "fetch_everyone_permissions",
