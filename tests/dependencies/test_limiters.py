@@ -92,17 +92,18 @@ class TestAbstractCooldownManager:
 
     @pytest.mark.asyncio()
     async def test_acquire_when_errors(self):
-        mock_try_acquire = mock.AsyncMock(return_value=datetime.datetime(2023, 5, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc))
+        mock_try_acquire = mock.AsyncMock(
+            return_value=datetime.datetime(2023, 5, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc)
+        )
         mock_ctx = mock.Mock()
 
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_try_acquire 
+            check_cooldown = mock_try_acquire
             increment_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
-
 
         with pytest.raises(tanjun.CommandError) as exc:
             async with manager.acquire("mooo", mock_ctx):
@@ -122,7 +123,7 @@ class TestAbstractCooldownManager:
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_try_acquire 
+            check_cooldown = mock_try_acquire
             increment_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
@@ -144,7 +145,7 @@ class TestAbstractCooldownManager:
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_try_acquire 
+            check_cooldown = mock_try_acquire
             increment_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
@@ -169,7 +170,7 @@ class TestAbstractCooldownManager:
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_try_acquire 
+            check_cooldown = mock_try_acquire
             increment_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
@@ -181,7 +182,6 @@ class TestAbstractCooldownManager:
 
         mock_try_acquire.assert_not_called()
         mock_error_callback.assert_not_called()
-
 
 
 class TestAbstractConcurrencyLimiter:
@@ -229,7 +229,6 @@ class TestAbstractConcurrencyLimiter:
                 mock_release.assert_not_called()
 
                 raise RuntimeError("yeet")
-
 
         mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
         mock_release.assert_awaited_once_with("oooooo", mock_ctx)
