@@ -46,6 +46,292 @@ import tanjun
 from tanjun.context import base as base_context
 
 
+class TestAbstractCooldownManager:
+    @pytest.mark.asyncio()
+    async def test_acquire(self):
+        mock_try_acquire = mock.AsyncMock(return_value=None)
+        mock_ctx = mock.Mock()
+        mock_error_callback = mock.Mock()
+
+        class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
+            __slots__ = ()
+
+            check_cooldown = mock_try_acquire
+            increment_cooldown = mock.AsyncMock()
+
+        manager = CooldownManager()
+
+        async with manager.acquire("buuuuu", mock_ctx, error=mock_error_callback):
+            mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx, increment=True)
+
+        mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx, increment=True)
+        mock_error_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_acquire_when_ended_by_raise(self):
+        mock_try_acquire = mock.AsyncMock(return_value=None)
+        mock_ctx = mock.Mock()
+        mock_error_callback = mock.Mock()
+
+        class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
+            __slots__ = ()
+
+            check_cooldown = mock_try_acquire
+            increment_cooldown = mock.AsyncMock()
+
+        manager = CooldownManager()
+
+        with pytest.raises(RuntimeError, match="bye"):  # noqa: PT012
+            async with manager.acquire("buuuuu", mock_ctx, error=mock_error_callback):
+                mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx, increment=True)
+
+                raise RuntimeError("bye")
+
+        mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx, increment=True)
+        mock_error_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_acquire_when_errors(self):
+        mock_try_acquire = mock.AsyncMock(
+            return_value=datetime.datetime(2023, 5, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc)
+        )
+        mock_ctx = mock.Mock()
+
+        class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
+            __slots__ = ()
+
+            check_cooldown = mock_try_acquire
+            increment_cooldown = mock.AsyncMock()
+
+        manager = CooldownManager()
+
+        with pytest.raises(tanjun.CommandError) as exc:  # noqa: PT012
+            async with manager.acquire("mooo", mock_ctx):
+                pytest.fail("Should never be reached")
+
+        assert exc.value.content == "This command is currently in cooldown. Try again <t:1684531229:R>."
+        mock_try_acquire.assert_awaited_once_with("mooo", mock_ctx, increment=True)
+
+    @pytest.mark.asyncio()
+    async def test_acquire_when_custom_error(self):
+        expected_datetime = datetime.datetime(2023, 7, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc)
+        expected_error = Exception("It's 5 nights at Fred bear's")
+        mock_try_acquire = mock.AsyncMock(return_value=expected_datetime)
+        mock_ctx = mock.Mock()
+        mock_error_callback = mock.Mock(side_effect=expected_error)
+
+        class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
+            __slots__ = ()
+
+            check_cooldown = mock_try_acquire
+            increment_cooldown = mock.AsyncMock()
+
+        manager = CooldownManager()
+
+        with pytest.raises(Exception, match="It's 5 nights at Fred bear's") as exc:  # noqa: PT012
+            async with manager.acquire("ooop", mock_ctx, error=mock_error_callback):
+                pytest.fail("Should never be reached")
+
+        assert exc.value is expected_error
+        mock_try_acquire.assert_awaited_once_with("ooop", mock_ctx, increment=True)
+        mock_error_callback.assert_called_once_with(expected_datetime)
+
+    @pytest.mark.asyncio()
+    async def test_acquire_when_already_acquired(self):
+        mock_try_acquire = mock.AsyncMock(return_value=None)
+        mock_ctx = mock.Mock()
+        mock_error_callback = mock.Mock()
+
+        class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
+            __slots__ = ()
+
+            check_cooldown = mock_try_acquire
+            increment_cooldown = mock.AsyncMock()
+
+        manager = CooldownManager()
+        acquire = manager.acquire("oop", mock_ctx)
+
+        async with acquire:
+            mock_try_acquire.assert_awaited_once_with("oop", mock_ctx, increment=True)
+
+            with pytest.raises(RuntimeError, match="Already acquired"):  # noqa: PT012
+                async with acquire:
+                    pytest.fail("Should never be reached")
+
+        mock_try_acquire.assert_awaited_once_with("oop", mock_ctx, increment=True)
+        mock_error_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_release_when_not_acquired(self):
+        mock_try_acquire = mock.AsyncMock(return_value=None)
+        mock_ctx = mock.Mock()
+        mock_error_callback = mock.Mock()
+
+        class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
+            __slots__ = ()
+
+            check_cooldown = mock_try_acquire
+            increment_cooldown = mock.AsyncMock()
+
+        manager = CooldownManager()
+
+        acquire = manager.acquire("oop", mock_ctx)
+
+        with pytest.raises(RuntimeError, match="Not acquired"):
+            await acquire.__aexit__(None, None, None)
+
+        mock_try_acquire.assert_not_called()
+        mock_error_callback.assert_not_called()
+
+
+class TestAbstractConcurrencyLimiter:
+    @pytest.mark.asyncio()
+    async def test_acquire(self):
+        mock_ctx = mock.Mock()
+        mock_error_callback = mock.Mock()
+        mock_try_acquire = mock.AsyncMock(return_value=True)
+        mock_release = mock.AsyncMock()
+
+        class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
+            __slots__ = ()
+
+            try_acquire = mock_try_acquire
+            release = mock_release
+
+        limiter = ConcurrencyLimiter()
+
+        async with limiter.acquire("oooooo", mock_ctx, error=mock_error_callback):
+            mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
+            mock_release.assert_not_called()
+
+        mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
+        mock_release.assert_awaited_once_with("oooooo", mock_ctx)
+        mock_error_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_acquire_when_ended_by_raise(self):
+        mock_ctx = mock.Mock()
+        mock_error_callback = mock.Mock()
+        mock_try_acquire = mock.AsyncMock(return_value=True)
+        mock_release = mock.AsyncMock()
+
+        class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
+            __slots__ = ()
+
+            try_acquire = mock_try_acquire
+            release = mock_release
+
+        limiter = ConcurrencyLimiter()
+
+        with pytest.raises(RuntimeError, match="yeet"):  # noqa: PT012
+            async with limiter.acquire("oooooo", mock_ctx, error=mock_error_callback):
+                mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
+                mock_release.assert_not_called()
+
+                raise RuntimeError("yeet")
+
+        mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
+        mock_release.assert_awaited_once_with("oooooo", mock_ctx)
+        mock_error_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_acquire_when_errors(self):
+        mock_ctx = mock.Mock()
+        mock_try_acquire = mock.AsyncMock(return_value=False)
+        mock_release = mock.AsyncMock()
+
+        class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
+            __slots__ = ()
+
+            try_acquire = mock_try_acquire
+            release = mock_release
+
+        limiter = ConcurrencyLimiter()
+
+        with pytest.raises(tanjun.CommandError) as exc:  # noqa: PT012
+            async with limiter.acquire("oooooo", mock_ctx):
+                pytest.fail("Should never be reached")
+
+        assert exc.value.content == "This resource is currently busy; please try again later."
+        mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
+        mock_release.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_acquire_when_custom_error(self):
+        mock_ctx = mock.Mock()
+        expected_error = Exception("P music")
+        mock_error_callback = mock.Mock(side_effect=expected_error)
+        mock_try_acquire = mock.AsyncMock(return_value=False)
+        mock_release = mock.AsyncMock()
+
+        class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
+            __slots__ = ()
+
+            try_acquire = mock_try_acquire
+            release = mock_release
+
+        limiter = ConcurrencyLimiter()
+
+        with pytest.raises(Exception, match="P music") as exc:  # noqa: PT012
+            async with limiter.acquire("oooooo", mock_ctx, error=mock_error_callback):
+                pytest.fail("Should never be reached")
+
+        assert exc.value is expected_error
+        mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
+        mock_release.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_acquire_when_already_acquired(self):
+        mock_ctx = mock.Mock()
+        mock_error_callback = mock.Mock()
+        mock_try_acquire = mock.AsyncMock(return_value=True)
+        mock_release = mock.AsyncMock()
+
+        class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
+            __slots__ = ()
+
+            try_acquire = mock_try_acquire
+            release = mock_release
+
+        limiter = ConcurrencyLimiter()
+        acquire = limiter.acquire("oooooo", mock_ctx, error=mock_error_callback)
+
+        async with acquire:
+            mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
+            mock_release.assert_not_called()
+
+            with pytest.raises(RuntimeError, match="Already acquired"):  # noqa: PT012
+                async with acquire:
+                    pytest.fail("Should never be reached")
+
+        mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
+        mock_release.assert_awaited_once_with("oooooo", mock_ctx)
+        mock_error_callback.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_release_when_not_acquired(self):
+        mock_ctx = mock.Mock()
+        mock_error_callback = mock.Mock()
+        mock_try_acquire = mock.AsyncMock(return_value=True)
+        mock_release = mock.AsyncMock()
+
+        class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
+            __slots__ = ()
+
+            try_acquire = mock_try_acquire
+            release = mock_release
+
+        limiter = ConcurrencyLimiter()
+        acquire = limiter.acquire("oooooo", mock_ctx, error=mock_error_callback)
+
+        with pytest.raises(RuntimeError, match="Not acquired"):
+            await acquire.__aexit__(None, None, None)
+
+        mock_try_acquire.assert_not_called()
+        mock_release.assert_not_called()
+        mock_error_callback.assert_not_called()
+
+
 @pytest.mark.parametrize(
     ("resource_type", "mock_ctx", "expected"),
     [
