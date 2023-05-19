@@ -122,7 +122,7 @@ class AbstractCooldownManager(abc.ABC):
             The context of the command.
         """
 
-    async def acquire(
+    def acquire(
         self,
         bucket_id: str,
         ctx: tanjun.Context,
@@ -131,7 +131,7 @@ class AbstractCooldownManager(abc.ABC):
             [typing.Optional[datetime.datetime]], Exception
         ] = lambda cooldown: errors.CommandError(
             f"This command is currently in cooldown."
-            + (f"Try again {conversion.from_datetime(cooldown, style='r')}." if cooldown else "")
+            + (f" Try again {conversion.from_datetime(cooldown, style='R')}." if cooldown else "")
         ),
     ) -> contextlib.AbstractAsyncContextManager[None]:
         """Acquire a cooldown lock on a bucket through an async context manager.
