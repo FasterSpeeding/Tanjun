@@ -122,6 +122,82 @@ class AbstractCooldownManager(abc.ABC):
             The context of the command.
         """
 
+    async def acquire(
+        self,
+        bucket_id: str,
+        ctx: tanjun.Context,
+        /,
+        error: collections.Callable[
+            [typing.Optional[datetime.datetime]], Exception
+        ] = lambda cooldown: errors.CommandError(
+            f"This command is currently in cooldown."
+            + (f"Try again {conversion.from_datetime(cooldown, style='r')}." if cooldown else "")
+        ),
+    ) -> contextlib.AbstractAsyncContextManager[None]:
+        """Acquire a cooldown lock on a bucket through an async context manager.
+
+        Parameters
+        ----------
+        bucket_id
+            The cooldown bucket to acquire.
+        ctx
+            The context to acquire this resource lock with.
+        error
+            Callback which returns the error that's raised when the lock
+            couldn't be acquired due to it being on cooldown.
+
+            This will be raised on entering the returned context manager and
+            defaults to an English command error.
+
+        Returns
+        -------
+        contextlib.AbstractAsyncContextManager[None]
+            The context manager which'll acquire and release this cooldown lock.
+
+        Raises
+        ------
+        tanjun.errors.CommandError
+            The default error that's raised while entering the returned async
+            context manager if it couldn't acquire the lock.
+        """
+        return _CooldownAcquire(self, bucket_id, ctx, error)
+
+
+class _CooldownAcquire:
+    __slots__ = ("_acquired", "_bucket_id", "_ctx", "_error", "_manager")
+
+    def __init__(
+        self,
+        manager: AbstractCooldownManager,
+        bucket_id: str,
+        ctx: tanjun.Context,
+        error: collections.Callable[[typing.Optional[datetime.datetime]], Exception],
+        /,
+    ) -> None:
+        self._acquired = False
+        self._bucket_id = bucket_id
+        self._ctx = ctx
+        self._error = error
+        self._manager = manager
+
+    async def __aenter__(self) -> None:
+        if self._acquired:
+            raise RuntimeError("Already acquired")
+
+        result = await self._manager.check_cooldown(self._bucket_id, self._ctx, increment=True)
+        self._acquired = not result
+        if result:
+            raise self._error(result)
+
+    async def __aexit__(
+        self,
+        exc_type: typing.Optional[type[BaseException]],
+        exc: typing.Optional[BaseException],
+        exc_traceback: typing.Optional[types.TracebackType],
+    ) -> None:
+        if not self._acquired:
+            raise RuntimeError("Not acquired")
+
 
 class AbstractConcurrencyLimiter(abc.ABC):
     """Interface used for limiting command concurrent usage."""
@@ -185,10 +261,10 @@ class AbstractConcurrencyLimiter(abc.ABC):
             The default error that's raised while entering the returned async
             context manager if it couldn't acquire the lock.
         """
-        return _Acquire(self, bucket_id, ctx, error)
+        return _ConcurrencyAcquire(self, bucket_id, ctx, error)
 
 
-class _Acquire:
+class _ConcurrencyAcquire:
     __slots__ = ("_acquired", "_bucket_id", "_ctx", "_error", "_limiter")
 
     def __init__(
