@@ -120,7 +120,7 @@ class AbstractCooldownManager(abc.ABC):
         """
         if increment:
             try:
-                await self.acquire(bucket_id, ctx)
+                await self.try_acquire(bucket_id, ctx)
 
             except CooldownDepleted as exc:
                 return exc.wait_until or (_now() + _ASSUMED_COOLDOWN_DELTA)
@@ -146,7 +146,7 @@ class AbstractCooldownManager(abc.ABC):
         and [AbstractCooldownManager.release][tanjun.dependencies.limiters.AbstractCooldownManager.release].
         """
         try:
-            await self.acquire(bucket_id, ctx)
+            await self.try_acquire(bucket_id, ctx)
 
         except ResourceDepleted:
             pass
@@ -155,7 +155,7 @@ class AbstractCooldownManager(abc.ABC):
             await self.release(bucket_id, ctx)
 
     @abc.abstractmethod
-    async def acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
+    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Increment a bucket's cooldown.
 
         Parameters
@@ -716,7 +716,7 @@ class AbstractCooldownBucket(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
+    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Increment a bucket's cooldown.
 
         Parameters
@@ -826,16 +826,16 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             assert client.loop is not None
             self.open(_loop=client.loop)
 
-    async def acquire(self, bucket_id: str, ctx: tanjun.Context) -> None:
+    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context) -> None:
         if resource := self._custom_buckets.get(bucket_id):
-            await resource.acquire(bucket_id, ctx)
+            await resource.try_acquire(bucket_id, ctx)
             return
 
         bucket = self._buckets.get(bucket_id)
         if not bucket:
             _LOGGER.info("No cooldown found for %r, falling back to 'default' bucket", bucket_id)
             self._default_bucket(bucket_id)
-            return await self.acquire(bucket_id, ctx)
+            return await self.try_acquire(bucket_id, ctx)
 
         # incrementing a bucket multiple times for the same context could lead
         # to weird edge cases based on how we internally track this, so we
@@ -1093,7 +1093,7 @@ class CooldownPreExecution:
                 return
 
         try:
-            await cooldowns.acquire(self._bucket_id, ctx)
+            await cooldowns.try_acquire(self._bucket_id, ctx)
 
         except CooldownDepleted as exc:
             if self._error:
