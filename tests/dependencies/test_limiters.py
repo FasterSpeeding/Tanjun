@@ -107,7 +107,7 @@ class TestAbstractCooldownManager:
 
         with pytest.raises(tanjun.CommandError) as exc:  # noqa: PT012
             async with manager.acquire("mooo", mock_ctx):
-                assert False, "Should never be reached"
+                pytest.fail("Should never be reached")
 
         assert exc.value.content == "This command is currently in cooldown. Try again <t:1684531229:R>."
         mock_try_acquire.assert_awaited_once_with("mooo", mock_ctx, increment=True)
@@ -128,9 +128,9 @@ class TestAbstractCooldownManager:
 
         manager = CooldownManager()
 
-        with pytest.raises(Exception) as exc:  # noqa: PT012
+        with pytest.raises(Exception, match="It's 5 nights at Fred bear's") as exc:  # noqa: PT012
             async with manager.acquire("ooop", mock_ctx, error=mock_error_callback):
-                assert False, "Should never be reached"
+                pytest.fail("Should never be reached")
 
         assert exc.value is expected_error
         mock_try_acquire.assert_awaited_once_with("ooop", mock_ctx, increment=True)
@@ -156,7 +156,7 @@ class TestAbstractCooldownManager:
 
             with pytest.raises(RuntimeError, match="Already acquired"):  # noqa: PT012
                 async with acquire:
-                    assert False, "Should never be reached"
+                    pytest.fail("Should never be reached")
 
         mock_try_acquire.assert_awaited_once_with("oop", mock_ctx, increment=True)
         mock_error_callback.assert_not_called()
@@ -250,7 +250,7 @@ class TestAbstractConcurrencyLimiter:
 
         with pytest.raises(tanjun.CommandError) as exc:  # noqa: PT012
             async with limiter.acquire("oooooo", mock_ctx):
-                assert False, "Should not be reached"
+                pytest.fail("Should never be reached")
 
         assert exc.value.content == "This resource is currently busy; please try again later."
         mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
@@ -272,9 +272,9 @@ class TestAbstractConcurrencyLimiter:
 
         limiter = ConcurrencyLimiter()
 
-        with pytest.raises(Exception) as exc:  # noqa: PT012
+        with pytest.raises(Exception, match="P music") as exc:  # noqa: PT012
             async with limiter.acquire("oooooo", mock_ctx, error=mock_error_callback):
-                assert False, "Should not be reached"
+                pytest.fail("Should never be reached")
 
         assert exc.value is expected_error
         mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
@@ -302,7 +302,7 @@ class TestAbstractConcurrencyLimiter:
 
             with pytest.raises(RuntimeError, match="Already acquired"):  # noqa: PT012
                 async with acquire:
-                    assert False, "Should never be reached"
+                    pytest.fail("Should never be reached")
 
         mock_try_acquire.assert_awaited_once_with("oooooo", mock_ctx)
         mock_release.assert_awaited_once_with("oooooo", mock_ctx)

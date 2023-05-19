@@ -130,7 +130,7 @@ class AbstractCooldownManager(abc.ABC):
         error: collections.Callable[
             [typing.Optional[datetime.datetime]], Exception
         ] = lambda cooldown: errors.CommandError(
-            f"This command is currently in cooldown."
+            "This command is currently in cooldown."
             + (f" Try again {conversion.from_datetime(cooldown, style='R')}." if cooldown else "")
         ),
     ) -> contextlib.AbstractAsyncContextManager[None]:
