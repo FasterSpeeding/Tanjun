@@ -300,7 +300,7 @@ def _has_wrapped(value: typing.Any, /) -> typing_extensions.TypeGuard[_WrappedPr
 
 
 def collect_wrapped(command: tanjun.ExecutableCommand[typing.Any], /) -> list[tanjun.ExecutableCommand[typing.Any]]:
-    """Collect all the commands a command object has wrapped in decorator calls.
+    """Collect all the commands a command object has wrapped in decorator call chain.
 
     Parameters
     ----------
@@ -320,6 +320,32 @@ def collect_wrapped(command: tanjun.ExecutableCommand[typing.Any], /) -> list[ta
         wrapped = wrapped.wrapped_command if _has_wrapped(wrapped) else None
 
     return results
+
+
+def apply_to_wrapped(
+    command: tanjun.ExecutableCommand[typing.Any],
+    callback: collections.Callable[[tanjun.ExecutableCommand[typing.Any]], object],
+    return_value: _T,
+    /,
+    *,
+    follow_wrapped: bool = True,
+) -> _T:
+    """Apply a callback to all the commands in a decorator call chain.
+
+    Parameters
+    ----------
+    command
+        The top-level command object.
+    follow_wrapped
+        Whether this should apply the callback to wrapped commands.
+    """
+    callback(command)
+
+    if follow_wrapped:
+        for wrapped in collect_wrapped(command):
+            callback(wrapped)
+
+    return return_value
 
 
 _OptionT = typing.TypeVar("_OptionT", bound=hikari.CommandInteractionOption)

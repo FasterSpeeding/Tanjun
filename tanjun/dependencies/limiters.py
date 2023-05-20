@@ -40,6 +40,8 @@ __all__: list[str] = [
     "CooldownPreExecution",
     "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
+    "add_concurrency_limit",
+    "add_cooldown",
     "with_concurrency_limit",
     "with_cooldown",
 ]
@@ -65,12 +67,13 @@ from . import locales
 from . import owners
 
 if typing.TYPE_CHECKING:
+    import contextlib
+    import types
     from collections import abc as collections
 
     from typing_extensions import Self
 
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
-    _OtherCommandT = typing.TypeVar("_OtherCommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _InnerResourceSig = collections.Callable[[], "_InnerResourceT"]
 
 
@@ -119,6 +122,82 @@ class AbstractCooldownManager(abc.ABC):
             The context of the command.
         """
 
+    def acquire(
+        self,
+        bucket_id: str,
+        ctx: tanjun.Context,
+        /,
+        error: collections.Callable[
+            [typing.Optional[datetime.datetime]], Exception
+        ] = lambda cooldown: errors.CommandError(
+            "This command is currently in cooldown."
+            + (f" Try again {conversion.from_datetime(cooldown, style='R')}." if cooldown else "")
+        ),
+    ) -> contextlib.AbstractAsyncContextManager[None]:
+        """Acquire a cooldown lock on a bucket through an async context manager.
+
+        Parameters
+        ----------
+        bucket_id
+            The cooldown bucket to acquire.
+        ctx
+            The context to acquire this resource lock with.
+        error
+            Callback which returns the error that's raised when the lock
+            couldn't be acquired due to it being on cooldown.
+
+            This will be raised on entering the returned context manager and
+            defaults to an English command error.
+
+        Returns
+        -------
+        contextlib.AbstractAsyncContextManager[None]
+            The context manager which'll acquire and release this cooldown lock.
+
+        Raises
+        ------
+        tanjun.errors.CommandError
+            The default error that's raised while entering the returned async
+            context manager if it couldn't acquire the lock.
+        """
+        return _CooldownAcquire(self, bucket_id, ctx, error)
+
+
+class _CooldownAcquire:
+    __slots__ = ("_acquired", "_bucket_id", "_ctx", "_error", "_manager")
+
+    def __init__(
+        self,
+        manager: AbstractCooldownManager,
+        bucket_id: str,
+        ctx: tanjun.Context,
+        error: collections.Callable[[typing.Optional[datetime.datetime]], Exception],
+        /,
+    ) -> None:
+        self._acquired = False
+        self._bucket_id = bucket_id
+        self._ctx = ctx
+        self._error = error
+        self._manager = manager
+
+    async def __aenter__(self) -> None:
+        if self._acquired:
+            raise RuntimeError("Already acquired")
+
+        result = await self._manager.check_cooldown(self._bucket_id, self._ctx, increment=True)
+        self._acquired = not result
+        if result:
+            raise self._error(result)
+
+    async def __aexit__(
+        self,
+        exc_type: typing.Optional[type[BaseException]],
+        exc: typing.Optional[BaseException],
+        exc_traceback: typing.Optional[types.TracebackType],
+    ) -> None:
+        if not self._acquired:
+            raise RuntimeError("Not acquired")
+
 
 class AbstractConcurrencyLimiter(abc.ABC):
     """Interface used for limiting command concurrent usage."""
@@ -145,6 +224,82 @@ class AbstractConcurrencyLimiter(abc.ABC):
     @abc.abstractmethod
     async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Release a concurrency lock on a bucket."""
+
+    def acquire(
+        self,
+        bucket_id: str,
+        ctx: tanjun.Context,
+        /,
+        *,
+        error: collections.Callable[[], Exception] = lambda: errors.CommandError(
+            "This resource is currently busy; please try again later."
+        ),
+    ) -> contextlib.AbstractAsyncContextManager[None]:
+        """Acquire an concurrency lock on a bucket through an async context manager.
+
+        Parameters
+        ----------
+        bucket_id
+            The concurrency bucket to acquire.
+        ctx
+            The context to acquire this resource lock with.
+        error
+            Callback which returns the error that's raised when the lock
+            couldn't be acquired due to being at it's limit.
+
+            This will be raised on entering the returned context manager and
+            defaults to an English command error.
+
+        Returns
+        -------
+        contextlib.AbstractAsyncContextManager[None]
+            The context manager which'll acquire and release this concurrency lock.
+
+        Raises
+        ------
+        tanjun.errors.CommandError
+            The default error that's raised while entering the returned async
+            context manager if it couldn't acquire the lock.
+        """
+        return _ConcurrencyAcquire(self, bucket_id, ctx, error)
+
+
+class _ConcurrencyAcquire:
+    __slots__ = ("_acquired", "_bucket_id", "_ctx", "_error", "_limiter")
+
+    def __init__(
+        self,
+        limiter: AbstractConcurrencyLimiter,
+        bucket_id: str,
+        ctx: tanjun.Context,
+        error: collections.Callable[[], Exception],
+        /,
+    ) -> None:
+        self._acquired = False
+        self._bucket_id = bucket_id
+        self._ctx = ctx
+        self._error = error
+        self._limiter = limiter
+
+    async def __aenter__(self) -> None:
+        if self._acquired:
+            raise RuntimeError("Already acquired")
+
+        self._acquired = await self._limiter.try_acquire(self._bucket_id, self._ctx)
+        if not self._acquired:
+            raise self._error()  # noqa: R102
+
+    async def __aexit__(
+        self,
+        exc_type: typing.Optional[type[BaseException]],
+        exc: typing.Optional[BaseException],
+        exc_traceback: typing.Optional[types.TracebackType],
+    ) -> None:
+        if not self._acquired:
+            raise RuntimeError("Not acquired")
+
+        self._acquired = False
+        await asyncio.shield(self._limiter.release(self._bucket_id, self._ctx))
 
 
 class BucketResource(int, enum.Enum):
@@ -766,27 +921,66 @@ def with_cooldown(
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
-        A decorator that adds a [CooldownPreExecution][tanjun.dependencies.CooldownPreExecution]
-        hook to the command.
+        A decorator which adds the relevant cooldown hooks.
+    """
+    return lambda command: _internal.apply_to_wrapped(
+        command,
+        lambda c: add_cooldown(c, bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt),
+        command,
+        follow_wrapped=follow_wrapped,
+    )
+
+
+def add_cooldown(
+    command: tanjun.ExecutableCommand[typing.Any],
+    bucket_id: str,
+    /,
+    *,
+    error: typing.Optional[collections.Callable[[str, datetime.datetime], Exception]] = None,
+    error_message: typing.Union[
+        str, collections.Mapping[str, str]
+    ] = "This command is currently in cooldown. Try again {cooldown}.",
+    owners_exempt: bool = True,
+) -> None:
+    """Add a pre-execution hook used to manage a command's cooldown.
+
+    !!! warning
+        Cooldowns will only work if there's a setup injected
+        [AbstractCooldownManager][tanjun.dependencies.InMemoryCooldownManager] dependency with
+        [InMemoryCooldownManager][tanjun.dependencies.InMemoryCooldownManager]
+        being usable as a standard in-memory cooldown manager.
+
+    Parameters
+    ----------
+    command
+        The command to add a cooldown to.
+    bucket_id
+        The cooldown bucket's ID.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This should two arguments one of type [str][] and [datetime.datetime][]
+        where the first is the limiting bucket's ID and the second is when said
+        bucket can be used again.
+
+        This takes priority over `error_message`.
+    error_message
+        The error message to send in response as a command error if the check fails.
+
+        This supports [localisation][] and uses the check name
+        `"tanjun.cooldown"` for global overrides.
+    owners_exempt
+        Whether owners should be exempt from the cooldown.
     """
     pre_execution = CooldownPreExecution(
         bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt
     )
+    hooks_ = command.hooks
+    if not hooks_:
+        hooks_ = hooks.AnyHooks()
+        command.set_hooks(hooks_)
 
-    def decorator(command: _OtherCommandT, /, *, _recursing: bool = False) -> _OtherCommandT:
-        hooks_ = command.hooks
-        if not hooks_:
-            hooks_ = hooks.AnyHooks()
-            command.set_hooks(hooks_)
-
-        hooks_.add_pre_execution(pre_execution)
-        if follow_wrapped and not _recursing:
-            for wrapped in _internal.collect_wrapped(command):
-                decorator(wrapped, _recursing=True)
-
-        return command
-
-    return decorator
+    hooks_.add_pre_execution(pre_execution)
 
 
 class _ConcurrencyLimit:
@@ -996,14 +1190,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
 
 class ConcurrencyPreExecution:
-    """Pre-execution hook used to acquire a bucket concurrency limiter.
-
-    !!! note
-        For a concurrency limiter to work properly, both
-        [ConcurrencyPreExecution][tanjun.dependencies.ConcurrencyPreExecution]
-        and [ConcurrencyPostExecution][tanjun.dependencies.ConcurrencyPostExecution]
-        hooks must be registered for a command scope.
-    """
+    """Pre-execution hook used to acquire a bucket concurrency limiter."""
 
     __slots__ = ("_bucket_id", "_error", "_error_message", "__weakref__")
 
@@ -1057,14 +1244,7 @@ class ConcurrencyPreExecution:
 
 
 class ConcurrencyPostExecution:
-    """Post-execution hook used to release a bucket concurrency limiter.
-
-    !!! note
-        For a concurrency limiter to work properly, both
-        [ConcurrencyPreExecution][tanjun.dependencies.ConcurrencyPreExecution]
-        and [ConcurrencyPostExecution][tanjun.dependencies.ConcurrencyPostExecution]
-        hooks must be registered for a command scope.
-    """
+    """Post-execution hook used to release a bucket concurrency limiter."""
 
     __slots__ = ("_bucket_id", "__weakref__")
 
@@ -1123,22 +1303,59 @@ def with_concurrency_limit(
     Returns
     -------
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
-        A decorator that adds the concurrency limiter hooks to a command.
+        A decorator which adds the concurrency limiter hooks to a command.
+    """
+    return lambda command: _internal.apply_to_wrapped(
+        command,
+        lambda c: add_concurrency_limit(c, bucket_id, error=error, error_message=error_message),
+        command,
+        follow_wrapped=follow_wrapped,
+    )
+
+
+def add_concurrency_limit(
+    command: tanjun.ExecutableCommand[typing.Any],
+    bucket_id: str,
+    /,
+    *,
+    error: typing.Optional[collections.Callable[[str], Exception]] = None,
+    error_message: typing.Union[
+        str, collections.Mapping[str, str]
+    ] = "This resource is currently busy; please try again later.",
+) -> None:
+    """Add the hooks used to manage a command's concurrency limit.
+
+    !!! warning
+        Concurrency limiters will only work if there's a setup injected
+        [AbstractConcurrencyLimiter][tanjun.dependencies.AbstractConcurrencyLimiter] dependency with
+        [InMemoryConcurrencyLimiter][tanjun.dependencies.InMemoryConcurrencyLimiter]
+        being usable as a standard in-memory concurrency manager.
+
+    Parameters
+    ----------
+    command
+        The command to add the concurrency limit to.
+    bucket_id
+        The concurrency limit bucket's ID.
+    error
+        Callback used to create a custom error to raise if the check fails.
+
+        This should two one [str][] argument which is the limiting bucket's ID.
+
+        This takes priority over `error_message`.
+    error_message
+        The error message to send in response as a command error if this fails
+        to acquire the concurrency limit.
+
+        This supports [localisation][] and uses the check name
+        `"tanjun.concurrency"` for global overrides.
     """
     pre_execution = ConcurrencyPreExecution(bucket_id, error=error, error_message=error_message)
     post_execution = ConcurrencyPostExecution(bucket_id)
 
-    def decorator(command: _OtherCommandT, /, *, _recursing: bool = False) -> _OtherCommandT:
-        hooks_ = command.hooks
-        if not hooks_:
-            hooks_ = hooks.AnyHooks()
-            command.set_hooks(hooks_)
+    hooks_ = command.hooks
+    if not hooks_:
+        hooks_ = hooks.AnyHooks()
+        command.set_hooks(hooks_)
 
-        hooks_.add_pre_execution(pre_execution).add_post_execution(post_execution)
-        if follow_wrapped and not _recursing:
-            for wrapped in _internal.collect_wrapped(command):
-                decorator(wrapped, _recursing=True)
-
-        return command
-
-    return decorator
+    hooks_.add_pre_execution(pre_execution).add_post_execution(post_execution)
