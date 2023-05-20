@@ -123,7 +123,9 @@ class TestAbstractCooldownManager:
     @pytest.mark.asyncio()
     async def test_acquire_when_errors(self):
         mock_try_acquire = mock.AsyncMock(
-            side_effect=tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(2023, 5, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc))
+            side_effect=tanjun.dependencies.limiters.CooldownDepleted(
+                datetime.datetime(2023, 5, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc)
+            )
         )
         mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
