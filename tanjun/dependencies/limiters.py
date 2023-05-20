@@ -206,7 +206,6 @@ class AbstractCooldownManager(abc.ABC):
             towards the cooldown.
         """
 
-
     def acquire(
         self,
         bucket_id: str,
