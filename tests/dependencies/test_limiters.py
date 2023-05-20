@@ -49,13 +49,15 @@ from tanjun.context import base as base_context
 class TestAbstractCooldownManager:
     @pytest.mark.asyncio()
     async def test_increment_cooldown(self):
-        mock_check_cooldown = mock.AsyncMock()
+        mock_try_acquire = mock.AsyncMock()
+        mock_release = mock.AsyncMock()
 
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_check_cooldown
-            decrement = mock.AsyncMock()
+            try_acquire = mock_try_acquire
+            release = mock_release
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -64,63 +66,74 @@ class TestAbstractCooldownManager:
         with pytest.warns(DeprecationWarning):
             await manager.increment_cooldown("catgirl neko", mock_context)
 
-        mock_check_cooldown.assert_awaited_once_with("catgirl neko", mock_context, increment=True)
+        mock_try_acquire.assert_awaited_once_with("catgirl neko", mock_context)
+        mock_release.assert_awaited_once_with("catgirl neko", mock_context)
 
     @pytest.mark.asyncio()
     async def test_acquire(self):
-        mock_try_acquire = mock.AsyncMock(return_value=None)
+        mock_try_acquire = mock.AsyncMock()
+        mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
         mock_error_callback = mock.Mock()
 
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_try_acquire
-            increment_cooldown = mock.AsyncMock()
+            try_acquire = mock_try_acquire
+            release = mock_release
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
         async with manager.acquire("buuuuu", mock_ctx, error=mock_error_callback):
-            mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx, increment=True)
+            mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx)
+            mock_release.assert_not_awaited()
 
-        mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx, increment=True)
+        mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx)
+        mock_release.assert_awaited_once_with("buuuuu", mock_ctx)
         mock_error_callback.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_acquire_when_ended_by_raise(self):
-        mock_try_acquire = mock.AsyncMock(return_value=None)
+        mock_try_acquire = mock.AsyncMock()
+        mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
         mock_error_callback = mock.Mock()
 
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_try_acquire
-            increment_cooldown = mock.AsyncMock()
+            try_acquire = mock_try_acquire
+            release = mock_release
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
         with pytest.raises(RuntimeError, match="bye"):  # noqa: PT012
             async with manager.acquire("buuuuu", mock_ctx, error=mock_error_callback):
-                mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx, increment=True)
+                mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx)
+                mock_release.assert_not_called()
 
                 raise RuntimeError("bye")
 
-        mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx, increment=True)
+        mock_try_acquire.assert_awaited_once_with("buuuuu", mock_ctx)
+        mock_release.assert_awaited_once_with("buuuuu", mock_ctx)
         mock_error_callback.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_acquire_when_errors(self):
         mock_try_acquire = mock.AsyncMock(
-            return_value=datetime.datetime(2023, 5, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc)
+            side_effect=tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(2023, 5, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc))
         )
+        mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
 
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_try_acquire
-            increment_cooldown = mock.AsyncMock()
+            try_acquire = mock_try_acquire
+            release = mock_release
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -129,21 +142,24 @@ class TestAbstractCooldownManager:
                 pytest.fail("Should never be reached")
 
         assert exc.value.content == "This command is currently in cooldown. Try again <t:1684531229:R>."
-        mock_try_acquire.assert_awaited_once_with("mooo", mock_ctx, increment=True)
+        mock_try_acquire.assert_awaited_once_with("mooo", mock_ctx)
+        mock_release.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_acquire_when_custom_error(self):
         expected_datetime = datetime.datetime(2023, 7, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc)
         expected_error = Exception("It's 5 nights at Fred bear's")
-        mock_try_acquire = mock.AsyncMock(return_value=expected_datetime)
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(expected_datetime))
+        mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
         mock_error_callback = mock.Mock(side_effect=expected_error)
 
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_try_acquire
-            increment_cooldown = mock.AsyncMock()
+            try_acquire = mock_try_acquire
+            release = mock_release
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -152,45 +168,52 @@ class TestAbstractCooldownManager:
                 pytest.fail("Should never be reached")
 
         assert exc.value is expected_error
-        mock_try_acquire.assert_awaited_once_with("ooop", mock_ctx, increment=True)
+        mock_try_acquire.assert_awaited_once_with("ooop", mock_ctx)
+        mock_release.assert_not_called()
         mock_error_callback.assert_called_once_with(expected_datetime)
 
     @pytest.mark.asyncio()
     async def test_acquire_when_already_acquired(self):
-        mock_try_acquire = mock.AsyncMock(return_value=None)
+        mock_try_acquire = mock.AsyncMock()
+        mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
         mock_error_callback = mock.Mock()
 
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_try_acquire
-            increment_cooldown = mock.AsyncMock()
+            try_acquire = mock_try_acquire
+            release = mock_release
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
         acquire = manager.acquire("oop", mock_ctx)
 
         async with acquire:
-            mock_try_acquire.assert_awaited_once_with("oop", mock_ctx, increment=True)
+            mock_try_acquire.assert_awaited_once_with("oop", mock_ctx)
+            mock_release.assert_not_called()
 
             with pytest.raises(RuntimeError, match="Already acquired"):  # noqa: PT012
                 async with acquire:
                     pytest.fail("Should never be reached")
 
-        mock_try_acquire.assert_awaited_once_with("oop", mock_ctx, increment=True)
+        mock_try_acquire.assert_awaited_once_with("oop", mock_ctx)
+        mock_release.assert_awaited_once_with("oop", mock_ctx)
         mock_error_callback.assert_not_called()
 
     @pytest.mark.asyncio()
     async def test_release_when_not_acquired(self):
-        mock_try_acquire = mock.AsyncMock(return_value=None)
+        mock_try_acquire = mock.AsyncMock()
+        mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
         mock_error_callback = mock.Mock()
 
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
 
-            check_cooldown = mock_try_acquire
-            increment_cooldown = mock.AsyncMock()
+            try_acquire = mock_try_acquire
+            release = mock_release
+            check = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -200,6 +223,7 @@ class TestAbstractCooldownManager:
             await acquire.__aexit__(None, None, None)
 
         mock_try_acquire.assert_not_called()
+        mock_release.assert_not_called()
         mock_error_callback.assert_not_called()
 
 
@@ -706,6 +730,7 @@ class TestCooldown:
             cooldown = tanjun.dependencies.limiters._Cooldown(
                 limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
             )
+            mock_ctx = mock.Mock()
             cooldown.counter = 2
 
             cooldown.increment()

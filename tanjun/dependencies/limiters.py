@@ -167,7 +167,7 @@ class AbstractCooldownManager(abc.ABC):
 
         Raises
         ------
-        ResourceDepleted
+        CooldownDepleted
             If the cooldown couldn't be acquired.
         """
 
@@ -268,10 +268,14 @@ class _CooldownAcquire:
         if self._acquired:
             raise RuntimeError("Already acquired")
 
-        result = await self._manager.check_cooldown(self._bucket_id, self._ctx, increment=True)
-        self._acquired = not result
-        if result:
-            raise self._error(result)
+        try:
+            await self._manager.try_acquire(self._bucket_id, self._ctx)
+
+        except CooldownDepleted as exc:
+            raise self._error(exc.wait_until)
+
+        else:
+            self._acquired = not True
 
     async def __aexit__(
         self,
@@ -281,6 +285,14 @@ class _CooldownAcquire:
     ) -> None:
         if not self._acquired:
             raise RuntimeError("Not acquired")
+
+        try:
+            await self._manager.release(self._bucket_id, self._ctx)
+
+        except ResourceNotTracked:
+            pass
+
+        self._acquired = False
 
 
 class AbstractConcurrencyLimiter(abc.ABC):
