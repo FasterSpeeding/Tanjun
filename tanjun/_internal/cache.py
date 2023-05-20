@@ -31,6 +31,8 @@
 """Utility classes for making cache calls."""
 from __future__ import annotations
 
+__all__: list[str] = ["get_perm_channel"]
+
 import typing
 
 import hikari
