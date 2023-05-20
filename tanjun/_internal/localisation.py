@@ -33,7 +33,6 @@ from __future__ import annotations
 
 __all__: list[str] = []
 
-import itertools
 import typing
 
 import hikari
@@ -102,7 +101,8 @@ class MaybeLocalised:
             self.default_value = entry
 
     def _values(self) -> collections.Iterable[str]:
-        return itertools.chain((self.default_value,), self.localised_values.values())
+        yield self.default_value
+        yield from self.localised_values.values()
 
     def localise(
         self,
