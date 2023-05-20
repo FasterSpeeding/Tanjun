@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - [InMemoryCooldownManager][tanjun.dependencies.limiters.InMemoryCooldownManager]
-  now uses a sliding ratelimig approach rather than fixed window.
+  now uses a sliding ratelimit approach rather than fixed window.
   This also now waits until the command call has finished before starting the
   countdown for expiring that specific call.
 - The datetime passed to [with_cooldown][tanjun.dependencies.limiters.with_cooldown]'s
