@@ -1660,11 +1660,14 @@ def add_concurrency_limit(
         The concurrency limit bucket's ID.
     error
         Callback used to create a custom error to raise if the check fails.
+
         This should two one [str][] argument which is the limiting bucket's ID.
+
         This takes priority over `error_message`.
     error_message
         The error message to send in response as a command error if this fails
         to acquire the concurrency limit.
+
         This supports [localisation][] and uses the check name
         `"tanjun.concurrency"` for global overrides.
     """

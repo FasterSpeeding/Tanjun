@@ -57,7 +57,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = mock.AsyncMock()
+            check = check_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -81,7 +81,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = mock.AsyncMock()
+            check = check_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -105,7 +105,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = mock.AsyncMock()
+            check = check_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -135,7 +135,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = mock.AsyncMock()
+            check = check_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -161,7 +161,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = mock.AsyncMock()
+            check = check_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -186,7 +186,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = mock.AsyncMock()
+            check = check_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
         acquire = manager.acquire("oop", mock_ctx)
@@ -215,7 +215,7 @@ class TestAbstractCooldownManager:
 
             try_acquire = mock_try_acquire
             release = mock_release
-            check = mock.AsyncMock()
+            check = check_cooldown = mock.AsyncMock()
 
         manager = CooldownManager()
 
@@ -729,52 +729,56 @@ class TestCooldown:
 
     def test_increment(self):
         with freezegun.freeze_time(datetime.datetime(2016, 3, 2, 12, 4, 5), auto_tick_seconds=5):
+            mock_ctx = mock.Mock()
             cooldown = tanjun.dependencies.limiters._Cooldown(
                 limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
             )
-            mock_ctx = mock.Mock()
             cooldown.counter = 2
 
-            cooldown.increment()
+            cooldown.increment(mock_ctx)
 
             assert cooldown.counter == 3
             assert cooldown.resets_at == datetime.datetime(2016, 3, 2, 12, 5, 14, 420000, tzinfo=datetime.timezone.utc)
 
     def test_increment_when_counter_is_0(self):
         with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=1):
+            mock_ctx = mock.Mock()
             cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=datetime.timedelta(seconds=69))
 
-            cooldown.increment()
+            cooldown.increment(mock_ctx)
 
             assert cooldown.counter == 1
             assert cooldown.resets_at == datetime.datetime(2014, 1, 2, 12, 5, 15, tzinfo=datetime.timezone.utc)
 
     def test_increment_when_counter_is_at_limit(self):
         with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=1):
+            mock_ctx = mock.Mock()
             cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=datetime.timedelta(seconds=69))
             cooldown.counter = 5
 
-            cooldown.increment()
+            cooldown.increment(mock_ctx)
 
             assert cooldown.counter == 5
             assert cooldown.resets_at == datetime.datetime(2014, 1, 2, 12, 5, 14, tzinfo=datetime.timezone.utc)
 
     def test_increment_when_passed_reset_after(self):
         with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=2):
+            mock_ctx = mock.Mock()
             cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=datetime.timedelta(seconds=2))
             cooldown.counter = 2
 
-            cooldown.increment()
+            cooldown.increment(mock_ctx)
 
             assert cooldown.counter == 1
             assert cooldown.resets_at == datetime.datetime(2014, 1, 2, 12, 4, 9, tzinfo=datetime.timezone.utc)
 
     def test_increment_when_limit_is_negeative_1(self):
+        mock_ctx = mock.Mock()
         cooldown = tanjun.dependencies.limiters._Cooldown(limit=-1, reset_after=datetime.timedelta(seconds=-1))
         cooldown.resets_at = datetime.datetime(2020, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
         cooldown.counter = 123
 
-        result = cooldown.increment()
+        result = cooldown.increment(mock_ctx)
 
         assert result is cooldown
         assert cooldown.counter == 123
