@@ -289,8 +289,11 @@ class _DefaultFlag(enum.Enum):
     NO_PASS = object()
 
 
-NO_DEFAULT = _DefaultFlag.NO_DEFAULT
+NO_DEFAULT: NoDefault = _DefaultFlag.NO_DEFAULT
 """Singleton used to mark an argument as having no default."""
+
+NoDefault = typing.Literal[_DefaultFlag.NO_DEFAULT]
+"""Type hint of [tanjun.abc.NO_DEFAULT][]."""
 
 NO_PASS = _DefaultFlag.NO_PASS
 """Singleton used to mark an argument as being not passed when it isn't provided."""

@@ -1674,7 +1674,7 @@ class Parameter:
         return self._key
 
     def _add_converter(self, converter: ConverterSig[typing.Any], /) -> None:
-        if isinstance(converter, conversion.BaseConverter) and self._client:
+        if self._client and isinstance(converter, conversion.BaseConverter):
             converter.check_client(self._client, f"{self._key} parameter")
 
         # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
