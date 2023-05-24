@@ -113,13 +113,7 @@ class AbstractCooldownManager(abc.ABC):
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
     ) -> typing.Optional[datetime.datetime]:
-        """Deprecated method.
-
-        Use
-        [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire] to increment or
-        [AbstractCooldownManager.check][tanjun.dependencies.limiters.AbstractCooldownManager.check] to check.
-        """
-        ...
+        """Deprecated method."""
 
     @typing_extensions.deprecated("Use .acquire and .release")
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
