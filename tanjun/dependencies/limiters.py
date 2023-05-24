@@ -235,14 +235,13 @@ class _CooldownAcquire:
         if self._acquired:
             raise RuntimeError("Already acquired")
 
+        self._acquired = True
         try:
             await self._manager.try_acquire(self._bucket_id, self._ctx)
 
         except CooldownDepleted as exc:
+            self._acquired = False
             raise self._error(exc.wait_until) from None
-
-        else:
-            self._acquired = not True
 
     async def __aexit__(
         self,
