@@ -979,12 +979,18 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             async def try_acquire(
                 self, bucket_id: str, ctx: tanjun.abc.Context, /
             ) -> None:
-                ...
+                # CooldownDepleted should be raised if this couldn't be acquired.
+                raise CooldownDepleted(None)
 
             async def release(
                 self, bucket_id: str, ctx: tanjun.abc.Context, /
             ) -> None:
                 ...
+
+        (
+            tanjun.dependencies.InMemoryCooldownManager()
+            .set_custom_bucket(CustomBucket(), "BUCKET_ID", "OTHER_BUCKET_ID")
+        )
         ```
         """
         for bucket_id in bucket_ids:
@@ -1485,12 +1491,19 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             async def try_acquire(
                 self, bucket_id: str, ctx: tanjun.abc.Context, /
             ) -> bool:
+                # True indicates this could be acquired (and the command
+                # should be allowed to run), False indicates it couldn't be.
                 return True
 
             async def release(
                 self, bucket_id: str, ctx: tanjun.abc.Context, /
             ) -> None:
                 ...
+
+        (
+            tanjun.dependencies.InMemoryConcurrencyLimiter()
+            .set_custom_bucket(CustomBucket(), "BUCKET_ID", "OTHER_BUCKET_ID")
+        )
         ```
         """
         for bucket_id in bucket_ids:

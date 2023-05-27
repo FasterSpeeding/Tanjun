@@ -37,13 +37,16 @@ import datetime
 import typing
 
 import alluka
-import freezegun
 import hikari
 import mock
 import pytest
 
 import tanjun
 from tanjun.context import base as base_context
+
+
+def _now() -> datetime.datetime:
+    return datetime.datetime.now(tz=datetime.timezone.utc)
 
 
 class TestAbstractCooldownManager:
@@ -714,105 +717,149 @@ async def test__get_ctx_target_when_unexpected_type():
 
 class TestCooldown:
     def test_has_expired_property(self):
-        with freezegun.freeze_time(auto_tick_seconds=3):
-            cooldown = tanjun.dependencies.limiters._Cooldown(limit=1, reset_after=datetime.timedelta(seconds=60))
+        cooldown = tanjun.dependencies.limiters._Cooldown(limit=1, reset_after=datetime.timedelta(seconds=60))
 
-            assert cooldown.has_expired() is False
+        cooldown.increment(mock.Mock())
+
+        assert cooldown.has_expired() is False
+
+    def test_has_expired_property_after_unlock(self):
+        mock_ctx = mock.Mock()
+        cooldown = tanjun.dependencies.limiters._Cooldown(limit=1, reset_after=datetime.timedelta(seconds=60))
+
+        cooldown.increment(mock_ctx)
+        cooldown.unlock(mock_ctx)
+
+        assert cooldown.has_expired() is False
 
     def test_has_expired_property_when_has_expired(self):
-        with freezegun.freeze_time(auto_tick_seconds=30):
-            cooldown = tanjun.dependencies.limiters._Cooldown(
-                limit=1, reset_after=datetime.timedelta(seconds=26, milliseconds=500)
-            )
+        cooldown = tanjun.dependencies.limiters._Cooldown(
+            limit=1, reset_after=datetime.timedelta(seconds=26, milliseconds=500)
+        )
 
-            assert cooldown.has_expired() is True
+        assert cooldown.has_expired() is True
 
-    def test_increment(self):
-        with freezegun.freeze_time(datetime.datetime(2016, 3, 2, 12, 4, 5), auto_tick_seconds=5):
-            mock_ctx = mock.Mock()
-            cooldown = tanjun.dependencies.limiters._Cooldown(
-                limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
-            )
-            cooldown.counter = 2
+    def test_has_expired_property_when_tracking_expired_acquires(self):
+        cooldown = tanjun.dependencies.limiters._Cooldown(
+            limit=1, reset_after=datetime.timedelta(seconds=26, milliseconds=500)
+        )
+        now = _now()
+        cooldown.uses = [now - datetime.timedelta(seconds=30), now - datetime.timedelta(seconds=28)]
 
-            cooldown.increment(mock_ctx)
+        assert cooldown.has_expired() is True
 
-            assert cooldown.counter == 3
-            assert cooldown.resets_at == datetime.datetime(2016, 3, 2, 12, 5, 14, 420000, tzinfo=datetime.timezone.utc)
+    def test_check_clears_old_releases(self):
+        now = _now()
+        mock_ctx_1 = mock.Mock()
+        mock_ctx_2 = mock.Mock()
+        cooldown = tanjun.dependencies.limiters._Cooldown(
+            limit=6, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
+        )
+        cooldown.uses = [
+            now - datetime.timedelta(seconds=90),
+            now - datetime.timedelta(seconds=75),
+            now - datetime.timedelta(seconds=44),
+            now - datetime.timedelta(seconds=32),
+        ]
+        cooldown.locked = {mock_ctx_1, mock_ctx_2}
 
-    def test_increment_when_counter_is_0(self):
-        with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=1):
-            mock_ctx = mock.Mock()
-            cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=datetime.timedelta(seconds=69))
+        cooldown.check()
 
-            cooldown.increment(mock_ctx)
+        assert cooldown.locked == {mock_ctx_1, mock_ctx_2}
+        assert cooldown.uses == [now - datetime.timedelta(seconds=44), now - datetime.timedelta(seconds=32)]
 
-            assert cooldown.counter == 1
-            assert cooldown.resets_at == datetime.datetime(2014, 1, 2, 12, 5, 15, tzinfo=datetime.timezone.utc)
-
-    def test_increment_when_counter_is_at_limit(self):
-        with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=1):
-            mock_ctx = mock.Mock()
-            cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=datetime.timedelta(seconds=69))
-            cooldown.counter = 5
-
-            cooldown.increment(mock_ctx)
-
-            assert cooldown.counter == 5
-            assert cooldown.resets_at == datetime.datetime(2014, 1, 2, 12, 5, 14, tzinfo=datetime.timezone.utc)
-
-    def test_increment_when_passed_reset_after(self):
-        with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=2):
-            mock_ctx = mock.Mock()
-            cooldown = tanjun.dependencies.limiters._Cooldown(limit=5, reset_after=datetime.timedelta(seconds=2))
-            cooldown.counter = 2
-
-            cooldown.increment(mock_ctx)
-
-            assert cooldown.counter == 1
-            assert cooldown.resets_at == datetime.datetime(2014, 1, 2, 12, 4, 9, tzinfo=datetime.timezone.utc)
-
-    def test_increment_when_limit_is_negeative_1(self):
+    def test(self):
+        now = _now()
         mock_ctx = mock.Mock()
-        cooldown = tanjun.dependencies.limiters._Cooldown(limit=-1, reset_after=datetime.timedelta(seconds=-1))
-        cooldown.resets_at = datetime.datetime(2020, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
-        cooldown.counter = 123
+        mock_other_ctx = mock.Mock()
+        cooldown = tanjun.dependencies.limiters._Cooldown(
+            limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
+        )
+        cooldown.uses = [now - datetime.timedelta(seconds=10), now - datetime.timedelta(seconds=5)]
+        cooldown.locked.add(mock_other_ctx)
 
-        result = cooldown.increment(mock_ctx)
+        cooldown.increment(mock_ctx)
 
-        assert result is cooldown
-        assert cooldown.counter == 123
-        assert cooldown.resets_at == datetime.datetime(2020, 1, 1, 0, 0, tzinfo=datetime.timezone.utc)
+        assert cooldown.locked == {mock_ctx, mock_other_ctx}
+        assert cooldown.uses == [now - datetime.timedelta(seconds=10), now - datetime.timedelta(seconds=5)]
+        assert cooldown.check()
 
-    def test_must_wait_until(self):
-        with freezegun.freeze_time(datetime.datetime(2014, 1, 2, 12, 4, 5), auto_tick_seconds=3):
-            cooldown = tanjun.dependencies.limiters._Cooldown(
-                reset_after=datetime.timedelta(seconds=10, milliseconds=5), limit=3
-            )
-            cooldown.counter = 3
+    def test_when_counter_no_ctxs_tracked(self):
+        mock_ctx = mock.Mock()
+        cooldown = tanjun.dependencies.limiters._Cooldown(
+            limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
+        )
 
-            assert cooldown.must_wait_until() == datetime.datetime(
-                2014, 1, 2, 12, 4, 15, 5000, tzinfo=datetime.timezone.utc
-            )
+        cooldown.increment(mock_ctx)
 
-    def test_must_wait_until_when_resource_limit_not_hit(self):
-        cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=datetime.timedelta(seconds=2), limit=3)
-        cooldown.counter = 2
+        assert cooldown.locked == {mock_ctx}
+        assert cooldown.uses == []
+        assert cooldown.check()
 
-        assert cooldown.must_wait_until() is None
+    def test_when_counter_is_at_limit(self):
+        now = _now()
+        mock_ctx = mock.Mock()
+        mock_ctx_1 = mock.Mock()
+        mock_ctx_2 = mock.Mock()
+        cooldown = tanjun.dependencies.limiters._Cooldown(
+            limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
+        )
+        cooldown.uses = [now - datetime.timedelta(seconds=10), now - datetime.timedelta(seconds=5)]
+        cooldown.locked = {mock_ctx_1, mock_ctx_2}
 
-    def test_must_wait_until_when_reset_after_reached(self):
-        with freezegun.freeze_time(datetime.datetime(2014, 1, 5, 12, 4, 5), auto_tick_seconds=5):
-            cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=datetime.timedelta(seconds=5), limit=3)
-            cooldown.counter = 3
+        cooldown.increment(mock_ctx)
 
-            assert cooldown.must_wait_until() is None
+        with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
+            assert cooldown.check()
 
-    def test_must_wait_until_when_limit_is_negative_1(self):
-        cooldown = tanjun.dependencies.limiters._Cooldown(reset_after=datetime.timedelta(seconds=64), limit=-1)
-        cooldown.counter = 55
+        assert exc.value.wait_until == now - datetime.timedelta(seconds=10)
+        assert cooldown.locked == {mock_ctx, mock_ctx_1, mock_ctx_2}
+        assert cooldown.uses == [now - datetime.timedelta(seconds=10), now - datetime.timedelta(seconds=5)]
 
-        assert cooldown.must_wait_until() is None
+    def test_when_counter_is_at_limit_from_only_locks(self):
+        cooldown = tanjun.dependencies.limiters._Cooldown(
+            limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
+        )
+        cooldown.increment(mock.Mock())
+        cooldown.increment(mock.Mock())
+        cooldown.increment(mock.Mock())
+        cooldown.increment(mock.Mock())
+        cooldown.increment(mock.Mock())
+
+        with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
+            assert cooldown.check()
+
+        assert exc.value.wait_until is None
+
+    def test_when_counter_is_at_limit_from_only_unlocked_tracks(self):
+        now = _now()
+        cooldown = tanjun.dependencies.limiters._Cooldown(
+            limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
+        )
+        cooldown.uses = [
+            now - datetime.timedelta(seconds=35),
+            now - datetime.timedelta(seconds=23),
+            now - datetime.timedelta(seconds=20),
+            now - datetime.timedelta(seconds=10),
+            now - datetime.timedelta(seconds=5),
+        ]
+
+        with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
+            assert cooldown.check()
+
+        assert exc.value.wait_until == now - datetime.timedelta(seconds=35)
+
+    def test_when_limit_is_negeative_1(self):
+        cooldown = tanjun.dependencies.limiters._Cooldown(
+            limit=-1, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
+        )
+
+        cooldown.increment(mock.Mock())
+
+        assert cooldown.locked == set()
+        assert cooldown.uses == []
+        assert cooldown.has_expired() is True
+        assert cooldown.check()
 
 
 class TestFlatResource:
