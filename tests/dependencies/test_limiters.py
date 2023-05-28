@@ -1785,21 +1785,18 @@ class TestCooldownPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_still_leads_to_wait_until_with_unknown_date(self):
-        ...
-        # pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True)
-        # mock_context = mock.Mock()
-        # mock_cooldown_manager = mock.AsyncMock()
-        # mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
-        # mock_owner_check = mock.AsyncMock()
-        # mock_owner_check.check_ownership.return_value = False
+        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True)
+        mock_context = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+        mock_owner_check.check_ownership.return_value = False
 
-        # with pytest.raises(
-        #     tanjun.CommandError, match="This command is currently in cooldown. Try again soon."
-        # ):
-        #     await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+        with pytest.raises(tanjun.CommandError, match="This command is currently in cooldown."):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
 
-        # mock_cooldown_manager.try_acquire.assert_awaited_once_with("yuri", mock_context)
-        # mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("yuri", mock_context)
+        mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_still_leads_to_wait_until_and_error_callback(self):
@@ -1858,6 +1855,24 @@ class TestCooldownPreExecution:
         with pytest.raises(
             tanjun.CommandError, match="This command is currently in cooldown. Try again <t:1452946089:R>."
         ):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_wait_until_custom_message(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri", owners_exempt=False, error_message="Boopity boop {cooldown}."
+        )
+        mock_context = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(tanjun.CommandError, match="Boopity boop <t:1452946089:R>."):
             await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
 
         mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
@@ -1938,7 +1953,7 @@ class TestCooldownPreExecution:
         mock_owner_check.check_ownership.assert_not_called()
 
     @pytest.mark.asyncio()
-    async def test_call_when_with_until_localised_by_localiser(self):
+    async def test_call_when_wait_until_localised_by_localiser(self):
         pre_execution = tanjun.dependencies.CooldownPreExecution(
             "catgirls yuri",
             error_message={
@@ -2059,6 +2074,216 @@ class TestCooldownPreExecution:
             "catgirls yuri", datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
         )
 
+    @pytest.mark.asyncio()
+    async def test_call_when_unknown_wait_until(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls yuri", owners_exempt=False)
+        mock_context = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(tanjun.CommandError, match="This command is currently in cooldown."):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_unknown_wait_until_custom_default(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri", owners_exempt=False, error_message="Boopers."
+        )
+        mock_context = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(tanjun.CommandError, match="Boopers."):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_unknown_wait_until_custom_message(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri", owners_exempt=False, unknown_message="Meep moop."
+        )
+        mock_context = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(tanjun.CommandError, match="Meep moop."):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_unknown_wait_until_localised(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            unknown_message={hikari.Locale.CS: "yeet", hikari.Locale.FR: "eep", hikari.Locale.ES_ES: "i am meow"},
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.ES_ES
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(tanjun.CommandError, match="i am meow"):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_unknown_wait_until_localised_but_not_app_command_defaults(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            unknown_message={hikari.Locale.FR: "eep", "default": "meow meow nyaa", hikari.Locale.ES_ES: "i am meow"},
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.Context)
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(tanjun.CommandError, match="meow meow nyaa"):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_unknown_wait_until_localised_defaults(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            unknown_message={
+                hikari.Locale.IT: "epic stones",
+                hikari.Locale.FR: "meow meow nyaa",
+                hikari.Locale.ES_ES: "i am meow",
+            },
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
+        mock_context.interaction.locale = hikari.Locale.HR
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(tanjun.CommandError, match="epic stones"):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_unknown_wait_until_localised_by_localiser(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            unknown_message={hikari.Locale.CS: "yeet", hikari.Locale.FR: "eep", hikari.Locale.ES_ES: "i am meow"},
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eep meow nyaa")
+        mock_context.type = hikari.CommandType.SLASH
+        mock_context.interaction.locale = hikari.Locale.FR
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "slash:eep meow nyaa:check:tanjun.cooldown-unknown",
+            {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am nyaa"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="i am nyaa"):
+            await pre_execution(
+                mock_context, cooldowns=mock_cooldown_manager, localiser=localiser, owner_check=mock_owner_check
+            )
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_unknown_wait_until_localised_but_localiser_not_found(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            unknown_message={hikari.Locale.CS: "yeet", hikari.Locale.FR: "eep", hikari.Locale.ES_ES: "meow meow"},
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eep meow nyaa")
+        mock_context.type = hikari.CommandType.SLASH
+        mock_context.interaction.locale = hikari.Locale.ES_ES
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "slash:eep meow nyaa:check:tanjun.cooldown-unknown",
+            {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am nyaa"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="meow meow"):
+            await pre_execution(
+                mock_context, cooldowns=mock_cooldown_manager, localiser=localiser, owner_check=mock_owner_check
+            )
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_unknown_wait_until_defaults_with_localiser(self):
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri",
+            error_message={
+                hikari.Locale.CS: "yeet",
+                hikari.Locale.FR: "eep",
+                "default": "echo echo foxtrot",
+                hikari.Locale.ES_ES: "meow meow",
+            },
+            owners_exempt=False,
+        )
+        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eep meow nyaa")
+        mock_context.type = hikari.CommandType.SLASH
+        mock_context.interaction.locale = hikari.Locale.PT_BR
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
+            "slash:eep meow nyaa:check:tanjun.cooldown-unknown",
+            {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am nyaa"},
+        )
+
+        with pytest.raises(tanjun.CommandError, match="echo echo foxtrot"):
+            await pre_execution(
+                mock_context, cooldowns=mock_cooldown_manager, localiser=localiser, owner_check=mock_owner_check
+            )
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_call_when_unknown_wait_until_and_error_callback(self):
+        class MockException(Exception):
+            ...
+
+        mock_error_callback = mock.Mock(return_value=MockException())
+        pre_execution = tanjun.dependencies.CooldownPreExecution(
+            "catgirls yuri", owners_exempt=False, error=mock_error_callback
+        )
+        mock_context = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_owner_check = mock.AsyncMock()
+
+        with pytest.raises(MockException):
+            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+
+        mock_cooldown_manager.try_acquire.assert_awaited_once_with("catgirls yuri", mock_context)
+        mock_owner_check.check_ownership.assert_not_called()
+        mock_error_callback.assert_called_once_with("catgirls yuri", None)
+
 
 class TestCooldownPostExecution:
     @pytest.mark.asyncio()
@@ -2089,11 +2314,19 @@ def test_with_cooldown():
 
     with mock.patch.object(tanjun.dependencies.limiters, "CooldownPreExecution") as mock_pre_execution:
         tanjun.with_cooldown(
-            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+            "catgirl x catgirl",
+            error=mock_error_callback,
+            error_message="pussy cat pussy cat",
+            owners_exempt=False,
+            unknown_message="op",
         )(mock_command)
 
         mock_pre_execution.assert_called_once_with(
-            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+            "catgirl x catgirl",
+            error=mock_error_callback,
+            error_message="pussy cat pussy cat",
+            owners_exempt=False,
+            unknown_message="op",
         )
         mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
 
@@ -2110,11 +2343,19 @@ def test_with_cooldown_when_no_set_hooks():
         mock.patch.object(tanjun.hooks, "AnyHooks") as any_hooks,
     ):
         tanjun.with_cooldown(
-            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+            "catgirl x catgirl",
+            error=mock_error_callback,
+            error_message="pussy cat pussy cat",
+            owners_exempt=False,
+            unknown_message="op op",
         )(mock_command)
 
         mock_pre_execution.assert_called_once_with(
-            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+            "catgirl x catgirl",
+            error=mock_error_callback,
+            error_message="pussy cat pussy cat",
+            owners_exempt=False,
+            unknown_message="op op",
         )
         mock_command.set_hooks.assert_called_once_with(any_hooks.return_value)
         any_hooks.return_value.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
@@ -2141,6 +2382,7 @@ def test_with_cooldown_when_follow_wrapping():
             "catgirl x catgirl",
             error=mock_error_callback,
             error_message="pussy cat pussy cat",
+            unknown_message="meow",
             follow_wrapped=True,
             owners_exempt=False,
         )(mock_command)
@@ -2151,18 +2393,14 @@ def test_with_cooldown_when_follow_wrapping():
     mock_pre_execution.assert_has_calls(
         [
             mock.call(
-                "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
-            ),
-            mock.call(
-                "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
-            ),
-            mock.call(
-                "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
-            ),
-            mock.call(
-                "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
-            ),
+                "catgirl x catgirl",
+                error=mock_error_callback,
+                error_message="pussy cat pussy cat",
+                unknown_message="meow",
+                owners_exempt=False,
+            )
         ]
+        * 4
     )
     mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
     mock_command.wrapped_command.set_hooks.assert_called_once_with(mock_hooks_1)
@@ -2181,12 +2419,17 @@ def test_with_cooldown_when_follow_wrapping_and_not_wrapping():
             "catgirl x catgirl",
             error=mock_error_callback,
             error_message="pussy cat pussy cat",
+            unknown_message="odd",
             follow_wrapped=True,
             owners_exempt=False,
         )(mock_command)
 
         mock_pre_execution.assert_called_once_with(
-            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+            "catgirl x catgirl",
+            error=mock_error_callback,
+            error_message="pussy cat pussy cat",
+            unknown_message="odd",
+            owners_exempt=False,
         )
         mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
 
@@ -2202,12 +2445,17 @@ def test_with_cooldown_when_follow_wrapping_and_unsupported_command():
             "catgirl x catgirl",
             error=mock_error_callback,
             error_message="pussy cat pussy cat",
+            unknown_message="biggy",
             follow_wrapped=True,
             owners_exempt=False,
         )(mock_command)
 
         mock_pre_execution.assert_called_once_with(
-            "catgirl x catgirl", error=mock_error_callback, error_message="pussy cat pussy cat", owners_exempt=False
+            "catgirl x catgirl",
+            error=mock_error_callback,
+            error_message="pussy cat pussy cat",
+            unknown_message="biggy",
+            owners_exempt=False,
         )
         mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
 
@@ -2223,6 +2471,7 @@ def test_with_cooldown_when_follow_wrapping_and_wrapping_unsupported_command():
             "catgirl x catgirl",
             error=mock_error_callback,
             error_message="pussy cat pussy cat",
+            unknown_message="cab",
             follow_wrapped=True,
             owners_exempt=False,
         )(mock_command)
@@ -2233,15 +2482,11 @@ def test_with_cooldown_when_follow_wrapping_and_wrapping_unsupported_command():
                     "catgirl x catgirl",
                     error=mock_error_callback,
                     error_message="pussy cat pussy cat",
+                    unknown_message="cab",
                     owners_exempt=False,
-                ),
-                mock.call(
-                    "catgirl x catgirl",
-                    error=mock_error_callback,
-                    error_message="pussy cat pussy cat",
-                    owners_exempt=False,
-                ),
+                )
             ]
+            * 2
         )
         mock_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)
         mock_command.wrapped_command.hooks.add_pre_execution.assert_called_once_with(mock_pre_execution.return_value)

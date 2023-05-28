@@ -1012,7 +1012,7 @@ class CooldownPreExecution:
     instead and incrementing the bucket's use counter.
     """
 
-    __slots__ = ("_bucket_id", "_error", "_error_message", "_owners_exempt", "__weakref__")
+    __slots__ = ("_bucket_id", "_error", "_error_message", "_owners_exempt", "_unknown_message", "__weakref__")
 
     def __init__(
         self,
@@ -1023,6 +1023,7 @@ class CooldownPreExecution:
         error_message: typing.Union[
             str, collections.Mapping[str, str]
         ] = "This command is currently in cooldown. Try again {cooldown}.",
+        unknown_message: typing.Union[str, collections.Mapping[str, str], None] = None,
         owners_exempt: bool = True,
     ) -> None:
         """Initialise a pre-execution cooldown command hook.
@@ -1044,13 +1045,26 @@ class CooldownPreExecution:
 
             This supports [localisation][] and uses the check name
             `"tanjun.cooldown"` for global overrides.
+        unknown_message
+            Response error message for when `cooldown` is unknown.
+
+            This supports [localisation][] and uses the check name
+            `"tanjun.cooldown-unknown"` for global overrides.
+
+            This defaults to `error_message` but takes no format args.
         owners_exempt
             Whether owners should be exempt from the cooldown.
         """
+        if unknown_message is None:
+            unknown_message = error_message
+            if isinstance(unknown_message, str):
+                unknown_message = unknown_message.removesuffix(" Try again {cooldown}.")
+
         self._bucket_id = bucket_id
         self._error = error
         self._error_message = localisation.MaybeLocalised("error_message", error_message)
         self._owners_exempt = owners_exempt
+        self._unknown_message = localisation.MaybeLocalised("unknown_message", unknown_message)
 
     async def __call__(
         self,
@@ -1076,8 +1090,15 @@ class CooldownPreExecution:
             if self._error:
                 raise self._error(self._bucket_id, exc.wait_until) from None
 
-            wait_until_repr = conversion.from_datetime(exc.wait_until, style="R") if exc.wait_until else None
-            message = self._error_message.localise(ctx, localiser, "check", "tanjun.cooldown", cooldown=wait_until_repr)
+            if exc.wait_until is None:
+                message = self._unknown_message.localise(ctx, localiser, "check", "tanjun.cooldown-unknown")
+
+            else:
+                wait_until_repr = conversion.from_datetime(exc.wait_until, style="R")
+                message = self._error_message.localise(
+                    ctx, localiser, "check", "tanjun.cooldown", cooldown=wait_until_repr
+                )
+
             raise errors.CommandError(message) from None
 
 
@@ -1105,6 +1126,7 @@ def with_cooldown(
     error_message: typing.Union[
         str, collections.Mapping[str, str]
     ] = "This command is currently in cooldown. Try again {cooldown}.",
+    unknown_message: typing.Union[str, collections.Mapping[str, str], None] = None,
     follow_wrapped: bool = False,
     owners_exempt: bool = True,
 ) -> collections.Callable[[_CommandT], _CommandT]:
@@ -1133,6 +1155,13 @@ def with_cooldown(
 
         This supports [localisation][] and uses the check name
         `"tanjun.cooldown"` for global overrides.
+    unknown_message
+        Response error message for when `cooldown` is unknown.
+
+        This supports [localisation][] and uses the check name
+        `"tanjun.cooldown-unknown"` for global overrides.
+
+        This defaults to `error_message` but takes no format args.
     follow_wrapped
         Whether to also add this check to any other command objects this
         command wraps in a decorator call chain.
@@ -1146,7 +1175,14 @@ def with_cooldown(
     """
     return lambda command: _internal.apply_to_wrapped(
         command,
-        lambda c: add_cooldown(c, bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt),
+        lambda c: add_cooldown(
+            c,
+            bucket_id,
+            error=error,
+            error_message=error_message,
+            owners_exempt=owners_exempt,
+            unknown_message=unknown_message,
+        ),
         command,
         follow_wrapped=follow_wrapped,
     )
@@ -1161,6 +1197,7 @@ def add_cooldown(
     error_message: typing.Union[
         str, collections.Mapping[str, str]
     ] = "This command is currently in cooldown. Try again {cooldown}.",
+    unknown_message: typing.Union[str, collections.Mapping[str, str], None] = None,
     owners_exempt: bool = True,
 ) -> None:
     """Add a pre-execution hook used to manage a command's cooldown.
@@ -1190,11 +1227,22 @@ def add_cooldown(
 
         This supports [localisation][] and uses the check name
         `"tanjun.cooldown"` for global overrides.
+    unknown_message
+        Response error message for when `cooldown` is unknown.
+
+        This supports [localisation][] and uses the check name
+        `"tanjun.cooldown-unknown"` for global overrides.
+
+        This defaults to `error_message` but takes no format args.
     owners_exempt
         Whether owners should be exempt from the cooldown.
     """
     pre_execution = CooldownPreExecution(
-        bucket_id, error=error, error_message=error_message, owners_exempt=owners_exempt
+        bucket_id,
+        error=error,
+        error_message=error_message,
+        owners_exempt=owners_exempt,
+        unknown_message=unknown_message,
     )
     post_execution = CooldownPostExecution(bucket_id)
     hooks_ = command.hooks
