@@ -75,8 +75,8 @@ class TestAbstractCooldownManager:
 
     @pytest.mark.asyncio()
     async def test_increment_cooldown_when_resource_depleted(self):
-        mock_try_acquire = mock.AsyncMock()
-        mock_release = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(None))
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(None))
+        mock_release = mock.AsyncMock()
 
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
             __slots__ = ()
