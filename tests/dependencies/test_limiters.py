@@ -74,6 +74,28 @@ class TestAbstractCooldownManager:
         mock_release.assert_awaited_once_with("catgirl neko", mock_context)
 
     @pytest.mark.asyncio()
+    async def test_increment_cooldown_when_resource_depleted(self):
+        mock_try_acquire = mock.AsyncMock()
+        mock_release = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(None))
+
+        class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
+            __slots__ = ()
+
+            try_acquire = mock_try_acquire
+            release = mock_release
+            check = check_cooldown = mock.AsyncMock()
+
+        manager = CooldownManager()
+
+        mock_context = mock.Mock()
+
+        with pytest.warns(DeprecationWarning):
+            await manager.increment_cooldown("catgirl neko", mock_context)
+
+        mock_try_acquire.assert_awaited_once_with("catgirl neko", mock_context)
+        mock_release.assert_not_called()
+
+    @pytest.mark.asyncio()
     async def test_acquire(self):
         mock_try_acquire = mock.AsyncMock()
         mock_release = mock.AsyncMock()
