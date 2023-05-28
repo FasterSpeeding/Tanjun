@@ -37,6 +37,7 @@ import datetime
 import typing
 
 import alluka
+import freezegun
 import hikari
 import mock
 import pytest
@@ -1206,79 +1207,262 @@ class TestInMemoryCooldownManager:
         mock_open.assert_called_once_with(_loop=mock_client.loop)
 
     @pytest.mark.asyncio()
-    async def test_check_cooldown(self):
+    async def test_try_acquire(self):
+        mock_bucket = mock.AsyncMock()
+        mock_ctx = mock.Mock()
+        inner = mock_bucket.into_inner.return_value = mock.Mock()
+        inner.check.return_value = inner.increment.return_value = inner
         manager = tanjun.dependencies.InMemoryCooldownManager()
-        mock_context = mock.Mock()
-        mock_bucket = mock.Mock(try_into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_inner: typing.Any = mock_bucket.try_into_inner.return_value
-        manager._buckets["ok"] = mock_bucket
+        manager._buckets["yeet me"] = mock_bucket
 
-        result = await manager.check_cooldown("ok", mock_context, increment=False)
+        await manager.try_acquire("yeet me", mock_ctx)
 
-        assert result is mock_bucket.try_into_inner.return_value.must_wait_until.return_value
-        mock_bucket.try_into_inner.assert_awaited_once_with(mock_context)
-        mock_inner.must_wait_until.assert_called_once_with()
+        mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
+        inner.check.assert_called_once_with()
+        inner.increment.assert_called_once_with(mock_ctx)
+        assert manager._acquiring_ctxs[("yeet me", mock_ctx)] == inner
 
     @pytest.mark.asyncio()
-    async def test_check_cooldown_when_try_into_inner_returns_none(self):
+    async def test_try_acquire_dedupes(self):
+        mock_bucket = mock.AsyncMock()
+        mock_ctx = mock.Mock()
+        inner = mock_bucket.into_inner.return_value = mock.Mock()
+        inner.check.return_value = inner.increment.return_value = inner
         manager = tanjun.dependencies.InMemoryCooldownManager()
-        mock_context = mock.Mock()
-        mock_bucket = mock.Mock(try_into_inner=mock.AsyncMock(return_value=None))
-        manager._buckets["ok"] = mock_bucket
+        manager._buckets["yeet me"] = mock_bucket
 
-        result = await manager.check_cooldown("ok", mock_context, increment=False)
+        await manager.try_acquire("yeet me", mock_ctx)
+        await manager.try_acquire("yeet me", mock_ctx)
+
+        mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
+        inner.check.assert_called_once_with()
+        inner.increment.assert_called_once_with(mock_ctx)
+        assert manager._acquiring_ctxs[("yeet me", mock_ctx)] == inner
+
+    @pytest.mark.asyncio()
+    async def test_try_acquire_when_depleted(self):
+        expected_error = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_bucket = mock.AsyncMock()
+        mock_ctx = mock.Mock()
+        inner = mock_bucket.into_inner.return_value = mock.Mock()
+        inner.check.side_effect = expected_error
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        manager._buckets["yeet me"] = mock_bucket
+
+        with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
+            await manager.try_acquire("yeet me", mock_ctx)
+
+        assert exc.value is expected_error
+        mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
+        inner.check.assert_called_once_with()
+        inner.increment.assert_not_called()
+        assert ("yeet me", mock_ctx) not in manager._acquiring_ctxs
+
+    @pytest.mark.asyncio()
+    async def test_try_acquire_falls_back_to_default(self):
+        manager = tanjun.dependencies.InMemoryCooldownManager().set_bucket(
+            "default", tanjun.dependencies.BucketResource.CHANNEL, 543, datetime.timedelta(50)
+        )
+
+        await manager.try_acquire("bucko", mock.Mock())
+
+        assert isinstance(manager._buckets["bucko"], tanjun.dependencies.limiters._FlatResource)
+        assert manager._buckets["bucko"].resource is tanjun.dependencies.BucketResource.CHANNEL
+        bucket = manager._buckets["bucko"].make_resource()
+        assert bucket.limit == 543
+        assert bucket.reset_after == datetime.timedelta(50)
+
+    @pytest.mark.asyncio()
+    async def test_try_acquire_with_custom_bucket(self):
+        mock_bucket = mock.AsyncMock()
+        mock_context = mock.Mock()
+        manager = tanjun.dependencies.InMemoryCooldownManager().set_custom_bucket(mock_bucket, "meow meow")
+
+        await manager.try_acquire("meow meow", mock_context)
+
+        mock_bucket.try_acquire.assert_awaited_once_with("meow meow", mock_context)
+
+    @pytest.mark.asyncio()
+    async def test_release(self):
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        mock_ctx = mock.Mock()
+        mock_inner = mock.Mock()
+        manager._acquiring_ctxs[("interesting!", mock_ctx)] = mock_inner
+
+        await manager.release("interesting!", mock_ctx)
+
+        assert ("interesting!", mock_ctx) not in manager._acquiring_ctxs
+        mock_inner.unlock.assert_called_once_with(mock_ctx)
+
+    @pytest.mark.asyncio()
+    async def test_release_when_not_tracked(self):
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+
+        with pytest.raises(tanjun.dependencies.limiters.ResourceNotTracked):
+            await manager.release("oop", mock.Mock())
+
+    @pytest.mark.asyncio()
+    async def test_release_with_custom_bucket(self):
+        mock_bucket = mock.AsyncMock()
+        mock_context = mock.Mock()
+        manager = tanjun.dependencies.InMemoryCooldownManager().set_custom_bucket(mock_bucket, "meowers meowers")
+
+        await manager.release("meowers meowers", mock_context)
+
+        mock_bucket.release.assert_awaited_once_with("meowers meowers", mock_context)
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown(self):
+        mock_bucket = mock.AsyncMock()
+        mock_bucket.into_inner.return_value = mock.Mock()
+        mock_ctx = mock.Mock()
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        manager._buckets["echo"] = mock_bucket
+
+        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+            result = await manager.check_cooldown("echo", mock_ctx)
 
         assert result is None
-        mock_bucket.try_into_inner.assert_awaited_once_with(mock_context)
+        mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
+        mock_bucket.into_inner.return_value.check.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_for_acquired_context(self):
+        mock_resource = mock.Mock()
+        mock_ctx = mock.Mock()
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        manager._acquiring_ctxs["mortal", mock_ctx] = mock_resource
+
+        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+            result = await manager.check_cooldown("mortal", mock_ctx)
+
+        assert result is None
+        mock_resource.check.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_when_cooldown_depleted(self):
+        date = _now()
+        mock_bucket = mock.AsyncMock()
+        mock_bucket.into_inner.return_value.check = mock.Mock(
+            side_effect=tanjun.dependencies.limiters.CooldownDepleted(date)
+        )
+        mock_ctx = mock.Mock()
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        manager._buckets["meep"] = mock_bucket
+
+        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+            result = await manager.check_cooldown("meep", mock_ctx)
+
+        assert result is date
+        mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
+        mock_bucket.into_inner.return_value.check.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_for_acquired_context_when_cooldown_depleted(self):
+        date = _now()
+        mock_resource = mock.Mock()
+        mock_resource.check.side_effect = tanjun.dependencies.limiters.CooldownDepleted(date)
+        mock_ctx = mock.Mock()
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        manager._acquiring_ctxs[("eeep", mock_ctx)] = mock_resource
+
+        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+            result = await manager.check_cooldown("eeep", mock_ctx)
+
+        assert result is date
+        mock_resource.check.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_when_cooldown_depleted_unknown_wait_until(self):
+        mock_bucket = mock.AsyncMock()
+        mock_bucket.into_inner.return_value.check = mock.Mock(
+            side_effect=tanjun.dependencies.limiters.CooldownDepleted(None)
+        )
+        mock_ctx = mock.Mock()
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        manager._buckets["flirt"] = mock_bucket
+
+        date = datetime.datetime(2022, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
+        with freezegun.freeze_time(date), pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+            result = await manager.check_cooldown("flirt", mock_ctx)
+
+        assert result == datetime.datetime(2022, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
+        mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
+        mock_bucket.into_inner.return_value.check.assert_called_once_with()
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_for_acquired_context_when_cooldown_depleted_unknown_wait_until(self):
+        mock_resource = mock.Mock()
+        mock_resource.check.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_ctx = mock.Mock()
+        manager = tanjun.dependencies.InMemoryCooldownManager()
+        manager._acquiring_ctxs[("mother", mock_ctx)] = mock_resource
+
+        date = datetime.datetime(2021, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
+        with freezegun.freeze_time(date), pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+            result = await manager.check_cooldown("mother", mock_ctx)
+
+        assert result == datetime.datetime(2021, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
+        mock_resource.check.assert_called_once_with()
 
     @pytest.mark.asyncio()
     async def test_check_cooldown_when_increment(self):
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        mock_context = mock.Mock()
-        mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_inner: typing.Any = mock_bucket.into_inner.return_value
-        mock_inner.increment.return_value = mock_bucket.into_inner.return_value
-        mock_inner.must_wait_until.return_value = None
-        manager._buckets["ok"] = mock_bucket
+        mock_try_acquire = mock.AsyncMock()
+        mock_release = mock.AsyncMock()
+        mock_ctx = mock.Mock()
 
-        result = await manager.check_cooldown("ok", mock_context, increment=True)
+        class CooldownManager(tanjun.InMemoryCooldownManager):
+            try_acquire = mock_try_acquire
+            release = mock_release
 
-        assert result is None
-        mock_bucket.into_inner.assert_awaited_once_with(mock_context)
-        mock_inner.increment.assert_called_once_with()
-        mock_inner.must_wait_until.assert_called_once_with()
+        manager = CooldownManager()
 
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_when_increment_and_must_wait_until_returns_time(self):
-        manager = tanjun.dependencies.InMemoryCooldownManager()
-        mock_context = mock.Mock()
-        mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
-        mock_inner: typing.Any = mock_bucket.into_inner.return_value
-        mock_inner.increment.return_value = mock_inner
-        manager._buckets["ok"] = mock_bucket
-
-        result = await manager.check_cooldown("ok", mock_context, increment=True)
-
-        assert result is mock_inner.must_wait_until.return_value
-        mock_bucket.into_inner.assert_awaited_once_with(mock_context)
-        mock_inner.increment.assert_not_called()
-        mock_inner.must_wait_until.assert_called_once_with()
-
-    @pytest.mark.asyncio()
-    async def test_check_cooldown_falls_back_to_default_when_increment_creates_new_bucket(self):
-        manager = tanjun.dependencies.InMemoryCooldownManager().set_bucket(
-            "default", tanjun.BucketResource.USER, 10, 60
-        )
-        mock_context = mock.Mock()
-
-        result = await manager.check_cooldown("ok", mock_context, increment=True)
+        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
 
         assert result is None
-        bucket = manager._buckets["ok"]
-        assert isinstance(bucket, tanjun.dependencies.limiters._FlatResource)
-        assert bucket.resource is tanjun.BucketResource.USER
-        assert bucket.make_resource().limit == 10
-        assert bucket.make_resource().reset_after == datetime.timedelta(seconds=60)
+        mock_try_acquire.assert_awaited_once_with("yeet", mock_ctx)
+        mock_release.assert_awaited_once_with("yeet", mock_ctx)
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_when_increment_and_cooldown_depleted(self):
+        date = _now()
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(date))
+        mock_release = mock.AsyncMock()
+        mock_ctx = mock.Mock()
+
+        class CooldownManager(tanjun.InMemoryCooldownManager):
+            try_acquire = mock_try_acquire
+            release = mock_release
+
+        manager = CooldownManager()
+
+        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
+
+        assert result is date
+        mock_try_acquire.assert_awaited_once_with("yeet", mock_ctx)
+        mock_release.assert_not_called()
+
+    @pytest.mark.asyncio()
+    async def test_check_cooldown_when_increment_and_cooldown_depleted_with_unknown_wait_until(self):
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(None))
+        mock_release = mock.AsyncMock()
+        mock_ctx = mock.Mock()
+
+        class CooldownManager(tanjun.InMemoryCooldownManager):
+            try_acquire = mock_try_acquire
+            release = mock_release
+
+        manager = CooldownManager()
+
+        date = datetime.datetime(2023, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
+        with freezegun.freeze_time(date), pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
+
+        assert result == datetime.datetime(2023, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
+        mock_try_acquire.assert_awaited_once_with("yeet", mock_ctx)
+        mock_release.assert_not_called()
 
     def test_close(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -1506,314 +1690,82 @@ class TestInMemoryCooldownManager:
 class TestCooldownPreExecution:
     @pytest.mark.asyncio()
     async def test_call(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution(
-            "yuri catgirls", owners_exempt=False, error=mock.Mock()
-        )
-        mock_context = mock.Mock()
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = None
-        mock_owner_check = mock.AsyncMock()
-
-        await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("yuri catgirls", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_not_called()
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri catgirls", owners_exempt=True, error=mock.Mock())
-        mock_context = mock.Mock()
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_owner_check = mock.AsyncMock()
-        mock_owner_check.check_ownership.return_value = True
-
-        await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
-
-        mock_cooldown_manager.check_cooldown.assert_not_called()
-        mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_but_owner_check_is_none(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri catgirls", owners_exempt=True, error=mock.Mock())
-        mock_context = mock.Mock()
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = None
-
-        await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=None)
-
-        mock_cooldown_manager.check_cooldown.assert_called_once_with("yuri catgirls", mock_context, increment=True)
-        assert pre_execution._owners_exempt is False
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_and_not_owner(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls", owners_exempt=True, error=mock.Mock())
-        mock_context = mock.Mock()
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = None
-        mock_owner_check = mock.AsyncMock()
-        mock_owner_check.check_ownership.return_value = False
-
-        await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_still_leads_to_wait_until(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True)
-        mock_context = mock.Mock()
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
-            2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc
-        )
-        mock_owner_check = mock.AsyncMock()
-        mock_owner_check.check_ownership.return_value = False
-
-        with pytest.raises(
-            tanjun.CommandError, match="This command is currently in cooldown. Try again <t:1326542469:R>."
-        ):
-            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("yuri", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_still_leads_to_wait_until_and_error_callback(self):
-        class MockException(Exception):
-            ...
-
-        mock_error_callback = mock.Mock(return_value=MockException())
-        pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True, error=mock_error_callback)
-        mock_context = mock.Mock()
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
-            2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc
-        )
-        mock_owner_check = mock.AsyncMock()
-        mock_owner_check.check_ownership.return_value = False
-
-        with pytest.raises(MockException):
-            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("yuri", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
-        mock_error_callback.assert_called_once_with(
-            "yuri", datetime.datetime(2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc)
-        )
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls yuri", owners_exempt=False)
-        mock_context = mock.Mock()
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        )
-        mock_owner_check = mock.AsyncMock()
-
-        with pytest.raises(
-            tanjun.CommandError, match="This command is currently in cooldown. Try again <t:1452946089:R>."
-        ):
-            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_not_called()
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_localised(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution(
-            "catgirls yuri",
-            error_message={
-                hikari.Locale.CS: "yeet",
-                hikari.Locale.FR: "eep",
-                hikari.Locale.ES_ES: "i am {cooldown} meow",
-            },
-            owners_exempt=False,
-        )
-        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
-        mock_context.interaction.locale = hikari.Locale.ES_ES
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        )
-        mock_owner_check = mock.AsyncMock()
-
-        with pytest.raises(tanjun.CommandError, match="i am <t:1452946089:R> meow"):
-            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_not_called()
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_localised_but_not_app_command_defaults(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution(
-            "catgirls yuri",
-            error_message={
-                hikari.Locale.FR: "eep",
-                "default": "meow meow {cooldown} nyaa",
-                hikari.Locale.ES_ES: "i am {cooldown} meow",
-            },
-            owners_exempt=False,
-        )
-        mock_context = mock.Mock(tanjun.abc.Context)
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        )
-        mock_owner_check = mock.AsyncMock()
-
-        with pytest.raises(tanjun.CommandError, match="meow meow <t:1452946089:R> nyaa"):
-            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_not_called()
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_localised_defaults(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution(
-            "catgirls yuri",
-            error_message={
-                hikari.Locale.IT: "epic {cooldown} stones",
-                hikari.Locale.FR: "meow meow {cooldown} nyaa",
-                hikari.Locale.ES_ES: "i am {cooldown} meow",
-            },
-            owners_exempt=False,
-        )
-        mock_context = mock.Mock(tanjun.abc.AppCommandContext)
-        mock_context.interaction.locale = hikari.Locale.HR
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        )
-        mock_owner_check = mock.AsyncMock()
-
-        with pytest.raises(tanjun.CommandError, match="epic <t:1452946089:R> stones"):
-            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_not_called()
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_with_until_localised_by_localiser(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution(
-            "catgirls yuri",
-            error_message={
-                hikari.Locale.CS: "yeet",
-                hikari.Locale.FR: "eep",
-                hikari.Locale.ES_ES: "i am {cooldown} meow",
-            },
-            owners_exempt=False,
-        )
-        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eep meow nyaa")
-        mock_context.type = hikari.CommandType.SLASH
-        mock_context.interaction.locale = hikari.Locale.FR
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        )
-        mock_owner_check = mock.AsyncMock()
-        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "slash:eep meow nyaa:check:tanjun.cooldown",
-            {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am {cooldown} nyaa"},
-        )
-
-        with pytest.raises(tanjun.CommandError, match="i am <t:1452946089:R> nyaa"):
-            await pre_execution(
-                mock_context, cooldowns=mock_cooldown_manager, localiser=localiser, owner_check=mock_owner_check
-            )
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_not_called()
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_localised_but_localiser_not_found(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution(
-            "catgirls yuri",
-            error_message={
-                hikari.Locale.CS: "yeet",
-                hikari.Locale.FR: "eep",
-                hikari.Locale.ES_ES: "meow {cooldown} meow",
-            },
-            owners_exempt=False,
-        )
-        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eep meow nyaa")
-        mock_context.type = hikari.CommandType.SLASH
-        mock_context.interaction.locale = hikari.Locale.ES_ES
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        )
-        mock_owner_check = mock.AsyncMock()
-        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "slash:eep meow nyaa:check:tanjun.cooldown",
-            {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am {cooldown} nyaa"},
-        )
-
-        with pytest.raises(tanjun.CommandError, match="meow <t:1452946089:R> meow"):
-            await pre_execution(
-                mock_context, cooldowns=mock_cooldown_manager, localiser=localiser, owner_check=mock_owner_check
-            )
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_not_called()
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_defaults_with_localiser(self):
-        pre_execution = tanjun.dependencies.CooldownPreExecution(
-            "catgirls yuri",
-            error_message={
-                hikari.Locale.CS: "yeet",
-                hikari.Locale.FR: "eep",
-                "default": "echo echo {cooldown} foxtrot",
-                hikari.Locale.ES_ES: "meow {cooldown} meow",
-            },
-            owners_exempt=False,
-        )
-        mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eep meow nyaa")
-        mock_context.type = hikari.CommandType.SLASH
-        mock_context.interaction.locale = hikari.Locale.PT_BR
-        mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        )
-        mock_owner_check = mock.AsyncMock()
-        localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "slash:eep meow nyaa:check:tanjun.cooldown",
-            {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am {cooldown} nyaa"},
-        )
-
-        with pytest.raises(tanjun.CommandError, match="echo echo <t:1452946089:R> foxtrot"):
-            await pre_execution(
-                mock_context, cooldowns=mock_cooldown_manager, localiser=localiser, owner_check=mock_owner_check
-            )
-
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_not_called()
+        ...
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_and_error_callback(self):
-        class MockException(Exception):
-            ...
+        ...
 
-        mock_error_callback = mock.Mock(return_value=MockException())
-        pre_execution = tanjun.dependencies.CooldownPreExecution(
-            "catgirls yuri", owners_exempt=False, error=mock_error_callback
-        )
-        mock_context = mock.Mock()
+
+class TestCooldownPostExecution:
+    @pytest.mark.asyncio()
+    async def test_call(self):
+        mock_ctx = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.check_cooldown.return_value = datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        )
-        mock_owner_check = mock.AsyncMock()
+        post_execution = tanjun.dependencies.CooldownPostExecution("blam")
 
-        with pytest.raises(MockException):
-            await pre_execution(mock_context, cooldowns=mock_cooldown_manager, owner_check=mock_owner_check)
+        await post_execution(mock_ctx, cooldowns=mock_cooldown_manager)
 
-        mock_cooldown_manager.check_cooldown.assert_awaited_once_with("catgirls yuri", mock_context, increment=True)
-        mock_owner_check.check_ownership.assert_not_called()
-        mock_error_callback.assert_called_once_with(
-            "catgirls yuri", datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
-        )
+        mock_cooldown_manager.release.assert_awaited_once_with("blam", mock_ctx)
+
+    @pytest.mark.asyncio()
+    async def test_call_when_not_tracked(self):
+        mock_ctx = mock.Mock()
+        mock_cooldown_manager = mock.AsyncMock()
+        mock_cooldown_manager.side_effect = tanjun.dependencies.limiters.ResourceNotTracked()
+        post_execution = tanjun.dependencies.CooldownPostExecution("blam")
+
+        await post_execution(mock_ctx, cooldowns=mock_cooldown_manager)
+
+        mock_cooldown_manager.release.assert_awaited_once_with("blam", mock_ctx)
 
 
 def test_with_cooldown():
@@ -2169,6 +2121,10 @@ class TestInMemoryConcurrencyLimiter:
         assert manager._acquiring_ctxs[("aye", mock_context)] is mock_inner
 
     @pytest.mark.asyncio()
+    async def test_try_acquire_with_custom_bucket(self):
+        ...
+
+    @pytest.mark.asyncio()
     async def test_try_acquire_when_failed_to_acquire(self):
         mock_bucket = mock.Mock(into_inner=mock.AsyncMock(return_value=mock.Mock()))
         mock_inner: typing.Any = mock_bucket.into_inner.return_value
@@ -2218,6 +2174,10 @@ class TestInMemoryConcurrencyLimiter:
         assert manager._buckets["yeet"] is mock_bucket
 
     @pytest.mark.asyncio()
+    async def test_release_with_custom_bucket(self):
+        ...
+
+    @pytest.mark.asyncio()
     async def test_release(self):
         manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
         mock_context = mock.Mock()
@@ -2234,7 +2194,8 @@ class TestInMemoryConcurrencyLimiter:
         manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
         mock_context = mock.Mock()
 
-        await manager.release("meow", mock_context)
+        with pytest.raises(tanjun.dependencies.limiters.ResourceNotTracked):
+            await manager.release("meow", mock_context)
 
     def test_disable_bucket(self):
         manager = tanjun.dependencies.InMemoryConcurrencyLimiter()

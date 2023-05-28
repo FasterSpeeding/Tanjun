@@ -48,6 +48,7 @@ __all__: list[str] = [
     "ChannelBoundCache",
     "ConcurrencyPostExecution",
     "ConcurrencyPreExecution",
+    "CooldownPostExecution",
     "CooldownPreExecution",
     "EntryNotFound",
     "GuildBoundCache",
@@ -102,6 +103,7 @@ from .limiters import AbstractCooldownManager
 from .limiters import BucketResource
 from .limiters import ConcurrencyPostExecution
 from .limiters import ConcurrencyPreExecution
+from .limiters import CooldownPostExecution
 from .limiters import CooldownPreExecution
 from .limiters import InMemoryConcurrencyLimiter
 from .limiters import InMemoryCooldownManager

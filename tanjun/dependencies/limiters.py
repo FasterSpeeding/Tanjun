@@ -37,6 +37,7 @@ __all__: list[str] = [
     "BucketResource",
     "ConcurrencyPostExecution",
     "ConcurrencyPreExecution",
+    "CooldownPostExecution",
     "CooldownPreExecution",
     "InMemoryConcurrencyLimiter",
     "InMemoryCooldownManager",
