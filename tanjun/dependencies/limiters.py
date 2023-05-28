@@ -794,11 +794,12 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         # incrementing a bucket multiple times for the same context could lead
         # to weird edge cases based on how we internally track this, so we
         # internally de-duplicate this.
-        elif (bucket_id, ctx) in self._acquiring_ctxs:
+        key = (bucket_id, ctx)
+        if key in self._acquiring_ctxs:
             return  # This won't ever be the case if it just had to make a new bucket, hence the elif.
 
         resource = await bucket.into_inner(ctx)
-        self._acquiring_ctxs[(bucket_id, ctx)] = resource.check().increment(ctx)
+        self._acquiring_ctxs[key] = resource.check().increment(ctx)
 
     @typing_extensions.deprecated("Use .acquire and .release")
     async def check_cooldown(
@@ -835,11 +836,11 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         if resource := self._custom_buckets.get(bucket_id):
             return await resource.release(bucket_id, ctx)
 
-        if resource := self._acquiring_ctxs.pop((bucket_id, ctx)):
+        if resource := self._acquiring_ctxs.pop((bucket_id, ctx), None):
             resource.unlock(ctx)
             return
 
-        raise ResourceNotTracked()  # noqa: R102
+        raise ResourceNotTracked
 
     def close(self) -> None:
         """Stop the cooldown manager.
@@ -901,8 +902,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         self,
         bucket_id: str,
         resource: BucketResource,
-        limit: int = 2,
-        reset_after: typing.Union[int, float, datetime.timedelta] = datetime.timedelta(seconds=5),
+        limit: int,
+        reset_after: typing.Union[int, float, datetime.timedelta],
         /,
     ) -> Self:
         """Set the cooldown for a specific bucket.
@@ -1381,11 +1382,12 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         # incrementing a bucket multiple times for the same context could lead
         # to weird edge cases based on how we internally track this, so we
         # internally de-duplicate this.
-        elif (bucket_id, ctx) in self._acquiring_ctxs:
+        key = (bucket_id, ctx)
+        if key in self._acquiring_ctxs:
             return True  # This won't ever be the case if it just had to make a new bucket, hence the elif.
 
         if result := (limit := await bucket.into_inner(ctx)).acquire():
-            self._acquiring_ctxs[(bucket_id, ctx)] = limit
+            self._acquiring_ctxs[key] = limit
 
         return result
 
@@ -1427,7 +1429,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         return self
 
-    def set_bucket(self, bucket_id: str, resource: typing.Union[BucketResource, int], limit: int = 1, /) -> Self:
+    def set_bucket(self, bucket_id: str, resource: BucketResource, limit: int, /) -> Self:
         """Set the concurrency limit for a specific bucket.
 
         !!! note
