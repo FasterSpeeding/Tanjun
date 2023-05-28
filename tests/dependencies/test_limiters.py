@@ -1747,9 +1747,9 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(
-            2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc
-        ))
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
         mock_owner_check = mock.AsyncMock()
         mock_owner_check.check_ownership.return_value = False
 
@@ -1760,7 +1760,6 @@ class TestCooldownPreExecution:
 
         mock_cooldown_manager.try_acquire.assert_awaited_once_with("yuri", mock_context)
         mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
-
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_still_leads_to_wait_until_with_unknown_date(self):
@@ -1789,9 +1788,9 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True, error=mock_error_callback)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(
-            2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc
-        ))
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
         mock_owner_check = mock.AsyncMock()
         mock_owner_check.check_ownership.return_value = False
 
@@ -1822,18 +1821,16 @@ class TestCooldownPreExecution:
 
         mock_cooldown_manager.try_acquire.assert_awaited_once_with("yuri", mock_context)
         mock_owner_check.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
-        mock_error_callback.assert_called_once_with(
-            "yuri", None
-        )
+        mock_error_callback.assert_called_once_with("yuri", None)
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until(self):
         pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls yuri", owners_exempt=False)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        ))
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(
@@ -1858,9 +1855,9 @@ class TestCooldownPreExecution:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.ES_ES
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        ))
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match="i am <t:1452946089:R> meow"):
@@ -1882,9 +1879,9 @@ class TestCooldownPreExecution:
         )
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        ))
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match="meow meow <t:1452946089:R> nyaa"):
@@ -1907,9 +1904,9 @@ class TestCooldownPreExecution:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.HR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        ))
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match="epic <t:1452946089:R> stones"):
@@ -1933,9 +1930,9 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.FR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        ))
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "slash:eep meow nyaa:check:tanjun.cooldown",
@@ -1965,9 +1962,9 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.ES_ES
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        ))
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "slash:eep meow nyaa:check:tanjun.cooldown",
@@ -1998,9 +1995,9 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.PT_BR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        ))
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "slash:eep meow nyaa:check:tanjun.cooldown",
@@ -2026,9 +2023,9 @@ class TestCooldownPreExecution:
         )
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(datetime.datetime(
-            2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc
-        ))
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+            datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
+        )
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(MockException):
