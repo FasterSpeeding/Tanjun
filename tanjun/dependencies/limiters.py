@@ -49,6 +49,7 @@ __all__: list[str] = [
 
 import abc
 import asyncio
+import copy
 import datetime
 import enum
 import logging
@@ -91,7 +92,7 @@ class ResourceDepleted(Exception):
 
 
 class ResourceNotTracked(Exception):
-    """Raised  when a cooldown or concurrency bucket is not being tracked for a context."""
+    """Raised when a cooldown or concurrency bucket is not being tracked for a context."""
 
 
 class CooldownDepleted(ResourceDepleted):
@@ -1055,16 +1056,16 @@ class CooldownPreExecution:
         owners_exempt
             Whether owners should be exempt from the cooldown.
         """
-        if unknown_message is None:
-            unknown_message = error_message
-            if isinstance(unknown_message, str):
-                unknown_message = unknown_message.removesuffix(" Try again {cooldown}.")
-
         self._bucket_id = bucket_id
         self._error = error
         self._error_message = localisation.MaybeLocalised("error_message", error_message)
         self._owners_exempt = owners_exempt
-        self._unknown_message = localisation.MaybeLocalised("unknown_message", unknown_message)
+        self._unknown_message = _LocaliseUnknown(
+            "unknown_message",
+            unknown_message,
+            self._error_message,
+            default=self._error_message.default_value.removesuffix(" Try again {cooldown}."),
+        )
 
     async def __call__(
         self,
@@ -1100,6 +1101,48 @@ class CooldownPreExecution:
                 )
 
             raise errors.CommandError(message) from None
+
+
+class _LocaliseUnknown(localisation.MaybeLocalised):
+    __slots__ = ("_fallback", "_real_default")
+
+    def __init__(
+        self,
+        field_name: str,
+        field: typing.Union[str, collections.Mapping[str, str], collections.Iterable[tuple[str, str]], None],
+        fallback: localisation.MaybeLocalised,
+        /,
+        default: str,
+    ) -> None:
+        super().__init__(field_name, field or "...")
+        if field:
+            default = self.default_value
+
+        self.default_value = ""
+        # .default_value is set to "" here to allow us to override the
+        # defaulting behaviour in .localise
+        self._fallback = copy.copy(fallback)
+        self._fallback.default_value = ""
+        self._real_default = default.format(cooldown="???")
+
+    def localise(
+        self,
+        ctx: tanjun.Context,
+        localiser: typing.Optional[locales.AbstractLocaliser],
+        field_type: localisation.NamedFields,
+        field_name: str,
+        /,
+        **kwargs: typing.Any,
+    ) -> str:
+        # .localise will return "" as the fallback value thx to the value changes in init.
+        print(super().localise(ctx, localiser, field_type, field_name, **kwargs, cooldown="???"))
+        print(self._fallback.localise(ctx, localiser, field_type, "tanjun.cooldown", **kwargs, cooldown="???"))
+        print(self._real_default)
+        return (
+            super().localise(ctx, localiser, field_type, field_name, **kwargs, cooldown="???")
+            or self._fallback.localise(ctx, localiser, field_type, "tanjun.cooldown", **kwargs, cooldown="???")
+            or self._real_default
+        )
 
 
 class CooldownPostExecution:
