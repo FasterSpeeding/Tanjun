@@ -1135,9 +1135,6 @@ class _LocaliseUnknown(localisation.MaybeLocalised):
         **kwargs: typing.Any,
     ) -> str:
         # .localise will return "" as the fallback value thx to the value changes in init.
-        print(super().localise(ctx, localiser, field_type, field_name, **kwargs, cooldown="???"))
-        print(self._fallback.localise(ctx, localiser, field_type, "tanjun.cooldown", **kwargs, cooldown="???"))
-        print(self._real_default)
         return (
             super().localise(ctx, localiser, field_type, field_name, **kwargs, cooldown="???")
             or self._fallback.localise(ctx, localiser, field_type, "tanjun.cooldown", **kwargs, cooldown="???")
