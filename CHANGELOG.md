@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - [dependencies.add_cooldown][tanjun.dependencies.limiters.add_cooldown] and
   [dependencies.add_concurrency_limit][tanjun.dependencies.limiters.add_concurrency_limit]
-  functions which act as non-decorator equivalents of the relevant `"with_`
+  functions which act as non-decorator equivalents of the relevant `"with_"`
   functions.
 - [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire]
   method which returns an async context manager which acquires and releases a
@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `unknown_message` option for
   [CooldownPreExecution.\_\_init\_\_][tanjun.dependencies.limiters.CooldownPreExecution.__init__]
   and [with_cooldown][tanjun.dependencies.limiters.with_cooldown] for setting the
-  response message specifically for the new case of when wait_until is unknown.
+  response message specifically for the new case of when `wait_until` is unknown.
 
 ### Changed
 - [InMemoryCooldownManager][tanjun.dependencies.limiters.InMemoryCooldownManager]
