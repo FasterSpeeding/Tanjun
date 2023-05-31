@@ -16,6 +16,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [AbstractConcurrencyLimiter.acquire][tanjun.dependencies.limiters.AbstractConcurrencyLimiter.acquire]
   method which returns an async context manager which acquires and releases a
   concurrency lock for you.
+- System for using custom cooldown bucket implementations with the standard
+  cooldown manager using
+  [InMemoryCooldownManager.set_custom_bucket][tanjun.dependencies.limiters.InMemoryCooldownManager.set_custom_bucket].
+- System for using custom concurrency limiter bucket implementations with the
+  standard concurrency limiter manager using
+  [InMemoryConcurrencyLimiter.set_custom_bucket][tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_custom_bucket].
+- `unknown_message` option for
+  [CooldownPreExecution.\_\_init\_\_][tanjun.dependencies.limiters.CooldownPreExecution.__init__]
+  and [with_cooldown][tanjun.dependencies.limiters.with_cooldown] for setting the
+  response message specifically for the new case of when wait_until is unknown.
+
+### Changed
+- [InMemoryCooldownManager][tanjun.dependencies.limiters.InMemoryCooldownManager]
+  now uses a sliding ratelimit approach rather than fixed window.
+  This also now waits until the command call has finished before starting the
+  countdown for expiring that specific call.
+- The datetime passed to [with_cooldown][tanjun.dependencies.limiters.with_cooldown]'s
+  `error` callback can now also be [None][] when it's unknown.
+
+### Deprecated
+- [AbstractCooldownManager.check_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown] and
+  [AbstractCooldownManager.increment_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.increment_cooldown]
+  in favour of the [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire]
+  and [AbstractCooldownManager.release][tanjun.dependencies.limiters.AbstractCooldownManager.release] interfaces.
 
 ## [2.14.0] - 2023-04-24
 ### Added

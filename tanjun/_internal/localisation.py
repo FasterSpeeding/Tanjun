@@ -108,7 +108,7 @@ class MaybeLocalised:
         self,
         ctx: tanjun.Context,
         localiser: typing.Optional[dependencies.AbstractLocaliser],
-        field_type: _NamedFields,
+        field_type: NamedFields,
         field_name: str,
         /,
         **kwargs: typing.Any,
@@ -208,13 +208,13 @@ _TYPE_TO_STR: dict[hikari.CommandType, _CommandTypes] = {
     hikari.CommandType.SLASH: "slash",
     hikari.CommandType.USER: "user_menu",
 }
-_NamedFields = typing.Literal["check", "choice.name", "option.description", "option.name"]
+NamedFields = typing.Literal["check", "choice.name", "option.description", "option.name"]
 _UnnamedFields = typing.Literal["description", "name"]
-_FieldType = typing.Union[_NamedFields, _UnnamedFields]
+_FieldType = typing.Union[NamedFields, _UnnamedFields]
 
 
 @typing.overload
-def to_localise_id(command_type: _CommandTypes, command_name: str, field_type: _NamedFields, field_name: str, /) -> str:
+def to_localise_id(command_type: _CommandTypes, command_name: str, field_type: NamedFields, field_name: str, /) -> str:
     ...
 
 

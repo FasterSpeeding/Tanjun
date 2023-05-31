@@ -300,7 +300,7 @@ def _has_wrapped(value: typing.Any, /) -> typing_extensions.TypeGuard[_WrappedPr
 
 
 def collect_wrapped(command: tanjun.ExecutableCommand[typing.Any], /) -> list[tanjun.ExecutableCommand[typing.Any]]:
-    """Collect all the commands a command object has wrapped in decorator call chain.
+    """Collect all the commands a command object has wrapped in a decorator call chain..
 
     Parameters
     ----------
@@ -336,6 +336,10 @@ def apply_to_wrapped(
     ----------
     command
         The top-level command object.
+    callback
+        Callback each wrapped command should be passed to.
+    return_value
+        Value to return from this function call.
     follow_wrapped
         Whether this should apply the callback to wrapped commands.
     """
