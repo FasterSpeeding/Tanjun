@@ -5,10 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [2.15.0] - 2023-05-31
 ### Added
 - [dependencies.add_cooldown][tanjun.dependencies.limiters.add_cooldown] and
   [dependencies.add_concurrency_limit][tanjun.dependencies.limiters.add_concurrency_limit]
-  functions which act as non-decorator equivalents of the relevant `"with_`
+  functions which act as non-decorator equivalents of the relevant `"with_"`
   functions.
 - [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire]
   method which returns an async context manager which acquires and releases a
@@ -25,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `unknown_message` option for
   [CooldownPreExecution.\_\_init\_\_][tanjun.dependencies.limiters.CooldownPreExecution.__init__]
   and [with_cooldown][tanjun.dependencies.limiters.with_cooldown] for setting the
-  response message specifically for the new case of when wait_until is unknown.
+  response message specifically for the new case of when `wait_until` is unknown.
 
 ### Changed
 - [InMemoryCooldownManager][tanjun.dependencies.limiters.InMemoryCooldownManager]
@@ -959,7 +960,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for python 3.8 in-order to switch over to using collection.abc generic classes due to this being more
   forward compatible.
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.14.0...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.15.0...HEAD
+[2.15.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.14.0...v2.15.0
 [2.14.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.13.0...v2.14.0
 [2.13.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.12.0...v2.13.0
 [2.12.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.11.4...v2.12.0
