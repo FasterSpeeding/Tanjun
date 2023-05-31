@@ -76,7 +76,7 @@ class TestAbstractCooldownManager:
 
     @pytest.mark.asyncio()
     async def test_increment_cooldown_when_resource_depleted(self):
-        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(None))
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.CooldownDepleted(None))
         mock_release = mock.AsyncMock()
 
         class CooldownManager(tanjun.dependencies.AbstractCooldownManager):
@@ -150,7 +150,7 @@ class TestAbstractCooldownManager:
     @pytest.mark.asyncio()
     async def test_acquire_when_errors(self):
         mock_try_acquire = mock.AsyncMock(
-            side_effect=tanjun.dependencies.limiters.CooldownDepleted(
+            side_effect=tanjun.dependencies.CooldownDepleted(
                 datetime.datetime(2023, 5, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc)
             )
         )
@@ -176,7 +176,7 @@ class TestAbstractCooldownManager:
 
     @pytest.mark.asyncio()
     async def test_acquire_when_errors_with_unknown_wait_until(self):
-        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(None))
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.CooldownDepleted(None))
         mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
 
@@ -201,7 +201,7 @@ class TestAbstractCooldownManager:
     async def test_acquire_when_custom_error(self):
         expected_datetime = datetime.datetime(2023, 7, 19, 21, 20, 28, 782112, tzinfo=datetime.timezone.utc)
         expected_error = Exception("It's 5 nights at Fred bear's")
-        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(expected_datetime))
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.CooldownDepleted(expected_datetime))
         mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
         mock_error_callback = mock.Mock(side_effect=expected_error)
@@ -284,7 +284,7 @@ class TestAbstractConcurrencyLimiter:
     async def test_acquire(self):
         mock_ctx = mock.Mock()
         mock_error_callback = mock.Mock()
-        mock_try_acquire = mock.AsyncMock(return_value=True)
+        mock_try_acquire = mock.AsyncMock()
         mock_release = mock.AsyncMock()
 
         class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
@@ -307,7 +307,7 @@ class TestAbstractConcurrencyLimiter:
     async def test_acquire_when_ended_by_raise(self):
         mock_ctx = mock.Mock()
         mock_error_callback = mock.Mock()
-        mock_try_acquire = mock.AsyncMock(return_value=True)
+        mock_try_acquire = mock.AsyncMock()
         mock_release = mock.AsyncMock()
 
         class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
@@ -332,7 +332,7 @@ class TestAbstractConcurrencyLimiter:
     @pytest.mark.asyncio()
     async def test_acquire_when_errors(self):
         mock_ctx = mock.Mock()
-        mock_try_acquire = mock.AsyncMock(return_value=False)
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.ResourceDepleted)
         mock_release = mock.AsyncMock()
 
         class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
@@ -356,7 +356,7 @@ class TestAbstractConcurrencyLimiter:
         mock_ctx = mock.Mock()
         expected_error = Exception("P music")
         mock_error_callback = mock.Mock(side_effect=expected_error)
-        mock_try_acquire = mock.AsyncMock(return_value=False)
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.ResourceDepleted)
         mock_release = mock.AsyncMock()
 
         class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
@@ -379,7 +379,7 @@ class TestAbstractConcurrencyLimiter:
     async def test_acquire_when_already_acquired(self):
         mock_ctx = mock.Mock()
         mock_error_callback = mock.Mock()
-        mock_try_acquire = mock.AsyncMock(return_value=True)
+        mock_try_acquire = mock.AsyncMock()
         mock_release = mock.AsyncMock()
 
         class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
@@ -407,7 +407,7 @@ class TestAbstractConcurrencyLimiter:
     async def test_release_when_not_acquired(self):
         mock_ctx = mock.Mock()
         mock_error_callback = mock.Mock()
-        mock_try_acquire = mock.AsyncMock(return_value=True)
+        mock_try_acquire = mock.AsyncMock()
         mock_release = mock.AsyncMock()
 
         class ConcurrencyLimiter(tanjun.dependencies.AbstractConcurrencyLimiter):
@@ -856,7 +856,7 @@ class TestCooldown:
 
         cooldown.increment(mock_ctx)
 
-        with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
+        with pytest.raises(tanjun.dependencies.CooldownDepleted) as exc:
             assert cooldown.check()
 
         assert exc.value.wait_until == now - datetime.timedelta(seconds=10)
@@ -873,7 +873,7 @@ class TestCooldown:
         cooldown.increment(mock.Mock())
         cooldown.increment(mock.Mock())
 
-        with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
+        with pytest.raises(tanjun.dependencies.CooldownDepleted) as exc:
             assert cooldown.check()
 
         assert exc.value.wait_until is None
@@ -891,7 +891,7 @@ class TestCooldown:
             now - datetime.timedelta(seconds=5),
         ]
 
-        with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
+        with pytest.raises(tanjun.dependencies.CooldownDepleted) as exc:
             assert cooldown.check()
 
         assert exc.value.wait_until == now - datetime.timedelta(seconds=35)
@@ -1287,7 +1287,7 @@ class TestInMemoryCooldownManager:
 
     @pytest.mark.asyncio()
     async def test_try_acquire_when_depleted(self):
-        expected_error = tanjun.dependencies.limiters.CooldownDepleted(None)
+        expected_error = tanjun.dependencies.CooldownDepleted(None)
         mock_bucket = mock.AsyncMock()
         mock_ctx = mock.Mock()
         inner = mock_bucket.into_inner.return_value = mock.Mock()
@@ -1295,7 +1295,7 @@ class TestInMemoryCooldownManager:
         manager = tanjun.dependencies.InMemoryCooldownManager()
         manager._buckets["yeet me"] = mock_bucket
 
-        with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
+        with pytest.raises(tanjun.dependencies.CooldownDepleted) as exc:
             await manager.try_acquire("yeet me", mock_ctx)
 
         assert exc.value is expected_error
@@ -1344,7 +1344,7 @@ class TestInMemoryCooldownManager:
     async def test_release_when_not_tracked(self):
         manager = tanjun.dependencies.InMemoryCooldownManager()
 
-        with pytest.raises(tanjun.dependencies.limiters.ResourceNotTracked):
+        with pytest.raises(tanjun.dependencies.ResourceNotTracked):
             await manager.release("oop", mock.Mock())
 
     @pytest.mark.asyncio()
@@ -1390,7 +1390,7 @@ class TestInMemoryCooldownManager:
         date = _now()
         mock_bucket = mock.AsyncMock()
         mock_bucket.into_inner.return_value.check = mock.Mock(
-            side_effect=tanjun.dependencies.limiters.CooldownDepleted(date)
+            side_effect=tanjun.dependencies.CooldownDepleted(date)
         )
         mock_ctx = mock.Mock()
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -1407,7 +1407,7 @@ class TestInMemoryCooldownManager:
     async def test_check_cooldown_for_acquired_context_when_cooldown_depleted(self):
         date = _now()
         mock_resource = mock.Mock()
-        mock_resource.check.side_effect = tanjun.dependencies.limiters.CooldownDepleted(date)
+        mock_resource.check.side_effect = tanjun.dependencies.CooldownDepleted(date)
         mock_ctx = mock.Mock()
         manager = tanjun.dependencies.InMemoryCooldownManager()
         manager._acquiring_ctxs[("eeep", mock_ctx)] = mock_resource
@@ -1422,7 +1422,7 @@ class TestInMemoryCooldownManager:
     async def test_check_cooldown_when_cooldown_depleted_unknown_wait_until(self):
         mock_bucket = mock.AsyncMock()
         mock_bucket.into_inner.return_value.check = mock.Mock(
-            side_effect=tanjun.dependencies.limiters.CooldownDepleted(None)
+            side_effect=tanjun.dependencies.CooldownDepleted(None)
         )
         mock_ctx = mock.Mock()
         manager = tanjun.dependencies.InMemoryCooldownManager()
@@ -1439,7 +1439,7 @@ class TestInMemoryCooldownManager:
     @pytest.mark.asyncio()
     async def test_check_cooldown_for_acquired_context_when_cooldown_depleted_unknown_wait_until(self):
         mock_resource = mock.Mock()
-        mock_resource.check.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_resource.check.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_ctx = mock.Mock()
         manager = tanjun.dependencies.InMemoryCooldownManager()
         manager._acquiring_ctxs[("mother", mock_ctx)] = mock_resource
@@ -1473,7 +1473,7 @@ class TestInMemoryCooldownManager:
     @pytest.mark.asyncio()
     async def test_check_cooldown_when_increment_and_cooldown_depleted(self):
         date = _now()
-        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(date))
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.CooldownDepleted(date))
         mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
 
@@ -1492,7 +1492,7 @@ class TestInMemoryCooldownManager:
 
     @pytest.mark.asyncio()
     async def test_check_cooldown_when_increment_and_cooldown_depleted_with_unknown_wait_until(self):
-        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.limiters.CooldownDepleted(None))
+        mock_try_acquire = mock.AsyncMock(side_effect=tanjun.dependencies.CooldownDepleted(None))
         mock_release = mock.AsyncMock()
         mock_ctx = mock.Mock()
 
@@ -1793,7 +1793,7 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -1812,7 +1812,7 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         mock_owner_check.check_ownership.return_value = False
 
@@ -1831,7 +1831,7 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True, error=mock_error_callback)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2012, 1, 14, 12, 1, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -1855,7 +1855,7 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True, error=mock_error_callback)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         mock_owner_check.check_ownership.return_value = False
 
@@ -1871,7 +1871,7 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls yuri", owners_exempt=False)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -1891,7 +1891,7 @@ class TestCooldownPreExecution:
         )
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -1916,7 +1916,7 @@ class TestCooldownPreExecution:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.ES_ES
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -1940,7 +1940,7 @@ class TestCooldownPreExecution:
         )
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -1965,7 +1965,7 @@ class TestCooldownPreExecution:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.HR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -1991,7 +1991,7 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.FR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -2023,7 +2023,7 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.ES_ES
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -2056,7 +2056,7 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.PT_BR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -2084,7 +2084,7 @@ class TestCooldownPreExecution:
         )
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(
             datetime.datetime(2016, 1, 16, 12, 8, 9, 420000, tzinfo=datetime.timezone.utc)
         )
         mock_owner_check = mock.AsyncMock()
@@ -2103,7 +2103,7 @@ class TestCooldownPreExecution:
         pre_execution = tanjun.dependencies.CooldownPreExecution("catgirls yuri", owners_exempt=False)
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match="This command is currently in cooldown."):
@@ -2119,7 +2119,7 @@ class TestCooldownPreExecution:
         )
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match=re.escape("Boopers ???.")):
@@ -2135,7 +2135,7 @@ class TestCooldownPreExecution:
         )
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match="Meep moop."):
@@ -2154,7 +2154,7 @@ class TestCooldownPreExecution:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.ES_ES
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match="i am meow"):
@@ -2172,7 +2172,7 @@ class TestCooldownPreExecution:
         )
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match="meow meow nyaa"):
@@ -2195,7 +2195,7 @@ class TestCooldownPreExecution:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.HR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match="epic stones"):
@@ -2215,7 +2215,7 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.FR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "slash:eep meow nyaa:check:tanjun.cooldown_unknown",
@@ -2241,7 +2241,7 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.ES_ES
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "slash:eep meow nyaa:check:tanjun.cooldown_unknown",
@@ -2272,7 +2272,7 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.PT_BR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "slash:eep meow nyaa:check:tanjun.cooldown_unknown",
@@ -2301,7 +2301,7 @@ class TestCooldownPreExecution:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.ES_ES
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match=re.escape("i am meow ???")):
@@ -2323,7 +2323,7 @@ class TestCooldownPreExecution:
         )
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match=re.escape("meow meow nyaa ???")):
@@ -2346,7 +2346,7 @@ class TestCooldownPreExecution:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.HR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(tanjun.CommandError, match=re.escape("epic stones ???")):
@@ -2370,7 +2370,7 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.FR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "slash:eep meow nyaa:check:tanjun.cooldown",
@@ -2400,7 +2400,7 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.ES_ES
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "slash:eep meow nyaa:check:tanjun.cooldown",
@@ -2431,7 +2431,7 @@ class TestCooldownPreExecution:
         mock_context.type = hikari.CommandType.SLASH
         mock_context.interaction.locale = hikari.Locale.PT_BR
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "slash:eep meow nyaa:check:tanjun.cooldown",
@@ -2457,7 +2457,7 @@ class TestCooldownPreExecution:
         )
         mock_context = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
+        mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
 
         with pytest.raises(MockException):
@@ -2483,7 +2483,7 @@ class TestCooldownPostExecution:
     async def test_call_when_not_tracked(self):
         mock_ctx = mock.Mock()
         mock_cooldown_manager = mock.AsyncMock()
-        mock_cooldown_manager.side_effect = tanjun.dependencies.limiters.ResourceNotTracked()
+        mock_cooldown_manager.side_effect = tanjun.dependencies.ResourceNotTracked()
         post_execution = tanjun.dependencies.CooldownPostExecution("blam")
 
         await post_execution(mock_ctx, cooldowns=mock_cooldown_manager)
@@ -2856,9 +2856,8 @@ class TestInMemoryConcurrencyLimiter:
         manager = tanjun.InMemoryConcurrencyLimiter()
         manager._buckets["aye"] = mock_bucket
 
-        result = await manager.try_acquire("aye", mock_context)
+        await manager.try_acquire("aye", mock_context)
 
-        assert result is True
         mock_bucket.into_inner.assert_called_once_with(mock_context)
         mock_inner.acquire.assert_called_once_with()
         assert manager._acquiring_ctxs[("aye", mock_context)] is mock_inner
@@ -2876,9 +2875,9 @@ class TestInMemoryConcurrencyLimiter:
         manager = tanjun.InMemoryConcurrencyLimiter()
         manager._buckets["nya"] = mock_bucket
 
-        result = await manager.try_acquire("nya", mock_context)
+        with pytest.raises(tanjun.dependencies.ResourceDepleted):
+            await manager.try_acquire("nya", mock_context)
 
-        assert result is False
         mock_bucket.into_inner.assert_called_once_with(mock_context)
         mock_inner.acquire.assert_called_once_with()
         assert ("nya", mock_context) not in manager._acquiring_ctxs
@@ -2892,9 +2891,8 @@ class TestInMemoryConcurrencyLimiter:
         manager._buckets["ayee"] = mock_bucket
         manager._acquiring_ctxs[("ayee", mock_context)] = mock_limiter
 
-        result = await manager.try_acquire("ayee", mock_context)
+        await manager.try_acquire("ayee", mock_context)
 
-        assert result is True
         mock_bucket.into_inner.assert_not_called()
         mock_limiter.acquire.assert_not_called()
         assert manager._acquiring_ctxs[("ayee", mock_context)] is mock_limiter
@@ -2908,9 +2906,8 @@ class TestInMemoryConcurrencyLimiter:
         manager = tanjun.InMemoryConcurrencyLimiter()
         manager._default_bucket = lambda name: manager._buckets.__setitem__(name, mock_bucket)
 
-        result = await manager.try_acquire("yeet", mock_context)
+        await manager.try_acquire("yeet", mock_context)
 
-        assert result is True
         mock_bucket.into_inner.assert_called_once_with(mock_context)
         mock_inner.acquire.assert_called_once_with()
         assert manager._acquiring_ctxs[("yeet", mock_context)] is mock_inner
@@ -2937,7 +2934,7 @@ class TestInMemoryConcurrencyLimiter:
         manager = tanjun.dependencies.InMemoryConcurrencyLimiter()
         mock_context = mock.Mock()
 
-        with pytest.raises(tanjun.dependencies.limiters.ResourceNotTracked):
+        with pytest.raises(tanjun.dependencies.ResourceNotTracked):
             await manager.release("meow", mock_context)
 
     def test_disable_bucket(self):
@@ -3080,7 +3077,6 @@ class TestConcurrencyPreExecution:
     async def test_call(self):
         mock_context = mock.Mock()
         mock_limiter = mock.AsyncMock()
-        mock_limiter.try_acquire.return_value = True
         hook = tanjun.dependencies.ConcurrencyPreExecution("bucket boobs", error=KeyError)
 
         await hook(mock_context, mock_limiter)
@@ -3091,7 +3087,7 @@ class TestConcurrencyPreExecution:
     async def test_call_when_acquire_fails(self):
         mock_context = mock.Mock()
         mock_limiter = mock.AsyncMock()
-        mock_limiter.try_acquire.return_value = False
+        mock_limiter.try_acquire.side_effect = tanjun.dependencies.ResourceDepleted
         hook = tanjun.dependencies.ConcurrencyPreExecution("bucket catgirls", error_message="an error message")
 
         with pytest.raises(tanjun.CommandError, match="an error message"):
@@ -3105,7 +3101,7 @@ class TestConcurrencyPreExecution:
         mock_context.interaction.locale = hikari.Locale.HU
         mock_context.type = hikari.CommandType.MESSAGE
         mock_limiter = mock.AsyncMock()
-        mock_limiter.try_acquire.return_value = False
+        mock_limiter.try_acquire.side_effect = tanjun.dependencies.ResourceDepleted
         hook = tanjun.dependencies.ConcurrencyPreExecution(
             "bucket catgirls",
             error_message={
@@ -3124,7 +3120,7 @@ class TestConcurrencyPreExecution:
     async def test_call_when_acquire_fails_localised_but_not_app_command_defaults(self):
         mock_context = mock.Mock(tanjun.abc.Context, triggering_name="yeetus beatus")
         mock_limiter = mock.AsyncMock()
-        mock_limiter.try_acquire.return_value = False
+        mock_limiter.try_acquire.side_effect = tanjun.dependencies.ResourceDepleted
         hook = tanjun.dependencies.ConcurrencyPreExecution(
             "bucket catgirls",
             error_message={
@@ -3146,7 +3142,7 @@ class TestConcurrencyPreExecution:
         mock_context.interaction.locale = hikari.Locale.FR
         mock_context.type = hikari.CommandType.MESSAGE
         mock_limiter = mock.AsyncMock()
-        mock_limiter.try_acquire.return_value = False
+        mock_limiter.try_acquire.side_effect = tanjun.dependencies.ResourceDepleted
         hook = tanjun.dependencies.ConcurrencyPreExecution(
             "bucket catgirls",
             error_message={
@@ -3167,7 +3163,7 @@ class TestConcurrencyPreExecution:
         mock_context.interaction.locale = hikari.Locale.DA
         mock_context.type = hikari.CommandType.MESSAGE
         mock_limiter = mock.AsyncMock()
-        mock_limiter.try_acquire.return_value = False
+        mock_limiter.try_acquire.side_effect = tanjun.dependencies.ResourceDepleted
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "message_menu:epic flintstones:check:tanjun.concurrency",
             {hikari.Locale.DA: "multiple messages", hikari.Locale.EN_GB: "ear", hikari.Locale.BG: "neat"},
@@ -3192,7 +3188,7 @@ class TestConcurrencyPreExecution:
         mock_context.interaction.locale = hikari.Locale.EN_GB
         mock_context.type = hikari.CommandType.MESSAGE
         mock_limiter = mock.AsyncMock()
-        mock_limiter.try_acquire.return_value = False
+        mock_limiter.try_acquire.side_effect = tanjun.dependencies.ResourceDepleted
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "message_menu:epic flintstones:check:tanjun.concurrency",
             {hikari.Locale.EN_GB: "ear", hikari.Locale.BG: "neat", hikari.Locale.DA: "meow meow"},
@@ -3217,7 +3213,7 @@ class TestConcurrencyPreExecution:
         mock_context.interaction.locale = hikari.Locale.JA
         mock_context.type = hikari.CommandType.MESSAGE
         mock_limiter = mock.AsyncMock()
-        mock_limiter.try_acquire.return_value = False
+        mock_limiter.try_acquire.side_effect = tanjun.dependencies.ResourceDepleted
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
             "message_menu:epic flintstones:check:tanjun.concurrency",
             {hikari.Locale.EN_GB: "ear", hikari.Locale.BG: "neat", hikari.Locale.DA: "meow meow"},
@@ -3246,7 +3242,7 @@ class TestConcurrencyPreExecution:
 
         mock_context = mock.Mock()
         mock_limiter = mock.AsyncMock()
-        mock_limiter.try_acquire.return_value = False
+        mock_limiter.try_acquire.side_effect = tanjun.dependencies.ResourceDepleted
         hook = tanjun.dependencies.ConcurrencyPreExecution("bucket catgirls", error=mock_concurrency_callback)
 
         with pytest.raises(MockException):

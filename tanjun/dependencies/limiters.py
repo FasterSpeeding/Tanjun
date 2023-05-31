@@ -268,7 +268,7 @@ class AbstractConcurrencyLimiter(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> bool:
+    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Try to acquire a concurrency lock on a bucket.
 
         Parameters
@@ -278,10 +278,10 @@ class AbstractConcurrencyLimiter(abc.ABC):
         ctx
             The context to acquire this bucket lock with.
 
-        Returns
-        -------
-        bool
-            Whether the lock was acquired.
+        Raises
+        ------
+        ResourceDepleted
+            If the concurrency lock couldn't be acquired.
         """
 
     @abc.abstractmethod
@@ -361,8 +361,12 @@ class _ConcurrencyAcquire:
         if self._acquired:
             raise RuntimeError("Already acquired")
 
-        self._acquired = await self._limiter.try_acquire(self._bucket_id, self._ctx)
-        if not self._acquired:
+        self._acquired = True
+        try:
+            await self._limiter.try_acquire(self._bucket_id, self._ctx)
+
+        except ResourceDepleted:
+            self._acquired = False
             raise self._error()  # noqa: R102
 
     async def __aexit__(
@@ -706,7 +710,7 @@ class AbstractCooldownBucket(abc.ABC):
 
         Raises
         ------
-        ResourceDepleted
+        CooldownDepleted
             If the cooldown couldn't be acquired.
         """
 
@@ -789,8 +793,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
     async def try_acquire(self, bucket_id: str, ctx: tanjun.Context) -> None:
         if resource := self._custom_buckets.get(bucket_id):
-            await resource.try_acquire(bucket_id, ctx)
-            return
+            return await resource.try_acquire(bucket_id, ctx)
 
         bucket = self._buckets.get(bucket_id)
         if not bucket:
@@ -803,7 +806,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         # internally de-duplicate this.
         key = (bucket_id, ctx)
         if key in self._acquiring_ctxs:
-            return  # This won't ever be the case if it just had to make a new bucket, hence the elif.
+            return
 
         resource = await bucket.into_inner(ctx)
         self._acquiring_ctxs[key] = resource.check().increment(ctx)
@@ -1342,7 +1345,7 @@ class AbstractConcurrencyBucket(abc.ABC):
     __slots__ = ()
 
     @abc.abstractmethod
-    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> bool:
+    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Try to acquire a concurrency lock on a bucket.
 
         Parameters
@@ -1352,10 +1355,10 @@ class AbstractConcurrencyBucket(abc.ABC):
         ctx
             The context to acquire this bucket lock with.
 
-        Returns
-        -------
-        bool
-            Whether the lock was acquired.
+        Raises
+        ------
+        ResourceDepleted
+            If the concurrency lock couldn't be acquired.
         """
 
     @abc.abstractmethod
@@ -1462,7 +1465,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
-    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> bool:
+    async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
         if resource := self._custom_buckets.get(bucket_id):
             return await resource.try_acquire(bucket_id, ctx)
@@ -1478,12 +1481,14 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         # internally de-duplicate this.
         key = (bucket_id, ctx)
         if key in self._acquiring_ctxs:
-            return True  # This won't ever be the case if it just had to make a new bucket, hence the elif.
+            return
 
-        if result := (limit := await bucket.into_inner(ctx)).acquire():
+        limit = await bucket.into_inner(ctx)
+        if limit.acquire():
             self._acquiring_ctxs[key] = limit
 
-        return result
+        else:
+            raise ResourceDepleted
 
     async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
@@ -1587,9 +1592,8 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             async def try_acquire(
                 self, bucket_id: str, ctx: tanjun.abc.Context, /
             ) -> bool:
-                # True indicates this could be acquired (and the command
-                # should be allowed to run), False indicates it couldn't be.
-                return True
+                # ResourceDepleted should be raised if this couldn't be acquired.
+                raise ResourceDepleted
 
             async def release(
                 self, bucket_id: str, ctx: tanjun.abc.Context, /
@@ -1658,7 +1662,10 @@ class ConcurrencyPreExecution:
         *,
         localiser: typing.Optional[locales.AbstractLocaliser] = None,
     ) -> None:
-        if not await limiter.try_acquire(self._bucket_id, ctx):
+        try:
+            await limiter.try_acquire(self._bucket_id, ctx)
+
+        except ResourceDepleted:
             if self._error:
                 raise self._error(self._bucket_id) from None
 
