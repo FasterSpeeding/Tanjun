@@ -2218,7 +2218,7 @@ class TestCooldownPreExecution:
         mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "slash:eep meow nyaa:check:tanjun.cooldown-unknown",
+            "slash:eep meow nyaa:check:tanjun.cooldown_unknown",
             {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am nyaa"},
         )
 
@@ -2244,7 +2244,7 @@ class TestCooldownPreExecution:
         mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "slash:eep meow nyaa:check:tanjun.cooldown-unknown",
+            "slash:eep meow nyaa:check:tanjun.cooldown_unknown",
             {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am nyaa"},
         )
 
@@ -2275,7 +2275,7 @@ class TestCooldownPreExecution:
         mock_cooldown_manager.try_acquire.side_effect = tanjun.dependencies.limiters.CooldownDepleted(None)
         mock_owner_check = mock.AsyncMock()
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "slash:eep meow nyaa:check:tanjun.cooldown-unknown",
+            "slash:eep meow nyaa:check:tanjun.cooldown_unknown",
             {hikari.Locale.BG: "yeep", hikari.Locale.FR: "i am nyaa"},
         )
 

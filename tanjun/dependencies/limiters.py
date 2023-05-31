@@ -45,6 +45,11 @@ __all__: list[str] = [
     "add_cooldown",
     "with_concurrency_limit",
     "with_cooldown",
+    "ResourceDepleted",
+    "ResourceNotTracked",
+    "CooldownDepleted",
+    "AbstractCooldownBucket",
+    "AbstractConcurrencyBucket",
 ]
 
 import abc
@@ -1050,7 +1055,7 @@ class CooldownPreExecution:
             Response error message for when `cooldown` is unknown.
 
             This supports [localisation][] and uses the check name
-            `"tanjun.cooldown-unknown"` for global overrides.
+            `"tanjun.cooldown_unknown"` for global overrides.
 
             This defaults to `error_message` but takes no format args.
         owners_exempt
@@ -1092,7 +1097,7 @@ class CooldownPreExecution:
                 raise self._error(self._bucket_id, exc.wait_until) from None
 
             if exc.wait_until is None:
-                message = self._unknown_message.localise(ctx, localiser, "check", "tanjun.cooldown-unknown")
+                message = self._unknown_message.localise(ctx, localiser, "check", "tanjun.cooldown_unknown")
 
             else:
                 wait_until_repr = conversion.from_datetime(exc.wait_until, style="R")
@@ -1199,7 +1204,7 @@ def with_cooldown(
         Response error message for when `cooldown` is unknown.
 
         This supports [localisation][] and uses the check name
-        `"tanjun.cooldown-unknown"` for global overrides.
+        `"tanjun.cooldown_unknown"` for global overrides.
 
         This defaults to `error_message` but takes no format args.
     follow_wrapped
@@ -1271,7 +1276,7 @@ def add_cooldown(
         Response error message for when `cooldown` is unknown.
 
         This supports [localisation][] and uses the check name
-        `"tanjun.cooldown-unknown"` for global overrides.
+        `"tanjun.cooldown_unknown"` for global overrides.
 
         This defaults to `error_message` but takes no format args.
     owners_exempt

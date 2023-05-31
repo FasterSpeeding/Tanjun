@@ -76,6 +76,9 @@ __all__: list[str] = [
     "set_standard_dependencies",
     "with_concurrency_limit",
     "with_cooldown",
+    "ResourceDepleted",
+    "ResourceNotTracked",
+    "CooldownDepleted",
 ]
 
 import typing
@@ -83,6 +86,9 @@ import typing
 import hikari
 
 from .async_cache import AsyncCache
+from .limiters import ResourceDepleted
+from .limiters import ResourceNotTracked
+from .limiters import  CooldownDepleted
 from .async_cache import CacheIterator
 from .async_cache import CacheMissError
 from .async_cache import ChannelBoundCache
