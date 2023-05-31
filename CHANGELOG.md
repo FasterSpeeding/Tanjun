@@ -23,8 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   standard concurrency limiter manager using
   [InMemoryConcurrencyLimiter.set_custom_bucket][tanjun.dependencies.limiters.InMemoryConcurrencyLimiter.set_custom_bucket].
 - `unknown_message` option for
-  [CooldownPreExecution.\_\_init\_\_][yuyo.dependencies.limiters.CooldownPreExecution.__init__]
-  and [with_cooldown][yuyo.dependencies.limiters.with_cooldown] for setting the
+  [CooldownPreExecution.\_\_init\_\_][tanjun.dependencies.limiters.CooldownPreExecution.__init__]
+  and [with_cooldown][tanjun.dependencies.limiters.with_cooldown] for setting the
   response message specifically for the new case of when wait_until is unknown.
 
 ### Changed
