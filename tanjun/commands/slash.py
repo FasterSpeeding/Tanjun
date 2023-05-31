@@ -53,7 +53,6 @@ __all__: list[str] = [
 import copy
 import typing
 import unicodedata
-import warnings
 from collections import abc as collections
 
 import hikari
@@ -391,10 +390,6 @@ def as_slash_command(
     return decorator
 
 
-UNDEFINED_DEFAULT = tanjun.NO_DEFAULT
-"""Deprecated alias for `tanjun.abc.NO_DEFAULT`."""
-
-
 def with_attachment_slash_option(
     name: typing.Union[str, collections.Mapping[str, str]],
     description: typing.Union[str, collections.Mapping[str, str]],
@@ -474,7 +469,6 @@ def with_str_slash_option(
         min_length=min_length,
         max_length=max_length,
         pass_as_kwarg=pass_as_kwarg,
-        _stack_level=1,
     )
 
 
@@ -522,7 +516,6 @@ def with_int_slash_option(
         min_value=min_value,
         max_value=max_value,
         pass_as_kwarg=pass_as_kwarg,
-        _stack_level=1,
     )
 
 
@@ -572,7 +565,6 @@ def with_float_slash_option(
         min_value=min_value,
         max_value=max_value,
         pass_as_kwarg=pass_as_kwarg,
-        _stack_level=1,
     )
 
 
@@ -1690,10 +1682,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         autocomplete: bool = False,
         channel_types: typing.Optional[collections.Sequence[int]] = None,
         choices: typing.Union[
-            collections.Mapping[str, typing.Union[str, int, float]],
-            collections.Sequence[tuple[str, typing.Union[str, int, float]]],
-            collections.Sequence[hikari.CommandChoice],
-            None,
+            collections.Mapping[str, typing.Union[str, int, float]], collections.Sequence[hikari.CommandChoice], None
         ] = None,
         converters: typing.Union[collections.Sequence[_AnyConverterSig], _AnyConverterSig] = (),
         default: typing.Any = tanjun.NO_DEFAULT,
@@ -1704,7 +1693,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         max_value: typing.Union[int, float, None] = None,
         only_member: bool = False,
         pass_as_kwarg: bool = True,
-        _stack_level: int = 0,
     ) -> Self:
         names.assert_length(1, 32).assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
         descriptions.assert_length(1, 100)
@@ -1746,23 +1734,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             actual_choices = [hikari.CommandChoice(name=name, value=value) for name, value in choices.items()]
 
         else:
-            actual_choices = []
-            warned = False
-            for choice in choices:
-                if isinstance(choice, tuple):
-                    if not warned:
-                        warned = True
-                        warnings.warn(
-                            "Passing a sequence of tuples to `choices` is deprecated since 2.1.2a1, "
-                            "please pass a mapping instead.",
-                            category=DeprecationWarning,
-                            stacklevel=2 + _stack_level,
-                        )
-
-                    actual_choices.append(hikari.CommandChoice(name=choice[0], value=choice[1]))
-
-                else:
-                    actual_choices.append(choice)
+            actual_choices = list(choices)
 
         if actual_choices and len(actual_choices) > 25:
             raise ValueError("Slash command options cannot have more than 25 choices")
@@ -1869,7 +1841,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             pass_as_kwarg=pass_as_kwarg,
         )
 
-    @typing.overload
     def add_str_option(
         self,
         name: typing.Union[str, collections.Mapping[str, str]],
@@ -1886,51 +1857,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
-        _stack_level: int = 0,
-    ) -> Self:
-        ...
-
-    @typing.overload
-    @typing_extensions.deprecated("Pass a dict for `choices`, not a sequence of tuples")
-    def add_str_option(
-        self,
-        name: typing.Union[str, collections.Mapping[str, str]],
-        description: typing.Union[str, collections.Mapping[str, str]],
-        /,
-        *,
-        autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
-        choices: collections.Sequence[tuple[str, str]],
-        converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
-        default: typing.Any = tanjun.NO_DEFAULT,
-        key: typing.Optional[str] = None,
-        min_length: typing.Optional[int] = None,
-        max_length: typing.Optional[int] = None,
-        pass_as_kwarg: bool = True,
-        _stack_level: int = 0,
-    ) -> Self:
-        ...
-
-    def add_str_option(
-        self,
-        name: typing.Union[str, collections.Mapping[str, str]],
-        description: typing.Union[str, collections.Mapping[str, str]],
-        /,
-        *,
-        autocomplete: typing.Optional[tanjun.AutocompleteSig[str]] = None,
-        choices: typing.Union[
-            collections.Mapping[str, str],
-            collections.Sequence[str],
-            collections.Sequence[tuple[str, str]],
-            collections.Sequence[hikari.CommandChoice],
-            None,
-        ] = None,
-        converters: typing.Union[collections.Sequence[ConverterSig[str]], ConverterSig[str]] = (),
-        default: typing.Any = tanjun.NO_DEFAULT,
-        key: typing.Optional[str] = None,
-        min_length: typing.Optional[int] = None,
-        max_length: typing.Optional[int] = None,
-        pass_as_kwarg: bool = True,
-        _stack_level: int = 0,
     ) -> Self:
         r"""Add a string option to the slash command.
 
@@ -1962,8 +1888,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             and option_value should be strings of up to 100 characters or a sequence
             of strings where the string will be used for both the choice's name and
             value.
-
-            Passing a sequence of tuples here is deprecated.
         converters
             The option's converters.
 
@@ -2028,21 +1952,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         else:
             actual_choices = []
-            warned = False
             for choice in choices:
-                if isinstance(choice, tuple):
-                    if not warned:
-                        warnings.warn(
-                            "Passing a sequence of tuples for 'choices' is deprecated since 2.1.2a1, "
-                            "please pass a mapping instead.",
-                            category=DeprecationWarning,
-                            stacklevel=2 + _stack_level,
-                        )
-                        warned = True
-
-                    actual_choices.append(hikari.CommandChoice(name=choice[0], value=choice[1]))
-
-                elif isinstance(choice, hikari.CommandChoice):
+                if isinstance(choice, hikari.CommandChoice):
                     actual_choices.append(choice)
 
                 else:
@@ -2069,7 +1980,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         return self
 
-    @typing.overload
     def add_int_option(
         self,
         name: typing.Union[str, collections.Mapping[str, str]],
@@ -2084,51 +1994,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         min_value: typing.Optional[int] = None,
         max_value: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
-        _stack_level: int = 0,
     ) -> Self:
         ...
-
-    @typing.overload
-    @typing_extensions.deprecated("Pass a dict for choices, not a sequence of tuples")
-    def add_int_option(
-        self,
-        name: typing.Union[str, collections.Mapping[str, str]],
-        description: typing.Union[str, collections.Mapping[str, str]],
-        /,
-        *,
-        autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
-        choices: collections.Sequence[tuple[str, int]],
-        converters: typing.Union[collections.Sequence[ConverterSig[int]], ConverterSig[int]] = (),
-        default: typing.Any = tanjun.NO_DEFAULT,
-        key: typing.Optional[str] = None,
-        min_value: typing.Optional[int] = None,
-        max_value: typing.Optional[int] = None,
-        pass_as_kwarg: bool = True,
-        _stack_level: int = 0,
-    ) -> Self:
-        ...
-
-    def add_int_option(
-        self,
-        name: typing.Union[str, collections.Mapping[str, str]],
-        description: typing.Union[str, collections.Mapping[str, str]],
-        /,
-        *,
-        autocomplete: typing.Optional[tanjun.AutocompleteSig[int]] = None,
-        choices: typing.Union[
-            collections.Mapping[str, int],
-            collections.Sequence[tuple[str, int]],
-            collections.Sequence[hikari.CommandChoice],
-            None,
-        ] = None,
-        converters: typing.Union[collections.Sequence[ConverterSig[int]], ConverterSig[int]] = (),
-        default: typing.Any = tanjun.NO_DEFAULT,
-        key: typing.Optional[str] = None,
-        min_value: typing.Optional[int] = None,
-        max_value: typing.Optional[int] = None,
-        pass_as_kwarg: bool = True,
-        _stack_level: int = 0,
-    ) -> Self:
         r"""Add an integer option to the slash command.
 
         Parameters
@@ -2218,7 +2085,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             min_value=min_value,
             max_value=max_value,
             pass_as_kwarg=pass_as_kwarg,
-            _stack_level=_stack_level + 1,
         )
 
         if autocomplete:
@@ -2226,7 +2092,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         return self
 
-    @typing.overload
     def add_float_option(
         self,
         name: typing.Union[str, collections.Mapping[str, str]],
@@ -2242,52 +2107,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         min_value: typing.Optional[float] = None,
         max_value: typing.Optional[float] = None,
         pass_as_kwarg: bool = True,
-        _stack_level: int = 0,
-    ) -> Self:
-        ...
-
-    @typing.overload
-    @typing_extensions.deprecated("Pass a dict for choices, not a sequence of tuples")
-    def add_float_option(
-        self,
-        name: typing.Union[str, collections.Mapping[str, str]],
-        description: typing.Union[str, collections.Mapping[str, str]],
-        /,
-        *,
-        always_float: bool = True,
-        autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
-        choices: collections.Sequence[tuple[str, float]],
-        converters: typing.Union[collections.Sequence[ConverterSig[float]], ConverterSig[float]] = (),
-        default: typing.Any = tanjun.NO_DEFAULT,
-        key: typing.Optional[str] = None,
-        min_value: typing.Optional[float] = None,
-        max_value: typing.Optional[float] = None,
-        pass_as_kwarg: bool = True,
-        _stack_level: int = 0,
-    ) -> Self:
-        ...
-
-    def add_float_option(
-        self,
-        name: typing.Union[str, collections.Mapping[str, str]],
-        description: typing.Union[str, collections.Mapping[str, str]],
-        /,
-        *,
-        always_float: bool = True,
-        autocomplete: typing.Optional[tanjun.AutocompleteSig[float]] = None,
-        choices: typing.Union[
-            collections.Mapping[str, float],
-            collections.Sequence[tuple[str, float]],
-            collections.Sequence[hikari.CommandChoice],
-            None,
-        ] = None,
-        converters: typing.Union[collections.Sequence[ConverterSig[float]], ConverterSig[float]] = (),
-        default: typing.Any = tanjun.NO_DEFAULT,
-        key: typing.Optional[str] = None,
-        min_value: typing.Optional[float] = None,
-        max_value: typing.Optional[float] = None,
-        pass_as_kwarg: bool = True,
-        _stack_level: int = 0,
     ) -> Self:
         r"""Add a float option to a slash command.
 
@@ -2385,7 +2204,6 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             max_value=float(max_value) if max_value is not None else None,
             pass_as_kwarg=pass_as_kwarg,
             always_float=always_float,
-            _stack_level=_stack_level + 1,
         )
 
         if autocomplete:

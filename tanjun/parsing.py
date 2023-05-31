@@ -106,19 +106,6 @@ else:
     )
 
 
-UndefinedT = typing.Literal[tanjun.NO_DEFAULT]
-"""Deprecated alias of `typing.Literal[tanjun.abc.NO_DEFAULT]`."""
-
-UndefinedDefaultT = typing.Literal[tanjun.NO_DEFAULT]
-"""Deprecated alias of `typing.Literal[tanjun.abc.NO_DEFAULT]`."""
-
-UNDEFINED = tanjun.NO_DEFAULT
-"""Deprecated alias of [tanjun.abc.NO_DEFAULT][]."""
-
-UNDEFINED_DEFAULT = tanjun.NO_DEFAULT
-"""Deprecated alias of [tanjun.abc.NO_DEFAULT][]."""
-
-
 class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
     """Abstract interface of a message content parser."""
 
@@ -458,13 +445,6 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
             If `key` isn't valid for any of the commands this parser is linked
             to where `validate_arg_keys` is [True][].
         """
-
-
-@typing_extensions.deprecated("Use AbstractOptionParser")
-class AbstractParser(AbstractOptionParser):
-    """Deprecated alias of [AbstractOptionParser][tanjun.parsing.AbstractOptionParser]."""
-
-    __slots__ = ()
 
 
 class _ShlexTokenizer:

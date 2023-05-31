@@ -250,8 +250,8 @@ class TestMenuCommand:
     def test___init___when_command_object(
         self,
         inner_command: typing.Union[
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig],
-            tanjun.MessageCommand[tanjun.abc.CommandCallbackSig],
+            tanjun.SlashCommand[tanjun.abc.SlashCallbackSig],
+            tanjun.MessageCommand[tanjun.abc.MessageCallbackSig],
             tanjun.MenuCommand[typing.Any, typing.Any],
         ],
     ):

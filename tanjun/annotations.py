@@ -251,7 +251,6 @@ import enum
 import itertools
 import operator
 import typing
-import warnings
 from collections import abc as collections
 
 import hikari
@@ -1422,68 +1421,7 @@ def user_field(
     )
 
 
-class _FloatEnumConverter(_ConfigIdentifier):
-    """Specialised converters for float enum choices."""
-
-    __slots__ = ("_enum",)
-
-    def __init__(self, enum: collections.Callable[[float], typing.Any]) -> None:
-        self._enum = enum
-
-    def set_config(self, config: _ArgConfig, /) -> None:
-        config.float_converter = self._enum
-
-
-class _IntEnumConverter(_ConfigIdentifier):
-    """Specialised converters for int enum choices."""
-
-    __slots__ = ("_enum",)
-
-    def __init__(self, enum: collections.Callable[[int], typing.Any]) -> None:
-        self._enum = enum
-
-    def set_config(self, config: _ArgConfig, /) -> None:
-        config.int_converter = self._enum
-
-
-class _EnumConverter(_ConfigIdentifier):
-    __slots__ = ("_converter",)
-
-    def __init__(self, enum: collections.Callable[[str], enum.Enum], /) -> None:
-        self._converter = enum
-
-    def set_config(self, config: _ArgConfig, /) -> None:
-        config.str_converters = [self._converter]
-
-
-class _ChoicesMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Choices(...) to Annotated")
-    def __getitem__(cls, enum_: type[_EnumT], /) -> type[_EnumT]:
-        if issubclass(enum_, float):
-            type_ = float
-            choices = Choices(enum_.__members__)
-            converter = _FloatEnumConverter(enum_)
-
-        elif issubclass(enum_, int):
-            type_ = int
-            choices = Choices(enum_.__members__)
-            converter = _IntEnumConverter(enum_)
-
-        elif issubclass(enum_, str):
-            type_ = str
-            choices = Choices(enum_.__members__)
-            converter = None
-
-        else:
-            raise TypeError("Enum must be a subclass of str, float or int")
-
-        # TODO: do we want to wrap the convert callback to give better failed parse messages?
-        return typing.cast(
-            "type[_EnumT]", typing.Annotated[enum_, choices, converter, _EnumConverter(enum_), _OptionMarker(type_)]
-        )
-
-
-class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
+class Choices(_ConfigIdentifier):
     """Assign up to 25 choices for a slash command option.
 
     !!! warning
@@ -1542,16 +1480,7 @@ class Choices(_ConfigIdentifier, metaclass=_ChoicesMeta):
         config.choices = self._choices
 
 
-class _ConvertedMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Converted(...) to Annotated")
-    def __getitem__(cls, converters: typing.Union[_ConverterSig[_T], tuple[_ConverterSig[_T]]], /) -> type[_T]:
-        if not isinstance(converters, tuple):
-            converters = (converters,)
-
-        return typing.cast("type[_T]", typing.Annotated[typing.Any, Converted(*converters)])
-
-
-class Converted(_ConfigIdentifier, metaclass=_ConvertedMeta):
+class Converted(_ConfigIdentifier):
     """Marked an argument as type [Str][tanjun.annotations.Str] with converters.
 
     Examples
@@ -1610,18 +1539,7 @@ Snowflake = typing.Annotated[hikari.Snowflake, Converted(conversion.parse_snowfl
 """An argument which takes a snowflake."""
 
 
-class _DefaultMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Default(...) to Annotated")
-    def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], _T]], /) -> type[_T]:
-        if isinstance(value, tuple):
-            type_ = value[0]
-            return typing.cast("type[_T]", typing.Annotated[type_, Default(value[1])])
-
-        type_ = typing.cast("type[_T]", value)
-        return typing.cast("type[_T]", typing.Annotated[type_, Default()])
-
-
-class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
+class Default(_ConfigIdentifier):
     """Explicitly configure an argument's default.
 
     Examples
@@ -1697,31 +1615,10 @@ class Flag(_ConfigIdentifier):
     ```
     """
 
-    __slots__ = ("_aliases", "_default", "_empty_value")
+    __slots__ = ("_aliases", "_empty_value")
 
-    @typing.overload
     def __init__(
         self, *, aliases: typing.Optional[collections.Sequence[str]] = None, empty_value: typing.Any = tanjun.NO_DEFAULT
-    ) -> None:
-        ...
-
-    @typing_extensions.deprecated("Use annotations.Default instead of the default arg")
-    @typing.overload
-    def __init__(
-        self,
-        *,
-        aliases: typing.Optional[collections.Sequence[str]] = None,
-        default: typing.Any = tanjun.NO_DEFAULT,
-        empty_value: typing.Any = tanjun.NO_DEFAULT,
-    ) -> None:
-        ...
-
-    def __init__(
-        self,
-        *,
-        aliases: typing.Optional[collections.Sequence[str]] = None,
-        default: typing.Any = tanjun.NO_DEFAULT,
-        empty_value: typing.Any = tanjun.NO_DEFAULT,
     ) -> None:
         """Create a flag instance.
 
@@ -1739,13 +1636,7 @@ class Flag(_ConfigIdentifier):
 
             [tanjun.abc.NO_PASS][] is not supported for this.
         """
-        if default is not tanjun.NO_DEFAULT:
-            warnings.warn(
-                "Flag.__init__'s `default` argument is deprecated, use Default instead", category=DeprecationWarning
-            )
-
         self._aliases = aliases
-        self._default = default
         self._empty_value = empty_value
 
     @property
@@ -1757,16 +1648,6 @@ class Flag(_ConfigIdentifier):
         return self._aliases
 
     @property
-    @typing_extensions.deprecated("Use annotations.Default instead of the default arg")
-    def default(self) -> typing.Any:
-        """The flag's default.
-
-        If not specified then the default in the signature for this argument
-        will be used.
-        """
-        return self._default
-
-    @property
     def empty_value(self) -> typing.Any:
         """The value to pass for the argument if the flag is provided without a value.
 
@@ -1776,9 +1657,6 @@ class Flag(_ConfigIdentifier):
         return self._empty_value
 
     def set_config(self, config: _ArgConfig, /) -> None:
-        if self._default is not tanjun.NO_DEFAULT:
-            config.default = self._default
-
         if self._aliases:
             config.message_names = [config.main_message_name, *self._aliases]
 
@@ -1786,13 +1664,7 @@ class Flag(_ConfigIdentifier):
         config.is_positional = False
 
 
-class _PositionalMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Positional(...) to Annotated")
-    def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        return typing.cast("type[_T]", typing.Annotated[type_, Positional()])
-
-
-class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
+class Positional(_ConfigIdentifier):
     """Mark an argument as being passed positionally for message command parsing.
 
     Arguments will be positional by default (unless it has a default) and this
@@ -1819,13 +1691,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
         config.is_positional = True
 
 
-class _GreedyMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Greedy(...) to Annotated")
-    def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        return typing.cast("type[_T]", typing.Annotated[type_, Greedy()])
-
-
-class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
+class Greedy(_ConfigIdentifier):
     """Mark an argument as "greedy" for message command parsing.
 
     This means that it'll consume the rest of the positional arguments,
@@ -1852,19 +1718,7 @@ class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
         config.is_greedy = True
 
 
-class _LengthMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Length(...) to Annotated")
-    def __getitem__(cls, value: typing.Union[int, tuple[int, int]], /) -> type[str]:
-        if isinstance(value, int):
-            obj = Length(value)
-
-        else:
-            obj = Length(*value)
-
-        return typing.cast("type[str]", typing.Annotated[Str, obj])
-
-
-class Length(_ConfigIdentifier, metaclass=_LengthMeta):
+class Length(_ConfigIdentifier):
     """Define length restraints for a string option.
 
     !!! note
@@ -1951,16 +1805,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
         # TODO: validate this is only set for str options
 
 
-class _MaxMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Max(...) to Annotated")
-    def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
-        if isinstance(value, int):
-            return typing.cast("type[_NumberT]", typing.Annotated[Int, Max(value)])
-
-        return typing.cast("type[_NumberT]", typing.Annotated[Float, Max(value)])
-
-
-class Max(_ConfigIdentifier, metaclass=_MaxMeta):
+class Max(_ConfigIdentifier):
     """Inclusive maximum value for a [Float][tanjun.annotations.Float] or [Int][tanjun.annotations.Int] argument.
 
     Examples
@@ -1998,16 +1843,7 @@ class Max(_ConfigIdentifier, metaclass=_MaxMeta):
         config.max_value = self._value
 
 
-class _MinMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Min(...) to Annotated")
-    def __getitem__(cls, value: _NumberT, /) -> type[_NumberT]:
-        if isinstance(value, int):
-            return typing.cast("type[_NumberT]", typing.Annotated[Int, Min(value)])
-
-        return typing.cast("type[_NumberT]", typing.Annotated[Float, Min(value)])
-
-
-class Min(_ConfigIdentifier, metaclass=_MinMeta):
+class Min(_ConfigIdentifier):
     """Inclusive minimum value for a [Float][tanjun.annotations.Float] or [Int][tanjun.annotations.Int] argument.
 
     Examples
@@ -2117,18 +1953,7 @@ class Name(_ConfigIdentifier):
             config.message_names = [self._message_name, *config.message_names[1:]]
 
 
-class _RangedMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass Ranged(...) to Annotated")
-    def __getitem__(cls, range_: tuple[_NumberT, _NumberT], /) -> type[_NumberT]:
-        # This better matches how type checking (well pyright at least) will
-        # prefer to go to float if either value is float.
-        if isinstance(range_[0], float) or isinstance(range_[1], float):
-            return typing.cast("type[_NumberT]", typing.Annotated[Float, Ranged(range_[0], range_[1])])
-
-        return typing.cast("type[_NumberT]", typing.Annotated[Int, Ranged(range_[0], range_[1])])
-
-
-class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
+class Ranged(_ConfigIdentifier):
     """Declare the range limit for an `Int` or `Float` argument.
 
     Examples
@@ -2192,42 +2017,7 @@ class Ranged(_ConfigIdentifier, metaclass=_RangedMeta):
         config.min_value = self._min_value
 
 
-# _MESSAGE_ID_ONLY
-_SNOWFLAKE_PARSERS: dict[type[typing.Any], collections.Callable[[str], hikari.Snowflake]] = {
-    hikari.Member: conversion.parse_user_id,
-    hikari.PartialChannel: conversion.parse_channel_id,
-    hikari.User: conversion.parse_user_id,
-    hikari.Role: conversion.parse_role_id,
-}
-
-
-class _SnowflakeOrMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass SnowflakeOr(...) to Annotated")
-    def __getitem__(cls, type_: type[_T], /) -> type[typing.Union[hikari.Snowflake, _T]]:
-        for entry in _snoop_annotation_args(type_):
-            if not isinstance(entry, _OptionMarker):
-                continue
-
-            try:
-                parser = _SNOWFLAKE_PARSERS[entry.type]
-
-            except (KeyError, TypeError):  # Also catch unhashable
-                pass
-
-            else:
-                descriptor = SnowflakeOr(parse_id=parser)
-                break
-
-        else:
-            descriptor = SnowflakeOr()
-
-        return typing.cast(
-            "type[typing.Union[hikari.Snowflake, _T]]",
-            typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor],
-        )
-
-
-class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
+class SnowflakeOr(_ConfigIdentifier):
     """Mark an argument as taking an object or its ID.
 
     This allows for the argument to be declared as taking the object for slash
@@ -2278,18 +2068,7 @@ class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
         config.snowflake_converter = self._parse_id
 
 
-class _TheseChannelsMeta(abc.ABCMeta):
-    @typing_extensions.deprecated("Pass TheseChannels(...) to Annotated")
-    def __getitem__(
-        cls, value: typing.Union[_ChannelTypeIsh, collections.Collection[_ChannelTypeIsh]], /
-    ) -> type[hikari.PartialChannel]:
-        if not isinstance(value, collections.Collection):
-            value = (value,)
-
-        return typing.cast("type[hikari.PartialChannel]", typing.Annotated[Channel, TheseChannels(*value)])
-
-
-class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
+class TheseChannels(_ConfigIdentifier):
     """Restrain the type of channels a channel argument can target."""
 
     __slots__ = ("_channel_types",)

@@ -62,7 +62,6 @@ import typing
 
 import alluka
 import hikari
-import typing_extensions
 
 from .. import _internal
 from .. import abc as tanjun
@@ -114,30 +113,6 @@ class AbstractCooldownManager(abc.ABC):
     """Interface used for managing command cooldowns."""
 
     __slots__ = ()
-
-    @typing_extensions.deprecated("Use .acquire and .release")
-    @abc.abstractmethod
-    async def check_cooldown(
-        self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
-    ) -> typing.Optional[datetime.datetime]:
-        """Deprecated method."""
-
-    @typing_extensions.deprecated("Use .acquire and .release")
-    async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
-        """Deprecated function for incrementing a cooldown.
-
-        Use
-        [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire]
-        and [AbstractCooldownManager.release][tanjun.dependencies.limiters.AbstractCooldownManager.release].
-        """
-        try:
-            await self.try_acquire(bucket_id, ctx)
-
-        except ResourceDepleted:
-            pass
-
-        else:
-            await self.release(bucket_id, ctx)
 
     @abc.abstractmethod
     async def try_acquire(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
@@ -807,37 +782,6 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         resource = await bucket.into_inner(ctx)
         self._acquiring_ctxs[key] = resource.check().increment(ctx)
-
-    @typing_extensions.deprecated("Use .acquire and .release")
-    async def check_cooldown(
-        self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
-    ) -> typing.Optional[datetime.datetime]:
-        if increment:
-            try:
-                await self.try_acquire(bucket_id, ctx)
-
-            except CooldownDepleted as exc:
-                return exc.wait_until or (_now() + _ASSUMED_COOLDOWN_DELTA)
-
-            else:
-                await self.release(bucket_id, ctx)
-
-        else:
-            resource = (
-                self._acquiring_ctxs.get((bucket_id, ctx))
-                or (bucket := self._buckets.get(bucket_id))
-                and (resource := await bucket.into_inner(ctx))
-            )
-            if not resource:
-                return None  # MyPy compat
-
-            try:
-                resource.check()
-
-            except CooldownDepleted as exc:
-                return exc.wait_until or (_now() + _ASSUMED_COOLDOWN_DELTA)
-
-        return None  # MyPy compat
 
     async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         if resource := self._custom_buckets.get(bucket_id):

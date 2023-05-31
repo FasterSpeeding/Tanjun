@@ -232,7 +232,6 @@ def test_with_str_slash_option():
         min_length=543,
         max_length=6543,
         pass_as_kwarg=False,
-        _stack_level=1,
     )
 
 
@@ -253,7 +252,6 @@ def test_with_str_slash_option_with_defaults():
         min_length=None,
         max_length=None,
         pass_as_kwarg=True,
-        _stack_level=1,
     )
 
 
@@ -287,7 +285,6 @@ def test_with_int_slash_option():
         min_value=1123,
         max_value=312123,
         pass_as_kwarg=False,
-        _stack_level=1,
     )
 
 
@@ -308,7 +305,6 @@ def test_with_int_slash_option_with_defaults():
         min_value=None,
         max_value=None,
         pass_as_kwarg=True,
-        _stack_level=1,
     )
 
 
@@ -344,7 +340,6 @@ def test_with_float_slash_option():
         min_value=56.234,
         max_value=765.234,
         pass_as_kwarg=False,
-        _stack_level=1,
     )
 
 
@@ -366,7 +361,6 @@ def test_with_float_slash_option_with_defaults():
         min_value=None,
         max_value=None,
         pass_as_kwarg=True,
-        _stack_level=1,
     )
 
 
@@ -1317,8 +1311,8 @@ class TestSlashCommand:
     def test___init___when_command_object(
         self,
         inner_command: typing.Union[
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig],
-            tanjun.MessageCommand[tanjun.abc.CommandCallbackSig],
+            tanjun.SlashCommand[tanjun.abc.SlashCallbackSig],
+            tanjun.MessageCommand[tanjun.abc.MessageCallbackSig],
             tanjun.MenuCommand[typing.Any, typing.Any],
         ],
     ):
@@ -1622,23 +1616,6 @@ class TestSlashCommand:
         assert option.choices == [choice_1, choice_2, choice_3]
         assert option.name in command._tracked_options
 
-    def test_add_str_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
-        with pytest.warns(DeprecationWarning):
-            command.add_str_option(
-                "boom",
-                "No u",
-                choices=[("gay", "Gay"), "no", ("lesbian_bi", "Lesbian Bi"), ("transive", "Trans")],  # type: ignore
-            )
-
-        option = command.build().options[0]
-        assert option.choices == [
-            hikari.CommandChoice(name="gay", value="Gay"),
-            hikari.CommandChoice(name="No", value="no"),
-            hikari.CommandChoice(name="lesbian_bi", value="Lesbian Bi"),
-            hikari.CommandChoice(name="transive", value="Trans"),
-        ]
-        assert option.name in command._tracked_options
-
     def test_add_str_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
         command.add_str_option("boom", "No u")
 
@@ -1891,14 +1868,6 @@ class TestSlashCommand:
         with pytest.raises(ValueError, match="`min_value` cannot be greater than `max_value`"):
             command.add_int_option("sesese", "asasasa", min_value=33232, max_value=2232)
 
-    def test_add_int_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
-        with pytest.warns(DeprecationWarning):
-            command.add_int_option("see", "seesee", choices=[("les", 1), ("g", 43)])  # type: ignore
-
-        option = command.build().options[0]
-        assert option.choices == [hikari.CommandChoice(name="les", value=1), hikari.CommandChoice(name="g", value=43)]
-        assert option.name in command._tracked_options
-
     def test_add_int_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]):
         choice_1 = hikari.CommandChoice(name="a", name_localizations={"b": "c"}, value="d")
         choice_2 = hikari.CommandChoice(name="e", name_localizations={"f": "g"}, value="h")
@@ -2136,17 +2105,6 @@ class TestSlashCommand:
 
         option = command.build().options[0]
         assert option.choices == [choice_1, choice_2, choice_3]
-        assert option.name in command._tracked_options
-
-    def test_add_float_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
-        with pytest.warns(DeprecationWarning):
-            command.add_float_option("easy", "aaa", choices=[("blam", 4.20), ("blam2", 6.9)])  # type: ignore
-
-        option = command.build().options[0]
-        assert option.choices == [
-            hikari.CommandChoice(name="blam", value=4.20),
-            hikari.CommandChoice(name="blam2", value=6.9),
-        ]
         assert option.name in command._tracked_options
 
     def test_add_float_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):

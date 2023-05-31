@@ -36,7 +36,6 @@ __all__: list[str] = [
     "AnyHooks",
     "AppCommand",
     "AppCommandContext",
-    "AutocompleteCallbackSig",
     "AutocompleteContext",
     "AutocompleteSig",
     "BaseSlashCommand",
@@ -44,7 +43,6 @@ __all__: list[str] = [
     "Client",
     "ClientCallbackNames",
     "ClientLoader",
-    "CommandCallbackSig",
     "Component",
     "Context",
     "ErrorHookSig",
@@ -54,7 +52,6 @@ __all__: list[str] = [
     "ListenerCallbackSig",
     "MenuCallbackSig",
     "MenuCommand",
-    "MenuCommandCallbackSig",
     "MenuContext",
     "MenuHooks",
     "MessageCommand",
@@ -119,9 +116,6 @@ _MenuTypeT = typing.TypeVar(
     "_MenuTypeT", typing.Literal[hikari.CommandType.USER], typing.Literal[hikari.CommandType.MESSAGE]
 )
 _MenuValueT = typing.TypeVar("_MenuValueT", hikari.Message, hikari.InteractionMember)
-
-CommandCallbackSig = collections.Callable[..., _CoroT[None]]
-"""Deprecated type hint used to represent any command callback."""
 
 MetaEventSig = collections.Callable[..., typing.Union[_CoroT[None], None]]
 """Type hint of a client callback.
@@ -271,13 +265,6 @@ else:
     HookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
     _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
     ListenerCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_EventT,))
-
-
-AutocompleteCallbackSig = AutocompleteSig[_AutocompleteValueT]
-"""Deprecated alias of [AutocompleteSig][tanjun.abc.AutocompleteSig]."""
-
-MenuCommandCallbackSig = MenuCallbackSig[_MenuValueT]
-"""Deprecated alias of [MenuCallbackSig][tanjun.abc.MenuCallbackSig]."""
 
 _MenuCallbackSigT = typing.TypeVar("_MenuCallbackSigT", bound=MenuCallbackSig[typing.Any])
 _MessageCallbackSigT = typing.TypeVar("_MessageCallbackSigT", bound=MessageCallbackSig)
