@@ -992,7 +992,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
                 self, bucket_id: str, ctx: tanjun.abc.Context, /
             ) -> None:
                 # CooldownDepleted should be raised if this couldn't be acquired.
-                raise CooldownDepleted(None)
+                raise tanjun.dependencies.CooldownDepleted(None)
 
             async def release(
                 self, bucket_id: str, ctx: tanjun.abc.Context, /
@@ -1594,7 +1594,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
                 self, bucket_id: str, ctx: tanjun.abc.Context, /
             ) -> bool:
                 # ResourceDepleted should be raised if this couldn't be acquired.
-                raise ResourceDepleted
+                raise tanjun.dependencies.ResourceDepleted
 
             async def release(
                 self, bucket_id: str, ctx: tanjun.abc.Context, /
