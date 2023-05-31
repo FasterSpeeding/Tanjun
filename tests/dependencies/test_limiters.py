@@ -792,8 +792,8 @@ class TestCooldown:
         )
         now = _now()
         cooldown.resets = [
-            now + datetime.timedelta(seconds=4, milliseconds=500),
-            now + datetime.timedelta(seconds=2, milliseconds=500),
+            now - datetime.timedelta(seconds=3, milliseconds=500),
+            now - datetime.timedelta(seconds=1, milliseconds=500),
         ]
 
         assert cooldown.has_expired() is True
@@ -874,7 +874,7 @@ class TestCooldown:
         with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
             assert cooldown.check()
 
-        assert exc.value.wait_until == now - datetime.timedelta(seconds=10)
+        assert exc.value.wait_until == now + datetime.timedelta(seconds=59, milliseconds=420)
         assert cooldown.locked == {mock_ctx, mock_ctx_1, mock_ctx_2}
         assert cooldown.resets == [
             now + datetime.timedelta(seconds=59, milliseconds=420),
@@ -912,7 +912,7 @@ class TestCooldown:
         with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
             assert cooldown.check()
 
-        assert exc.value.wait_until == now - datetime.timedelta(seconds=35)
+        assert exc.value.wait_until == now + datetime.timedelta(seconds=34, milliseconds=420)
 
     def test_when_limit_is_negeative_1(self):
         cooldown = tanjun.dependencies.limiters._Cooldown(
