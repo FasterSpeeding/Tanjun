@@ -791,7 +791,10 @@ class TestCooldown:
             limit=1, reset_after=datetime.timedelta(seconds=26, milliseconds=500)
         )
         now = _now()
-        cooldown.uses = [now - datetime.timedelta(seconds=30), now - datetime.timedelta(seconds=28)]
+        cooldown.resets = [
+            now - datetime.timedelta(seconds=3, milliseconds=500),
+            now - datetime.timedelta(seconds=1, milliseconds=500),
+        ]
 
         assert cooldown.has_expired() is True
 
@@ -802,18 +805,21 @@ class TestCooldown:
         cooldown = tanjun.dependencies.limiters._Cooldown(
             limit=6, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
         )
-        cooldown.uses = [
-            now - datetime.timedelta(seconds=90),
-            now - datetime.timedelta(seconds=75),
-            now - datetime.timedelta(seconds=44),
-            now - datetime.timedelta(seconds=32),
+        cooldown.resets = [
+            now - datetime.timedelta(seconds=20, milliseconds=580),
+            now - datetime.timedelta(seconds=5, milliseconds=580),
+            now + datetime.timedelta(seconds=25, milliseconds=420),
+            now + datetime.timedelta(seconds=37, milliseconds=420),
         ]
         cooldown.locked = {mock_ctx_1, mock_ctx_2}
 
         cooldown.check()
 
         assert cooldown.locked == {mock_ctx_1, mock_ctx_2}
-        assert cooldown.uses == [now - datetime.timedelta(seconds=44), now - datetime.timedelta(seconds=32)]
+        assert cooldown.resets == [
+            now + datetime.timedelta(seconds=25, milliseconds=420),
+            now + datetime.timedelta(seconds=37, milliseconds=420),
+        ]
 
     def test(self):
         now = _now()
@@ -822,13 +828,19 @@ class TestCooldown:
         cooldown = tanjun.dependencies.limiters._Cooldown(
             limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
         )
-        cooldown.uses = [now - datetime.timedelta(seconds=10), now - datetime.timedelta(seconds=5)]
+        cooldown.resets = [
+            now + datetime.timedelta(seconds=59, milliseconds=420),
+            now + datetime.timedelta(seconds=64, milliseconds=420),
+        ]
         cooldown.locked.add(mock_other_ctx)
 
         cooldown.increment(mock_ctx)
 
         assert cooldown.locked == {mock_ctx, mock_other_ctx}
-        assert cooldown.uses == [now - datetime.timedelta(seconds=10), now - datetime.timedelta(seconds=5)]
+        assert cooldown.resets == [
+            now + datetime.timedelta(seconds=59, milliseconds=420),
+            now + datetime.timedelta(seconds=64, milliseconds=420),
+        ]
         assert cooldown.check()
 
     def test_when_counter_no_ctxs_tracked(self):
@@ -840,7 +852,7 @@ class TestCooldown:
         cooldown.increment(mock_ctx)
 
         assert cooldown.locked == {mock_ctx}
-        assert cooldown.uses == []
+        assert cooldown.resets == []
         assert cooldown.check()
 
     def test_when_counter_is_at_limit(self):
@@ -851,7 +863,10 @@ class TestCooldown:
         cooldown = tanjun.dependencies.limiters._Cooldown(
             limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
         )
-        cooldown.uses = [now - datetime.timedelta(seconds=10), now - datetime.timedelta(seconds=5)]
+        cooldown.resets = [
+            now + datetime.timedelta(seconds=59, milliseconds=420),
+            now + datetime.timedelta(seconds=64, milliseconds=420),
+        ]
         cooldown.locked = {mock_ctx_1, mock_ctx_2}
 
         cooldown.increment(mock_ctx)
@@ -859,9 +874,12 @@ class TestCooldown:
         with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
             assert cooldown.check()
 
-        assert exc.value.wait_until == now - datetime.timedelta(seconds=10)
+        assert exc.value.wait_until == now + datetime.timedelta(seconds=59, milliseconds=420)
         assert cooldown.locked == {mock_ctx, mock_ctx_1, mock_ctx_2}
-        assert cooldown.uses == [now - datetime.timedelta(seconds=10), now - datetime.timedelta(seconds=5)]
+        assert cooldown.resets == [
+            now + datetime.timedelta(seconds=59, milliseconds=420),
+            now + datetime.timedelta(seconds=64, milliseconds=420),
+        ]
 
     def test_when_counter_is_at_limit_from_only_locks(self):
         cooldown = tanjun.dependencies.limiters._Cooldown(
@@ -883,18 +901,18 @@ class TestCooldown:
         cooldown = tanjun.dependencies.limiters._Cooldown(
             limit=5, reset_after=datetime.timedelta(seconds=69, milliseconds=420)
         )
-        cooldown.uses = [
-            now - datetime.timedelta(seconds=35),
-            now - datetime.timedelta(seconds=23),
-            now - datetime.timedelta(seconds=20),
-            now - datetime.timedelta(seconds=10),
-            now - datetime.timedelta(seconds=5),
+        cooldown.resets = [
+            now + datetime.timedelta(seconds=34, milliseconds=420),
+            now + datetime.timedelta(seconds=46, milliseconds=420),
+            now + datetime.timedelta(seconds=49, milliseconds=420),
+            now + datetime.timedelta(seconds=59, milliseconds=420),
+            now + datetime.timedelta(seconds=64, milliseconds=420),
         ]
 
         with pytest.raises(tanjun.dependencies.limiters.CooldownDepleted) as exc:
             assert cooldown.check()
 
-        assert exc.value.wait_until == now - datetime.timedelta(seconds=35)
+        assert exc.value.wait_until == now + datetime.timedelta(seconds=34, milliseconds=420)
 
     def test_when_limit_is_negeative_1(self):
         cooldown = tanjun.dependencies.limiters._Cooldown(
@@ -904,7 +922,7 @@ class TestCooldown:
         cooldown.increment(mock.Mock())
 
         assert cooldown.locked == set()
-        assert cooldown.uses == []
+        assert cooldown.resets == []
         assert cooldown.has_expired() is True
         assert cooldown.check()
 
@@ -3261,6 +3279,16 @@ class TestConcurrencyPostExecution:
     async def test_call(self):
         mock_context = mock.Mock()
         mock_limiter = mock.AsyncMock()
+        hook = tanjun.dependencies.ConcurrencyPostExecution("aye bucket")
+
+        await hook(mock_context, mock_limiter)
+
+        mock_limiter.release.assert_awaited_once_with("aye bucket", mock_context)
+
+    @pytest.mark.asyncio()
+    async def test_call_when_resource_not_tracked(self):
+        mock_context = mock.Mock()
+        mock_limiter = mock.AsyncMock(side_effect=tanjun.dependencies.ResourceNotTracked)
         hook = tanjun.dependencies.ConcurrencyPostExecution("aye bucket")
 
         await hook(mock_context, mock_limiter)

@@ -490,21 +490,21 @@ def _now() -> datetime.datetime:
 
 
 class _Cooldown:
-    __slots__ = ("limit", "locked", "reset_after", "uses")
+    __slots__ = ("limit", "locked", "reset_after", "resets")
 
     def __init__(self, *, limit: int, reset_after: datetime.timedelta) -> None:
         self.limit = limit
         self.locked: set[tanjun.Context] = set()
         self.reset_after = reset_after
-        self.uses: list[datetime.datetime] = []
+        self.resets: list[datetime.datetime] = []
 
     def _count(self) -> int:
-        reset_offset = _now() - self.reset_after
+        now = _now()
 
-        while self.uses and self.uses[0] < reset_offset:
-            self.uses.pop(0)
+        while self.resets and self.resets[0] < now:
+            self.resets.pop(0)
 
-        return len(self.uses) + len(self.locked)
+        return len(self.resets) + len(self.locked)
 
     def check(self) -> Self:
         # A limit of -1 is special cased to mean no limit, so we don't need to wait.
@@ -513,7 +513,7 @@ class _Cooldown:
 
         if self._count() >= self.limit:
             try:
-                wait_until = self.uses[0]
+                wait_until = self.resets[0]
 
             except IndexError:
                 wait_until = None
@@ -537,7 +537,7 @@ class _Cooldown:
     def unlock(self, ctx: tanjun.Context, /) -> bool:
         try:
             self.locked.remove(ctx)
-            self.uses.append(_now())
+            self.resets.append(_now() + self.reset_after)
 
         except KeyError:
             return False
@@ -1682,7 +1682,11 @@ class ConcurrencyPostExecution:
         self._bucket_id = bucket_id
 
     async def __call__(self, ctx: tanjun.Context, /, limiter: alluka.Injected[AbstractConcurrencyLimiter]) -> None:
-        await limiter.release(self._bucket_id, ctx)
+        try:
+            await limiter.release(self._bucket_id, ctx)
+
+        except ResourceNotTracked:
+            pass
 
 
 def with_concurrency_limit(
