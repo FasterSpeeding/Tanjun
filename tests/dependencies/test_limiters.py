@@ -1389,9 +1389,7 @@ class TestInMemoryCooldownManager:
     async def test_check_cooldown_when_cooldown_depleted(self):
         date = _now()
         mock_bucket = mock.AsyncMock()
-        mock_bucket.into_inner.return_value.check = mock.Mock(
-            side_effect=tanjun.dependencies.CooldownDepleted(date)
-        )
+        mock_bucket.into_inner.return_value.check = mock.Mock(side_effect=tanjun.dependencies.CooldownDepleted(date))
         mock_ctx = mock.Mock()
         manager = tanjun.dependencies.InMemoryCooldownManager()
         manager._buckets["meep"] = mock_bucket
@@ -1421,9 +1419,7 @@ class TestInMemoryCooldownManager:
     @pytest.mark.asyncio()
     async def test_check_cooldown_when_cooldown_depleted_unknown_wait_until(self):
         mock_bucket = mock.AsyncMock()
-        mock_bucket.into_inner.return_value.check = mock.Mock(
-            side_effect=tanjun.dependencies.CooldownDepleted(None)
-        )
+        mock_bucket.into_inner.return_value.check = mock.Mock(side_effect=tanjun.dependencies.CooldownDepleted(None))
         mock_ctx = mock.Mock()
         manager = tanjun.dependencies.InMemoryCooldownManager()
         manager._buckets["flirt"] = mock_bucket
