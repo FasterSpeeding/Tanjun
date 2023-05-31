@@ -3285,6 +3285,16 @@ class TestConcurrencyPostExecution:
 
         mock_limiter.release.assert_awaited_once_with("aye bucket", mock_context)
 
+    @pytest.mark.asyncio()
+    async def test_call_when_resource_not_tracked(self):
+        mock_context = mock.Mock()
+        mock_limiter = mock.AsyncMock(side_effect=tanjun.dependencies.ResourceNotTracked)
+        hook = tanjun.dependencies.ConcurrencyPostExecution("aye bucket")
+
+        await hook(mock_context, mock_limiter)
+
+        mock_limiter.release.assert_awaited_once_with("aye bucket", mock_context)
+
 
 def test_with_concurrency_limit():
     mock_command = mock.Mock()
