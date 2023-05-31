@@ -367,7 +367,7 @@ class _ConcurrencyAcquire:
 
         except ResourceDepleted:
             self._acquired = False
-            raise self._error()  # noqa: R102
+            raise self._error() from None  # noqa: R102
 
     async def __aexit__(
         self,
@@ -809,6 +809,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             return
 
         resource = await bucket.into_inner(ctx)
+        # increment will raise if it the bucket is exhausted
         self._acquiring_ctxs[key] = resource.check().increment(ctx)
 
     @typing_extensions.deprecated("Use .acquire and .release")
