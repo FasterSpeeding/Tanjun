@@ -39,8 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 - [AbstractCooldownManager.check_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.check_cooldown] and
   [AbstractCooldownManager.increment_cooldown][tanjun.dependencies.limiters.AbstractCooldownManager.increment_cooldown]
-  in favour of the [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire]
-  and [AbstractCooldownManager.release][tanjun.dependencies.limiters.AbstractCooldownManager.release] interfaces.
+  in favour of the
+  [AbstractCooldownManager.try_acquire][tanjun.dependencies.limiters.AbstractCooldownManager.try_acquire] and
+  [AbstractCooldownManager.release][tanjun.dependencies.limiters.AbstractCooldownManager.release] interfaces.
 
 ## [2.14.0] - 2023-04-24
 ### Added
