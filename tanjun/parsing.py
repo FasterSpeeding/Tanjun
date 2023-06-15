@@ -106,10 +106,10 @@ else:
     )
 
 
-UndefinedT = typing.Literal[tanjun.NO_DEFAULT]
+UndefinedT = tanjun.NoDefault
 """Deprecated alias of `typing.Literal[tanjun.abc.NO_DEFAULT]`."""
 
-UndefinedDefaultT = typing.Literal[tanjun.NO_DEFAULT]
+UndefinedDefaultT = UndefinedT
 """Deprecated alias of `typing.Literal[tanjun.abc.NO_DEFAULT]`."""
 
 UNDEFINED = tanjun.NO_DEFAULT
