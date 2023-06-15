@@ -1015,6 +1015,16 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         return self
 
 
+_COOLDOWN_ERROR_MESSAGES: dict[str, str] = {
+    hikari.Locale.EN_GB: (english := "This command is currently in cooldown. Try again {cooldown}."),
+    hikari.Locale.EN_US: english,
+}
+_COOLDOWN_UNKNOWN_MESSAGES: dict[str, str] = {
+    hikari.Locale.EN_GB: (english := "This command is currently in cooldown."),
+    hikari.Locale.EN_US: english,
+}
+
+
 class CooldownPreExecution:
     """Pre-execution hook used to manage a command's cooldowns.
 
@@ -1030,9 +1040,7 @@ class CooldownPreExecution:
         /,
         *,
         error: typing.Optional[collections.Callable[[str, typing.Optional[datetime.datetime]], Exception]] = None,
-        error_message: typing.Union[
-            str, collections.Mapping[str, str]
-        ] = "This command is currently in cooldown. Try again {cooldown}.",
+        error_message: typing.Union[str, collections.Mapping[str, str]] = _COOLDOWN_ERROR_MESSAGES,
         unknown_message: typing.Union[str, collections.Mapping[str, str], None] = None,
         owners_exempt: bool = True,
     ) -> None:
@@ -1172,9 +1180,7 @@ def with_cooldown(
     /,
     *,
     error: typing.Optional[collections.Callable[[str, typing.Optional[datetime.datetime]], Exception]] = None,
-    error_message: typing.Union[
-        str, collections.Mapping[str, str]
-    ] = "This command is currently in cooldown. Try again {cooldown}.",
+    error_message: typing.Union[str, collections.Mapping[str, str]] = _COOLDOWN_ERROR_MESSAGES,
     unknown_message: typing.Union[str, collections.Mapping[str, str], None] = None,
     follow_wrapped: bool = False,
     owners_exempt: bool = True,
@@ -1243,9 +1249,7 @@ def add_cooldown(
     /,
     *,
     error: typing.Optional[collections.Callable[[str, typing.Optional[datetime.datetime]], Exception]] = None,
-    error_message: typing.Union[
-        str, collections.Mapping[str, str]
-    ] = "This command is currently in cooldown. Try again {cooldown}.",
+    error_message: typing.Union[str, collections.Mapping[str, str]] = _COOLDOWN_ERROR_MESSAGES,
     unknown_message: typing.Union[str, collections.Mapping[str, str], None] = None,
     owners_exempt: bool = True,
 ) -> None:
@@ -1617,6 +1621,12 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         return self
 
 
+_CONCURRENCY_ERROR_MESSAGES: dict[str, str] = {
+    hikari.Locale.EN_GB: (english := "This resource is currently busy; please try again later."),
+    hikari.Locale.EN_US: english,
+}
+
+
 class ConcurrencyPreExecution:
     """Pre-execution hook used to acquire a bucket concurrency limiter."""
 
@@ -1628,9 +1638,7 @@ class ConcurrencyPreExecution:
         /,
         *,
         error: typing.Optional[collections.Callable[[str], Exception]] = None,
-        error_message: typing.Union[
-            str, collections.Mapping[str, str]
-        ] = "This resource is currently busy; please try again later.",
+        error_message: typing.Union[str, collections.Mapping[str, str]] = _CONCURRENCY_ERROR_MESSAGES,
     ) -> None:
         """Initialise a concurrency pre-execution hook.
 
@@ -1702,9 +1710,7 @@ def with_concurrency_limit(
     /,
     *,
     error: typing.Optional[collections.Callable[[str], Exception]] = None,
-    error_message: typing.Union[
-        str, collections.Mapping[str, str]
-    ] = "This resource is currently busy; please try again later.",
+    error_message: typing.Union[str, collections.Mapping[str, str]] = _CONCURRENCY_ERROR_MESSAGES,
     follow_wrapped: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add the hooks used to manage a command's concurrency limit through a decorator call.
@@ -1754,9 +1760,7 @@ def add_concurrency_limit(
     /,
     *,
     error: typing.Optional[collections.Callable[[str], Exception]] = None,
-    error_message: typing.Union[
-        str, collections.Mapping[str, str]
-    ] = "This resource is currently busy; please try again later.",
+    error_message: typing.Union[str, collections.Mapping[str, str]] = _CONCURRENCY_ERROR_MESSAGES,
 ) -> None:
     """Add the hooks used to manage a command's concurrency limit.
 

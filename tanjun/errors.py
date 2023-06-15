@@ -299,7 +299,7 @@ class FailedCheck(TanjunError, RuntimeError):  # TODO: FailedCheckError
     """Error raised as an alternative to returning `False` in a check."""
 
 
-class ParserError(TanjunError, ValueError):
+class ParserError(TanjunError, ValueError):  #  TODO: check messages
     """Base error raised by a parser or parameter during parsing.
 
     !!! note
@@ -339,7 +339,7 @@ class ParserError(TanjunError, ValueError):
         return self.message
 
 
-class ConversionError(ParserError):
+class ConversionError(ParserError):  #  TODO: check messages
     """Error raised by a parser parameter when it failed to converter a value."""
 
     errors: collections.Sequence[ValueError]
@@ -362,7 +362,7 @@ class ConversionError(ParserError):
         self.errors = tuple(errors)
 
 
-class NotEnoughArgumentsError(ParserError):
+class NotEnoughArgumentsError(ParserError):  #  TODO: check messages
     """Error raised by the parser when not enough arguments are found for a parameter."""
 
     parameter: str
@@ -381,7 +381,7 @@ class NotEnoughArgumentsError(ParserError):
         super().__init__(message, parameter)
 
 
-class TooManyArgumentsError(ParserError):
+class TooManyArgumentsError(ParserError):  #  TODO: check messages
     """Error raised by the parser when too many arguments are found for a parameter."""
 
     parameter: str

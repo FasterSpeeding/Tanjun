@@ -69,6 +69,7 @@ from . import dependencies
 from . import errors
 from . import hooks
 from ._internal import localisation
+from .dependencies import locales
 
 if typing.TYPE_CHECKING:
     import types
@@ -760,9 +761,13 @@ class Client(tanjun.Client):
         self._interaction_accepts = InteractionAcceptsEnum.ALL
         self._is_case_sensitive = True
         self._menu_hooks: typing.Optional[tanjun.MenuHooks] = None
-        self._menu_not_found: typing.Optional[str] = "Command not found"
+        self._menu_not_found: typing.Optional[localisation.MaybeLocalised] = localisation.MaybeLocalised(
+            "menu_not_found", "Command not found"
+        )
         self._slash_hooks: typing.Optional[tanjun.SlashHooks] = None
-        self._slash_not_found: typing.Optional[str] = self._menu_not_found
+        self._slash_not_found: typing.Optional[localisation.MaybeLocalised] = localisation.MaybeLocalised(
+            "slash_not_found", "Command not found"
+        )
         # TODO: test coverage
         self._injector = injector or alluka.Client()
         self._is_closing = False
@@ -1704,7 +1709,7 @@ class Client(tanjun.Client):
         message
             The message to respond with when a menu command isn't found.
         """
-        self._menu_not_found = message
+        self._menu_not_found = localisation.MaybeLocalised("menu_not_found", message) if message else None
         return self
 
     def set_slash_not_found(self, message: typing.Optional[str], /) -> Self:
@@ -1720,7 +1725,7 @@ class Client(tanjun.Client):
         message
             The message to respond with when a slash command isn't found.
         """
-        self._slash_not_found = message
+        self._slash_not_found = localisation.MaybeLocalised("message_not_found", message) if message else None
         return self
 
     def set_interaction_accepts(self, accepts: InteractionAcceptsEnum, /) -> Self:
@@ -2869,12 +2874,14 @@ class Client(tanjun.Client):
     async def _on_menu_not_found(self, ctx: tanjun.MenuContext, /) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.MENU_COMMAND_NOT_FOUND, ctx)
         if self._menu_not_found and not ctx.has_responded:
-            await ctx.create_initial_response(self._menu_not_found)
+            localiser = ctx.get_type_dependency(locales.AbstractLocaliser, default=None)
+            await ctx.create_initial_response(self._menu_not_found.raw_localise(ctx, localiser, "menu_not_found"))
 
     async def _on_slash_not_found(self, ctx: tanjun.SlashContext, /) -> None:
         await self.dispatch_client_callback(ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
         if self._slash_not_found and not ctx.has_responded:
-            await ctx.create_initial_response(self._slash_not_found)
+            localiser = ctx.get_type_dependency(locales.AbstractLocaliser, default=None)
+            await ctx.create_initial_response(self._slash_not_found.raw_localise(ctx, localiser, "slash_not_found"))
 
     async def on_gateway_autocomplete_create(self, interaction: hikari.AutocompleteInteraction, /) -> None:
         """Execute command autocomplete based on a received gateway interaction create.

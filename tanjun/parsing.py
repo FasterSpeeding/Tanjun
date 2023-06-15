@@ -531,6 +531,7 @@ class _ShlexTokenizer:
             return None
 
         except ValueError as exc:
+            # TODO: this is tricker to localiser
             raise errors.ParserError(str(exc), None) from exc
 
         is_option = value.startswith("-")

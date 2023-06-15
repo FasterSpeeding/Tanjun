@@ -144,6 +144,22 @@ class MaybeLocalised:
 
         return self.default_value.format(**kwargs)
 
+    def raw_localise(
+        self,
+        ctx: tanjun.Context,
+        localiser: typing.Optional[dependencies.AbstractLocaliser],
+        localise_id: str,
+        /,
+        **kwargs: typing.Any,
+    ) -> str:
+        if (self.localised_values or localiser) and isinstance(ctx, tanjun.AppCommandContext):
+            if localiser and (field := localiser.localise(localise_id, ctx.interaction.locale, **kwargs)):
+                return field
+
+            return self.localised_values.get(ctx.interaction.locale, self.default_value).format(**kwargs)
+
+        return self.default_value.format(**kwargs)
+
     def assert_matches(
         self, pattern: str, match: collections.Callable[[str], bool], /, *, lower_only: bool = False
     ) -> Self:
