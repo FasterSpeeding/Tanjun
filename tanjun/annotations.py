@@ -496,7 +496,7 @@ class _Field(_ConfigIdentifier):
 
 
 def attachment_field(
-    *, default: _T = tanjun.NO_DEFAULT, description: str = "", slash_name: str = ""
+    *, default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT, description: str = "", slash_name: str = ""
 ) -> typing.Union[hikari.Attachment, _T]:
     """Mark a parameter as an attachment option using a descriptor.
 
@@ -515,7 +515,7 @@ def attachment_field(
 
     Parameters
     ----------
-    default
+    default : typing.Any
         Default value to pass if this option wasn't provided.
 
         If not passed then this option will be required.
@@ -529,9 +529,9 @@ def attachment_field(
 
 def bool_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     positional: typing.Optional[bool] = None,
@@ -551,7 +551,7 @@ def bool_field(
 
     Parameters
     ----------
-    default
+    default : typing.Any
         Default value to pass if this option wasn't provided.
 
         If not passed then this option will be required.
@@ -559,7 +559,7 @@ def bool_field(
         commands unless `positional=False` is also passed.
     description
         The option's description.
-    empty_value
+    empty_value : typing.Any
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
@@ -601,9 +601,9 @@ def bool_field(
 def channel_field(
     *,
     channel_types: collections.Sequence[_ChannelTypeIsh] = (),
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[False] = False,
@@ -617,9 +617,9 @@ def channel_field(
 def channel_field(
     *,
     channel_types: collections.Sequence[_ChannelTypeIsh] = (),
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[True],
@@ -632,9 +632,9 @@ def channel_field(
 def channel_field(
     *,
     channel_types: collections.Sequence[_ChannelTypeIsh] = (),
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: bool = False,
@@ -657,7 +657,7 @@ def channel_field(
         Sequence of the channel types allowed for this option.
 
         If left as an empty sequence then all channel types will be allowed.
-    default
+    default : typing.Any
         Default value to pass if this option wasn't provided.
 
         If not passed then this option will be required.
@@ -665,7 +665,7 @@ def channel_field(
         commands unless `positional=False` is also passed.
     description
         The option's description.
-    empty_value
+    empty_value : typing.Any
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
@@ -712,9 +712,9 @@ def channel_field(
 def float_field(
     *,
     choices: typing.Optional[collections.Mapping[str, float]] = None,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     min_value: typing.Optional[float] = None,
@@ -738,7 +738,7 @@ def float_field(
         A mapping of up to 25 names to the choices values for this option.
 
         This is ignored for message command parsing.
-    default
+    default : typing.Any
         Default value to pass if this option wasn't provided.
 
         If not passed then this option will be required.
@@ -746,7 +746,7 @@ def float_field(
         commands unless `positional=False` is also passed.
     description
         The option's description.
-    empty_value
+    empty_value : typing.Any
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
@@ -794,9 +794,9 @@ def float_field(
 def int_field(
     *,
     choices: typing.Optional[collections.Mapping[str, int]] = None,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     min_value: typing.Optional[int] = None,
@@ -820,7 +820,7 @@ def int_field(
         A mapping of up to 25 names to the choices values for this option.
 
         This is ignored for message command parsing.
-    default
+    default : typing.Any
         Default value to pass if this option wasn't provided.
 
         If not passed then this option will be required.
@@ -828,7 +828,7 @@ def int_field(
         commands unless `positional=False` is also passed.
     description
         The option's description.
-    empty_value
+    empty_value : typing.Any
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
@@ -876,9 +876,9 @@ def int_field(
 @typing.overload
 def member_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[False] = False,
@@ -891,9 +891,9 @@ def member_field(
 @typing.overload
 def member_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[True],
@@ -905,9 +905,9 @@ def member_field(
 
 def member_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: bool = False,
@@ -926,7 +926,7 @@ def member_field(
 
     Parameters
     ----------
-    default
+    default : typing.Any
         Default value to pass if this option wasn't provided.
 
         If not passed then this option will be required.
@@ -934,7 +934,7 @@ def member_field(
         commands unless `positional=False` is also passed.
     description
         The option's description.
-    empty_value
+    empty_value : typing.Any
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
@@ -980,9 +980,9 @@ def member_field(
 @typing.overload
 def mentionable_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[False] = False,
@@ -995,9 +995,9 @@ def mentionable_field(
 @typing.overload
 def mentionable_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[True],
@@ -1009,9 +1009,9 @@ def mentionable_field(
 
 def mentionable_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: bool = False,
@@ -1032,7 +1032,7 @@ def mentionable_field(
 
     Parameters
     ----------
-    default
+    default : typing.Any
         Default value to pass if this option wasn't provided.
 
         If not passed then this option will be required.
@@ -1040,7 +1040,7 @@ def mentionable_field(
         commands unless `positional=False` is also passed.
     description
         The option's description.
-    empty_value
+    empty_value : typing.Any
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
@@ -1086,9 +1086,9 @@ def mentionable_field(
 @typing.overload
 def role_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[False] = False,
@@ -1101,9 +1101,9 @@ def role_field(
 @typing.overload
 def role_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[True],
@@ -1115,9 +1115,9 @@ def role_field(
 
 def role_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: bool = False,
@@ -1136,7 +1136,7 @@ def role_field(
 
     Parameters
     ----------
-    default
+    default : typing.Any
         Default value to pass if this option wasn't provided.
 
         If not passed then this option will be required.
@@ -1144,7 +1144,7 @@ def role_field(
         commands unless `positional=False` is also passed.
     description
         The option's description.
-    empty_value
+    empty_value : typing.Any
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
@@ -1191,9 +1191,9 @@ def role_field(
 def str_field(
     *,
     choices: typing.Optional[collections.Mapping[str, str]] = None,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     min_length: typing.Union[int, None] = None,
@@ -1209,9 +1209,9 @@ def str_field(
     *,
     choices: typing.Optional[collections.Mapping[str, str]] = None,
     converters: typing.Union[_ConverterSig[_OtherT], collections.Sequence[_ConverterSig[_OtherT]]],
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     min_length: typing.Union[int, None] = None,
@@ -1226,9 +1226,9 @@ def str_field(
     *,
     choices: typing.Optional[collections.Mapping[str, str]] = None,
     converters: typing.Union[_ConverterSig[_OtherT], collections.Sequence[_ConverterSig[_OtherT]]] = (),
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     min_length: typing.Union[int, None] = None,
@@ -1262,7 +1262,7 @@ def str_field(
         If no converters are provided then the raw value will be passed.
 
         Only the first converter to pass will be used.
-    default
+    default : typing.Any
         Default value to pass if this option wasn't provided.
 
         If not passed then this option will be required.
@@ -1270,7 +1270,7 @@ def str_field(
         commands unless `positional=False` is also passed.
     description
         The option's description.
-    empty_value
+    empty_value : typing.Any
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
@@ -1319,9 +1319,9 @@ def str_field(
 @typing.overload
 def user_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[False] = False,
@@ -1334,9 +1334,9 @@ def user_field(
 @typing.overload
 def user_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: typing.Literal[True],
@@ -1348,9 +1348,9 @@ def user_field(
 
 def user_field(
     *,
-    default: _T = tanjun.NO_DEFAULT,
+    default: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     description: str = "",
-    empty_value: _T = tanjun.NO_DEFAULT,
+    empty_value: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     greedy: typing.Optional[bool] = None,
     message_names: collections.Sequence[str] = (),
     or_snowflake: bool = False,
@@ -1371,7 +1371,7 @@ def user_field(
 
     Parameters
     ----------
-    default
+    default : typing.Any
         Default value to pass if this option wasn't provided.
 
         If not passed then this option will be required.
@@ -1379,7 +1379,7 @@ def user_field(
         commands unless `positional=False` is also passed.
     description
         The option's description.
-    empty_value
+    empty_value : typing.Any
         Value to pass when this is used as a message flag without a value
         (i.e. `--name`).
 
