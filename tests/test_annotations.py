@@ -734,7 +734,7 @@ def test_choices(
     async def callback(
         ctx: tanjun.abc.Context,
         nope: typing.Annotated[type_cls, annotations.Choices(choices), "default"],
-        boo: typing.Annotated[type_cls, annotations.Choices(choices), "be"] = typing.cast(_ChoiceT, "hi"),
+        boo: typing.Annotated[type_cls, annotations.Choices(choices), "be"] = typing.cast("_ChoiceT", "hi"),
     ):
         ...
 
