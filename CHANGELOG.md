@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- `owners_exempt` now defaults to [False][] for cooldowns.
+
 ## [2.15.0] - 2023-05-31
 ### Added
 - [dependencies.add_cooldown][tanjun.dependencies.limiters.add_cooldown] and

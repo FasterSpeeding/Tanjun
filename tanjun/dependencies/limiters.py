@@ -1034,7 +1034,7 @@ class CooldownPreExecution:
             str, collections.Mapping[str, str]
         ] = "This command is currently in cooldown. Try again {cooldown}.",
         unknown_message: typing.Union[str, collections.Mapping[str, str], None] = None,
-        owners_exempt: bool = True,
+        owners_exempt: bool = False,
     ) -> None:
         """Initialise a pre-execution cooldown command hook.
 
@@ -1177,7 +1177,7 @@ def with_cooldown(
     ] = "This command is currently in cooldown. Try again {cooldown}.",
     unknown_message: typing.Union[str, collections.Mapping[str, str], None] = None,
     follow_wrapped: bool = False,
-    owners_exempt: bool = True,
+    owners_exempt: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a pre-execution hook used to manage a command's cooldown through a decorator call.
 
@@ -1247,7 +1247,7 @@ def add_cooldown(
         str, collections.Mapping[str, str]
     ] = "This command is currently in cooldown. Try again {cooldown}.",
     unknown_message: typing.Union[str, collections.Mapping[str, str], None] = None,
-    owners_exempt: bool = True,
+    owners_exempt: bool = False,
 ) -> None:
     """Add a pre-execution hook used to manage a command's cooldown.
 
