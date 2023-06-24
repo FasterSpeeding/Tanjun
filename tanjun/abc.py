@@ -86,6 +86,7 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     from . import errors
+    from . import listeners as listeners_
 
     _BaseSlashCommandT = typing.TypeVar("_BaseSlashCommandT", bound="BaseSlashCommand")
 
@@ -3589,31 +3590,20 @@ class Component(abc.ABC):
             The component to enable chained calls.
         """
 
-    @abc.abstractmethod
     def with_listener(
-        self, *event_types: type[hikari.Event]
-    ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
+        self, event_listener: listeners_.EventListener[_ListenerCallbackSigT]
+    ) -> listeners_.EventListener[_ListenerCallbackSigT]:
         """Add a listener to this component through a decorator call.
 
         Parameters
         ----------
-        *event_types
-            One or more event types to listen for.
-
-            If none are provided then the event type(s) will be inferred from
-            the callback's type-hints.
+        event_listener
+            The event listener to add to the component.
 
         Returns
         -------
-        collections.abc.Callable[[ListenerCallbackSig], ListenerCallbackSig]
+        tanjun.listeners.EventListener[ListenerCallbackSigT]
             Decorator callback which takes listener to add.
-
-        Raises
-        ------
-        ValueError
-            If nothing was passed for `event_types` and no subclasses of
-            [hikari.Event][hikari.events.base_events.Event] are found in the
-            type-hint for the callback's first argument.
         """
 
     @abc.abstractmethod

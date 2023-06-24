@@ -142,6 +142,8 @@ __all__: list[str] = [
     "as_self_injecting",
     "as_slash_command",
     "as_time_schedule",
+    "as_client_callback",
+    "as_event_listener",
     "as_unloader",
     "as_user_menu",
     "cached_inject",
@@ -301,6 +303,8 @@ from .hooks import MenuHooks
 from .hooks import MessageHooks
 from .hooks import SlashHooks
 from .injecting import as_self_injecting
+from .listeners import as_client_callback
+from .listeners import as_event_listener
 from .parsing import ShlexParser
 from .parsing import with_argument
 from .parsing import with_greedy_argument

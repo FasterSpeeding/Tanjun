@@ -44,6 +44,7 @@ import uuid
 from collections import abc as collections
 
 import hikari
+import typing_extensions
 
 from . import _internal
 from . import abc as tanjun
@@ -51,6 +52,7 @@ from . import abc as tanjun
 if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
+    from . import listeners as listeners_
     from . import schedules as schedules_
 
     _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound=tanjun.AppCommandContext)
@@ -715,9 +717,25 @@ class Component(tanjun.Component):
         if self._client:
             self._client.remove_client_callback(name, callback)
 
+    @typing.overload
+    def with_client_callback(
+        self, client_callback: listeners_.ClientCallback[_MetaEventSigT], /
+    ) -> listeners_.ClientCallback[_MetaEventSigT]:
+        ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Use tanjun.as_client_callback decorator instead of passing arguments here")
     def with_client_callback(
         self, name: typing.Union[str, tanjun.ClientCallbackNames], /
     ) -> collections.Callable[[_MetaEventSigT], _MetaEventSigT]:
+        ...
+
+    def with_client_callback(
+        self,
+        client_callback_or_name: typing.Union[str, tanjun.ClientCallbackNames]
+        | listeners_.ClientCallback[_MetaEventSigT],
+        /,
+    ) -> collections.Callable[[_MetaEventSigT], _MetaEventSigT] | listeners_.ClientCallback[_MetaEventSigT]:
         """Add a client callback through a decorator call.
 
         Examples
@@ -732,10 +750,15 @@ class Component(tanjun.Component):
 
         Parameters
         ----------
-        name
-            The name this callback is being registered to.
+        client_callback_or_name
+            The client callback object to register.
 
-            This is case-insensitive.
+            .. deprecated :: 2.15
+                This argument used to be `name`:
+
+                    The name this callback is being registered to.
+
+                    This is case-insensitive.
 
         Returns
         -------
@@ -746,9 +769,13 @@ class Component(tanjun.Component):
             keyword arguments a callback should expect depend on implementation
             detail around the `name` being subscribed to.
         """
+        if isinstance(client_callback_or_name, listeners_.ClientCallback):
+            self.add_client_callback(client_callback_or_name.name, client_callback_or_name.callback)
+            return client_callback_or_name
 
+        # Deprecated implementation
         def decorator(callback: _MetaEventSigT, /) -> _MetaEventSigT:
-            self.add_client_callback(name, callback)
+            self.add_client_callback(client_callback_or_name, callback)
             return callback
 
         return decorator
@@ -1017,12 +1044,37 @@ class Component(tanjun.Component):
 
         return self
 
+    @typing.overload
+    @typing_extensions.deprecated("Use tanjun.as_event_listener decorator instead of passing arguments here")
     def with_listener(
         self, *event_types: type[hikari.Event]
     ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT]:
+        ...
+
+    @typing.overload
+    def with_listener(
+        self, *event_listener: listeners_.EventListener[_ListenerCallbackSigT]
+    ) -> listeners_.EventListener[_ListenerCallbackSigT]:
+        ...
+
+    def with_listener(
+        self, *event_types_or_listener: type[hikari.Event] | listeners_.EventListener[_ListenerCallbackSigT]
+    ) -> collections.Callable[[_ListenerCallbackSigT], _ListenerCallbackSigT] | listeners_.EventListener[
+        _ListenerCallbackSigT
+    ]:
         # <<inherited docstring from tanjun.abc.Component>>.
+        # Unfortunately, during the deprecation period we need to do some hacky stuff
+        possible_listener = event_types_or_listener[0]
+        if isinstance(possible_listener, listeners_.EventListener):
+            for event_type in possible_listener.event_types:
+                self.add_listener(event_type, possible_listener.callback)
+
+            return possible_listener
+
+        # Deprecated impl
         def decorator(callback: _ListenerCallbackSigT, /) -> _ListenerCallbackSigT:
-            for event_type in event_types or _internal.infer_listener_types(callback):
+            for event_type in event_types_or_listener or _internal.infer_listener_types(callback):
+                event_type = typing.cast("type[hikari.Event]", event_type)
                 self.add_listener(event_type, callback)
 
             return callback
