@@ -3590,6 +3590,7 @@ class Component(abc.ABC):
             The component to enable chained calls.
         """
 
+    @abc.abstractmethod
     def with_listener(
         self, event_listener: listeners_.EventListener[_ListenerCallbackSigT]
     ) -> listeners_.EventListener[_ListenerCallbackSigT]:
