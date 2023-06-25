@@ -12,7 +12,7 @@ gateway-based message and application command execution. To run Tanjun
 you'll want to link it to a Hikari bot.
 
 ```py
---8<-- "./docs_src/usage.py:26:31"
+--8<-- "./docs_src/usage.py:gateway_bot_example"
 ```
 
 Here a Tanjun client is linked to a gateway bot instance to enable both
@@ -26,7 +26,7 @@ commands and context menus on startup, and `mention_prefix=True` allows the
 bot's message commands to be triggered by starting a command call with `@bot`.
 
 ```py
---8<-- "./docs_src/usage.py:35:37"
+--8<-- "./docs_src/usage.py:rest_bot_example"
 ```
 
 And here a Tanjun client is linked to a REST server bot instance to enable
@@ -44,7 +44,7 @@ provide a cross-compatible alternative for these (which also supports dependency
 injection).
 
 ```py
---8<-- "./docs_src/usage.py:41:50"
+--8<-- "./docs_src/usage.py:client_lifetime_example"
 ```
 
 ## Managing bot functionality
@@ -54,7 +54,7 @@ group bot functionality, storing functionality such as event listeners,
 commands, scheduled callbacks, and client callbacks.
 
 ```py
---8<-- "./docs_src/usage.py:54:63"
+--8<-- "./docs_src/usage.py:components_example"
 ```
 
 The `with_` methods on [Component][tanjun.components.Component] allow
@@ -63,7 +63,7 @@ through a decorator call; the relevant `add_` functions allow adding
 functionality through chained calls.
 
 ```py
---8<-- "./docs_src/usage.py:67:71"
+--8<-- "./docs_src/usage.py:load_from_scope_example"
 ```
 
 Alternatively, functionality which is represented by a dedicated object can be
@@ -83,20 +83,20 @@ add a component to a client, you can also declare "loaders" and "unloaders" for
 a module to more ergonomically load this functionality into a client.
 
 ```py
---8<-- "./docs_src/usage.py:75:83"
+--8<-- "./docs_src/usage.py:as_loader_example"
 ```
 
 You can either declare one or more custom loaders and unloaders as shown above
 
 ```py
---8<-- "./docs_src/usage.py:87:89"
+--8<-- "./docs_src/usage.py:make_loader_example"
 ```
 
 or use [make_loader][tanjun.components.Component.make_loader] to generate a
 loader and unloader for the component.
 
 ```py
---8<-- "./docs_src/usage.py:93:97"
+--8<-- "./docs_src/usage.py:loading_example"
 ```
 
 Modules with loaders can then be loaded into a client by calling
@@ -120,7 +120,7 @@ All command callbacks must be asynchronous and can use dependency injection.
 ### Slash commands
 
 ```py
---8<-- "./docs_src/usage.py:101:104"
+--8<-- "./docs_src/usage.py:slash_command_example"
 ```
 
 Slash commands represent the commands you see when you start typing with "/" in
@@ -150,7 +150,7 @@ converters found in [tanjun.conversion][]) similarly to message command
 arguments.
 
 ```py
---8<-- "./docs_src/usage.py:108:118"
+--8<-- "./docs_src/usage.py:slash_command_group_example"
 ```
 
 Slash commands can be stored in groups where the above example will be shown in
@@ -162,7 +162,7 @@ see [slash_command_group][tanjun.commands.slash.slash_command_group].
 ### Message commands
 
 ```py
---8<-- "./docs_src/usage.py:122:132"
+--8<-- "./docs_src/usage.py:message_command_example"
 ```
 
 Message commands are triggered based on chat messages where the client's
@@ -178,7 +178,7 @@ either [Client.from_gateway_bot][tanjun.clients.Client.from_gateway_bot] or
 Mention prefixes work even if the `MESSAGE_CONTENT` intent is not declared.
 
 ```py
---8<-- "./docs_src/usage.py:136:152"
+--8<-- "./docs_src/usage.py:message_command_group_example"
 ```
 
 Message command groups are a collection of message commands under a shared name
@@ -213,7 +213,7 @@ more configuration see [tanjun.parsing][] and for the standard converters see
 ### Context menus
 
 ```py
---8<-- "./docs_src/usage.py:156:164"
+--8<-- "./docs_src/usage.py:context_menu_example"
 ```
 
 Context menus represent the application commands shown when you click on a user
@@ -227,7 +227,7 @@ Previously you've seen how to manually declare command options per command
 type, now it's time to go higher.
 
 ```py
---8<-- "./docs_src/usage.py:179:194"
+--8<-- "./docs_src/usage.py:annotations_example"
 ```
 
 [tanjun.annotations][] provides a simple way to declare the arguments for both
@@ -251,7 +251,7 @@ When using `follow_wrapped` the relevant decorator will be applied to all the
 compatible `as_{}_command` decorator calls below it in the chain.
 
 ```py
---8<-- "./docs_src/usage.py:201:206"
+--8<-- "./docs_src/usage.py:wrapped_command_example"
 ```
 
 While the previous command examples have typed `ctx` as a context type that's
@@ -263,7 +263,7 @@ types.
 ## Responding to commands
 
 ```py
---8<-- "./docs_src/usage.py:210:223"
+--8<-- "./docs_src/usage.py:responding_to_commands_example"
 ```
 
 [Context.respond][tanjun.abc.Context.respond] is used to respond to a command
@@ -274,7 +274,7 @@ when `ensure_result=True` is passed.
 ### Ephemeral responses
 
 ```py
---8<-- "./docs_src/usage.py:227:238"
+--8<-- "./docs_src/usage.py:ephemeral_response_example"
 ```
 
 Ephemeral responses are a slash command and context menu exclusive feature which
@@ -323,7 +323,7 @@ dynamically return choice suggestions to a user as they type a string option.
 Autocomplete callbacks must be asynchronous and support dependency injection.
 
 ```py
---8<-- "./docs_src/usage.py:242:256"
+--8<-- "./docs_src/usage.py:autocomplete_example"
 ```
 
 To set the results for an autocomplete interaction call
@@ -342,13 +342,13 @@ callbacks, checks, hook callbacks, event listeners, schedule callbacks) through
 [Alluka][alluka].
 
 ```py
---8<-- "./docs_src/usage.py:268:270"
+--8<-- "./docs_src/usage.py:set_client_deps_example"
 ```
 
 Here we set the dependencies for the types `Foo` and `Bar`.
 
 ```py
---8<-- "./docs_src/usage.py:274:278"
+--8<-- "./docs_src/usage.py:require_deps_example"
 ```
 
 And here we declare a command callback as taking the client set values for
@@ -410,7 +410,7 @@ Checks are functions that run before command execution to decide whether a
 command or group of commands matches a context and should be called with it.
 
 ```py
---8<-- "./docs_src/usage.py:282:288"
+--8<-- "./docs_src/usage.py:standard_check_example"
 ```
 
 There's a collection of standard checks in [tanjun.checks][] which work
@@ -419,7 +419,7 @@ will care about for the standard checks is the `error_message` argument
 which lets you adjust the response messages these send when they fail.
 
 ```py
---8<-- "./docs_src/usage.py:301:319"
+--8<-- "./docs_src/usage.py:using_checks_example"
 ```
 
 Checks (both custom and standard) can be added to clients, components, and
@@ -430,7 +430,7 @@ chain. Checks on a client, component, or command group will be used for every
 child command.
 
 ```py
---8<-- "./docs_src/usage.py:323:327"
+--8<-- "./docs_src/usage.py:custom_check_example"
 ```
 
 Custom checks can be made by making a function with either the signature
@@ -452,28 +452,28 @@ There are several different kinds of hooks which all support dependency
 injection and may be synchronous or asynchronous:
 
 ```py
---8<-- "./docs_src/usage.py:331:335"
+--8<-- "./docs_src/usage.py:pre_execution_hook_example"
 ```
 
 Pre-execution hooks are called before the execution of a command but after
 command matching has finished and all the relevant checks have passed.
 
 ```py
---8<-- "./docs_src/usage.py:339:341"
+--8<-- "./docs_src/usage.py:post_execution_hook_example"
 ```
 
 Post-execution hooks are called after a command has finished executing,
 regardless of whether it passed or failed.
 
 ```py
---8<-- "./docs_src/usage.py:345:347"
+--8<-- "./docs_src/usage.py:success_hook_example"
 ```
 
 Success hooks are called after a command has finished executing successfully
 (without raising any errors).
 
 ```py
---8<-- "./docs_src/usage.py:351:353"
+--8<-- "./docs_src/usage.py:error_hook_example"
 ```
 
 Error hooks are called when command's execution is ended early by an error raise
@@ -488,7 +488,7 @@ error and [None][] acts as no vote. In the case of a tie the error will be
 re-raised.
 
 ```py
---8<-- "./docs_src/usage.py:357:359"
+--8<-- "./docs_src/usage.py:parser_error_hook_example"
 ```
 
 Parser error hooks are called when the argument parsing of a message command
@@ -500,7 +500,7 @@ Concurrency limiters allow you to limit how many calls can be made to a group
 of commands concurrently.
 
 ```py
---8<-- "./docs_src/usage.py:363:369"
+--8<-- "./docs_src/usage.py:concurrency_limiter_config_example"
 ```
 
 Here [InMemoryConcurrencyLimiter][tanjun.dependencies.InMemoryConcurrencyLimiter]
@@ -515,7 +515,7 @@ being used to set this limiter for a client (note that clients can only have 1
 linked limiter).
 
 ```py
---8<-- "./docs_src/usage.py:373:377"
+--8<-- "./docs_src/usage.py:assign_concurrency_limit_example"
 ```
 
 And here we use [with_concurrency_limit][tanjun.dependencies.with_concurrency_limit]
@@ -529,7 +529,7 @@ more information on the resources concurrency can be limited by see
 Cooldowns limit how often a group of commands can be called.
 
 ```py
---8<-- "./docs_src/usage.py:381:387"
+--8<-- "./docs_src/usage.py:cooldown_config_example"
 ```
 
 Here [InMemoryCooldownManager][tanjun.dependencies.InMemoryCooldownManager]
@@ -544,7 +544,7 @@ being used to set this cooldown manager for a client (note that clients can
 only have 1 linked cooldown manager).
 
 ```py
---8<-- "./docs_src/usage.py:391:395"
+--8<-- "./docs_src/usage.py:assign_cooldown_example"
 ```
 
 And here we use [with_cooldown][tanjun.dependencies.with_cooldown]
@@ -564,7 +564,7 @@ of a field. Localisation on Discord is limited to the locales Discord supports
 ### Localising command declarations
 
 ```py
---8<-- "./docs_src/usage.py:399:401"
+--8<-- "./docs_src/usage.py:localisation_example"
 ```
 
 For fields which support localisation you've previously seen a single string
@@ -580,7 +580,7 @@ setting/overriding the locale-specific variants used for localised fields such
 as error message responses and application fields globally.
 
 ```py
---8<-- "./docs_src/usage.py:405:417"
+--8<-- "./docs_src/usage.py:client_localiser_example"
 ```
 
 Specific fields may be overridden by their ID as shown above. There is no
@@ -604,7 +604,7 @@ It's highly recommended that 3rd party libraries match this format if possible.
 ### Localising command responses
 
 ```py
---8<-- "./docs_src/usage.py:421:440"
+--8<-- "./docs_src/usage.py:response_localisation_example"
 ```
 
 [tanjun.abc.AppCommandContext.interaction][] (base class for both
