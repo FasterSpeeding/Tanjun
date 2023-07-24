@@ -15,7 +15,7 @@ jobs:
           submodules: "true"
 
       - name: Set up Python 3.9
-        uses: actions/setup-python@bd6b4b6205c4dbad673328db7b31b7fab9e241c0
+        uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1
         with:
           python-version: "3.9"
 
@@ -28,7 +28,7 @@ jobs:
         run: python -m nox -s freeze-locks
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@284f54f989303d2699d373481a0cfa13ad5a6666
+        uses: peter-evans/create-pull-request@153407881ec5c347639a548ade7d8ad1d6740e38
         with:
           author: "always-on-duty[bot] <120557446+always-on-duty[bot]@users.noreply.github.com>"
           branch: task/upgrade-deps
