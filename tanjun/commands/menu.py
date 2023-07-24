@@ -409,7 +409,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
 
     def __init__(
         self,
-        callback: _CallbackishT[_AnyMenuCallbackSigT],
+        callback: typing.Union[
+            _UserCallbackSigT, _AnyCommandT[_UserCallbackSigT], _MessageCallbackSigT, _AnyCommandT[_MessageCallbackSigT]
+        ],
         # TODO: should be _MenuTypeT but pyright broke
         type_: typing.Any,
         name: typing.Union[str, collections.Mapping[str, str]],
@@ -506,7 +508,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
             default_member_permissions = hikari.Permissions(default_member_permissions)
 
         self._always_defer = always_defer
-        self._callback: _AnyMenuCallbackSigT = callback
+        self._callback = typing.cast("_AnyMenuCallbackSigT", callback)
         self._default_member_permissions = default_member_permissions
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_dm_enabled = dm_enabled

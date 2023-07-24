@@ -2046,7 +2046,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
                     actual_choices.append(choice)
 
                 else:
-                    actual_choices.append(hikari.CommandChoice(name=choice.capitalize(), value=choice))
+                    actual_choices.append(
+                        hikari.CommandChoice(
+                            name=choice.capitalize(), value=choice  # pyright: ignore[reportGeneralTypeIssues]
+                        )
+                    )
 
         names = localisation.MaybeLocalised("name", name)
         descriptions = localisation.MaybeLocalised("description", description)
