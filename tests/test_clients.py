@@ -917,7 +917,7 @@ class TestClient:
             [
                 mock.call(mock_check_1, mock_context),
                 mock.call(mock_check_2, mock_context),
-                mock.call(mock_check_3, mock_context),  # type: ignore
+                mock.call(mock_check_3, mock_context),
             ]
         )
 
@@ -936,7 +936,7 @@ class TestClient:
             [
                 mock.call(mock_check_1, mock_context),
                 mock.call(mock_check_2, mock_context),
-                mock.call(mock_check_3, mock_context),  # type: ignore
+                mock.call(mock_check_3, mock_context),
             ]
         )
 
@@ -959,7 +959,7 @@ class TestClient:
             [
                 mock.call(mock_check_1, mock_context),
                 mock.call(mock_check_2, mock_context),
-                mock.call(mock_check_3, mock_context),  # type: ignore
+                mock.call(mock_check_3, mock_context),
             ]
         )
 
@@ -978,7 +978,7 @@ class TestClient:
             [
                 mock.call(mock_check_1, mock_context),
                 mock.call(mock_check_2, mock_context),
-                mock.call(mock_check_3, mock_context),  # type: ignore
+                mock.call(mock_check_3, mock_context),
             ]
         )
 
@@ -1980,7 +1980,7 @@ class TestClient:
             await client.load_directory_async(temp_dir)
 
             mock_load_modules.assert_has_awaits(
-                [mock.call(temp_dir / "she.py"), mock.call(temp_dir / "I.py"), mock.call(temp_dir / "her.py")],  # type: ignore
+                [mock.call(temp_dir / "she.py"), mock.call(temp_dir / "I.py"), mock.call(temp_dir / "her.py")],
                 any_order=True,
             )
 
@@ -2011,7 +2011,7 @@ class TestClient:
             await client.load_directory_async(temp_dir, namespace="trans.pride")
 
             mock_load_modules.assert_has_awaits(
-                [mock.call("trans.pride.So"), mock.call("trans.pride.in"), mock.call("trans.pride.this")],  # type: ignore
+                [mock.call("trans.pride.So"), mock.call("trans.pride.in"), mock.call("trans.pride.this")],
                 any_order=True,
             )
 
@@ -2042,7 +2042,7 @@ class TestClient:
             await client.load_directory_async(temp_dir, namespace="trans.pride")
 
             mock_load_modules.assert_has_awaits(
-                [mock.call("trans.pride.So"), mock.call("trans.pride.in"), mock.call("trans.pride.this")],  # type: ignore
+                [mock.call("trans.pride.So"), mock.call("trans.pride.in"), mock.call("trans.pride.this")],
                 any_order=True,
             )
 
@@ -2073,7 +2073,7 @@ class TestClient:
 
             assert exc.value is mock_exc
             mock_load_modules.assert_has_awaits(
-                [mock.call("trans.pride.So"), mock.call("trans.pride.in")], any_order=True  # type: ignore
+                [mock.call("trans.pride.So"), mock.call("trans.pride.in")], any_order=True
             )
 
         finally:

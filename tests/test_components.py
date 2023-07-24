@@ -1741,7 +1741,7 @@ class TestComponent:
         await component.close()
 
         mock_client.injector.call_with_async_di.assert_has_awaits(
-            [mock.call(mock_callback_1), mock.call(mock_callback_2)]  # type: ignore
+            [mock.call(mock_callback_1), mock.call(mock_callback_2)]
         )
         mock_schedule_1.stop.assert_awaited_once_with()
         mock_schedule_2.stop.assert_awaited_once_with()
@@ -1773,7 +1773,7 @@ class TestComponent:
         await component.close(unbind=True)
 
         mock_client.injector.call_with_async_di.assert_has_awaits(
-            [mock.call(mock_callback_1), mock.call(mock_callback_2)]  # type: ignore
+            [mock.call(mock_callback_1), mock.call(mock_callback_2)]
         )
         mock_schedule_1.stop.assert_awaited_once_with()
         mock_schedule_2.stop.assert_awaited_once_with()
@@ -1810,7 +1810,7 @@ class TestComponent:
         get_running_loop.assert_called_once_with()
         assert component.loop is get_running_loop.return_value
         mock_client.injector.call_with_async_di.assert_has_awaits(
-            [mock.call(mock_callback_1), mock.call(mock_callback_2)]  # type: ignore
+            [mock.call(mock_callback_1), mock.call(mock_callback_2)]
         )
         mock_schedule_1.start.assert_called_once_with(mock_client.injector, loop=get_running_loop.return_value)
         mock_schedule_2.start.assert_called_once_with(mock_client.injector, loop=get_running_loop.return_value)

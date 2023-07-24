@@ -1615,10 +1615,10 @@ class _DefaultMeta(abc.ABCMeta):
     def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], _T]], /) -> type[_T]:
         if isinstance(value, tuple):
             type_ = value[0]
-            return typing.cast("type[_T]", typing.Annotated[type_, Default(value[1])])
+            return typing.Annotated[type_, Default(value[1])]
 
         type_ = typing.cast("type[_T]", value)
-        return typing.cast("type[_T]", typing.Annotated[type_, Default()])
+        return typing.Annotated[type_, Default()]
 
 
 class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
@@ -1789,7 +1789,7 @@ class Flag(_ConfigIdentifier):
 class _PositionalMeta(abc.ABCMeta):
     @typing_extensions.deprecated("Pass Positional(...) to Annotated")
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        return typing.cast("type[_T]", typing.Annotated[type_, Positional()])
+        return typing.Annotated[type_, Positional()]
 
 
 class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
@@ -1822,7 +1822,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
 class _GreedyMeta(abc.ABCMeta):
     @typing_extensions.deprecated("Pass Greedy(...) to Annotated")
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        return typing.cast("type[_T]", typing.Annotated[type_, Greedy()])
+        return typing.Annotated[type_, Greedy()]
 
 
 class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
@@ -1861,7 +1861,7 @@ class _LengthMeta(abc.ABCMeta):
         else:
             obj = Length(*value)
 
-        return typing.cast("type[str]", typing.Annotated[Str, obj])
+        return typing.Annotated[Str, obj]
 
 
 class Length(_ConfigIdentifier, metaclass=_LengthMeta):
@@ -2286,7 +2286,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
         if not isinstance(value, collections.Collection):
             value = (value,)
 
-        return typing.cast("type[hikari.PartialChannel]", typing.Annotated[Channel, TheseChannels(*value)])
+        return typing.Annotated[Channel, TheseChannels(*value)]
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):

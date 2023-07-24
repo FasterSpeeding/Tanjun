@@ -589,7 +589,7 @@ class TestTrackedOption:
 
         assert result is mock_result
         mock_context.call_with_async_di.assert_has_awaits(
-            [mock.call(mock_converter_1, mock_value), mock.call(mock_converter_2, mock_value)]  # type: ignore
+            [mock.call(mock_converter_1, mock_value), mock.call(mock_converter_2, mock_value)]
         )
 
 
