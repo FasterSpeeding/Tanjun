@@ -161,6 +161,7 @@ def slash_command_group(
     default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
+    nsfw: bool = False,
     is_global: bool = True,
 ) -> SlashCommandGroup:
     r"""Create a slash command group.
@@ -227,6 +228,9 @@ def slash_command_group(
         will be used.
     is_global
         Whether this command is a global command.
+    nsfw
+        Whether this command should only be accessible in channels marked as
+        nsfw.
 
     Returns
     -------
@@ -249,6 +253,7 @@ def slash_command_group(
         default_to_ephemeral=default_to_ephemeral,
         dm_enabled=dm_enabled,
         is_global=is_global,
+        nsfw=nsfw,
     )
 
 
@@ -274,6 +279,7 @@ def as_slash_command(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
+    nsfw: bool = False,
     sort_options: bool = True,
     validate_arg_keys: bool = True,
 ) -> _AsSlashResultProto:
@@ -335,6 +341,9 @@ def as_slash_command(
         will be used.
     is_global
         Whether this command is a global command.
+    nsfw
+        Whether this command should only be accessible in channels marked as
+        nsfw.
     sort_options
         Whether this command should sort its set options based on whether
         they're required.
@@ -383,6 +392,7 @@ def as_slash_command(
             default_to_ephemeral=default_to_ephemeral,
             dm_enabled=dm_enabled,
             is_global=is_global,
+            nsfw=nsfw,
             sort_options=sort_options,
             validate_arg_keys=validate_arg_keys,
             _wrapped_command=wrapped_command,
@@ -829,12 +839,13 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
 
     def __init__(
         self,
+        *,
         name: str,
         name_localizations: collections.Mapping[str, str],
         description: str,
         description_localizations: collections.Mapping[str, str],
+        nsfw: hikari.UndefinedOr[bool],
         sort_options: bool,
-        *,
         id_: hikari.UndefinedOr[hikari.Snowflake] = hikari.UNDEFINED,
     ) -> None:
         super().__init__(
@@ -843,6 +854,7 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
             description_localizations=description_localizations,
             id=id_,
             name_localizations=name_localizations,
+            is_nsfw=nsfw,
         )
         self._has_been_sorted = True
         self._options_dict: dict[str, hikari.CommandOption] = {}
@@ -877,11 +889,12 @@ class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
     # TODO: can we just del _SlashCommandBuilder.__copy__ to go back to the default?
     def copy(self) -> _SlashCommandBuilder:
         builder = _SlashCommandBuilder(
-            self.name,
-            self.name_localizations,
-            self.description,
-            self.description_localizations,
-            self._sort_options,
+            name=self.name,
+            name_localizations=self.name_localizations,
+            description=self.description,
+            description_localizations=self.description_localizations,
+            nsfw=self.is_nsfw,
+            sort_options=self._sort_options,
             id_=self.id,
         )
 
@@ -900,6 +913,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         "_descriptions",
         "_is_dm_enabled",
         "_is_global",
+        "_is_nsfw",
         "_names",
         "_parent",
         "_tracked_command",
@@ -915,6 +929,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
+        nsfw: bool = False,
     ) -> None:
         super().__init__()
         names = (
@@ -932,6 +947,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         self._descriptions = descriptions
         self._is_dm_enabled = dm_enabled
         self._is_global = is_global
+        self._is_nsfw = nsfw
         self._names = names
         self._parent: typing.Optional[tanjun.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.SlashCommand] = None
@@ -964,6 +980,11 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     def is_global(self) -> bool:
         # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._is_global
+
+    @property
+    def is_nsfw(self) -> typing.Optional[bool]:
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
+        return self._is_nsfw
 
     @property
     def name(self) -> str:
@@ -1067,6 +1088,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
+        nsfw: bool = False,
     ) -> None:
         r"""Initialise a slash command group.
 
@@ -1108,6 +1130,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             will be used.
         is_global
             Whether this command is a global command.
+        nsfw
+            Whether this command should only be accessible in channels marked as
+            nsfw.
 
         Raises
         ------
@@ -1125,6 +1150,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             default_to_ephemeral=default_to_ephemeral,
             dm_enabled=dm_enabled,
             is_global=is_global,
+            nsfw=nsfw,
         )
         self._commands: dict[str, tanjun.BaseSlashCommand] = {}
 
@@ -1132,6 +1158,11 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
     def commands(self) -> collections.Collection[tanjun.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.SlashCommandGroup>>.
         return self._commands.copy().values()
+
+    @property
+    def is_nsfw(self) -> typing.Optional[bool]:
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
+        return self._is_nsfw
 
     def bind_client(self, client: tanjun.Client, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
@@ -1154,11 +1185,12 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
     ) -> special_endpoints_api.SlashCommandBuilder:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         builder = _SlashCommandBuilder(
-            self._names.default_value,
-            self._names.localised_values,
-            self._descriptions.default_value,
-            self._descriptions.localised_values,
-            False,
+            name=self._names.default_value,
+            name_localizations=self._names.localised_values,
+            description=self._descriptions.default_value,
+            description_localizations=self._descriptions.localised_values,
+            nsfw=self._is_nsfw,
+            sort_options=False,
         )
 
         for command in self._commands.values():
@@ -1477,6 +1509,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
+        nsfw: bool = False,
         sort_options: bool = True,
         validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1496,6 +1529,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
+        nsfw: bool = False,
         sort_options: bool = True,
         validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1514,6 +1548,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
+        nsfw: bool = False,
         sort_options: bool = True,
         validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
@@ -1571,6 +1606,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             will be used.
         is_global
             Whether this command is a global command.
+        nsfw
+            Whether this command should only be accessible in channels marked as
+            nsfw.
         sort_options
             Whether this command should sort its set options based on whether
             they're required.
@@ -1597,6 +1635,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             default_to_ephemeral=default_to_ephemeral,
             dm_enabled=dm_enabled,
             is_global=is_global,
+            nsfw=nsfw,
         )
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             callback = callback.callback
@@ -1604,7 +1643,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         self._always_defer = always_defer
         self._arg_names = _internal.get_kwargs(callback) if validate_arg_keys else None
         self._builder = _SlashCommandBuilder(
-            self.name, self.name_localisations, self.description, self.description_localisations, sort_options
+            name=self.name,
+            name_localizations=self.name_localisations,
+            description=self.description,
+            description_localizations=self.description_localisations,
+            nsfw=nsfw,
+            sort_options=sort_options,
         )
         self._callback: _SlashCallbackSigT = callback
         self._client: typing.Optional[tanjun.Client] = None

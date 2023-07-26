@@ -95,6 +95,7 @@ def as_message_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
+    nsfw: bool = False,
 ) -> _AsMsgResultProto:
     """Build a message [MenuCommand][tanjun.MenuCommand] by decorating a function.
 
@@ -145,6 +146,9 @@ def as_message_menu(
         will be used.
     is_global
         Whether this command is a global command.
+    nsfw
+        Whether this command should only be accessible in channels marked as
+        nsfw.
 
     Returns
     -------
@@ -185,6 +189,7 @@ def as_message_menu(
             default_to_ephemeral=default_to_ephemeral,
             dm_enabled=dm_enabled,
             is_global=is_global,
+            nsfw=nsfw,
             _wrapped_command=wrapped_command,
         )
 
@@ -216,6 +221,7 @@ def as_user_menu(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
+    nsfw: bool = False,
 ) -> _AsUserResultProto:
     """Build a user [MenuCommand][tanjun.MenuCommand] by decorating a function.
 
@@ -268,6 +274,9 @@ def as_user_menu(
         will be used.
     is_global
         Whether this command is a global command.
+    nsfw
+        Whether this command should only be accessible in channels marked as
+        nsfw.
 
     Returns
     -------
@@ -308,6 +317,7 @@ def as_user_menu(
             default_to_ephemeral=default_to_ephemeral,
             dm_enabled=dm_enabled,
             is_global=is_global,
+            nsfw=nsfw,
             _wrapped_command=wrapped_command,
         )
 
@@ -328,6 +338,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         "_description",
         "_is_dm_enabled",
         "_is_global",
+        "_is_nsfw",
         "_names",
         "_parent",
         "_tracked_command",
@@ -348,6 +359,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
+        nsfw: bool = False,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -367,6 +379,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
+        nsfw: bool = False,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -384,6 +397,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
+        nsfw: bool = False,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -403,6 +417,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
+        nsfw: bool = False,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         ...
@@ -422,6 +437,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         default_to_ephemeral: typing.Optional[bool] = None,
         dm_enabled: typing.Optional[bool] = None,
         is_global: bool = True,
+        nsfw: bool = False,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
     ) -> None:
         """Initialise a user or message menu command.
@@ -475,6 +491,9 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
             will be used.
         is_global
             Whether this command is a global command.
+        nsfw
+            Whether this command should only be accessible in channels marked as
+            nsfw.
 
         Returns
         -------
@@ -513,6 +532,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         self._defaults_to_ephemeral = default_to_ephemeral
         self._is_dm_enabled = dm_enabled
         self._is_global = is_global
+        self._is_nsfw = nsfw
         self._names = names
         self._parent: typing.Optional[tanjun.SlashCommandGroup] = None
         self._tracked_command: typing.Optional[hikari.ContextMenuCommand] = None
@@ -552,6 +572,11 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         return self._is_global
 
     @property
+    def is_nsfw(self) -> typing.Optional[bool]:
+        # <<inherited docstring from tanjun.abc.AppCommand>>.
+        return self._is_nsfw
+
+    @property
     def name(self) -> str:
         # <<inherited docstring from tanjun.abc.AppCommand>>.
         return self._names.default_value
@@ -583,7 +608,10 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
     def build(self, *, component: typing.Optional[tanjun.Component] = None) -> hikari.api.ContextMenuCommandBuilder:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         builder = hikari.impl.ContextMenuCommandBuilder(
-            type=self._type, name=self._names.default_value, name_localizations=self._names.localised_values
+            type=self._type,
+            name=self._names.default_value,
+            name_localizations=self._names.localised_values,
+            is_nsfw=self._is_nsfw,
         )
 
         component = component or self._component
