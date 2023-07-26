@@ -78,6 +78,7 @@ def test_slash_command_group():
         default_to_ephemeral=True,
         dm_enabled=False,
         is_global=False,
+        nsfw=True,
     )
 
     assert command.name == "a_name"
@@ -85,6 +86,7 @@ def test_slash_command_group():
     assert command.description == "very"
     assert command.is_dm_enabled is False
     assert command.is_global is False
+    assert command.is_nsfw is True
     assert command.defaults_to_ephemeral is True
     assert isinstance(command, tanjun.SlashCommandGroup)
 
@@ -97,6 +99,7 @@ def test_slash_command_group_with_default():
     assert command.defaults_to_ephemeral is None
     assert command.is_dm_enabled is None
     assert command.is_global is True
+    assert command.is_nsfw is False
     assert isinstance(command, tanjun.SlashCommandGroup)
 
 
@@ -111,6 +114,7 @@ def test_as_slash_command():
         default_to_ephemeral=True,
         dm_enabled=False,
         is_global=False,
+        nsfw=True,
         sort_options=False,
     )(mock_callback)
 
@@ -122,6 +126,7 @@ def test_as_slash_command():
     assert command.defaults_to_ephemeral is True
     assert command.is_dm_enabled is False
     assert command.is_global is False
+    assert command.is_nsfw is True
     assert command._builder._sort_options is False
     assert isinstance(command, tanjun.SlashCommand)
     assert command.wrapped_command is None
@@ -148,6 +153,7 @@ def test_as_slash_command_when_wrapping_command(
         default_to_ephemeral=True,
         dm_enabled=False,
         is_global=True,
+        nsfw=True,
         sort_options=True,
     )(other_command)
 
@@ -158,6 +164,7 @@ def test_as_slash_command_when_wrapping_command(
     assert command.defaults_to_ephemeral is True
     assert command.is_dm_enabled is False
     assert command.is_global is True
+    assert command.is_nsfw is True
     assert command._builder._sort_options is True
     assert command.callback is other_command.callback
     assert command.wrapped_command is other_command
@@ -174,6 +181,7 @@ def test_as_slash_command_with_defaults():
     assert command.defaults_to_ephemeral is None
     assert command.is_dm_enabled is None
     assert command.is_global is True
+    assert command.is_nsfw is False
     assert command._builder._sort_options is True
     assert isinstance(command, tanjun.SlashCommand)
 
@@ -823,6 +831,11 @@ class TestBaseSlashCommand:
 
         assert command.is_global is False
 
+    def test_is_nsfw_property(self):
+        command = stub_class(tanjun.commands.BaseSlashCommand, args=("yeet", "No"), kwargs={"nsfw": True})
+
+        assert command.is_nsfw is True
+
     def test_name_properties(self):
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
@@ -957,10 +970,18 @@ class TestSlashCommandGroup:
 
         assert result.default_member_permissions is hikari.UNDEFINED
         assert result.is_dm_enabled is hikari.UNDEFINED
+        assert result.is_nsfw is False
         mock_build: hikari.api.SlashCommandBuilder = mock_command.build.return_value
         mock_group_build: hikari.api.SlashCommandBuilder = mock_command_group.build.return_value
         assert result == (
-            tanjun.commands.slash._SlashCommandBuilder("yee", {}, "nsoosos", {}, False)
+            tanjun.commands.slash._SlashCommandBuilder(
+                name="yee",
+                name_localizations={},
+                description="nsoosos",
+                description_localizations={},
+                nsfw=False,
+                sort_options=False,
+            )
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND,
@@ -987,13 +1008,14 @@ class TestSlashCommandGroup:
 
     def test_build_with_optional_fields(self):
         command_group = tanjun.SlashCommandGroup(
-            "yee", "nsoosos", dm_enabled=False, default_member_permissions=hikari.Permissions(4321123)
+            "yee", "nsoosos", dm_enabled=False, default_member_permissions=hikari.Permissions(4321123), nsfw=True
         )
 
         result = command_group.build()
 
         assert result.default_member_permissions == 4321123
         assert result.is_dm_enabled is False
+        assert result.is_nsfw is True
         assert result.options == []
 
     def test_build_with_localised_fields(self):
