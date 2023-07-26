@@ -2730,6 +2730,10 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         """
 
     @property
+    def is_nsfw(self) -> typing.Optional[bool]:
+        """Whether a command should only be accessible in channels marked as NSFW."""
+
+    @property
     @abc.abstractmethod
     def name(self) -> str:
         """Name of the command."""

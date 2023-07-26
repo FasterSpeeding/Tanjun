@@ -54,6 +54,7 @@ def test_as_message_menu():
         default_to_ephemeral=False,
         dm_enabled=False,
         is_global=False,
+        nsfw=True,
     )(mock_callback)
 
     assert isinstance(command, tanjun.MenuCommand)
@@ -64,6 +65,7 @@ def test_as_message_menu():
     assert command.defaults_to_ephemeral is False
     assert command.is_dm_enabled is False
     assert command.is_global is False
+    assert command.is_nsfw is True
     assert command.callback is mock_callback
     assert command.wrapped_command is None
 
@@ -82,6 +84,7 @@ def test_as_message_menu_with_defaults():
     assert command.defaults_to_ephemeral is None
     assert command.is_dm_enabled is None
     assert command.is_global is True
+    assert command.is_nsfw is False
     assert command.callback is mock_callback
     assert command.wrapped_command is None
 
@@ -106,6 +109,7 @@ def test_as_message_menu_when_wrapping_command(
         default_to_ephemeral=True,
         dm_enabled=False,
         is_global=True,
+        nsfw=True,
     )(other_command)
 
     assert command._always_defer is False
@@ -113,6 +117,7 @@ def test_as_message_menu_when_wrapping_command(
     assert command.defaults_to_ephemeral is True
     assert command.is_dm_enabled is False
     assert command.is_global is True
+    assert command.is_nsfw is True
     assert command.type is hikari.CommandType.MESSAGE
     assert command.callback is other_command.callback
     assert command.wrapped_command is other_command
@@ -129,6 +134,7 @@ def test_as_user_menu():
         default_to_ephemeral=False,
         dm_enabled=False,
         is_global=False,
+        nsfw=True,
     )(mock_callback)
 
     assert isinstance(command, tanjun.MenuCommand)
@@ -140,6 +146,7 @@ def test_as_user_menu():
     assert command.defaults_to_ephemeral is False
     assert command.is_dm_enabled is False
     assert command.is_global is False
+    assert command.is_nsfw is True
     assert command.callback is mock_callback
     assert command.wrapped_command is None
 
@@ -157,6 +164,7 @@ def test_as_user_menu_with_defaults():
     assert command.defaults_to_ephemeral is None
     assert command.is_dm_enabled is None
     assert command.is_global is True
+    assert command.is_nsfw is False
     assert command.callback is mock_callback
     assert command.wrapped_command is None
 
@@ -181,6 +189,7 @@ def test_as_user_menu_when_wrapping_command(
         default_to_ephemeral=False,
         dm_enabled=True,
         is_global=False,
+        nsfw=True,
     )(other_command)
 
     assert command._always_defer is True
@@ -188,6 +197,7 @@ def test_as_user_menu_when_wrapping_command(
     assert command.defaults_to_ephemeral is False
     assert command.is_dm_enabled is True
     assert command.is_global is False
+    assert command.is_nsfw is True
     assert command.type is hikari.CommandType.USER
     assert command.callback is other_command.callback
     assert command.wrapped_command is other_command
@@ -311,6 +321,16 @@ class TestMenuCommand:
 
         assert command.is_global is True
 
+    def test_is_nsfw_property(self):
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "a", nsfw=True)
+
+        assert command.is_nsfw is True
+
+    def test_is_nsfw_property_when_default(self):
+        command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "a")
+
+        assert command.is_nsfw is False
+
     def test_name_properties(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "uwu")
 
@@ -384,6 +404,7 @@ class TestMenuCommand:
         assert builder.id is hikari.UNDEFINED
         assert builder.default_member_permissions is hikari.UNDEFINED
         assert builder.is_dm_enabled is hikari.UNDEFINED
+        assert builder.is_nsfw is False
 
     def test_build_when_all_fields_set(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](
@@ -392,6 +413,7 @@ class TestMenuCommand:
             "pat",
             default_member_permissions=hikari.Permissions(4123),
             dm_enabled=False,
+            nsfw=True,
         ).bind_component(
             mock.Mock(default_app_cmd_permissions=hikari.Permissions(54123123), dms_enabled_for_app_cmds=True)
         )
@@ -405,6 +427,7 @@ class TestMenuCommand:
         assert builder.id is hikari.UNDEFINED
         assert builder.default_member_permissions == hikari.Permissions(4123)
         assert builder.is_dm_enabled is False
+        assert builder.is_nsfw is True
         assert builder.name_localizations == {}
 
     def test_build_with_localised_fields(self):
