@@ -1,5 +1,6 @@
 # mkdocs.yml
 site_name: "Tanjun docs"
+repo_url: https://github.com/FasterSpeeding/Tanjun
 theme:
   name: material
   icon:
