@@ -8,7 +8,7 @@ on:
   pull_request:
     branches:
       - master
-    paths: ["piped", "pyproject.toml"]
+    paths: ["piped", "piped.toml", "pyproject.toml"]
 
 jobs:
   resync-piped:
