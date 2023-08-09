@@ -5,8 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [2.16.1] - 2023-08-09
 ### Added
-- Support for the thumbs up and thumbs down emojis to
+- Support for parsing the thumbs up and thumbs down emojis as bools to
   [tanjun.to_bool][tanjun.conversion.to_bool].
 
 ## [2.16.0] - 2023-07-26
@@ -969,7 +970,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for python 3.8 in-order to switch over to using collection.abc generic classes due to this being more
   forward compatible.
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.16.0...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.16.1...HEAD
+[2.16.1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.16.0...v2.16.1
 [2.16.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.15.0...v2.16.0
 [2.15.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.14.0...v2.15.0
 [2.14.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.13.0...v2.14.0
