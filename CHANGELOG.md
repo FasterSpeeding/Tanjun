@@ -971,7 +971,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   forward compatible.
 
 [Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.16.1...HEAD
-[2.16.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.16.0...v2.16.1
+[2.16.1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.16.0...v2.16.1
 [2.16.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.15.0...v2.16.0
 [2.15.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.14.0...v2.15.0
 [2.14.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.13.0...v2.14.0
