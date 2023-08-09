@@ -1883,6 +1883,11 @@ def test_from_datetime_for_time_delta():
         ("off", False),
         ("Off", False),
         ("0", False),
+        ("👎", False),
+        ("👎🏼", False),
+        ("👎🏽", False),
+        ("👎🏾", False),
+        ("👎🏿", False),
         ("y", True),
         ("Y", True),
         ("yes", True),
@@ -1894,6 +1899,11 @@ def test_from_datetime_for_time_delta():
         ("on", True),
         ("On", True),
         ("1", True),
+        ("👍", True),
+        ("👍🏻", True),
+        ("👍🏽", True),
+        ("👍🏾", True),
+        ("👍🏿", True),
     ],
 )
 def test_to_bool(value: str, expected: bool):

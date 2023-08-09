@@ -1460,8 +1460,17 @@ def from_datetime(value: typing.Union[datetime.datetime, datetime.timedelta], /,
     return f"<t:{round(value.timestamp())}:{style}>"
 
 
-_YES_VALUES = frozenset(("y", "yes", "t", "true", "on", "1"))
-_NO_VALUES = frozenset(("n", "no", "f", "false", "off", "0"))
+_SKIN_TONES = [
+    "\N{EMOJI MODIFIER FITZPATRICK TYPE-1-2}",
+    "\N{EMOJI MODIFIER FITZPATRICK TYPE-3}",
+    "\N{EMOJI MODIFIER FITZPATRICK TYPE-4}",
+    "\N{EMOJI MODIFIER FITZPATRICK TYPE-5}",
+    "\N{EMOJI MODIFIER FITZPATRICK TYPE-6}",
+    "",
+]
+
+_YES_VALUES = frozenset(("y", "yes", "t", "true", "on", "1", *map("\N{THUMBS UP SIGN}".__add__, _SKIN_TONES)))
+_NO_VALUES = frozenset(("n", "no", "f", "false", "off", "0", *map("\N{THUMBS DOWN SIGN}".__add__, _SKIN_TONES)))
 
 
 def to_bool(value: str, /) -> bool:

@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for the thumbs up and thumbs down emojis to
+  [tanjun.to_bool][tanjun.conversion.to_bool].
+
 ## [2.16.0] - 2023-07-26
 ### Added
 - `nsfw` config option for application commands.
