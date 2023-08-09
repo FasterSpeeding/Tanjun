@@ -2092,7 +2092,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
                 else:
                     actual_choices.append(
                         hikari.CommandChoice(
-                            name=choice.capitalize(), value=choice  # pyright: ignore[reportGeneralTypeIssues]
+                            name=choice.capitalize(), value=choice
                         )
                     )
 
