@@ -34,7 +34,10 @@ from __future__ import annotations
 __all__: list[str] = ["AbstractLocaliser", "AbstractLocalizer", "BasicLocaliser", "BasicLocalizer"]
 
 import abc
+import re
 import typing
+
+from .._internal import localisation
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -42,6 +45,10 @@ if typing.TYPE_CHECKING:
     from typing_extensions import Self
 
     from .. import abc as tanjun
+
+
+_CHECK_NAME_PATTERN = re.compile(r"^(?P<command_type>[^:]+):(?P<command_name>[^:]+):check:(?P<check_name>.+)$")
+_DYNAMIC = "*"
 
 
 class AbstractLocaliser(abc.ABC):
@@ -89,10 +96,11 @@ AbstractLocalizer = AbstractLocaliser
 class BasicLocaliser(AbstractLocaliser):
     """Standard implementation of `AbstractLocaliser` with only basic text mapping support."""
 
-    __slots__ = ("_tags",)
+    __slots__ = ("_dynamic_tags", "_tags")
 
     def __init__(self) -> None:
         """Initialise a new `BasicLocaliser`."""
+        self._dynamic_tags: dict[str, dict[str, str]] = {}
         self._tags: dict[str, dict[str, str]] = {}
 
     def add_to_client(self, client: tanjun.Client, /) -> None:
@@ -108,27 +116,37 @@ class BasicLocaliser(AbstractLocaliser):
         """
         client.set_type_dependency(AbstractLocalizer, self)
 
+    def _get_dynamic(self, identifier: str, /) -> typing.Optional[dict[str, str]]:
+        if self._dynamic_tags and (match := _CHECK_NAME_PATTERN.fullmatch(identifier)):
+            command_type, _, check_name = match.groups()
+            return self._dynamic_tags.get(f"{command_type}:*:check:{check_name}")
+
+        return None  # MyPy compat
+
     def get_all_variants(self, identifier: str, /, **kwargs: typing.Any) -> collections.Mapping[str, str]:
         # <<inherited docstring from AbstractLocaliser>>.
         try:
             results = self._tags[identifier]
 
         except KeyError:
+            results = self._get_dynamic(identifier)
+
+        if not results:
             return {}
 
+        if kwargs:
+            results = {name: value.format(**kwargs) for name, value in results.items()}
+
         else:
-            if kwargs:
-                results = {name: value.format(**kwargs) for name, value in results.items()}
+            results = results.copy()
 
-            else:
-                results = results.copy()
-
-            results.pop("default", None)
-            return results
+        results.pop("default", None)
+        return results
 
     def localise(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
         # <<inherited docstring from AbstractLocaliser>>.
-        if (tag_values := self._tags.get(identifier)) and (string := tag_values.get(tag)):
+        tag_values = self._tags.get(identifier) or self._get_dynamic(identifier)
+        if tag_values and (string := tag_values.get(tag)):
             return string.format(**kwargs)
 
         return None  # MyPy compat
@@ -157,7 +175,22 @@ class BasicLocaliser(AbstractLocaliser):
         if variants:
             other_variants.update(variants)
 
-        self._tags[identifier] = other_variants
+        dynamic_match = _CHECK_NAME_PATTERN.fullmatch(identifier)
+        if not dynamic_match:
+            self._tags[identifier] = other_variants
+            return self
+
+        command_type, command_name, check_name = dynamic_match.groups()
+        if command_type == _DYNAMIC:
+            for command_type in localisation.COMMAND_TYPES:
+                self.set_variants(f"{command_type}:{command_name}:check:{check_name}", other_variants)
+
+        elif command_name == _DYNAMIC:
+            self._dynamic_tags[identifier] = other_variants
+
+        else:
+            self._tags[identifier] = other_variants
+
         return self
 
 

@@ -203,6 +203,7 @@ class MaybeLocalised:
 
 
 _CommandTypes = typing.Literal["message_menu", "slash", "user_menu"]
+COMMAND_TYPES: tuple[_CommandTypes, ...] = ("message_menu", "slash", "user_menu")
 _TYPE_TO_STR: dict[hikari.CommandType, _CommandTypes] = {
     hikari.CommandType.MESSAGE: "message_menu",
     hikari.CommandType.SLASH: "slash",
