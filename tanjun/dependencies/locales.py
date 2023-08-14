@@ -92,6 +92,8 @@ class AbstractLocaliser(abc.ABC):
 AbstractLocalizer = AbstractLocaliser
 """Alias of [AbstractLocaliser][tanjun.dependencies.AbstractLocaliser]."""
 
+_EMPTY_DICT: dict[str, str] = {}
+
 
 class BasicLocaliser(AbstractLocaliser):
     """Standard implementation of `AbstractLocaliser` with only basic text mapping support."""
@@ -125,28 +127,19 @@ class BasicLocaliser(AbstractLocaliser):
 
     def get_all_variants(self, identifier: str, /, **kwargs: typing.Any) -> collections.Mapping[str, str]:
         # <<inherited docstring from AbstractLocaliser>>.
-        try:
-            results = self._tags[identifier]
-
-        except KeyError:
-            results = self._get_dynamic(identifier)
-
-        if not results:
-            return {}
-
-        if kwargs:
+        results = (self._get_dynamic(identifier) or _EMPTY_DICT) | self._tags.get(identifier, _EMPTY_DICT)
+        if results and kwargs:
             results = {name: value.format(**kwargs) for name, value in results.items()}
-
-        else:
-            results = results.copy()
 
         results.pop("default", None)
         return results
 
     def localise(self, identifier: str, tag: str, /, **kwargs: typing.Any) -> typing.Optional[str]:
         # <<inherited docstring from AbstractLocaliser>>.
-        tag_values = self._tags.get(identifier) or self._get_dynamic(identifier)
-        if tag_values and (string := tag_values.get(tag)):
+        if (tag_values := self._tags.get(identifier)) and (string := tag_values.get(tag)):
+            return string.format(**kwargs)
+
+        if (tag_values := self._get_dynamic(identifier)) and (string := tag_values.get(tag)):
             return string.format(**kwargs)
 
         return None  # MyPy compat
