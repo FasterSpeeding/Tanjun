@@ -126,7 +126,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         if not mapping:
             raise RuntimeError("Unknown menu type")
 
-        return next(iter(mapping.values()))  # pyright: ignore[reportGeneralTypeIssues]
+        return next(iter(mapping.values()))
 
     @property
     def triggering_name(self) -> str:
