@@ -37,6 +37,8 @@ import abc
 import re
 import typing
 
+import hikari
+
 from .._internal import localisation
 
 if typing.TYPE_CHECKING:
@@ -165,26 +167,35 @@ class BasicLocaliser(AbstractLocaliser):
         Self
             The localiser object to enable chained calls.
         """
+        all_variants = {_normalise_key(key): value for key, value in other_variants.items()}
         if variants:
-            other_variants.update(variants)
+            all_variants.update(variants)
 
         dynamic_match = _CHECK_NAME_PATTERN.fullmatch(identifier)
         if not dynamic_match:
-            self._tags[identifier] = other_variants
+            self._tags[identifier] = all_variants
             return self
 
         command_type, command_name, check_name = dynamic_match.groups()
         if command_type == _DYNAMIC:
             for command_type in localisation.COMMAND_TYPES:
-                self.set_variants(f"{command_type}:{command_name}:check:{check_name}", other_variants)
+                self.set_variants(f"{command_type}:{command_name}:check:{check_name}", all_variants)
 
         elif command_name == _DYNAMIC:
-            self._dynamic_tags[identifier] = other_variants
+            self._dynamic_tags[identifier] = all_variants
 
         else:
-            self._tags[identifier] = other_variants
+            self._tags[identifier] = all_variants
 
         return self
+
+
+def _normalise_key(key: str, /) -> str:
+    try:
+        return hikari.Locale[key.upper()]
+
+    except KeyError:
+        return key
 
 
 BasicLocalizer = BasicLocaliser
