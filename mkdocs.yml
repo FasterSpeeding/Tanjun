@@ -58,7 +58,7 @@ plugins:
           options:
             docstring_section_style: list
             docstring_style: numpy
-            inherited_members: true
+            inherited_members: false
             merge_init_into_class: false
             separate_signature: true
             show_signature_annotations: false
