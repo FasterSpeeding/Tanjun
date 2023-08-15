@@ -113,14 +113,11 @@ class TestBasicLocaliser:
 
     def test_get_all_variants_when_using_global_by_command_type_variants(self):
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "*:commandy:check:OpOpOpOp", {
-                "boopers": "boopity",
-                hikari.Locale.BG: "see",
-                hikari.Locale.EN_GB: "noooo"
-            },
+            "*:commandy:check:OpOpOpOp",
+            {"boopers": "boopity", hikari.Locale.BG: "see", hikari.Locale.EN_GB: "noooo"},
             en_us="cows",
             de="meows",
-            woof="no"
+            woof="no",
         )
 
         assert localiser.get_all_variants("user_menu:commandy:check:OpOpOpOp") == {
@@ -151,12 +148,7 @@ class TestBasicLocaliser:
 
     def test_get_all_variants_when_using_global_by_command_name_variants(self):
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "user_menu:*:check:OpOpOpOp", {
-                "fr": "pac",
-                hikari.Locale.FI: "man"
-            },
-            en_gb="tighty",
-            da="boorf",
+            "user_menu:*:check:OpOpOpOp", {"fr": "pac", hikari.Locale.FI: "man"}, en_gb="tighty", da="boorf"
         )
 
         assert localiser.get_all_variants("user_menu:snoop:check:OpOpOpOp") == {
@@ -175,54 +167,46 @@ class TestBasicLocaliser:
 
     def test_get_all_variants_when_using_global_by_command_name_and_type_variants(self):
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "*:*:check:OpOpOpOp", {
-                hikari.Locale.BG: "Big",
-                hikari.Locale.EL: "ELLA"
-            },
-            es_es="bon",
-            fr="jour",
+            "*:*:check:OpOpOpOp", {hikari.Locale.BG: "Big", hikari.Locale.EL: "ELLA"}, es_es="bon", fr="jour"
         )
 
         assert localiser.get_all_variants("user_menu:barf:check:OpOpOpOp") == {
             hikari.Locale.BG: "Big",
             hikari.Locale.EL: "ELLA",
             hikari.Locale.ES_ES: "bon",
-            hikari.Locale.FR: "jour"
+            hikari.Locale.FR: "jour",
         }
         assert localiser.get_all_variants("slash:snork:check:OpOpOpOp") == {
             hikari.Locale.BG: "Big",
             hikari.Locale.EL: "ELLA",
             hikari.Locale.ES_ES: "bon",
-            hikari.Locale.FR: "jour"
+            hikari.Locale.FR: "jour",
         }
         assert localiser.get_all_variants("message_menu:boop:check:OpOpOpOp") == {
             hikari.Locale.BG: "Big",
             hikari.Locale.EL: "ELLA",
             hikari.Locale.ES_ES: "bon",
-            hikari.Locale.FR: "jour"
+            hikari.Locale.FR: "jour",
         }
         assert localiser.get_all_variants("slash:snoop:check:OpOpOpOp") == {
             hikari.Locale.BG: "Big",
             hikari.Locale.EL: "ELLA",
             hikari.Locale.ES_ES: "bon",
-            hikari.Locale.FR: "jour"
+            hikari.Locale.FR: "jour",
         }
         assert localiser.get_all_variants("slash:snork:check:OpOpOp") == {}
 
     def test_get_all_variants_when_using_global_varients_mixed_with_specific(self):
-        localiser = (tanjun.dependencies.BasicLocaliser().set_variants(
-            "*:*:check:OpOpOpOp", {
-                hikari.Locale.BG: "op",
-            },
-            es_es="on",
-        ).set_variants(
-            "user_menu:barf:check:OpOpOpOp", {hikari.Locale.CS: "nooo"}
-        ))
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants("*:*:check:OpOpOpOp", {hikari.Locale.BG: "op"}, es_es="on")
+            .set_variants("user_menu:barf:check:OpOpOpOp", {hikari.Locale.CS: "nooo"})
+        )
 
         assert localiser.get_all_variants("user_menu:barf:check:OpOpOpOp") == {
             hikari.Locale.BG: "op",
             hikari.Locale.ES_ES: "on",
-            hikari.Locale.CS: "nooo"
+            hikari.Locale.CS: "nooo",
         }
         assert localiser.get_all_variants("slash:snorks:check:OpOpOpOp") == {
             hikari.Locale.BG: "op",
@@ -286,12 +270,7 @@ class TestBasicLocaliser:
 
     def test_localize_when_using_global_by_command_type_variants(self):
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "*:yeet:check:OpCheck",
-            {
-                hikari.Locale.BG: "nom",
-                hikari.Locale.CS: "book em",
-                hikari.Locale.HI: "."
-             }
+            "*:yeet:check:OpCheck", {hikari.Locale.BG: "nom", hikari.Locale.CS: "book em", hikari.Locale.HI: "."}
         )
 
         assert localiser.localize("message_menu:yeet:check:OpCheck", hikari.Locale.CS) == "book em"
@@ -301,12 +280,7 @@ class TestBasicLocaliser:
 
     def test_localize_when_using_global_by_command_name_variants(self):
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "slash:*:check:OpCheck",
-            {
-                hikari.Locale.BG: "nom",
-                hikari.Locale.CS: "book em",
-                hikari.Locale.HI: "."
-             }
+            "slash:*:check:OpCheck", {hikari.Locale.BG: "nom", hikari.Locale.CS: "book em", hikari.Locale.HI: "."}
         )
 
         assert localiser.localize("slash:yeet:check:OpCheck", hikari.Locale.CS) == "book em"
@@ -316,12 +290,7 @@ class TestBasicLocaliser:
 
     def test_localize_when_using_global_by_command_name_and_type_variants(self):
         localiser = tanjun.dependencies.BasicLocaliser().set_variants(
-            "*:*:check:OpCheck",
-            {
-                hikari.Locale.DA: "us",
-                hikari.Locale.DE: "board",
-                hikari.Locale.EL: "sleep"
-             }
+            "*:*:check:OpCheck", {hikari.Locale.DA: "us", hikari.Locale.DE: "board", hikari.Locale.EL: "sleep"}
         )
 
         assert localiser.localize("message_menu:yeet:check:OpCheck", hikari.Locale.DE) == "board"
@@ -337,12 +306,11 @@ class TestBasicLocaliser:
         assert localiser.localize("user_menu:meat:check:NotOpCheck", hikari.Locale.DE) is None
 
     def test_localize_when_using_global_by_command_name_and_type_variant_as_fallbackd(self):
-        localiser = (tanjun.dependencies.BasicLocaliser().set_variants(
-            "*:*:check:OpCheck",
-            {
-                hikari.Locale.DA: "beep",
-             }
-        ).set_variants("slash:meep:check:OpCheck", {hikari.Locale.BG: "boop"}))
+        localiser = (
+            tanjun.dependencies.BasicLocaliser()
+            .set_variants("*:*:check:OpCheck", {hikari.Locale.DA: "beep"})
+            .set_variants("slash:meep:check:OpCheck", {hikari.Locale.BG: "boop"})
+        )
 
         assert localiser.localize("slash:meep:check:OpCheck", hikari.Locale.DA) == "beep"
         assert localiser.localize("slash:meep:check:OpCheck", hikari.Locale.BG) == "boop"
