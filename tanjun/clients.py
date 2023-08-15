@@ -2626,12 +2626,8 @@ class Client(tanjun.Client):
             with _WrapLoadError(errors.FailedModuleImport, module_path):
                 module = load_module()
 
-            try:
+            with _EXPECT_ITER_END:
                 generator.send(module)
-            except StopIteration:
-                pass
-            else:
-                raise RuntimeError("Generator didn't finish")
 
         return self
 
@@ -2647,12 +2643,8 @@ class Client(tanjun.Client):
             with _WrapLoadError(errors.FailedModuleImport, module_path):
                 module = await loop.run_in_executor(None, load_module)
 
-            try:
+            with _EXPECT_ITER_END:
                 generator.send(module)
-            except StopIteration:
-                pass
-            else:
-                raise RuntimeError("Generator didn't finish")
 
     def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
         # <<inherited docstring from tanjun.ab.Client>>.
@@ -2678,7 +2670,7 @@ class Client(tanjun.Client):
 
     def _reload_module(
         self, module_path: typing.Union[str, pathlib.Path], /
-    ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
+    ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType | None, None]:
         if isinstance(module_path, str):
             old_module = self._modules.get(module_path)
             load_module: typing.Optional[_ReloadModule] = None
@@ -2696,25 +2688,33 @@ class Client(tanjun.Client):
         _LOGGER.info("Reloading %s", module_path)
 
         old_loaders = _get_loaders(old_module, module_path)
-        modules_dict.pop(module_path)
         with _WrapLoadError(errors.FailedModuleUnload, module_path):
-            # This will never raise MissingLoaders as we assert this earlier
             self._call_unloaders(module_path, old_loaders)
 
         module = yield load_module
 
+        if not module:
+            # Indicates the newer version of this module couldn't be imported
+            try:
+                self._call_loaders(module_path, old_loaders)
+
+            except Exception as exc:
+                # TODO: exc here is annoyingly already chained with another
+                # error which would've already been logged
+                _LOGGER.debug("Failed to revert %s", module_path, exc_info=exc)
+                modules_dict.pop(module_path)
+
+            return
+
         loaders = _get_loaders(module, module_path)
 
-        # We assert that the new module has loaders early to avoid unnecessarily
-        # unloading then rolling back when we know it's going to fail to load.
-        if not any(loader.has_load for loader in loaders):
-            raise errors.ModuleMissingLoaders(f"Didn't find any loaders in new {module_path}", module_path)
-
         try:
-            # This will never raise MissingLoaders as we assert this earlier
             self._call_loaders(module_path, loaders)
+        except errors.ModuleMissingLoaders:
+            modules_dict.pop(module_path)
+            raise
         except Exception as exc:
-            self._call_loaders(module_path, old_loaders)
+            modules_dict.pop(module_path)
             raise errors.FailedModuleLoad(module_path) from exc
         else:
             modules_dict[module_path] = module
@@ -2727,15 +2727,18 @@ class Client(tanjun.Client):
 
             generator = self._reload_module(module_path)
             load_module = next(generator)
-            with _WrapLoadError(errors.FailedModuleLoad, module_path):
-                module = load_module()
 
             try:
+                module = load_module()
+
+            except Exception as exc:
+                with _EXPECT_ITER_END:
+                    generator.send(None)
+
+                raise errors.FailedModuleLoad(module_path) from exc
+
+            with _EXPECT_ITER_END:
                 generator.send(module)
-            except StopIteration:
-                pass
-            else:
-                raise RuntimeError("Generator didn't finish")
 
         return self
 
@@ -2748,17 +2751,18 @@ class Client(tanjun.Client):
 
             generator = self._reload_module(module_path)
             load_module = next(generator)
-            with _WrapLoadError(errors.FailedModuleLoad, module_path):
-                module = await loop.run_in_executor(None, load_module)
 
             try:
+                module = await loop.run_in_executor(None, load_module)
+
+            except Exception as exc:
+                with _EXPECT_ITER_END:
+                    generator.send(None)
+
+                raise errors.FailedModuleLoad(module_path) from exc
+
+            with _EXPECT_ITER_END:
                 generator.send(module)
-
-            except StopIteration:
-                pass
-
-            else:
-                raise RuntimeError("Generator didn't finish")
 
     def set_type_dependency(self, type_: type[_T], value: _T, /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -3182,6 +3186,27 @@ class _WrapLoadError:
             and not isinstance(exc, (errors.ModuleMissingLoaders, errors.ModuleMissingUnloaders))
         ):
             raise self._error(*self._args, **self._kwargs) from exc
+
+
+class _ExpectIterEnd:
+    __slots__ = ()
+
+    def __enter__(self) -> None:
+        pass
+
+    def __exit__(
+        self,
+        exc_type: typing.Optional[type[BaseException]],
+        exc: typing.Optional[BaseException],
+        exc_tb: typing.Optional[types.TracebackType],
+    ) -> bool:
+        if exc_type is None:
+            raise RuntimeError("Generator didn't finish") from None
+
+        return exc_type is StopIteration
+
+
+_EXPECT_ITER_END = _ExpectIterEnd()
 
 
 def _try_deregister_listener(

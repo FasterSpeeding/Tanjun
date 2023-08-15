@@ -20,8 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [BasicLocaliser.set_variants][tanjun.dependencies.BasicLocaliser.set_variants]
   now tries to normalise the locale keys of variants passed as keyword arguments
   to match the [hikari.Locale][hikari.locales.Locale] values.
-- The hot-reloader no-longer keeps a module's old components loaded after
-  a top-level error (e.g. syntax error) is raised while re-importing the module.
+- The hot-reloader no-longer reverts to a module's old components loaded after
+  the new module's loaders fail or is found to have no loaders.
 
 ### Fixed
 - Module unloaders will now be called with the correct old module's state
