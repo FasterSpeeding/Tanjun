@@ -597,7 +597,9 @@ use the following formats unless explicitly overridden:
 `command_type` may be one of `"message_menu"`, `"slash"` or `"user_menu"`,
 `command_name` will be the full name of the command (including parent command
 names in the path), and standard check names will always be prefixed with
-`"tanjun."`.
+`"tanjun."`. These can also be `"*"` for check and limiter overrides to have
+them apply to the specified check for every command (e.g.
+`"*:*:check:tanjun.OwnerCheck"`).
 
 It's highly recommended that 3rd party libraries match this format if possible.
 
