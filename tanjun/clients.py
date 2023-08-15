@@ -2696,10 +2696,10 @@ class Client(tanjun.Client):
         _LOGGER.info("Reloading %s", module_path)
 
         old_loaders = _get_loaders(old_module, module_path)
-        # We assert that the old module has unloaders early to avoid unnecessarily
-        # importing the new module.
-        if not any(loader.has_unload for loader in old_loaders):
-            raise errors.ModuleMissingUnloaders(f"Didn't find any unloaders in old {module_path}", module_path)
+        modules_dict.pop(module_path)
+        with _WrapLoadError(errors.FailedModuleUnload, module_path):
+            # This will never raise MissingLoaders as we assert this earlier
+            self._call_unloaders(module_path, old_loaders)
 
         module = yield load_module
 
@@ -2709,10 +2709,6 @@ class Client(tanjun.Client):
         # unloading then rolling back when we know it's going to fail to load.
         if not any(loader.has_load for loader in loaders):
             raise errors.ModuleMissingLoaders(f"Didn't find any loaders in new {module_path}", module_path)
-
-        with _WrapLoadError(errors.FailedModuleUnload, module_path):
-            # This will never raise MissingLoaders as we assert this earlier
-            self._call_unloaders(module_path, old_loaders)
 
         try:
             # This will never raise MissingLoaders as we assert this earlier
