@@ -11,9 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   limiter responses.
 
 ### Changed
-- [BasicLocaliser.set_variants][yuyo.dependencies.BasicLocaliser.set_variants] now
-  tries to normalise the locale keys of variants passed as keyword arguments to
-  match the [hikari.Locale][hikari.locales.Locale] values.
+- [BasicLocaliser.set_variants][tanjun.dependencies.BasicLocaliser.set_variants]
+  now tries to normalise the locale keys of variants passed as keyword arguments
+  to match the [hikari.Locale][hikari.locales.Locale] values.
 
 ## [2.16.1] - 2023-08-09
 ### Added
