@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [BasicLocaliser.set_variants][tanjun.dependencies.BasicLocaliser.set_variants]
   now tries to normalise the locale keys of variants passed as keyword arguments
   to match the [hikari.Locale][hikari.locales.Locale] values.
+- The hot-reloader no-longer keeps a module's old components loaded after
+  a top-level error (e.g. syntax error) is raised while re-importing the module.
+
+### Fixed
+- Module unloaders will now be called with the correct old module's state
+  in-scope when being targeted as python module paths by the hot reloader.
 
 ## [2.16.1] - 2023-08-09
 ### Added
