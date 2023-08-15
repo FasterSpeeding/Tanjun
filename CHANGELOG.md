@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- The basic localiser now supports using wild card `"*"` flags for the command
+  type and command name when overriding the localised values for check and
+  limiter responses.
+
+### Changed
+- [BasicLocaliser.set_variants][yuyo.dependencies.BasicLocaliser.set_variants] now
+  tries to normalise the locale keys of variants passed as keyword arguments to
+  match the [hikari.Locale][hikari.locales.Locale] values.
+
 ## [2.16.1] - 2023-08-09
 ### Added
 - Support for parsing the thumbs up and thumbs down emojis as bools to
