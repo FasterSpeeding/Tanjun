@@ -168,9 +168,7 @@ if typing.TYPE_CHECKING:
     AnyCheckSig = _CheckSig["Context"]
     """Type hint of a check callback for any command type."""
 
-    MenuCallbackSig = collections.Callable[
-        typing_extensions.Concatenate["MenuContext", _MenuValueT, ...], _CoroT[None]
-    ]
+    MenuCallbackSig = collections.Callable[typing_extensions.Concatenate["MenuContext", _MenuValueT, ...], _CoroT[None]]
     """Type hint of a context menu command callback.
 
     This represents the signature
