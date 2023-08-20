@@ -76,6 +76,7 @@ import typing
 from collections import abc as collections
 
 import hikari
+import typing_extensions
 from alluka import abc as alluka
 
 if typing.TYPE_CHECKING:
@@ -132,132 +133,111 @@ subscribed to (more information the standard client callbacks can be found at
 synchronous or asynchronous but must return [None][].
 """
 
-# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
-if typing.TYPE_CHECKING:
-    import typing_extensions
+_MaybeAwaitable = typing.Union[_CoroT[_T], _T]
 
-    _MaybeAwaitable = typing.Union[_CoroT[_T], _T]
+AutocompleteSig = collections.Callable[
+    typing_extensions.Concatenate["AutocompleteContext", _AutocompleteValueT, ...], _CoroT[None]
+]
+"""Type hint of the signature an autocomplete callback should have.
 
-    AutocompleteSig = collections.Callable[
-        typing_extensions.Concatenate["AutocompleteContext", _AutocompleteValueT, ...], _CoroT[None]
-    ]
-    """Type hint of the signature an autocomplete callback should have.
+This represents the signature
+`async def (AutocompleteContext, int | str | float) -> None`
+where dependency injection is supported.
+"""
 
-    This represents the signature
-    `async def (AutocompleteContext, int | str | float) -> None`
-    where dependency injection is supported.
-    """
+_CheckSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[bool]]
+CheckSig = _CheckSig[_ContextT_contra]
+"""Type hint of a generic context check used with Tanjun commands.
 
-    _CheckSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[bool]]
-    CheckSig = _CheckSig[_ContextT_contra]
-    """Type hint of a generic context check used with Tanjun commands.
+This may be registered with a command, client or component to add a rule
+which decides whether it should execute for each context passed to it.
 
-    This may be registered with a command, client or component to add a rule
-    which decides whether it should execute for each context passed to it.
+This represents the signatures `def (Context, ...) -> bool | None`
+and `async def (Context, ...) -> bool | None` where dependency
+injection is  supported.
 
-    This represents the signatures `def (Context, ...) -> bool | None`
-    and `async def (Context, ...) -> bool | None` where dependency
-    injection is  supported.
+Check callbacks may either return [False][] to indicate that the current
+command(s) don't match the context (without stopping execution) or raise
+[tanjun.FailedCheck][] to indicate that command execution should be halted
+early and marked as not found.
+"""
 
-    Check callbacks may either return [False][] to indicate that the current
-    command(s) don't match the context (without stopping execution) or raise
-    [tanjun.FailedCheck][] to indicate that command execution should be halted
-    early and marked as not found.
-    """
+AnyCheckSig = _CheckSig["Context"]
+"""Type hint of a check callback for any command type."""
 
-    AnyCheckSig = _CheckSig["Context"]
-    """Type hint of a check callback for any command type."""
+MenuCallbackSig = collections.Callable[typing_extensions.Concatenate["MenuContext", _MenuValueT, ...], _CoroT[None]]
+"""Type hint of a context menu command callback.
 
-    MenuCallbackSig = collections.Callable[typing_extensions.Concatenate["MenuContext", _MenuValueT, ...], _CoroT[None]]
-    """Type hint of a context menu command callback.
+This represents the signature
+`async def (MenuContext, hikari.Message, ...) -> None` or
+`async def (MenuContext, hikari.InteractionMember, ...) ->  None`
+where dependency injection is supported.
+"""
 
-    This represents the signature
-    `async def (MenuContext, hikari.Message, ...) -> None` or
-    `async def (MenuContext, hikari.InteractionMember, ...) ->  None`
-    where dependency injection is supported.
-    """
+_CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _CoroT[None]]
 
-    _CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _CoroT[None]]
+MessageCallbackSig = _CommandCallbackSig["MessageContext"]
+"""Type hint of a message command callback.
 
-    MessageCallbackSig = _CommandCallbackSig["MessageContext"]
-    """Type hint of a message command callback.
+This represents the signature `async def (MessageContext, ...) -> None`
+where dependency injection is supported.
+"""
 
-    This represents the signature `async def (MessageContext, ...) -> None`
-    where dependency injection is supported.
-    """
+SlashCallbackSig = _CommandCallbackSig["SlashContext"]
+"""Type hint of a slash command callback.
 
-    SlashCallbackSig = _CommandCallbackSig["SlashContext"]
-    """Type hint of a slash command callback.
+This represents the signature `async def (SlashContext, ...) -> None`
+where dependency injection is supported.
+"""
 
-    This represents the signature `async def (SlashContext, ...) -> None`
-    where dependency injection is supported.
-    """
+ErrorHookSig = collections.Callable[
+    typing_extensions.Concatenate[_ContextT_contra, Exception, ...], _MaybeAwaitable[typing.Optional[bool]]
+]
+"""Type hint of the callback used as a unexpected command error hook.
 
-    ErrorHookSig = collections.Callable[
-        typing_extensions.Concatenate[_ContextT_contra, Exception, ...], _MaybeAwaitable[typing.Optional[bool]]
-    ]
-    """Type hint of the callback used as a unexpected command error hook.
+This will be called whenever an unexpected [Exception][] is raised during the
+execution stage of a command (ignoring [tanjun.ParserError][] and expected
+[tanjun.TanjunError][] subclasses).
 
-    This will be called whenever an unexpected [Exception][] is raised during the
-    execution stage of a command (ignoring [tanjun.ParserError][] and expected
-    [tanjun.TanjunError][] subclasses).
+This represents the signatures `def (Context, Exception, ...) -> bool | None`
+and `async def (Context, Exception, ...) -> bool | None` where
+dependency injection is supported.
 
-    This represents the signatures `def (Context, Exception, ...) -> bool | None`
-    and `async def (Context, Exception, ...) -> bool | None` where
-    dependency injection is supported.
+[True][] is returned to indicate that the exception should be suppressed and
+[False][] is returned to indicate that the exception should be re-raised.
+"""
 
-    [True][] is returned to indicate that the exception should be suppressed and
-    [False][] is returned to indicate that the exception should be re-raised.
-    """
+ParserHookSig = collections.Callable[
+    typing_extensions.Concatenate[_ContextT_contra, "errors.ParserError", ...], _MaybeAwaitable[typing.Optional[bool]]
+]
+"""Type hint of the callback used as a command parser error hook.
 
-    ParserHookSig = collections.Callable[
-        typing_extensions.Concatenate[_ContextT_contra, "errors.ParserError", ...],
-        _MaybeAwaitable[typing.Optional[bool]],
-    ]
-    """Type hint of the callback used as a command parser error hook.
+This will be called whenever an parser [ParserError][tanjun.errors.ParserError]
+is raised during the execution stage of a command.
 
-    This will be called whenever an parser [ParserError][tanjun.errors.ParserError]
-    is raised during the execution stage of a command.
+This represents the signatures `def (Context, tanjun.ParserError, ...) -> None`
+and `async def (Context, tanjun.ParserError, ...) -> None` where
+dependency injection is supported.
 
-    This represents the signatures `def (Context, tanjun.ParserError, ...) -> None`
-    and `async def (Context, tanjun.ParserError, ...) -> None` where
-    dependency injection is supported.
+Parser errors are always suppressed (unlike general errors).
+"""
 
-    Parser errors are always suppressed (unlike general errors).
-    """
+HookSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[None]]
+"""Type hint of the callback used as a general command hook.
 
-    HookSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[None]]
-    """Type hint of the callback used as a general command hook.
+This represents the signatures `def (Context, ...) -> None` and
+`async def (Context, ...) -> None` where dependency injection is
+supported.
+"""
 
-    This represents the signatures `def (Context, ...) -> None` and
-    `async def (Context, ...) -> None` where dependency injection is
-    supported.
-    """
+_EventT = typing.TypeVar("_EventT", bound=hikari.Event)
 
-    _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
+ListenerCallbackSig = collections.Callable[typing_extensions.Concatenate[_EventT, ...], _CoroT[None]]
+"""Type hint of a hikari event manager callback.
 
-    ListenerCallbackSig = collections.Callable[typing_extensions.Concatenate[_EventT, ...], _CoroT[None]]
-    """Type hint of a hikari event manager callback.
-
-    This represents the signature `async def (hikari.Event, ...) -> None` where
-    dependency injection is supported.
-    """
-
-# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
-else:
-    import types
-
-    AutocompleteSig = types.GenericAlias(collections.Callable[..., typing.Any], (_AutocompleteValueT,))
-    CheckSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
-    AnyCheckSig = CheckSig["Context"]
-    MenuCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_MenuValueT,))
-    MessageCallbackSig = collections.Callable[..., typing.Any]
-    SlashCallbackSig = collections.Callable[..., typing.Any]
-    ErrorHookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
-    ParserHookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
-    HookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
-    _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
-    ListenerCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_EventT,))
+This represents the signature `async def (hikari.Event, ...) -> None` where
+dependency injection is supported.
+"""
 
 
 AutocompleteCallbackSig = AutocompleteSig[_AutocompleteValueT]

@@ -84,23 +84,14 @@ if typing.TYPE_CHECKING:
 
 _T = typing.TypeVar("_T")
 
-# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
-if typing.TYPE_CHECKING:
-    ConverterSig = collections.Callable[
-        typing_extensions.Concatenate[str, ...], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
-    ]
-    """Type hint of a converter used within a parser instance.
+ConverterSig = collections.Callable[
+    typing_extensions.Concatenate[str, ...], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
+]
+"""Type hint of a converter used within a parser instance.
 
-    This represents the signatures `def (str, ...) -> Any` and
-    `async def (str, ...) -> Any` where dependency injection is supported.
-    """
-
-else:
-    import types
-
-    ConverterSig = types.GenericAlias(
-        collections.Callable[..., typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]], (_T,)
-    )
+This represents the signatures `def (str, ...) -> Any` and
+`async def (str, ...) -> Any` where dependency injection is supported.
+"""
 
 
 UndefinedT = tanjun.NoDefault
