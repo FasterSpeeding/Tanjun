@@ -143,15 +143,22 @@ if typing.TYPE_CHECKING:
         """Protocol of a cacheless Hikari Gateway bot."""
 
 
-PrefixGetterSig = collections.Callable[
-    typing_extensions.Concatenate[tanjun.MessageContext, ...],
-    collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]],
-]
-"""Type hint of a callable used to get the prefix(es) for a specific guild.
+# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
+if typing.TYPE_CHECKING:
+    PrefixGetterSig = collections.Callable[
+        typing_extensions.Concatenate[tanjun.MessageContext, ...],
+        collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]],
+    ]
+    """Type hint of a callable used to get the prefix(es) for a specific guild.
 
-This represents the callback `async def (tanjun.abc.MessageContext, ...) -> collections.Iterable[str]`
-where dependency injection is supported.
-"""
+    This represents the callback `async def (tanjun.abc.MessageContext, ...) -> collections.Iterable[str]`
+    where dependency injection is supported.
+    """
+
+else:
+    PrefixGetterSig = collections.Callable[
+        ..., collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]]
+    ]
 
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
 _MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))

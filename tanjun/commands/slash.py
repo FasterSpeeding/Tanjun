@@ -91,16 +91,23 @@ if typing.TYPE_CHECKING:
 _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=tanjun.SlashCallbackSig)
 _ConvertT = typing.TypeVar("_ConvertT", int, float, str)
 
-ConverterSig = collections.Callable[
-    typing_extensions.Concatenate[_ConvertT, ...],
-    typing.Union[collections.Coroutine[typing.Any, typing.Any, typing.Any], typing.Any],
-]
-"""Type hint of a slash command option converter.
+# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
+if typing.TYPE_CHECKING:
+    ConverterSig = collections.Callable[
+        typing_extensions.Concatenate[_ConvertT, ...],
+        typing.Union[collections.Coroutine[typing.Any, typing.Any, typing.Any], typing.Any],
+    ]
+    """Type hint of a slash command option converter.
 
-This represents the signatures `def (int | float | str, ...) -> Any` and
-`async def (int | float | str, ...) -> None` where dependency injection is
-supported.
-"""
+    This represents the signatures `def (int | float | str, ...) -> Any` and
+    `async def (int | float | str, ...) -> None` where dependency injection is
+    supported.
+    """
+
+else:
+    import types
+
+    ConverterSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ConvertT,))
 
 _EMPTY_DICT: typing.Final[dict[typing.Any, typing.Any]] = {}
 _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
