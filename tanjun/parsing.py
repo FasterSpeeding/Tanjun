@@ -86,12 +86,9 @@ _T = typing.TypeVar("_T")
 
 # 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
-    _P = typing_extensions.ParamSpec("_P")
-    _ConverterSig = collections.Callable[
-        typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
+    ConverterSig = collections.Callable[
+        typing_extensions.Concatenate[str, ...], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
     ]
-
-    ConverterSig = _ConverterSig[..., _T]
     """Type hint of a converter used within a parser instance.
 
     This represents the signatures `def (str, ...) -> Any` and

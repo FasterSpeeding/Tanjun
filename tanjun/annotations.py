@@ -270,11 +270,9 @@ if typing.TYPE_CHECKING:
 
     _T = typing.TypeVar("_T")
     _OtherT = typing.TypeVar("_OtherT")
-    _P = typing_extensions.ParamSpec("_P")
-    __ConverterSig = collections.Callable[
-        typing_extensions.Concatenate[str, _P], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
+    _ConverterSig = collections.Callable[
+        typing_extensions.Concatenate[str, ...], typing.Union[collections.Coroutine[typing.Any, typing.Any, _T], _T]
     ]
-    _ConverterSig = __ConverterSig[..., _T]
     _ChannelTypeIsh = typing.Union[type[hikari.PartialChannel], int]
     _ChoiceUnion = typing.Union[int, float, str]
     _ChoiceT = typing.TypeVar("_ChoiceT", int, float, str)

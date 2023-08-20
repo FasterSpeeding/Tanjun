@@ -145,11 +145,10 @@ if typing.TYPE_CHECKING:
 
 # 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
-    _PrefixGetterSig = collections.Callable[
-        typing_extensions.Concatenate[tanjun.MessageContext, _P],
+    PrefixGetterSig = collections.Callable[
+        typing_extensions.Concatenate[tanjun.MessageContext, ...],
         collections.Coroutine[typing.Any, typing.Any, collections.Iterable[str]],
     ]
-    PrefixGetterSig = _PrefixGetterSig[...]
     """Type hint of a callable used to get the prefix(es) for a specific guild.
 
     This represents the callback `async def (tanjun.abc.MessageContext, ...) -> collections.Iterable[str]`
