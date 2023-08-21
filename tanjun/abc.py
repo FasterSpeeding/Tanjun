@@ -136,15 +136,11 @@ synchronous or asynchronous but must return [None][].
 if typing.TYPE_CHECKING:
     import typing_extensions
 
-    _P = typing_extensions.ParamSpec("_P")
+    _MaybeAwaitable = typing.Union[_CoroT[_T], _T]
 
-    _MaybeAwaitable = collections.Callable[_P, typing.Union[_CoroT[_T], _T]]
-
-    _AutocompleteSig = collections.Callable[
-        typing_extensions.Concatenate["AutocompleteContext", _AutocompleteValueT, _P], _CoroT[None]
+    AutocompleteSig = collections.Callable[
+        typing_extensions.Concatenate["AutocompleteContext", _AutocompleteValueT, ...], _CoroT[None]
     ]
-
-    AutocompleteSig = _AutocompleteSig[_AutocompleteValueT, ...]
     """Type hint of the signature an autocomplete callback should have.
 
     This represents the signature
@@ -152,8 +148,8 @@ if typing.TYPE_CHECKING:
     where dependency injection is supported.
     """
 
-    _CheckSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], bool]
-    CheckSig = _CheckSig[_ContextT_contra, ...]
+    _CheckSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[bool]]
+    CheckSig = _CheckSig[_ContextT_contra]
     """Type hint of a generic context check used with Tanjun commands.
 
     This may be registered with a command, client or component to add a rule
@@ -169,13 +165,10 @@ if typing.TYPE_CHECKING:
     early and marked as not found.
     """
 
-    AnyCheckSig = _CheckSig["Context", ...]
+    AnyCheckSig = _CheckSig["Context"]
     """Type hint of a check callback for any command type."""
 
-    _ManuCallbackSig = collections.Callable[
-        typing_extensions.Concatenate[_ContextT_contra, _MenuValueT, _P], _CoroT[None]
-    ]
-    MenuCallbackSig = _ManuCallbackSig["MenuContext", _MenuValueT, ...]
+    MenuCallbackSig = collections.Callable[typing_extensions.Concatenate["MenuContext", _MenuValueT, ...], _CoroT[None]]
     """Type hint of a context menu command callback.
 
     This represents the signature
@@ -184,27 +177,25 @@ if typing.TYPE_CHECKING:
     where dependency injection is supported.
     """
 
-    _CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, _P], _CoroT[None]]
+    _CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _CoroT[None]]
 
-    MessageCallbackSig = _CommandCallbackSig["MessageContext", ...]
+    MessageCallbackSig = _CommandCallbackSig["MessageContext"]
     """Type hint of a message command callback.
 
     This represents the signature `async def (MessageContext, ...) -> None`
     where dependency injection is supported.
     """
 
-    SlashCallbackSig = _CommandCallbackSig["SlashContext", ...]
+    SlashCallbackSig = _CommandCallbackSig["SlashContext"]
     """Type hint of a slash command callback.
 
     This represents the signature `async def (SlashContext, ...) -> None`
     where dependency injection is supported.
     """
 
-    _ErrorHookSig = _MaybeAwaitable[
-        typing_extensions.Concatenate[_ContextT_contra, Exception, _P], typing.Optional[bool]
+    ErrorHookSig = collections.Callable[
+        typing_extensions.Concatenate[_ContextT_contra, Exception, ...], _MaybeAwaitable[typing.Optional[bool]]
     ]
-
-    ErrorHookSig = _ErrorHookSig[_ContextT_contra, ...]
     """Type hint of the callback used as a unexpected command error hook.
 
     This will be called whenever an unexpected [Exception][] is raised during the
@@ -219,11 +210,10 @@ if typing.TYPE_CHECKING:
     [False][] is returned to indicate that the exception should be re-raised.
     """
 
-    _ParserHookSig = _MaybeAwaitable[
-        typing_extensions.Concatenate[_ContextT_contra, "errors.ParserError", _P], typing.Optional[bool]
+    ParserHookSig = collections.Callable[
+        typing_extensions.Concatenate[_ContextT_contra, "errors.ParserError", ...],
+        _MaybeAwaitable[typing.Optional[bool]],
     ]
-
-    ParserHookSig = _ParserHookSig[_ContextT_contra, ...]
     """Type hint of the callback used as a command parser error hook.
 
     This will be called whenever an parser [ParserError][tanjun.errors.ParserError]
@@ -236,9 +226,7 @@ if typing.TYPE_CHECKING:
     Parser errors are always suppressed (unlike general errors).
     """
 
-    _HookSig = _MaybeAwaitable[typing_extensions.Concatenate[_ContextT_contra, _P], None]
-
-    HookSig = _HookSig[_ContextT_contra, ...]
+    HookSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[None]]
     """Type hint of the callback used as a general command hook.
 
     This represents the signatures `def (Context, ...) -> None` and
@@ -247,9 +235,8 @@ if typing.TYPE_CHECKING:
     """
 
     _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
-    _ListenerCallbackSig = collections.Callable[typing_extensions.Concatenate[_EventT, _P], _CoroT[None]]
 
-    ListenerCallbackSig = _ListenerCallbackSig[_EventT, ...]
+    ListenerCallbackSig = collections.Callable[typing_extensions.Concatenate[_EventT, ...], _CoroT[None]]
     """Type hint of a hikari event manager callback.
 
     This represents the signature `async def (hikari.Event, ...) -> None` where

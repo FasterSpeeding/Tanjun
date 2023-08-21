@@ -93,13 +93,10 @@ _ConvertT = typing.TypeVar("_ConvertT", int, float, str)
 
 # 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
-    _P = typing_extensions.ParamSpec("_P")
-
-    _ConverterSig = collections.Callable[
-        typing_extensions.Concatenate[_ConvertT, _P],
+    ConverterSig = collections.Callable[
+        typing_extensions.Concatenate[_ConvertT, ...],
         typing.Union[collections.Coroutine[typing.Any, typing.Any, typing.Any], typing.Any],
     ]
-    ConverterSig = _ConverterSig[_ConvertT, ...]
     """Type hint of a slash command option converter.
 
     This represents the signatures `def (int | float | str, ...) -> Any` and
