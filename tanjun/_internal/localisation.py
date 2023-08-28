@@ -80,7 +80,7 @@ class MaybeLocalised:
         Raises
         ------
         RuntimeError
-            If no default value is provided when `filed` is a mapping.
+            If no default value is provided when `field` is a mapping.
         """
         self._field_name = field_name
         if isinstance(field, str):

@@ -392,12 +392,22 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             self._defer_task.cancel()
 
     def _get_flags(
-        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED, /
+        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED, /, *, ephemeral: typing.Optional[bool] = None,
     ) -> typing.Union[int, hikari.MessageFlag]:
         if flags is hikari.UNDEFINED:
-            return hikari.MessageFlag.EPHEMERAL if self._defaults_to_ephemeral else hikari.MessageFlag.NONE
+            if ephemeral is True or (ephemeral is None and self._defaults_to_ephemeral):
+                return hikari.MessageFlag.EPHEMERAL 
+            
+            return hikari.MessageFlag.NONE
 
-        return flags or hikari.MessageFlag.NONE
+
+        if ephemeral is True:
+            return flags | hikari.MessageFlag.EPHEMERAL
+
+        if ephemeral is False:
+            return flags & ~hikari.MessageFlag.EPHEMERAL
+
+        return flags
 
     def start_defer_timer(self, count_down: typing.Union[int, float], /) -> Self:
         """Start the auto-deferral timer.
@@ -430,15 +440,10 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self,
         *,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
-        ephemeral: bool = False,
+        ephemeral: typing.Optional[bool] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
-        if ephemeral:
-            flags = (flags or hikari.MessageFlag.NONE) | hikari.MessageFlag.EPHEMERAL
-
-        else:
-            flags = self._get_flags(flags)
-
+        flags = self._get_flags(flags, ephemeral=ephemeral)
         in_defer_task = self._defer_task and self._defer_task is asyncio.current_task()
         if not in_defer_task:
             self.cancel_defer()
@@ -481,6 +486,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        ephemeral: typing.Optional[bool] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -506,7 +512,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             components=components,
             embed=embed,
             embeds=embeds,
-            flags=self._get_flags(flags),
+            flags=self._get_flags(flags, ephemeral=ephemeral),
             tts=tts,
             mentions_everyone=mentions_everyone,
             user_mentions=user_mentions,
@@ -529,7 +535,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
-        ephemeral: bool = False,
+        ephemeral: typing.Optional[bool] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -547,13 +553,11 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
-        if ephemeral:
-            flags = (flags or hikari.MessageFlag.NONE) | hikari.MessageFlag.EPHEMERAL
-
         async with self._response_lock:
             return await self._create_followup(
                 content=content,
                 delete_after=delete_after,
+                ephemeral=ephemeral,
                 attachment=attachment,
                 attachments=attachments,
                 component=component,
@@ -579,6 +583,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        ephemeral: typing.Optional[bool] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -595,7 +600,6 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
-        flags = self._get_flags(flags)
         delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
         if self._has_responded:
             raise RuntimeError("Initial response has already been created")
@@ -616,7 +620,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 components=components,
                 embed=embed,
                 embeds=embeds,
-                flags=flags,
+                flags=self._get_flags(flags, ephemeral=ephemeral),
                 tts=tts,
                 mentions_everyone=mentions_everyone,
                 user_mentions=user_mentions,
@@ -655,7 +659,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
-        ephemeral: bool = False,
+        ephemeral: typing.Optional[bool] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -673,12 +677,10 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Context>>.
-        if ephemeral:
-            flags = (flags or hikari.MessageFlag.NONE) | hikari.MessageFlag.EPHEMERAL
-
         async with self._response_lock:
             await self._create_initial_response(
                 delete_after=delete_after,
+                ephemeral=ephemeral,
                 content=content,
                 attachment=attachment,
                 attachments=attachments,
