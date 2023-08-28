@@ -392,14 +392,17 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
             self._defer_task.cancel()
 
     def _get_flags(
-        self, flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED, /, *, ephemeral: typing.Optional[bool] = None,
+        self,
+        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
+        /,
+        *,
+        ephemeral: typing.Optional[bool] = None,
     ) -> typing.Union[int, hikari.MessageFlag]:
         if flags is hikari.UNDEFINED:
             if ephemeral is True or (ephemeral is None and self._defaults_to_ephemeral):
-                return hikari.MessageFlag.EPHEMERAL 
-            
-            return hikari.MessageFlag.NONE
+                return hikari.MessageFlag.EPHEMERAL
 
+            return hikari.MessageFlag.NONE
 
         if ephemeral is True:
             return flags | hikari.MessageFlag.EPHEMERAL
