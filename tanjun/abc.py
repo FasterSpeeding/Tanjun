@@ -1424,7 +1424,7 @@ class AppCommandContext(Context, abc.ABC):
     async def defer(
         self,
         *,
-        ephemeral: bool = False,
+        ephemeral: typing.Optional[bool] = None,
         flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
     ) -> None:
         """Defer the initial response for this context.
@@ -1458,7 +1458,7 @@ class AppCommandContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
-        ephemeral: bool = False,
+        ephemeral: typing.Optional[bool] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -1579,7 +1579,7 @@ class AppCommandContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
-        ephemeral: bool = False,
+        ephemeral: typing.Optional[bool] = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,

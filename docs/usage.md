@@ -238,7 +238,9 @@ for a slash command, which is done by passing a string value to
 
 This example doesn't demonstrate every feature of this; more information on
 how arguments are configured in a command's signature can be found at
-[tanjun.annotations][].
+[tanjun.annotations][] and
+[tanchan.doc_parse](https://tanchan.cursed.solutions/reference/doc_parse/)
+adds documentation parsing support to this system for parsing descriptions.
 
 ### Wrapped commands
 
