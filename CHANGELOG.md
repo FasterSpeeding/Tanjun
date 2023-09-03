@@ -5,7 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- The hot-reloader no-longer reverts to a module's old components loaded after
+  the new module's loaders fail or is found to have no loaders.
+
 ### Fixed
+- Module unloaders will now be called with the correct old module's state
+  in-scope when being targeted as python module paths by the hot reloader.
 - Explicitly passing `ephemeral=False` to `create_initial_response` or
   `create_followup`` will now correctly override the client-level ephemeral
   default.
