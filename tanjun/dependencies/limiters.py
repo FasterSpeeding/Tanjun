@@ -115,14 +115,14 @@ class AbstractCooldownManager(abc.ABC):
 
     __slots__ = ()
 
-    @typing_extensions.deprecated("Use .acquire and .release")
+    @typing_extensions.deprecated("Use .acquire or .try_acquire and .release to manage cooldowns")
     @abc.abstractmethod
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
     ) -> typing.Optional[datetime.datetime]:
         """Deprecated method."""
 
-    @typing_extensions.deprecated("Use .acquire and .release")
+    @typing_extensions.deprecated("Use .acquire or .try_acquire and .release to manage cooldowns")
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         """Deprecated function for incrementing a cooldown.
 
@@ -812,7 +812,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         # increment will raise if it the bucket is exhausted
         self._acquiring_ctxs[key] = resource.check().increment(ctx)
 
-    @typing_extensions.deprecated("Use .acquire and .release")
+    @typing_extensions.deprecated("Use .acquire or .try_acquire and .release to manage cooldowns")
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
     ) -> typing.Optional[datetime.datetime]:
