@@ -3000,7 +3000,7 @@ class Client(tanjun.Client):
         ctx = self._make_autocomplete_context(self, interaction, future=future)
 
         for component in self._components.values():
-            if coro := component.execute_autocomplete(ctx):
+            if coro := component.execute_autocomplete(ctx):  # pyright: ignore[reportUnnecessaryComparison]
                 task = loop.create_task(coro)
                 task.add_done_callback(lambda _: future.cancel())
                 self._add_task(task)

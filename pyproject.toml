@@ -203,6 +203,8 @@ reportUnknownLambdaType = "warning"
 reportImportCycles = "warning"                  # This isn't necessarily an issue if it's type checking only.
 reportUnknownVariableType = "warning"           # Lotta false-positives, might fix/change later.
 
+reportIncompatibleVariableOverride = "warning"  # This is not really do-able in a lang with no frozen objects.
+
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
 testpaths = ["tests"]
