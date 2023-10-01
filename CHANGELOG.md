@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.17.1] - 2023-10-01
 ### Fixed
 - Explicitly passing `ephemeral=False` to `create_initial_response` or
-  `create_followup`` will now correctly override the client-level ephemeral
+  `create_followup` will now correctly override the client-level ephemeral
   default.
 
 ## [2.17.0] - 2023-08-28
