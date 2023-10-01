@@ -3396,6 +3396,7 @@ class TestClient:
             _priv_loader=old_priv_loader,
             __all__=["loader", "ok", "naye"],
         )
+        old_module.loader.load.return_value = True
         client = tanjun.Client(mock.AsyncMock())
         path = pathlib.Path(temp_file.name)
         client._path_modules[path] = old_module
@@ -3429,8 +3430,8 @@ class TestClient:
         with pytest.raises(tanjun.ModuleMissingLoaders):
             generator.send(module)
 
-        old_module.loader.load.assert_not_called()
-        old_module.loader.unload.assert_not_called()
+        old_module.loader.load.assert_called_once_with()
+        old_module.loader.unload.assert_called_once_with()
         old_module.other_loader.load.assert_not_called()
         old_module.other_loader.unload.assert_not_called()
         old_priv_loader.load.assert_not_called()
