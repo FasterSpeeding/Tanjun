@@ -69,7 +69,7 @@ class TestAbstractCooldownManager:
         mock_context = mock.Mock()
 
         with pytest.warns(DeprecationWarning):
-            await manager.increment_cooldown("catgirl neko", mock_context)
+            await manager.increment_cooldown("catgirl neko", mock_context)  # pyright: ignore[reportDeprecated]
 
         mock_try_acquire.assert_awaited_once_with("catgirl neko", mock_context)
         mock_release.assert_awaited_once_with("catgirl neko", mock_context)
@@ -91,7 +91,7 @@ class TestAbstractCooldownManager:
         mock_context = mock.Mock()
 
         with pytest.warns(DeprecationWarning):
-            await manager.increment_cooldown("catgirl neko", mock_context)
+            await manager.increment_cooldown("catgirl neko", mock_context)  # pyright: ignore[reportDeprecated]
 
         mock_try_acquire.assert_awaited_once_with("catgirl neko", mock_context)
         mock_release.assert_not_called()
@@ -1384,7 +1384,7 @@ class TestInMemoryCooldownManager:
         manager._buckets["echo"] = mock_bucket
 
         with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
-            result = await manager.check_cooldown("echo", mock_ctx)
+            result = await manager.check_cooldown("echo", mock_ctx)  # pyright: ignore[reportDeprecated]
 
         assert result is None
         mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
@@ -1398,7 +1398,7 @@ class TestInMemoryCooldownManager:
         manager._acquiring_ctxs["mortal", mock_ctx] = mock_resource
 
         with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
-            result = await manager.check_cooldown("mortal", mock_ctx)
+            result = await manager.check_cooldown("mortal", mock_ctx)  # pyright: ignore[reportDeprecated]
 
         assert result is None
         mock_resource.check.assert_called_once_with()
@@ -1413,7 +1413,7 @@ class TestInMemoryCooldownManager:
         manager._buckets["meep"] = mock_bucket
 
         with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
-            result = await manager.check_cooldown("meep", mock_ctx)
+            result = await manager.check_cooldown("meep", mock_ctx)  # pyright: ignore[reportDeprecated]
 
         assert result is date
         mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
@@ -1429,7 +1429,7 @@ class TestInMemoryCooldownManager:
         manager._acquiring_ctxs[("eeep", mock_ctx)] = mock_resource
 
         with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
-            result = await manager.check_cooldown("eeep", mock_ctx)
+            result = await manager.check_cooldown("eeep", mock_ctx)  # pyright: ignore[reportDeprecated]
 
         assert result is date
         mock_resource.check.assert_called_once_with()
@@ -1446,7 +1446,7 @@ class TestInMemoryCooldownManager:
         with freezegun.freeze_time(date), pytest.warns(
             DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"
         ):
-            result = await manager.check_cooldown("flirt", mock_ctx)
+            result = await manager.check_cooldown("flirt", mock_ctx)  # pyright: ignore[reportDeprecated]
 
         assert result == datetime.datetime(2022, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
         mock_bucket.into_inner.assert_awaited_once_with(mock_ctx)
@@ -1464,7 +1464,7 @@ class TestInMemoryCooldownManager:
         with freezegun.freeze_time(date), pytest.warns(
             DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"
         ):
-            result = await manager.check_cooldown("mother", mock_ctx)
+            result = await manager.check_cooldown("mother", mock_ctx)  # pyright: ignore[reportDeprecated]
 
         assert result == datetime.datetime(2021, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
         mock_resource.check.assert_called_once_with()
@@ -1482,7 +1482,7 @@ class TestInMemoryCooldownManager:
         manager = CooldownManager()
 
         with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
-            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
+            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)  # pyright: ignore[reportDeprecated]
 
         assert result is None
         mock_try_acquire.assert_awaited_once_with("yeet", mock_ctx)
@@ -1502,7 +1502,7 @@ class TestInMemoryCooldownManager:
         manager = CooldownManager()
 
         with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
-            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
+            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)  # pyright: ignore[reportDeprecated]
 
         assert result is date
         mock_try_acquire.assert_awaited_once_with("yeet", mock_ctx)
@@ -1524,7 +1524,7 @@ class TestInMemoryCooldownManager:
         with freezegun.freeze_time(date), pytest.warns(
             DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"
         ):
-            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
+            result = await manager.check_cooldown("yeet", mock_ctx, increment=True)  # pyright: ignore[reportDeprecated]
 
         assert result == datetime.datetime(2023, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
         mock_try_acquire.assert_awaited_once_with("yeet", mock_ctx)

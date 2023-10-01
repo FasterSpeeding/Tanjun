@@ -505,7 +505,7 @@ class TestToChannel:
             ValueError,
             match=(
                 "Only the following channel types are allowed for this argument: "
-                "Text, DM, Voice, News, News Thread, Public Thread, Private Thread, Category and Stage"
+                "Text, DM, Voice, News, News Thread, Public Thread, Private Thread, Stage and Category"
             ),
         ):
             await converter("<#3411231>", mock_context, thread_cache=mock_thread_cache)
