@@ -1383,7 +1383,7 @@ class TestInMemoryCooldownManager:
         manager = tanjun.dependencies.InMemoryCooldownManager()
         manager._buckets["echo"] = mock_bucket
 
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+        with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
             result = await manager.check_cooldown("echo", mock_ctx)
 
         assert result is None
@@ -1397,7 +1397,7 @@ class TestInMemoryCooldownManager:
         manager = tanjun.dependencies.InMemoryCooldownManager()
         manager._acquiring_ctxs["mortal", mock_ctx] = mock_resource
 
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+        with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
             result = await manager.check_cooldown("mortal", mock_ctx)
 
         assert result is None
@@ -1412,7 +1412,7 @@ class TestInMemoryCooldownManager:
         manager = tanjun.dependencies.InMemoryCooldownManager()
         manager._buckets["meep"] = mock_bucket
 
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+        with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
             result = await manager.check_cooldown("meep", mock_ctx)
 
         assert result is date
@@ -1428,7 +1428,7 @@ class TestInMemoryCooldownManager:
         manager = tanjun.dependencies.InMemoryCooldownManager()
         manager._acquiring_ctxs[("eeep", mock_ctx)] = mock_resource
 
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+        with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
             result = await manager.check_cooldown("eeep", mock_ctx)
 
         assert result is date
@@ -1443,7 +1443,9 @@ class TestInMemoryCooldownManager:
         manager._buckets["flirt"] = mock_bucket
 
         date = datetime.datetime(2022, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
-        with freezegun.freeze_time(date), pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+        with freezegun.freeze_time(date), pytest.warns(
+            DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"
+        ):
             result = await manager.check_cooldown("flirt", mock_ctx)
 
         assert result == datetime.datetime(2022, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
@@ -1459,7 +1461,9 @@ class TestInMemoryCooldownManager:
         manager._acquiring_ctxs[("mother", mock_ctx)] = mock_resource
 
         date = datetime.datetime(2021, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
-        with freezegun.freeze_time(date), pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+        with freezegun.freeze_time(date), pytest.warns(
+            DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"
+        ):
             result = await manager.check_cooldown("mother", mock_ctx)
 
         assert result == datetime.datetime(2021, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
@@ -1477,7 +1481,7 @@ class TestInMemoryCooldownManager:
 
         manager = CooldownManager()
 
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+        with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
             result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
 
         assert result is None
@@ -1497,7 +1501,7 @@ class TestInMemoryCooldownManager:
 
         manager = CooldownManager()
 
-        with pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+        with pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"):
             result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
 
         assert result is date
@@ -1517,7 +1521,9 @@ class TestInMemoryCooldownManager:
         manager = CooldownManager()
 
         date = datetime.datetime(2023, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
-        with freezegun.freeze_time(date), pytest.warns(DeprecationWarning, match="Use .acquire and .release"):
+        with freezegun.freeze_time(date), pytest.warns(
+            DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"
+        ):
             result = await manager.check_cooldown("yeet", mock_ctx, increment=True)
 
         assert result == datetime.datetime(2023, 5, 27, 23, 3, 40, 527391, tzinfo=datetime.timezone.utc)
