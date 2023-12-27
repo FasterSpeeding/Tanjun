@@ -1882,7 +1882,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
             If [False][] is passed here then `default` will only decide whether
             the option is required without the actual value being used and the
-            `coverters` field will be ignored.
+            `converters` field will be ignored.
 
         Returns
         -------
@@ -2041,7 +2041,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
             If [False][] is passed here then `default` will only decide whether
             the option is required without the actual value being used and the
-            `coverters` field will be ignored.
+            `converters` field will be ignored.
 
         Returns
         -------
@@ -2224,7 +2224,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
             If [False][] is passed here then `default` will only decide whether
             the option is required without the actual value being used and the
-            `coverters` field will be ignored.
+            `converters` field will be ignored.
 
         Returns
         -------
@@ -2390,7 +2390,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
             If [False][] is passed here then `default` will only decide whether
             the option is required without the actual value being used and the
-            fields `coverters`, and `always_float` will be ignored.
+            fields `converters`, and `always_float` will be ignored.
 
         Returns
         -------
