@@ -448,12 +448,16 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
             return cached_channel.parent_id or ctx.guild_id
 
         channel_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.PermissibleGuildChannel])
-        if channel_cache and (channel := await channel_cache.get(ctx.channel_id, default=None)):
-            return channel.parent_id or ctx.guild_id
+        if channel_cache:
+            # Cause of pyright bug:
+            if channel := await channel_cache.get(ctx.channel_id, default=None):
+                return channel.parent_id or ctx.guild_id
 
         thread_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.GuildThreadChannel])
-        if thread_cache and (channel := await thread_cache.get(ctx.channel_id, default=None)):
-            return channel.parent_id
+        if thread_cache:
+            # Cause of pyright bug
+            if channel := await thread_cache.get(ctx.channel_id, default=None):
+                return channel.parent_id
 
         channel = await ctx.fetch_channel()
         assert isinstance(channel, hikari.GuildChannel)
@@ -470,13 +474,15 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
 
         roles: collections.Iterable[hikari.Role] = ctx.member.get_roles()
         try_rest = not roles
-        if try_rest and (role_cache := ctx.get_type_dependency(async_cache.SfCache[hikari.Role])):
-            try:
-                roles = filter(None, [await _try_get_role(role_cache, role_id) for role_id in ctx.member.role_ids])
-                try_rest = False
+        if try_rest:
+            # Cause of pyright bug
+            if role_cache := ctx.get_type_dependency(async_cache.SfCache[hikari.Role]):
+                try:
+                    roles = filter(None, [await _try_get_role(role_cache, role_id) for role_id in ctx.member.role_ids])
+                    try_rest = False
 
-            except async_cache.CacheMissError:
-                pass
+                except async_cache.CacheMissError:
+                    pass
 
         if try_rest:
             roles = await ctx.member.fetch_roles()

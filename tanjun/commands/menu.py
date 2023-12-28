@@ -175,7 +175,8 @@ def as_message_menu(
     ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
-            callback = callback.callback
+            # Cast needed cause of a pyright bug
+            callback = typing.cast("_MessageCallbackSigT", callback.callback)
 
         else:
             wrapped_command = None
@@ -303,7 +304,8 @@ def as_user_menu(
     ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
-            callback = callback.callback
+            # Cast needed cause of a pyright bug
+            callback = typing.cast("_UserCallbackSigT", callback.callback)
 
         else:
             wrapped_command = None
@@ -521,7 +523,8 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
             raise ValueError("Command type must be message or user")
 
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
-            callback = callback.callback
+            # Cast needed cause of a pyright bug
+            callback = typing.cast("_UserCallbackSigT", callback.callback)
 
         if default_member_permissions is not None:
             default_member_permissions = hikari.Permissions(default_member_permissions)

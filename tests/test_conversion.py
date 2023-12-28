@@ -57,9 +57,9 @@ class TestBaseConverter:
 
     def test_cache_components_property(self):
         with pytest.warns(DeprecationWarning, match="Use .caches instead"):
-            components = tanjun.conversion.BaseConverter().cache_components # pyright: ignore[reportDeprecated]
+            components = tanjun.conversion.BaseConverter().cache_components  # pyright: ignore[reportDeprecated]
 
-        assert components is hikari.api.CacheComponents.NONE 
+        assert components is hikari.api.CacheComponents.NONE
 
     @pytest.mark.parametrize(
         ("obj", "expected"),

@@ -2437,9 +2437,11 @@ class Client(tanjun.Client):
         application_cache = self.get_type_dependency(
             dependencies.SingleStoreCache[hikari.Application]
         ) or self.get_type_dependency(dependencies.SingleStoreCache[hikari.AuthorizationApplication])
-        if application_cache and (application := await application_cache.get(default=None)):
-            self._cached_application_id = application.id
-            return application.id
+        if application_cache:
+            # Cause of pyright bug
+            if application := await application_cache.get(default=None):
+                self._cached_application_id = application.id
+                return application.id
 
         if self._rest.token_type == hikari.TokenType.BOT:
             self._cached_application_id = hikari.Snowflake(await self._rest.fetch_application())

@@ -598,8 +598,10 @@ class ToInviteWithMetadata(BaseConverter):
         if ctx.cache and (invite := ctx.cache.get_invite(argument)):
             return invite
 
-        if cache and (invite := await cache.get(argument)):
-            return invite
+        if cache:
+            # Cause of pyright bug
+            if invite := await cache.get(argument, default=None):
+                return invite
 
         raise ValueError("Couldn't find invite")
 
@@ -728,8 +730,10 @@ class ToPresence(BaseConverter):
         if ctx.cache and (presence := ctx.cache.get_presence(ctx.guild_id, user_id)):
             return presence
 
-        if cache and (presence := await cache.get_from_guild(ctx.guild_id, user_id, default=None)):
-            return presence
+        if cache:
+            # Cause of Pyright bug.
+            if presence := await cache.get_from_guild(ctx.guild_id, user_id, default=None):
+                return presence
 
         raise ValueError("Couldn't find presence in current guild")
 
@@ -947,8 +951,10 @@ class ToVoiceState(BaseConverter):
         if ctx.cache and (state := ctx.cache.get_voice_state(ctx.guild_id, user_id)):
             return state
 
-        if cache and (state := await cache.get_from_guild(ctx.guild_id, user_id, default=None)):
-            return state
+        if cache:
+            # Cause of Pyright bug.
+            if state := await cache.get_from_guild(ctx.guild_id, user_id, default=None):
+                return state
 
         raise ValueError("Voice state couldn't be found for current guild")
 
