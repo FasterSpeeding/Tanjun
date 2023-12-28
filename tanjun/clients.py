@@ -2437,8 +2437,8 @@ class Client(tanjun.Client):
         application_cache = self.get_type_dependency(
             dependencies.SingleStoreCache[hikari.Application]
         ) or self.get_type_dependency(dependencies.SingleStoreCache[hikari.AuthorizationApplication])
-        if application_cache:
-            # Cause of pyright bug
+        if application_cache:  # noqa: SIM102
+            # Has to be nested cause of pyright bug
             if application := await application_cache.get(default=None):
                 self._cached_application_id = application.id
                 return application.id

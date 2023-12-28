@@ -208,8 +208,8 @@ async def fetch_permissions(
     guild: typing.Optional[hikari.Guild]
     roles: typing.Optional[collections.Mapping[hikari.Snowflake, hikari.Role]] = None
     guild = client.cache.get_guild(member.guild_id) if client.cache else None
-    if not guild:
-        # Cause of pyright bug.
+    if not guild:  # noqa: SIM102
+        # Has to be nested cause of pyright bug.
         if guild_cache := client.get_type_dependency(_GuildCacheT):
             try:
                 guild = await guild_cache.get(member.guild_id)
@@ -229,8 +229,8 @@ async def fetch_permissions(
         return ALL_PERMISSIONS
 
     roles = roles or client.cache and client.cache.get_roles_view_for_guild(member.guild_id)
-    if not roles:
-        # Cause of pyright bug.
+    if not roles:  # noqa: SIM102
+        # Has to be nested cause of pyright bug.
         if role_cache := client.get_type_dependency(_GuldRoleCacheT):
             roles = {role.id: role for role in await role_cache.iter_for_guild(member.guild_id)}
 
@@ -322,8 +322,8 @@ async def fetch_everyone_permissions(
     # The ordering of how this adds and removes permissions does matter.
     # For more information see https://discord.com/developers/docs/topics/permissions#permission-hierarchy.
     role = client.cache.get_role(guild_id) if client.cache else None
-    if not role:
-        # Cause of pyright bug.
+    if not role:  # noqa: SIM102
+        # Has to be nested cause of pyright bug.
         if role_cache := client.get_type_dependency(_RoleCacheT):
             try:
                 role = await role_cache.get(guild_id)

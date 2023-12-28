@@ -72,8 +72,8 @@ async def fetch_my_user(
     if client.cache and (user := client.cache.get_me()):
         return user
 
-    if me_cache:
-        # Cause of pyright bug
+    if me_cache:  # noqa: SIM102
+        # Has to be nested cause of pyright bug
         if user := await me_cache.get(default=None):
             return user
 
