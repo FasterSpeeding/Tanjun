@@ -1851,7 +1851,7 @@ def test_from_datetime_with_default_style():
 
 
 def test_from_datetime_for_naive_datetime():
-    date = datetime.datetime.utcnow()
+    date = datetime.datetime.now()
 
     with pytest.raises(ValueError, match="Cannot convert naive datetimes, please specify a timezone."):
         tanjun.conversion.from_datetime(date)

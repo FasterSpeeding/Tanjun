@@ -714,7 +714,7 @@ class TestIntervalSchedule:
             await asyncio.wait_for(interval.stop(), 0.3)
 
         # This is done to allow any finished tasks to be removed.
-        await asyncio.sleep(0)
+        await asyncio.sleep(0.1)
 
         mock_task.cancel.assert_called_once_with()
         assert interval.is_alive is False
@@ -1207,6 +1207,9 @@ class TestTimeSchedule:
 
         with pytest.raises(asyncio.TimeoutError):
             await asyncio.wait_for(interval.stop(), 0.25)
+
+        # This is done to allow any finished tasks to be removed.
+        await asyncio.sleep(0.1)
 
         mock_task.cancel.assert_called_once_with()
         assert interval.is_alive is False
