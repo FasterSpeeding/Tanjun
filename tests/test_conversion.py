@@ -1094,7 +1094,7 @@ class TestToInviteWithMetadata:
 
         assert result is mock_cache.get.return_value
         mock_context.cache.get_invite.assert_called_once_with("asdbasd")
-        mock_cache.get.assert_awaited_once_with("asdbasd")
+        mock_cache.get.assert_awaited_once_with("asdbasd", default=None)
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached(self):
@@ -1107,7 +1107,7 @@ class TestToInviteWithMetadata:
             await tanjun.to_invite_with_metadata("dsds", mock_context, cache=mock_cache)
 
         mock_context.cache.get_invite.assert_called_once_with("dsds")
-        mock_cache.get.assert_called_once_with("dsds")
+        mock_cache.get.assert_called_once_with("dsds", default=None)
 
     @pytest.mark.asyncio()
     async def test___call___when_cacheless(self):
