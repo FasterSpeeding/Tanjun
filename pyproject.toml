@@ -214,7 +214,7 @@ filterwarnings = [
     "error",
     # Remove after dateutil >2.8.2 release
     # https://github.com/dateutil/dateutil/issues/1314
-    "ignore:datetime.datetime.utcfromtimestamp\\(\\) is deprecated:DeprecationWarning:dateutil.tz.tz:37"
+    "ignore:datetime.datetime.utcfromtimestamp\\(\\) is deprecated:DeprecationWarning:dateutil.tz.tz:37",
 ]
 
 [tool.slotscheck]
