@@ -53,11 +53,13 @@ class TestBaseConverter:
 
     def test_async_caches_property(self):
         with pytest.warns(DeprecationWarning, match="Use .caches instead"):
-            assert tanjun.conversion.BaseConverter().async_caches == []
+            assert tanjun.conversion.BaseConverter().async_caches == []  # pyright: ignore[reportDeprecated]
 
     def test_cache_components_property(self):
         with pytest.warns(DeprecationWarning, match="Use .caches instead"):
-            assert tanjun.conversion.BaseConverter().cache_components is hikari.api.CacheComponents.NONE
+            components = tanjun.conversion.BaseConverter().cache_components # pyright: ignore[reportDeprecated]
+
+        assert components is hikari.api.CacheComponents.NONE 
 
     @pytest.mark.parametrize(
         ("obj", "expected"),
@@ -178,7 +180,7 @@ class TestBaseConverter:
 
     def test_intents_property(self):
         with pytest.warns(DeprecationWarning, match="Use .caches instead"):
-            assert tanjun.conversion.BaseConverter().intents is hikari.Intents.NONE
+            assert tanjun.conversion.BaseConverter().intents is hikari.Intents.NONE  # pyright: ignore[reportDeprecated]
 
     @pytest.mark.parametrize(
         ("obj", "expected"),
