@@ -46,6 +46,7 @@ import tanjun
 from tanjun import annotations
 
 # pyright: reportPrivateUsage=none
+# pyright: reportUnknownMemberType=none
 
 
 def test_where_no_signature():

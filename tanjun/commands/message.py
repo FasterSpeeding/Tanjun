@@ -103,7 +103,8 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
     def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
-            callback = callback.callback
+            # Cast needed cause of pyright bug.
+            callback = typing.cast("_MessageCallbackSigT", callback.callback)
 
         else:
             wrapped_command = None
@@ -161,7 +162,8 @@ def as_message_command_group(
     def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
-            callback = callback.callback
+            # Cast needed cause of pyright bug
+            callback = typing.cast("_MessageCallbackSigT", callback.callback)
 
         else:
             wrapped_command = None
@@ -232,7 +234,8 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         """
         super().__init__()
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
-            callback = callback.callback
+            # Cast needed cause of pyright bug.
+            callback = typing.cast("_MessageCallbackSigT", callback.callback)
 
         self._arg_names = _internal.get_kwargs(callback) if validate_arg_keys else None
         self._callback: _MessageCallbackSigT = callback
@@ -511,7 +514,9 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         def decorator(
             callback: typing.Union[_OtherCallbackSigT, _AnyCommandT[_OtherCallbackSigT]], /
         ) -> MessageCommand[_OtherCallbackSigT]:
-            return self.with_command(as_message_command(name, *names, validate_arg_keys=validate_arg_keys)(callback))
+            cmd = as_message_command(name, *names, validate_arg_keys=validate_arg_keys)(callback)
+            self.add_command(cmd)
+            return cmd
 
         return decorator
 
@@ -545,9 +550,9 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         """
 
         def decorator(callback: _CallbackishT[_OtherCallbackSigT], /) -> MessageCommandGroup[_OtherCallbackSigT]:
-            return self.with_command(
-                as_message_command_group(name, *names, strict=strict, validate_arg_keys=validate_arg_keys)(callback)
-            )
+            cmd = as_message_command_group(name, *names, strict=strict, validate_arg_keys=validate_arg_keys)(callback)
+            self.add_command(cmd)
+            return cmd
 
         return decorator
 

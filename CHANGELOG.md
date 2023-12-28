@@ -664,7 +664,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `declare_slash_command` and `declare_slash_commands` to `declare_application_command` and
   `declare_application_commands` respectively.
 - Renamed `Client.detect_commands` to `Client.load_from_scope`.
-- Restructured LoadableProtocol for re-use in `Client.load_from_scope` and rename to `ComponentLoader`.
+- Restructured LoadableProtocol for reuse in `Client.load_from_scope` and rename to `ComponentLoader`.
 
 ### Fixed
 - Don't include the "tracked command ID" in slash command group builders as this leads to mis-matching ID

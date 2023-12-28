@@ -375,7 +375,8 @@ def as_slash_command(
     def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
             wrapped_command = callback
-            callback = callback.callback
+            # Cast needed cause of a pyright bug
+            callback = typing.cast("_SlashCallbackSigT", callback.callback)
 
         else:
             wrapped_command = None
@@ -1323,16 +1324,16 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         """  # noqa: D202, E501
 
         def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
-            return self.with_command(
-                as_slash_command(
-                    name,
-                    description,
-                    always_defer=always_defer,
-                    default_to_ephemeral=default_to_ephemeral,
-                    sort_options=sort_options,
-                    validate_arg_keys=validate_arg_keys,
-                )(callback)
-            )
+            cmd = as_slash_command(
+                name,
+                description,
+                always_defer=always_defer,
+                default_to_ephemeral=default_to_ephemeral,
+                sort_options=sort_options,
+                validate_arg_keys=validate_arg_keys,
+            )(callback)
+            self.add_command(cmd)
+            return cmd
 
         return decorator
 
@@ -1635,7 +1636,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             nsfw=nsfw,
         )
         if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
-            callback = callback.callback
+            # Cast needed cause of a pyright bug
+            callback = typing.cast("_SlashCallbackSigT", callback.callback)
 
         self._always_defer = always_defer
         self._arg_names = _internal.get_kwargs(callback) if validate_arg_keys else None
@@ -1882,7 +1884,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
             If [False][] is passed here then `default` will only decide whether
             the option is required without the actual value being used and the
-            `coverters` field will be ignored.
+            `converters` field will be ignored.
 
         Returns
         -------
@@ -2041,7 +2043,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
             If [False][] is passed here then `default` will only decide whether
             the option is required without the actual value being used and the
-            `coverters` field will be ignored.
+            `converters` field will be ignored.
 
         Returns
         -------
@@ -2224,7 +2226,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
             If [False][] is passed here then `default` will only decide whether
             the option is required without the actual value being used and the
-            `coverters` field will be ignored.
+            `converters` field will be ignored.
 
         Returns
         -------
@@ -2390,7 +2392,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
             If [False][] is passed here then `default` will only decide whether
             the option is required without the actual value being used and the
-            fields `coverters`, and `always_float` will be ignored.
+            fields `converters`, and `always_float` will be ignored.
 
         Returns
         -------

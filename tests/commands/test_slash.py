@@ -985,7 +985,7 @@ class TestSlashCommandGroup:
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND,
-                    name=mock_command.name,  # type: ignore
+                    name=mock_command.name,
                     name_localizations=mock_build.name_localizations,
                     description=mock_build.description,
                     description_localizations=mock_build.description_localizations,
@@ -996,7 +996,7 @@ class TestSlashCommandGroup:
             .add_option(
                 hikari.CommandOption(
                     type=hikari.OptionType.SUB_COMMAND_GROUP,
-                    name=mock_command_group.name,  # type: ignore
+                    name=mock_command_group.name,
                     name_localizations=mock_group_build.name_localizations,
                     description=mock_group_build.description,
                     description_localizations=mock_group_build.description_localizations,

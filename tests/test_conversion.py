@@ -53,11 +53,13 @@ class TestBaseConverter:
 
     def test_async_caches_property(self):
         with pytest.warns(DeprecationWarning, match="Use .caches instead"):
-            assert tanjun.conversion.BaseConverter().async_caches == []
+            assert tanjun.conversion.BaseConverter().async_caches == []  # pyright: ignore[reportDeprecated]
 
     def test_cache_components_property(self):
         with pytest.warns(DeprecationWarning, match="Use .caches instead"):
-            assert tanjun.conversion.BaseConverter().cache_components is hikari.api.CacheComponents.NONE
+            components = tanjun.conversion.BaseConverter().cache_components  # pyright: ignore[reportDeprecated]
+
+        assert components is hikari.api.CacheComponents.NONE
 
     @pytest.mark.parametrize(
         ("obj", "expected"),
@@ -178,7 +180,7 @@ class TestBaseConverter:
 
     def test_intents_property(self):
         with pytest.warns(DeprecationWarning, match="Use .caches instead"):
-            assert tanjun.conversion.BaseConverter().intents is hikari.Intents.NONE
+            assert tanjun.conversion.BaseConverter().intents is hikari.Intents.NONE  # pyright: ignore[reportDeprecated]
 
     @pytest.mark.parametrize(
         ("obj", "expected"),
@@ -1092,7 +1094,7 @@ class TestToInviteWithMetadata:
 
         assert result is mock_cache.get.return_value
         mock_context.cache.get_invite.assert_called_once_with("asdbasd")
-        mock_cache.get.assert_awaited_once_with("asdbasd")
+        mock_cache.get.assert_awaited_once_with("asdbasd", default=None)
 
     @pytest.mark.asyncio()
     async def test___call___when_not_cached(self):
@@ -1105,7 +1107,7 @@ class TestToInviteWithMetadata:
             await tanjun.to_invite_with_metadata("dsds", mock_context, cache=mock_cache)
 
         mock_context.cache.get_invite.assert_called_once_with("dsds")
-        mock_cache.get.assert_called_once_with("dsds")
+        mock_cache.get.assert_called_once_with("dsds", default=None)
 
     @pytest.mark.asyncio()
     async def test___call___when_cacheless(self):

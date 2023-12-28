@@ -169,8 +169,10 @@ class Owners(AbstractOwners):
             return False
 
         application_cache = client.get_type_dependency(_ApplicationCacheT)
-        if application_cache and (application := await application_cache.get(default=None)):
-            return user.id in application.team.members if application.team else user.id == application.owner.id
+        if application_cache:  # noqa: SIM102
+            # Has to be nested cause of pyright bug
+            if application := await application_cache.get(default=None):
+                return user.id in application.team.members if application.team else user.id == application.owner.id
 
         if client.rest.token_type is not hikari.TokenType.BOT:
             _LOGGER.warning(

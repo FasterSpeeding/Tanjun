@@ -30,6 +30,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # pyright: reportPrivateUsage=none
+# pyright: reportUnknownMemberType=none
 
 import enum
 import inspect
@@ -106,7 +107,7 @@ class TestFlag:
             flag = annotations.Flag(default=value)  # pyright: ignore[reportDeprecated]
 
         with pytest.warns(DeprecationWarning, match=re.escape("Use annotations.Default instead of the default arg")):
-            assert flag.default is value
+            assert flag.default is value  # pyright: ignore[reportDeprecated]
 
 
 class TestLength:

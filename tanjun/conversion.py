@@ -598,8 +598,10 @@ class ToInviteWithMetadata(BaseConverter):
         if ctx.cache and (invite := ctx.cache.get_invite(argument)):
             return invite
 
-        if cache and (invite := await cache.get(argument)):
-            return invite
+        if cache:  # noqa: SIM102
+            # Has to be nested cause of pyright bug
+            if invite := await cache.get(argument, default=None):
+                return invite
 
         raise ValueError("Couldn't find invite")
 
@@ -728,8 +730,10 @@ class ToPresence(BaseConverter):
         if ctx.cache and (presence := ctx.cache.get_presence(ctx.guild_id, user_id)):
             return presence
 
-        if cache and (presence := await cache.get_from_guild(ctx.guild_id, user_id, default=None)):
-            return presence
+        if cache:  # noqa: SIM102
+            # Has to be nested cause of Pyright bug.
+            if presence := await cache.get_from_guild(ctx.guild_id, user_id, default=None):
+                return presence
 
         raise ValueError("Couldn't find presence in current guild")
 
@@ -947,8 +951,10 @@ class ToVoiceState(BaseConverter):
         if ctx.cache and (state := ctx.cache.get_voice_state(ctx.guild_id, user_id)):
             return state
 
-        if cache and (state := await cache.get_from_guild(ctx.guild_id, user_id, default=None)):
-            return state
+        if cache:  # noqa: SIM102
+            # Has to be nested cause of Pyright bug.
+            if state := await cache.get_from_guild(ctx.guild_id, user_id, default=None):
+                return state
 
         raise ValueError("Voice state couldn't be found for current guild")
 
@@ -1036,7 +1042,7 @@ def _make_snowflake_searcher(regex: re.Pattern[str], /) -> _IDSearcherSig:
 
             results = filter(_range_check, (hikari.Snowflake(match.groups()[0]) for match in regex.finditer(value)))
             other_ids_iter = map(hikari.Snowflake, filter(str.isdigit, value.split()))
-            return [*results, *filter(_range_check, other_ids_iter)]  # pyright: ignore[reportGeneralTypeIssues]
+            return [*results, *filter(_range_check, other_ids_iter)]
 
         try:
             result = hikari.Snowflake(value)
