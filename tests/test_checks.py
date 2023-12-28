@@ -1060,7 +1060,7 @@ MISSING_PERMISSIONS = (
             | hikari.Permissions.CONNECT
             | hikari.Permissions.EMBED_LINKS,
             hikari.Permissions.EMBED_LINKS
-            | hikari.Permissions.MANAGE_EMOJIS_AND_STICKERS
+            | hikari.Permissions.MANAGE_GUILD_EXPRESSIONS
             | hikari.Permissions.MANAGE_ROLES,
             hikari.Permissions.ADD_REACTIONS | hikari.Permissions.CONNECT | hikari.Permissions.CHANGE_NICKNAME,
         ),
@@ -1104,7 +1104,7 @@ INVALID_DM_PERMISSIONS = (
             _perm_combos(
                 hikari.Permissions.ADMINISTRATOR
                 | hikari.Permissions.BAN_MEMBERS
-                | hikari.Permissions.MANAGE_EMOJIS_AND_STICKERS
+                | hikari.Permissions.MANAGE_GUILD_EXPRESSIONS
             )
         )
     ],
@@ -1119,7 +1119,7 @@ MISSING_DM_PERMISSIONS = (
         ),
         (
             _p := hikari.Permissions.MANAGE_CHANNELS
-            | hikari.Permissions.MANAGE_EMOJIS_AND_STICKERS
+            | hikari.Permissions.MANAGE_GUILD_EXPRESSIONS
             | hikari.Permissions.KICK_MEMBERS,
             _p,
         ),
