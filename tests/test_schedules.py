@@ -355,12 +355,12 @@ class TestIntervalSchedule:
         close_time: typing.Optional[int] = None
 
         @_print_tb
-        async def callback():
+        async def callback() -> None:
             call_times.append(time.time_ns())
             clock.spawn_ticker()
 
         @_print_tb
-        async def on_stop():
+        async def on_stop() -> None:
             nonlocal close_time
             close_time = time.time_ns()
             close_event.set()
