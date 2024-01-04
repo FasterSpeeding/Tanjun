@@ -148,8 +148,7 @@ if typing.TYPE_CHECKING:
     where dependency injection is supported.
     """
 
-    _CheckSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[bool]]
-    CheckSig = _CheckSig[_ContextT_contra]
+    CheckSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[bool]]
     """Type hint of a generic context check used with Tanjun commands.
 
     This may be registered with a command, client or component to add a rule
