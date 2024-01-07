@@ -164,7 +164,7 @@ if typing.TYPE_CHECKING:
     early and marked as not found.
     """
 
-    AnyCheckSig = _CheckSig["Context"]
+    AnyCheckSig = CheckSig["Context"]
     """Type hint of a check callback for any command type."""
 
     MenuCallbackSig = collections.Callable[typing_extensions.Concatenate["MenuContext", _MenuValueT, ...], _CoroT[None]]
