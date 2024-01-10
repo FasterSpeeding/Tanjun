@@ -1021,6 +1021,14 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         return self
 
 
+def _default_bucket_id(ctx: tanjun.Context, bucket_id: typing.Optional[str]) -> str:
+    if bucket_id is None:
+        assert ctx.component is not None
+        return ctx.component.name
+
+    return bucket_id
+
+
 class CooldownPreExecution:
     """Pre-execution hook used to manage a command's cooldowns.
 
@@ -1032,7 +1040,7 @@ class CooldownPreExecution:
 
     def __init__(
         self,
-        bucket_id: str,
+        bucket_id: typing.Optional[str] = None,
         /,
         *,
         error: typing.Optional[collections.Callable[[str, typing.Optional[datetime.datetime]], Exception]] = None,
@@ -1048,6 +1056,8 @@ class CooldownPreExecution:
         ----------
         bucket_id
             The cooldown bucket's ID.
+
+            Defaults to the name of the component the command is in.
         error
             Callback used to create a custom error to raise if the check fails.
 
@@ -1099,12 +1109,13 @@ class CooldownPreExecution:
             elif await owner_check.check_ownership(ctx.client, ctx.author):
                 return
 
+        bucket_id = _default_bucket_id(ctx, self._bucket_id)
         try:
-            await cooldowns.try_acquire(self._bucket_id, ctx)
+            await cooldowns.try_acquire(bucket_id, ctx)
 
         except CooldownDepleted as exc:
             if self._error:
-                raise self._error(self._bucket_id, exc.wait_until) from None
+                raise self._error(bucket_id, exc.wait_until) from None
 
             if exc.wait_until is None:
                 message = self._unknown_message.localise(ctx, localiser, "check", "tanjun.cooldown_unknown")
@@ -1162,19 +1173,29 @@ class CooldownPostExecution:
 
     __slots__ = ("_bucket_id", "__weakref__")
 
-    def __init__(self, bucket_id: str, /) -> None:
+    def __init__(self, bucket_id: typing.Optional[str] = None, /) -> None:
+        """Initialise a post-execution cooldown command hook.
+
+        Parameters
+        ----------
+        bucket_id
+            The cooldown bucket's ID.
+
+            Defaults to the name of the component the command is in.
+        """
         self._bucket_id = bucket_id
 
     async def __call__(self, ctx: tanjun.Context, /, *, cooldowns: alluka.Injected[AbstractCooldownManager]) -> None:
+        bucket_id = _default_bucket_id(ctx, self._bucket_id)
         try:
-            await cooldowns.release(self._bucket_id, ctx)
+            await cooldowns.release(bucket_id, ctx)
 
         except ResourceNotTracked:
             pass
 
 
 def with_cooldown(
-    bucket_id: str,
+    bucket_id: typing.Optional[str] = None,
     /,
     *,
     error: typing.Optional[collections.Callable[[str, typing.Optional[datetime.datetime]], Exception]] = None,
@@ -1197,6 +1218,8 @@ def with_cooldown(
     ----------
     bucket_id
         The cooldown bucket's ID.
+
+        Defaults to the name of the component the command is in.
     error
         Callback used to create a custom error to raise if the check fails.
 
@@ -1245,7 +1268,7 @@ def with_cooldown(
 
 def add_cooldown(
     command: tanjun.ExecutableCommand[typing.Any],
-    bucket_id: str,
+    bucket_id: typing.Optional[str] = None,
     /,
     *,
     error: typing.Optional[collections.Callable[[str, typing.Optional[datetime.datetime]], Exception]] = None,
@@ -1269,6 +1292,8 @@ def add_cooldown(
         The command to add a cooldown to.
     bucket_id
         The cooldown bucket's ID.
+
+        Defaults to the name of the component the command is in.
     error
         Callback used to create a custom error to raise if the check fails.
 
@@ -1630,7 +1655,7 @@ class ConcurrencyPreExecution:
 
     def __init__(
         self,
-        bucket_id: str,
+        bucket_id: typing.Optional[str] = None,
         /,
         *,
         error: typing.Optional[collections.Callable[[str], Exception]] = None,
@@ -1644,6 +1669,8 @@ class ConcurrencyPreExecution:
         ----------
         bucket_id
             The concurrency limit bucket's ID.
+
+            Defaults to the name of the component the command is in.
         error
             Callback used to create a custom error to raise if the check fails.
 
@@ -1669,12 +1696,13 @@ class ConcurrencyPreExecution:
         *,
         localiser: typing.Optional[locales.AbstractLocaliser] = None,
     ) -> None:
+        bucket_id = _default_bucket_id(ctx, self._bucket_id)
         try:
-            await limiter.try_acquire(self._bucket_id, ctx)
+            await limiter.try_acquire(bucket_id, ctx)
 
         except ResourceDepleted:
             if self._error:
-                raise self._error(self._bucket_id) from None
+                raise self._error(bucket_id) from None
 
             message = self._error_message.localise(ctx, localiser, "check", "tanjun.concurrency")
             raise errors.CommandError(message) from None
@@ -1685,26 +1713,29 @@ class ConcurrencyPostExecution:
 
     __slots__ = ("_bucket_id", "__weakref__")
 
-    def __init__(self, bucket_id: str, /) -> None:
+    def __init__(self, bucket_id: typing.Optional[str] = None, /) -> None:
         """Initialise a concurrency post-execution hook.
 
         Parameters
         ----------
         bucket_id
             The concurrency limit bucket's ID.
+
+            Defaults to the name of the component the command is in.
         """
         self._bucket_id = bucket_id
 
     async def __call__(self, ctx: tanjun.Context, /, limiter: alluka.Injected[AbstractConcurrencyLimiter]) -> None:
+        bucket_id = _default_bucket_id(ctx, self._bucket_id)
         try:
-            await limiter.release(self._bucket_id, ctx)
+            await limiter.release(bucket_id, ctx)
 
         except ResourceNotTracked:
             pass
 
 
 def with_concurrency_limit(
-    bucket_id: str,
+    bucket_id: typing.Optional[str] = None,
     /,
     *,
     error: typing.Optional[collections.Callable[[str], Exception]] = None,
@@ -1725,6 +1756,8 @@ def with_concurrency_limit(
     ----------
     bucket_id
         The concurrency limit bucket's ID.
+
+        Defaults to the name of the component the command is in.
     error
         Callback used to create a custom error to raise if the check fails.
 
@@ -1756,7 +1789,7 @@ def with_concurrency_limit(
 
 def add_concurrency_limit(
     command: tanjun.ExecutableCommand[typing.Any],
-    bucket_id: str,
+    bucket_id: typing.Optional[str] = None,
     /,
     *,
     error: typing.Optional[collections.Callable[[str], Exception]] = None,
@@ -1778,6 +1811,8 @@ def add_concurrency_limit(
         The command to add the concurrency limit to.
     bucket_id
         The concurrency limit bucket's ID.
+
+        Defaults to the name of the component the command is in.
     error
         Callback used to create a custom error to raise if the check fails.
 
