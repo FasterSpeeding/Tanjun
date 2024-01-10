@@ -148,8 +148,7 @@ if typing.TYPE_CHECKING:
     where dependency injection is supported.
     """
 
-    _CheckSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[bool]]
-    CheckSig = _CheckSig[_ContextT_contra]
+    CheckSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[bool]]
     """Type hint of a generic context check used with Tanjun commands.
 
     This may be registered with a command, client or component to add a rule
@@ -165,7 +164,7 @@ if typing.TYPE_CHECKING:
     early and marked as not found.
     """
 
-    AnyCheckSig = _CheckSig["Context"]
+    AnyCheckSig = CheckSig["Context"]
     """Type hint of a check callback for any command type."""
 
     MenuCallbackSig = collections.Callable[typing_extensions.Concatenate["MenuContext", _MenuValueT, ...], _CoroT[None]]
