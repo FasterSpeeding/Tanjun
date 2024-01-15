@@ -32,7 +32,7 @@ jobs:
       - name: Resync Piped
         run: python -m nox -s copy-piped bot-package-diff
 
-      - uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392
+      - uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
         with:
           name: gogo.patch
           path: gogo.patch
