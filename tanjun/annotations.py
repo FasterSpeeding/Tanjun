@@ -1608,15 +1608,19 @@ Snowflake = typing.Annotated[hikari.Snowflake, Converted(conversion.parse_snowfl
 """An argument which takes a snowflake."""
 
 
+def _annotated(type_: type[_T], config: _ConfigIdentifier, /) -> type[_T]:
+    return typing.Annotated[type_, config]  # pyright: ignore[reportReturnType]
+
+
 class _DefaultMeta(abc.ABCMeta):
     @typing_extensions.deprecated("Pass Default(...) to Annotated")
     def __getitem__(cls, value: typing.Union[type[_T], tuple[type[_T], _T]], /) -> type[_T]:
         if isinstance(value, tuple):
             type_ = value[0]
-            return typing.Annotated[type_, Default(value[1])]
+            return _annotated(type_, Default(value[1]))
 
         type_ = typing.cast("type[_T]", value)
-        return typing.Annotated[type_, Default()]
+        return _annotated(type_, Default())
 
 
 class Default(_ConfigIdentifier, metaclass=_DefaultMeta):
@@ -1787,7 +1791,7 @@ class Flag(_ConfigIdentifier):
 class _PositionalMeta(abc.ABCMeta):
     @typing_extensions.deprecated("Pass Positional(...) to Annotated")
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        return typing.Annotated[type_, Positional()]
+        return _annotated(type_, Positional())
 
 
 class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
@@ -1820,7 +1824,7 @@ class Positional(_ConfigIdentifier, metaclass=_PositionalMeta):
 class _GreedyMeta(abc.ABCMeta):
     @typing_extensions.deprecated("Pass Greedy(...) to Annotated")
     def __getitem__(cls, type_: type[_T], /) -> type[_T]:
-        return typing.Annotated[type_, Greedy()]
+        return _annotated(type_, Greedy())
 
 
 class Greedy(_ConfigIdentifier, metaclass=_GreedyMeta):
@@ -1859,7 +1863,7 @@ class _LengthMeta(abc.ABCMeta):
         else:
             obj = Length(*value)
 
-        return typing.Annotated[Str, obj]
+        return typing.Annotated[Str, obj]  # pyright: ignore[reportReturnType]
 
 
 class Length(_ConfigIdentifier, metaclass=_LengthMeta):
@@ -2219,10 +2223,7 @@ class _SnowflakeOrMeta(abc.ABCMeta):
         else:
             descriptor = SnowflakeOr()
 
-        return typing.cast(
-            "type[typing.Union[hikari.Snowflake, _T]]",
-            typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor],
-        )
+        return _annotated(typing.Union[hikari.Snowflake, type_], descriptor)
 
 
 class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
@@ -2284,7 +2285,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
         if not isinstance(value, collections.Collection):
             value = (value,)
 
-        return typing.Annotated[Channel, TheseChannels(*value)]
+        return typing.Annotated[Channel, TheseChannels(*value)]  # pyright: ignore[reportReturnType]
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
