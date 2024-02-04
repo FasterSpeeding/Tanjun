@@ -2223,7 +2223,7 @@ class _SnowflakeOrMeta(abc.ABCMeta):
         else:
             descriptor = SnowflakeOr()
 
-        return typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor]
+        return _annotated(typing.Union[hikari.Snowflake, type_], descriptor)
 
 
 class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
@@ -2285,7 +2285,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
         if not isinstance(value, collections.Collection):
             value = (value,)
 
-        return _annotated(Channel, TheseChannels(*value))
+        return typing.cast("type[hikari.PartialChannel]", typing.Annotated[Channel, TheseChannels(*value)])
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
