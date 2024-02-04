@@ -1609,7 +1609,7 @@ Snowflake = typing.Annotated[hikari.Snowflake, Converted(conversion.parse_snowfl
 
 
 def _annotated(type_: type[_T], config: _ConfigIdentifier, /) -> type[_T]:
-    return typing.Annotated[type_, config]
+    return typing.Annotated[type_, config]  # pyright: ignore[reportReturnType]
 
 
 class _DefaultMeta(abc.ABCMeta):
@@ -1863,7 +1863,7 @@ class _LengthMeta(abc.ABCMeta):
         else:
             obj = Length(*value)
 
-        return typing.cast("type[Str]", typing.Annotated[Str, obj])
+        return typing.Annotated[Str, obj]  # pyright: ignore[reportReturnType]
 
 
 class Length(_ConfigIdentifier, metaclass=_LengthMeta):
@@ -2285,7 +2285,7 @@ class _TheseChannelsMeta(abc.ABCMeta):
         if not isinstance(value, collections.Collection):
             value = (value,)
 
-        return typing.Annotated[Channel, TheseChannels(*value)]
+        return typing.Annotated[Channel, TheseChannels(*value)]  # pyright: ignore[reportReturnType]
 
 
 class TheseChannels(_ConfigIdentifier, metaclass=_TheseChannelsMeta):
