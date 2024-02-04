@@ -2223,7 +2223,7 @@ class _SnowflakeOrMeta(abc.ABCMeta):
         else:
             descriptor = SnowflakeOr()
 
-        return typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor],
+        return (typing.Annotated[typing.Union[hikari.Snowflake, type_], descriptor],)
 
 
 class SnowflakeOr(_ConfigIdentifier, metaclass=_SnowflakeOrMeta):
