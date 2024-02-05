@@ -142,8 +142,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -160,8 +159,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -178,8 +176,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_SizedCmpProtoT] = None,
         max_value: typing.Optional[_SizedCmpProtoT] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -194,8 +191,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -210,8 +206,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @abc.abstractmethod
     def add_argument(
@@ -301,8 +296,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         default: typing.Any,
         empty_value: typing.Any = tanjun.NO_DEFAULT,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -320,8 +314,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -339,8 +332,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_SizedCmpProtoT] = None,
         max_value: typing.Optional[_SizedCmpProtoT] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -356,8 +348,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -373,8 +364,7 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @abc.abstractmethod
     def add_option(
@@ -648,8 +638,7 @@ def with_argument(
     default: typing.Any = tanjun.NO_DEFAULT,
     greedy: bool = False,
     multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -665,8 +654,7 @@ def with_argument(
     min_value: typing.Optional[_CmpProto[str]] = None,
     max_value: typing.Optional[_CmpProto[str]] = None,
     multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -682,8 +670,7 @@ def with_argument(
     min_value: typing.Optional[_SizedCmpProtoT] = None,
     max_value: typing.Optional[_SizedCmpProtoT] = None,
     multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -697,8 +684,7 @@ def with_argument(
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -712,8 +698,7 @@ def with_argument(
     min_value: typing.Optional[_CmpProtoT] = None,
     max_value: typing.Optional[_CmpProtoT] = None,
     multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 def with_argument(
@@ -831,8 +816,7 @@ def with_argument(
 @typing.overload
 def with_greedy_argument(
     key: str, /, converters: _MaybeIterable[ConverterSig[typing.Any]], *, default: typing.Any = tanjun.NO_DEFAULT
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -846,8 +830,7 @@ def with_greedy_argument(
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
     max_value: typing.Optional[_CmpProto[str]] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -861,8 +844,7 @@ def with_greedy_argument(
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_SizedCmpProtoT] = None,
     max_value: typing.Optional[_SizedCmpProtoT] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -874,8 +856,7 @@ def with_greedy_argument(
     default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -887,8 +868,7 @@ def with_greedy_argument(
     default: typing.Any = tanjun.NO_DEFAULT,
     min_value: typing.Optional[_CmpProtoT] = None,
     max_value: typing.Optional[_CmpProtoT] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 def with_greedy_argument(
@@ -1000,8 +980,7 @@ def with_greedy_argument(
 @typing.overload
 def with_multi_argument(
     key: str, /, converters: _MaybeIterable[ConverterSig[typing.Any]], *, default: typing.Any = tanjun.NO_DEFAULT
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1015,8 +994,7 @@ def with_multi_argument(
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
     max_value: typing.Optional[_CmpProto[str]] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1030,8 +1008,7 @@ def with_multi_argument(
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_SizedCmpProtoT] = None,
     max_value: typing.Optional[_SizedCmpProtoT] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1043,8 +1020,7 @@ def with_multi_argument(
     default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1056,8 +1032,7 @@ def with_multi_argument(
     default: typing.Any = tanjun.NO_DEFAULT,
     min_value: typing.Optional[_CmpProtoT] = None,
     max_value: typing.Optional[_CmpProtoT] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 def with_multi_argument(
@@ -1174,8 +1149,7 @@ def with_option(
     default: typing.Any,
     empty_value: typing.Any = tanjun.NO_DEFAULT,
     multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1192,8 +1166,7 @@ def with_option(
     min_value: typing.Optional[_CmpProto[str]] = None,
     max_value: typing.Optional[_CmpProto[str]] = None,
     multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1210,8 +1183,7 @@ def with_option(
     min_value: typing.Optional[_SizedCmpProtoT] = None,
     max_value: typing.Optional[_SizedCmpProtoT] = None,
     multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1226,8 +1198,7 @@ def with_option(
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
     multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1242,8 +1213,7 @@ def with_option(
     min_value: typing.Optional[_CmpProtoT] = None,
     max_value: typing.Optional[_CmpProtoT] = None,
     multi: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 # TODO: add default getter
@@ -1370,8 +1340,7 @@ def with_multi_option(
     converters: _MaybeIterable[ConverterSig[typing.Any]],
     default: typing.Any,
     empty_value: typing.Any = tanjun.NO_DEFAULT,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1387,8 +1356,7 @@ def with_multi_option(
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_CmpProto[str]] = None,
     max_value: typing.Optional[_CmpProto[str]] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1404,8 +1372,7 @@ def with_multi_option(
     max_length: typing.Optional[int] = None,
     min_value: typing.Optional[_SizedCmpProtoT] = None,
     max_value: typing.Optional[_SizedCmpProtoT] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1419,8 +1386,7 @@ def with_multi_option(
     empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1434,8 +1400,7 @@ def with_multi_option(
     empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_value: typing.Optional[_CmpProtoT] = None,
     max_value: typing.Optional[_CmpProtoT] = None,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 def with_multi_option(
@@ -1987,8 +1952,7 @@ class ShlexParser(AbstractOptionParser):
         default: typing.Any = tanjun.NO_DEFAULT,
         greedy: bool = False,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     def add_argument(
@@ -2004,8 +1968,7 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     def add_argument(
@@ -2021,8 +1984,7 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_SizedCmpProtoT] = None,
         max_value: typing.Optional[_SizedCmpProtoT] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     def add_argument(
@@ -2036,8 +1998,7 @@ class ShlexParser(AbstractOptionParser):
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     def add_argument(
@@ -2051,8 +2012,7 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     def add_argument(
         self,
@@ -2105,8 +2065,7 @@ class ShlexParser(AbstractOptionParser):
         default: typing.Any,
         empty_value: typing.Any = tanjun.NO_DEFAULT,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     def add_option(
@@ -2123,8 +2082,7 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_CmpProto[str]] = None,
         max_value: typing.Optional[_CmpProto[str]] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     def add_option(
@@ -2141,8 +2099,7 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_SizedCmpProtoT] = None,
         max_value: typing.Optional[_SizedCmpProtoT] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     def add_option(
@@ -2157,8 +2114,7 @@ class ShlexParser(AbstractOptionParser):
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     def add_option(
@@ -2173,8 +2129,7 @@ class ShlexParser(AbstractOptionParser):
         min_value: typing.Optional[_CmpProtoT] = None,
         max_value: typing.Optional[_CmpProtoT] = None,
         multi: bool = False,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     # TODO: add default getter
     def add_option(

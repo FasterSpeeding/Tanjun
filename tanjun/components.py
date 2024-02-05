@@ -334,12 +334,10 @@ class Component(tanjun.Component):
         return inst
 
     @typing.overload
-    def load_from_scope(self, *, scope: typing.Optional[collections.Mapping[str, typing.Any]] = None) -> Self:
-        ...
+    def load_from_scope(self, *, scope: typing.Optional[collections.Mapping[str, typing.Any]] = None) -> Self: ...
 
     @typing.overload
-    def load_from_scope(self, *, include_globals: bool = False) -> Self:
-        ...
+    def load_from_scope(self, *, include_globals: bool = False) -> Self: ...
 
     def load_from_scope(
         self, *, include_globals: bool = False, scope: typing.Optional[collections.Mapping[str, typing.Any]] = None
@@ -813,14 +811,12 @@ class Component(tanjun.Component):
         return self
 
     @typing.overload
-    def with_command(self, command: _CommandT, /) -> _CommandT:
-        ...
+    def with_command(self, command: _CommandT, /) -> _CommandT: ...
 
     @typing.overload
     def with_command(
         self, /, *, copy: bool = False, follow_wrapped: bool = False
-    ) -> collections.Callable[[_CommandT], _CommandT]:
-        ...
+    ) -> collections.Callable[[_CommandT], _CommandT]: ...
 
     def with_command(
         self, command: typing.Optional[_CommandT] = None, /, *, copy: bool = False, follow_wrapped: bool = False
@@ -889,12 +885,10 @@ class Component(tanjun.Component):
         return self
 
     @typing.overload
-    def with_menu_command(self, command: _MenuCommandT, /) -> _MenuCommandT:
-        ...
+    def with_menu_command(self, command: _MenuCommandT, /) -> _MenuCommandT: ...
 
     @typing.overload
-    def with_menu_command(self, /, *, copy: bool = False) -> collections.Callable[[_MenuCommandT], _MenuCommandT]:
-        ...
+    def with_menu_command(self, /, *, copy: bool = False) -> collections.Callable[[_MenuCommandT], _MenuCommandT]: ...
 
     def with_menu_command(
         self, command: typing.Optional[_MenuCommandT] = None, /, *, copy: bool = False
@@ -925,14 +919,12 @@ class Component(tanjun.Component):
         return self
 
     @typing.overload
-    def with_slash_command(self, command: _BaseSlashCommandT, /) -> _BaseSlashCommandT:
-        ...
+    def with_slash_command(self, command: _BaseSlashCommandT, /) -> _BaseSlashCommandT: ...
 
     @typing.overload
     def with_slash_command(
         self, /, *, copy: bool = False
-    ) -> collections.Callable[[_BaseSlashCommandT], _BaseSlashCommandT]:
-        ...
+    ) -> collections.Callable[[_BaseSlashCommandT], _BaseSlashCommandT]: ...
 
     def with_slash_command(
         self, command: typing.Optional[_BaseSlashCommandT] = None, /, *, copy: bool = False
@@ -973,14 +965,12 @@ class Component(tanjun.Component):
         return self
 
     @typing.overload
-    def with_message_command(self, command: _MessageCommandT, /) -> _MessageCommandT:
-        ...
+    def with_message_command(self, command: _MessageCommandT, /) -> _MessageCommandT: ...
 
     @typing.overload
     def with_message_command(
         self, /, *, copy: bool = False
-    ) -> collections.Callable[[_MessageCommandT], _MessageCommandT]:
-        ...
+    ) -> collections.Callable[[_MessageCommandT], _MessageCommandT]: ...
 
     def with_message_command(
         self, command: typing.Optional[_MessageCommandT] = None, /, *, copy: bool = False

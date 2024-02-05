@@ -790,8 +790,7 @@ class Context(alluka.Context):
         role_mentions: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-    ) -> hikari.Message:
-        ...
+    ) -> hikari.Message: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -814,8 +813,7 @@ class Context(alluka.Context):
         role_mentions: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-    ) -> typing.Optional[hikari.Message]:
-        ...
+    ) -> typing.Optional[hikari.Message]: ...
 
     @abc.abstractmethod
     async def respond(
@@ -1247,13 +1245,11 @@ class SlashOption(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def resolve_to_member(self) -> hikari.InteractionMember:
-        ...
+    def resolve_to_member(self) -> hikari.InteractionMember: ...
 
     @typing.overload
     @abc.abstractmethod
-    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
-        ...
+    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]: ...
 
     @abc.abstractmethod
     def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
@@ -1785,13 +1781,11 @@ class MenuContext(AppCommandContext, abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def resolve_to_member(self) -> hikari.InteractionMember:
-        ...
+    def resolve_to_member(self) -> hikari.InteractionMember: ...
 
     @typing.overload
     @abc.abstractmethod
-    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
-        ...
+    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]: ...
 
     @abc.abstractmethod
     def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
@@ -2162,23 +2156,19 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_error(self: AnyHooks, callback: _AnyErrorHookSigT, /) -> _AnyErrorHookSigT:
-        ...
+    def with_on_error(self: AnyHooks, callback: _AnyErrorHookSigT, /) -> _AnyErrorHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_error(self: MenuHooks, callback: _MenuErrorHookSigT, /) -> _MenuErrorHookSigT:
-        ...
+    def with_on_error(self: MenuHooks, callback: _MenuErrorHookSigT, /) -> _MenuErrorHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_error(self: MessageHooks, callback: _MessageErrorHookSigT, /) -> _MessageErrorHookSigT:
-        ...
+    def with_on_error(self: MessageHooks, callback: _MessageErrorHookSigT, /) -> _MessageErrorHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_error(self: SlashHooks, callback: _SlashErrorHookSigT, /) -> _SlashErrorHookSigT:
-        ...
+    def with_on_error(self: SlashHooks, callback: _SlashErrorHookSigT, /) -> _SlashErrorHookSigT: ...
 
     @abc.abstractmethod
     def with_on_error(self, callback: _AnyErrorHookSigT, /) -> _AnyErrorHookSigT:
@@ -2246,23 +2236,19 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_parser_error(self: AnyHooks, callback: _AnyParserHookSigT, /) -> _AnyParserHookSigT:
-        ...
+    def with_on_parser_error(self: AnyHooks, callback: _AnyParserHookSigT, /) -> _AnyParserHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_parser_error(self: MenuHooks, callback: _MenuParserHookSigT, /) -> _MenuParserHookSigT:
-        ...
+    def with_on_parser_error(self: MenuHooks, callback: _MenuParserHookSigT, /) -> _MenuParserHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_parser_error(self: MessageHooks, callback: _MessageParserHookSigT, /) -> _MessageParserHookSigT:
-        ...
+    def with_on_parser_error(self: MessageHooks, callback: _MessageParserHookSigT, /) -> _MessageParserHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_parser_error(self: SlashHooks, callback: _SlashParserHookSigT, /) -> _SlashParserHookSigT:
-        ...
+    def with_on_parser_error(self: SlashHooks, callback: _SlashParserHookSigT, /) -> _SlashParserHookSigT: ...
 
     @abc.abstractmethod
     def with_on_parser_error(self, callback: _AnyParserHookSigT, /) -> _AnyParserHookSigT:
@@ -2314,23 +2300,19 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
     @typing.overload
     @abc.abstractmethod
-    def with_post_execution(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT:
-        ...
+    def with_post_execution(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_post_execution(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
-        ...
+    def with_post_execution(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_post_execution(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT:
-        ...
+    def with_post_execution(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_post_execution(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
-        ...
+    def with_post_execution(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT: ...
 
     @abc.abstractmethod
     def with_post_execution(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
@@ -2382,23 +2364,19 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
     @typing.overload
     @abc.abstractmethod
-    def with_pre_execution(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT:
-        ...
+    def with_pre_execution(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_pre_execution(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
-        ...
+    def with_pre_execution(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_pre_execution(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT:
-        ...
+    def with_pre_execution(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_pre_execution(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
-        ...
+    def with_pre_execution(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT: ...
 
     @abc.abstractmethod
     def with_pre_execution(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
@@ -2450,23 +2428,19 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_success(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT:
-        ...
+    def with_on_success(self: AnyHooks, callback: _AnyHookSigT, /) -> _AnyHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_success(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT:
-        ...
+    def with_on_success(self: MenuHooks, callback: _MenuHookSigT, /) -> _MenuHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_success(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT:
-        ...
+    def with_on_success(self: MessageHooks, callback: _MessageHookSigT, /) -> _MessageHookSigT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_on_success(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT:
-        ...
+    def with_on_success(self: SlashHooks, callback: _SlashHookSigT, /) -> _SlashHookSigT: ...
 
     @abc.abstractmethod
     def with_on_success(self, callback: _AnyHookSigT, /) -> _AnyHookSigT:
@@ -2861,8 +2835,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
     @abc.abstractmethod
     async def execute_autocomplete(
         self, ctx: AutocompleteContext, /, *, option: typing.Optional[hikari.AutocompleteInteractionOption] = None
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 class SlashCommand(BaseSlashCommand, abc.ABC, typing.Generic[_SlashCallbackSigT]):
@@ -3381,13 +3354,11 @@ class Component(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def with_menu_command(self, command: _MenuCommandT, /) -> _MenuCommandT:
-        ...
+    def with_menu_command(self, command: _MenuCommandT, /) -> _MenuCommandT: ...
 
     @typing.overload
     @abc.abstractmethod
-    def with_menu_command(self, /, *, copy: bool = False) -> collections.Callable[[_MenuCommandT], _MenuCommandT]:
-        ...
+    def with_menu_command(self, /, *, copy: bool = False) -> collections.Callable[[_MenuCommandT], _MenuCommandT]: ...
 
     @abc.abstractmethod
     def with_menu_command(
@@ -3445,15 +3416,13 @@ class Component(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def with_slash_command(self, command: _BaseSlashCommandT, /) -> _BaseSlashCommandT:
-        ...
+    def with_slash_command(self, command: _BaseSlashCommandT, /) -> _BaseSlashCommandT: ...
 
     @typing.overload
     @abc.abstractmethod
     def with_slash_command(
         self, /, *, copy: bool = False
-    ) -> collections.Callable[[_BaseSlashCommandT], _BaseSlashCommandT]:
-        ...
+    ) -> collections.Callable[[_BaseSlashCommandT], _BaseSlashCommandT]: ...
 
     @abc.abstractmethod
     def with_slash_command(
@@ -3511,15 +3480,13 @@ class Component(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def with_message_command(self, command: _MessageCommandT, /) -> _MessageCommandT:
-        ...
+    def with_message_command(self, command: _MessageCommandT, /) -> _MessageCommandT: ...
 
     @typing.overload
     @abc.abstractmethod
     def with_message_command(
         self, /, *, copy: bool = False
-    ) -> collections.Callable[[_MessageCommandT], _MessageCommandT]:
-        ...
+    ) -> collections.Callable[[_MessageCommandT], _MessageCommandT]: ...
 
     @abc.abstractmethod
     def with_message_command(
@@ -4124,8 +4091,7 @@ class Client(abc.ABC):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.SlashCommand:
-        ...
+    ) -> hikari.SlashCommand: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -4137,8 +4103,7 @@ class Client(abc.ABC):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.ContextMenuCommand:
-        ...
+    ) -> hikari.ContextMenuCommand: ...
 
     @typing.overload
     @abc.abstractmethod
@@ -4150,8 +4115,7 @@ class Client(abc.ABC):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.PartialCommand:
-        ...
+    ) -> hikari.PartialCommand: ...
 
     @abc.abstractmethod
     async def declare_application_command(
@@ -4574,22 +4538,19 @@ class Client(abc.ABC):
     @abc.abstractmethod
     def iter_menu_commands(
         self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.MESSAGE]  # noqa: A002
-    ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
-        ...
+    ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]: ...
 
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
         self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.USER]  # noqa: A002
-    ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
-        ...
+    ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]: ...
 
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
         self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002
-    ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
-        ...
+    ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]: ...
 
     @abc.abstractmethod
     def iter_menu_commands(

@@ -607,8 +607,7 @@ def channel_field(
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[hikari.PartialChannel, _T]:
-    ...
+) -> typing.Union[hikari.PartialChannel, _T]: ...
 
 
 @typing.overload
@@ -623,8 +622,7 @@ def channel_field(
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[hikari.PartialChannel, hikari.Snowflake, _T]:
-    ...
+) -> typing.Union[hikari.PartialChannel, hikari.Snowflake, _T]: ...
 
 
 def channel_field(
@@ -882,8 +880,7 @@ def member_field(
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[hikari.Member, _T]:
-    ...
+) -> typing.Union[hikari.Member, _T]: ...
 
 
 @typing.overload
@@ -897,8 +894,7 @@ def member_field(
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[hikari.Member, hikari.Snowflake, _T]:
-    ...
+) -> typing.Union[hikari.Member, hikari.Snowflake, _T]: ...
 
 
 def member_field(
@@ -986,8 +982,7 @@ def mentionable_field(
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[hikari.User, hikari.Role, _T]:
-    ...
+) -> typing.Union[hikari.User, hikari.Role, _T]: ...
 
 
 @typing.overload
@@ -1001,8 +996,7 @@ def mentionable_field(
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[hikari.User, hikari.Role, hikari.Snowflake, _T]:
-    ...
+) -> typing.Union[hikari.User, hikari.Role, hikari.Snowflake, _T]: ...
 
 
 def mentionable_field(
@@ -1092,8 +1086,7 @@ def role_field(
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[hikari.Role, _T]:
-    ...
+) -> typing.Union[hikari.Role, _T]: ...
 
 
 @typing.overload
@@ -1107,8 +1100,7 @@ def role_field(
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[hikari.Role, hikari.Snowflake, _T]:
-    ...
+) -> typing.Union[hikari.Role, hikari.Snowflake, _T]: ...
 
 
 def role_field(
@@ -1198,8 +1190,7 @@ def str_field(
     max_length: typing.Union[int, None] = None,
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[str, _T]:
-    ...
+) -> typing.Union[str, _T]: ...
 
 
 @typing.overload
@@ -1216,8 +1207,7 @@ def str_field(
     max_length: typing.Union[int, None] = None,
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[_OtherT, _T]:
-    ...
+) -> typing.Union[_OtherT, _T]: ...
 
 
 def str_field(
@@ -1325,8 +1315,7 @@ def user_field(
     or_snowflake: typing.Literal[False] = False,
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[hikari.User, _T]:
-    ...
+) -> typing.Union[hikari.User, _T]: ...
 
 
 @typing.overload
@@ -1340,8 +1329,7 @@ def user_field(
     or_snowflake: typing.Literal[True],
     positional: typing.Optional[bool] = None,
     slash_name: str = "",
-) -> typing.Union[hikari.User, hikari.Snowflake, _T]:
-    ...
+) -> typing.Union[hikari.User, hikari.Snowflake, _T]: ...
 
 
 def user_field(
@@ -1704,8 +1692,7 @@ class Flag(_ConfigIdentifier):
     @typing.overload
     def __init__(
         self, *, aliases: typing.Optional[collections.Sequence[str]] = None, empty_value: typing.Any = tanjun.NO_DEFAULT
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @typing_extensions.deprecated("Use annotations.Default instead of the default arg")
     @typing.overload
@@ -1715,8 +1702,7 @@ class Flag(_ConfigIdentifier):
         aliases: typing.Optional[collections.Sequence[str]] = None,
         default: typing.Any = tanjun.NO_DEFAULT,
         empty_value: typing.Any = tanjun.NO_DEFAULT,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def __init__(
         self,
@@ -1906,12 +1892,10 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     __slots__ = ("_min_length", "_max_length")
 
     @typing.overload
-    def __init__(self, max_length: int, /) -> None:
-        ...
+    def __init__(self, max_length: int, /) -> None: ...
 
     @typing.overload
-    def __init__(self, min_length: int, max_length: int, /) -> None:
-        ...
+    def __init__(self, min_length: int, max_length: int, /) -> None: ...
 
     def __init__(self, min_or_max_length: int, max_length: typing.Optional[int] = None, /) -> None:
         """Initialise a length constraint.
@@ -2695,13 +2679,11 @@ def parse_annotated_args(
 
 
 @typing.overload
-def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT:
-    ...
+def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT: ...
 
 
 @typing.overload
-def with_annotated_args(*, follow_wrapped: bool = False) -> collections.Callable[[_CommandUnionT], _CommandUnionT]:
-    ...
+def with_annotated_args(*, follow_wrapped: bool = False) -> collections.Callable[[_CommandUnionT], _CommandUnionT]: ...
 
 
 def with_annotated_args(

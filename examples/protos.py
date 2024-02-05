@@ -18,8 +18,7 @@ class GuildConfig(typing.Protocol):
         raise NotImplementedError
 
 
-class UserInfo(typing.Protocol):
-    ...
+class UserInfo(typing.Protocol): ...
 
 
 class DatabaseProto(typing.Protocol):

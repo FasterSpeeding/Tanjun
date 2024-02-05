@@ -76,14 +76,12 @@ class _AsMsgResultProto(typing.Protocol):
     @typing.overload
     def __call__(
         self, _: _MessageCallbackSigT, /
-    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
-        ...
+    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]: ...
 
     @typing.overload
     def __call__(
         self, _: _AnyCommandT[_MessageCallbackSigT], /
-    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
-        ...
+    ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]: ...
 
 
 def as_message_menu(
@@ -203,14 +201,12 @@ class _AsUserResultProto(typing.Protocol):
     @typing.overload
     def __call__(
         self, _: _UserCallbackSigT, /
-    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
-        ...
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]: ...
 
     @typing.overload
     def __call__(
         self, _: _AnyCommandT[_UserCallbackSigT], /
-    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
-        ...
+    ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]: ...
 
 
 def as_user_menu(
@@ -363,8 +359,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         is_global: bool = True,
         nsfw: bool = False,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     # While this extra overload may seem redundant/unnecessary, MyPy cannot understand
     # this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
@@ -383,8 +378,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         is_global: bool = True,
         nsfw: bool = False,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @typing.overload
     def __init__(
@@ -401,8 +395,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         is_global: bool = True,
         nsfw: bool = False,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     # While this extra overload may seem redundant/unnecessary, MyPy cannot understand
     # this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
@@ -421,8 +414,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         is_global: bool = True,
         nsfw: bool = False,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def __init__(
         self,

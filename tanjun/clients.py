@@ -241,29 +241,27 @@ class _UnloaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.upd
 @typing.overload
 def as_loader(
     callback: collections.Callable[[Client], None], /, *, standard_impl: typing.Literal[True] = True
-) -> collections.Callable[[Client], None]:
-    ...
+) -> collections.Callable[[Client], None]: ...
 
 
 @typing.overload
 def as_loader(
     *, standard_impl: typing.Literal[True] = True
-) -> collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]]:
-    ...
+) -> collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]]: ...
 
 
 @typing.overload
 def as_loader(
     callback: collections.Callable[[tanjun.Client], None], /, *, standard_impl: typing.Literal[False]
-) -> collections.Callable[[tanjun.Client], None]:
-    ...
+) -> collections.Callable[[tanjun.Client], None]: ...
 
 
 @typing.overload
 def as_loader(
     *, standard_impl: typing.Literal[False]
-) -> collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]]:
-    ...
+) -> collections.Callable[
+    [collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]
+]: ...
 
 
 def as_loader(
@@ -317,29 +315,27 @@ def as_loader(
 @typing.overload
 def as_unloader(
     callback: collections.Callable[[Client], None], /, *, standard_impl: typing.Literal[True] = True
-) -> collections.Callable[[Client], None]:
-    ...
+) -> collections.Callable[[Client], None]: ...
 
 
 @typing.overload
 def as_unloader(
     *, standard_impl: typing.Literal[True] = True
-) -> collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]]:
-    ...
+) -> collections.Callable[[collections.Callable[[Client], None]], collections.Callable[[Client], None]]: ...
 
 
 @typing.overload
 def as_unloader(
     callback: collections.Callable[[tanjun.Client], None], /, *, standard_impl: typing.Literal[False]
-) -> collections.Callable[[tanjun.Client], None]:
-    ...
+) -> collections.Callable[[tanjun.Client], None]: ...
 
 
 @typing.overload
 def as_unloader(
     *, standard_impl: typing.Literal[False]
-) -> collections.Callable[[collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]]:
-    ...
+) -> collections.Callable[
+    [collections.Callable[[tanjun.Client], None]], collections.Callable[[tanjun.Client], None]
+]: ...
 
 
 def as_unloader(
@@ -599,8 +595,7 @@ class Client(tanjun.Client):
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @typing.overload
     @typing_extensions.deprecated("Use the declare_global_commands arg instead")
@@ -624,8 +619,7 @@ class Client(tanjun.Client):
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         _stack_level: int = 0,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def __init__(
         self,
@@ -916,8 +910,7 @@ class Client(tanjun.Client):
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-    ) -> Client:
-        ...
+    ) -> Client: ...
 
     @classmethod
     @typing.overload
@@ -937,8 +930,7 @@ class Client(tanjun.Client):
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-    ) -> Client:
-        ...
+    ) -> Client: ...
 
     @classmethod
     def from_gateway_bot(
@@ -1047,8 +1039,7 @@ class Client(tanjun.Client):
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-    ) -> Client:
-        ...
+    ) -> Client: ...
 
     @classmethod
     @typing.overload
@@ -1067,8 +1058,7 @@ class Client(tanjun.Client):
         command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
         user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-    ) -> Client:
-        ...
+    ) -> Client: ...
 
     @classmethod
     def from_rest_bot(
@@ -1390,8 +1380,7 @@ class Client(tanjun.Client):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.SlashCommand:
-        ...
+    ) -> hikari.SlashCommand: ...
 
     @typing.overload
     async def declare_application_command(
@@ -1402,8 +1391,7 @@ class Client(tanjun.Client):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.ContextMenuCommand:
-        ...
+    ) -> hikari.ContextMenuCommand: ...
 
     @typing.overload
     async def declare_application_command(
@@ -1414,8 +1402,7 @@ class Client(tanjun.Client):
         *,
         application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-    ) -> hikari.PartialCommand:
-        ...
+    ) -> hikari.PartialCommand: ...
 
     async def declare_application_command(
         self,
@@ -2248,20 +2235,17 @@ class Client(tanjun.Client):
     @typing.overload
     def iter_menu_commands(
         self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.MESSAGE]  # noqa: A002
-    ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]:
-        ...
+    ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]: ...
 
     @typing.overload
     def iter_menu_commands(
         self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.USER]  # noqa: A002
-    ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]:
-        ...
+    ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]: ...
 
     @typing.overload
     def iter_menu_commands(
         self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002.
-    ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Any]]:
-        ...
+    ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Any]]: ...
 
     def iter_menu_commands(
         self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002

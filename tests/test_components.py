@@ -127,8 +127,7 @@ class TestComponent:
         assert component._tasks == []
 
     @pytest.mark.skip(reason="TODO")
-    def test_copy(self):
-        ...
+    def test_copy(self): ...
 
     def test_load_from_scope(self):
         # Some of the variables in this test have a type: ignore and noqa on them,
@@ -213,10 +212,13 @@ class TestComponent:
     def test_load_from_scope_when_stack_inspection_not_supported(self):
         component = tanjun.Component()
 
-        with pytest.raises(
-            RuntimeError,
-            match="Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`.",
-        ), mock.patch.object(inspect, "currentframe", return_value=None):
+        with (
+            pytest.raises(
+                RuntimeError,
+                match="Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`.",
+            ),
+            mock.patch.object(inspect, "currentframe", return_value=None),
+        ):
             component.load_from_scope()
 
     def test_set_default_app_command_permissions(self):
@@ -1216,8 +1218,7 @@ class TestComponent:
         add_listener.assert_not_called()
 
     def test_with_listener_missing_positional_event_arg(self):
-        async def callback(*, event: hikari.Event, **kwargs: str) -> None:
-            ...
+        async def callback(*, event: hikari.Event, **kwargs: str) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1230,8 +1231,7 @@ class TestComponent:
         add_listener.assert_not_called()
 
     def test_with_listener_no_args(self):
-        async def callback() -> None:
-            ...
+        async def callback() -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1264,8 +1264,7 @@ class TestComponent:
         )
 
     def test_with_listener_with_type_hint(self):
-        async def callback(event: hikari.BanCreateEvent) -> None:
-            ...
+        async def callback(event: hikari.BanCreateEvent) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1278,8 +1277,7 @@ class TestComponent:
         add_listener.assert_called_once_with(hikari.BanCreateEvent, callback)
 
     def test_with_listener_with_type_hint_in_annotated(self):
-        async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None:
-            ...
+        async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1292,8 +1290,7 @@ class TestComponent:
         add_listener.assert_called_once_with(hikari.BanCreateEvent, callback)
 
     def test_with_listener_with_positional_only_type_hint(self):
-        async def callback(event: hikari.BanDeleteEvent, /) -> None:
-            ...
+        async def callback(event: hikari.BanDeleteEvent, /) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1306,8 +1303,7 @@ class TestComponent:
         add_listener.assert_called_once_with(hikari.BanDeleteEvent, callback)
 
     def test_with_listener_with_var_positional_type_hint(self):
-        async def callback(*event: hikari.BanEvent) -> None:
-            ...
+        async def callback(*event: hikari.BanEvent) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1320,8 +1316,9 @@ class TestComponent:
         add_listener.assert_called_once_with(hikari.BanEvent, callback)
 
     def test_with_listener_with_type_hint_union(self):
-        async def callback(event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]) -> None:
-            ...
+        async def callback(
+            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]
+        ) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1343,8 +1340,7 @@ class TestComponent:
                 True,
                 "meow",
             ]
-        ) -> None:
-            ...
+        ) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1366,8 +1362,7 @@ class TestComponent:
     if sys.version_info >= (3, 10):
 
         def test_with_listener_with_type_hint_310_union(self):
-            async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None:
-                ...
+            async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
 
             add_listener = mock.Mock()
             component: tanjun.Component = types.new_class(
@@ -1386,8 +1381,7 @@ class TestComponent:
                 event: typing.Annotated[
                     typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
                 ]
-            ) -> None:
-                ...
+            ) -> None: ...
 
             add_listener = mock.Mock()
             component: tanjun.Component = types.new_class(
@@ -1605,20 +1599,16 @@ class TestComponent:
         mock_other_client.remove_client_callback.assert_not_called()
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_message_name(self):
-        ...
+    def test_check_message_name(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_message_name_when_not_found(self):
-        ...
+    def test_check_message_name_when_not_found(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_message_name_when_strict(self):
-        ...
+    def test_check_message_name_when_strict(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_message_name_when_strict_and_not_found(self):
-        ...
+    def test_check_message_name_when_strict_and_not_found(self): ...
 
     def test_check_slash_name(self):
         mock_command = mock.Mock()
@@ -1629,24 +1619,19 @@ class TestComponent:
         assert list(tanjun.Component().add_slash_command(mock.Mock()).check_slash_name("a")) == []
 
     @pytest.mark.skip(reason="TODO")
-    def test_execute_autocomplete(self):
-        ...  # includes _execute_interaction, and _check_context
+    def test_execute_autocomplete(self): ...  # includes _execute_interaction, and _check_context
 
     @pytest.mark.skip(reason="TODO")
-    def test_execute_menu(self):
-        ...  # includes _execute_interaction, and _check_context
+    def test_execute_menu(self): ...  # includes _execute_interaction, and _check_context
 
     @pytest.mark.skip(reason="TODO")
-    def test_execute_message(self):
-        ...  # Includes _check_message_context and _check_context
+    def test_execute_message(self): ...  # Includes _check_message_context and _check_context
 
     @pytest.mark.skip(reason="TODO")
-    def test_execute_slash(self):
-        ...  # includes _execute_interaction, and _check_context
+    def test_execute_slash(self): ...  # includes _execute_interaction, and _check_context
 
     @pytest.mark.skip(reason="TODO")
-    def test__load_from_properties(self):
-        ...  # Should test this based on todo
+    def test__load_from_properties(self): ...  # Should test this based on todo
 
     def test_add_schedule(self):
         mock_schedule = mock.Mock()

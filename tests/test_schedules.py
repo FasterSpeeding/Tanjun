@@ -1080,8 +1080,7 @@ class TestTimeSchedule:
         interval.load_into_component(mock_component)
 
     def test_start(self):
-        class StubSchedule(tanjun.schedules.TimeSchedule[typing.Any]):
-            ...
+        class StubSchedule(tanjun.schedules.TimeSchedule[typing.Any]): ...
 
         mock_client = mock.Mock()
         interval = StubSchedule(mock.AsyncMock())
@@ -1097,8 +1096,7 @@ class TestTimeSchedule:
         interval._loop.assert_called_once_with(mock_client)
 
     def test_start_when_passed_event_loop(self):
-        class StubSchedule(tanjun.schedules.TimeSchedule[typing.Any]):
-            ...
+        class StubSchedule(tanjun.schedules.TimeSchedule[typing.Any]): ...
 
         mock_client = mock.Mock()
         mock_loop = mock.Mock()

@@ -48,8 +48,7 @@ from tanjun.dependencies import async_cache
 
 class TestBaseConverter:
     @pytest.mark.skip(reason="Not finalised yet")
-    def test_check_client(self):
-        ...
+    def test_check_client(self): ...
 
     def test_async_caches_property(self):
         with pytest.warns(DeprecationWarning, match="Use .caches instead"):
@@ -1952,5 +1951,4 @@ def test_to_color_when_str_of_space_separated_non_digits():
 
 
 @pytest.mark.skip(reason="TODO")
-def test_override_type():
-    ...
+def test_override_type(): ...

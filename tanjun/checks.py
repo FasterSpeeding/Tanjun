@@ -564,8 +564,7 @@ class OwnPermissionCheck(_Check):
 
 
 @typing.overload
-def with_dm_check(command: _CommandT, /) -> _CommandT:
-    ...
+def with_dm_check(command: _CommandT, /) -> _CommandT: ...
 
 
 @typing.overload
@@ -575,8 +574,7 @@ def with_dm_check(
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in DMs",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 def with_dm_check(
@@ -626,8 +624,7 @@ def with_dm_check(
 
 
 @typing.overload
-def with_guild_check(command: _CommandT, /) -> _CommandT:
-    ...
+def with_guild_check(command: _CommandT, /) -> _CommandT: ...
 
 
 @typing.overload
@@ -639,8 +636,7 @@ def with_guild_check(
     ] = "Command can only be used in guild channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 def with_guild_check(
@@ -692,8 +688,7 @@ def with_guild_check(
 
 
 @typing.overload
-def with_nsfw_check(command: _CommandT, /) -> _CommandT:
-    ...
+def with_nsfw_check(command: _CommandT, /) -> _CommandT: ...
 
 
 @typing.overload
@@ -703,8 +698,7 @@ def with_nsfw_check(
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in NSFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 def with_nsfw_check(
@@ -754,8 +748,7 @@ def with_nsfw_check(
 
 
 @typing.overload
-def with_sfw_check(command: _CommandT, /) -> _CommandT:
-    ...
+def with_sfw_check(command: _CommandT, /) -> _CommandT: ...
 
 
 @typing.overload
@@ -765,8 +758,7 @@ def with_sfw_check(
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Command can only be used in SFW channels",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 def with_sfw_check(
@@ -816,8 +808,7 @@ def with_sfw_check(
 
 
 @typing.overload
-def with_owner_check(command: _CommandT, /) -> _CommandT:
-    ...
+def with_owner_check(command: _CommandT, /) -> _CommandT: ...
 
 
 @typing.overload
@@ -827,8 +818,7 @@ def with_owner_check(
     error_message: typing.Union[str, collections.Mapping[str, str], None] = "Only bot owners can use this command",
     follow_wrapped: bool = False,
     halt_execution: bool = False,
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 def with_owner_check(
@@ -994,29 +984,25 @@ def with_own_permission_check(
 @typing.overload
 def with_check(
     check: tanjun.AnyCheckSig, /, *, follow_wrapped: bool = False
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
 def with_check(
     check: tanjun.CheckSig[tanjun.MenuContext], /, *, follow_wrapped: bool = False
-) -> collections.Callable[[_MenuCommandT], _MenuCommandT]:
-    ...
+) -> collections.Callable[[_MenuCommandT], _MenuCommandT]: ...
 
 
 @typing.overload
 def with_check(
     check: tanjun.CheckSig[tanjun.MessageContext], /, *, follow_wrapped: bool = False
-) -> collections.Callable[[_MessageCommandT], _MessageCommandT]:
-    ...
+) -> collections.Callable[[_MessageCommandT], _MessageCommandT]: ...
 
 
 @typing.overload
 def with_check(
     check: tanjun.CheckSig[tanjun.SlashContext], /, *, follow_wrapped: bool = False
-) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    ...
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]: ...
 
 
 def with_check(
@@ -1085,8 +1071,7 @@ def all_checks(
 @typing.overload
 def with_all_checks(
     check: tanjun.AnyCheckSig, /, *checks: tanjun.AnyCheckSig, follow_wrapped: bool = False
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1095,8 +1080,7 @@ def with_all_checks(
     /,
     *checks: tanjun.CheckSig[tanjun.MenuContext],
     follow_wrapped: bool = False,
-) -> collections.Callable[[_MenuCommandT], _MenuCommandT]:
-    ...
+) -> collections.Callable[[_MenuCommandT], _MenuCommandT]: ...
 
 
 @typing.overload
@@ -1105,8 +1089,7 @@ def with_all_checks(
     /,
     *checks: tanjun.CheckSig[tanjun.MessageContext],
     follow_wrapped: bool = False,
-) -> collections.Callable[[_MessageCommandT], _MessageCommandT]:
-    ...
+) -> collections.Callable[[_MessageCommandT], _MessageCommandT]: ...
 
 
 @typing.overload
@@ -1115,8 +1098,7 @@ def with_all_checks(
     /,
     *checks: tanjun.CheckSig[tanjun.SlashContext],
     follow_wrapped: bool = False,
-) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    ...
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]: ...
 
 
 def with_all_checks(
@@ -1237,8 +1219,7 @@ def with_any_checks(
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
-) -> collections.Callable[[_CommandT], _CommandT]:
-    ...
+) -> collections.Callable[[_CommandT], _CommandT]: ...
 
 
 @typing.overload
@@ -1251,8 +1232,7 @@ def with_any_checks(
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
-) -> collections.Callable[[_MenuCommandT], _MenuCommandT]:
-    ...
+) -> collections.Callable[[_MenuCommandT], _MenuCommandT]: ...
 
 
 @typing.overload
@@ -1265,8 +1245,7 @@ def with_any_checks(
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
-) -> collections.Callable[[_MessageCommandT], _MessageCommandT]:
-    ...
+) -> collections.Callable[[_MessageCommandT], _MessageCommandT]: ...
 
 
 @typing.overload
@@ -1279,8 +1258,7 @@ def with_any_checks(
     follow_wrapped: bool = False,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
-) -> collections.Callable[[_SlashCommandT], _SlashCommandT]:
-    ...
+) -> collections.Callable[[_SlashCommandT], _SlashCommandT]: ...
 
 
 def with_any_checks(
