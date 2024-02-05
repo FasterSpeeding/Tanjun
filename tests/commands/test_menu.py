@@ -541,13 +541,11 @@ class TestMenuCommand:
         mock_context.set_command.assert_has_calls([mock.call(command), mock.call(None)])
 
     @pytest.mark.skip(reason="TODO")
-    def test_copy(self):
-        ...
+    def test_copy(self): ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_execute(self):
-        ...
+    async def test_execute(self): ...
 
     def test_load_into_component(self):
         command = tanjun.MenuCommand[typing.Any, typing.Any](mock.Mock(), hikari.CommandType.MESSAGE, "pat")

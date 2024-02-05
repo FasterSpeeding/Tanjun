@@ -145,8 +145,7 @@ hooks = (
 
 @hooks.add_to_command  # Through a decorator call
 @tanjun.as_slash_command("name", "description")
-async def slash_command(ctx: tanjun.abc.Context) -> None:
-    ...
+async def slash_command(ctx: tanjun.abc.Context) -> None: ...
 
 
 slash_command.set_hooks(hooks)  # or using a chainable method on the command.

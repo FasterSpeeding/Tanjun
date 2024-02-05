@@ -198,12 +198,10 @@ class SlashOption(tanjun.SlashOption):
         raise TypeError(f"Cannot resolve non-channel option type {self._option.type} to a channel")
 
     @typing.overload
-    def resolve_to_member(self) -> hikari.InteractionMember:
-        ...
+    def resolve_to_member(self) -> hikari.InteractionMember: ...
 
     @typing.overload
-    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
-        ...
+    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]: ...
 
     def resolve_to_member(
         self, *, default: typing.Union[_T, _internal.Default] = _internal.DEFAULT
@@ -878,8 +876,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         role_mentions: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-    ) -> hikari.Message:
-        ...
+    ) -> hikari.Message: ...
 
     @typing.overload
     async def respond(
@@ -901,8 +898,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         role_mentions: typing.Union[
             hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
         ] = hikari.UNDEFINED,
-    ) -> typing.Optional[hikari.Message]:
-        ...
+    ) -> typing.Optional[hikari.Message]: ...
 
     async def respond(
         self,

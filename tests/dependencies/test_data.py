@@ -98,14 +98,12 @@ class TestLazyConstant:
 
 @pytest.mark.skip(reason="Not Implemented")
 @pytest.mark.asyncio()
-async def test_make_lc_resolver_when_already_cached():
-    ...
+async def test_make_lc_resolver_when_already_cached(): ...
 
 
 @pytest.mark.skip(reason="Not Implemented")
 @pytest.mark.asyncio()
-async def test_make_lc_resolver():
-    ...
+async def test_make_lc_resolver(): ...
 
 
 def test_inject_lc():

@@ -229,12 +229,10 @@ class CommandError(TanjunError):
         return self.content or ""
 
     @typing.overload
-    async def send(self, ctx: tanjun.Context, /, *, ensure_result: typing.Literal[True]) -> hikari.Message:
-        ...
+    async def send(self, ctx: tanjun.Context, /, *, ensure_result: typing.Literal[True]) -> hikari.Message: ...
 
     @typing.overload
-    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> typing.Optional[hikari.Message]:
-        ...
+    async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> typing.Optional[hikari.Message]: ...
 
     async def send(self, ctx: tanjun.Context, /, *, ensure_result: bool = False) -> typing.Optional[hikari.Message]:
         """Send this error as a command response.

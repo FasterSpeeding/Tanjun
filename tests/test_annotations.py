@@ -226,8 +226,7 @@ def test_with_message_command_and_incompatible_parser_set():
     mock_parser = mock.Mock(tanjun.abc.MessageParser)
 
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.MessageContext, foo: annotations.Int):
-        ...
+    async def command(ctx: tanjun.abc.MessageContext, foo: annotations.Int): ...
 
     command.set_parser(mock_parser)
 
@@ -240,8 +239,7 @@ def test_with_nested_message_command_and_incompatible_parser_set():
 
     @tanjun.as_message_command("command")
     @tanjun.as_slash_command("command", "description")
-    async def command(ctx: tanjun.abc.Context, foo: typing.Annotated[annotations.Int, "desc"]):
-        ...
+    async def command(ctx: tanjun.abc.Context, foo: typing.Annotated[annotations.Int, "desc"]): ...
 
     command.set_parser(mock_parser)
 
@@ -258,8 +256,7 @@ def test_with_no_annotations():
         injected: alluka.Injected[int],
         yeet,  # type: ignore
         other_injected: str = alluka.inject(type=str),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert command.build().options == []
     assert command._tracked_options == {}
@@ -274,8 +271,7 @@ def test_with_no_annotations_but_message_parser_already_set():
         injected: alluka.Injected[int],
         beat,  # type: ignore
         other_injected: str = alluka.inject(type=str),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     command.set_parser(tanjun.ShlexParser())
 
@@ -293,8 +289,7 @@ def test_with_slash_command_missing_option_description():
         meow: typing.Annotated[annotations.Bool, "ok"],
         miss: annotations.Str,
         nyaa: typing.Annotated[annotations.Channel, "bye"],
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(ValueError, match="Missing description for argument 'miss'"):
         annotations.with_annotated_args(callback)
@@ -308,8 +303,7 @@ def test_when_wrapping_slash_but_not_follow_wrapped():
         ctx: tanjun.abc.Context,
         field: typing.Annotated[annotations.Int, "description"],
         other_field: typing.Annotated[annotations.Str, "yo"] = "",
-    ):
-        ...
+    ): ...
 
     assert isinstance(command.wrapped_command, tanjun.SlashCommand)
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -323,8 +317,7 @@ def test_when_wrapping_message_but_not_follow_wrapped():
     @annotations.with_annotated_args
     @tanjun.as_slash_command("boop", "description")
     @tanjun.as_message_command("meep")
-    async def command(ctx: tanjun.abc.Context, field: typing.Annotated[annotations.Int, "description"]):
-        ...
+    async def command(ctx: tanjun.abc.Context, field: typing.Annotated[annotations.Int, "description"]): ...
 
     assert command.build().options
     assert command._tracked_options
@@ -335,8 +328,7 @@ def test_when_wrapping_message_but_not_follow_wrapped():
 def test_when_wrapping_message_but_not_follow_wrapped_parser_already_set():
     @tanjun.as_slash_command("boop", "description")
     @tanjun.as_message_command("meep")
-    async def command(ctx: tanjun.abc.Context, field: typing.Annotated[annotations.Int, "description"]):
-        ...
+    async def command(ctx: tanjun.abc.Context, field: typing.Annotated[annotations.Int, "description"]): ...
 
     assert isinstance(command.wrapped_command, tanjun.MessageCommand)
     command.wrapped_command.set_parser(tanjun.ShlexParser())
@@ -353,8 +345,7 @@ def test_when_wrapping_message_but_not_follow_wrapped_parser_already_set():
 def test_when_follow_wrapping_and_wrapping_unsupported_command():
     async def mock_callback(
         ctx: tanjun.abc.MessageContext, value: annotations.Str, other_value: annotations.Bool = False
-    ) -> None:
-        ...
+    ) -> None: ...
 
     command: tanjun.MessageCommand[typing.Any] = tanjun.as_message_command("beep")(
         mock.Mock(tanjun.abc.SlashCommand, callback=mock_callback)
@@ -377,8 +368,7 @@ def test_with_with_std_range():
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Int, range(123, 345), "nyaa"],
         other_value: typing.Annotated[annotations.Int, range(22, 5568), "sex"] = 44,
-    ):
-        ...
+    ): ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -438,8 +428,7 @@ def test_with_with_backwards_std_range():
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Int, range(542, 111, -1), "nyaa"],
         other_value: typing.Annotated[annotations.Int, range(3334, 43, -1), "sex"] = 44,
-    ):
-        ...
+    ): ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -499,8 +488,7 @@ def test_with_std_slice():
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Int, 324:653, "meow"],
         other_value: typing.Annotated[annotations.Int, 444:555, "blam"] = 44,
-    ):
-        ...
+    ): ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -560,8 +548,7 @@ def test_with_backwards_std_slice():
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Int, 444:233:-1, "meow"],
         other_value: typing.Annotated[annotations.Int, 664:422:-1, "blam"] = 44,
-    ):
-        ...
+    ): ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -736,8 +723,7 @@ def test_choices(
         ctx: tanjun.abc.Context,
         nope: typing.Annotated[type_cls, annotations.Choices(choices), "default"],
         boo: typing.Annotated[type_cls, annotations.Choices(choices), "be"] = typing.cast("_ChoiceT", "hi"),
-    ):
-        ...
+    ): ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -802,8 +788,7 @@ def test_choices_and_mixed_values(
     @tanjun.as_slash_command("command", "description")
     async def callback(
         ctx: tanjun.abc.Context, nom: typing.Annotated[type_, annotations.Choices(choices), "description"]
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         TypeError, match=f"Choice of type {mismatched_type.__name__} is not valid for a {type_repr.__name__} argument"
@@ -827,8 +812,7 @@ def test_with_generic_float_choices():
             ctx: tanjun.abc.Context,
             nom: typing.Annotated[annotations.Choices[Choices], "description"],  # type: ignore
             boom: typing.Annotated[annotations.Choices[Choices], "bag"] = Choices.Blam,  # type: ignore
-        ):
-            ...
+        ): ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -922,8 +906,7 @@ def test_with_generic_int_choices():
             ctx: tanjun.abc.Context,
             nat: typing.Annotated[annotations.Choices[Choices], "meow"],  # type: ignore
             bag: typing.Annotated[annotations.Choices[Choices], "bagette"] = Choices.Bazman,  # type: ignore
-        ):
-            ...
+        ): ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -1016,8 +999,7 @@ def test_with_generic_str_choices():
             ctx: tanjun.abc.Context,
             ny: typing.Annotated[annotations.Choices[Choices], "fat"],  # type: ignore
             aa: typing.Annotated[annotations.Choices[Choices], "bat"] = Choices.Sis,  # type: ignore
-        ):
-            ...
+        ): ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -1097,21 +1079,21 @@ def test_with_generic_str_choices():
 
 
 def test_with_generic_choices_when_enum_has_no_other_base():
-    class Choices(enum.Enum):
-        ...
+    class Choices(enum.Enum): ...
 
-    with pytest.warns(DeprecationWarning), pytest.raises(
-        TypeError, match="Enum must be a subclass of str, float or int"
+    with (
+        pytest.warns(DeprecationWarning),
+        pytest.raises(TypeError, match="Enum must be a subclass of str, float or int"),
     ):
         annotations.Choices[Choices]
 
 
 def test_with_generic_choices_when_enum_isnt_int_str_or_float():
-    class Choices(bytes, enum.Enum):
-        ...
+    class Choices(bytes, enum.Enum): ...
 
-    with pytest.warns(DeprecationWarning), pytest.raises(
-        TypeError, match="Enum must be a subclass of str, float or int"
+    with (
+        pytest.warns(DeprecationWarning),
+        pytest.raises(TypeError, match="Enum must be a subclass of str, float or int"),
     ):
         annotations.Choices[Choices]
 
@@ -1130,8 +1112,7 @@ def test_with_converted():
         bam: typing.Annotated[
             typing.Optional[int], annotations.Converted(mock_callback_3), "nom"  # noqa: NU002
         ] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -1202,8 +1183,7 @@ def test_with_generic_converted():
         ctx: tanjun.abc.Context,
         boo: typing.Annotated[typing.Any, annotations.Converted(mock_callback_1, mock_callback_2), "description"],
         bam: typing.Annotated[typing.Any, annotations.Converted(mock_callback_3), "nom"] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -1278,8 +1258,7 @@ def test_with_converted_type_miss_match():
         async def _(
             ctx: tanjun.abc.Context,
             boo: typing.Annotated[annotations.Attachment, annotations.Converted(mock_callback_1)],
-        ) -> None:
-            ...
+        ) -> None: ...
 
 
 def test_with_default():
@@ -1288,8 +1267,7 @@ def test_with_default():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context, argument: typing.Annotated[annotations.Str, annotations.Default("nyaa"), "meow"]
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -1335,8 +1313,7 @@ def test_with_generic_default():
             argument: typing.Annotated[
                 annotations.Default[annotations.Str, "nyaa"], "meow"  # noqa: F821  # type: ignore
             ],
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -1378,8 +1355,7 @@ def test_with_default_overriding_signature_default():
     async def command(
         ctx: tanjun.abc.Context,
         argument: typing.Annotated[annotations.Str, annotations.Default("yeet"), "meow"] = "m",  # noqa: F821
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -1420,8 +1396,7 @@ def test_with_default_unsetting_signature_default():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context, argument: typing.Annotated[annotations.Str, annotations.Default(), "meow"] = "m"
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -1467,8 +1442,7 @@ def test_with_flag():
         eep: typing.Annotated[
             annotations.Int, annotations.Flag(aliases=("--hi", "--bye"), empty_value=empty_value), "b"
         ] = 545454,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -1525,8 +1499,7 @@ def test_with_flag_and_deprecated_default():
             eep: typing.Annotated[
                 annotations.Int, annotations.Flag(default=1231), "b"  # pyright: ignore[reportDeprecated]
             ] = 545454,
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -1553,8 +1526,7 @@ def test_with_flag_and_default():
     async def callback(
         ctx: tanjun.abc.Context,
         eep: typing.Annotated[annotations.Int, annotations.Flag(aliases=("--hi", "--bye")), "a"] = 123,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -1588,8 +1560,7 @@ def test_with_flag_missing_default():
         ctx: tanjun.abc.MessageContext,
         noooo: typing.Annotated[annotations.Int, annotations.Flag()],
         eep: typing.Annotated[annotations.Int, annotations.Flag(aliases=("--hi",))] = 123,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(ValueError, match="Flag argument 'noooo' must have a default"):
         annotations.with_annotated_args(callback)
@@ -1601,8 +1572,7 @@ def test_with_positional():
     @tanjun.as_slash_command("boop", "description")
     async def callback(
         ctx: tanjun.abc.Context, beep: typing.Annotated[annotations.Str, annotations.Positional(), "eat"]
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -1636,8 +1606,7 @@ def test_with_generic_positional():
         @tanjun.as_slash_command("boop", "description")
         async def callback(
             ctx: tanjun.abc.Context, beep: typing.Annotated[annotations.Positional[annotations.Str], "eat"]  # type: ignore
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -1666,8 +1635,7 @@ def test_with_generic_positional():
 def test_with_greedy():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def callback(ctx: tanjun.abc.Context, meep: typing.Annotated[annotations.Int, annotations.Greedy()]):
-        ...
+    async def callback(ctx: tanjun.abc.Context, meep: typing.Annotated[annotations.Int, annotations.Greedy()]): ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert len(callback.parser.arguments) == 1
@@ -1713,8 +1681,7 @@ def test_with_length():
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Str, annotations.Length(123), "nom"],
         other_value: typing.Annotated[typing.Optional[annotations.Str], annotations.Length(5544), "meow"] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -1793,8 +1760,7 @@ def test_with_length_when_min_specificed():
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Str, annotations.Length(43, 5444), "nom"],
         other_value: typing.Annotated[typing.Optional[annotations.Str], annotations.Length(32, 4343), "meow"] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -1875,8 +1841,7 @@ def test_with_generic_length():
             ctx: tanjun.abc.Context,
             value: typing.Annotated[annotations.Length[123], "nom"],  # type: ignore
             other_value: typing.Annotated[typing.Optional[annotations.Length[5544]], "meow"] = None,  # type: ignore
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -1957,8 +1922,7 @@ def test_with_generic_length_when_min_specificed():
             ctx: tanjun.abc.Context,
             value: typing.Annotated[annotations.Length[43, 5444], "nom"],  # type: ignore
             other_value: typing.Annotated[typing.Optional[annotations.Length[32, 4343]], "meow"] = None,  # type: ignore
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert callback.build().options == [
         hikari.CommandOption(
@@ -2037,8 +2001,7 @@ def test_with_int_max():
         ctx: tanjun.abc.Context,
         bee: typing.Annotated[annotations.Int, annotations.Max(543), "eee"],
         yeet_no: typing.Annotated[typing.Union[annotations.Int, None], annotations.Max(543), "eep"] = None,
-    ):
-        ...
+    ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2116,8 +2079,7 @@ def test_with_float_max():
         ctx: tanjun.abc.Context,
         bee: typing.Annotated[annotations.Float, annotations.Max(234.432), "eee"],
         yeet_no: typing.Annotated[typing.Union[annotations.Float, None], annotations.Max(234.432), "eep"] = None,
-    ):
-        ...
+    ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2203,8 +2165,7 @@ def test_with_generic_max(
             ctx: tanjun.abc.Context,
             number: typing.Annotated[annotations.Max[value], "eee"],  # type: ignore
             other_number: typing.Annotated[annotations.Max[value], "eep"] = 54234,  # type: ignore
-        ):
-            ...
+        ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2279,8 +2240,7 @@ def test_with_max_when_float_for_int():
     @tanjun.as_message_command("command")
     async def callback(
         ctx: tanjun.abc.Context, value: typing.Annotated[annotations.Int, annotations.Max(123.312), "description"]
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(TypeError, match="Max value of type float is not valid for a int argument"):
         annotations.parse_annotated_args(callback, follow_wrapped=True)
@@ -2294,8 +2254,7 @@ def test_with_max_when_int_for_float():
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Float, annotations.Max(432), "description"],
         other_value: typing.Annotated[typing.Union[annotations.Float, bool], annotations.Max(5431), "meow"] = False,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2385,8 +2344,7 @@ def test_with_min(
         ctx: tanjun.abc.Context,
         number: typing.Annotated[type_, annotations.Max(value), "eee"],
         other_number: typing.Annotated[type_, annotations.Max(value), "eep"] = 54234,
-    ):
-        ...
+    ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2472,8 +2430,7 @@ def test_with_generic_min(
             ctx: tanjun.abc.Context,
             number: typing.Annotated[annotations.Min[value], "bee"],  # type: ignore
             other_number: typing.Annotated[annotations.Min[value], "buzz"] = 321,  # type: ignore
-        ):
-            ...
+        ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2548,8 +2505,7 @@ def test_with_min_when_float_for_int():
     @tanjun.as_message_command("command")
     async def callback(
         ctx: tanjun.abc.Context, value: typing.Annotated[annotations.Int, annotations.Min(234.432), "description"]
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(TypeError, match="Min value of type float is not valid for a int argument"):
         annotations.parse_annotated_args(callback, follow_wrapped=True)
@@ -2563,8 +2519,7 @@ def test_with_min_when_int_for_float():
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Float, annotations.Min(12333), "description"],
         other_value: typing.Annotated[typing.Union[annotations.Float, bool], annotations.Min(44444), "meow"] = False,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2642,8 +2597,7 @@ def test_with_overridden_name():
         ctx: tanjun.abc.Context,
         nyaa: typing.Annotated[annotations.Int, annotations.Name("boop"), "Nope"],
         meow: typing.Annotated[annotations.Str, annotations.Name("meep_meep"), "Description"] = "meowow",
-    ):
-        ...
+    ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2723,8 +2677,7 @@ def test_with_individually_overridden_name():
         meow: typing.Annotated[
             annotations.Str, annotations.Name("nom2", slash="n", message="--boop-oop"), "Description"
         ] = "meowow",
-    ):
-        ...
+    ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2802,8 +2755,7 @@ def test_with_overridden_slash_name():
         ctx: tanjun.abc.Context,
         necc: typing.Annotated[annotations.Int, annotations.Name(slash="nom"), "EEEE"],
         nya: typing.Annotated[annotations.Str, annotations.Name(slash="sex"), "AAAA"] = "meow",
-    ):
-        ...
+    ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2880,8 +2832,7 @@ def test_with_overridden_message_name():
     async def callback(
         ctx: tanjun.abc.Context,
         meow_meow: typing.Annotated[annotations.Str, annotations.Name(message="--blam-blam"), "Description"] = "neko",
-    ):
-        ...
+    ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -2930,8 +2881,7 @@ def test_with_ranged():
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Int, annotations.Ranged(44, 55), "meow"],
         other_value: typing.Annotated[annotations.Float, annotations.Ranged(5433, 6524.32), "bye bye"] = 5,
-    ):
-        ...
+    ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -3007,8 +2957,7 @@ def test_with_generic_ranged(
             ctx: tanjun.abc.Context,
             number: typing.Annotated[annotations.Ranged[min_value, max_value], "meow"],  # type: ignore
             other_number: typing.Annotated[annotations.Ranged[min_value, max_value], "nom"] = 443,  # type: ignore
-        ):
-            ...
+        ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
     assert isinstance(callback.wrapped_command.parser, tanjun.ShlexParser)
@@ -3088,8 +3037,7 @@ def test_with_snowflake_or():
         ctx: tanjun.abc.Context,
         value: typing.Annotated[annotations.Role, annotations.SnowflakeOr(parse_id=mock_callback), "se"],
         value_2: typing.Annotated[typing.Optional[annotations.User], annotations.SnowflakeOr(), "x"] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3170,8 +3118,7 @@ def test_with_generic_snowflake_or_for_channel():
             ctx: tanjun.abc.Context,
             value: typing.Annotated[annotations.SnowflakeOr[annotations.Channel], "se"],  # type: ignore
             value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Channel]], "x"] = None,  # type: ignore
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3252,8 +3199,7 @@ def test_with_generic_snowflake_or_for_member():
             ctx: tanjun.abc.Context,
             value: typing.Annotated[annotations.SnowflakeOr[annotations.Member], "se"],  # type: ignore
             value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Member]], "x"] = None,  # type: ignore
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3336,8 +3282,7 @@ def test_with_generic_snowflake_or_for_mentionable():
             value_2: typing.Annotated[
                 typing.Optional[annotations.SnowflakeOr[annotations.Mentionable]], "x"  # type: ignore
             ] = None,
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3418,8 +3363,7 @@ def test_with_generic_snowflake_or_for_role():
             ctx: tanjun.abc.Context,
             value: typing.Annotated[annotations.SnowflakeOr[annotations.Role], "se"],  # type: ignore
             value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Role]], "x"] = None,  # type: ignore
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3500,8 +3444,7 @@ def test_with_generic_snowflake_or_for_user():
             ctx: tanjun.abc.Context,
             value: typing.Annotated[annotations.SnowflakeOr[annotations.User], "se"],  # type: ignore
             value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.User]], "x"] = None,  # type: ignore
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3582,8 +3525,7 @@ def test_with_generic_snowflake_or():
             ctx: tanjun.abc.Context,
             value: typing.Annotated[annotations.SnowflakeOr[annotations.Bool], "se"],  # type: ignore
             value_2: typing.Annotated[annotations.SnowflakeOr[typing.Optional[annotations.Bool]], "x"] = None,  # type: ignore
-        ) -> None:
-            ...
+        ) -> None: ...
 
     assert isinstance(callback.parser, tanjun.ShlexParser)
     assert isinstance(callback.wrapped_command, tanjun.SlashCommand)
@@ -3692,8 +3634,7 @@ def test_with_these_channels(
         bar: typing.Annotated[
             typing.Optional[annotations.Channel], annotations.TheseChannels(*channel_types), "boom"
         ] = None,
-    ):
-        ...
+    ): ...
 
     assert isinstance(command.wrapped_command, tanjun.MessageCommand)
     assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
@@ -3786,8 +3727,7 @@ def test_with_generic_these_channels():  # noqa: CFQ001
             bat: typing.Annotated[
                 typing.Optional[annotations.TheseChannels[hikari.GuildVoiceChannel, hikari.PrivateChannel]], "bip"  # type: ignore
             ] = None,
-        ):
-            ...
+        ): ...
 
     expected_types_1 = {
         hikari.ChannelType.GUILD_CATEGORY,
@@ -3888,8 +3828,7 @@ def test_for_attachment_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Attachment, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.Attachment, str], "feet"] = "ok",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -3934,8 +3873,7 @@ def test_for_attachment_option():
 
 def test_for_attachment_option_on_message_command():
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: annotations.Attachment) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, arg: annotations.Attachment) -> None: ...
 
     with pytest.raises(
         RuntimeError, match="<class 'hikari.messages.Attachment'> is not supported for message commands"
@@ -3946,8 +3884,7 @@ def test_for_attachment_option_on_message_command():
 def test_for_attachment_option_on_message_command_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.Attachment] = None) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.Attachment] = None) -> None: ...
 
     assert command.parser is None
 
@@ -3956,8 +3893,7 @@ def test_for_attachment_option_on_message_command_with_default_and_pre_set_parse
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.with_parser
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.Attachment] = None) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.Attachment] = None) -> None: ...
 
     assert isinstance(command.parser, tanjun.parsing.ShlexParser)
     assert not command.parser.options
@@ -3972,8 +3908,7 @@ def test_for_bool_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Bool, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.Bool, str], "feet"] = "ok",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(command.wrapped_command, tanjun.SlashCommand)
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -4052,8 +3987,7 @@ def test_for_channel_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Channel, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.Channel, str], "feet"] = "ok",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(command.wrapped_command, tanjun.SlashCommand)
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -4133,8 +4067,7 @@ def test_for_interaction_channel_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.InteractionChannel, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.InteractionChannel, str], "feet"] = "ok",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -4179,8 +4112,7 @@ def test_for_interaction_channel_option():
 
 def test_for_interaction_channel_option_on_message_command():
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: annotations.InteractionChannel) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, arg: annotations.InteractionChannel) -> None: ...
 
     with pytest.raises(
         RuntimeError,
@@ -4195,8 +4127,7 @@ def test_for_interaction_channel_option_on_message_command():
 def test_for_interaction_channel_option_on_message_command_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionChannel] = None) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionChannel] = None) -> None: ...
 
     assert command.parser is None
 
@@ -4205,8 +4136,7 @@ def test_for_interaction_channel_option_on_message_command_with_default_and_pre_
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.with_parser
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionChannel] = None) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionChannel] = None) -> None: ...
 
     assert isinstance(command.parser, tanjun.parsing.ShlexParser)
     assert not command.parser.options
@@ -4221,8 +4151,7 @@ def test_for_float_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Float, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.Float, str], "feet"] = "ok",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(command.wrapped_command, tanjun.SlashCommand)
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -4301,8 +4230,7 @@ def test_for_int_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Int, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.Int, str], "feet"] = "ok",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(command.wrapped_command, tanjun.SlashCommand)
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -4381,8 +4309,7 @@ def test_for_member_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Member, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.Member, str], "feet"] = "ok",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(command.wrapped_command, tanjun.SlashCommand)
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -4460,8 +4387,7 @@ def test_for_interaction_member_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.InteractionMember, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.InteractionMember, str], "feet"] = "ok",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(
@@ -4506,8 +4432,7 @@ def test_for_interaction_member_option():
 
 def test_for_interaction_member_option_on_message_command():
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: annotations.InteractionMember) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, arg: annotations.InteractionMember) -> None: ...
 
     with pytest.raises(
         RuntimeError,
@@ -4521,8 +4446,7 @@ def test_for_interaction_member_option_on_message_command():
 def test_for_interaction_member_option_on_message_command_with_default():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionMember] = None) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionMember] = None) -> None: ...
 
     assert command.parser is None
 
@@ -4531,8 +4455,7 @@ def test_for_interaction_member_option_on_message_command_with_default_and_pre_s
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.with_parser
     @tanjun.as_message_command("command")
-    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionMember] = None) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, arg: typing.Optional[annotations.InteractionMember] = None) -> None: ...
 
     assert isinstance(command.parser, tanjun.parsing.ShlexParser)
     assert not command.parser.options
@@ -4547,8 +4470,7 @@ def test_for_mentionable_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Mentionable, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.Mentionable, str], "feet"] = "ok",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(command.wrapped_command, tanjun.SlashCommand)
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -4627,8 +4549,7 @@ def test_for_role_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Role, "yeet"],
         arg_2: typing.Annotated[typing.Union[annotations.Role, str], "feet"] = "ok",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(command.wrapped_command, tanjun.SlashCommand)
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -4707,8 +4628,7 @@ def test_for_str_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.Str, "yeet"],
         arg_2: typing.Annotated[typing.Union[bool, annotations.Str], "feet"] = False,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(command.wrapped_command, tanjun.SlashCommand)
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -4787,8 +4707,7 @@ def test_for_user_option():
         ctx: tanjun.abc.Context,
         arg: typing.Annotated[annotations.User, "yeet"],
         arg_2: typing.Annotated[typing.Union[str, annotations.User], "feet"] = "bye",
-    ) -> None:
-        ...
+    ) -> None: ...
 
     assert isinstance(command.wrapped_command, tanjun.SlashCommand)
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -5210,8 +5129,7 @@ def test_parse_annotated_args_with_descriptions_argument_for_wrapped_slash_comma
 
 def test_attachment_field():
     @tanjun.as_slash_command("name", "description")
-    async def command(ctx: tanjun.abc.Context, field: hikari.Attachment = annotations.attachment_field()) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, field: hikari.Attachment = annotations.attachment_field()) -> None: ...
 
     annotations.parse_annotated_args(command, descriptions={"field": "eeee"})
 
@@ -5237,8 +5155,7 @@ def test_attachment_field_with_config():
         field: typing.Union[hikari.Attachment, int] = annotations.attachment_field(
             description="x", default=7655, slash_name="meow_meow"
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command)
 
@@ -5261,8 +5178,7 @@ def test_attachment_field_when_type_mismatch():
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context, fobo: annotations.Bool = annotations.attachment_field(description="x")  # type: ignore
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         RuntimeError,
@@ -5279,15 +5195,13 @@ def test_attachment_field_when_type_match():
     @tanjun.as_slash_command("name", "description")
     async def _(
         ctx: tanjun.abc.Context, field: annotations.Attachment = annotations.attachment_field(description="x")
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 def test_bool_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, field: bool = annotations.bool_field()) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, field: bool = annotations.bool_field()) -> None: ...
 
     annotations.parse_annotated_args(command, descriptions={"field": "z"}, follow_wrapped=True)
 
@@ -5330,8 +5244,7 @@ def test_bool_field_with_config():
         fieldy: typing.Union[bool, None] = annotations.bool_field(
             default=None, description="very descriptive", greedy=True, positional=True, slash_name="nyaa"
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command)
 
@@ -5354,8 +5267,7 @@ def test_bool_field_with_config():
 
 def test_bool_field_when_default_marks_as_flag():
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, fieldy: bool = annotations.bool_field(default=False)) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, fieldy: bool = annotations.bool_field(default=False)) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5383,8 +5295,7 @@ def test_bool_field_when_default_marks_as_flag_and_other_config():
         fieldy: typing.Optional[bool] = annotations.bool_field(
             default=None, empty_value=True, message_names=["--meow", "-a", "-b"]
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5409,8 +5320,7 @@ def test_bool_field_when_type_mismatch():
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context, me: annotations.Str = annotations.bool_field(description="x")  # type: ignore
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         RuntimeError, match="Conflicting option types of <class 'bool'> and <class 'str'> found for 'me' parameter"
@@ -5421,15 +5331,13 @@ def test_bool_field_when_type_mismatch():
 def test_bool_field_when_type_match():
     @annotations.with_annotated_args
     @tanjun.as_slash_command("name", "description")
-    async def _(ctx: tanjun.abc.Context, field: annotations.Bool = annotations.bool_field(description="x")) -> None:
-        ...
+    async def _(ctx: tanjun.abc.Context, field: annotations.Bool = annotations.bool_field(description="x")) -> None: ...
 
 
 def test_channel_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, meow: hikari.PartialChannel = annotations.channel_field()) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, meow: hikari.PartialChannel = annotations.channel_field()) -> None: ...
 
     annotations.parse_annotated_args(command, descriptions={"meow": "sad"}, follow_wrapped=True)
 
@@ -5481,8 +5389,7 @@ def test_channel_field_with_config():
             positional=True,
             slash_name="aaa",
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5529,8 +5436,7 @@ def test_channel_field_when_default_marks_as_flag():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context, meow: typing.Optional[hikari.PartialChannel] = annotations.channel_field(default=None)
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5564,8 +5470,7 @@ def test_channel_field_when_default_marks_as_flag_and_other_config():
             message_names=["--momma", "-x", "--dra"],
             or_snowflake=True,
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5590,8 +5495,7 @@ def test_channel_field_when_type_mismatch():
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context, xf: annotations.Float = annotations.channel_field(description="x")  # type: ignore
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         RuntimeError,
@@ -5608,15 +5512,13 @@ def test_channel_field_when_type_match():
     @tanjun.as_slash_command("name", "description")
     async def _(
         ctx: tanjun.abc.Context, field: annotations.Channel = annotations.channel_field(description="x")
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 def test_float_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, special: float = annotations.float_field()) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, special: float = annotations.float_field()) -> None: ...
 
     annotations.parse_annotated_args(
         command, descriptions={"special": "can't be what you want to be"}, follow_wrapped=True
@@ -5671,8 +5573,7 @@ def test_float_field_with_config():
             positional=True,
             slash_name="bbbbb",
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5726,8 +5627,7 @@ def test_float_field_when_default_marks_as_flag():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context, meow: typing.Optional[float] = annotations.float_field(default=None)
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5759,8 +5659,7 @@ def test_float_field_when_default_marks_as_flag_and_other_config():
             min_value=543.123,
             max_value=123.543,
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5785,8 +5684,7 @@ def test_float_field_when_type_mismatch():
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context, call: annotations.Int = annotations.float_field(description="x")  # type: ignore
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         RuntimeError, match="Conflicting option types of <class 'float'> and <class 'int'> found for 'call' parameter"
@@ -5797,15 +5695,15 @@ def test_float_field_when_type_mismatch():
 def test_float_field_when_type_match():
     @annotations.with_annotated_args
     @tanjun.as_slash_command("name", "description")
-    async def _(ctx: tanjun.abc.Context, field: annotations.Float = annotations.float_field(description="x")) -> None:
-        ...
+    async def _(
+        ctx: tanjun.abc.Context, field: annotations.Float = annotations.float_field(description="x")
+    ) -> None: ...
 
 
 def test_int_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, ni: int = annotations.int_field()) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, ni: int = annotations.int_field()) -> None: ...
 
     annotations.parse_annotated_args(command, descriptions={"ni": "wow"}, follow_wrapped=True)
 
@@ -5856,8 +5754,7 @@ def test_int_field_with_config():
             positional=True,
             slash_name="na",
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5905,8 +5802,7 @@ def test_int_field_when_default_marks_as_flag():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context, nyaa: typing.Optional[int] = annotations.int_field(default=None)
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5934,8 +5830,7 @@ def test_int_field_when_default_marks_as_flag_and_other_config():
         nyaa: typing.Optional[int] = annotations.int_field(
             default=None, empty_value=0, message_names=["--yee", "-a", "--alias"], min_value=-1, max_value=666
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -5960,8 +5855,7 @@ def test_int_field_when_type_mismatch():
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context, meow: annotations.Float = annotations.int_field(description="x")
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         RuntimeError, match="Conflicting option types of <class 'int'> and <class 'float'> found for 'meow' parameter"
@@ -5972,15 +5866,13 @@ def test_int_field_when_type_mismatch():
 def test_int_field_when_type_match():
     @annotations.with_annotated_args
     @tanjun.as_slash_command("name", "description")
-    async def _(ctx: tanjun.abc.Context, field: annotations.Int = annotations.int_field(description="x")) -> None:
-        ...
+    async def _(ctx: tanjun.abc.Context, field: annotations.Int = annotations.int_field(description="x")) -> None: ...
 
 
 def test_member_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, nope: hikari.Member = annotations.member_field()) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, nope: hikari.Member = annotations.member_field()) -> None: ...
 
     annotations.parse_annotated_args(command, descriptions={"nope": "wowo"}, follow_wrapped=True)
 
@@ -6024,8 +5916,7 @@ def test_member_field_with_config():
         nope: typing.Union[hikari.Member, hikari.Snowflake, None] = annotations.member_field(
             default=None, description="fine", greedy=True, or_snowflake=True, positional=True, slash_name="pancake"
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6065,8 +5956,7 @@ def test_member_field_when_default_marks_as_flag():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context, nep: typing.Optional[hikari.Member] = annotations.member_field(default=None)
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6094,8 +5984,7 @@ def test_member_field_when_default_marks_as_flag_and_other_config():
         nep: typing.Union[hikari.Member, bool, None, hikari.Snowflake] = annotations.member_field(
             default=None, empty_value=False, message_names=["--x", "--ok"], or_snowflake=True
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6120,8 +6009,7 @@ def test_member_field_when_type_mismatch():
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context, freaky: annotations.User = annotations.member_field(description="x")
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         RuntimeError,
@@ -6136,8 +6024,9 @@ def test_member_field_when_type_mismatch():
 def test_member_field_when_type_match():
     @annotations.with_annotated_args
     @tanjun.as_slash_command("name", "description")
-    async def _(ctx: tanjun.abc.Context, field: annotations.Member = annotations.member_field(description="x")) -> None:
-        ...
+    async def _(
+        ctx: tanjun.abc.Context, field: annotations.Member = annotations.member_field(description="x")
+    ) -> None: ...
 
 
 def test_mentionable_field():
@@ -6145,8 +6034,7 @@ def test_mentionable_field():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context, yes: typing.Union[hikari.User, hikari.Role] = annotations.mentionable_field()
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, descriptions={"yes": "yipee"}, follow_wrapped=True)
 
@@ -6195,8 +6083,7 @@ def test_mentionable_field_with_config():
             positional=True,
             slash_name="echo",
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6237,8 +6124,7 @@ def test_mentionable_field_when_default_marks_as_flag():
     async def command(
         ctx: tanjun.abc.Context,
         nep: typing.Union[hikari.User, hikari.Role, None] = annotations.mentionable_field(default=None),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6266,8 +6152,7 @@ def test_mentionable_field_when_default_marks_as_flag_and_other_config():
         beep: typing.Union[hikari.User, hikari.Role, None, hikari.Snowflake] = annotations.mentionable_field(
             default=hikari.Snowflake(0), empty_value=None, message_names=["--aaa", "-e", "-a"], or_snowflake=True
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6293,8 +6178,7 @@ def test_mentionable_field_when_type_mismatch():
     async def command(
         ctx: tanjun.abc.Context,
         ghost: annotations.Role = annotations.mentionable_field(description="x"),  # type: ignore
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         RuntimeError,
@@ -6311,15 +6195,13 @@ def test_mentionable_field_when_type_match():
     @tanjun.as_slash_command("name", "description")
     async def _(
         ctx: tanjun.abc.Context, field: annotations.Mentionable = annotations.mentionable_field(description="x")
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 def test_role_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, arg: hikari.Role = annotations.role_field()) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, arg: hikari.Role = annotations.role_field()) -> None: ...
 
     annotations.parse_annotated_args(command, descriptions={"arg": "beet"}, follow_wrapped=True)
 
@@ -6363,8 +6245,7 @@ def test_role_field_with_config():
         arg: typing.Union[hikari.Role, hikari.Snowflake, None] = annotations.role_field(
             default=None, description="root", greedy=True, or_snowflake=True, positional=True, slash_name="slap"
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6404,8 +6285,7 @@ def test_role_field_when_default_marks_as_flag():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context, nep: typing.Union[hikari.Role, None] = annotations.role_field(default=None)
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6436,8 +6316,7 @@ def test_role_field_when_default_marks_as_flag_and_other_config():
             message_names=["--name", "--ear", "--nose"],
             or_snowflake=True,
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6462,8 +6341,7 @@ def test_role_field_when_type_mismatch():
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context, cappy: annotations.Int = annotations.role_field(description="x")  # type: ignore
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         RuntimeError,
@@ -6475,15 +6353,13 @@ def test_role_field_when_type_mismatch():
 def test_role_field_when_type_match():
     @annotations.with_annotated_args
     @tanjun.as_slash_command("name", "description")
-    async def _(ctx: tanjun.abc.Context, field: annotations.Role = annotations.role_field(description="x")) -> None:
-        ...
+    async def _(ctx: tanjun.abc.Context, field: annotations.Role = annotations.role_field(description="x")) -> None: ...
 
 
 def test_str_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, field: str = annotations.str_field()) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, field: str = annotations.str_field()) -> None: ...
 
     annotations.parse_annotated_args(command, descriptions={"field": "root"}, follow_wrapped=True)
 
@@ -6541,8 +6417,7 @@ def test_str_field_with_config():
             positional=True,
             slash_name="name",
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6592,8 +6467,9 @@ def test_str_field_with_single_converter():
 
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, field: bool = annotations.str_field(converters=mock_converter)) -> None:
-        ...
+    async def command(
+        ctx: tanjun.abc.Context, field: bool = annotations.str_field(converters=mock_converter)
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, descriptions={"field": "blam"}, follow_wrapped=True)
 
@@ -6620,8 +6496,7 @@ def test_str_field_when_default_marks_as_flag():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context, poison: typing.Union[str, None] = annotations.str_field(default=None)
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6660,8 +6535,7 @@ def test_str_field_when_default_marks_as_flag_and_other_config():
             min_length=10,
             max_length=100,
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6690,8 +6564,7 @@ def test_str_field_when_default_marks_as_flag_and_single_converter():
     async def command(
         ctx: tanjun.abc.Context,
         poison: typing.Union[str, None] = annotations.str_field(converters=mock_converter, default=None),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6708,8 +6581,7 @@ def test_str_field_when_type_mismatch():
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context, bust: annotations.Int = annotations.str_field(description="x")  # type: ignore
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         RuntimeError, match="Conflicting option types of <class 'str'> and <class 'int'> found for 'bust' parameter"
@@ -6720,15 +6592,13 @@ def test_str_field_when_type_mismatch():
 def test_str_field_when_type_match():
     @annotations.with_annotated_args
     @tanjun.as_slash_command("name", "description")
-    async def _(ctx: tanjun.abc.Context, field: annotations.Str = annotations.str_field(description="x")) -> None:
-        ...
+    async def _(ctx: tanjun.abc.Context, field: annotations.Str = annotations.str_field(description="x")) -> None: ...
 
 
 def test_user_field():
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context, of: hikari.User = annotations.user_field()) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, of: hikari.User = annotations.user_field()) -> None: ...
 
     annotations.parse_annotated_args(command, descriptions={"of": "foot"}, follow_wrapped=True)
 
@@ -6777,8 +6647,7 @@ def test_user_field_with_config():
             positional=True,
             slash_name="easter",
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6818,8 +6687,7 @@ def test_user_field_when_default_marks_as_flag():
     @tanjun.as_message_command("name")
     async def command(
         ctx: tanjun.abc.Context, sl: typing.Union[hikari.User, None] = annotations.user_field(default=None)
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6847,8 +6715,7 @@ def test_user_field_when_default_marks_as_flag_and_other_config():
         ut: typing.Union[hikari.User, None, hikari.Snowflake] = annotations.user_field(
             default=None, empty_value=hikari.Snowflake(4), message_names=["--name", "--allied", "-b"], or_snowflake=True
         ),
-    ) -> None:
-        ...
+    ) -> None: ...
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6873,8 +6740,7 @@ def test_user_field_when_type_mismatch():
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.Context, fed: annotations.Member = annotations.user_field(description="x")  # type: ignore
-    ) -> None:
-        ...
+    ) -> None: ...
 
     with pytest.raises(
         RuntimeError,
@@ -6889,8 +6755,7 @@ def test_user_field_when_type_mismatch():
 def test_user_field_when_type_match():
     @annotations.with_annotated_args
     @tanjun.as_slash_command("name", "description")
-    async def _(ctx: tanjun.abc.Context, field: annotations.User = annotations.user_field(description="x")) -> None:
-        ...
+    async def _(ctx: tanjun.abc.Context, field: annotations.User = annotations.user_field(description="x")) -> None: ...
 
 
 def test_with_unpacked_stdlib_typed_dict():

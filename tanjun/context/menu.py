@@ -159,12 +159,10 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         return self
 
     @typing.overload
-    def resolve_to_member(self) -> hikari.InteractionMember:
-        ...
+    def resolve_to_member(self) -> hikari.InteractionMember: ...
 
     @typing.overload
-    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]:
-        ...
+    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]: ...
 
     def resolve_to_member(
         self, *, default: typing.Union[_T, _internal.Default] = _internal.DEFAULT

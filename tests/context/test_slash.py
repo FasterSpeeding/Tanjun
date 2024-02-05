@@ -703,12 +703,14 @@ class TestAppCommandContext:
         assert context.defaults_to_ephemeral is False
 
     @pytest.mark.skip(reason="not implemented")
-    async def test_defer_cancels_defer_when_not_in_defer_task(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_defer_cancels_defer_when_not_in_defer_task(
+        self, context: tanjun.context.slash.AppCommandContext
+    ): ...
 
     @pytest.mark.skip(reason="not implemented")
-    async def test_defer_doesnt_cancel_defer_when_in_deffer_task(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_defer_doesnt_cancel_defer_when_in_deffer_task(
+        self, context: tanjun.context.slash.AppCommandContext
+    ): ...
 
     @pytest.mark.asyncio()
     async def test__delete_followup_after(self, context: tanjun.context.slash.AppCommandContext):
@@ -739,8 +741,7 @@ class TestAppCommandContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_followup(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_create_followup(self, context: tanjun.context.slash.AppCommandContext): ...
 
     @pytest.mark.asyncio()
     async def test__delete_initial_response_after(self):
@@ -778,44 +779,39 @@ class TestAppCommandContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_create_initial_response(self, context: tanjun.context.slash.AppCommandContext): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_create_initial_response_for_gateway_interaction(
         self, context: tanjun.context.slash.AppCommandContext
-    ):
-        ...
+    ): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_for_rest_interaction(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_create_initial_response_for_rest_interaction(
+        self, context: tanjun.context.slash.AppCommandContext
+    ): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_create_initial_response_when_already_responded(
         self, context: tanjun.context.slash.AppCommandContext
-    ):
-        ...
+    ): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_when_deferred(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_create_initial_response_when_deferred(self, context: tanjun.context.slash.AppCommandContext): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_initial_response_when_delete_after(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_create_initial_response_when_delete_after(self, context: tanjun.context.slash.AppCommandContext): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_create_initial_response_when_delete_after_will_have_expired(
         self, context: tanjun.context.slash.AppCommandContext
-    ):
-        ...
+    ): ...
 
     @pytest.mark.asyncio()
     async def test_delete_initial_response(self, context: tanjun.context.slash.AppCommandContext):
@@ -927,39 +923,39 @@ class TestAppCommandContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_only_initial_response(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_edit_last_response_when_only_initial_response(
+        self, context: tanjun.context.slash.AppCommandContext
+    ): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_initial_response_deferred(
         self, context: tanjun.context.slash.AppCommandContext
-    ):
-        ...
+    ): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_only_initial_response_or_deferred_and_delete_after(
         self, context: tanjun.context.slash.AppCommandContext
-    ):
-        ...
+    ): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
     async def test_edit_last_response_when_only_initial_response_or_deferred_and_delete_after_will_have_expired(
         self, context: tanjun.context.slash.AppCommandContext
-    ):
-        ...
+    ): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_multiple_responses(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_edit_last_response_when_multiple_responses(
+        self, context: tanjun.context.slash.AppCommandContext
+    ): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_edit_last_response_when_no_previous_response(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_edit_last_response_when_no_previous_response(
+        self, context: tanjun.context.slash.AppCommandContext
+    ): ...
 
     @pytest.mark.asyncio()
     async def test_fetch_initial_response(self, context: tanjun.context.slash.AppCommandContext):
@@ -969,18 +965,15 @@ class TestAppCommandContext:
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_fetch_last_response(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_fetch_last_response(self, context: tanjun.context.slash.AppCommandContext): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_create_modal_response(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_create_modal_response(self, context: tanjun.context.slash.AppCommandContext): ...
 
     @pytest.mark.skip(reason="not implemented")
     @pytest.mark.asyncio()
-    async def test_respond(self, context: tanjun.context.slash.AppCommandContext):
-        ...
+    async def test_respond(self, context: tanjun.context.slash.AppCommandContext): ...
 
 
 class TestSlashContext:

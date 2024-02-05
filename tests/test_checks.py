@@ -84,8 +84,7 @@ class TestOwnerCheck:
 
     async def test_when_false_and_error(self):
         class MockException(Exception):
-            def __init__(self):
-                ...
+            def __init__(self): ...
 
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
@@ -287,15 +286,15 @@ class TestNsfwCheck:
 
     async def test_when_false_when_error(self):
         class MockException(Exception):
-            def __init__(self):
-                ...
+            def __init__(self): ...
 
         mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.NsfwCheck(error=MockException, error_message="nye")
 
-        with pytest.raises(MockException), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=None)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(MockException),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=None)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -305,9 +304,10 @@ class TestNsfwCheck:
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error_message="meow me")
 
-        with pytest.raises(tanjun.errors.CommandError, match="meow me"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="meow me"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -320,9 +320,10 @@ class TestNsfwCheck:
             error_message={hikari.Locale.DE: "oh", hikari.Locale.HU: "no", hikari.Locale.EN_GB: "meow"}
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="no"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="no"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -339,9 +340,10 @@ class TestNsfwCheck:
             }
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="defaulted"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="defaulted"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -358,9 +360,10 @@ class TestNsfwCheck:
             }
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="default default default"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="default default default"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -378,9 +381,10 @@ class TestNsfwCheck:
             }
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="real default"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="real default"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -402,9 +406,10 @@ class TestNsfwCheck:
             {hikari.Locale.CS: "n", hikari.Locale.EN_GB: "override", hikari.Locale.FI: "i'm finished"},
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="override"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="override"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel,
+        ):
             await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -431,9 +436,10 @@ class TestNsfwCheck:
             .set_variants("cthulhu calls", {hikari.Locale.EN_GB: "wowzer Fred, I'm gay", hikari.Locale.CS: "meow"})
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="wowzer Fred, I'm gay"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="wowzer Fred, I'm gay"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel,
+        ):
             await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -459,9 +465,10 @@ class TestNsfwCheck:
             .set_variants("cthulhu calls", {hikari.Locale.EN_GB: "wowzer Fred, I'm gay", hikari.Locale.CS: "meow"})
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="default default default"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="default default default"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel,
+        ):
             await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -471,9 +478,10 @@ class TestNsfwCheck:
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error_message="yeet", halt_execution=True)
 
-        with pytest.raises(tanjun.errors.HaltExecution), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.HaltExecution),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=False)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -515,15 +523,15 @@ class TestSfwCheck:
 
     async def test_when_is_nsfw_and_error(self):
         class MockException(Exception):
-            def __init__(self):
-                ...
+            def __init__(self): ...
 
         mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.SfwCheck(error=MockException, error_message="bye")
 
-        with pytest.raises(MockException), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(MockException),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -533,9 +541,10 @@ class TestSfwCheck:
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error_message="meow me")
 
-        with pytest.raises(tanjun.errors.CommandError, match="meow me"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="meow me"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -548,9 +557,10 @@ class TestSfwCheck:
             error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="moooo"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="moooo"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -567,9 +577,10 @@ class TestSfwCheck:
             }
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="bye bye"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="bye bye"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -582,9 +593,10 @@ class TestSfwCheck:
             error_message={hikari.Locale.BG: "oooooo", hikari.Locale.DA: "moooo", hikari.Locale.EN_GB: "pussy cat"}
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="oooooo"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="oooooo"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -602,9 +614,10 @@ class TestSfwCheck:
             }
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="oh no"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="oh no"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -621,9 +634,10 @@ class TestSfwCheck:
             "user_menu:oh no girl:check:tanjun.SfwCheck", {hikari.Locale.DA: "real value", hikari.Locale.BG: "op"}
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="real value"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="real value"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
+        ):
             await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -659,9 +673,10 @@ class TestSfwCheck:
             )
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="Passing you like a summer breeze"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="Passing you like a summer breeze"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
+        ):
             await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -697,9 +712,10 @@ class TestSfwCheck:
             )
         )
 
-        with pytest.raises(tanjun.errors.CommandError, match="years of meows"), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.CommandError, match="years of meows"),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
+        ):
             await check(mock_context, localiser=localiser)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -709,9 +725,10 @@ class TestSfwCheck:
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error_message="yeet", halt_execution=True)
 
-        with pytest.raises(tanjun.errors.HaltExecution), mock.patch.object(
-            cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)
-        ) as get_perm_channel:
+        with (
+            pytest.raises(tanjun.errors.HaltExecution),
+            mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
+        ):
             await check(mock_context)
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
@@ -727,8 +744,7 @@ class TestDmCheck:
 
     def test_for_guild_when_error(self):
         class MockException(Exception):
-            def __init__(self):
-                ...
+            def __init__(self): ...
 
         check = tanjun.checks.DmCheck(error=MockException, error_message="meow")
         mock_context = mock.Mock(guild_id=3123)
@@ -884,8 +900,7 @@ class TestGuildCheck:
 
     def test_for_dm_when_error(self):
         class MockException(Exception):
-            def __init__(self):
-                ...
+            def __init__(self): ...
 
         check = tanjun.checks.GuildCheck(error=MockException, error_message="meep")
 
@@ -1188,16 +1203,16 @@ class TestAuthorPermissionCheck:
     async def test_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        class StubError(Exception):
-            ...
+        class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
         mock_context = mock.Mock()
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock_error_callback)
 
-        with pytest.raises(StubError), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(StubError),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context)
 
         mock_error_callback.assert_called_once_with(missing_perms)
@@ -1213,9 +1228,10 @@ class TestAuthorPermissionCheck:
         mock_context = mock.Mock()
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message="yeet feet")
 
-        with pytest.raises(tanjun.CommandError, match="yeet feet"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="yeet feet"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context)
 
         fetch_permissions.assert_awaited_once_with(
@@ -1231,9 +1247,10 @@ class TestAuthorPermissionCheck:
             required_perms, error_message={hikari.Locale.BG: "yeet", "default": "moop"}
         )
 
-        with pytest.raises(tanjun.CommandError, match="moop"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="moop"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context)
 
         fetch_permissions.assert_awaited_once_with(
@@ -1247,9 +1264,10 @@ class TestAuthorPermissionCheck:
         mock_context = mock.Mock()
         check = tanjun.checks.AuthorPermissionCheck(required_perms, halt_execution=True)
 
-        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.HaltExecution),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context)
 
         fetch_permissions.assert_awaited_once_with(
@@ -1280,8 +1298,7 @@ class TestAuthorPermissionCheck:
     async def test_for_interaction_member_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        class StubError(Exception):
-            ...
+        class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
         mock_context = mock.Mock(member=mock.Mock(hikari.InteractionMember, permissions=actual_perms))
@@ -1489,16 +1506,18 @@ class TestAuthorPermissionCheck:
     async def test_for_guild_user_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        class StubError(Exception):
-            ...
+        class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
         mock_context = mock.Mock(member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock_error_callback)
 
-        with pytest.raises(StubError), mock.patch.object(
-            tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
-        ) as fetch_everyone_permissions:
+        with (
+            pytest.raises(StubError),
+            mock.patch.object(
+                tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
+            ) as fetch_everyone_permissions,
+        ):
             await check(mock_context)
 
         mock_error_callback.assert_called_once_with(missing_perms)
@@ -1513,9 +1532,12 @@ class TestAuthorPermissionCheck:
         mock_context = mock.Mock(member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message="beat yo meow")
 
-        with pytest.raises(tanjun.CommandError, match="beat yo meow"), mock.patch.object(
-            tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
-        ) as fetch_everyone_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="beat yo meow"),
+            mock.patch.object(
+                tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
+            ) as fetch_everyone_permissions,
+        ):
             await check(mock_context)
 
         fetch_everyone_permissions.assert_awaited_once_with(
@@ -1529,9 +1551,12 @@ class TestAuthorPermissionCheck:
         mock_context = mock.Mock(member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, halt_execution=True)
 
-        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
-        ) as fetch_everyone_permissions:
+        with (
+            pytest.raises(tanjun.HaltExecution),
+            mock.patch.object(
+                tanjun.permissions, "fetch_everyone_permissions", return_value=actual_perms
+            ) as fetch_everyone_permissions,
+        ):
             await check(mock_context)
 
         fetch_everyone_permissions.assert_awaited_once_with(
@@ -1560,8 +1585,7 @@ class TestAuthorPermissionCheck:
     async def test_for_dm_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        class StubError(Exception):
-            ...
+        class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
         mock_context = mock.Mock(guild_id=None, member=None)
@@ -1694,8 +1718,7 @@ class TestOwnPermissionCheck:
     async def test_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        class StubError(Exception):
-            ...
+        class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
         mock_context = mock.Mock(tanjun.abc.Context)
@@ -1706,9 +1729,10 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
 
-        with pytest.raises(StubError), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(StubError),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         mock_error_callback.assert_called_once_with(missing_perms)
@@ -1731,9 +1755,10 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="meow meow")
 
-        with pytest.raises(tanjun.CommandError, match="meow meow"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="meow meow"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_awaited_once_with(
@@ -1757,9 +1782,10 @@ class TestOwnPermissionCheck:
             required_perms, error_message={hikari.Locale.DE: "meow meow", "default": "bye meow"}
         )
 
-        with pytest.raises(tanjun.CommandError, match="bye meow"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="bye meow"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_awaited_once_with(
@@ -1781,9 +1807,10 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
 
-        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.HaltExecution),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_awaited_once_with(
@@ -1839,8 +1866,7 @@ class TestOwnPermissionCheck:
     async def test_for_cached_member_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        class StubError(Exception):
-            ...
+        class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
         mock_context = mock.Mock(tanjun.abc.Context)
@@ -1850,9 +1876,10 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
 
-        with pytest.raises(StubError), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(StubError),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         mock_error_callback.assert_called_once_with(missing_perms)
@@ -1874,9 +1901,10 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="meowth")
 
-        with pytest.raises(tanjun.CommandError, match="meowth"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="meowth"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_awaited_once_with(
@@ -1897,9 +1925,10 @@ class TestOwnPermissionCheck:
         mock_member_cache.get_from_guild.return_value = None
         check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
 
-        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.HaltExecution),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_awaited_once_with(
@@ -1955,8 +1984,7 @@ class TestOwnPermissionCheck:
     async def test_for_async_cached_member_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        class StubError(Exception):
-            ...
+        class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
         mock_context = mock.Mock(tanjun.abc.Context)
@@ -1966,9 +1994,10 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, error=mock_error_callback)
 
-        with pytest.raises(StubError), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(StubError),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         mock_error_callback.assert_called_once_with(missing_perms)
@@ -1990,9 +2019,10 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="nom")
 
-        with pytest.raises(tanjun.CommandError, match="nom"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="nom"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_awaited_once_with(
@@ -2013,9 +2043,10 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
 
-        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.permissions, "fetch_permissions", return_value=actual_perms
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.HaltExecution),
+            mock.patch.object(tanjun.permissions, "fetch_permissions", return_value=actual_perms) as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_awaited_once_with(
@@ -2069,8 +2100,7 @@ class TestOwnPermissionCheck:
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        class StubError(Exception):
-            ...
+        class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
@@ -2100,9 +2130,10 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="bees")
 
-        with pytest.raises(tanjun.CommandError, match="bees"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions"
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="bees"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_not_called()
@@ -2125,9 +2156,10 @@ class TestOwnPermissionCheck:
             error_message={hikari.Locale.DE: "bees", hikari.Locale.EN_GB: "hip", hikari.Locale.EN_US: "to bee"},
         )
 
-        with pytest.raises(tanjun.CommandError, match="hip"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions"
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="hip"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_not_called()
@@ -2150,9 +2182,10 @@ class TestOwnPermissionCheck:
             error_message={hikari.Locale.DE: "bees", hikari.Locale.EN_GB: "hip", hikari.Locale.EN_US: "to bee"},
         )
 
-        with pytest.raises(tanjun.CommandError, match="bees"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions"
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="bees"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_not_called()
@@ -2180,9 +2213,10 @@ class TestOwnPermissionCheck:
             },
         )
 
-        with pytest.raises(tanjun.CommandError, match="inject me uwu"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions"
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="inject me uwu"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_not_called()
@@ -2210,9 +2244,10 @@ class TestOwnPermissionCheck:
             {hikari.Locale.EN_GB: "no", hikari.Locale.EN_US: "girls"},
         )
 
-        with pytest.raises(tanjun.CommandError, match="girls"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions"
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="girls"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions,
+        ):
             await check(mock_context, localiser=localiser, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_not_called()
@@ -2249,9 +2284,10 @@ class TestOwnPermissionCheck:
             .set_variants("yuri", {hikari.Locale.EN_US: "uwu owo"})
         )
 
-        with pytest.raises(tanjun.CommandError, match="uwu owo"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions"
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="uwu owo"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions,
+        ):
             await check(mock_context, localiser=localiser, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_not_called()
@@ -2284,9 +2320,10 @@ class TestOwnPermissionCheck:
             {hikari.Locale.EN_GB: "no", hikari.Locale.EN_US: "girls"},
         )
 
-        with pytest.raises(tanjun.CommandError, match="meow-nyon"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions"
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="meow-nyon"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions,
+        ):
             await check(mock_context, localiser=localiser, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_not_called()
@@ -2305,9 +2342,10 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
 
-        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.permissions, "fetch_permissions"
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.HaltExecution),
+            mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_not_called()
@@ -2353,8 +2391,7 @@ class TestOwnPermissionCheck:
     async def test_for_dm_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, missing_perms: hikari.Permissions
     ):
-        class StubError(Exception):
-            ...
+        class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
         mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
@@ -2380,9 +2417,10 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, error_message="beep")
 
-        with pytest.raises(tanjun.CommandError, match="beep"), mock.patch.object(
-            tanjun.permissions, "fetch_permissions"
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.CommandError, match="beep"),
+            mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_not_called()
@@ -2398,9 +2436,10 @@ class TestOwnPermissionCheck:
         mock_member_cache = mock.AsyncMock()
         check = tanjun.checks.OwnPermissionCheck(required_perms, halt_execution=True)
 
-        with pytest.raises(tanjun.HaltExecution), mock.patch.object(
-            tanjun.permissions, "fetch_permissions"
-        ) as fetch_permissions:
+        with (
+            pytest.raises(tanjun.HaltExecution),
+            mock.patch.object(tanjun.permissions, "fetch_permissions") as fetch_permissions,
+        ):
             await check(mock_context, member_cache=mock_member_cache, my_user=mock_own_user)
 
         fetch_permissions.assert_not_called()
@@ -3066,8 +3105,7 @@ async def test_all_checks():
 
 @pytest.mark.asyncio()
 async def test_all_checks_when_check_raises():
-    class MockError(Exception):
-        ...
+    class MockError(Exception): ...
 
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3249,8 +3287,7 @@ async def test_any_checks_when_all_fail():
 @pytest.mark.asyncio()
 async def test_any_checks_when_all_fail_and_error():
     class MockException(Exception):
-        def __init__(self):
-            ...
+        def __init__(self): ...
 
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3540,8 +3577,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser_defaults():
 
 @pytest.mark.asyncio()
 async def test_any_checks_when_generic_unsuppressed_error_raised():
-    class MockError(Exception):
-        ...
+    class MockError(Exception): ...
 
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3560,8 +3596,7 @@ async def test_any_checks_when_generic_unsuppressed_error_raised():
 
 @pytest.mark.asyncio()
 async def test_any_checks_when_generic_error_suppressed():
-    class MockError(Exception):
-        ...
+    class MockError(Exception): ...
 
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3668,8 +3703,7 @@ def test_with_any_checks():
     mock_command.add_check.return_value = mock_command
     mock_error_callback = mock.Mock()
 
-    class MockError(Exception):
-        ...
+    class MockError(Exception): ...
 
     with mock.patch.object(tanjun.checks, "any_checks") as any_checks:
         result = tanjun.checks.with_any_checks(

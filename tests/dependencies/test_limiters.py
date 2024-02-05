@@ -1443,8 +1443,9 @@ class TestInMemoryCooldownManager:
         manager._buckets["flirt"] = mock_bucket
 
         date = datetime.datetime(2022, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
-        with freezegun.freeze_time(date), pytest.warns(
-            DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"
+        with (
+            freezegun.freeze_time(date),
+            pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"),
         ):
             result = await manager.check_cooldown("flirt", mock_ctx)  # pyright: ignore[reportDeprecated]
 
@@ -1461,8 +1462,9 @@ class TestInMemoryCooldownManager:
         manager._acquiring_ctxs[("mother", mock_ctx)] = mock_resource
 
         date = datetime.datetime(2021, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
-        with freezegun.freeze_time(date), pytest.warns(
-            DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"
+        with (
+            freezegun.freeze_time(date),
+            pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"),
         ):
             result = await manager.check_cooldown("mother", mock_ctx)  # pyright: ignore[reportDeprecated]
 
@@ -1521,8 +1523,9 @@ class TestInMemoryCooldownManager:
         manager = CooldownManager()
 
         date = datetime.datetime(2023, 5, 27, 23, 2, 40, 527391, tzinfo=datetime.timezone.utc)
-        with freezegun.freeze_time(date), pytest.warns(
-            DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"
+        with (
+            freezegun.freeze_time(date),
+            pytest.warns(DeprecationWarning, match="Use .acquire or .try_acquire and .release to manage cooldowns"),
         ):
             result = await manager.check_cooldown("yeet", mock_ctx, increment=True)  # pyright: ignore[reportDeprecated]
 
@@ -1844,8 +1847,7 @@ class TestCooldownPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_still_leads_to_wait_until_and_error_callback(self):
-        class MockException(Exception):
-            ...
+        class MockException(Exception): ...
 
         mock_error_callback = mock.Mock(return_value=MockException())
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True, error=mock_error_callback)
@@ -1868,8 +1870,7 @@ class TestCooldownPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_owners_exempt_still_leads_to_wait_until_and_error_callback_with_unknown_date(self):
-        class MockException(Exception):
-            ...
+        class MockException(Exception): ...
 
         mock_error_callback = mock.Mock(return_value=MockException())
         pre_execution = tanjun.dependencies.CooldownPreExecution("yuri", owners_exempt=True, error=mock_error_callback)
@@ -2095,8 +2096,7 @@ class TestCooldownPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_wait_until_and_error_callback(self):
-        class MockException(Exception):
-            ...
+        class MockException(Exception): ...
 
         mock_error_callback = mock.Mock(return_value=MockException())
         pre_execution = tanjun.dependencies.CooldownPreExecution(
@@ -2468,8 +2468,7 @@ class TestCooldownPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_unknown_wait_until_and_error_callback(self):
-        class MockException(Exception):
-            ...
+        class MockException(Exception): ...
 
         mock_error_callback = mock.Mock(return_value=MockException())
         pre_execution = tanjun.dependencies.CooldownPreExecution(
@@ -2883,8 +2882,7 @@ class TestInMemoryConcurrencyLimiter:
         assert manager._acquiring_ctxs[("aye", mock_context)] is mock_inner
 
     @pytest.mark.asyncio()
-    async def test_try_acquire_with_custom_bucket(self):
-        ...
+    async def test_try_acquire_with_custom_bucket(self): ...
 
     @pytest.mark.asyncio()
     async def test_try_acquire_when_failed_to_acquire(self):
@@ -2934,8 +2932,7 @@ class TestInMemoryConcurrencyLimiter:
         assert manager._buckets["yeet"] is mock_bucket
 
     @pytest.mark.asyncio()
-    async def test_release_with_custom_bucket(self):
-        ...
+    async def test_release_with_custom_bucket(self): ...
 
     @pytest.mark.asyncio()
     async def test_release(self):
@@ -3255,8 +3252,7 @@ class TestConcurrencyPreExecution:
 
     @pytest.mark.asyncio()
     async def test_call_when_acquire_fails_and_error_callback(self):
-        class MockException(Exception):
-            ...
+        class MockException(Exception): ...
 
         mock_concurrency_callback = mock.Mock(return_value=MockException())
 

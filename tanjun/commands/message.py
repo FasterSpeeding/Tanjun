@@ -68,12 +68,10 @@ _EMPTY_HOOKS: typing.Final[hooks_.Hooks[typing.Any]] = hooks_.Hooks()
 # this when expressed through callback: _CallbackIshT[_MessageCallbackSigT].
 class _AsMsgResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]:
-        ...
+    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommand[_MessageCallbackSigT]: ...
 
     @typing.overload
-    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
-        ...
+    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]: ...
 
 
 def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True) -> _AsMsgResultProto:
@@ -120,12 +118,10 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
 # this when expressed through `callback: _CallbackIshT[_MessageCallbackSigT]`.
 class _AsGroupResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]:
-        ...
+    def __call__(self, _: _MessageCallbackSigT, /) -> MessageCommandGroup[_MessageCallbackSigT]: ...
 
     @typing.overload
-    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:
-        ...
+    def __call__(self, _: _AnyCommandT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]: ...
 
 
 def as_message_command_group(
@@ -191,8 +187,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         *names: str,
         validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @typing.overload
     def __init__(
@@ -203,8 +198,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         *names: str,
         validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def __init__(
         self,
@@ -394,8 +388,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         strict: bool = False,
         validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @typing.overload
     def __init__(
@@ -407,8 +400,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         strict: bool = False,
         validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def __init__(
         self,

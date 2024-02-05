@@ -72,8 +72,7 @@ class TestComponent:
         add_listener.assert_not_called()
 
     def test_with_listener_with_type_hint(self):
-        async def callback(event: hikari.BanCreateEvent) -> None:
-            ...
+        async def callback(event: hikari.BanCreateEvent) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -86,8 +85,7 @@ class TestComponent:
         add_listener.assert_called_once_with(hikari.BanCreateEvent, callback)
 
     def test_with_listener_with_type_hint_in_annotated(self):
-        async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None:
-            ...
+        async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -100,8 +98,7 @@ class TestComponent:
         add_listener.assert_called_once_with(hikari.BanCreateEvent, callback)
 
     def test_with_listener_with_positional_only_type_hint(self):
-        async def callback(event: hikari.BanDeleteEvent, /) -> None:
-            ...
+        async def callback(event: hikari.BanDeleteEvent, /) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -114,8 +111,7 @@ class TestComponent:
         add_listener.assert_called_once_with(hikari.BanDeleteEvent, callback)
 
     def test_with_listener_with_var_positional_type_hint(self):
-        async def callback(*event: hikari.BanEvent) -> None:
-            ...
+        async def callback(*event: hikari.BanEvent) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -128,8 +124,9 @@ class TestComponent:
         add_listener.assert_called_once_with(hikari.BanEvent, callback)
 
     def test_with_listener_with_type_hint_union(self):
-        async def callback(event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]) -> None:
-            ...
+        async def callback(
+            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]
+        ) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -151,8 +148,7 @@ class TestComponent:
                 True,
                 "meow",
             ]
-        ) -> None:
-            ...
+        ) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -174,8 +170,7 @@ class TestComponent:
     if sys.version_info >= (3, 10):
 
         def test_with_listener_with_type_hint_310_union(self):
-            async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None:
-                ...
+            async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
 
             add_listener = mock.Mock()
             component: tanjun.Component = types.new_class(
@@ -194,8 +189,7 @@ class TestComponent:
                 event: typing.Annotated[
                     typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
                 ]
-            ) -> None:
-                ...
+            ) -> None: ...
 
             add_listener = mock.Mock()
             component: tanjun.Component = types.new_class(

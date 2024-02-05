@@ -258,12 +258,10 @@ def slash_command_group(
 # this when expressed through `callback: _CallbackIshT[_SlashCallbackSigT]`.
 class _AsSlashResultProto(typing.Protocol):
     @typing.overload
-    def __call__(self, _: _SlashCallbackSigT, /) -> SlashCommand[_SlashCallbackSigT]:
-        ...
+    def __call__(self, _: _SlashCallbackSigT, /) -> SlashCommand[_SlashCallbackSigT]: ...
 
     @typing.overload
-    def __call__(self, _: _AnyCommandT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
-        ...
+    def __call__(self, _: _AnyCommandT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]: ...
 
 
 def as_slash_command(
@@ -1511,8 +1509,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         sort_options: bool = True,
         validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @typing.overload
     def __init__(
@@ -1531,8 +1528,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         sort_options: bool = True,
         validate_arg_keys: bool = True,
         _wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     def __init__(
         self,
@@ -1930,8 +1926,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         max_length: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @typing_extensions.deprecated("Pass a dict for `choices`, not a sequence of tuples")
@@ -1950,8 +1945,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         max_length: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     def add_str_option(
         self,
@@ -2128,8 +2122,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         max_value: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @typing_extensions.deprecated("Pass a dict for choices, not a sequence of tuples")
@@ -2148,8 +2141,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         max_value: typing.Optional[int] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     def add_int_option(
         self,
@@ -2286,8 +2278,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         max_value: typing.Optional[float] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     @typing.overload
     @typing_extensions.deprecated("Pass a dict for choices, not a sequence of tuples")
@@ -2307,8 +2298,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         max_value: typing.Optional[float] = None,
         pass_as_kwarg: bool = True,
         _stack_level: int = 0,
-    ) -> Self:
-        ...
+    ) -> Self: ...
 
     def add_float_option(
         self,

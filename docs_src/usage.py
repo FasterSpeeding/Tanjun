@@ -55,18 +55,15 @@ def components_example() -> None:
 
     @component.with_command
     @tanjun.as_slash_command("name", "description")
-    async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
-        ...
+    async def slash_command(ctx: tanjun.abc.SlashContext) -> None: ...
 
     @component.with_listener()
-    async def event_listener(event: hikari.Event) -> None:
-        ...
+    async def event_listener(event: hikari.Event) -> None: ...
 
 
 def load_from_scope_example() -> None:
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.MessageContext) -> None:
-        ...
+    async def command(ctx: tanjun.abc.MessageContext) -> None: ...
 
     component = tanjun.Component().load_from_scope()
 
@@ -100,22 +97,19 @@ def loading_example(bot: hikari.GatewayBotAware) -> None:
 def slash_command_example() -> None:
     @tanjun.with_str_slash_option("option", "description")
     @tanjun.as_slash_command("name", "description")
-    async def slash_command(ctx: tanjun.abc.SlashContext) -> None:
-        ...
+    async def slash_command(ctx: tanjun.abc.SlashContext) -> None: ...
 
 
 def slash_command_group_example() -> None:
     ding_group = tanjun.slash_command_group("ding", "ding group")
 
     @ding_group.as_sub_command("dong", "dong command")
-    async def dong_command(ctx: tanjun.abc.SlashContext) -> None:
-        ...
+    async def dong_command(ctx: tanjun.abc.SlashContext) -> None: ...
 
     ding_ding_group = ding_group.make_sub_group("ding", "ding ding group")
 
     @ding_ding_group.as_sub_command("ding", "ding ding ding command")
-    async def ding_command(ctx: tanjun.abc.SlashContext) -> None:
-        ...
+    async def ding_command(ctx: tanjun.abc.SlashContext) -> None: ...
 
 
 def message_command_example(bot: hikari.GatewayBotAware) -> None:
@@ -128,48 +122,39 @@ def message_command_example(bot: hikari.GatewayBotAware) -> None:
     @tanjun.with_greedy_argument("content")
     @tanjun.with_argument("days", converters=int)
     @tanjun.as_message_command("meow command", "description")
-    async def message_command(ctx: tanjun.abc.MessageContext) -> None:
-        ...
+    async def message_command(ctx: tanjun.abc.MessageContext) -> None: ...
 
 
 def message_command_group_example() -> None:
     # prefixes=["!"]
 
     @tanjun.as_message_command_group("groupy")
-    async def groupy_group(ctx: tanjun.abc.MessageContext):
-        ...
+    async def groupy_group(ctx: tanjun.abc.MessageContext): ...
 
     @groupy_group.as_sub_command("sus drink")
-    async def sus_drink_command(ctx: tanjun.abc.MessageContext):
-        ...
+    async def sus_drink_command(ctx: tanjun.abc.MessageContext): ...
 
     @groupy_group.as_sub_group("tour")
-    async def tour_group(ctx: tanjun.abc.MessageContext):
-        ...
+    async def tour_group(ctx: tanjun.abc.MessageContext): ...
 
     @tour_group.as_sub_command("de france")
-    async def de_france_command(ctx: tanjun.abc.MessageContext):
-        ...
+    async def de_france_command(ctx: tanjun.abc.MessageContext): ...
 
 
 def context_menu_example(component: tanjun.Component) -> None:
     @component.with_command
     @tanjun.as_message_menu("name")
-    async def message_menu_command(ctx: tanjun.abc.MenuContext, message: hikari.Message) -> None:
-        ...
+    async def message_menu_command(ctx: tanjun.abc.MenuContext, message: hikari.Message) -> None: ...
 
     @component.with_command
     @tanjun.as_user_menu("name")
-    async def user_menu_command(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None:
-        ...
+    async def user_menu_command(ctx: tanjun.abc.MenuContext, user: hikari.User) -> None: ...
 
 
-class Video:
-    ...
+class Video: ...
 
 
-def get_video(value: str) -> Video:
-    ...
+def get_video(value: str) -> Video: ...
 
 
 # isort: off
@@ -190,8 +175,7 @@ def annotations_example() -> None:
         video: Annotated[Video, Converted(get_video), "a required string option which is converted with get_video"],
         user: Annotated[Optional[User], "a user option which defaults to None"] = None,
         enabled: Annotated[Bool, "a bool option which defaults to True"] = True,
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 # isort: on
@@ -202,8 +186,7 @@ def wrapped_command_example() -> None:
     @tanjun.with_guild_check(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
-    async def command(ctx: tanjun.abc.Context) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context) -> None: ...
 
 
 def responding_to_commands_example() -> None:
@@ -243,8 +226,7 @@ def autocomplete_example(component: tanjun.Component) -> None:
     @tanjun.with_str_slash_option("opt1", "description")
     @tanjun.with_str_slash_option("opt2", "description", default=None)
     @tanjun.as_slash_command("name", "description")
-    async def slash_command(ctx: tanjun.abc.SlashContext, opt1: str, opt2: typing.Optional[str]) -> None:
-        ...
+    async def slash_command(ctx: tanjun.abc.SlashContext, opt1: str, opt2: typing.Optional[str]) -> None: ...
 
     @slash_command.with_str_autocomplete("opt1")
     async def opt1_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
@@ -256,12 +238,10 @@ def autocomplete_example(component: tanjun.Component) -> None:
     slash_command.set_str_autocomplete("opt2", opt2_autocomplete)
 
 
-class Foo:
-    ...
+class Foo: ...
 
 
-class Bar:
-    ...
+class Bar: ...
 
 
 def set_client_deps_example(bot: hikari.GatewayBotAware) -> None:
@@ -274,8 +254,7 @@ def require_deps() -> None:
     @tanjun.as_slash_command("name", "description")
     async def command(
         ctx: tanjun.abc.SlashContext, foo_impl: alluka.Injected[Foo], bar_impl: Bar = alluka.inject(type=Bar)
-    ) -> None:
-        ...
+    ) -> None: ...
 
 
 def standard_check_example() -> None:
@@ -284,8 +263,7 @@ def standard_check_example() -> None:
     @tanjun.with_own_permission_check(hikari.Permissions.BAN_MEMBERS, follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description", default_member_permissions=hikari.Permissions.BAN_MEMBERS)
-    async def command(ctx: tanjun.abc.Context) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context) -> None: ...
 
 
 class DbResult:
@@ -315,8 +293,7 @@ def using_checks_example() -> None:
     @tanjun.with_owner_check(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
-    async def owner_only_command(ctx: tanjun.abc.Context):
-        ...
+    async def owner_only_command(ctx: tanjun.abc.Context): ...
 
 
 def custom_check_example() -> None:
@@ -331,32 +308,27 @@ def pre_execution_hook_example() -> None:
     hooks = tanjun.AnyHooks()
 
     @hooks.with_pre_execution  # hooks.add_pre_execution
-    async def pre_execution_hook(ctx: tanjun.abc.Context) -> None:
-        ...
+    async def pre_execution_hook(ctx: tanjun.abc.Context) -> None: ...
 
 
 def post_execution_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
     @hooks.with_post_execution  # hooks.add_post_execution
-    async def post_execution_hook(ctx: tanjun.abc.Context) -> None:
-        ...
+    async def post_execution_hook(ctx: tanjun.abc.Context) -> None: ...
 
 
 def success_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
     @hooks.with_on_success  # hooks.add_success_hook
-    async def success_hook(ctx: tanjun.abc.Context) -> None:
-        ...
+    async def success_hook(ctx: tanjun.abc.Context) -> None: ...
 
 
 def error_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
     @hooks.with_on_error  # hooks.add_on_error
-    async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> typing.Optional[bool]:
-        ...
+    async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> typing.Optional[bool]: ...
 
 
 def parser_error_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
     @hooks.with_on_parser_error  # hooks.add_on_parser_error
-    async def parser_error_hook(ctx: tanjun.abc.Context, error: tanjun.ParserError) -> None:
-        ...
+    async def parser_error_hook(ctx: tanjun.abc.Context, error: tanjun.ParserError) -> None: ...
 
 
 def concurrency_limiter_config_example(bot: hikari.GatewayBotAware) -> None:
@@ -373,8 +345,7 @@ def assign_concurrency_limit_example() -> None:
     @tanjun.with_concurrency_limit("main_commands", follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
-    async def user_command(ctx: tanjun.abc.Context) -> None:
-        ...
+    async def user_command(ctx: tanjun.abc.Context) -> None: ...
 
 
 def cooldown_config_example(bot: hikari.GatewayBotAware) -> None:
@@ -391,14 +362,12 @@ def assign_cooldown_example() -> None:
     @tanjun.with_cooldown("main_commands", follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
-    async def user_command(ctx: tanjun.abc.Context) -> None:
-        ...
+    async def user_command(ctx: tanjun.abc.Context) -> None: ...
 
 
 def localisation_example() -> None:
     @tanjun.as_slash_command({hikari.Locale.EN_US: "Hola"}, "description")
-    async def command(ctx: tanjun.abc.Context) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context) -> None: ...
 
 
 def client_localiser_example(bot: hikari.GatewayBotAware) -> None:

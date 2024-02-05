@@ -275,20 +275,16 @@ class TestUnloaderDescriptor:
 
 class TestClient:
     @pytest.mark.skip(reason="TODO")
-    def test___init__(self):
-        ...
+    def test___init__(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_from_gateway_bot(self):
-        ...
+    def test_from_gateway_bot(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_from_gateway_bot_when_cache_aware(self):
-        ...
+    def test_from_gateway_bot_when_cache_aware(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_from_rest_bot(self):
-        ...
+    def test_from_rest_bot(self): ...
 
     def test_from_rest_bot_when_bot_managed(self):
         mock_bot = mock.Mock()
@@ -299,8 +295,7 @@ class TestClient:
         mock_bot.add_shutdown_callback.assert_called_once_with(client._on_stopping)
 
     @pytest.mark.skip(reason="TODO")
-    def test___repr__(self):
-        ...
+    def test___repr__(self): ...
 
     @pytest.mark.asyncio()
     async def test__on_starting(self):
@@ -331,8 +326,7 @@ class TestClient:
         mock_close.assert_awaited_once_with()
 
     @pytest.mark.skip(reason="TODO")
-    def test__schedule_startup_registers(self):
-        ...
+    def test__schedule_startup_registers(self): ...
 
     @pytest.mark.asyncio()
     async def test__add_task(self):
@@ -731,8 +725,7 @@ class TestClient:
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_declare_application_commands(self):
-        ...
+    async def test_declare_application_commands(self): ...
 
     def test_set_set_default_app_command_permissions(self):
         client = tanjun.Client(mock.Mock())
@@ -751,8 +744,7 @@ class TestClient:
         assert client.dms_enabled_for_app_cmds is False
 
     @pytest.mark.skip(reason="TODO")
-    def test_set_hikari_trait_injectors(self):
-        ...
+    def test_set_hikari_trait_injectors(self): ...
 
     def test_set_interaction_not_found(self):
         mock_set_menu_not_found = mock.Mock()
@@ -799,16 +791,13 @@ class TestClient:
         assert client.metadata[key] is value
 
     @pytest.mark.skip(reason="TODO")
-    async def test_clear_commands(self):
-        ...
+    async def test_clear_commands(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    async def test_set_global_commands(self):
-        ...
+    async def test_set_global_commands(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    async def test_declare_global_commands(self):
-        ...
+    async def test_declare_global_commands(self): ...
 
     def test_set_human_only(self):
         client = tanjun.Client(mock.Mock()).set_human_only(False)
@@ -983,16 +972,13 @@ class TestClient:
         )
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_component(self):
-        ...
+    def test_add_component(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_component_when_already_present(self):
-        ...
+    def test_add_component_when_already_present(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_component_when_is_alive(self):
-        ...
+    def test_add_component_when_is_alive(self): ...
 
     def test_get_component_by_name(self):
         mock_component = mock.Mock()
@@ -1010,16 +996,13 @@ class TestClient:
         assert tanjun.Client(mock.AsyncMock()).get_component_by_name("test") is None
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_component(self):
-        ...
+    def test_remove_component(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_component_when_not_present(self):
-        ...
+    def test_remove_component_when_not_present(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_component_when_is_alive(self):
-        ...
+    def test_remove_component_when_is_alive(self): ...
 
     def test_remove_component_by_name(self):
         remove_component_ = mock.Mock()
@@ -1047,48 +1030,37 @@ class TestClient:
             client.remove_component_by_name("nyan")
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_client_callback(self):
-        ...
+    def test_add_client_callback(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_client_callback_when_already_present(self):
-        ...
+    def test_add_client_callback_when_already_present(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_client_callback_for_multiple_callbacks(self):
-        ...
+    def test_add_client_callback_for_multiple_callbacks(self): ...
 
     @pytest.mark.asyncio()
-    async def test_dispatch_client_callback(self):
-        ...
+    async def test_dispatch_client_callback(self): ...
 
     @pytest.mark.asyncio()
-    async def test_dispatch_client_callback_when_name_not_found(self):
-        ...
+    async def test_dispatch_client_callback_when_name_not_found(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_get_client_callbacks(self):
-        ...
+    def test_get_client_callbacks(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_get_client_callbacks_when_name_not_found(self):
-        ...
+    def test_get_client_callbacks_when_name_not_found(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_client_callback(self):
-        ...
+    def test_remove_client_callback(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_client_callback_when_name_not_found(self):
-        ...
+    def test_remove_client_callback_when_name_not_found(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_client_callback_when_callback_not_found(self):
-        ...
+    def test_remove_client_callback_when_callback_not_found(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_client_callback_when_last_callback(self):
-        ...
+    def test_remove_client_callback_when_last_callback(self): ...
 
     def test_with_client_callback(self):
         add_client_callback_ = mock.Mock()
@@ -1106,28 +1078,22 @@ class TestClient:
         add_client_callback_.assert_called_once_with("aye", mock_callback)
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener(self):
-        ...
+    def test_add_listener(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener_when_already_present(self):
-        ...
+    def test_add_listener_when_already_present(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener_for_multiple_callbacks(self):
-        ...
+    def test_add_listener_for_multiple_callbacks(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener_when_alive(self):
-        ...
+    def test_add_listener_when_alive(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener_when_alive_and_events(self):
-        ...
+    def test_add_listener_when_alive_and_events(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener_when_events(self):
-        ...
+    def test_add_listener_when_events(self): ...
 
     def test_remove_listener(self):
         mock_callback = mock.Mock()
@@ -1249,8 +1215,7 @@ class TestClient:
         add_listener_.assert_not_called()
 
     def test_with_listener_missing_positional_event_arg(self):
-        async def callback(*, event: hikari.Event, **kwargs: str) -> None:
-            ...
+        async def callback(*, event: hikari.Event, **kwargs: str) -> None: ...
 
         add_listener_ = mock.Mock()
 
@@ -1265,8 +1230,7 @@ class TestClient:
         add_listener_.assert_not_called()
 
     def test_with_listener_no_args(self):
-        async def callback() -> None:
-            ...
+        async def callback() -> None: ...
 
         add_listener_ = mock.Mock()
 
@@ -1303,8 +1267,7 @@ class TestClient:
         )
 
     def test_with_listener_with_type_hint(self):
-        async def callback(event: hikari.BanCreateEvent) -> None:
-            ...
+        async def callback(event: hikari.BanCreateEvent) -> None: ...
 
         add_listener_ = mock.Mock()
 
@@ -1319,8 +1282,7 @@ class TestClient:
         add_listener_.assert_called_once_with(hikari.BanCreateEvent, callback)
 
     def test_with_listener_with_type_hint_in_annotated(self):
-        async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None:
-            ...
+        async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None: ...
 
         add_listener_ = mock.Mock()
 
@@ -1335,8 +1297,7 @@ class TestClient:
         add_listener_.assert_called_once_with(hikari.BanCreateEvent, callback)
 
     def test_with_listener_with_positional_only_type_hint(self):
-        async def callback(event: hikari.BanDeleteEvent, /) -> None:
-            ...
+        async def callback(event: hikari.BanDeleteEvent, /) -> None: ...
 
         add_listener_ = mock.Mock()
 
@@ -1351,8 +1312,7 @@ class TestClient:
         add_listener_.assert_called_once_with(hikari.BanDeleteEvent, callback)
 
     def test_with_listener_with_var_positional_type_hint(self):
-        async def callback(*event: hikari.BanEvent) -> None:
-            ...
+        async def callback(*event: hikari.BanEvent) -> None: ...
 
         add_listener_ = mock.Mock()
 
@@ -1367,8 +1327,9 @@ class TestClient:
         add_listener_.assert_called_once_with(hikari.BanEvent, callback)
 
     def test_with_listener_with_type_hint_union(self):
-        async def callback(event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]) -> None:
-            ...
+        async def callback(
+            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]
+        ) -> None: ...
 
         add_listener_ = mock.Mock()
 
@@ -1392,8 +1353,7 @@ class TestClient:
                 True,
                 "meow",
             ]
-        ) -> None:
-            ...
+        ) -> None: ...
 
         add_listener_ = mock.Mock()
 
@@ -1417,8 +1377,7 @@ class TestClient:
     if sys.version_info >= (3, 10):
 
         def test_with_listener_with_type_hint_310_union(self):
-            async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None:
-                ...
+            async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
 
             add_listener_ = mock.Mock()
 
@@ -1439,8 +1398,7 @@ class TestClient:
                 event: typing.Annotated[
                     typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
                 ]
-            ) -> None:
-                ...
+            ) -> None: ...
 
             add_listener_ = mock.Mock()
 
@@ -1739,27 +1697,22 @@ class TestClient:
         assert commands == [mock_command_1, mock_command_2, mock_command_3, mock_command_4]
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_message_name(self):
-        ...
+    def test_check_message_name(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_slash_name(self):
-        ...
-
-    @pytest.mark.skip(reason="TODO")
-    @pytest.mark.asyncio()
-    async def test_close(self):
-        ...
+    def test_check_slash_name(self): ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_open(self):
-        ...
+    async def test_close(self): ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio()
-    async def test_fetch_rest_application_id(self):
-        ...
+    async def test_open(self): ...
+
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio()
+    async def test_fetch_rest_application_id(self): ...
 
     def test_set_ephemeral_default(self):
         client = tanjun.Client(mock.Mock())

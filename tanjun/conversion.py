@@ -1413,13 +1413,11 @@ _VALID_DATETIME_STYLES = frozenset(("t", "T", "d", "D", "f", "F", "R"))
 
 
 @typing.overload
-def from_datetime(value: datetime.timedelta, /) -> str:
-    ...
+def from_datetime(value: datetime.timedelta, /) -> str: ...
 
 
 @typing.overload
-def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str:
-    ...
+def from_datetime(value: datetime.datetime, /, *, style: str = "f") -> str: ...
 
 
 def from_datetime(value: typing.Union[datetime.datetime, datetime.timedelta], /, *, style: str = "f") -> str:
