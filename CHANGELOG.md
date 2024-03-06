@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- `bucket_id` will now default to the parent component's name if not set.
+
 ## [2.17.2] - 2023-12-28
 ### Added
 - Support for Python 3.12.
