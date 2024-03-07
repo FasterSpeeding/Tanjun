@@ -48,7 +48,7 @@ if typing.TYPE_CHECKING:
 class BaseContext(alluka.BasicContext, tanjun.Context):
     """Base class for the standard command context implementations."""
 
-    __slots__ = ("_client", "_component", "_final")
+    __slots__ = ("_client", "_component", "_final", "__weakref__")
 
     def __init__(self, client: tanjun.Client, /) -> None:
         super().__init__(client.injector)
