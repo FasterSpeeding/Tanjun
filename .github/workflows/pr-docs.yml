@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Fetch merge branch
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@b32f140b0c872d58512e0a66172253c302617b90
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
