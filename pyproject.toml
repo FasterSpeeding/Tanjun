@@ -106,6 +106,7 @@ ignore = [
     "E231",    # missing whitespace after ','
     "E701",    # Incompatible with black: E701 multiple statements on one line (colon)
     "E704",    # Incompatible with black: E704 multiple statements on one line (def)
+    "ASYNC910", # Return from async function with no guaranteed checkpoint or exception since function definition.
 ]
 per-file-ignores = [
     "docs_src/*.py: DALL000, D100, D101, D103, E800, FA100, FA101, F841, INP001, N806, TC001, TC101",
