@@ -3185,8 +3185,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         else:
             await own_hooks.trigger_success(ctx, hooks=hooks)
 
-        finally:
-            await own_hooks.trigger_post_execution(ctx, hooks=hooks)
+        await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     async def execute_autocomplete(
         self,

@@ -699,8 +699,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         else:
             await own_hooks.trigger_success(ctx, hooks=hooks)
 
-        finally:
-            await own_hooks.trigger_post_execution(ctx, hooks=hooks)
+        await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.load_into_component>>.
