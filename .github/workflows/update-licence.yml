@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@b32f140b0c872d58512e0a66172253c302617b90
+      - uses: actions/checkout@cd7d8d697e10461458bc61a30d094dc601a8b017
         with:
           submodules: "true"
 
@@ -28,7 +28,7 @@ jobs:
         run: python -m nox -s update-licence
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@a4f52f8033a6168103c2538976c07b467e8163bc
+        uses: peter-evans/create-pull-request@70a41aba780001da0a30141984ae2a0c95d8704e
         with:
           author: "always-on-duty[bot] <120557446+always-on-duty[bot]@users.noreply.github.com>"
           branch: task/update-licence
