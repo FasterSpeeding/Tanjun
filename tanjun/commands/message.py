@@ -359,8 +359,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             # TODO: how should this be handled around CommandError?
             await own_hooks.trigger_success(ctx, hooks=hooks)
 
-        finally:
-            await own_hooks.trigger_post_execution(ctx, hooks=hooks)
+        await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.load_into_component>>.
