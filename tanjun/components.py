@@ -1163,7 +1163,7 @@ class Component(tanjun.Component):
     async def _check_context(self, ctx: tanjun.Context, /) -> bool:
         return await _internal.gather_checks(ctx, self._checks)
 
-    async def _check_message_context(
+    async def _check_message_context(  # noqa: ASYNC900  # Async generator without `@asynccontextmanager` not allowed.
         self, ctx: tanjun.MessageContext, /
     ) -> collections.AsyncIterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         ctx.set_component(self)
