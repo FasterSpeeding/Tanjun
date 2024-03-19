@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Post execution command hooks will no-longer be triggered after a base
-  exception (e.g. [keyboardInterrupt][] and [asyncio.CancelledError][]) was
+  exception (e.g. [KeyboardInterrupt][] and [asyncio.CancelledError][]) was
   raised by the command during execution.
 
 ## [2.17.2] - 2023-12-28
