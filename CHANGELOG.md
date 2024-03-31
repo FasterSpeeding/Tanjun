@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [2.17.3] - 2024-03-31
 ### Fixed
 - Post execution command hooks will no-longer be triggered after a base
   exception (e.g. [KeyboardInterrupt][] and [asyncio.CancelledError][]) was
@@ -996,7 +997,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for python 3.8 in-order to switch over to using collection.abc generic classes due to this being more
   forward compatible.
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.2...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.3...HEAD
+[2.17.3]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.2...v2.17.3
 [2.17.2]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.1...v2.17.2
 [2.17.1]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.0...v2.17.1
 [2.17.0]: https://github.com/FasterSpeeding/Tanjun/compare/v2.16.1...v2.17.0
