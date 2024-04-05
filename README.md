@@ -18,11 +18,11 @@ For usage see the [documentation](https://tanjun.cursed.solutions/),
 
 # Community Resources
 
-* [Tan-chan](https://github.com/FasterSpeeding/Tan-chan) is a general utility library for
+* [Tan-chan](https://tanchan.cursed.solutions/) is a general utility library for
   Tanjun. It includes a command annotation parsing extension which parses docstrings to
   get the descriptions of slash commands and their options.
 * Redis based implementations of the async cache dependency can be found in
-  [hikari-sake](https://github.com/FasterSpeeding/Sake) \>=v1.0.1a1 (exposed by
+  [hikari-sake](https://sake.cursed.solutions/) \>=v1.0.1a1 (exposed by
   [sake.redis.ResourceClient.add_to_tanjun][]).
 
 # Support
