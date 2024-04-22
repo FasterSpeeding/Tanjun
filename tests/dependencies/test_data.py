@@ -80,7 +80,7 @@ class TestLazyConstant:
 
         assert constant.get_value() is mock_value
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_acquire(self):
         with mock.patch.object(asyncio, "Lock") as lock:
             constant = tanjun.LazyConstant(mock.Mock())
@@ -97,12 +97,12 @@ class TestLazyConstant:
 
 
 @pytest.mark.skip(reason="Not Implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_make_lc_resolver_when_already_cached(): ...
 
 
 @pytest.mark.skip(reason="Not Implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_make_lc_resolver(): ...
 
 
@@ -126,7 +126,7 @@ def test_cache_callback_when_invalid_expire_after(expire_after: typing.Union[flo
         tanjun.dependencies.data.cache_callback(mock.Mock(), expire_after=expire_after)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_cache_callback():
     mock_callback = mock.AsyncMock()
     mock_context = mock.AsyncMock()
@@ -149,7 +149,7 @@ async def test_cache_callback():
 
 
 @pytest.mark.parametrize("expire_after", [4, 4.0, datetime.timedelta(seconds=4)])
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_cache_callback_when_expired(expire_after: typing.Union[float, int, datetime.timedelta]):
     mock_callback = mock.AsyncMock()
     mock_first_context = mock.AsyncMock()
@@ -179,7 +179,7 @@ async def test_cache_callback_when_expired(expire_after: typing.Union[float, int
 
 
 @pytest.mark.parametrize("expire_after", [15, 15.0, datetime.timedelta(seconds=15)])
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_cache_callback_when_not_expired(expire_after: typing.Union[float, int, datetime.timedelta]):
     mock_callback = mock.AsyncMock()
     mock_context = mock.AsyncMock()

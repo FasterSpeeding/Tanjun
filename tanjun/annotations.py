@@ -1413,8 +1413,8 @@ class _FloatEnumConverter(_ConfigIdentifier):
 
     __slots__ = ("_enum",)
 
-    def __init__(self, enum: collections.Callable[[float], typing.Any]) -> None:
-        self._enum = enum
+    def __init__(self, enum_: collections.Callable[[float], typing.Any]) -> None:
+        self._enum = enum_
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.float_converter = self._enum
@@ -1425,8 +1425,8 @@ class _IntEnumConverter(_ConfigIdentifier):
 
     __slots__ = ("_enum",)
 
-    def __init__(self, enum: collections.Callable[[int], typing.Any]) -> None:
-        self._enum = enum
+    def __init__(self, enum_: collections.Callable[[int], typing.Any]) -> None:
+        self._enum = enum_
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.int_converter = self._enum
@@ -1435,8 +1435,8 @@ class _IntEnumConverter(_ConfigIdentifier):
 class _EnumConverter(_ConfigIdentifier):
     __slots__ = ("_converter",)
 
-    def __init__(self, enum: collections.Callable[[str], enum.Enum], /) -> None:
-        self._converter = enum
+    def __init__(self, enum_: collections.Callable[[typing.Any], enum.Enum], /) -> None:
+        self._converter = enum_
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.str_converters = [self._converter]
@@ -1463,9 +1463,10 @@ class _ChoicesMeta(abc.ABCMeta):
         else:
             raise TypeError("Enum must be a subclass of str, float or int")
 
+        enum_onverter = _EnumConverter(enum_)  # pyright: ignore[reportArgumentType]
         # TODO: do we want to wrap the convert callback to give better failed parse messages?
         return typing.cast(
-            "type[_EnumT]", typing.Annotated[enum_, choices, converter, _EnumConverter(enum_), _OptionMarker(type_)]
+            "type[_EnumT]", typing.Annotated[enum_, choices, converter, enum_onverter, _OptionMarker(type_)]
         )
 
 

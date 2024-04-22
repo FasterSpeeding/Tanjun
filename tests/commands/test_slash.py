@@ -547,14 +547,14 @@ class TestTrackedOption:
         assert option.is_only_member is True
         assert option.default == "default"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_convert_when_no_converters(self):
         mock_value = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(name="hi", key="bye", option_type=hikari.OptionType.INTEGER)
 
         assert await option.convert(mock.Mock(), mock_value) is mock_value
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_convert_when_all_fail(self):
         exc_1 = ValueError()
         exc_2 = ValueError()
@@ -577,7 +577,7 @@ class TestTrackedOption:
             [mock.call(mock_converter_1, mock_value), mock.call(mock_converter_2, mock_value)]
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_convert(self):
         mock_converter_1 = mock.Mock()
         mock_converter_2 = mock.Mock()
@@ -905,7 +905,7 @@ class TestBaseSlashCommand:
         assert command.set_tracked_command(mock_command).tracked_command_id is mock_command.id
 
     @pytest.mark.skip(reason="TODO")
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_check_context(self):
         mock_callback = mock.Mock()
         mock_other_callback = mock.Mock()
@@ -1237,7 +1237,7 @@ class TestSlashCommandGroup:
         assert result is mock_sub_command
         assert mock_sub_command in command_group.commands
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute(self):
         mock_command = mock.AsyncMock(set_parent=mock.Mock(), defaults_to_ephemeral=None)
         mock_command.name = "sex"
@@ -1255,7 +1255,7 @@ class TestSlashCommandGroup:
         mock_command.check_context.assert_awaited_once_with(mock_context)
         mock_context.set_ephemeral_default.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_when_sub_command_has_ephemeral_default_set(self):
         mock_command = mock.AsyncMock(set_parent=mock.Mock(), defaults_to_ephemeral=True)
         mock_command.name = "sex"
@@ -1273,7 +1273,7 @@ class TestSlashCommandGroup:
         mock_command.check_context.assert_awaited_once_with(mock_context)
         mock_context.set_ephemeral_default.assert_called_once_with(True)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_when_not_found(self):
         command_group = stub_class(
             tanjun.SlashCommandGroup, check_context=mock.AsyncMock(return_value=True), args=("yee", "nsoosos")
@@ -1286,7 +1286,7 @@ class TestSlashCommandGroup:
         mock_context.mark_not_found.assert_awaited_once_with()
         mock_context.set_ephemeral_default.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_when_checks_fail(self):
         mock_command = mock.AsyncMock(set_parent=mock.Mock(), defaults_to_ephemeral=None)
         mock_command.name = "sex"
@@ -1305,7 +1305,7 @@ class TestSlashCommandGroup:
         mock_context.mark_not_found.assert_awaited_once_with()
         mock_context.set_ephemeral_default.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_when_nested(self):
         mock_command = mock.AsyncMock(
             check_context=mock.AsyncMock(return_value=True), set_parent=mock.Mock(), defaults_to_ephemeral=None
@@ -1344,14 +1344,14 @@ class TestSlashCommand:
     ):
         assert tanjun.SlashCommand(inner_command, "woow", "no").callback is inner_command.callback
 
-    @pytest.fixture()
+    @pytest.fixture
     def command(self) -> tanjun.SlashCommand[typing.Any]:
         @tanjun.as_slash_command("yee", "nsoosos")
         async def mock_command(ctx: tanjun.abc.SlashContext, **kwargs: str) -> None: ...
 
         return mock_command
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call__(self):
         mock_callback = mock.AsyncMock()
         command = tanjun.SlashCommand[typing.Any](mock_callback, "yee", "nsoosos")
@@ -3333,7 +3333,7 @@ class TestSlashCommand:
     def test_build_with_localised_fields_and_implicit_default(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute(self): ...
 
     @pytest.mark.skip(reason="TODO")

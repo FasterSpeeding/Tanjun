@@ -65,7 +65,7 @@ def stub_class(
 
 
 class TestPartialCommand:
-    @pytest.fixture()
+    @pytest.fixture
     def command(self) -> base_command.PartialCommand[typing.Any]:
         fields: dict[str, typing.Any] = {}
         for name in base_command.PartialCommand.__abstractmethods__:

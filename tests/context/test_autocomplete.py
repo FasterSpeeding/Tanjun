@@ -42,15 +42,15 @@ import tanjun
 
 
 class TestAutocompleteContext:
-    @pytest.fixture()
+    @pytest.fixture
     def mock_client(self) -> tanjun.Client:
         return mock.AsyncMock(tanjun.Client)
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_interaction(self) -> hikari.AutocompleteInteraction:
         return mock.Mock(options=[mock.Mock(is_focused=True)])
 
-    @pytest.fixture()
+    @pytest.fixture
     def context(
         self, mock_client: tanjun.Client, mock_interaction: hikari.AutocompleteInteraction
     ) -> tanjun.context.AutocompleteContext:
@@ -239,7 +239,7 @@ class TestAutocompleteContext:
 
         assert context.triggering_name == "meow xes nyaa"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fetch_channel(self, context: tanjun.context.AutocompleteContext, mock_interaction: mock.Mock):
         mock_interaction.fetch_channel = mock.AsyncMock()
 
@@ -248,7 +248,7 @@ class TestAutocompleteContext:
         assert result is mock_interaction.fetch_channel.return_value
         mock_interaction.fetch_channel.assert_awaited_once_with()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fetch_guild(self, context: tanjun.context.AutocompleteContext, mock_interaction: mock.Mock):
         mock_interaction.fetch_guild = mock.AsyncMock()
 
@@ -269,7 +269,7 @@ class TestAutocompleteContext:
         assert result is mock_interaction.get_guild.return_value
         mock_interaction.get_guild.assert_called_once_with()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_choices(self):
         mock_interaction = mock.AsyncMock(options=[mock.Mock(is_focused=True)])
         context = tanjun.context.AutocompleteContext(mock.Mock(tanjun.Client), mock_interaction)
@@ -286,7 +286,7 @@ class TestAutocompleteContext:
             ]
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_choices_when_no_options(self):
         mock_interaction = mock.AsyncMock(options=[mock.Mock(is_focused=True)])
         context = tanjun.context.AutocompleteContext(mock.Mock(tanjun.Client), mock_interaction)
@@ -296,7 +296,7 @@ class TestAutocompleteContext:
         assert result is None
         mock_interaction.create_response.assert_awaited_once_with([])
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_choices_when_iterable(self):
         mock_interaction = mock.AsyncMock(options=[mock.Mock(is_focused=True)])
         context = tanjun.context.AutocompleteContext(mock.Mock(tanjun.Client), mock_interaction)
@@ -312,7 +312,7 @@ class TestAutocompleteContext:
             ]
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_choices_when_future_based(self):
         mock_future = mock.Mock()
         mock_interaction = mock.Mock(options=[mock.Mock(is_focused=True)])
@@ -330,7 +330,7 @@ class TestAutocompleteContext:
             ]
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_choices_when_future_based_and_iterable(self):
         mock_future = mock.Mock()
         mock_interaction = mock.Mock(options=[mock.Mock(is_focused=True)])
@@ -350,7 +350,7 @@ class TestAutocompleteContext:
         )
         assert context.has_responded is True
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_choices_when_future_based_and_no_options(self):
         mock_future = mock.Mock()
         mock_interaction = mock.Mock(options=[mock.Mock(is_focused=True)])
@@ -362,7 +362,7 @@ class TestAutocompleteContext:
         mock_future.set_result.assert_called_once_with(mock_interaction.build_response.return_value)
         mock_interaction.build_response.assert_called_once_with([])
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_choices_when_too_many_options(self):
         mock_interaction = mock.AsyncMock(options=[mock.Mock(is_focused=True)])
         context = tanjun.context.AutocompleteContext(mock.Mock(tanjun.Client), mock_interaction)
@@ -372,7 +372,7 @@ class TestAutocompleteContext:
 
         mock_interaction.create_response.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_set_choices_when_has_responded(self):
         mock_interaction = mock.AsyncMock(options=[mock.Mock(is_focused=True)])
         context = tanjun.context.AutocompleteContext(mock.Mock(tanjun.Client), mock_interaction)

@@ -267,7 +267,7 @@ class TestMenuCommand:
     ):
         assert tanjun.MenuCommand(inner_command, hikari.CommandType.MESSAGE, "woow").callback is inner_command.callback
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_call_dunder_method(self):
         mock_callback: typing.Any = mock.AsyncMock()
         command = tanjun.MenuCommand(mock_callback, hikari.CommandType.MESSAGE, "a")
@@ -520,7 +520,7 @@ class TestMenuCommand:
         assert result is command
         assert command.defaults_to_ephemeral is True
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_check_context(self):
         mock_callback = mock.Mock()
         mock_other_callback = mock.Mock()
@@ -544,7 +544,7 @@ class TestMenuCommand:
     def test_copy(self): ...
 
     @pytest.mark.skip(reason="TODO")
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute(self): ...
 
     def test_load_into_component(self):

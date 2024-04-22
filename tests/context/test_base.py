@@ -67,18 +67,18 @@ def stub_class(
     return typing.cast("type[_T]", new_cls)(*args, **kwargs or {})
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_client() -> tanjun.abc.Client:
     return mock.MagicMock(tanjun.abc.Client, rest=mock.AsyncMock(hikari.api.RESTClient))
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_component() -> tanjun.abc.Component:
     return mock.MagicMock(tanjun.abc.Component)
 
 
 class TestBaseContext:
-    @pytest.fixture()
+    @pytest.fixture
     def context(self, mock_client: mock.Mock) -> base_context.BaseContext:
         return stub_class(base_context.BaseContext, args=(mock_client,))
 
@@ -203,7 +203,7 @@ class TestBaseContext:
         assert context.get_guild() is None
         mock_client.cache.get_guild.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fetch_channel(self, context: base_context.BaseContext, mock_client: mock.Mock):
         mock_client.rest.fetch_channel.return_value = mock.Mock(hikari.TextableChannel)
 
@@ -212,14 +212,14 @@ class TestBaseContext:
         assert result is mock_client.rest.fetch_channel.return_value
         mock_client.rest.fetch_channel.assert_called_once_with(context.channel_id)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fetch_guild(self, context: base_context.BaseContext, mock_client: mock.Mock):
         result = await context.fetch_guild()
 
         assert result is mock_client.rest.fetch_guild.return_value
         mock_client.rest.fetch_guild.assert_called_once_with(context.guild_id)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fetch_guild_when_dm_bound(self, mock_client: mock.Mock):
         context = stub_class(base_context.BaseContext, guild_id=None, args=(mock_client,))
 

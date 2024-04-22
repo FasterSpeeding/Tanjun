@@ -41,15 +41,15 @@ import tanjun
 
 
 class TestMenuContext:
-    @pytest.fixture()
+    @pytest.fixture
     def mock_client(self) -> tanjun.Client:
         return mock.AsyncMock(tanjun.Client)
 
-    @pytest.fixture()
+    @pytest.fixture
     def mock_interaction(self) -> hikari.CommandInteraction:
         return mock.Mock()
 
-    @pytest.fixture()
+    @pytest.fixture
     def context(
         self, mock_client: tanjun.Client, mock_interaction: hikari.CommandInteraction
     ) -> tanjun.context.MenuContext:
@@ -146,7 +146,7 @@ class TestMenuContext:
 
         assert context.type is mock_interaction.command_type
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_mark_not_found(self):
         on_not_found = mock.AsyncMock()
         context = tanjun.context.MenuContext(
@@ -157,13 +157,13 @@ class TestMenuContext:
 
         on_not_found.assert_awaited_once_with(context)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_mark_not_found_when_no_callback(self):
         context = tanjun.context.MenuContext(mock.Mock(), mock.Mock(options=None), mock.Mock(), on_not_found=None)
 
         await context.mark_not_found()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_mark_not_found_when_already_marked_as_not_found(self):
         on_not_found = mock.AsyncMock()
         context = tanjun.context.MenuContext(

@@ -67,18 +67,18 @@ def stub_class(
     return typing.cast("type[_T]", new_cls)(*args, **kwargs or {})
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_client() -> tanjun.abc.Client:
     return mock.MagicMock(tanjun.abc.Client, rest=mock.AsyncMock(hikari.api.RESTClient))
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_component() -> tanjun.abc.Component:
     return mock.MagicMock(tanjun.abc.Component)
 
 
 class TestMessageContext:
-    @pytest.fixture()
+    @pytest.fixture
     def context(self, mock_client: mock.Mock) -> tanjun.context.MessageContext:
         return tanjun.context.MessageContext(
             mock_client,
@@ -213,7 +213,7 @@ class TestMessageContext:
 
         assert context.triggering_prefix != "bonhoven2"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_delete_initial_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
         context._initial_response_id = hikari.Snowflake(32123)
 
@@ -221,7 +221,7 @@ class TestMessageContext:
 
         mock_client.rest.delete_message.assert_awaited_once_with(context.message.channel_id, 32123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_delete_initial_response_when_no_initial_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
@@ -230,7 +230,7 @@ class TestMessageContext:
 
         mock_client.rest.delete_message.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_delete_last_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
         context._last_response_id = hikari.Snowflake(32123)
 
@@ -238,7 +238,7 @@ class TestMessageContext:
 
         mock_client.rest.delete_message.assert_awaited_once_with(context.message.channel_id, 32123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_delete_last_response_when_no_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
@@ -247,7 +247,7 @@ class TestMessageContext:
 
         mock_client.rest.delete_message.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_edit_initial_response(self, mock_client: mock.Mock):
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
@@ -296,7 +296,7 @@ class TestMessageContext:
         mock_delete_after.assert_not_called()
         mock_register_task.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_edit_initial_response_when_no_initial_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
@@ -306,7 +306,7 @@ class TestMessageContext:
         mock_client.rest.edit_message.assert_not_called()
 
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=123), 123, 123.0])
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_edit_initial_response_when_delete_after(
         self, delete_after: typing.Union[datetime.timedelta, float, int], mock_client: mock.Mock
     ):
@@ -326,7 +326,7 @@ class TestMessageContext:
         mock_delete_after.assert_called_once_with(123.0, mock_client.rest.edit_message.return_value)
         mock_register_task.assert_called_once_with(create_task.return_value)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_edit_last_response(self, mock_client: mock.Mock):
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
@@ -373,7 +373,7 @@ class TestMessageContext:
         mock_register_task.assert_not_called()
         mock_delete_after.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_edit_last_response_when_no_last_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
@@ -383,7 +383,7 @@ class TestMessageContext:
         mock_client.rest.edit_message.assert_not_called()
 
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=654), 654, 654.0])
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_edit_last_response_when_delete_after(
         self, mock_client: mock.Mock, delete_after: typing.Union[datetime.timedelta, int, float]
     ):
@@ -403,7 +403,7 @@ class TestMessageContext:
         mock_delete_after.assert_called_once_with(654.0, mock_client.rest.edit_message.return_value)
         mock_register_task.assert_called_once_with(create_task.return_value)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fetch_initial_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
         context._initial_response_id = hikari.Snowflake(32123)
 
@@ -412,7 +412,7 @@ class TestMessageContext:
         assert message is mock_client.rest.fetch_message.return_value
         mock_client.rest.fetch_message.assert_awaited_once_with(context.message.channel_id, 32123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fetch_initial_response_when_no_initial_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
@@ -421,7 +421,7 @@ class TestMessageContext:
 
         mock_client.rest.fetch_message.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fetch_last_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
         context._last_response_id = hikari.Snowflake(32123)
 
@@ -430,7 +430,7 @@ class TestMessageContext:
         assert message is mock_client.rest.fetch_message.return_value
         mock_client.rest.fetch_message.assert_awaited_once_with(context.message.channel_id, 32123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_fetch_last_response_when_no_last_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
     ):
@@ -440,7 +440,7 @@ class TestMessageContext:
 
         mock_client.rest.fetch_message.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test__delete_after(self, context: tanjun.context.MessageContext):
         mock_message = mock.AsyncMock()
 
@@ -450,7 +450,7 @@ class TestMessageContext:
             sleep.assert_awaited_once_with(1545.4)
             mock_message.delete.assert_awaited_once_with()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test__delete_after_handles_not_found_error(self, context: tanjun.context.MessageContext):
         mock_message = mock.AsyncMock()
         mock_message.delete.side_effect = hikari.NotFoundError(url="", headers={}, raw_body=None)
@@ -461,7 +461,7 @@ class TestMessageContext:
             sleep.assert_awaited_once_with(1545.4)
             mock_message.delete.assert_awaited_once_with()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_respond(self):
         mock_delete_after = mock.Mock()
         mock_register_task = mock.Mock()
@@ -520,7 +520,7 @@ class TestMessageContext:
         mock_register_task.assert_not_called()
         mock_delete_after.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_respond_when_initial_response_id_already_set(self, context: tanjun.context.MessageContext):
         context._initial_response_id = hikari.Snowflake(32123)
 
@@ -529,7 +529,7 @@ class TestMessageContext:
         assert context._initial_response_id == 32123
 
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=123), 123, 123.0])
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_respond_when_delete_after(self, delete_after: typing.Union[int, float, datetime.timedelta]):
         mock_delete_after = mock.Mock()
         mock_register_task = mock.Mock()

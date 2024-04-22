@@ -33,27 +33,27 @@ import pytest
 
 
 @pytest.mark.skip(reason="TODO")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test(): ...
 
 
 @pytest.mark.skip(reason="TODO")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_when_redeclare_cmds_after(): ...
 
 
 @pytest.mark.skip(reason="TODO")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_add_modules_async_when_str_module_doesnt_exist(): ...
 
 
 @pytest.mark.skip(reason="TODO")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_add_modules_async_when_str_module_doesnt_have_file(): ...
 
 
 @pytest.mark.skip(reason="TODO")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_add_modules_async_when_path_module_doesnt_exist(): ...
 
 
@@ -70,12 +70,12 @@ def test_add_modules_when_str_module_doesnt_have_file(): ...
 
 
 @pytest.mark.skip(reason="TODO")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_add_directory_async_when_directory_doesnt_exist(): ...
 
 
 @pytest.mark.skip(reason="TODO")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_add_directory_async_when_targets_file(): ...
 
 
