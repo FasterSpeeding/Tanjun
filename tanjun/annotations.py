@@ -1463,9 +1463,10 @@ class _ChoicesMeta(abc.ABCMeta):
         else:
             raise TypeError("Enum must be a subclass of str, float or int")
 
+        enum_onverter = _EnumConverter(enum_)  # pyright: ignore[reportArgumentType]
         # TODO: do we want to wrap the convert callback to give better failed parse messages?
         return typing.cast(
-            "type[_EnumT]", typing.Annotated[enum_, choices, converter, _EnumConverter(enum_), _OptionMarker(type_)]
+            "type[_EnumT]", typing.Annotated[enum_, choices, converter, enum_onverter, _OptionMarker(type_)]
         )
 
 
