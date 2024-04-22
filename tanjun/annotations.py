@@ -1413,8 +1413,8 @@ class _FloatEnumConverter(_ConfigIdentifier):
 
     __slots__ = ("_enum",)
 
-    def __init__(self, enum: collections.Callable[[float], typing.Any]) -> None:
-        self._enum = enum
+    def __init__(self, enum_: collections.Callable[[float], typing.Any]) -> None:
+        self._enum = enum_
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.float_converter = self._enum
@@ -1425,8 +1425,8 @@ class _IntEnumConverter(_ConfigIdentifier):
 
     __slots__ = ("_enum",)
 
-    def __init__(self, enum: collections.Callable[[int], typing.Any]) -> None:
-        self._enum = enum
+    def __init__(self, enum_: collections.Callable[[int], typing.Any]) -> None:
+        self._enum = enum_
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.int_converter = self._enum
@@ -1435,8 +1435,8 @@ class _IntEnumConverter(_ConfigIdentifier):
 class _EnumConverter(_ConfigIdentifier):
     __slots__ = ("_converter",)
 
-    def __init__(self, enum: collections.Callable[[str], enum.Enum], /) -> None:
-        self._converter = enum
+    def __init__(self, enum_: collections.Callable[[str], enum.Enum], /) -> None:
+        self._converter = enum_
 
     def set_config(self, config: _ArgConfig, /) -> None:
         config.str_converters = [self._converter]
