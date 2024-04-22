@@ -1435,7 +1435,7 @@ class _IntEnumConverter(_ConfigIdentifier):
 class _EnumConverter(_ConfigIdentifier):
     __slots__ = ("_converter",)
 
-    def __init__(self, enum_: collections.Callable[[str], enum.Enum], /) -> None:
+    def __init__(self, enum_: collections.Callable[[typing.Any], enum.Enum], /) -> None:
         self._converter = enum_
 
     def set_config(self, config: _ArgConfig, /) -> None:
