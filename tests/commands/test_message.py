@@ -147,7 +147,7 @@ class TestMessageCommand:
     @pytest.mark.skip(reason="TODO")
     def test___repr__(self): ...
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call__(self):
         callback = mock.AsyncMock()
         command = tanjun.as_message_command(callback, "yee", "nsoosos")(callback)
@@ -351,7 +351,7 @@ class TestMessageCommand:
     @pytest.mark.skip(reason="TODO")
     def test_copy(self): ...
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_check_context(self):
         mock_check = mock.Mock()
         mock_other_check = mock.Mock()
@@ -372,7 +372,7 @@ class TestMessageCommand:
         mock_context.set_command.assert_has_calls([mock.call(command), mock.call(None)])
 
     @pytest.mark.skip(reason="TODO")
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute(self): ...
 
     def test_load_into_component(self):
@@ -638,7 +638,7 @@ class TestMessageCommandGroup:
 
         assert results == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_no_message_content(self):
         mock_context = mock.Mock()
         mock_context.message.content = None
@@ -650,7 +650,7 @@ class TestMessageCommandGroup:
         with pytest.raises(ValueError, match="Cannot execute a command with a content-less message"):
             await command_group.execute(mock_context)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute(self):
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
@@ -684,7 +684,7 @@ class TestMessageCommandGroup:
         mock_command_2.execute.assert_called_once_with(mock_context, hooks={mock_hooks, mock_attached_hooks})
         mock_command_3.execute.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_no_pass_through_hooks(self):
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
@@ -717,7 +717,7 @@ class TestMessageCommandGroup:
         mock_command_2.execute.assert_called_once_with(mock_context, hooks={mock_attached_hooks})
         mock_command_3.execute.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_no_hooks(self):
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
@@ -747,7 +747,7 @@ class TestMessageCommandGroup:
         mock_command_2.execute.assert_called_once_with(mock_context, hooks=None)
         mock_command_3.execute.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_falls_back_to_own_callback(self):
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
@@ -776,7 +776,7 @@ class TestMessageCommandGroup:
         mock_command_1.execute.assert_not_called()
         mock_command_2.execute.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_falls_back_to_own_callback_no_pass_through_hooks(self):
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
@@ -804,7 +804,7 @@ class TestMessageCommandGroup:
         mock_command_1.execute.assert_not_called()
         mock_command_2.execute.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_execute_falls_back_to_own_callback_no_hooks(self):
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()

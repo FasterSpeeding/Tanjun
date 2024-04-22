@@ -104,7 +104,7 @@ class TestCommandError:
     def test_str_dunder_method(self):
         assert str(tanjun.CommandError("bar")) == "bar"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_send(self):
         error = tanjun.CommandError()
         mock_context = mock.AsyncMock()
@@ -124,7 +124,7 @@ class TestCommandError:
             user_mentions=hikari.UNDEFINED,
         )
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_send_when_all_fields(self):
         mock_attachment = mock.Mock()
         mock_component = mock.Mock()

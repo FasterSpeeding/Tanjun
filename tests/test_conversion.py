@@ -300,7 +300,7 @@ class TestToChannel:
     ):
         assert tanjun.conversion.ToChannel(allowed_types=allowed_types, include_dms=include_dms).caches == expected
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
         mock_channel_cache = mock.AsyncMock()
@@ -318,7 +318,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_hikari_cache_returns_allowed_type(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.type = hikari.ChannelType.GUILD_STAGE
@@ -330,7 +330,7 @@ class TestToChannel:
         mock_context.cache.get_guild_channel.assert_called_once_with(54312332143)
         mock_context.rest.fetch_channel.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_hikari_cache_returns_unallowed_type(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild_channel.return_value.type = hikari.ChannelType.GUILD_NEWS_THREAD
@@ -348,7 +348,7 @@ class TestToChannel:
         mock_context.cache.get_guild_channel.assert_called_once_with(54312332143)
         mock_context.rest.fetch_channel.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_no_async_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -359,7 +359,7 @@ class TestToChannel:
         mock_context.cache.get_guild_channel.assert_called_once_with(12222)
         mock_context.rest.fetch_channel.assert_awaited_once_with(12222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless_and_no_async_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -369,7 +369,7 @@ class TestToChannel:
         assert result is mock_context.rest.fetch_channel.return_value
         mock_context.rest.fetch_channel.assert_awaited_once_with(222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_rest_returns_allowed_type(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_context.rest.fetch_channel.return_value.type = hikari.ChannelType.GUILD_PUBLIC_THREAD
@@ -380,7 +380,7 @@ class TestToChannel:
         assert result is mock_context.rest.fetch_channel.return_value
         mock_context.rest.fetch_channel.assert_awaited_once_with(43234123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_rest_returns_unallowed_type(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_context.rest.fetch_channel.return_value.type = hikari.ChannelType.DM
@@ -397,7 +397,7 @@ class TestToChannel:
 
         mock_context.rest.fetch_channel.assert_awaited_once_with(7645634)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_async_channel_cache_hit(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -416,7 +416,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___async_channel_cache_returns_allowed_type(self):
         mock_context = mock.Mock(cache=None)
         mock_channel_cache = mock.AsyncMock()
@@ -435,7 +435,7 @@ class TestToChannel:
         mock_channel_cache.get.assert_awaited_once_with(4523)
         mock_context.rest.fetch_channel.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___async_channel_cache_returns_unallowed_type(self):
         mock_context = mock.Mock(cache=None)
         mock_channel_cache = mock.AsyncMock()
@@ -458,7 +458,7 @@ class TestToChannel:
         mock_context.rest.fetch_channel.assert_not_called()
 
     @pytest.mark.parametrize("side_effect", [tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound])
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_async_thread_cache_hit(self, side_effect: type[Exception]):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -478,7 +478,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_thread_cache_returns_allowed_type(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_thread_cache = mock.AsyncMock()
@@ -493,7 +493,7 @@ class TestToChannel:
         mock_thread_cache.get.assert_awaited_once_with(432354)
         mock_context.rest.fetch_channel.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_thread_cache_returns_unallowed_type(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_thread_cache = mock.AsyncMock()
@@ -515,7 +515,7 @@ class TestToChannel:
         mock_context.rest.fetch_channel.assert_not_called()
 
     @pytest.mark.parametrize("side_effect", [tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound])
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_async_dm_cache_hit(self, side_effect: type[Exception]):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -536,7 +536,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_awaited_once_with(12222)
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_dm_cache_returns_allowed_type(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_dm_cache = mock.AsyncMock()
@@ -549,7 +549,7 @@ class TestToChannel:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_dm_cache.get.assert_awaited_once_with(431123321)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_dm_cache_returns_unallowed_type(self):
         mock_context = mock.Mock(cache=None, rest=mock.AsyncMock())
         mock_dm_cache = mock.AsyncMock()
@@ -562,7 +562,7 @@ class TestToChannel:
         mock_context.rest.fetch_channel.assert_not_called()
         mock_dm_cache.get.assert_awaited_once_with(32123123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_async_cache_raises_not_found_and_not_including_dms(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -588,7 +588,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless_and_async_channel_cache_hit(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -607,7 +607,7 @@ class TestToChannel:
         mock_thread_cache.get.assert_not_called()
 
     @pytest.mark.parametrize("side_effect", [tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound])
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless_and_async_thread_cache_hit(self, side_effect: type[Exception]):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -627,7 +627,7 @@ class TestToChannel:
         mock_thread_cache.get.assert_awaited_once_with(222)
 
     @pytest.mark.parametrize("side_effect", [tanjun.dependencies.CacheMissError, tanjun.dependencies.EntryNotFound])
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless_and_async_dm_cache_hit(self, side_effect: type[Exception]):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -647,7 +647,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_awaited_once_with(222)
         mock_thread_cache.get.assert_awaited_once_with(222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_async_channel_caches_raise_not_found_and_not_including_dms(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -673,7 +673,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_all_async_caches_raise_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -699,7 +699,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_awaited_once_with(12222)
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_async_caches_all_raise_cache_miss_error(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -721,7 +721,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_awaited_once_with(12222)
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_including_dms(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.rest.fetch_channel.return_value = mock.Mock(
@@ -746,7 +746,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_including_dms_and_rest_returns_dm_channel(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.rest.fetch_channel.return_value = mock.Mock(hikari.DMChannel, type=hikari.ChannelType.DM)
@@ -773,7 +773,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_found_and_not_including_dms(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -801,7 +801,7 @@ class TestToChannel:
         mock_dm_cache.get.assert_not_called()
         mock_thread_cache.get.assert_awaited_once_with(12222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild_channel.return_value = None
@@ -830,7 +830,7 @@ class TestToChannel:
 
 
 class TestToEmoji:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
@@ -842,7 +842,7 @@ class TestToEmoji:
         mock_context.rest.fetch_emoji.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_cached(self):
         mock_context = mock.Mock()
         mock_context.cache.get_emoji.return_value = None
@@ -855,7 +855,7 @@ class TestToEmoji:
         mock_context.rest.fetch_emoji.assert_not_called()
         mock_cache.get.assert_awaited_once_with(6655)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_guild_bound(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_emoji.return_value = None
@@ -869,7 +869,7 @@ class TestToEmoji:
         mock_context.rest.fetch_emoji.assert_awaited_once_with(mock_context.guild_id, 54123)
         mock_cache.get.assert_awaited_once_with(54123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -879,7 +879,7 @@ class TestToEmoji:
         assert result is mock_context.rest.fetch_emoji.return_value
         mock_context.rest.fetch_emoji.assert_awaited_once_with(mock_context.guild_id, 7623421)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_rest_async_cache_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_emoji.return_value = None
@@ -893,7 +893,7 @@ class TestToEmoji:
         mock_context.rest.fetch_emoji.assert_not_called()
         mock_cache.get.assert_awaited_once_with(123321)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_rest_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_emoji.return_value = None
@@ -908,7 +908,7 @@ class TestToEmoji:
         mock_context.rest.fetch_emoji.assert_awaited_once_with(mock_context.guild_id, 123321)
         mock_cache.get.assert_awaited_once_with(123321)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_not_guild_bound(self):
         mock_context = mock.Mock(guild_id=None)
         mock_context.cache.get_emoji.return_value = None
@@ -924,7 +924,7 @@ class TestToEmoji:
 
 
 class TestToGuild:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
@@ -936,7 +936,7 @@ class TestToGuild:
         mock_context.rest.fetch_guild.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_cached(self):
         mock_context = mock.Mock()
         mock_context.cache.get_guild.return_value = None
@@ -949,7 +949,7 @@ class TestToGuild:
         mock_context.rest.fetch_guild.assert_not_called()
         mock_cache.get.assert_awaited_once_with(1234)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild.return_value = None
@@ -963,7 +963,7 @@ class TestToGuild:
         mock_context.rest.fetch_guild.assert_awaited_once_with(54234)
         mock_cache.get.assert_awaited_once_with(54234)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -973,7 +973,7 @@ class TestToGuild:
         assert result is mock_context.rest.fetch_guild.return_value
         mock_context.rest.fetch_guild.assert_awaited_once_with(2222)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild.return_value = None
@@ -988,7 +988,7 @@ class TestToGuild:
         mock_context.rest.fetch_guild.assert_awaited_once_with(54234)
         mock_cache.get.assert_awaited_once_with(54234)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_rest_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_guild.return_value = None
@@ -1005,7 +1005,7 @@ class TestToGuild:
 
 
 class TestToInvite:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
@@ -1017,7 +1017,7 @@ class TestToInvite:
         mock_context.rest.fetch_invite.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_invite.return_value = None
@@ -1031,7 +1031,7 @@ class TestToInvite:
         mock_context.rest.fetch_invite.assert_awaited_once_with("fffff")
         mock_cache.get.assert_awaited_once_with("fffff")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -1041,7 +1041,7 @@ class TestToInvite:
         assert result is mock_context.rest.fetch_invite.return_value
         mock_context.rest.fetch_invite.assert_awaited_once_with("123321")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_cache_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_invite.return_value = None
@@ -1055,7 +1055,7 @@ class TestToInvite:
         mock_context.rest.fetch_invite.assert_not_called()
         mock_cache.get.assert_awaited_once_with("sasdasd")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_rest_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_invite.return_value = None
@@ -1072,7 +1072,7 @@ class TestToInvite:
 
 
 class TestToInviteWithMetadata:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call__(self):
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
@@ -1083,7 +1083,7 @@ class TestToInviteWithMetadata:
         mock_context.cache.get_invite.assert_called_once_with("asdbasd")
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_hit(self):
         mock_context = mock.Mock()
         mock_context.cache.get_invite.return_value = None
@@ -1095,7 +1095,7 @@ class TestToInviteWithMetadata:
         mock_context.cache.get_invite.assert_called_once_with("asdbasd")
         mock_cache.get.assert_awaited_once_with("asdbasd", default=None)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock()
         mock_context.cache.get_invite.return_value = None
@@ -1108,7 +1108,7 @@ class TestToInviteWithMetadata:
         mock_context.cache.get_invite.assert_called_once_with("dsds")
         mock_cache.get.assert_called_once_with("dsds", default=None)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(cache=None)
 
@@ -1117,7 +1117,7 @@ class TestToInviteWithMetadata:
 
 
 class TestToMember:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_in_a_dm(self):
         mock_context = mock.Mock(guild_id=None)
         mock_cache = mock.AsyncMock()
@@ -1130,7 +1130,7 @@ class TestToMember:
         mock_context.rest.search_members.assert_not_called()
         mock_cache.get_from_guild.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_id_falls_back_to_lookup_by_name(self):
         mock_context = mock.AsyncMock()
         mock_result = mock.Mock()
@@ -1145,7 +1145,7 @@ class TestToMember:
         mock_context.rest.search_members.assert_awaited_once_with(mock_context.guild_id, "asdbasd")
         mock_cache.get_from_guild.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_id_falls_back_to_lookup_by_name_returns_nothing(self):
         mock_context = mock.AsyncMock()
         mock_context.rest.search_members.return_value = []
@@ -1159,7 +1159,7 @@ class TestToMember:
         mock_context.rest.search_members.assert_awaited_once_with(mock_context.guild_id, "asdbasd")
         mock_cache.get_from_guild.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
@@ -1172,7 +1172,7 @@ class TestToMember:
         mock_context.rest.search_members.assert_not_called()
         mock_cache.get_from_guild.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_async_cache_hit(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_member.return_value = None
@@ -1186,7 +1186,7 @@ class TestToMember:
         mock_context.rest.search_members.assert_not_called()
         mock_cache.get_from_guild.assert_called_once_with(mock_context.guild_id, 5123123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless_and_async_cache_hit(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -1199,7 +1199,7 @@ class TestToMember:
         mock_context.rest.search_members.assert_not_called()
         mock_cache.get_from_guild.assert_called_once_with(mock_context.guild_id, 5123123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_member.return_value = None
@@ -1214,7 +1214,7 @@ class TestToMember:
         mock_context.rest.search_members.assert_not_called()
         mock_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, 5123123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -1225,7 +1225,7 @@ class TestToMember:
         mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, 5123123)
         mock_context.rest.search_members.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_mock_cache_raises_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_member.return_value = None
@@ -1240,7 +1240,7 @@ class TestToMember:
         mock_context.rest.search_members.assert_not_called()
         mock_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, 5123123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_rest_raises_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_member.return_value = None
@@ -1255,7 +1255,7 @@ class TestToMember:
 
 
 class TestToPresence:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call__(self):
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
@@ -1266,7 +1266,7 @@ class TestToPresence:
         mock_context.cache.get_presence.assert_called_once_with(mock_context.guild_id, 543123)
         mock_cache.get_from_guild.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_in_a_dm(self):
         mock_cache = mock.AsyncMock()
         mock_context = mock.Mock(guild_id=None)
@@ -1276,7 +1276,7 @@ class TestToPresence:
         mock_context.cache.get_presence.assert_not_called()
         mock_cache.get_from_guild.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_async_cache_hit(self):
         mock_context = mock.Mock()
         mock_context.cache.get_presence.return_value = None
@@ -1288,7 +1288,7 @@ class TestToPresence:
         mock_context.cache.get_presence.assert_called_once_with(mock_context.guild_id, 543123)
         mock_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, 543123, default=None)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless_and_async_cache_hit(self):
         mock_context = mock.Mock()
         mock_context.cache = None
@@ -1299,7 +1299,7 @@ class TestToPresence:
         assert result is mock_cache.get_from_guild.return_value
         mock_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, 543123, default=None)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_async_cache_returns_none(self):
         mock_context = mock.Mock()
         mock_context.cache.get_presence.return_value = None
@@ -1312,7 +1312,7 @@ class TestToPresence:
         mock_context.cache.get_presence.assert_called_once_with(mock_context.guild_id, 543123)
         mock_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, 543123, default=None)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock()
         mock_context.cache = None
@@ -1322,7 +1322,7 @@ class TestToPresence:
 
 
 class TestToUser:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
@@ -1334,7 +1334,7 @@ class TestToUser:
         mock_context.rest.fetch_user.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_cached(self):
         mock_context = mock.Mock()
         mock_context.cache.get_user.return_value = None
@@ -1347,7 +1347,7 @@ class TestToUser:
         mock_context.rest.fetch_user.assert_not_called()
         mock_cache.get.assert_awaited_once_with(123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_user.return_value = None
@@ -1361,7 +1361,7 @@ class TestToUser:
         mock_context.rest.fetch_user.assert_awaited_once_with(55)
         mock_cache.get.assert_awaited_once_with(55)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -1371,7 +1371,7 @@ class TestToUser:
         assert result is mock_context.rest.fetch_user.return_value
         mock_context.rest.fetch_user.assert_awaited_once_with(12343)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_user.return_value = None
@@ -1386,7 +1386,7 @@ class TestToUser:
         mock_context.rest.fetch_user.assert_awaited_once_with(55)
         mock_cache.get.assert_awaited_once_with(55)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_found_in_async_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_user.return_value = None
@@ -1402,7 +1402,7 @@ class TestToUser:
 
 
 class TestToMessage:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cached(self):
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
@@ -1414,7 +1414,7 @@ class TestToMessage:
         mock_context.rest.fetch_message.assert_not_called()
         mock_cache.get.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_async_cached(self):
         mock_context = mock.Mock()
         mock_context.cache.get_message.return_value = None
@@ -1427,7 +1427,7 @@ class TestToMessage:
         mock_context.rest.fetch_message.assert_not_called()
         mock_cache.get.assert_awaited_once_with(123)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_message.return_value = None
@@ -1441,7 +1441,7 @@ class TestToMessage:
         mock_context.rest.fetch_message.assert_awaited_once_with(44, 55)
         mock_cache.get.assert_awaited_once_with(55)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache = None
@@ -1451,7 +1451,7 @@ class TestToMessage:
         assert result is mock_context.rest.fetch_message.return_value
         mock_context.rest.fetch_message.assert_awaited_once_with(12, 34)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_found(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_message.return_value = None
@@ -1466,7 +1466,7 @@ class TestToMessage:
         mock_context.rest.fetch_message.assert_awaited_once_with(44, 55)
         mock_cache.get.assert_awaited_once_with(55)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_found_in_async_cache(self):
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.cache.get_message.return_value = None
@@ -1482,7 +1482,7 @@ class TestToMessage:
 
 
 class TestToVoiceState:
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call__(self):
         mock_context = mock.Mock()
         mock_cache = mock.AsyncMock()
@@ -1493,7 +1493,7 @@ class TestToVoiceState:
         mock_context.cache.get_voice_state.assert_called_once_with(mock_context.guild_id, 453123)
         mock_cache.get_from_guild.assert_not_called()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached_and_async_cache_hit(self):
         mock_context = mock.Mock()
         mock_context.cache.get_voice_state.return_value = None
@@ -1505,7 +1505,7 @@ class TestToVoiceState:
         mock_context.cache.get_voice_state.assert_called_once_with(mock_context.guild_id, 54123)
         mock_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, 54123, default=None)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless_and_async_cache_hit(self):
         mock_context = mock.Mock(cache=None)
         mock_cache = mock.AsyncMock()
@@ -1515,7 +1515,7 @@ class TestToVoiceState:
         assert result is mock_cache.get_from_guild.return_value
         mock_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, 65234, default=None)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_not_cached(self):
         mock_context = mock.Mock()
         mock_context.cache.get_voice_state.return_value = None
@@ -1527,7 +1527,7 @@ class TestToVoiceState:
         mock_context.cache.get_voice_state.assert_called_once_with(mock_context.guild_id, 54123)
         mock_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, 54123, default=None)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless_and_async_cache_returns_none(self):
         mock_context = mock.Mock(cache=None)
         mock_cache = mock.AsyncMock()
@@ -1538,14 +1538,14 @@ class TestToVoiceState:
 
         mock_cache.get_from_guild.assert_awaited_once_with(mock_context.guild_id, 65234, default=None)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_cacheless_and_no_async_cache(self):
         mock_context = mock.Mock(cache=None)
 
         with pytest.raises(ValueError, match="Voice state couldn't be found for current guild"):
             await tanjun.to_voice_state(65234, mock_context)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test___call___when_in_a_dm(self):
         mock_context = mock.Mock(guild_id=None)
 

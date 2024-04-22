@@ -40,7 +40,7 @@ import pytest
 import tanjun
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_my_user_when_cached():
     mock_client = mock.Mock()
     mock_cache = mock.AsyncMock()
@@ -53,7 +53,7 @@ async def test_fetch_my_user_when_cached():
     mock_cache.get.assert_not_called()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_my_user_when_not_cached_but_async_cache_returns():
     mock_client = mock.Mock()
     mock_client.cache.get_me.return_value = None
@@ -67,7 +67,7 @@ async def test_fetch_my_user_when_not_cached_but_async_cache_returns():
     mock_cache.get.assert_awaited_once_with(default=None)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_my_user_when_no_cache_but_async_cache_returns():
     mock_client = mock.Mock()
     mock_client.cache = None
@@ -80,7 +80,7 @@ async def test_fetch_my_user_when_no_cache_but_async_cache_returns():
     mock_cache.get.assert_awaited_once_with(default=None)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_my_user_when_not_cached_token_type_isnt_bot():
     mock_client = mock.Mock()
     mock_client.rest.token_type = hikari.TokenType.BEARER
@@ -95,7 +95,7 @@ async def test_fetch_my_user_when_not_cached_token_type_isnt_bot():
     mock_client.rest.fetch_my_user.assert_not_called()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_my_user_when_not_cache_bound_and_async_cache_returns_none_falls_back_to_rest():
     mock_client = mock.Mock()
     mock_client.rest.token_type = hikari.TokenType.BOT
@@ -111,7 +111,7 @@ async def test_fetch_my_user_when_not_cache_bound_and_async_cache_returns_none_f
     mock_cache.get.assert_awaited_once_with(default=None)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_my_user_when_not_cache_bound_and_not_async_cache_falls_back_to_rest():
     mock_client = mock.Mock()
     mock_client.rest.token_type = hikari.TokenType.BOT

@@ -43,7 +43,7 @@ import tanjun
 from tanjun import _internal
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_gather_checks_handles_no_checks():
     mock_ctx = mock.AsyncMock()
     assert await _internal.gather_checks(mock_ctx, ()) is True
@@ -51,7 +51,7 @@ async def test_gather_checks_handles_no_checks():
     mock_ctx.call_with_async_di.assert_not_called()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_gather_checks_handles_failed_check():
     mock_ctx = mock.Mock()
     mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, False, True])
@@ -66,7 +66,7 @@ async def test_gather_checks_handles_failed_check():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_gather_checks_handles_check_failed_by_raise():
     mock_ctx = mock.Mock()
     mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, tanjun.FailedCheck, True])
@@ -81,7 +81,7 @@ async def test_gather_checks_handles_check_failed_by_raise():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_gather_checks():
     mock_ctx = mock.Mock()
     mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, True, True])

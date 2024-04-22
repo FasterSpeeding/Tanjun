@@ -80,7 +80,7 @@ class TestComponent:
     def test_dms_enabled_for_app_cmds_property(self):
         assert tanjun.Component().dms_enabled_for_app_cmds is None
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test__add_task(self):
         mock_task_1 = mock.Mock()
         mock_task_2 = mock.Mock()
@@ -99,7 +99,7 @@ class TestComponent:
 
         assert component._tasks == [mock_task_1, mock_task_2, mock_task_3]
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test__add_task_when_empty(self):
         mock_task = asyncio.create_task(asyncio.sleep(50))
         component = tanjun.Component()
@@ -114,7 +114,7 @@ class TestComponent:
 
         assert component._tasks == []
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test__add_task_when_task_already_done(self):
         mock_task = asyncio.create_task(asyncio.sleep(50))
         mock_task.cancel()
@@ -1700,7 +1700,7 @@ class TestComponent:
         assert result is mock_schedule
         add_schedule.assert_called_once_with(mock_schedule)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_close(self):
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
@@ -1734,7 +1734,7 @@ class TestComponent:
         mock_unbind.assert_not_called()
         assert component.loop is None
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_close_when_unbind(self):
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
@@ -1765,14 +1765,14 @@ class TestComponent:
         mock_unbind.assert_called_once_with(mock_client)
         assert component.loop is None
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_close_when_not_active(self):
         component = tanjun.Component()
 
         with pytest.raises(RuntimeError, match="Component isn't active"):
             await component.close()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_open(self):
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
@@ -1800,7 +1800,7 @@ class TestComponent:
         mock_schedule_1.start.assert_called_once_with(mock_client.injector, loop=get_running_loop.return_value)
         mock_schedule_2.start.assert_called_once_with(mock_client.injector, loop=get_running_loop.return_value)
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_open_when_already_active(self):
         component = tanjun.Component()
         component._loop = mock.Mock()
@@ -1808,7 +1808,7 @@ class TestComponent:
         with pytest.raises(RuntimeError, match="Component is already active"):
             await component.open()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_open_when_not_client_bound(self):
         component = tanjun.Component()
 

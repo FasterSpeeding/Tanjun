@@ -46,19 +46,19 @@ import tanjun
 from tanjun._internal import cache
 
 
-@pytest.fixture()
+@pytest.fixture
 def command() -> tanjun.abc.ExecutableCommand[typing.Any]:
     command_ = mock.MagicMock(tanjun.abc.ExecutableCommand)
     command_.add_check.return_value = command_
     return command_
 
 
-@pytest.fixture()
+@pytest.fixture
 def context() -> tanjun.abc.Context:
     return mock.MagicMock(tanjun.abc.Context)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestOwnerCheck:
     async def test(self):
         mock_dependency = mock.AsyncMock()
@@ -250,7 +250,7 @@ class TestOwnerCheck:
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestNsfwCheck:
     async def test_when_is_dm(self):
         mock_context = mock.Mock(guild_id=None)
@@ -487,7 +487,7 @@ class TestNsfwCheck:
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestSfwCheck:
     async def test_when_is_dm(self):
         mock_context = mock.Mock(guild_id=None)
@@ -1169,7 +1169,7 @@ PERMISSIONS = (
 DM_PERMISSIONS = ("required_perms", list(_perm_combos(tanjun.permissions.DM_PERMISSIONS)))
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*PERMISSIONS)
     async def test(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
@@ -1613,7 +1613,7 @@ class TestAuthorPermissionCheck:
             await check(mock_context)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*PERMISSIONS)
     async def test(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
@@ -3082,7 +3082,7 @@ def test_with_check(command: mock.Mock):
     command.add_check.assert_called_once_with(mock_check)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_all_checks():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3103,7 +3103,7 @@ async def test_all_checks():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_all_checks_when_check_raises():
     class MockError(Exception): ...
 
@@ -3122,7 +3122,7 @@ async def test_all_checks_when_check_raises():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_all_checks_when_first_fails():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3137,7 +3137,7 @@ async def test_all_checks_when_first_fails():
     mock_context.call_with_async_di.assert_awaited_once_with(mock_check_1, mock_context)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_all_checks_when_last_fails():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3158,7 +3158,7 @@ async def test_all_checks_when_last_fails():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_all_checks_when_any_check_fails():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3190,7 +3190,7 @@ def test_with_all_checks():
     all_checks.assert_called_once_with(mock_check_1, mock_check_2, mock_check_3)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_first_check_passes():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3207,7 +3207,7 @@ async def test_any_checks_when_first_check_passes():
     mock_context.call_with_async_di.assert_awaited_once_with(mock_check_1, mock_context)
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_last_check_passes():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3230,7 +3230,7 @@ async def test_any_checks_when_last_check_passes():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_check_passes():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3263,7 +3263,7 @@ async def test_any_checks_when_check_passes():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3284,7 +3284,7 @@ async def test_any_checks_when_all_fail():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_error():
     class MockException(Exception):
         def __init__(self): ...
@@ -3308,7 +3308,7 @@ async def test_any_checks_when_all_fail_and_error():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_halt_execution():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3329,7 +3329,7 @@ async def test_any_checks_when_all_fail_and_halt_execution():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_error_message():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3350,7 +3350,7 @@ async def test_any_checks_when_all_fail_and_error_message():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_error_message_dict():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3377,7 +3377,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_error_message_dict_but_not_app_command():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3409,7 +3409,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict_but_not_app_comma
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_error_message_dict_defaults():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3436,7 +3436,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict_defaults():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_error_message_dict_explicit_default():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3468,7 +3468,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict_explicit_default(
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_error_message_localiser():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3499,7 +3499,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_id():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3539,7 +3539,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_i
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_error_message_localiser_defaults():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3575,7 +3575,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser_defaults():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_generic_unsuppressed_error_raised():
     class MockError(Exception): ...
 
@@ -3594,7 +3594,7 @@ async def test_any_checks_when_generic_unsuppressed_error_raised():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_generic_error_suppressed():
     class MockError(Exception): ...
 
@@ -3619,7 +3619,7 @@ async def test_any_checks_when_generic_error_suppressed():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_halt_execution_not_suppressed():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3636,7 +3636,7 @@ async def test_any_checks_when_halt_execution_not_suppressed():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_halt_execution_suppressed():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3657,7 +3657,7 @@ async def test_any_checks_when_halt_execution_suppressed():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_command_error_not_suppressed():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3674,7 +3674,7 @@ async def test_any_checks_when_command_error_not_suppressed():
     )
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_any_checks_when_command_error_suppressed():
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()

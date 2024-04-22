@@ -52,37 +52,37 @@ def test_calculate_permissions_when_no_channel(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_permissions(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_permissions_when_guild_owner(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_permissions_when_admin_role(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_permissions_when_no_channel(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_permissions_when_channel_object_provided(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_permissions_for_uncached_entities(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_permissions_for_no_cache(): ...
 
 
@@ -98,30 +98,30 @@ def test_calculate_everyone_permissions_admin_role(): ...
 def test_calculate_everyone_permissions_no_channel(): ...
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_everyone_permissions(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_everyone_permissions_admin_role(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_everyone_permissions_for_uncached_entities(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_everyone_permissions_for_no_cache(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_everyone_permissions_no_channel(): ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fetch_everyone_permissions_channel_object_provided(): ...
