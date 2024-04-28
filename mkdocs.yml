@@ -4,8 +4,6 @@ repo_url: https://github.com/FasterSpeeding/Tanjun
 theme:
   name: material
   features:
-    - navigation.instant
-    - navigation.instant.progress
     - navigation.prune
   icon:
     admonition:
