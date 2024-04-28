@@ -23,6 +23,7 @@ theme:
     - media: "(prefers-color-scheme: light)"
       scheme: default
       primary: pink
+      acent: pink
       toggle:
         icon: material/lightbulb
         name: Switch to dark mode
