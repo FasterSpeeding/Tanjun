@@ -1124,7 +1124,7 @@ class TestClient:
         with pytest.raises(ValueError, match=".+"):
             client.remove_listener(hikari.GuildTypingEvent, mock.Mock())
 
-        assert client.listeners[hikari.GuildTypingEvent] == [mock_injector.auto_inject_async.return_value]
+        assert client.listeners[hikari.GuildTypingEvent] == {mock_injector.auto_inject_async.return_value}
         mock_injector.auto_inject_async.assert_called_once_with(mock_other_callback)
 
     def test_remove_listener_when_last_listener(self):
