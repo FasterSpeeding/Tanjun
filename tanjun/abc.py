@@ -109,6 +109,8 @@ if typing.TYPE_CHECKING:
     _MessageCommandT = typing.TypeVar("_MessageCommandT", bound="MessageCommand[typing.Any]")
     _MetaEventSigT = typing.TypeVar("_MetaEventSigT", bound="MetaEventSig")
 
+    _DefaultT = typing.TypeVar("_DefaultT")
+
 _T = typing.TypeVar("_T")
 _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound="AppCommandContext")
 _AutocompleteValueT = typing.TypeVar("_AutocompleteValueT", int, str, float)
@@ -4896,19 +4898,37 @@ class Client(abc.ABC):
             The client instance to allow chaining.
         """
 
+    @typing.overload
     @abc.abstractmethod
-    def get_type_dependency(self, type_: type[_T], /) -> typing.Union[_T, alluka.Undefined]:
+    def get_type_dependency(self, type_: type[_T], /) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> typing.Union[_T, _DefaultT]: ...
+
+    @abc.abstractmethod
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT = ...) -> typing.Union[_T, _DefaultT]:
         """Get the implementation for an injected type.
 
         Parameters
         ----------
         type_
             The associated type.
+        default
+            The default value to return if the type is not implemented.
 
         Returns
         -------
-        _T | alluka.abc.Undefined
-            The resolved type if found, else [alluka.abc.UNDEFINED][].
+        _T | _DefaultT
+            The resolved type if found.
+
+            If the type isn't implemented then the value of `default`
+            will be returned if it is provided.
+
+        Raises
+        ------
+        KeyError
+            If no dependency was found when no default was provided.
         """
 
     @abc.abstractmethod

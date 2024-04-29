@@ -85,6 +85,7 @@ if typing.TYPE_CHECKING:
     _PrefixGetterSigT = typing.TypeVar("_PrefixGetterSigT", bound="PrefixGetterSig")
     _T = typing.TypeVar("_T")
     _P = typing_extensions.ParamSpec("_P")
+    _DefaultT = typing.TypeVar("_DefaultT")
 
     class _AutocompleteContextMakerProto(typing.Protocol):
         def __call__(
@@ -2755,9 +2756,20 @@ class Client(tanjun.Client):
         self._injector.set_type_dependency(type_, value)
         return self
 
-    def get_type_dependency(self, type_: type[_T], /) -> typing.Union[_T, alluka.abc.Undefined]:
+    @typing.overload
+    def get_type_dependency(self, type_: type[_T], /) -> _T: ...
+
+    @typing.overload
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> typing.Union[_T, _DefaultT]: ...
+
+    def get_type_dependency(
+        self, type_: type[_T], /, *, default: _DefaultT = tanjun.NO_DEFAULT
+    ) -> typing.Union[_T, _DefaultT]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        return self._injector.get_type_dependency(type_)
+        if default is tanjun.NO_DEFAULT:
+            return self._injector.get_type_dependency(type_, default=default)
+
+        return self._injector.get_type_dependency(type_, default=default)
 
     def remove_type_dependency(self, type_: type[typing.Any], /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.

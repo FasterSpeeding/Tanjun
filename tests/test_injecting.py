@@ -55,9 +55,6 @@ def test_aliases():
         "Injected",
         "InjectorClient",
         "SelfInjectingCallback",
-        "UNDEFINED",
-        "Undefined",
-        "UndefinedOr",
         "as_self_injecting",
         "inject",
         "injected",
@@ -68,7 +65,5 @@ def test_aliases():
     assert tanjun.injecting.Injected is alluka.Injected
     assert tanjun.injecting.inject is alluka.inject
     assert tanjun.injecting.injected is alluka.inject
-    assert tanjun.injecting.UNDEFINED is alluka.abc.UNDEFINED
     assert tanjun.injecting.CallbackSig is alluka.abc.CallbackSig
     assert tanjun.injecting.AbstractInjectionContext is alluka.abc.Context
-    assert tanjun.injecting.Undefined is alluka.abc.Undefined

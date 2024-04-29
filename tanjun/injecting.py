@@ -44,9 +44,6 @@ __all__: list[str] = [
     "Injected",
     "InjectorClient",
     "SelfInjectingCallback",
-    "UNDEFINED",
-    "Undefined",
-    "UndefinedOr",
     "as_self_injecting",
     "inject",
     "injected",
@@ -62,19 +59,14 @@ from alluka import Client as InjectorClient
 from alluka import Injected
 from alluka import inject
 from alluka import inject as injected
-from alluka.abc import UNDEFINED
 from alluka.abc import CallbackSig
 from alluka.abc import Context as AbstractInjectionContext
-from alluka.abc import Undefined
 
 if typing.TYPE_CHECKING:
     from . import abc as tanjun
 
 _T = typing.TypeVar("_T")
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound=alluka.abc.CallbackSig[typing.Any])
-
-UndefinedOr = typing.Union[Undefined, _T]
-"""Type-hint generic union used to indicate that a value may be undefined or `_T`."""
 
 
 def as_self_injecting(

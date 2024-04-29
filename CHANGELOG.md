@@ -5,6 +5,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Bumped the minimum Alluka ver to `v0.2.0`.
+- Tanjun's client will now use the "local" Alluka client returned by
+  [alluka.local.get][] if no client is passed and a local Alluka client is set.
+- [Client.get_type_dependency][tanjun.abc.Client.get_type_dependency] will now
+  raise a [KeyError][] if no dependency is found and no default is passed.
+  This is a change imposed by Alluka.
+
+### Fixed
+- Now compatible with Alluka `v0.2.0`.
+
+### Removed
+- `tanjun.injecting.UndefinedOr`, `tanjun.injecting.UNDEFINED`,
+  `tanjun.injecting.Undefined`, and `tanjun.injecting.UndefinedOr` as these
+  no-longer exist in Alluka.
+
 ## [2.17.3] - 2024-03-31
 ### Fixed
 - Post execution command hooks will no-longer be triggered after a base
