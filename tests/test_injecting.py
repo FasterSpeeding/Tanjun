@@ -33,6 +33,7 @@
 
 import alluka
 import mock
+import pytest
 
 import tanjun
 
@@ -41,7 +42,8 @@ def test_as_self_injecting():
     mock_callback = mock.Mock()
     mock_client = mock.Mock()
 
-    result = tanjun.injecting.as_self_injecting(mock_client)(mock_callback)
+    with pytest.warns(DeprecationWarning):
+        result = tanjun.injecting.as_self_injecting(mock_client)(mock_callback)
 
     assert result.callback is mock_callback
     assert result._client is mock_client.injector
@@ -55,20 +57,15 @@ def test_aliases():
         "Injected",
         "InjectorClient",
         "SelfInjectingCallback",
-        "UNDEFINED",
-        "Undefined",
-        "UndefinedOr",
         "as_self_injecting",
         "inject",
         "injected",
     }
-    assert tanjun.injecting.SelfInjectingCallback is alluka.AsyncSelfInjecting
+    assert tanjun.injecting.SelfInjectingCallback is alluka.AsyncSelfInjecting  # pyright: ignore[reportDeprecated]
     assert tanjun.injecting.BasicInjectionContext is alluka.BasicContext
     assert tanjun.injecting.InjectorClient is alluka.Client
     assert tanjun.injecting.Injected is alluka.Injected
     assert tanjun.injecting.inject is alluka.inject
     assert tanjun.injecting.injected is alluka.inject
-    assert tanjun.injecting.UNDEFINED is alluka.abc.UNDEFINED
     assert tanjun.injecting.CallbackSig is alluka.abc.CallbackSig
     assert tanjun.injecting.AbstractInjectionContext is alluka.abc.Context
-    assert tanjun.injecting.Undefined is alluka.abc.Undefined

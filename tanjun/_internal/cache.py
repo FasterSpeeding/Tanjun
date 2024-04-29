@@ -74,7 +74,7 @@ async def get_perm_channel(client: tanjun.Client, channel_id: hikari.Snowflake, 
     if client.cache and (channel := client.cache.get_guild_channel(channel_id)):
         return channel
 
-    thread_cache = client.injector.get_type_dependency(_ThreadCacheT)
+    thread_cache = client.injector.get_type_dependency(_ThreadCacheT, default=None)
     if thread_cache:  # noqa: SIM102
         # Has to be nested cause of pyright bug:
         if thread := await thread_cache.get(channel_id, default=None):  # noqa: SIM102

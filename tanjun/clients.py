@@ -85,6 +85,7 @@ if typing.TYPE_CHECKING:
     _PrefixGetterSigT = typing.TypeVar("_PrefixGetterSigT", bound="PrefixGetterSig")
     _T = typing.TypeVar("_T")
     _P = typing_extensions.ParamSpec("_P")
+    _DefaultT = typing.TypeVar("_DefaultT")
 
     class _AutocompleteContextMakerProto(typing.Protocol):
         def __call__(
@@ -680,7 +681,8 @@ class Client(tanjun.Client):
         injector
             The alluka client this should use for dependency injection.
 
-            If not provided then the client will initialise its own DI client.
+            If not provided then either the "local" Alluka client will be used or
+            the client will initialise its own DI client.
         mention_prefix
             Whether or not mention prefixes should be automatically set when this
             client is first started.
@@ -760,11 +762,7 @@ class Client(tanjun.Client):
         self._injector = injector or alluka.Client()
         self._is_closing = False
         self._listeners: dict[
-            type[hikari.Event],
-            dict[
-                tanjun.ListenerCallbackSig[typing.Any],
-                alluka.abc.AsyncSelfInjecting[tanjun.ListenerCallbackSig[typing.Any]],
-            ],
+            type[hikari.Event], dict[tanjun.ListenerCallbackSig[typing.Any], tanjun.ListenerCallbackSig[typing.Any]]
         ] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
@@ -1225,7 +1223,7 @@ class Client(tanjun.Client):
         self,
     ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        return _internal.CastedView(self._listeners, lambda x: [callback.callback for callback in x.values()])
+        return _internal.CastedView(self._listeners, lambda x: list(x.values()))
 
     @property
     def is_alive(self) -> bool:
@@ -2078,7 +2076,7 @@ class Client(tanjun.Client):
     def add_listener(self, event_type: type[_EventT], /, *callbacks: tanjun.ListenerCallbackSig[_EventT]) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         for callback in callbacks:
-            injected = self.injector.as_async_self_injecting(callback)
+            injected = self.injector.auto_inject_async(callback)
             try:
                 if callback in self._listeners[event_type]:
                     continue
@@ -2090,7 +2088,7 @@ class Client(tanjun.Client):
                 self._listeners[event_type][callback] = injected
 
             if self._loop and self._events:
-                self._events.subscribe(event_type, injected.__call__)
+                self._events.subscribe(event_type, injected)
 
         return self
 
@@ -2107,7 +2105,7 @@ class Client(tanjun.Client):
             del self._listeners[event_type]
 
         if self._loop and self._events:
-            self._events.unsubscribe(event_type, registered_callback.__call__)
+            self._events.unsubscribe(event_type, registered_callback)
 
         return self
 
@@ -2330,7 +2328,7 @@ class Client(tanjun.Client):
 
             for event_type_, listeners in self._listeners.items():
                 for listener in listeners.values():
-                    _try_unsubscribe(self._events, event_type_, listener.__call__)
+                    _try_unsubscribe(self._events, event_type_, listener)
 
         if deregister_listeners and self._server:
             _try_deregister_listener(self._server, hikari.CommandInteraction, self.on_command_interaction_request)
@@ -2370,7 +2368,9 @@ class Client(tanjun.Client):
             if self._cache:
                 user = self._cache.get_me()
 
-            if not user and (user_cache := self.get_type_dependency(dependencies.SingleStoreCache[hikari.OwnUser])):
+            if not user and (
+                user_cache := self.get_type_dependency(dependencies.SingleStoreCache[hikari.OwnUser], default=None)
+            ):
                 user = await user_cache.get(default=None)
 
             if not user:
@@ -2403,7 +2403,7 @@ class Client(tanjun.Client):
 
             for event_type_, listeners in self._listeners.items():
                 for listener in listeners.values():
-                    self._events.subscribe(event_type_, listener.__call__)
+                    self._events.subscribe(event_type_, listener)
 
         self._add_task(self._loop.create_task(self.dispatch_client_callback(ClientCallbackNames.STARTED)))
 
@@ -2419,8 +2419,8 @@ class Client(tanjun.Client):
             return self._cached_application_id
 
         application_cache = self.get_type_dependency(
-            dependencies.SingleStoreCache[hikari.Application]
-        ) or self.get_type_dependency(dependencies.SingleStoreCache[hikari.AuthorizationApplication])
+            dependencies.SingleStoreCache[hikari.Application], default=None
+        ) or self.get_type_dependency(dependencies.SingleStoreCache[hikari.AuthorizationApplication], default=None)
         if application_cache:  # noqa: SIM102
             # Has to be nested cause of pyright bug
             if application := await application_cache.get(default=None):
@@ -2755,9 +2755,20 @@ class Client(tanjun.Client):
         self._injector.set_type_dependency(type_, value)
         return self
 
-    def get_type_dependency(self, type_: type[_T], /) -> typing.Union[_T, alluka.abc.Undefined]:
+    @typing.overload
+    def get_type_dependency(self, type_: type[_T], /) -> _T: ...
+
+    @typing.overload
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> typing.Union[_T, _DefaultT]: ...
+
+    def get_type_dependency(
+        self, type_: type[_T], /, *, default: _DefaultT = tanjun.NO_DEFAULT
+    ) -> typing.Union[_T, _DefaultT]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        return self._injector.get_type_dependency(type_)
+        if default is tanjun.NO_DEFAULT:
+            return self._injector.get_type_dependency(type_)
+
+        return self._injector.get_type_dependency(type_, default=default)
 
     def remove_type_dependency(self, type_: type[typing.Any], /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.

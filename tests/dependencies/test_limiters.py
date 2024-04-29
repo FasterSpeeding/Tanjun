@@ -37,7 +37,6 @@ import datetime
 import re
 import typing
 
-import alluka
 import freezegun
 import hikari
 import mock
@@ -482,7 +481,7 @@ async def test__get_ctx_target_when_parent_channel_when_async_channel_cache_retu
     mock_channel_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
     mock_context.fetch_channel.assert_not_called()
     mock_context.get_type_dependency.assert_called_once_with(
-        tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]
+        tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel], default=None
     )
 
 
@@ -501,7 +500,7 @@ async def test__get_ctx_target_when_parent_channel_when_async_channel_cache_retu
     mock_channel_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
     mock_context.fetch_channel.assert_not_called()
     mock_context.get_type_dependency.assert_called_once_with(
-        tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]
+        tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel], default=None
     )
 
 
@@ -524,8 +523,8 @@ async def test__get_ctx_target_when_parent_channel_when_async_thread_cache_retur
     mock_context.fetch_channel.assert_not_called()
     mock_context.get_type_dependency.assert_has_calls(
         [
-            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]),
-            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel]),
+            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel], default=None),
+            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel], default=None),
         ]
     )
 
@@ -550,8 +549,8 @@ async def test__get_ctx_target_when_parent_channel_when_async_caches_returns_non
     mock_context.fetch_channel.assert_awaited_once()
     mock_context.get_type_dependency.assert_has_calls(
         [
-            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]),
-            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel]),
+            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel], default=None),
+            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel], default=None),
         ]
     )
     mock_channel_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
@@ -576,8 +575,8 @@ async def test__get_ctx_target_when_parent_channel_when_async_caches_returns_non
     mock_context.fetch_channel.assert_awaited_once()
     mock_context.get_type_dependency.assert_has_calls(
         [
-            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]),
-            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel]),
+            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel], default=None),
+            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel], default=None),
         ]
     )
     mock_channel_cache.get.assert_awaited_once_with(mock_context.channel_id, default=None)
@@ -591,7 +590,7 @@ async def test__get_ctx_target_when_parent_channel_and_no_async_caches_falls_bac
     mock_context.fetch_channel = mock.AsyncMock(
         return_value=mock.Mock(hikari.GuildChannel, parent_id=1235234, id=123321)
     )
-    mock_context.get_type_dependency.return_value = alluka.abc.UNDEFINED
+    mock_context.get_type_dependency.return_value = None
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
@@ -600,8 +599,8 @@ async def test__get_ctx_target_when_parent_channel_and_no_async_caches_falls_bac
     mock_context.fetch_channel.assert_awaited_once()
     mock_context.get_type_dependency.assert_has_calls(
         [
-            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]),
-            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel]),
+            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel], default=None),
+            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel], default=None),
         ]
     )
 
@@ -611,7 +610,7 @@ async def test__get_ctx_target_when_parent_channel_and_no_async_caches_falls_bac
     mock_context = mock.Mock(base_context.BaseContext)
     mock_context.get_channel.return_value = None
     mock_context.fetch_channel = mock.AsyncMock(return_value=mock.Mock(hikari.GuildChannel, parent_id=None, id=123))
-    mock_context.get_type_dependency.return_value = alluka.abc.UNDEFINED
+    mock_context.get_type_dependency.return_value = None
 
     result = await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.PARENT_CHANNEL)
 
@@ -620,8 +619,8 @@ async def test__get_ctx_target_when_parent_channel_and_no_async_caches_falls_bac
     mock_context.fetch_channel.assert_awaited_once()
     mock_context.get_type_dependency.assert_has_calls(
         [
-            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel]),
-            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel]),
+            mock.call(tanjun.dependencies.SfCache[hikari.PermissibleGuildChannel], default=None),
+            mock.call(tanjun.dependencies.SfCache[hikari.GuildThreadChannel], default=None),
         ]
     )
 
@@ -674,7 +673,7 @@ async def test__get_ctx_target_when_top_role_and_async_cache():
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_not_called()
-    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role], default=None)
     mock_cache.get.assert_has_awaits([mock.call(674345), mock.call(123876), mock.call(7643), mock.call(9999999)])
 
 
@@ -699,7 +698,7 @@ async def test__get_ctx_target_when_top_role_falls_back_to_rest_when_async_cache
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_awaited_once_with()
-    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role], default=None)
     mock_cache.get.assert_has_awaits([mock.call(123), mock.call(312)])
 
 
@@ -716,13 +715,13 @@ async def test__get_ctx_target_when_top_role_falls_back_to_rest():
     mock_context.member.role_ids = [123, 312]
     mock_context.member.get_roles = mock.Mock(return_value=[])
     mock_context.member.fetch_roles = mock.AsyncMock(return_value=mock_roles)
-    mock_context.get_type_dependency.return_value = alluka.abc.UNDEFINED
+    mock_context.get_type_dependency.return_value = None
 
     assert await tanjun.dependencies.limiters._get_ctx_target(mock_context, tanjun.BucketResource.TOP_ROLE) == 431
 
     mock_context.member.get_roles.assert_called_once_with()
     mock_context.member.fetch_roles.assert_awaited_once_with()
-    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role])
+    mock_context.get_type_dependency.assert_called_once_with(tanjun.dependencies.SfCache[hikari.Role], default=None)
 
 
 @pytest.mark.asyncio

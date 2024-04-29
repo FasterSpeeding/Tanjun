@@ -44,9 +44,6 @@ __all__: list[str] = [
     "Injected",
     "InjectorClient",
     "SelfInjectingCallback",
-    "UNDEFINED",
-    "Undefined",
-    "UndefinedOr",
     "as_self_injecting",
     "inject",
     "injected",
@@ -56,16 +53,14 @@ import collections.abc as collections
 import typing
 
 import alluka
-from alluka import AsyncSelfInjecting as SelfInjectingCallback
+from alluka import AsyncSelfInjecting as SelfInjectingCallback  # pyright: ignore[reportDeprecated]
 from alluka import BasicContext as BasicInjectionContext
 from alluka import Client as InjectorClient
 from alluka import Injected
 from alluka import inject
 from alluka import inject as injected
-from alluka.abc import UNDEFINED
 from alluka.abc import CallbackSig
 from alluka.abc import Context as AbstractInjectionContext
-from alluka.abc import Undefined
 
 if typing.TYPE_CHECKING:
     from . import abc as tanjun
@@ -73,13 +68,12 @@ if typing.TYPE_CHECKING:
 _T = typing.TypeVar("_T")
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound=alluka.abc.CallbackSig[typing.Any])
 
-UndefinedOr = typing.Union[Undefined, _T]
-"""Type-hint generic union used to indicate that a value may be undefined or `_T`."""
-
 
 def as_self_injecting(
     client: tanjun.Client, /
-) -> collections.Callable[[_CallbackSigT], alluka.AsyncSelfInjecting[_CallbackSigT]]:
+) -> collections.Callable[
+    [_CallbackSigT], alluka.AsyncSelfInjecting[_CallbackSigT]  # pyright: ignore[reportDeprecated]
+]:
     """Make a callback self-inecting by linking it to a client through a decorator call.
 
     Examples
@@ -106,7 +100,9 @@ def as_self_injecting(
         Decorator callback that returns a self-injecting callback.
     """
 
-    def decorator(callback: _CallbackSigT, /) -> alluka.AsyncSelfInjecting[_CallbackSigT]:
-        return alluka.AsyncSelfInjecting(client.injector, callback)
+    def decorator(
+        callback: _CallbackSigT, /
+    ) -> alluka.AsyncSelfInjecting[_CallbackSigT]:  # pyright: ignore[reportDeprecated]
+        return alluka.AsyncSelfInjecting(client.injector, callback)  # pyright: ignore[reportDeprecated]
 
     return decorator

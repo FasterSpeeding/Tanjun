@@ -210,7 +210,7 @@ async def fetch_permissions(
     guild = client.cache.get_guild(member.guild_id) if client.cache else None
     if not guild:  # noqa: SIM102
         # Has to be nested cause of pyright bug.
-        if guild_cache := client.get_type_dependency(_GuildCacheT):
+        if guild_cache := client.get_type_dependency(_GuildCacheT, default=None):
             try:
                 guild = await guild_cache.get(member.guild_id)
 
@@ -231,7 +231,7 @@ async def fetch_permissions(
     roles = roles or client.cache and client.cache.get_roles_view_for_guild(member.guild_id)
     if not roles:  # noqa: SIM102
         # Has to be nested cause of pyright bug.
-        if role_cache := client.get_type_dependency(_GuldRoleCacheT):
+        if role_cache := client.get_type_dependency(_GuldRoleCacheT, default=None):
             roles = {role.id: role for role in await role_cache.iter_for_guild(member.guild_id)}
 
     if not roles:
@@ -324,7 +324,7 @@ async def fetch_everyone_permissions(
     role = client.cache.get_role(guild_id) if client.cache else None
     if not role:  # noqa: SIM102
         # Has to be nested cause of pyright bug.
-        if role_cache := client.get_type_dependency(_RoleCacheT):
+        if role_cache := client.get_type_dependency(_RoleCacheT, default=None):
             try:
                 role = await role_cache.get(guild_id)
 

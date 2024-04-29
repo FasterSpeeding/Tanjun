@@ -168,7 +168,7 @@ class Owners(AbstractOwners):
         if not self._fallback_to_application:
             return False
 
-        application_cache = client.get_type_dependency(_ApplicationCacheT)
+        application_cache = client.get_type_dependency(_ApplicationCacheT, default=None)
         if application_cache:  # noqa: SIM102
             # Has to be nested cause of pyright bug
             if application := await application_cache.get(default=None):
