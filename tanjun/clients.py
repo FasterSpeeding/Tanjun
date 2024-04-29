@@ -681,7 +681,8 @@ class Client(tanjun.Client):
         injector
             The alluka client this should use for dependency injection.
 
-            If not provided then the client will initialise its own DI client.
+            If not provided then either the "local" Alluka client will be used or
+            the client will initialise its own DI client.
         mention_prefix
             Whether or not mention prefixes should be automatically set when this
             client is first started.
