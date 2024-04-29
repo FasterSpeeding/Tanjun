@@ -34,6 +34,7 @@
 import alluka
 import mock
 
+import pytest
 import tanjun
 
 
@@ -41,7 +42,8 @@ def test_as_self_injecting():
     mock_callback = mock.Mock()
     mock_client = mock.Mock()
 
-    result = tanjun.injecting.as_self_injecting(mock_client)(mock_callback)
+    with pytest.warns(DeprecationWarning):
+        result = tanjun.injecting.as_self_injecting(mock_client)(mock_callback)
 
     assert result.callback is mock_callback
     assert result._client is mock_client.injector

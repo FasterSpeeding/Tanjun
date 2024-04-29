@@ -69,7 +69,7 @@ def stub_class(
 
 @pytest.fixture
 def mock_client() -> tanjun.abc.Client:
-    return mock.MagicMock(tanjun.abc.Client, rest=mock.AsyncMock(hikari.api.RESTClient))
+    return mock.MagicMock(tanjun.abc.Client, rest=mock.AsyncMock(hikari.api.RESTClient), injector=alluka.Client())
 
 
 @pytest.fixture
@@ -138,23 +138,23 @@ class TestBaseContext:
         assert context.get_type_dependency(tanjun.abc.Component) is component
 
     def test_set_component_when_none_and_previously_set(self, context: base_context.BaseContext):
-        assert isinstance(context.injection_client.get_type_dependency, mock.Mock)
-        context.injection_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         mock_component = mock.Mock()
         context.set_component(mock_component)
         context.set_component(None)
 
         assert context.component is None
-        assert context.get_type_dependency(tanjun.abc.Component) is alluka.abc.UNDEFINED
+
+        with pytest.raises(KeyError):
+            context.get_type_dependency(tanjun.abc.Component)
 
     def test_set_component_when_none(self, context: base_context.BaseContext):
-        assert isinstance(context.injection_client.get_type_dependency, mock.Mock)
-        context.injection_client.get_type_dependency.return_value = alluka.abc.UNDEFINED
         context.set_component(None)
         context.set_component(None)
 
         assert context.component is None
-        assert context.get_type_dependency(tanjun.abc.Component) is alluka.abc.UNDEFINED
+
+        with pytest.raises(KeyError):
+            context.get_type_dependency(tanjun.abc.Component)
 
     def test_set_component_when_final(self, context: base_context.BaseContext):
         component = mock.Mock()

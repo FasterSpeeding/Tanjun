@@ -69,7 +69,7 @@ def stub_class(
 
 @pytest.fixture
 def mock_client() -> tanjun.abc.Client:
-    return mock.MagicMock(tanjun.abc.Client, rest=mock.AsyncMock(hikari.api.RESTClient))
+    return mock.MagicMock(tanjun.abc.Client, rest=mock.AsyncMock(hikari.api.RESTClient), injector=alluka.Client())
 
 
 @pytest.fixture
@@ -146,25 +146,29 @@ class TestMessageContext:
         assert context.get_type_dependency(tanjun.abc.MessageCommand) is mock_command
 
     def test_set_command_when_none(self, context: tanjun.context.MessageContext):
-        assert isinstance(context.client.injector.get_type_dependency, mock.Mock)
-        context.client.injector.get_type_dependency.return_value = alluka.abc.UNDEFINED
         context.set_command(None)
         context.set_command(None)
 
         assert context.command is None
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is alluka.abc.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.MessageCommand) is alluka.abc.UNDEFINED
+
+        with pytest.raises(KeyError):
+            assert context.get_type_dependency(tanjun.abc.ExecutableCommand)
+
+        with pytest.raises(KeyError):
+            assert context.get_type_dependency(tanjun.abc.MessageCommand)
 
     def test_set_command_when_none_and_previously_set(self, context: tanjun.context.MessageContext):
-        assert isinstance(context.client.injector.get_type_dependency, mock.Mock)
-        context.client.injector.get_type_dependency.return_value = alluka.abc.UNDEFINED
         mock_command = mock.Mock()
         context.set_command(mock_command)
         context.set_command(None)
 
         assert context.command is None
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is alluka.abc.UNDEFINED
-        assert context.get_type_dependency(tanjun.abc.MessageCommand) is alluka.abc.UNDEFINED
+
+        with pytest.raises(KeyError):
+            assert context.get_type_dependency(tanjun.abc.ExecutableCommand)
+
+        with pytest.raises(KeyError):
+            assert context.get_type_dependency(tanjun.abc.MessageCommand)
 
     def test_set_command_when_finalised(self, context: tanjun.context.MessageContext):
         context.finalise()
