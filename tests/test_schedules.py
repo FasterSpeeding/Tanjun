@@ -338,11 +338,11 @@ class TestIntervalSchedule:
 
         assert interval._task is None
         assert call_times == [
-            1326542405000000000,
-            1326542410000000000,
-            1326542415000000000,
-            1326542420000000000,
-            1326542425000000000,
+            1326542405100000000,
+            1326542410200000000,
+            1326542415300000000,
+            1326542420400000000,
+            1326542425500000000,
         ]
         assert interval.iteration_count == 5
 
@@ -377,14 +377,14 @@ class TestIntervalSchedule:
             # not just been reached.
             clock = _ManualClock(frozen_time, [datetime.timedelta(seconds=3, milliseconds=300)]).spawn_ticker()
             await close_event.wait()
-            assert close_time == 1334145609000000000
+            assert close_time == 1334145609900000000
 
         # This is done to allow any finished tasks to be removed.
         await asyncio.sleep(0)
 
         assert interval._task is None
         assert interval._tasks == []
-        assert call_times == [1334145603000000000, 1334145606000000000, 1334145609000000000]
+        assert call_times == [1334145603300000000, 1334145606600000000, 1334145609900000000]
         assert interval.iteration_count == 3
 
     @pytest.mark.timeout(_TIMEOUT)
@@ -429,9 +429,9 @@ class TestIntervalSchedule:
             await asyncio.sleep(0)
 
         assert interval._task is None
-        assert call_times == [1301976007000000000, 1301976014000000000, 1301976021000000000]
+        assert call_times == [1301976007200000000, 1301976014400000000, 1301976021600000000]
         assert start_time == 1301976000000000000
-        assert stop_time == 1301976028000000000
+        assert stop_time == 1301976028800000000
         assert interval.iteration_count == 3
 
     @pytest.mark.parametrize("fatal_exceptions", [[LookupError], []])
