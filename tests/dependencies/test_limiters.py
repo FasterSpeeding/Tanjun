@@ -37,7 +37,6 @@ import datetime
 import re
 import typing
 
-import alluka
 import freezegun
 import hikari
 import mock

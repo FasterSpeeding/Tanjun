@@ -61,7 +61,7 @@ def test_aliases():
         "inject",
         "injected",
     }
-    assert tanjun.injecting.SelfInjectingCallback is alluka.AsyncSelfInjecting
+    assert tanjun.injecting.SelfInjectingCallback is alluka.AsyncSelfInjecting  # pyright: ignore[reportDeprecated]
     assert tanjun.injecting.BasicInjectionContext is alluka.BasicContext
     assert tanjun.injecting.InjectorClient is alluka.Client
     assert tanjun.injecting.Injected is alluka.Injected

@@ -37,7 +37,6 @@ import datetime
 import time
 import typing
 
-import alluka
 import hikari
 import mock
 import pytest
