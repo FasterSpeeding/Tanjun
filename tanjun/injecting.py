@@ -72,8 +72,8 @@ _CallbackSigT = typing.TypeVar("_CallbackSigT", bound=alluka.abc.CallbackSig[typ
 def as_self_injecting(
     client: tanjun.Client, /
 ) -> collections.Callable[
-    [_CallbackSigT], alluka.AsyncSelfInjecting[_CallbackSigT]
-]:  # pyright: ignore[reportDeprecated]
+    [_CallbackSigT], alluka.AsyncSelfInjecting[_CallbackSigT]  # pyright: ignore[reportDeprecated]
+]:
     """Make a callback self-inecting by linking it to a client through a decorator call.
 
     Examples
