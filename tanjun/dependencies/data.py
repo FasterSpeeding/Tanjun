@@ -39,6 +39,7 @@ import time
 import typing
 
 import alluka
+
 from .. import abc as tanjun
 
 if typing.TYPE_CHECKING:
