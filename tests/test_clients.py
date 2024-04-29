@@ -1117,7 +1117,9 @@ class TestClient:
     def test_remove_listener_when_callback_not_present(self):
         mock_other_callback = mock.Mock()
         mock_injector = mock.Mock()
-        client = (tanjun.Client(mock.Mock(), injector=mock_injector).add_listener(hikari.GuildTypingEvent, mock_other_callback))
+        client = tanjun.Client(mock.Mock(), injector=mock_injector).add_listener(
+            hikari.GuildTypingEvent, mock_other_callback
+        )
 
         with pytest.raises(ValueError, match=".+"):
             client.remove_listener(hikari.GuildTypingEvent, mock.Mock())
@@ -1154,9 +1156,7 @@ class TestClient:
         client.remove_listener(hikari.RoleEvent, mock_callback)
 
         assert hikari.RoleEvent not in client.listeners
-        mock_events.unsubscribe.assert_called_once_with(
-            hikari.RoleEvent, mock_injector.auto_inject_async.return_value
-        )
+        mock_events.unsubscribe.assert_called_once_with(hikari.RoleEvent, mock_injector.auto_inject_async.return_value)
 
     def test_remove_listener_when_events(self):
         mock_events = mock.Mock()

@@ -762,11 +762,7 @@ class Client(tanjun.Client):
         self._injector = injector or alluka.Client()
         self._is_closing = False
         self._listeners: dict[
-            type[hikari.Event],
-            dict[
-                tanjun.ListenerCallbackSig[typing.Any],
-                tanjun.ListenerCallbackSig[typing.Any],
-            ],
+            type[hikari.Event], dict[tanjun.ListenerCallbackSig[typing.Any], tanjun.ListenerCallbackSig[typing.Any]]
         ] = {}
         self._loop: typing.Optional[asyncio.AbstractEventLoop] = None
         self._make_autocomplete_context: _AutocompleteContextMakerProto = context.AutocompleteContext
@@ -2372,7 +2368,9 @@ class Client(tanjun.Client):
             if self._cache:
                 user = self._cache.get_me()
 
-            if not user and (user_cache := self.get_type_dependency(dependencies.SingleStoreCache[hikari.OwnUser], default=None)):
+            if not user and (
+                user_cache := self.get_type_dependency(dependencies.SingleStoreCache[hikari.OwnUser], default=None)
+            ):
                 user = await user_cache.get(default=None)
 
             if not user:

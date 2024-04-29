@@ -33,8 +33,8 @@
 
 import alluka
 import mock
-
 import pytest
+
 import tanjun
 
 
