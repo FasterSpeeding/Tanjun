@@ -1223,7 +1223,7 @@ class Client(tanjun.Client):
         self,
     ) -> collections.Mapping[type[hikari.Event], collections.Collection[tanjun.ListenerCallbackSig[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Client>>.
-        return _internal.CastedView(self._listeners, lambda x: x.copy())
+        return _internal.CastedView(self._listeners, lambda x: list(x.values()))
 
     @property
     def is_alive(self) -> bool:
