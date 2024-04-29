@@ -39,6 +39,7 @@ import time
 import typing
 
 import alluka
+from .. import abc as tanjun
 
 if typing.TYPE_CHECKING:
     import contextlib
@@ -232,7 +233,7 @@ class _CacheCallback(typing.Generic[_T]):
         self._callback = callback
         self._last_called: typing.Optional[float] = None
         self._lock: typing.Optional[asyncio.Lock] = None
-        self._result: typing.Union[_T, alluka.abc.Undefined] = alluka.abc.UNDEFINED
+        self._result: typing.Union[_T, tanjun.NoDefault] = tanjun.NO_DEFAULT
         if expire_after is None:
             pass
         elif isinstance(expire_after, datetime.timedelta):
@@ -253,16 +254,14 @@ class _CacheCallback(typing.Generic[_T]):
 
     # Positional arg(s) may be guaranteed under some contexts so we want to pass those through.
     async def __call__(self, *args: typing.Any, ctx: alluka.Injected[alluka.abc.Context]) -> _T:
-        if self._result is not alluka.abc.UNDEFINED and not self._has_expired:
-            assert not isinstance(self._result, alluka.abc.Undefined)
+        if self._result is not tanjun.NO_DEFAULT and not self._has_expired:
             return self._result
 
         if not self._lock:
             self._lock = asyncio.Lock()
 
         async with self._lock:
-            if self._result is not alluka.abc.UNDEFINED and not self._has_expired:
-                assert not isinstance(self._result, alluka.abc.Undefined)
+            if self._result is not tanjun.NO_DEFAULT and not self._has_expired:
                 return self._result
 
             result = await ctx.call_with_async_di(self._callback, *args)
