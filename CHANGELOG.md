@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ## [2.17.4] - 2024-04-29
 ### Changed
-- Bumped the minimum Alluka ver to `v0.2.0`.
+- Bumped the minimum Alluka version to `v0.2.0`.
 - Tanjun's client will now use the "local" Alluka client returned by
   [alluka.local.get][] if no client is passed and a local Alluka client is set.
 - [Client.get_type_dependency][tanjun.abc.Client.get_type_dependency] will now
