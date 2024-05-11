@@ -284,7 +284,7 @@ NoDefault = typing.Literal[_DefaultFlag.NO_DEFAULT]
 """Deprecated type."""
 
 NO_PASS = _DefaultFlag.NO_PASS
-"""Deprecated singleton."""
+"""Singleton used to mark an argument as being not passed when it isn't provided."""
 
 
 class Context(alluka.Context):
