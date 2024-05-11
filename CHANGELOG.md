@@ -5,8 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [2.17.5] - 2024-05-11
 ### Fixed
 - Now compatible with Alluka `v0.3.0`.
+  Fixed the conflict between internal attributes inherited from Alluka's
+  BaseContext class and internal attributes being explicitly declared by
+  Tanjun's context classes.
 
 ## [2.17.4] - 2024-04-29
 ### Changed
@@ -19,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Now compatible with Alluka `v0.2.0`.
+  Tanjun now no-longer tries to use Alluka's removed `UNDEFINED` singleton
+  and its relevant types.
 
 ### Removed
 - `tanjun.injecting.UndefinedOr`, `tanjun.injecting.UNDEFINED`,
