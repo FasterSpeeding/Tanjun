@@ -170,9 +170,9 @@ execnet==2.1.1 ; python_full_version >= "3.9.0" and python_version < "3.13" \
 filelock==3.14.0 ; python_full_version >= "3.9.0" and python_version < "3.13" \
     --hash=sha256:43339835842f110ca7ae60f1e1c160714c5a6afd15a2873419ab185334975c0f \
     --hash=sha256:6ea72da3be9b8c82afd3edcf99f2fffbb5076335a5ae4d03248bb5b6c3eae78a
-freezegun==1.5.0 ; python_full_version >= "3.9.0" and python_version < "3.13" \
-    --hash=sha256:200a64359b363aa3653d8aac289584078386c7c3da77339d257e46a01fb5c77c \
-    --hash=sha256:ec3f4ba030e34eb6cf7e1e257308aee2c60c3d038ff35996d7475760c9ff3719
+freezegun==1.5.1 ; python_full_version >= "3.9.0" and python_version < "3.13" \
+    --hash=sha256:b29dedfcda6d5e8e083ce71b2b542753ad48cfec44037b3fc79702e2980a89e9 \
+    --hash=sha256:bf111d7138a8abe55ab48a71755673dbaa4ab87f4cff5634a4442dfec34c15f1
 frozenlist==1.4.1 ; python_full_version >= "3.9.0" and python_version < "3.13" \
     --hash=sha256:04ced3e6a46b4cfffe20f9ae482818e34eba9b5fb0ce4056e4cc9b6e212d09b7 \
     --hash=sha256:0633c8d5337cb5c77acbccc6357ac49a1770b8c487e5b3505c57b949b4b82e98 \
