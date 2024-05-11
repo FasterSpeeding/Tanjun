@@ -23,8 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Now compatible with Alluka `v0.2.0`.
-  Tanjun now no-longer tries to use Alluka's removed `UNDEFINED` singleton
-  and its relevant types.
+  Tanjun no-longer tries to use Alluka's removed `UNDEFINED` singleton and its
+  relevant types.
 
 ### Removed
 - `tanjun.injecting.UndefinedOr`, `tanjun.injecting.UNDEFINED`,
