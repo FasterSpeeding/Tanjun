@@ -1023,7 +1023,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for python 3.8 in-order to switch over to using collection.abc generic classes due to this being more
   forward compatible.
 
-[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.4...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.5...HEAD
+[2.17.5]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.4...v2.17.5
 [2.17.4]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.3...v2.17.4
 [2.17.3]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.2...v2.17.3
 [2.17.2]: https://github.com/FasterSpeeding/Tanjun/compare/v2.17.1...v2.17.2
