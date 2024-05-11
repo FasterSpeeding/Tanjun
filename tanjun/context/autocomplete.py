@@ -54,7 +54,7 @@ if typing.TYPE_CHECKING:
 class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     """Standard implementation of an autocomplete context."""
 
-    __slots__ = ("_client", "_command_name", "_focused", "_future", "_has_responded", "_interaction", "_options")
+    __slots__ = ("_tanjun_client", "_command_name", "_focused", "_future", "_has_responded", "_interaction", "_options")
 
     def __init__(
         self,
@@ -76,7 +76,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
             through the REST webhook flow.
         """
         super().__init__(client.injector)
-        self._client = client
+        self._tanjun_client = client
         self._future = future
         self._has_responded = False
         self._interaction = interaction
@@ -107,12 +107,12 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._client.cache
+        return self._tanjun_client.cache
 
     @property
     def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._client
+        return self._tanjun_client
 
     @property
     def triggering_name(self) -> str:
@@ -127,7 +127,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     @property
     def events(self) -> typing.Optional[hikari.api.EventManager]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._client.events
+        return self._tanjun_client.events
 
     @property
     def focused(self) -> hikari.AutocompleteInteractionOption:
@@ -147,36 +147,36 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     @property
     def server(self) -> typing.Optional[hikari.api.InteractionServer]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._client.server
+        return self._tanjun_client.server
 
     @property
     def rest(self) -> hikari.api.RESTClient:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._client.rest
+        return self._tanjun_client.rest
 
     @property
     def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        if not self._client.shards:
+        if not self._tanjun_client.shards:
             return None
 
         if self.guild_id is not None:
-            shard_id = snowflakes.calculate_shard_id(self._client.shards, self.guild_id)
+            shard_id = snowflakes.calculate_shard_id(self._tanjun_client.shards, self.guild_id)
 
         else:
             shard_id = 0
 
-        return self._client.shards.shards[shard_id]
+        return self._tanjun_client.shards.shards[shard_id]
 
     @property
     def shards(self) -> typing.Optional[hikari.ShardAware]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._client.shards
+        return self._tanjun_client.shards
 
     @property
     def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._client.voice
+        return self._tanjun_client.voice
 
     @property
     def has_responded(self) -> bool:
