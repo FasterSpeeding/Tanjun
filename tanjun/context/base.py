@@ -48,11 +48,11 @@ if typing.TYPE_CHECKING:
 class BaseContext(alluka.BasicContext, tanjun.Context):
     """Base class for the standard command context implementations."""
 
-    __slots__ = ("_client", "_component", "_final")
+    __slots__ = ("_tanjun_client", "_component", "_final")
 
     def __init__(self, client: tanjun.Client, /) -> None:
         super().__init__(client.injector)
-        self._client = client
+        self._tanjun_client = client
         self._component: typing.Optional[tanjun.Component] = None
         self._final = False
         self._set_type_special_case(tanjun.Context, self)
@@ -60,12 +60,12 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._client.cache
+        return self._tanjun_client.cache
 
     @property
     def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._client
+        return self._tanjun_client
 
     @property
     def component(self) -> typing.Optional[tanjun.Component]:
@@ -75,41 +75,41 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
     @property
     def events(self) -> typing.Optional[hikari.api.EventManager]:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._client.events
+        return self._tanjun_client.events
 
     @property
     def server(self) -> typing.Optional[hikari.api.InteractionServer]:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._client.server
+        return self._tanjun_client.server
 
     @property
     def rest(self) -> hikari.api.RESTClient:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._client.rest
+        return self._tanjun_client.rest
 
     @property
     def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
         # <<inherited docstring from tanjun.abc.Context>>.
-        if not self._client.shards:
+        if not self._tanjun_client.shards:
             return None
 
         if self.guild_id is not None:
-            shard_id = snowflakes.calculate_shard_id(self._client.shards, self.guild_id)
+            shard_id = snowflakes.calculate_shard_id(self._tanjun_client.shards, self.guild_id)
 
         else:
             shard_id = 0
 
-        return self._client.shards.shards[shard_id]
+        return self._tanjun_client.shards.shards[shard_id]
 
     @property
     def shards(self) -> typing.Optional[hikari.ShardAware]:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._client.shards
+        return self._tanjun_client.shards
 
     @property
     def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._client.voice
+        return self._tanjun_client.voice
 
     def _assert_not_final(self) -> None:
         if self._final:
@@ -140,8 +140,8 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
 
     def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
         # <<inherited docstring from tanjun.abc.Context>>.
-        if self._client.cache:
-            channel = self._client.cache.get_guild_channel(self.channel_id)
+        if self._tanjun_client.cache:
+            channel = self._tanjun_client.cache.get_guild_channel(self.channel_id)
             assert channel is None or isinstance(channel, hikari.TextableGuildChannel)
             return channel
 
@@ -149,20 +149,20 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
 
     def get_guild(self) -> typing.Optional[hikari.Guild]:
         # <<inherited docstring from tanjun.abc.Context>>.
-        if self.guild_id is not None and self._client.cache:
-            return self._client.cache.get_guild(self.guild_id)
+        if self.guild_id is not None and self._tanjun_client.cache:
+            return self._tanjun_client.cache.get_guild(self.guild_id)
 
         return None  # MyPy compat
 
     async def fetch_channel(self) -> hikari.TextableChannel:
         # <<inherited docstring from tanjun.abc.Context>>.
-        channel = await self._client.rest.fetch_channel(self.channel_id)
+        channel = await self._tanjun_client.rest.fetch_channel(self.channel_id)
         assert isinstance(channel, hikari.TextableChannel)
         return channel
 
     async def fetch_guild(self) -> typing.Optional[hikari.Guild]:  # TODO: or raise?
         # <<inherited docstring from tanjun.abc.Context>>.
         if self.guild_id is not None:
-            return await self._client.rest.fetch_guild(self.guild_id)
+            return await self._tanjun_client.rest.fetch_guild(self.guild_id)
 
         return None  # MyPy compat

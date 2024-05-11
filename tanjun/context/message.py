@@ -225,14 +225,14 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         if self._initial_response_id is None:
             raise LookupError("Context has no initial response")
 
-        await self._client.rest.delete_message(self._message.channel_id, self._initial_response_id)
+        await self._tanjun_client.rest.delete_message(self._message.channel_id, self._initial_response_id)
 
     async def delete_last_response(self) -> None:
         # <<inherited docstring from tanjun.abc.Context>>.
         if self._last_response_id is None:
             raise LookupError("Context has no previous responses")
 
-        await self._client.rest.delete_message(self._message.channel_id, self._last_response_id)
+        await self._tanjun_client.rest.delete_message(self._message.channel_id, self._last_response_id)
 
     async def edit_initial_response(
         self,

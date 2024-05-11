@@ -333,7 +333,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
     @property
     def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._client
+        return self._tanjun_client
 
     @property
     def created_at(self) -> datetime.datetime:
