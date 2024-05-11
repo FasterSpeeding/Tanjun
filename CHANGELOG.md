@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Now compatible with Alluka `v0.3.0`.
   Fixed the conflict between internal attributes inherited from Alluka's
-  BaseContext class and internal attributes being explicitly declared by
+  `BaseContext` class and internal attributes being explicitly declared by
   Tanjun's context classes.
 
 ## [2.17.4] - 2024-04-29
