@@ -62,36 +62,7 @@ class AutocompleteContext(tanjun.AutocompleteContext):
         deprecated behaviour and may not behave as expected.
     """
 
-    __slots__ = (
-        "_alluka_ctx",
-        "_client",
-        "_command_name",
-        "_focused",
-        "_future",
-        "_has_responded",
-        "_interaction",
-        "_options",
-    )
-
-    @typing.overload
-    def __init__(
-        self,
-        client: tanjun.Client,
-        interaction: hikari.AutocompleteInteraction,
-        *,
-        future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
-    ) -> None: ...
-
-    @typing_extensions.deprecated("Passing `alluka_ctx` is deprecated")
-    @typing.overload
-    def __init__(
-        self,
-        client: tanjun.Client,
-        interaction: hikari.AutocompleteInteraction,
-        *,
-        future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
-        alluka_ctx: typing.Optional[alluka.Context],
-    ) -> None: ...
+    __slots__ = ("_client", "_command_name", "_focused", "_future", "_has_responded", "_interaction", "_options")
 
     def __init__(
         self,
@@ -99,7 +70,6 @@ class AutocompleteContext(tanjun.AutocompleteContext):
         interaction: hikari.AutocompleteInteraction,
         *,
         future: typing.Optional[asyncio.Future[hikari.api.InteractionAutocompleteBuilder]] = None,
-        alluka_ctx: typing.Optional[alluka.Context] = None,
     ) -> None:
         """Initialise an autocomplete context.
 
@@ -113,7 +83,6 @@ class AutocompleteContext(tanjun.AutocompleteContext):
             A future used to set the initial response if this is being called
             through the REST webhook flow.
         """
-        self._alluka_ctx = alluka_ctx or client.injector.make_context()
         self._client = client
         self._future = future
         self._has_responded = False
@@ -278,7 +247,7 @@ class AutocompleteContext(tanjun.AutocompleteContext):
 
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
     def cache_result(self, callback: alluka.CallbackSig[_T], value: _T, /) -> None:
-        self._alluka_ctx.cache_result(callback, value)
+        return None
 
     @typing.overload
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
@@ -295,11 +264,11 @@ class AutocompleteContext(tanjun.AutocompleteContext):
 
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
     def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T:
-        return self._alluka_ctx.call_with_di(callback, *args, **kwargs)
+        return self._client.injector.call_with_di(callback, *args, **kwargs)
 
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
     async def call_with_async_di(self, callback: alluka.CallbackSig[_T], *args: typing.Any, **kwargs: typing.Any) -> _T:
-        return await self._alluka_ctx.call_with_async_di(callback, *args, **kwargs)
+        return await self._client.injector.call_with_async_di(callback, *args, **kwargs)
 
     @typing.overload
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
@@ -319,14 +288,10 @@ class AutocompleteContext(tanjun.AutocompleteContext):
         *,
         default: typing.Union[_DefaultT, tanjun.NoDefault] = tanjun.NO_DEFAULT,
     ) -> typing.Union[_T, _DefaultT]:
-        result: typing.Union[_DefaultT, tanjun.NoDefault, _T] = self._alluka_ctx.get_cached_result(
-            callback, default=default
-        )
-
-        if result is tanjun.NO_DEFAULT:
+        if default is tanjun.NO_DEFAULT:
             raise KeyError
 
-        return result
+        return default
 
     @typing.overload
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
@@ -340,7 +305,7 @@ class AutocompleteContext(tanjun.AutocompleteContext):
     def get_type_dependency(
         self, type_: type[_T], /, *, default: typing.Union[_DefaultT, tanjun.NoDefault] = tanjun.NO_DEFAULT
     ) -> typing.Union[_T, _DefaultT]:
-        result: typing.Union[_DefaultT, tanjun.NoDefault, _T] = self._alluka_ctx.get_type_dependency(
+        result: typing.Union[_DefaultT, tanjun.NoDefault, _T] = self._client.injector.get_type_dependency(
             type_, default=default
         )
 
