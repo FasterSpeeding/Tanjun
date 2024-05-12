@@ -40,6 +40,7 @@ import os
 import typing
 
 import hikari
+import typing_extensions
 
 from .. import _internal
 from .. import abc as tanjun
@@ -48,6 +49,7 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+    from alluka import abc as alluka
     from typing_extensions import Self
 
     _ResponseTypeT = typing.Union[
@@ -285,7 +287,12 @@ class SlashOption(tanjun.SlashOption):
 
 
 class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
-    """Base class for interaction-based command contexts."""
+    """Base class for interaction-based command contexts.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = (
         "_defaults_to_ephemeral",
@@ -299,6 +306,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         "_response_lock",
     )
 
+    @typing.overload
     def __init__(
         self,
         client: tanjun.Client,
@@ -307,8 +315,32 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
+    ) -> None: ...
+
+    @typing_extensions.deprecated("Passing `alluka_ctx` is deprecated")
+    @typing.overload
+    def __init__(
+        self,
+        client: tanjun.Client,
+        interaction: hikari.CommandInteraction,
+        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+        *,
+        default_to_ephemeral: bool = False,
+        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+    ) -> None: ...
+
+    def __init__(
+        self,
+        client: tanjun.Client,
+        interaction: hikari.CommandInteraction,
+        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+        *,
+        default_to_ephemeral: bool = False,
+        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
     ) -> None:
-        super().__init__(client)
+        super().__init__(client, alluka_ctx=alluka_ctx)  # pyright: ignore[reportDeprecated]
         self._defaults_to_ephemeral = default_to_ephemeral
         self._defer_task: typing.Optional[asyncio.Task[None]] = None
         self._has_been_deferred = False
@@ -318,7 +350,6 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self._register_task = register_task
         self._response_future = future
         self._response_lock = asyncio.Lock()
-        self._set_type_special_case(tanjun.AppCommandContext, self)
 
     @property
     def author(self) -> hikari.User:
@@ -333,7 +364,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
     @property
     def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._tanjun_client
+        return self._client
 
     @property
     def created_at(self) -> datetime.datetime:
@@ -1003,6 +1034,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
 
     __slots__ = ("_command", "_command_name", "_marked_not_found", "_on_not_found", "_options")
 
+    @typing.overload
     def __init__(
         self,
         client: tanjun.Client,
@@ -1012,6 +1044,32 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
         on_not_found: typing.Optional[collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]] = None,
+    ) -> None: ...
+
+    @typing_extensions.deprecated("Passing `alluka_ctx` is deprecated")
+    @typing.overload
+    def __init__(
+        self,
+        client: tanjun.Client,
+        interaction: hikari.CommandInteraction,
+        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+        *,
+        default_to_ephemeral: bool = False,
+        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
+        on_not_found: typing.Optional[collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]] = None,
+        alluka_ctx: typing.Optional[alluka.Context],
+    ) -> None: ...
+
+    def __init__(
+        self,
+        client: tanjun.Client,
+        interaction: hikari.CommandInteraction,
+        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+        *,
+        default_to_ephemeral: bool = False,
+        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
+        on_not_found: typing.Optional[collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]] = None,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
     ) -> None:
         """Initialise a slash command context.
 
@@ -1031,7 +1089,14 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         on_not_found
             Callback used to indicate no matching command was found.
         """
-        super().__init__(client, interaction, register_task, default_to_ephemeral=default_to_ephemeral, future=future)
+        super().__init__(  # pyright: ignore[reportDeprecated]
+            client,
+            interaction,
+            register_task,
+            default_to_ephemeral=default_to_ephemeral,
+            future=future,
+            alluka_ctx=alluka_ctx,
+        )
         self._marked_not_found = False
         self._on_not_found = on_not_found
 
@@ -1039,7 +1104,6 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         command_name, options = _internal.flatten_options(interaction.command_name, interaction.options)
         self._command_name = command_name
         self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
-        (self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(SlashContext, self))
 
     @property
     def command(self) -> typing.Optional[tanjun.BaseSlashCommand]:
@@ -1071,22 +1135,5 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
     def set_command(self, command: typing.Optional[tanjun.BaseSlashCommand], /) -> Self:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         self._assert_not_final()
-        if command:
-            # TODO: command group?
-            (
-                self._set_type_special_case(tanjun.ExecutableCommand, command)
-                ._set_type_special_case(tanjun.AppCommand, command)
-                ._set_type_special_case(tanjun.BaseSlashCommand, command)
-                ._set_type_special_case(tanjun.SlashCommand, command)
-            )
-
-        elif self._command:
-            (
-                self._remove_type_special_case(tanjun.ExecutableCommand)
-                ._remove_type_special_case(tanjun.AppCommand)
-                ._remove_type_special_case(tanjun.BaseSlashCommand)
-                ._remove_type_special_case(tanjun.SlashCommand)
-            )
-
         self._command = command
         return self

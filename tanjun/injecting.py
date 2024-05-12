@@ -54,7 +54,7 @@ import typing
 
 import alluka
 from alluka import AsyncSelfInjecting as SelfInjectingCallback  # pyright: ignore[reportDeprecated]
-from alluka import BasicContext as BasicInjectionContext
+from alluka import BasicContext as BasicInjectionContext  # pyright: ignore[reportDeprecated]
 from alluka import Client as InjectorClient
 from alluka import Injected
 from alluka import inject

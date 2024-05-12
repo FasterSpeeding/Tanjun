@@ -48,6 +48,7 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+    from alluka import abc as alluka
     from typing_extensions import Self
 
     _AnyCallbackSigT = typing.TypeVar(
@@ -651,10 +652,12 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         self._defaults_to_ephemeral = state
         return self
 
-    async def check_context(self, ctx: tanjun.MenuContext, /) -> bool:
+    async def check_context(
+        self, ctx: tanjun.MenuContext, /, *, alluka_ctx: typing.Optional[alluka.Context] = None
+    ) -> bool:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         ctx.set_command(self)
-        result = await _internal.gather_checks(ctx, self._checks)
+        result = await _internal.gather_checks(alluka_ctx, ctx, self._checks)
         ctx.set_command(None)
         return result
 
@@ -665,16 +668,22 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         return inst
 
     async def execute(
-        self, ctx: tanjun.MenuContext, /, *, hooks: typing.Optional[collections.MutableSet[tanjun.MenuHooks]] = None
+        self,
+        ctx: tanjun.MenuContext,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        hooks: typing.Optional[collections.MutableSet[tanjun.MenuHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         if self._always_defer and not ctx.has_been_deferred and not ctx.has_responded:
             await ctx.defer()
 
         ctx = ctx.set_command(self)
+        alluka_ctx = alluka_ctx or ctx.client.injector.make_context()
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
-            await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
+            await own_hooks.trigger_pre_execution(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
 
             if self._type is hikari.CommandType.USER:
                 value: typing.Union[hikari.Message, hikari.User] = ctx.resolve_to_user()
@@ -682,7 +691,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
             else:
                 value = ctx.resolve_to_message()
 
-            await ctx.call_with_async_di(self._callback, ctx, value)
+            await alluka_ctx.call_with_async_di(self._callback, ctx, value)
 
         except errors.CommandError as exc:
             await exc.send(ctx)
@@ -693,13 +702,13 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
             await ctx.mark_not_found()
 
         except Exception as exc:
-            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
+            if await own_hooks.trigger_error(ctx, exc, alluka_ctx=alluka_ctx, hooks=hooks) <= 0:
                 raise
 
         else:
-            await own_hooks.trigger_success(ctx, hooks=hooks)
+            await own_hooks.trigger_success(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
 
-        await own_hooks.trigger_post_execution(ctx, hooks=hooks)
+        await own_hooks.trigger_post_execution(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.load_into_component>>.

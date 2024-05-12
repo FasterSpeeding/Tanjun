@@ -69,6 +69,7 @@ from .._internal import localisation
 from . import base
 
 if typing.TYPE_CHECKING:
+    import alluka
     from hikari.api import special_endpoints as special_endpoints_api
     from typing_extensions import Self
 
@@ -815,14 +816,16 @@ class _TrackedOption:
             if isinstance(converter, conversion.BaseConverter):
                 converter.check_client(client, f"{self.name} slash command option")
 
-    async def convert(self, ctx: tanjun.SlashContext, value: typing.Any, /) -> typing.Any:
+    async def convert(
+        self, alluka_ctx: alluka.abc.Context, ctx: tanjun.SlashContext, value: typing.Any, /
+    ) -> typing.Any:
         if not self.converters:
             return value
 
         exceptions: list[ValueError] = []
         for converter in self.converters:
             try:
-                return await ctx.call_with_async_di(converter, value)
+                return await alluka_ctx.call_with_async_di(converter, value)
 
             except ValueError as exc:
                 exceptions.append(exc)
@@ -1045,10 +1048,12 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
         self._parent = parent
         return self
 
-    async def check_context(self, ctx: tanjun.SlashContext, /) -> bool:
+    async def check_context(
+        self, ctx: tanjun.SlashContext, /, *, alluka_ctx: typing.Optional[alluka.abc.Context] = None
+    ) -> bool:
         # <<inherited docstring from tanjun.abc.SlashCommand>>.
         ctx.set_command(self)
-        result = await _internal.gather_checks(ctx, self._checks)
+        result = await _internal.gather_checks(alluka_ctx, ctx, self._checks)
         ctx.set_command(None)
         return result
 
@@ -1417,8 +1422,9 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         ctx: tanjun.SlashContext,
         /,
         *,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
+        alluka_ctx: typing.Optional[alluka.abc.Context] = None,
         hooks: typing.Optional[collections.MutableSet[tanjun.SlashHooks]] = None,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         if not option and ctx.interaction.options:
@@ -1434,8 +1440,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             if command.defaults_to_ephemeral is not None:
                 ctx.set_ephemeral_default(command.defaults_to_ephemeral)
 
-            if await command.check_context(ctx):
-                await command.execute(ctx, option=option, hooks=hooks)
+            if await command.check_context(ctx, alluka_ctx=alluka_ctx):
+                await command.execute(ctx, alluka_ctx=alluka_ctx, option=option, hooks=hooks)
                 return
 
         await ctx.mark_not_found()
@@ -1445,6 +1451,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         ctx: tanjun.AutocompleteContext,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.abc.Context] = None,
         option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
     ) -> None:
         if not option and ctx.interaction.options:
@@ -1460,7 +1467,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
         if not command:
             raise RuntimeError(f"Sub-command '{option.name}' no found")
 
-        await command.execute_autocomplete(ctx, option=option)
+        await command.execute_autocomplete(ctx, alluka_ctx=alluka_ctx, option=option)
 
 
 def _assert_in_range(name: str, value: typing.Optional[int], min_value: int, max_value: int, /) -> None:
@@ -3095,7 +3102,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         return decorator
 
-    async def _process_args(self, ctx: tanjun.SlashContext, /) -> collections.Mapping[str, typing.Any]:
+    async def _process_args(
+        self, alluka_ctx: alluka.abc.Context, ctx: tanjun.SlashContext, /
+    ) -> collections.Mapping[str, typing.Any]:
         keyword_args: dict[
             str, typing.Union[int, float, str, hikari.Attachment, hikari.User, hikari.Role, hikari.InteractionChannel]
         ] = {}
@@ -3139,7 +3148,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
                     value = float(value)
 
                 if tracked_option.converters:
-                    value = await tracked_option.convert(ctx, option.value)
+                    value = await tracked_option.convert(alluka_ctx, ctx, option.value)
 
                 keyword_args[tracked_option.key] = value
 
@@ -3150,25 +3159,27 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         ctx: tanjun.SlashContext,
         /,
         *,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
+        alluka_ctx: typing.Optional[alluka.abc.Context] = None,
         hooks: typing.Optional[collections.MutableSet[tanjun.SlashHooks]] = None,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         if self._always_defer and not ctx.has_been_deferred and not ctx.has_responded:
             await ctx.defer()
 
+        alluka_ctx = alluka.OverridingContext(alluka_ctx or ctx.client.injector.make_context())
         ctx = ctx.set_command(self)
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
-            await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
+            await own_hooks.trigger_pre_execution(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
 
             if self._tracked_options:
-                kwargs = await self._process_args(ctx)
+                kwargs = await self._process_args(alluka_ctx, ctx)
 
             else:
                 kwargs = _EMPTY_DICT
 
-            await ctx.call_with_async_di(self._callback, ctx, **kwargs)
+            await alluka_ctx.call_with_async_di(self._callback, ctx, **kwargs)
 
         except errors.CommandError as exc:
             await exc.send(ctx)
@@ -3179,19 +3190,20 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             await ctx.mark_not_found()
 
         except Exception as exc:
-            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
+            if await own_hooks.trigger_error(ctx, exc, alluka_ctx=alluka_ctx, hooks=hooks) <= 0:
                 raise
 
         else:
-            await own_hooks.trigger_success(ctx, hooks=hooks)
+            await own_hooks.trigger_success(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
 
-        await own_hooks.trigger_post_execution(ctx, hooks=hooks)
+        await own_hooks.trigger_post_execution(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
 
     async def execute_autocomplete(
         self,
         ctx: tanjun.AutocompleteContext,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.abc.Context] = None,
         option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
@@ -3210,7 +3222,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         if not callback:
             raise RuntimeError(f"No autocomplete callback found for '{ctx.focused.name}' option")
 
-        await ctx.call_with_async_di(callback, ctx, ctx.focused.value)
+        alluka_ctx = alluka_ctx or ctx.client.injector.make_context()
+        await alluka_ctx.call_with_async_di(callback, ctx, ctx.focused.value)
 
     def copy(self, *, parent: typing.Optional[tanjun.SlashCommandGroup] = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.

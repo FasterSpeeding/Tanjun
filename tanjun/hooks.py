@@ -43,6 +43,7 @@ from . import errors
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+    from alluka import abc as alluka
     from typing_extensions import Self
 
     _AnyCommandT = typing.TypeVar("_AnyCommandT", bound=tanjun.ExecutableCommand[typing.Any])
@@ -378,21 +379,29 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         exception: Exception,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
         hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
     ) -> int:
         # <<inherited docstring from tanjun.abc.Hooks>>.
+        alluka_ctx = alluka_ctx or ctx.client.injector.make_context()
         level = 0
         if isinstance(exception, errors.ParserError):
             if self._parser_error_callbacks:
-                await asyncio.gather(*(ctx.call_with_async_di(c, ctx, exception) for c in self._parser_error_callbacks))
+                await asyncio.gather(
+                    *(alluka_ctx.call_with_async_di(c, ctx, exception) for c in self._parser_error_callbacks)
+                )
                 level = 100  # We don't want to re-raise a parser error if it was caught
 
         elif self._error_callbacks:
-            results = await asyncio.gather(*(ctx.call_with_async_di(c, ctx, exception) for c in self._error_callbacks))
+            results = await asyncio.gather(
+                *(alluka_ctx.call_with_async_di(c, ctx, exception) for c in self._error_callbacks)
+            )
             level = results.count(True) - results.count(False)
 
         if hooks:
-            level += sum(await asyncio.gather(*(hook.trigger_error(ctx, exception) for hook in hooks)))
+            level += sum(
+                await asyncio.gather(*(hook.trigger_error(ctx, exception, alluka_ctx=alluka_ctx) for hook in hooks))
+            )
 
         return level
 
@@ -401,42 +410,48 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         ctx: _ContextT_contra,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
         hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._post_execution_callbacks:
-            await asyncio.gather(*(ctx.call_with_async_di(c, ctx) for c in self._post_execution_callbacks))
+            alluka_ctx = alluka_ctx or ctx.client.injector.make_context()
+            await asyncio.gather(*(alluka_ctx.call_with_async_di(c, ctx) for c in self._post_execution_callbacks))
 
         if hooks:
-            await asyncio.gather(*(hook.trigger_post_execution(ctx) for hook in hooks))
+            await asyncio.gather(*(hook.trigger_post_execution(ctx, alluka_ctx=alluka_ctx) for hook in hooks))
 
     async def trigger_pre_execution(
         self,
         ctx: _ContextT_contra,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
         hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._pre_execution_callbacks:
-            await asyncio.gather(*(ctx.call_with_async_di(c, ctx) for c in self._pre_execution_callbacks))
+            alluka_ctx = alluka_ctx or ctx.client.injector.make_context()
+            await asyncio.gather(*(alluka_ctx.call_with_async_di(c, ctx) for c in self._pre_execution_callbacks))
 
         if hooks:
-            await asyncio.gather(*(hook.trigger_pre_execution(ctx) for hook in hooks))
+            await asyncio.gather(*(hook.trigger_pre_execution(ctx, alluka_ctx=alluka_ctx) for hook in hooks))
 
     async def trigger_success(
         self,
         ctx: _ContextT_contra,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
         hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._success_callbacks:
-            await asyncio.gather(*(ctx.call_with_async_di(c, ctx) for c in self._success_callbacks))
+            alluka_ctx = alluka_ctx or ctx.client.injector.make_context()
+            await asyncio.gather(*(alluka_ctx.call_with_async_di(c, ctx) for c in self._success_callbacks))
 
         if hooks:
-            await asyncio.gather(*(hook.trigger_success(ctx) for hook in hooks))
+            await asyncio.gather(*(hook.trigger_success(ctx, alluka_ctx=alluka_ctx) for hook in hooks))
 
 
 AnyHooks = Hooks[tanjun.Context]

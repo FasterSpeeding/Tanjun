@@ -1131,10 +1131,6 @@ class TestSlashContext:
         assert context.set_command(mock_command) is context
 
         assert context.command is mock_command
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is mock_command
-        assert context.get_type_dependency(tanjun.abc.AppCommand) is mock_command
-        assert context.get_type_dependency(tanjun.abc.BaseSlashCommand) is mock_command
-        assert context.get_type_dependency(tanjun.abc.SlashCommand) is mock_command
 
     def test_set_command_when_none(self, context: tanjun.context.SlashContext):
         context.set_command(None)
@@ -1142,36 +1138,12 @@ class TestSlashContext:
 
         assert context.command is None
 
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.ExecutableCommand)
-
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.AppCommand)
-
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.BaseSlashCommand)
-
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.SlashCommand)
-
     def test_set_command_when_none_and_previously_set(self, context: tanjun.context.SlashContext):
         mock_command = mock.Mock()
         context.set_command(mock_command)
         context.set_command(None)
 
         assert context.command is None
-
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.ExecutableCommand)
-
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.AppCommand)
-
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.BaseSlashCommand)
-
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.SlashCommand)
 
     def test_set_command_when_finalised(self, context: tanjun.context.SlashContext):
         context.finalise()

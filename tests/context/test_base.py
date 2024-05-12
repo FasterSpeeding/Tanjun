@@ -115,7 +115,7 @@ class TestBaseContext:
         assert context.shard is mock_shard
 
     def test_shard_property_when_no_shards(self, context: tanjun.context.MessageContext):
-        context._tanjun_client = mock.Mock(shards=None)
+        context._client = mock.Mock(shards=None)
 
         assert context.shard is None
 
@@ -135,7 +135,6 @@ class TestBaseContext:
         assert context.set_component(component) is context
 
         assert context.component is component
-        assert context.get_type_dependency(tanjun.abc.Component) is component
 
     def test_set_component_when_none_and_previously_set(self, context: base_context.BaseContext):
         mock_component = mock.Mock()
@@ -144,17 +143,11 @@ class TestBaseContext:
 
         assert context.component is None
 
-        with pytest.raises(KeyError):
-            context.get_type_dependency(tanjun.abc.Component)
-
     def test_set_component_when_none(self, context: base_context.BaseContext):
         context.set_component(None)
         context.set_component(None)
 
         assert context.component is None
-
-        with pytest.raises(KeyError):
-            context.get_type_dependency(tanjun.abc.Component)
 
     def test_set_component_when_final(self, context: base_context.BaseContext):
         component = mock.Mock()

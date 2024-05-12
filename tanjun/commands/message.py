@@ -46,6 +46,7 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+    import alluka
     from typing_extensions import Self
 
     _AnyMessageCommandT = typing.TypeVar("_AnyMessageCommandT", bound=tanjun.MessageCommand[typing.Any])
@@ -317,10 +318,12 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         self._parser = parser
         return self
 
-    async def check_context(self, ctx: tanjun.MessageContext, /) -> bool:
+    async def check_context(
+        self, ctx: tanjun.MessageContext, /, *, alluka_ctx: typing.Optional[alluka.abc.Context] = None
+    ) -> bool:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         ctx.set_command(self)
-        result = await _internal.gather_checks(ctx, self._checks)
+        result = await _internal.gather_checks(alluka_ctx, ctx, self._checks)
         ctx.set_command(None)
         return result
 
@@ -329,13 +332,15 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
         ctx: tanjun.MessageContext,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.abc.Context] = None,
         hooks: typing.Optional[collections.MutableSet[tanjun.MessageHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
+        alluka_ctx = alluka_ctx or ctx.client.injector.make_context()
         ctx = ctx.set_command(self)
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
-            await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
+            await own_hooks.trigger_pre_execution(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
 
             if self._parser is not None:
                 kwargs = await self._parser.parse(ctx)
@@ -343,7 +348,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             else:
                 kwargs = _EMPTY_DICT
 
-            await ctx.call_with_async_di(self._callback, ctx, **kwargs)
+            await alluka_ctx.call_with_async_di(self._callback, ctx, **kwargs)
 
         except errors.CommandError as exc:
             await exc.send(ctx)
@@ -352,14 +357,14 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             raise
 
         except Exception as exc:
-            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
+            if await own_hooks.trigger_error(ctx, exc, alluka_ctx=alluka_ctx, hooks=hooks) <= 0:
                 raise
 
         else:
             # TODO: how should this be handled around CommandError?
-            await own_hooks.trigger_success(ctx, hooks=hooks)
+            await own_hooks.trigger_success(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
 
-        await own_hooks.trigger_post_execution(ctx, hooks=hooks)
+        await own_hooks.trigger_post_execution(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.load_into_component>>.
@@ -583,6 +588,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         ctx: tanjun.MessageContext,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.abc.Context] = None,
         hooks: typing.Optional[collections.MutableSet[tanjun.MessageHooks]] = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
@@ -600,11 +606,11 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
             case_sensitive = ctx.component.is_case_sensitive
 
         for name, command in self._commands.find(ctx.content, case_sensitive):
-            if await command.check_context(ctx):
+            if await command.check_context(ctx, alluka_ctx=alluka_ctx):
                 content = ctx.content[len(name) :]
                 ctx.set_triggering_name(ctx.triggering_name + " " + name)
                 ctx.set_content(content.lstrip())
-                await command.execute(ctx, hooks=hooks)
+                await command.execute(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
                 return
 
-        await super().execute(ctx, hooks=hooks)
+        await super().execute(ctx, alluka_ctx=alluka_ctx, hooks=hooks)

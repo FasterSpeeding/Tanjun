@@ -1951,8 +1951,8 @@ class Client(tanjun.Client):
         self.add_check(check)
         return check
 
-    async def check(self, ctx: tanjun.Context, /) -> bool:
-        return await _internal.gather_checks(ctx, self._checks)
+    async def check(self, ctx: tanjun.Context, /, *, alluka_ctx: typing.Optional[alluka.abc.Context] = None) -> bool:
+        return await _internal.gather_checks(alluka_ctx, ctx, self._checks)
 
     def add_component(self, component: tanjun.Component, /) -> Self:
         """Add a component to this client.
@@ -2285,10 +2285,12 @@ class Client(tanjun.Client):
             component.check_slash_name(name) for component in self._components.values()
         )
 
-    async def _check_prefix(self, ctx: tanjun.MessageContext, /) -> typing.Optional[str]:
+    async def _check_prefix(
+        self, alluka_ctx: alluka.abc.Context, ctx: tanjun.MessageContext, /
+    ) -> typing.Optional[str]:
         prefix: str  # MyPy fubs up its introspection here so we explicitly annotate.
         if self._prefix_getter:
-            for prefix in await ctx.call_with_async_di(self._prefix_getter, ctx):
+            for prefix in await alluka_ctx.call_with_async_di(self._prefix_getter, ctx):
                 if ctx.content.startswith(prefix):
                     return prefix
 
@@ -2807,7 +2809,12 @@ class Client(tanjun.Client):
         ctx = self._make_message_context(
             client=self, register_task=self._add_task, content=event.message.content, message=event.message
         )
-        if (prefix := await self._check_prefix(ctx)) is None:
+        alluka_ctx = (
+            alluka.OverridingContext.from_client(self._injector)
+            .set_type_dependency(tanjun.Context, ctx)
+            .set_type_dependency(tanjun.MessageContext, ctx)
+        )
+        if (prefix := await self._check_prefix(alluka_ctx, ctx)) is None:
             return
 
         ctx.set_content(ctx.content.lstrip()[len(prefix) :].lstrip()).set_triggering_prefix(prefix)
@@ -2822,9 +2829,10 @@ class Client(tanjun.Client):
             hooks = {self._message_hooks}
 
         try:
-            if await self.check(ctx):
+            if await self.check(ctx, alluka_ctx=alluka_ctx):
                 for component in self._components.values():
-                    if await component.execute_message(ctx, hooks=hooks):
+                    alluka_ctx.set_type_dependency(tanjun.Component, component)
+                    if await component.execute_message(ctx, alluka_ctx=alluka_ctx, hooks=hooks):
                         return
 
         except errors.HaltExecution:
@@ -2881,8 +2889,12 @@ class Client(tanjun.Client):
             The interaction to execute a command based on.
         """
         ctx = self._make_autocomplete_context(self, interaction)
+        alluka_ctx = alluka.OverridingContext.from_client(self._injector).set_type_dependency(
+            tanjun.AutocompleteContext, ctx
+        )
         for component in self._components.values():
-            if coro := component.execute_autocomplete(ctx):  # pyright: ignore[reportUnnecessaryComparison]
+            coro = component.execute_autocomplete(ctx, alluka_ctx=alluka_ctx)
+            if coro:  # pyright: ignore[reportUnnecessaryComparison]
                 await coro
                 return
 
@@ -2894,8 +2906,11 @@ class Client(tanjun.Client):
         interaction
             The interaction to execute a command based on.
         """
+        alluka_ctx = alluka.OverridingContext.from_client(self._injector)
+
+        ctx: typing.Union[context.MenuContext, context.SlashContext]
         if interaction.command_type is hikari.CommandType.SLASH:
-            ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
+            ctx = self._make_slash_context(
                 client=self,
                 interaction=interaction,
                 register_task=self._add_task,
@@ -2903,6 +2918,7 @@ class Client(tanjun.Client):
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
             hooks: typing.Union[set[tanjun.MenuHooks], set[tanjun.SlashHooks], None] = self._get_slash_hooks()
+            alluka_ctx.set_type_dependency(tanjun.SlashContext, ctx)
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
@@ -2913,6 +2929,7 @@ class Client(tanjun.Client):
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
             hooks = self._get_menu_hooks()
+            alluka_ctx.set_type_dependency(tanjun.MenuContext, ctx)
 
         else:
             raise RuntimeError(f"Unknown command type {interaction.command_type}")
@@ -2920,12 +2937,15 @@ class Client(tanjun.Client):
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
+        (alluka_ctx.set_type_dependency(tanjun.Context, ctx).set_type_dependency(tanjun.AppCommandContext, ctx))
+
         try:
-            if not await self.check(ctx):
+            if not await self.check(ctx, alluka_ctx=alluka_ctx):
                 await _mark_not_found_event(ctx)
                 return
 
             for component in self._components.values():
+                alluka_ctx.set_type_dependency(tanjun.Component, component)
                 # This is set on each iteration to ensure that any component
                 # state which was set to this isn't propagated to other components.
                 ctx.set_ephemeral_default(self._defaults_to_ephemeral)
@@ -2996,8 +3016,13 @@ class Client(tanjun.Client):
         future: asyncio.Future[hikari.api.InteractionAutocompleteBuilder] = loop.create_future()
         ctx = self._make_autocomplete_context(self, interaction, future=future)
 
+        alluka_ctx = alluka.OverridingContext.from_client(self._injector).set_type_dependency(
+            tanjun.AutocompleteContext, ctx
+        )
+
         for component in self._components.values():
-            if coro := component.execute_autocomplete(ctx):  # pyright: ignore[reportUnnecessaryComparison]
+            coro = component.execute_autocomplete(ctx, alluka_ctx=alluka_ctx)
+            if coro:  # pyright: ignore[reportUnnecessaryComparison]
                 task = loop.create_task(coro)
                 task.add_done_callback(lambda _: future.cancel())
                 self._add_task(task)
@@ -3024,9 +3049,11 @@ class Client(tanjun.Client):
         """  # noqa: E501
         loop = asyncio.get_running_loop()
         future: asyncio.Future[_AppCmdResponse] = loop.create_future()
+        alluka_ctx = alluka.OverridingContext.from_client(self._injector)
 
+        ctx: typing.Union[context.MenuContext, context.SlashContext]
         if interaction.command_type is hikari.CommandType.SLASH:
-            ctx: typing.Union[context.MenuContext, context.SlashContext] = self._make_slash_context(
+            ctx = self._make_slash_context(
                 client=self,
                 interaction=interaction,
                 register_task=self._add_task,
@@ -3035,6 +3062,7 @@ class Client(tanjun.Client):
                 future=future,
             )
             hooks: typing.Union[set[tanjun.MenuHooks], set[tanjun.SlashHooks], None] = self._get_slash_hooks()
+            alluka_ctx.set_type_dependency(tanjun.SlashContext, ctx)
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
@@ -3046,16 +3074,19 @@ class Client(tanjun.Client):
                 future=future,
             )
             hooks = self._get_menu_hooks()
+            alluka_ctx.set_type_dependency(tanjun.MenuContext, ctx)
 
         else:
             raise RuntimeError(f"Unknown command type {interaction.command_type}")
+
+        (alluka_ctx.set_type_dependency(tanjun.Context, ctx).set_type_dependency(tanjun.AppCommandContext, ctx))
 
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
         task: asyncio.Task[typing.Any]  # MyPy compat
         try:
-            if not await self.check(ctx):
+            if not await self.check(ctx, alluka_ctx=alluka_ctx):
                 return await self._mark_not_found_request(ctx, loop, future)
 
             for component in self._components.values():

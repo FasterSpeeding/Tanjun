@@ -36,6 +36,7 @@ __all__: list[str] = ["MenuContext"]
 import typing
 
 import hikari
+import typing_extensions
 
 from .. import _internal
 from .. import abc as tanjun
@@ -45,6 +46,7 @@ if typing.TYPE_CHECKING:
     import asyncio
     from collections import abc as collections
 
+    from alluka import abc as alluka
     from typing_extensions import Self
 
     _T = typing.TypeVar("_T")
@@ -59,9 +61,40 @@ _VALID_TYPES: frozenset[typing.Literal[hikari.CommandType.USER, hikari.CommandTy
 
 
 class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
-    """Standard menu command execution context."""
+    """Standard menu command execution context.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ("_command", "_marked_not_found", "_on_not_found")
+
+    @typing.overload
+    def __init__(
+        self,
+        client: tanjun.Client,
+        interaction: hikari.CommandInteraction,
+        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+        *,
+        default_to_ephemeral: bool = False,
+        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
+        on_not_found: typing.Optional[collections.Callable[[tanjun.MenuContext], collections.Awaitable[None]]] = None,
+    ) -> None: ...
+
+    @typing_extensions.deprecated("Passing `alluka_ctx` is deprecated")
+    @typing.overload
+    def __init__(
+        self,
+        client: tanjun.Client,
+        interaction: hikari.CommandInteraction,
+        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
+        *,
+        default_to_ephemeral: bool = False,
+        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
+        on_not_found: typing.Optional[collections.Callable[[tanjun.MenuContext], collections.Awaitable[None]]] = None,
+        alluka_ctx: typing.Optional[alluka.Context],
+    ) -> None: ...
 
     def __init__(
         self,
@@ -72,6 +105,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
         on_not_found: typing.Optional[collections.Callable[[tanjun.MenuContext], collections.Awaitable[None]]] = None,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
     ) -> None:
         """Initialise a menu command context.
 
@@ -91,11 +125,17 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         on_not_found
             Callback used to indicate no matching command was found.
         """
-        super().__init__(client, interaction, register_task, default_to_ephemeral=default_to_ephemeral, future=future)
+        super().__init__(  # pyright: ignore[reportDeprecated]
+            client,
+            interaction,
+            register_task,
+            default_to_ephemeral=default_to_ephemeral,
+            future=future,
+            alluka_ctx=alluka_ctx,
+        )
         self._command: typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]] = None
         self._marked_not_found = False
         self._on_not_found = on_not_found
-        self._set_type_special_case(tanjun.MenuContext, self)._set_type_special_case(MenuContext, self)
 
     @property
     def command(self) -> typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]]:
@@ -149,12 +189,6 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
 
     def set_command(self, command: typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]], /) -> Self:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
-        if command:
-            self._set_type_special_case(tanjun.MenuCommand, command)
-
-        elif self._command:
-            self._remove_type_special_case(tanjun.MenuContext)
-
         self._command = command
         return self
 

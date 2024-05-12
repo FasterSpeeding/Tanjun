@@ -128,7 +128,7 @@ class TestAutocompleteContext:
         assert context.shard is mock_shard
 
     def test_shard_property_when_no_shards(self, context: tanjun.context.AutocompleteContext):
-        context._tanjun_client = mock.Mock(shards=None)
+        context._client = mock.Mock(shards=None)
 
         assert context.shard is None
 

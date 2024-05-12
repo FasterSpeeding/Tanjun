@@ -51,6 +51,7 @@ from .. import errors
 from .vendor import inspect
 
 if typing.TYPE_CHECKING:
+    import alluka
     import typing_extensions
 
     from .. import abc as tanjun
@@ -89,18 +90,27 @@ Default = typing.Literal[_DefaultEnum.VALUE]
 """The type of `DEFAULT`."""
 
 
-async def _execute_check(ctx: _ContextT, callback: tanjun.CheckSig[_ContextT], /) -> bool:
-    if result := await ctx.call_with_async_di(callback, ctx):
+async def _execute_check(
+    alluka_ctx: alluka.abc.Context, ctx: _ContextT, callback: tanjun.CheckSig[_ContextT], /
+) -> bool:
+    if result := await alluka_ctx.call_with_async_di(callback, ctx):
         return result
 
     raise errors.FailedCheck
 
 
-async def gather_checks(ctx: _ContextT, checks: collections.Iterable[tanjun.CheckSig[_ContextT]], /) -> bool:
+async def gather_checks(
+    alluka_ctx: typing.Optional[alluka.abc.Context],
+    ctx: _ContextT,
+    checks: collections.Iterable[tanjun.CheckSig[_ContextT]],
+    /,
+) -> bool:
     """Gather a collection of checks.
 
     Parameters
     ----------
+    alluka_ctx
+        The Alluka context to use for dependency injection.
     ctx : tanjun.abc.Context
         The context to check.
     checks : collections.abc.Iterable[tanjun.abc.CheckSig]
@@ -111,8 +121,9 @@ async def gather_checks(ctx: _ContextT, checks: collections.Iterable[tanjun.Chec
     bool
         Whether all the checks passed or not.
     """
+    alluka_ctx = alluka_ctx or ctx.client.injector.make_context()
     try:
-        await asyncio.gather(*(_execute_check(ctx, check) for check in checks))
+        await asyncio.gather(*(_execute_check(alluka_ctx, ctx, check) for check in checks))
 
     except errors.FailedCheck:
         return False

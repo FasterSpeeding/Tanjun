@@ -49,6 +49,7 @@ from . import _internal
 from . import abc as tanjun
 
 if typing.TYPE_CHECKING:
+    from alluka import abc as alluka
     from typing_extensions import Self
 
     from . import schedules as schedules_
@@ -1160,11 +1161,11 @@ class Component(tanjun.Component):
 
         return self
 
-    async def _check_context(self, ctx: tanjun.Context, /) -> bool:
-        return await _internal.gather_checks(ctx, self._checks)
+    async def _check_context(self, alluka_ctx: typing.Optional[alluka.Context], ctx: tanjun.Context, /) -> bool:
+        return await _internal.gather_checks(alluka_ctx, ctx, self._checks)
 
     async def _check_message_context(  # noqa: ASYNC900  # Async generator without `@asynccontextmanager` not allowed.
-        self, ctx: tanjun.MessageContext, /
+        self, alluka_ctx: typing.Optional[alluka.Context], ctx: tanjun.MessageContext, /
     ) -> collections.AsyncIterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         ctx.set_component(self)
         checks_run = False
@@ -1174,12 +1175,12 @@ class Component(tanjun.Component):
 
         for name, command in self.check_message_name(ctx.content, case_sensitive=case_sensitive):
             if not checks_run:
-                if not await self._check_context(ctx):
+                if not await self._check_context(alluka_ctx, ctx):
                     return
 
                 checks_run = True
 
-            if await command.check_context(ctx):
+            if await command.check_context(ctx, alluka_ctx=alluka_ctx):
                 yield name, command
 
         ctx.set_component(None)
@@ -1196,24 +1197,29 @@ class Component(tanjun.Component):
             yield command
 
     def execute_autocomplete(
-        self, ctx: tanjun.AutocompleteContext, /
+        self, ctx: tanjun.AutocompleteContext, /, alluka_ctx: typing.Optional[alluka.Context] = None
     ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         if command := self._slash_commands.get(ctx.interaction.command_name):
-            return command.execute_autocomplete(ctx)
+            return command.execute_autocomplete(ctx, alluka_ctx=alluka_ctx)
 
         return None  # MyPy compat
 
     async def _execute_app(
         self,
         ctx: _AppCommandContextT,
+        alluka_ctx: typing.Optional[alluka.Context],
         command: typing.Optional[tanjun.AppCommand[_AppCommandContextT]],
         /,
         *,
         hooks: typing.Optional[collections.MutableSet[tanjun.Hooks[_AppCommandContextT]]] = None,
         other_hooks: typing.Optional[tanjun.Hooks[_AppCommandContextT]] = None,
     ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
-        if not command or not await self._check_context(ctx) or not await command.check_context(ctx):
+        if (
+            not command
+            or not await self._check_context(alluka_ctx, ctx)
+            or not await command.check_context(ctx, alluka_ctx=alluka_ctx)
+        ):
             return None
 
         if self._hooks:
@@ -1228,13 +1234,18 @@ class Component(tanjun.Component):
 
             hooks.add(other_hooks)
 
-        return command.execute(ctx, hooks=hooks)
+        return command.execute(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
 
     # To ensure that ctx.set_ephemeral_default is called as soon as possible if
     # a match is found the public function is kept sync to avoid yielding
     # to the event loop until after this is set.
     def execute_menu(
-        self, ctx: tanjun.MenuContext, /, *, hooks: typing.Optional[collections.MutableSet[tanjun.MenuHooks]] = None
+        self,
+        ctx: tanjun.MenuContext,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        hooks: typing.Optional[collections.MutableSet[tanjun.MenuHooks]] = None,
     ) -> collections.Coroutine[
         typing.Any, typing.Any, typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]
     ]:
@@ -1247,13 +1258,18 @@ class Component(tanjun.Component):
             elif self._defaults_to_ephemeral is not None:
                 ctx.set_ephemeral_default(self._defaults_to_ephemeral)
 
-        return self._execute_app(ctx, command, hooks=hooks, other_hooks=self._menu_hooks)
+        return self._execute_app(ctx, alluka_ctx, command, hooks=hooks, other_hooks=self._menu_hooks)
 
     # To ensure that ctx.set_ephemeral_default is called as soon as possible if
     # a match is found the public function is kept sync to avoid yielding
     # to the event loop until after this is set.
     def execute_slash(
-        self, ctx: tanjun.SlashContext, /, *, hooks: typing.Optional[collections.MutableSet[tanjun.SlashHooks]] = None
+        self,
+        ctx: tanjun.SlashContext,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        hooks: typing.Optional[collections.MutableSet[tanjun.SlashHooks]] = None,
     ) -> collections.Coroutine[
         typing.Any, typing.Any, typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]
     ]:
@@ -1266,17 +1282,18 @@ class Component(tanjun.Component):
             elif self._defaults_to_ephemeral is not None:
                 ctx.set_ephemeral_default(self._defaults_to_ephemeral)
 
-        return self._execute_app(ctx, command, hooks=hooks, other_hooks=self._slash_hooks)
+        return self._execute_app(ctx, alluka_ctx, command, hooks=hooks, other_hooks=self._slash_hooks)
 
     async def execute_message(
         self,
         ctx: tanjun.MessageContext,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
         hooks: typing.Optional[collections.MutableSet[tanjun.MessageHooks]] = None,
     ) -> bool:
         # <<inherited docstring from tanjun.abc.Component>>.
-        async for name, command in self._check_message_context(ctx):
+        async for name, command in self._check_message_context(alluka_ctx, ctx):
             ctx.set_triggering_name(name)
             ctx.set_content(ctx.content[len(name) :].lstrip())
             ctx.set_component(self)
@@ -1294,7 +1311,7 @@ class Component(tanjun.Component):
 
                 hooks.add(self._hooks)
 
-            await command.execute(ctx, hooks=hooks)
+            await command.execute(ctx, alluka_ctx=alluka_ctx, hooks=hooks)
             return True
 
         ctx.set_component(None)

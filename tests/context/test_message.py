@@ -142,8 +142,6 @@ class TestMessageContext:
         assert context.set_command(mock_command) is context
 
         assert context.command is mock_command
-        assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is mock_command
-        assert context.get_type_dependency(tanjun.abc.MessageCommand) is mock_command
 
     def test_set_command_when_none(self, context: tanjun.context.MessageContext):
         context.set_command(None)
@@ -151,24 +149,12 @@ class TestMessageContext:
 
         assert context.command is None
 
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.ExecutableCommand)
-
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.MessageCommand)
-
     def test_set_command_when_none_and_previously_set(self, context: tanjun.context.MessageContext):
         mock_command = mock.Mock()
         context.set_command(mock_command)
         context.set_command(None)
 
         assert context.command is None
-
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.ExecutableCommand)
-
-        with pytest.raises(KeyError):
-            assert context.get_type_dependency(tanjun.abc.MessageCommand)
 
     def test_set_command_when_finalised(self, context: tanjun.context.MessageContext):
         context.finalise()

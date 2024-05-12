@@ -76,6 +76,7 @@ import typing
 from collections import abc as collections
 
 import hikari
+import typing_extensions
 from alluka import abc as alluka
 
 if typing.TYPE_CHECKING:
@@ -136,8 +137,6 @@ synchronous or asynchronous but must return [None][].
 
 # 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
 if typing.TYPE_CHECKING:
-    import typing_extensions
-
     _MaybeAwaitable = typing.Union[_CoroT[_T], _T]
 
     AutocompleteSig = collections.Callable[
@@ -288,7 +287,12 @@ NO_PASS = _DefaultFlag.NO_PASS
 
 
 class Context(alluka.Context):
-    """Interface for the context of a command execution."""
+    """Interface for the context of a command execution.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -938,9 +942,77 @@ class Context(alluka.Context):
             If an internal error occurs on Discord while handling the request.
         """
 
+    @property
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def injection_client(self) -> alluka.Client: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def cache_result(self, callback: alluka.CallbackSig[_T], value: _T, /) -> None: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    @abc.abstractmethod
+    def call_with_di(
+        self, callback: collections.Callable[..., _CoroT[typing.Any]], *args: typing.Any, **kwargs: typing.Any
+    ) -> typing.NoReturn: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    @abc.abstractmethod
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    @abc.abstractmethod
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    @abc.abstractmethod
+    async def call_with_async_di(
+        self, callback: alluka.CallbackSig[_T], *args: typing.Any, **kwargs: typing.Any
+    ) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(
+        self, callback: alluka.CallbackSig[_T], /, *, default: _DefaultT
+    ) -> typing.Union[_T, _DefaultT]: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(
+        self, callback: alluka.CallbackSig[_T], /, *, default: _DefaultT = ...
+    ) -> typing.Union[_T, _DefaultT]: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> typing.Union[_T, _DefaultT]: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT = ...) -> typing.Union[_T, _DefaultT]: ...
+
 
 class MessageContext(Context, abc.ABC):
-    """Interface of a message command specific context."""
+    """Interface of a message command specific context.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -1350,7 +1422,12 @@ class SlashOption(abc.ABC):
 
 
 class AppCommandContext(Context, abc.ABC):
-    """Base class for application command contexts."""
+    """Base class for application command contexts.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -1741,7 +1818,12 @@ class AppCommandContext(Context, abc.ABC):
 
 
 class MenuContext(AppCommandContext, abc.ABC):
-    """Interface of a menu command context."""
+    """Interface of a menu command context.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -1841,7 +1923,12 @@ class MenuContext(AppCommandContext, abc.ABC):
 
 
 class SlashContext(AppCommandContext, abc.ABC):
-    """Interface of a slash command specific context."""
+    """Interface of a slash command specific context.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -1878,7 +1965,12 @@ class SlashContext(AppCommandContext, abc.ABC):
 
 
 class AutocompleteContext(alluka.Context):
-    """Interface of an autocomplete context."""
+    """Interface of an autocomplete context.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -2118,6 +2210,69 @@ class AutocompleteContext(alluka.Context):
         ValueError
             If more than 25 choices are passed.
         """
+
+    @property
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def injection_client(self) -> alluka.Client: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def cache_result(self, callback: alluka.CallbackSig[_T], value: _T, /) -> None: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    @abc.abstractmethod
+    def call_with_di(
+        self, callback: collections.Callable[..., _CoroT[typing.Any]], *args: typing.Any, **kwargs: typing.Any
+    ) -> typing.NoReturn: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    @abc.abstractmethod
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    @abc.abstractmethod
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    @abc.abstractmethod
+    async def call_with_async_di(
+        self, callback: alluka.CallbackSig[_T], *args: typing.Any, **kwargs: typing.Any
+    ) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(
+        self, callback: alluka.CallbackSig[_T], /, *, default: _DefaultT
+    ) -> typing.Union[_T, _DefaultT]: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(
+        self, callback: alluka.CallbackSig[_T], /, *, default: _DefaultT = ...
+    ) -> typing.Union[_T, _DefaultT]: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> typing.Union[_T, _DefaultT]: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT = ...) -> typing.Union[_T, _DefaultT]: ...
 
 
 class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
@@ -2480,25 +2635,41 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         exception: Exception,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
         hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
     ) -> int:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_post_execution(
-        self, ctx: _ContextT_contra, /, *, hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None
+        self,
+        ctx: _ContextT_contra,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_pre_execution(
-        self, ctx: _ContextT_contra, /, *, hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None
+        self,
+        ctx: _ContextT_contra,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_success(
-        self, ctx: _ContextT_contra, /, *, hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None
+        self,
+        ctx: _ContextT_contra,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -2735,7 +2906,9 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         """
 
     @abc.abstractmethod
-    async def check_context(self, ctx: _AppCommandContextT, /) -> bool:
+    async def check_context(
+        self, ctx: _AppCommandContextT, /, *, alluka_ctx: typing.Optional[alluka.Context] = None
+    ) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -2744,6 +2917,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         ctx: _AppCommandContextT,
         /,
         *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
         hooks: typing.Optional[collections.MutableSet[Hooks[_AppCommandContextT]]] = None,
     ) -> None:
         raise NotImplementedError
@@ -2828,15 +3002,21 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         ctx: SlashContext,
         /,
         *,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
         hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
+        option: typing.Optional[hikari.CommandInteractionOption] = None,
     ) -> None:
         raise NotImplementedError
         ...
 
     @abc.abstractmethod
     async def execute_autocomplete(
-        self, ctx: AutocompleteContext, /, *, option: typing.Optional[hikari.AutocompleteInteractionOption] = None
+        self,
+        ctx: AutocompleteContext,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        option: typing.Optional[hikari.AutocompleteInteractionOption] = None,
     ) -> None: ...
 
 
@@ -3119,12 +3299,19 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         """
 
     @abc.abstractmethod
-    async def check_context(self, ctx: MessageContext, /) -> bool:
+    async def check_context(
+        self, ctx: MessageContext, /, *, alluka_ctx: typing.Optional[alluka.Context] = None
+    ) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def execute(
-        self, ctx: MessageContext, /, *, hooks: typing.Optional[collections.MutableSet[Hooks[MessageContext]]] = None
+        self,
+        ctx: MessageContext,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        hooks: typing.Optional[collections.MutableSet[Hooks[MessageContext]]] = None,
     ) -> None:
         raise NotImplementedError
 
@@ -3632,7 +3819,9 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def execute_autocomplete(self, ctx: AutocompleteContext, /) -> typing.Optional[_CoroT[None]]:
+    def execute_autocomplete(
+        self, ctx: AutocompleteContext, /, *, alluka_ctx: typing.Optional[alluka.Context] = None
+    ) -> typing.Optional[_CoroT[None]]:
         """Execute an autocomplete context.
 
         !!! note
@@ -3657,7 +3846,12 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     async def execute_menu(
-        self, ctx: MenuContext, /, *, hooks: typing.Optional[collections.MutableSet[MenuHooks]] = None
+        self,
+        ctx: MenuContext,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        hooks: typing.Optional[collections.MutableSet[MenuHooks]] = None,
     ) -> typing.Optional[_CoroT[None]]:
         """Execute a menu context.
 
@@ -3689,7 +3883,12 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     async def execute_slash(
-        self, ctx: SlashContext, /, *, hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None
+        self,
+        ctx: SlashContext,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
     ) -> typing.Optional[_CoroT[None]]:
         """Execute a slash context.
 
@@ -3721,7 +3920,12 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     async def execute_message(
-        self, ctx: MessageContext, /, *, hooks: typing.Optional[collections.MutableSet[MessageHooks]] = None
+        self,
+        ctx: MessageContext,
+        /,
+        *,
+        alluka_ctx: typing.Optional[alluka.Context] = None,
+        hooks: typing.Optional[collections.MutableSet[MessageHooks]] = None,
     ) -> bool:
         """Execute a message context.
 
