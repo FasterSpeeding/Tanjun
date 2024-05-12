@@ -59,17 +59,9 @@ class BaseContext(tanjun.Context):
         deprecated behaviour and may not behave as expected.
     """
 
-    __slots__ = ("_alluka_ctx", "_client", "_component", "_final")
+    __slots__ = ("_client", "_component", "_final")
 
-    @typing.overload
-    def __init__(self, client: tanjun.Client, /) -> None: ...
-
-    @typing.overload
-    @typing_extensions.deprecated("Passing `alluka_ctx` is deprecated")
-    def __init__(self, client: tanjun.Client, /, *, alluka_ctx: typing.Optional[alluka.Context]) -> None: ...
-
-    def __init__(self, client: tanjun.Client, /, *, alluka_ctx: typing.Optional[alluka.Context] = None) -> None:
-        self._alluka_ctx = alluka_ctx or client.injector.make_context()
+    def __init__(self, client: tanjun.Client, /) -> None:
         self._client = client
         self._component: typing.Optional[tanjun.Component] = None
         self._final = False
@@ -185,7 +177,7 @@ class BaseContext(tanjun.Context):
 
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
     def cache_result(self, callback: alluka.CallbackSig[_T], value: _T, /) -> None:
-        return self._alluka_ctx.cache_result(callback, value)
+        return None
 
     @typing.overload
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
@@ -202,11 +194,11 @@ class BaseContext(tanjun.Context):
 
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
     def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T:
-        return self._alluka_ctx.call_with_di(callback, *args, **kwargs)
+        return self._client.injector.call_with_di(callback, *args, **kwargs)
 
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
     async def call_with_async_di(self, callback: alluka.CallbackSig[_T], *args: typing.Any, **kwargs: typing.Any) -> _T:
-        return await self._alluka_ctx.call_with_async_di(callback, *args, **kwargs)
+        return await self._client.injector.call_with_async_di(callback, *args, **kwargs)
 
     @typing.overload
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
@@ -226,14 +218,10 @@ class BaseContext(tanjun.Context):
         *,
         default: typing.Union[tanjun.NoDefault, _DefaultT] = tanjun.NO_DEFAULT,
     ) -> typing.Union[_T, _DefaultT]:
-        result: typing.Union[_T, _DefaultT, tanjun.NoDefault] = self._alluka_ctx.get_cached_result(
-            callback, default=default
-        )
-
-        if result is tanjun.NO_DEFAULT:
+        if default is tanjun.NO_DEFAULT:
             raise KeyError
 
-        return result
+        return default
 
     @typing.overload
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
@@ -247,7 +235,7 @@ class BaseContext(tanjun.Context):
     def get_type_dependency(
         self, type_: type[_T], /, *, default: typing.Union[tanjun.NoDefault, _DefaultT] = tanjun.NO_DEFAULT
     ) -> typing.Union[_T, _DefaultT]:
-        result: typing.Union[_T, _DefaultT, tanjun.NoDefault] = self._alluka_ctx.get_type_dependency(
+        result: typing.Union[_T, _DefaultT, tanjun.NoDefault] = self._client.injector.get_type_dependency(
             type_, default=default
         )
 

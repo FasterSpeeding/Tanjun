@@ -39,7 +39,6 @@ import logging
 import typing
 
 import hikari
-import typing_extensions
 
 from .. import abc as tanjun
 from . import base
@@ -47,7 +46,6 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    from alluka import abc as alluka
     from typing_extensions import Self
 
 
@@ -78,7 +76,6 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         "_triggering_prefix",
     )
 
-    @typing.overload
     def __init__(
         self,
         client: tanjun.Client,
@@ -88,32 +85,6 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         *,
         triggering_name: str = "",
         triggering_prefix: str = "",
-    ) -> None: ...
-
-    @typing_extensions.deprecated("Passing `alluka_ctx` is deprecated")
-    @typing.overload
-    def __init__(
-        self,
-        client: tanjun.Client,
-        content: str,
-        message: hikari.Message,
-        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
-        *,
-        triggering_name: str = "",
-        triggering_prefix: str = "",
-        alluka_ctx: typing.Optional[alluka.Context],
-    ) -> None: ...
-
-    def __init__(
-        self,
-        client: tanjun.Client,
-        content: str,
-        message: hikari.Message,
-        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
-        *,
-        triggering_name: str = "",
-        triggering_prefix: str = "",
-        alluka_ctx: typing.Optional[alluka.Context] = None,
     ) -> None:
         """Initialise a message command context.
 
@@ -135,7 +106,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         if message.content is None:
             raise ValueError("Cannot spawn context with a content-less message.")
 
-        super().__init__(client, alluka_ctx=alluka_ctx)  # pyright: ignore[reportDeprecated]
+        super().__init__(client)
         self._command: typing.Optional[tanjun.MessageCommand[typing.Any]] = None
         self._content = content
         self._initial_response_id: typing.Optional[hikari.Snowflake] = None

@@ -51,8 +51,8 @@ from .. import errors
 from .vendor import inspect
 
 if typing.TYPE_CHECKING:
-    import alluka
     import typing_extensions
+    from alluka import abc as alluka
 
     from .. import abc as tanjun
 
@@ -90,9 +90,7 @@ Default = typing.Literal[_DefaultEnum.VALUE]
 """The type of `DEFAULT`."""
 
 
-async def _execute_check(
-    alluka_ctx: alluka.abc.Context, ctx: _ContextT, callback: tanjun.CheckSig[_ContextT], /
-) -> bool:
+async def _execute_check(alluka_ctx: alluka.Context, ctx: _ContextT, callback: tanjun.CheckSig[_ContextT], /) -> bool:
     if result := await alluka_ctx.call_with_async_di(callback, ctx):
         return result
 
@@ -100,7 +98,7 @@ async def _execute_check(
 
 
 async def gather_checks(
-    alluka_ctx: typing.Optional[alluka.abc.Context],
+    alluka_ctx: typing.Optional[alluka.Context],
     ctx: _ContextT,
     checks: collections.Iterable[tanjun.CheckSig[_ContextT]],
     /,

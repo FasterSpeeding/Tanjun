@@ -40,7 +40,6 @@ import os
 import typing
 
 import hikari
-import typing_extensions
 
 from .. import _internal
 from .. import abc as tanjun
@@ -49,7 +48,6 @@ from . import base
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    from alluka import abc as alluka
     from typing_extensions import Self
 
     _ResponseTypeT = typing.Union[
@@ -306,7 +304,6 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         "_response_lock",
     )
 
-    @typing.overload
     def __init__(
         self,
         client: tanjun.Client,
@@ -315,32 +312,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         *,
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-    ) -> None: ...
-
-    @typing_extensions.deprecated("Passing `alluka_ctx` is deprecated")
-    @typing.overload
-    def __init__(
-        self,
-        client: tanjun.Client,
-        interaction: hikari.CommandInteraction,
-        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
-        *,
-        default_to_ephemeral: bool = False,
-        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        alluka_ctx: typing.Optional[alluka.Context] = None,
-    ) -> None: ...
-
-    def __init__(
-        self,
-        client: tanjun.Client,
-        interaction: hikari.CommandInteraction,
-        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
-        *,
-        default_to_ephemeral: bool = False,
-        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        alluka_ctx: typing.Optional[alluka.Context] = None,
     ) -> None:
-        super().__init__(client, alluka_ctx=alluka_ctx)  # pyright: ignore[reportDeprecated]
+        super().__init__(client)
         self._defaults_to_ephemeral = default_to_ephemeral
         self._defer_task: typing.Optional[asyncio.Task[None]] = None
         self._has_been_deferred = False
@@ -1034,7 +1007,6 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
 
     __slots__ = ("_command", "_command_name", "_marked_not_found", "_on_not_found", "_options")
 
-    @typing.overload
     def __init__(
         self,
         client: tanjun.Client,
@@ -1044,32 +1016,6 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         default_to_ephemeral: bool = False,
         future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
         on_not_found: typing.Optional[collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]] = None,
-    ) -> None: ...
-
-    @typing_extensions.deprecated("Passing `alluka_ctx` is deprecated")
-    @typing.overload
-    def __init__(
-        self,
-        client: tanjun.Client,
-        interaction: hikari.CommandInteraction,
-        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
-        *,
-        default_to_ephemeral: bool = False,
-        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        on_not_found: typing.Optional[collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]] = None,
-        alluka_ctx: typing.Optional[alluka.Context],
-    ) -> None: ...
-
-    def __init__(
-        self,
-        client: tanjun.Client,
-        interaction: hikari.CommandInteraction,
-        register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
-        *,
-        default_to_ephemeral: bool = False,
-        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        on_not_found: typing.Optional[collections.Callable[[tanjun.SlashContext], collections.Awaitable[None]]] = None,
-        alluka_ctx: typing.Optional[alluka.Context] = None,
     ) -> None:
         """Initialise a slash command context.
 
@@ -1089,14 +1035,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         on_not_found
             Callback used to indicate no matching command was found.
         """
-        super().__init__(  # pyright: ignore[reportDeprecated]
-            client,
-            interaction,
-            register_task,
-            default_to_ephemeral=default_to_ephemeral,
-            future=future,
-            alluka_ctx=alluka_ctx,
-        )
+        super().__init__(client, interaction, register_task, default_to_ephemeral=default_to_ephemeral, future=future)
         self._marked_not_found = False
         self._on_not_found = on_not_found
 
