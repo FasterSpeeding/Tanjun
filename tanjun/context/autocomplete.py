@@ -38,13 +38,13 @@ import typing
 
 import hikari
 import typing_extensions
-from alluka import abc as alluka
 from hikari import snowflakes
 
 from .. import _internal
 from .. import abc as tanjun
 
 if typing.TYPE_CHECKING:
+    from alluka import abc as alluka
     import asyncio
     import datetime
     from collections import abc as collections

@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 - Providing the following classes as global type-dependencies:
-  * [hikari.impl.RESTClient][]
-  * [hikari.impl.Cache][]
+  * [hikari.impl.RESTClientImpl][]
+  * [hikari.impl.CacheImpl][]
   * [hikari.impl.EventManagerImpl][]
   * [hikari.impl.InteractionServer][]
   * [hikari.impl.GatewayShardImpl][]
@@ -20,10 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The relevant ABCs should be used instead.
 - Setting subclasses of [tanjun.Client][] as global type-dependencies.
 - Providing the following classes as context-specific type-dependencies:
-  * [tanjun.AutocompleteContext][]
-  * [tanjun.MessageContext][]
-  * [tanjun.MenuContext][]
-  * [tanjun.SlashContext][]
+  * [tanjun.AutocompleteContext][tanjun.context.AutocompleteContext]
+  * [tanjun.MessageContext][tanjun.context.MessageContext]
+  * [tanjun.MenuContext][tanjun.context.MenuContext]
+  * [tanjun.SlashContext][tanjun.context.SlashContext]
 
   The relevant ABCs should be used instead.
 

@@ -67,9 +67,9 @@ from .. import errors
 from .. import hooks as hooks_
 from .._internal import localisation
 from . import base
+import alluka
 
 if typing.TYPE_CHECKING:
-    import alluka
     from hikari.api import special_endpoints as special_endpoints_api
     from typing_extensions import Self
 

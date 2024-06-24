@@ -37,12 +37,12 @@ import typing
 
 import hikari
 import typing_extensions
-from alluka import abc as alluka
 from hikari import snowflakes
 
 from .. import abc as tanjun
 
 if typing.TYPE_CHECKING:
+    from alluka import abc as alluka
     from collections import abc as collections
 
     from typing_extensions import Self
