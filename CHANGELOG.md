@@ -5,6 +5,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Bumped the minimum Alluka version to `v0.3.0`.
+
+### Deprecated
+- Providing the following classes as global type-dependencies:
+  * [hikari.impl.RESTClientImpl][]
+  * [hikari.impl.CacheImpl][]
+  * [hikari.impl.EventManagerImpl][]
+  * [hikari.impl.InteractionServer][]
+  * [hikari.impl.GatewayShardImpl][]
+  * [hikari.impl.VoiceComponentImpl][]
+
+  The relevant ABCs should be used instead.
+- Setting subclasses of [tanjun.Client][] as global type-dependencies.
+- Providing the following classes as context-specific type-dependencies:
+  * [tanjun.AutocompleteContext][tanjun.context.AutocompleteContext]
+  * [tanjun.MessageContext][tanjun.context.MessageContext]
+  * [tanjun.MenuContext][tanjun.context.MenuContext]
+  * [tanjun.SlashContext][tanjun.context.SlashContext]
+
+  The relevant ABCs should be used instead.
+
 ## [2.17.5] - 2024-05-11
 ### Fixed
 - Now compatible with Alluka `v0.3.0`.

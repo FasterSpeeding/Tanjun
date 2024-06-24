@@ -36,8 +36,8 @@ __all__: list[str] = ["AutocompleteContext"]
 
 import typing
 
-import alluka
 import hikari
+import typing_extensions
 from hikari import snowflakes
 
 from .. import _internal
@@ -48,13 +48,22 @@ if typing.TYPE_CHECKING:
     import datetime
     from collections import abc as collections
 
+    from alluka import abc as alluka
+
     _ValueT = typing.TypeVar("_ValueT", int, float, str)
+    _T = typing.TypeVar("_T")
+    _DefaultT = typing.TypeVar("_DefaultT")
 
 
-class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
-    """Standard implementation of an autocomplete context."""
+class AutocompleteContext(tanjun.AutocompleteContext):
+    """Standard implementation of an autocomplete context.
 
-    __slots__ = ("_tanjun_client", "_command_name", "_focused", "_future", "_has_responded", "_interaction", "_options")
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
+
+    __slots__ = ("_client", "_command_name", "_focused", "_future", "_has_responded", "_interaction", "_options")
 
     def __init__(
         self,
@@ -75,8 +84,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
             A future used to set the initial response if this is being called
             through the REST webhook flow.
         """
-        super().__init__(client.injector)
-        self._tanjun_client = client
+        self._client = client
         self._future = future
         self._has_responded = False
         self._interaction = interaction
@@ -92,7 +100,6 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         assert focused is not None
         self._command_name = command_name
         self._focused = focused
-        self._set_type_special_case(AutocompleteContext, self)._set_type_special_case(tanjun.AutocompleteContext, self)
 
     @property
     def author(self) -> hikari.User:
@@ -107,12 +114,12 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     @property
     def cache(self) -> typing.Optional[hikari.api.Cache]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._tanjun_client.cache
+        return self._client.cache
 
     @property
     def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._tanjun_client
+        return self._client
 
     @property
     def triggering_name(self) -> str:
@@ -127,7 +134,7 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     @property
     def events(self) -> typing.Optional[hikari.api.EventManager]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._tanjun_client.events
+        return self._client.events
 
     @property
     def focused(self) -> hikari.AutocompleteInteractionOption:
@@ -147,36 +154,36 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     @property
     def server(self) -> typing.Optional[hikari.api.InteractionServer]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._tanjun_client.server
+        return self._client.server
 
     @property
     def rest(self) -> hikari.api.RESTClient:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._tanjun_client.rest
+        return self._client.rest
 
     @property
     def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        if not self._tanjun_client.shards:
+        if not self._client.shards:
             return None
 
         if self.guild_id is not None:
-            shard_id = snowflakes.calculate_shard_id(self._tanjun_client.shards, self.guild_id)
+            shard_id = snowflakes.calculate_shard_id(self._client.shards, self.guild_id)
 
         else:
             shard_id = 0
 
-        return self._tanjun_client.shards.shards[shard_id]
+        return self._client.shards.shards[shard_id]
 
     @property
     def shards(self) -> typing.Optional[hikari.ShardAware]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._tanjun_client.shards
+        return self._client.shards
 
     @property
     def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
-        return self._tanjun_client.voice
+        return self._client.voice
 
     @property
     def has_responded(self) -> bool:
@@ -233,3 +240,77 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
 
         else:
             await self._interaction.create_response(choice_objects)
+
+    @property
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def injection_client(self) -> alluka.Client:
+        return self._client.injector
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def cache_result(self, callback: alluka.CallbackSig[_T], value: _T, /) -> None:
+        return None
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(
+        self,
+        callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]],
+        *args: typing.Any,
+        **kwargs: typing.Any,
+    ) -> typing.NoReturn: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T:
+        return self._client.injector.call_with_di(callback, *args, **kwargs)
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    async def call_with_async_di(self, callback: alluka.CallbackSig[_T], *args: typing.Any, **kwargs: typing.Any) -> _T:
+        return await self._client.injector.call_with_async_di(callback, *args, **kwargs)
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /) -> _T: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(
+        self, callback: alluka.CallbackSig[_T], /, *, default: _DefaultT
+    ) -> typing.Union[_T, _DefaultT]: ...
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(
+        self,
+        callback: alluka.CallbackSig[_T],
+        /,
+        *,
+        default: typing.Union[_DefaultT, tanjun.NoDefault] = tanjun.NO_DEFAULT,
+    ) -> typing.Union[_T, _DefaultT]:
+        if default is tanjun.NO_DEFAULT:
+            raise KeyError
+
+        return default
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /) -> _T: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> typing.Union[_T, _DefaultT]: ...
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(
+        self, type_: type[_T], /, *, default: typing.Union[_DefaultT, tanjun.NoDefault] = tanjun.NO_DEFAULT
+    ) -> typing.Union[_T, _DefaultT]:
+        result: typing.Union[_DefaultT, tanjun.NoDefault, _T] = self._client.injector.get_type_dependency(
+            type_, default=default
+        )
+
+        if result is tanjun.NO_DEFAULT:
+            raise KeyError
+
+        return result

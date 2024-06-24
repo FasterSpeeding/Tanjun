@@ -385,13 +385,14 @@ The following types are registered globally as type dependencies:
 The following type dependencies are available in specific contexts:
 
 * [tanjun.abc.AutocompleteContext][]: slash command autocomplete execution
-* [tanjun.abc.AppCommandContext][]: both slash and menu command execution (excluding any checks)
+* [tanjun.abc.Context][] for all command execution (not autocomplete)
+* [tanjun.abc.AppCommandContext][]: both slash and menu command execution
 * [tanjun.abc.MenuContext][]: menu command execution
 * [tanjun.abc.MessageContext][]: message command execution
 * [tanjun.abc.SlashContext][]: slash command execution
-<!-- * [tanjun.abc.MenuCommand][]: menu command execution (excluding any checks)
-* [tanjun.abc.MessageCommand][]: message command execution (excluding any checks)
-* [tanjun.abc.SlashCommand][]: slash command execution (excluding any checks)
+<!-- * [tanjun.abc.MenuCommand][]: menu command execution (excluding component and client checks)
+* [tanjun.abc.MessageCommand][]: message command execution (excluding component and clientchecks)
+* [tanjun.abc.SlashCommand][]: slash command execution (excluding component and clientchecks)
 TODO: this needs a consistency fix before being documented -->
 * [tanjun.abc.Component][]: Command execution (excluding client checks)
 <!-- * [hikari.Event][hikari.events.base_events.Event] TODO: implement this-->

@@ -57,7 +57,12 @@ def _delete_after_to_float(delete_after: typing.Union[datetime.timedelta, float,
 
 
 class MessageContext(base.BaseContext, tanjun.MessageContext):
-    """Standard implementation of a command context as used within Tanjun."""
+    """Standard implementation of a command context as used within Tanjun.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = (
         "_command",
@@ -111,7 +116,6 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self._message = message
         self._triggering_name = triggering_name
         self._triggering_prefix = triggering_prefix
-        self._set_type_special_case(tanjun.MessageContext, self)._set_type_special_case(MessageContext, self)
 
     def __repr__(self) -> str:
         return f"MessageContext <{self._message!r}, {self._command!r}>"
@@ -179,15 +183,6 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
     def set_command(self, command: typing.Optional[tanjun.MessageCommand[typing.Any]], /) -> Self:
         # <<inherited docstring from tanjun.abc.MessageContext>>.
         self._assert_not_final()
-        if command:
-            # TODO: command group?
-            self._set_type_special_case(tanjun.ExecutableCommand, command)._set_type_special_case(
-                tanjun.MessageCommand, command
-            )
-
-        elif self._command:
-            self._remove_type_special_case(tanjun.ExecutableCommand)._remove_type_special_case(tanjun.MessageCommand)
-
         self._command = command
         return self
 
@@ -225,14 +220,14 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         if self._initial_response_id is None:
             raise LookupError("Context has no initial response")
 
-        await self._tanjun_client.rest.delete_message(self._message.channel_id, self._initial_response_id)
+        await self._client.rest.delete_message(self._message.channel_id, self._initial_response_id)
 
     async def delete_last_response(self) -> None:
         # <<inherited docstring from tanjun.abc.Context>>.
         if self._last_response_id is None:
             raise LookupError("Context has no previous responses")
 
-        await self._tanjun_client.rest.delete_message(self._message.channel_id, self._last_response_id)
+        await self._client.rest.delete_message(self._message.channel_id, self._last_response_id)
 
     async def edit_initial_response(
         self,
