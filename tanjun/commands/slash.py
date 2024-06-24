@@ -816,9 +816,7 @@ class _TrackedOption:
             if isinstance(converter, conversion.BaseConverter):
                 converter.check_client(client, f"{self.name} slash command option")
 
-    async def convert(
-        self, alluka_ctx: alluka.abc.Context, value: typing.Any, /
-    ) -> typing.Any:
+    async def convert(self, alluka_ctx: alluka.abc.Context, value: typing.Any, /) -> typing.Any:
         if not self.converters:
             return value
 
