@@ -44,10 +44,11 @@ from .. import _internal
 from .. import abc as tanjun
 
 if typing.TYPE_CHECKING:
-    from alluka import abc as alluka
     import asyncio
     import datetime
     from collections import abc as collections
+
+    from alluka import abc as alluka
 
     _ValueT = typing.TypeVar("_ValueT", int, float, str)
     _T = typing.TypeVar("_T")

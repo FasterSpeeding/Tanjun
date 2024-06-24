@@ -42,9 +42,9 @@ from hikari import snowflakes
 from .. import abc as tanjun
 
 if typing.TYPE_CHECKING:
-    from alluka import abc as alluka
     from collections import abc as collections
 
+    from alluka import abc as alluka
     from typing_extensions import Self
 
     _T = typing.TypeVar("_T")
