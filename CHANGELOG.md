@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bumped the minimum Alluka version to `v0.3.0`.
 
+### Deprecated
+- Providing the following classes as global type-dependencies:
+  * [hikari.impl.RESTClient][]
+  * [hikari.impl.Cache][]
+  * [hikari.impl.EventManagerImpl][]
+  * [hikari.impl.InteractionServer][]
+  * [hikari.impl.GatewayShardImpl][]
+  * [hikari.impl.VoiceComponentImpl][]
+
+  The relevant ABCs should be used instead.
+- Setting subclasses of [tanjun.Client][] as global type-dependencies.
+- Providing the following classes as context-specific type-dependencies:
+  * [tanjun.AutocompleteContext][]
+  * [tanjun.MessageContext][]
+  * [tanjun.MenuContext][]
+  * [tanjun.SlashContext][]
+
+  The relevant ABCs should be used instead.
+
 ## [2.17.5] - 2024-05-11
 ### Fixed
 - Now compatible with Alluka `v0.3.0`.

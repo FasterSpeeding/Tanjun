@@ -84,7 +84,7 @@ if typing.TYPE_CHECKING:
             raise NotImplementedError
 
     class _AllChecksProto(typing.Protocol[_ContextT_contra]):
-        async def __call__(self, ctx: _ContextT_contra, /, alluka_ctx: alluka.abc.Context) -> bool: ...
+        async def __call__(self, ctx: _ContextT_contra, /, *, alluka_ctx: alluka.abc.Context) -> bool: ...
 
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _CallbackReturnT = typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]
@@ -1045,7 +1045,7 @@ class _AllChecks(typing.Generic[_ContextT]):
     def __init__(self, checks: list[tanjun.CheckSig[_ContextT]]) -> None:
         self._checks = checks
 
-    async def __call__(self, ctx: _ContextT, /, alluka_ctx: alluka.Injected[alluka.abc.Context]) -> bool:
+    async def __call__(self, ctx: _ContextT, /, *, alluka_ctx: alluka.Injected[alluka.abc.Context]) -> bool:
         for check in self._checks:  # noqa: SIM111
             if not await alluka_ctx.call_with_async_di(check, ctx):
                 return False

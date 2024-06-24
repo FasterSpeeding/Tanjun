@@ -792,19 +792,19 @@ class Client(tanjun.Client):
         (
             self.set_type_dependency(tanjun.Client, self)
             .set_type_dependency(Client, self)
-            .set_type_dependency(type(self), self)
+            .set_type_dependency(type(self), self)  # Deprecated behaviour
             .set_type_dependency(hikari.api.RESTClient, rest)
-            .set_type_dependency(type(rest), rest)
+            .set_type_dependency(type(rest), rest)  # Deprecated behaviour
             ._maybe_set_type_dep(hikari.api.Cache, cache)
-            ._maybe_set_type_dep(type(cache), cache)
+            ._maybe_set_type_dep(type(cache), cache)  # Deprecated behaviour
             ._maybe_set_type_dep(hikari.api.EventManager, events)
-            ._maybe_set_type_dep(type(events), events)
+            ._maybe_set_type_dep(type(events), events)  # Deprecated behaviour
             ._maybe_set_type_dep(hikari.api.InteractionServer, server)
-            ._maybe_set_type_dep(type(server), server)
+            ._maybe_set_type_dep(type(server), server)  # Deprecated behaviour
             ._maybe_set_type_dep(hikari.ShardAware, shards)
-            ._maybe_set_type_dep(type(shards), shards)
+            ._maybe_set_type_dep(type(shards), shards)  # Deprecated behaviour
             ._maybe_set_type_dep(hikari.api.VoiceComponent, voice)
-            ._maybe_set_type_dep(type(voice), voice)
+            ._maybe_set_type_dep(type(voice), voice)  # Deprecated behaviour
         )
 
         dependencies.set_standard_dependencies(self)
@@ -2813,6 +2813,7 @@ class Client(tanjun.Client):
             alluka.OverridingContext.from_client(self._injector)
             .set_type_dependency(tanjun.Context, ctx)
             .set_type_dependency(tanjun.MessageContext, ctx)
+            .set_type_dependency(type(ctx), ctx)  # Deprecated behaviour
         )
         if (prefix := await self._check_prefix(alluka_ctx, ctx)) is None:
             return
@@ -2889,8 +2890,10 @@ class Client(tanjun.Client):
             The interaction to execute a command based on.
         """
         ctx = self._make_autocomplete_context(self, interaction)
-        alluka_ctx = alluka.OverridingContext.from_client(self._injector).set_type_dependency(
-            tanjun.AutocompleteContext, ctx
+        alluka_ctx = (
+            alluka.OverridingContext.from_client(self._injector)
+            .set_type_dependency(tanjun.AutocompleteContext, ctx)
+            .set_type_dependency(type(ctx), ctx)  # Deprecated behaviour
         )
         for component in self._components.values():
             coro = component.execute_autocomplete(ctx, alluka_ctx=alluka_ctx)
@@ -2937,7 +2940,11 @@ class Client(tanjun.Client):
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
 
-        (alluka_ctx.set_type_dependency(tanjun.Context, ctx).set_type_dependency(tanjun.AppCommandContext, ctx))
+        (
+            alluka_ctx.set_type_dependency(tanjun.Context, ctx)
+            .set_type_dependency(tanjun.AppCommandContext, ctx)
+            .set_type_dependency(type(ctx), ctx)  # Deprecated behaviour
+        )
 
         try:
             if not await self.check(ctx, alluka_ctx=alluka_ctx):
@@ -3016,8 +3023,10 @@ class Client(tanjun.Client):
         future: asyncio.Future[hikari.api.InteractionAutocompleteBuilder] = loop.create_future()
         ctx = self._make_autocomplete_context(self, interaction, future=future)
 
-        alluka_ctx = alluka.OverridingContext.from_client(self._injector).set_type_dependency(
-            tanjun.AutocompleteContext, ctx
+        alluka_ctx = (
+            alluka.OverridingContext.from_client(self._injector)
+            .set_type_dependency(tanjun.AutocompleteContext, ctx)
+            .set_type_dependency(type(ctx), ctx)  # Deprecated behaviour
         )
 
         for component in self._components.values():
@@ -3079,10 +3088,14 @@ class Client(tanjun.Client):
         else:
             raise RuntimeError(f"Unknown command type {interaction.command_type}")
 
-        (alluka_ctx.set_type_dependency(tanjun.Context, ctx).set_type_dependency(tanjun.AppCommandContext, ctx))
-
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
+
+        (
+            alluka_ctx.set_type_dependency(tanjun.Context, ctx)
+            .set_type_dependency(tanjun.AppCommandContext, ctx)
+            .set_type_dependency(type(ctx), ctx)  # Deprecated behaviour
+        )
 
         task: asyncio.Task[typing.Any]  # MyPy compat
         try:

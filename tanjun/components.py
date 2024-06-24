@@ -1197,7 +1197,7 @@ class Component(tanjun.Component):
             yield command
 
     def execute_autocomplete(
-        self, ctx: tanjun.AutocompleteContext, /, alluka_ctx: typing.Optional[alluka.Context] = None
+        self, ctx: tanjun.AutocompleteContext, /, *, alluka_ctx: typing.Optional[alluka.Context] = None
     ) -> typing.Optional[collections.Coroutine[typing.Any, typing.Any, None]]:
         # <<inherited docstring from tanjun.abc.Component>>.
         if command := self._slash_commands.get(ctx.interaction.command_name):

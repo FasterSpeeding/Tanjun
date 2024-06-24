@@ -817,7 +817,7 @@ class _TrackedOption:
                 converter.check_client(client, f"{self.name} slash command option")
 
     async def convert(
-        self, alluka_ctx: alluka.abc.Context, ctx: tanjun.SlashContext, value: typing.Any, /
+        self, alluka_ctx: alluka.abc.Context, value: typing.Any, /
     ) -> typing.Any:
         if not self.converters:
             return value
@@ -3148,7 +3148,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
                     value = float(value)
 
                 if tracked_option.converters:
-                    value = await tracked_option.convert(alluka_ctx, ctx, option.value)
+                    value = await tracked_option.convert(alluka_ctx, option.value)
 
                 keyword_args[tracked_option.key] = value
 
