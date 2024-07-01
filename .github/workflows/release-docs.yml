@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@44c2b7a8a4ea60a981eaca3cf939b5f4305c123b
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           submodules: "true"
 
@@ -31,7 +31,7 @@ jobs:
           echo "GIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_STATE
 
       - name: Push
-        uses: JamesIves/github-pages-deploy-action@ec9c88baef04b842ca6f0a132fd61c762aa6c1b0
+        uses: JamesIves/github-pages-deploy-action@5c6e9e9f3672ce8fd37b9856193d2a537941e66c
         with:
           branch: docs
           commit-message: "${{ steps.doc_info.outputs.GIT_HASH }} docs (${{ github.event.release.tag_name || github.event.ref }})"
