@@ -2882,7 +2882,7 @@ class Client(tanjun.Client):
         """
         ctx = self._make_autocomplete_context(self, interaction)
         for component in self._components.values():
-            if coro := component.execute_autocomplete(ctx):  # pyright: ignore[reportUnnecessaryComparison]
+            if coro := component.execute_autocomplete(ctx):
                 await coro
                 return
 
@@ -2937,7 +2937,7 @@ class Client(tanjun.Client):
                     assert isinstance(ctx, tanjun.MenuContext)
                     coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
 
-                if coro:  # pyright: ignore[reportUnnecessaryComparison]
+                if coro:
                     try:
                         return await coro
                     finally:
@@ -2997,7 +2997,7 @@ class Client(tanjun.Client):
         ctx = self._make_autocomplete_context(self, interaction, future=future)
 
         for component in self._components.values():
-            if coro := component.execute_autocomplete(ctx):  # pyright: ignore[reportUnnecessaryComparison]
+            if coro := component.execute_autocomplete(ctx):
                 task = loop.create_task(coro)
                 task.add_done_callback(lambda _: future.cancel())
                 self._add_task(task)
@@ -3070,7 +3070,7 @@ class Client(tanjun.Client):
                     assert isinstance(ctx, tanjun.MenuContext)
                     coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
 
-                if coro:  # pyright: ignore[reportUnnecessaryComparison]
+                if coro:
                     task = loop.create_task(coro)
                     task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
                     self._add_task(task)
