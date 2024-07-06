@@ -17,7 +17,7 @@ For an overview on using Hikari for creating bots see [HG](https://hg.cursed.sol
 For a guide on Tanjun's main features see the [usage guide](https://tanjun.cursed.solutions/usage/).
 
 There's also [Tanjun's general documentation](https://tanjun.cursed.solutions/),
-[usage guide](), and some 
+[usage guide](), and some
 [tutorials and articles](https://patchwork.systems/programming/hikari-discord-bot/index.html).
 
 # Community Resources
