@@ -10,10 +10,13 @@ You can install Tanjun from PyPI using the following command in any Python 3.9 o
 python -m pip install -U hikari-tanjun
 ```
 
-# Quick Usage
+# Getting started
 
-For usage see the [documentation](https://tanjun.cursed.solutions/),
-[usage guide](https://tanjun.cursed.solutions/usage/), and
+For an overview on using Hikari for creating bots see [HG](https://hg.cursed.solutions/).
+
+For a guide on Tanjun's main features see the [usage guide](https://tanjun.cursed.solutions/usage/).
+
+There's also [Tanjun's general documentation](https://tanjun.cursed.solutions/), and some
 [tutorials and articles](https://patchwork.systems/programming/hikari-discord-bot/index.html).
 
 # Community Resources
