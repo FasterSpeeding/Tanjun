@@ -2762,7 +2762,7 @@ class Client(tanjun.Client):
     def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> typing.Union[_T, _DefaultT]: ...
 
     def get_type_dependency(
-        self, type_: type[_T], /, *, default: _DefaultT = tanjun.NO_DEFAULT
+        self, type_: type[_T], /, *, default: typing.Union[_DefaultT, tanjun.NoDefault] = tanjun.NO_DEFAULT
     ) -> typing.Union[_T, _DefaultT]:
         # <<inherited docstring from tanjun.abc.Client>>.
         if default is tanjun.NO_DEFAULT:

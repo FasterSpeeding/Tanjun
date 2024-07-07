@@ -3436,8 +3436,8 @@ def test_with_generic_snowflake_or():
             },
         ),
         (
-            types := (hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GROUP_DM),
-            set(types),
+            (hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GROUP_DM),
+            {hikari.ChannelType.GUILD_TEXT, hikari.ChannelType.GUILD_VOICE, hikari.ChannelType.GROUP_DM},
         ),
         (
             (hikari.GuildVoiceChannel, hikari.DMChannel, hikari.GuildTextChannel),
