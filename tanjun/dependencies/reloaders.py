@@ -428,7 +428,7 @@ class HotReloader:
         assert self._redeclare_cmds_after is not None
         await asyncio.sleep(self._redeclare_cmds_after)
 
-        while True:  # noqa: ASYNC913 
+        while True:  # noqa: ASYNC913
             if not _internal.cmp_all_commands(builders.values(), self._scheduled_builders):
                 builders = self._scheduled_builders
                 try:
