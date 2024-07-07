@@ -352,7 +352,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             raise
 
         except Exception as exc:
-            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
+            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:  # noqa: ASYNC120
                 raise
 
         else:

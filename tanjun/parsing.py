@@ -219,8 +219,8 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
-        min_value: typing.Optional[_CmpProto[typing.Any]] = None,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_value: typing.Optional[typing.Any] = None,
+        max_value: typing.Optional[typing.Any] = None,
         multi: bool = False,
     ) -> Self:
         """Add a positional argument type to the parser..
@@ -378,8 +378,8 @@ class AbstractOptionParser(tanjun.MessageParser, abc.ABC):
         empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
-        min_value: typing.Optional[_CmpProto[typing.Any]] = None,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_value: typing.Optional[typing.Any] = None,
+        max_value: typing.Optional[typing.Any] = None,
         multi: bool = False,
     ) -> Self:
         """Add an named option to this parser.
@@ -710,8 +710,8 @@ def with_argument(
     greedy: bool = False,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
-    min_value: typing.Optional[_CmpProto[typing.Any]] = None,
-    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    min_value: typing.Optional[typing.Any] = None,
+    max_value: typing.Optional[typing.Any] = None,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an argument to a message command through a decorator call.
@@ -879,8 +879,8 @@ def with_greedy_argument(
     default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
-    min_value: typing.Optional[_CmpProto[typing.Any]] = None,
-    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    min_value: typing.Optional[typing.Any] = None,
+    max_value: typing.Optional[typing.Any] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a greedy argument to a message command through a decorator call.
 
@@ -1043,8 +1043,8 @@ def with_multi_argument(
     default: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
-    min_value: typing.Optional[_CmpProto[typing.Any]] = None,
-    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    min_value: typing.Optional[typing.Any] = None,
+    max_value: typing.Optional[typing.Any] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add a multi-argument to a message command through a decorator call.
 
@@ -1227,8 +1227,8 @@ def with_option(
     empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
-    min_value: typing.Optional[_CmpProto[typing.Any]] = None,
-    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    min_value: typing.Optional[typing.Any] = None,
+    max_value: typing.Optional[typing.Any] = None,
     multi: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an option to a message command through a decorator call.
@@ -1413,8 +1413,8 @@ def with_multi_option(
     empty_value: typing.Any = tanjun.NO_DEFAULT,
     min_length: typing.Optional[int] = None,
     max_length: typing.Optional[int] = None,
-    min_value: typing.Optional[_CmpProto[typing.Any]] = None,
-    max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+    min_value: typing.Optional[typing.Any] = None,
+    max_value: typing.Optional[typing.Any] = None,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Add an multi-option to a command's parser through a decorator call.
 
@@ -2024,8 +2024,8 @@ class ShlexParser(AbstractOptionParser):
         greedy: bool = False,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
-        min_value: typing.Optional[_CmpProto[typing.Any]] = None,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_value: typing.Optional[typing.Any] = None,
+        max_value: typing.Optional[typing.Any] = None,
         multi: bool = False,
     ) -> Self:
         # <<inherited docstring from AbstractOptionParser>>.
@@ -2143,8 +2143,8 @@ class ShlexParser(AbstractOptionParser):
         empty_value: typing.Any = tanjun.NO_DEFAULT,
         min_length: typing.Optional[int] = None,
         max_length: typing.Optional[int] = None,
-        min_value: typing.Optional[_CmpProto[typing.Any]] = None,
-        max_value: typing.Optional[_CmpProto[typing.Any]] = None,
+        min_value: typing.Optional[typing.Any] = None,
+        max_value: typing.Optional[typing.Any] = None,
         multi: bool = False,
     ) -> Self:
         # <<inherited docstring from AbstractOptionParser>>.
