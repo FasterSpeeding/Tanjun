@@ -7210,7 +7210,8 @@ def test_with_unpacked_typed_dict_and_channel():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Channel, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Channel, "xat"]]
+            typing.Annotated[annotations.Channel, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7355,7 +7356,8 @@ def test_with_unpacked_typed_dict_and_color():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Color, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Color, "xat"]]
+            typing.Annotated[annotations.Color, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7423,7 +7425,8 @@ def test_with_unpacked_typed_dict_and_converted():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[typing.Any, annotations.Converted(mock_callback_1), "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[typing.Any, annotations.Converted(mock_callback_2), "xat"]]
+            typing.Annotated[typing.Any, annotations.Converted(mock_callback_2), "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7488,7 +7491,8 @@ def test_with_unpacked_typed_dict_and_datetime():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Datetime, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Datetime, "xat"]]
+            typing.Annotated[annotations.Datetime, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7553,7 +7557,8 @@ def test_with_unpacked_typed_dict_and_default():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Default(0), "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Float, annotations.Default(0.1), "xat"]]
+            typing.Annotated[annotations.Float, annotations.Default(0.1), "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7663,7 +7668,8 @@ def test_with_unpacked_typed_dict_and_float():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Float, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Float, "xat"]]
+            typing.Annotated[annotations.Float, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7770,7 +7776,8 @@ def test_with_unpacked_typed_dict_and_int():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Int, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Int, "xat"]]
+            typing.Annotated[annotations.Int, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7835,7 +7842,8 @@ def test_with_unpacked_typed_dict_and_interaction_channel():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.InteractionChannel, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.InteractionChannel, "xat"]]
+            typing.Annotated[annotations.InteractionChannel, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7871,7 +7879,8 @@ def test_with_unpacked_typed_dict_and_interaction_member():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.InteractionMember, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.InteractionMember, "xat"]]
+            typing.Annotated[annotations.InteractionMember, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7907,7 +7916,8 @@ def test_with_unpacked_typed_dict_and_length():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Str, annotations.Length(232), "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Str, annotations.Length(4, 128), "xat"]]
+            typing.Annotated[annotations.Str, annotations.Length(4, 128), "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -7981,7 +7991,8 @@ def test_with_unpacked_typed_dict_and_max():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Max(453), "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Float, annotations.Max(69.420), "xat"]]
+            typing.Annotated[annotations.Float, annotations.Max(69.420), "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8050,7 +8061,8 @@ def test_with_unpacked_typed_dict_and_member():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Member, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Member, "xat"]]
+            typing.Annotated[annotations.Member, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8115,7 +8127,8 @@ def test_with_unpacked_typed_dict_and_mentionable():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Mentionable, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Mentionable, "xat"]]
+            typing.Annotated[annotations.Mentionable, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8180,7 +8193,8 @@ def test_with_unpacked_typed_dict_and_min():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Float, annotations.Min(3.2), "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Int, annotations.Min(32), "xat"]]
+            typing.Annotated[annotations.Int, annotations.Min(32), "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8249,7 +8263,8 @@ def test_with_unpacked_typed_dict_and_name():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Float, annotations.Name("hi"), "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.User, annotations.Name("nye"), "xat"]]
+            typing.Annotated[annotations.User, annotations.Name("nye"), "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8314,7 +8329,8 @@ def test_with_unpacked_typed_dict_and_positional():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Positional(), "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Str, annotations.Positional(), "xat"]]
+            typing.Annotated[annotations.Str, annotations.Positional(), "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("x", "3")
@@ -8353,7 +8369,8 @@ def test_with_unpacked_typed_dict_and_ranged():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Ranged(4, 64), "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Float, annotations.Ranged(12.21, 54.34), "xat"]]
+            typing.Annotated[annotations.Float, annotations.Ranged(12.21, 54.34), "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8427,7 +8444,8 @@ def test_with_unpacked_typed_dict_and_role():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Role, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Role, "xat"]]
+            typing.Annotated[annotations.Role, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8492,7 +8510,8 @@ def test_with_unpacked_typed_dict_and_snowflake():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Snowflake, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Snowflake, "xat"]]
+            typing.Annotated[annotations.Snowflake, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8631,7 +8650,8 @@ def test_with_unpacked_typed_dict_and_str():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Str, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.Str, "xat"]]
+            typing.Annotated[annotations.Str, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8790,7 +8810,8 @@ def test_with_unpacked_typed_dict_and_user():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.User, "maaaa"]
         oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.User, "xat"]]
+            typing.Annotated[annotations.User, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8873,7 +8894,8 @@ def test_ignores_non_unpack_kwargs():
     class TypedDict(typing_extensions.TypedDict):
         meow: typing.Annotated[annotations.User, "maaaa"]
         echo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
-        typing.Annotated[annotations.User, "xat"]]
+            typing.Annotated[annotations.User, "xat"]
+        ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
