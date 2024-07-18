@@ -54,7 +54,7 @@ def test_where_no_signature():
         inspect.Signature.from_callable(int)
 
     command: tanjun.MessageCommand[typing.Any] = tanjun.as_message_command("command")(
-        tanjun.as_slash_command("command", "description")(int)  # type: ignore
+        tanjun.as_slash_command("command", "description")(int)
     )
 
     annotations.with_annotated_args(command)
