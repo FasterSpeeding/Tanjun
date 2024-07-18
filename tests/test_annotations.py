@@ -7209,7 +7209,7 @@ def test_with_unpacked_typed_dict_and_bool():
 def test_with_unpacked_typed_dict_and_channel():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Channel, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Channel, "xat"]
         ]
 
@@ -7277,7 +7277,7 @@ def test_with_unpacked_typed_dict_and_channel():
 def test_with_unpacked_typed_dict_and_choices():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Str, annotations.Choices({"hi": "meow", "blam": "xd"}), "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Int, annotations.Choices({"m": 1, "ddd": 420}), "xat"]
         ]
 
@@ -7355,7 +7355,7 @@ def test_with_unpacked_typed_dict_and_choices():
 def test_with_unpacked_typed_dict_and_color():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Color, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Color, "xat"]
         ]
 
@@ -7424,7 +7424,7 @@ def test_with_unpacked_typed_dict_and_converted():
 
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[typing.Any, annotations.Converted(mock_callback_1), "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[typing.Any, annotations.Converted(mock_callback_2), "xat"]
         ]
 
@@ -7490,7 +7490,7 @@ def test_with_unpacked_typed_dict_and_converted():
 def test_with_unpacked_typed_dict_and_datetime():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Datetime, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Datetime, "xat"]
         ]
 
@@ -7556,7 +7556,7 @@ def test_with_unpacked_typed_dict_and_datetime():
 def test_with_unpacked_typed_dict_and_default():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Default(0), "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Float, annotations.Default(0.1), "xat"]
         ]
 
@@ -7621,7 +7621,7 @@ def test_with_unpacked_typed_dict_and_default():
 
 def test_with_unpacked_typed_dict_and_flag():
     class TypedDict(typing_extensions.TypedDict):
-        of: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        of: typing_extensions.NotRequired[
             typing.Annotated[annotations.Int, annotations.Flag(aliases=["-o"], empty_value="aaaa"), "maaaa"]
         ]
 
@@ -7667,7 +7667,7 @@ def test_with_unpacked_typed_dict_and_flag():
 def test_with_unpacked_typed_dict_and_float():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Float, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Float, "xat"]
         ]
 
@@ -7775,7 +7775,7 @@ def test_with_unpacked_typed_dict_and_greedy():
 def test_with_unpacked_typed_dict_and_int():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Int, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Int, "xat"]
         ]
 
@@ -7841,7 +7841,7 @@ def test_with_unpacked_typed_dict_and_int():
 def test_with_unpacked_typed_dict_and_interaction_channel():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.InteractionChannel, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.InteractionChannel, "xat"]
         ]
 
@@ -7878,7 +7878,7 @@ def test_with_unpacked_typed_dict_and_interaction_channel():
 def test_with_unpacked_typed_dict_and_interaction_member():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.InteractionMember, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.InteractionMember, "xat"]
         ]
 
@@ -7915,7 +7915,7 @@ def test_with_unpacked_typed_dict_and_interaction_member():
 def test_with_unpacked_typed_dict_and_length():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Str, annotations.Length(232), "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Str, annotations.Length(4, 128), "xat"]
         ]
 
@@ -7990,7 +7990,7 @@ def test_with_unpacked_typed_dict_and_length():
 def test_with_unpacked_typed_dict_and_max():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Max(453), "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Float, annotations.Max(69.420), "xat"]
         ]
 
@@ -8060,7 +8060,7 @@ def test_with_unpacked_typed_dict_and_max():
 def test_with_unpacked_typed_dict_and_member():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Member, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Member, "xat"]
         ]
 
@@ -8126,7 +8126,7 @@ def test_with_unpacked_typed_dict_and_member():
 def test_with_unpacked_typed_dict_and_mentionable():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Mentionable, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Mentionable, "xat"]
         ]
 
@@ -8192,7 +8192,7 @@ def test_with_unpacked_typed_dict_and_mentionable():
 def test_with_unpacked_typed_dict_and_min():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Float, annotations.Min(3.2), "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Int, annotations.Min(32), "xat"]
         ]
 
@@ -8262,7 +8262,7 @@ def test_with_unpacked_typed_dict_and_min():
 def test_with_unpacked_typed_dict_and_name():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Float, annotations.Name("hi"), "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.User, annotations.Name("nye"), "xat"]
         ]
 
@@ -8328,7 +8328,7 @@ def test_with_unpacked_typed_dict_and_name():
 def test_with_unpacked_typed_dict_and_positional():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Positional(), "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Str, annotations.Positional(), "xat"]
         ]
 
@@ -8368,7 +8368,7 @@ def test_with_unpacked_typed_dict_and_positional():
 def test_with_unpacked_typed_dict_and_ranged():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Ranged(4, 64), "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Float, annotations.Ranged(12.21, 54.34), "xat"]
         ]
 
@@ -8443,7 +8443,7 @@ def test_with_unpacked_typed_dict_and_ranged():
 def test_with_unpacked_typed_dict_and_role():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Role, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Role, "xat"]
         ]
 
@@ -8509,7 +8509,7 @@ def test_with_unpacked_typed_dict_and_role():
 def test_with_unpacked_typed_dict_and_snowflake():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Snowflake, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Snowflake, "xat"]
         ]
 
@@ -8579,7 +8579,7 @@ def test_with_unpacked_typed_dict_and_snowflake_or():
             annotations.SnowflakeOr(parse_id=tanjun.conversion.parse_role_id),
             "maaaa",
         ]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[
                 typing.Union[annotations.Member, hikari.Snowflake],
                 annotations.SnowflakeOr(parse_id=tanjun.conversion.parse_user_id),
@@ -8649,7 +8649,7 @@ def test_with_unpacked_typed_dict_and_snowflake_or():
 def test_with_unpacked_typed_dict_and_str():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.Str, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Str, "xat"]
         ]
 
@@ -8717,7 +8717,7 @@ def test_with_unpacked_typed_dict_and_these_channels():
         of: typing.Annotated[
             annotations.Channel, annotations.TheseChannels(hikari.ChannelType.DM, hikari.GuildThreadChannel), "maaaa"
         ]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.Channel, annotations.TheseChannels(hikari.GuildTextChannel), "xat"]
         ]
 
@@ -8809,7 +8809,7 @@ def test_with_unpacked_typed_dict_and_these_channels():
 def test_with_unpacked_typed_dict_and_user():
     class TypedDict(typing_extensions.TypedDict):
         of: typing.Annotated[annotations.User, "maaaa"]
-        oo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        oo: typing_extensions.NotRequired[
             typing.Annotated[annotations.User, "xat"]
         ]
 
@@ -8893,7 +8893,7 @@ def test_ignores_non_typed_dict_class_in_kwargs_unpack():
 def test_ignores_non_unpack_kwargs():
     class TypedDict(typing_extensions.TypedDict):
         meow: typing.Annotated[annotations.User, "maaaa"]
-        echo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        echo: typing_extensions.NotRequired[
             typing.Annotated[annotations.User, "xat"]
         ]
 
@@ -8913,7 +8913,7 @@ def test_ignores_non_unpack_kwargs():
 def test_ignores_unpack_typed_dict_for_varargs():
     class TypedDict(typing_extensions.TypedDict):
         meow: typing.Annotated[annotations.User, "maaaa"]
-        echo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        echo: typing_extensions.NotRequired[
             typing.Annotated[annotations.User, "xat"]
         ]
 
@@ -8933,7 +8933,7 @@ def test_ignores_unpack_typed_dict_for_varargs():
 def test_ignores_unpack_typed_dict_for_non_var_arg():
     class TypedDict(typing_extensions.TypedDict):
         meow: typing.Annotated[annotations.User, "maaaa"]
-        echo: typing_extensions.NotRequired[  # pyright: ignore[reportInvalidTypeForm]
+        echo: typing_extensions.NotRequired[
             typing.Annotated[annotations.User, "xat"]
         ]
 
