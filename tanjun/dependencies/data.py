@@ -168,7 +168,7 @@ def make_lc_resolver(
             if (value := constant.get_value()) is not None:
                 return value
 
-            result = await ctx.call_with_async_di(constant.callback)
+            result = await ctx.call_with_async_di(constant.callback)  # type: ignore
             constant.set_value(result)
             return result
 
