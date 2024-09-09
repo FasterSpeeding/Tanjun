@@ -721,8 +721,10 @@ def test_choices(
     @tanjun.as_slash_command("command", "description")
     async def callback(
         ctx: tanjun.abc.Context,
-        nope: typing.Annotated[type_cls, annotations.Choices(choices), "default"],
-        boo: typing.Annotated[type_cls, annotations.Choices(choices), "be"] = typing.cast("_ChoiceT", "hi"),
+        nope: typing.Annotated[type_cls, annotations.Choices(choices), "default"],  # pyright: ignore
+        boo: typing.Annotated[type_cls, annotations.Choices(choices), "be"] = typing.cast(  # pyright: ignore
+            "_ChoiceT", "hi"
+        ),
     ): ...
 
     assert callback.build().options == [
@@ -787,7 +789,8 @@ def test_choices_and_mixed_values(
 ):
     @tanjun.as_slash_command("command", "description")
     async def callback(
-        ctx: tanjun.abc.Context, nom: typing.Annotated[type_, annotations.Choices(choices), "description"]
+        ctx: tanjun.abc.Context,
+        nom: typing.Annotated[type_, annotations.Choices(choices), "description"],  # pyright: ignore
     ) -> None: ...
 
     with pytest.raises(
@@ -2342,8 +2345,8 @@ def test_with_min(
     @tanjun.as_message_command("command")
     async def callback(
         ctx: tanjun.abc.Context,
-        number: typing.Annotated[type_, annotations.Max(value), "eee"],
-        other_number: typing.Annotated[type_, annotations.Max(value), "eep"] = 54234,
+        number: typing.Annotated[type_, annotations.Max(value), "eee"],  # pyright: ignore
+        other_number: typing.Annotated[type_, annotations.Max(value), "eep"] = 54234,  # pyright: ignore
     ): ...
 
     assert isinstance(callback.wrapped_command, tanjun.MessageCommand)
