@@ -23,7 +23,7 @@ jobs:
           submodules: "true"
 
       - name: Set up Python 3.9
-        uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f
+        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3
         with:
           python-version: "3.9"
 
@@ -34,4 +34,4 @@ jobs:
           python -m nox -s build
 
       - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@ec4db0b4ddc65acdf4bff5fa45ac92d78b56bdf0
+        uses: pypa/gh-action-pypi-publish@0ab0b79471669eb3a4d647e625009c62f9f3b241

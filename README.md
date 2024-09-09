@@ -1,4 +1,4 @@
-# Tanjun
+# Tanjun Library
 
 A flexible command framework designed to extend Hikari.
 
