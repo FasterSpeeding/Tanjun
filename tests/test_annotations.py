@@ -722,7 +722,9 @@ def test_choices(
     async def callback(
         ctx: tanjun.abc.Context,
         nope: typing.Annotated[type_cls, annotations.Choices(choices), "default"],  # pyright: ignore
-        boo: typing.Annotated[type_cls, annotations.Choices(choices), "be"] = typing.cast("_ChoiceT", "hi"),  # pyright: ignore
+        boo: typing.Annotated[type_cls, annotations.Choices(choices), "be"] = typing.cast(
+            "_ChoiceT", "hi"
+        ),  # pyright: ignore
     ): ...
 
     assert callback.build().options == [
