@@ -1636,7 +1636,9 @@ class Parameter:
         return self._key
 
     def _add_converter(self, converter: ConverterSig[typing.Any], /) -> None:
-        if self._client and isinstance(converter, conversion.BaseConverter):
+        if self._client and isinstance(  # pyright: ignore[reportUnnecessaryIsInstance]
+            converter, conversion.BaseConverter
+        ):
             converter.check_client(self._client, f"{self._key} parameter")
 
         # Some types like `bool` and `bytes` are overridden here for the sake of convenience.
@@ -1646,7 +1648,7 @@ class Parameter:
     def bind_client(self, client: tanjun.Client, /) -> None:
         self._client = client
         for converter in self._converters:
-            if isinstance(converter, conversion.BaseConverter):
+            if isinstance(converter, conversion.BaseConverter):  # pyright: ignore[reportUnnecessaryIsInstance]
                 converter.check_client(client, f"{self._key} parameter")
 
     def bind_component(self, component: tanjun.Component, /) -> None:
