@@ -812,7 +812,7 @@ class _TrackedOption:
 
     def check_client(self, client: tanjun.Client, /) -> None:
         for converter in self.converters:
-            if isinstance(converter, conversion.BaseConverter):
+            if isinstance(converter, conversion.BaseConverter):  # pyright: ignore[reportUnnecessaryIsInstance]
                 converter.check_client(client, f"{self.name} slash command option")
 
     async def convert(self, ctx: tanjun.SlashContext, value: typing.Any, /) -> typing.Any:
@@ -1773,7 +1773,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         if self._client:
             for converter in converters:
-                if isinstance(converter, conversion.BaseConverter):
+                if isinstance(converter, conversion.BaseConverter):  # pyright: ignore[reportUnnecessaryIsInstance]
                     converter.check_client(
                         self._client, f"{self._names.default_value}'s slash option '{names.default_value}'"
                     )
