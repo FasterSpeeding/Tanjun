@@ -721,8 +721,8 @@ def test_choices(
     @tanjun.as_slash_command("command", "description")
     async def callback(
         ctx: tanjun.abc.Context,
-        nope: typing.Annotated[type_cls, annotations.Choices(choices), "default"],  # pyright: ignore
-        boo: typing.Annotated[type_cls, annotations.Choices(choices), "be"] = typing.cast(  # pyright: ignore
+        nope: typing.Annotated[type_cls, annotations.Choices(choices), "default"],
+        boo: typing.Annotated[type_cls, annotations.Choices(choices), "be"] = typing.cast(
             "_ChoiceT", "hi"
         ),
     ): ...
@@ -790,7 +790,7 @@ def test_choices_and_mixed_values(
     @tanjun.as_slash_command("command", "description")
     async def callback(
         ctx: tanjun.abc.Context,
-        nom: typing.Annotated[type_, annotations.Choices(choices), "description"],  # pyright: ignore
+        nom: typing.Annotated[type_, annotations.Choices(choices), "description"],
     ) -> None: ...
 
     with pytest.raises(
