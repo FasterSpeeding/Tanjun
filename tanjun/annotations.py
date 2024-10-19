@@ -116,7 +116,7 @@ This implementation exposes 3 ways to mark an argument as a command option:
         raise NotImplementedError
     ```
 
-    It should be noted that wrapping in [typing.Annotated][] isn't necessary for
+    It should be noted that wrapping in [typing.Annotated][] isn't required for
     message commands options as they don't have descriptions.
 
     ```py
