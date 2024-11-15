@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           submodules: "true"
 
       - name: Set up Python 3.9
-        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: "3.9"
 
@@ -31,7 +31,7 @@ jobs:
           echo "GIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_STATE
 
       - name: Push
-        uses: JamesIves/github-pages-deploy-action@881db5376404c5c8d621010bcbec0310b58d5e29
+        uses: JamesIves/github-pages-deploy-action@62fec3add6773ec5dbbf18d2ee4260911aa35cf4
         with:
           branch: docs
           commit-message: "${{ steps.doc_info.outputs.GIT_HASH }} docs (${{ github.event.release.tag_name || github.event.ref }})"
