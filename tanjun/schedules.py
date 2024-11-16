@@ -47,9 +47,9 @@ from . import _internal
 from . import components
 
 if typing.TYPE_CHECKING:
+    import typing_extensions
     from alluka import abc as alluka
     from typing_extensions import Self
-    import typing_extensions
 
     from . import abc as tanjun
 
