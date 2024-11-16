@@ -1093,7 +1093,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.AbstractComponentLoader>>.
-        if isinstance(component, _ComponentProto):
+        if _is_component_proto(component):
             component.add_schedule(self)
 
     def start(self, client: alluka.Client, /, *, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
