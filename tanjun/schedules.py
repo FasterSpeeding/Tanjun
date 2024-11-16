@@ -49,6 +49,7 @@ from . import components
 if typing.TYPE_CHECKING:
     from alluka import abc as alluka
     from typing_extensions import Self
+    import typing_extensions
 
     from . import abc as tanjun
 
@@ -132,10 +133,19 @@ class AbstractSchedule(abc.ABC):
         """
 
 
-@typing.runtime_checkable
 class _ComponentProto(typing.Protocol):
     def add_schedule(self, schedule: AbstractSchedule, /) -> typing.Any:
         raise NotImplementedError
+
+
+def _is_component_proto(value: typing.Any, /) -> typing_extensions.TypeGuard[_ComponentProto]:
+    try:
+        value.add_schedule
+
+    except AttributeError:
+        return False
+
+    return True
 
 
 def as_interval(
@@ -298,7 +308,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
         # <<inherited docstring from tanjun.components.AbstractComponentLoader>>.
-        if isinstance(component, _ComponentProto):
+        if _is_component_proto(component):
             component.add_schedule(self)
 
     def set_start_callback(self, callback: _CallbackSig, /) -> Self:
