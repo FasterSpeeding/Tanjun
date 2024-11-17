@@ -37,10 +37,10 @@ import asyncio
 import copy as copy_
 import enum
 import functools
+import inspect
 import itertools
 import logging
 import operator
-import sys
 import types
 import typing
 from collections import abc as collections
@@ -48,22 +48,16 @@ from collections import abc as collections
 import hikari
 
 from .. import errors
-from .vendor import inspect
 
 if typing.TYPE_CHECKING:
-    import typing_extensions
-
     from .. import abc as tanjun
 
     _T = typing.TypeVar("_T")
-    _P = typing_extensions.ParamSpec("_P")
+    _P = typing.ParamSpec("_P")
 
     _ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
     _CoroT = collections.Coroutine[typing.Any, typing.Any, _T]
-    _TreeT = dict[
-        typing.Union[str, "_IndexKeys"],
-        typing.Union["_TreeT", list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]],
-    ]
+    _TreeT = dict["str | _IndexKeys", "_TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]"]
 
 
 _KeyT = typing.TypeVar("_KeyT")
@@ -71,11 +65,7 @@ _OtherT = typing.TypeVar("_OtherT")
 
 _LOGGER = logging.getLogger("hikari.tanjun")
 
-if sys.version_info >= (3, 10):
-    UnionTypes = frozenset((typing.Union, types.UnionType))
-
-else:
-    UnionTypes = frozenset((typing.Union,))
+UnionTypes = frozenset((typing.Union, types.UnionType))
 
 
 class _DefaultEnum(enum.Enum):
@@ -158,7 +148,7 @@ class CastedView(collections.Mapping[_KeyT, _OtherT]):
 _KEYWORD_TYPES = {inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD}
 
 
-def get_kwargs(callback: collections.Callable[..., typing.Any], /) -> typing.Union[list[str], None]:
+def get_kwargs(callback: collections.Callable[..., typing.Any], /) -> list[str] | None:
     """Get a list of the keyword argument names for a callback.
 
     Parameters
@@ -286,10 +276,10 @@ def log_task_exc(
 
 
 class _WrappedProto(typing.Protocol):
-    wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]]
+    wrapped_command: tanjun.ExecutableCommand[typing.Any] | None
 
 
-def _has_wrapped(value: typing.Any, /) -> typing_extensions.TypeGuard[_WrappedProto]:
+def _has_wrapped(value: typing.Any, /) -> typing.TypeGuard[_WrappedProto]:
     try:
         value.wrapped_command
 
@@ -359,7 +349,7 @@ SUB_COMMAND_OPTION_TYPES: typing.Final[frozenset[hikari.OptionType]] = frozenset
 
 
 def flatten_options(
-    name: str, options: typing.Optional[collections.Sequence[_OptionT]], /
+    name: str, options: collections.Sequence[_OptionT] | None, /
 ) -> tuple[str, collections.Sequence[_OptionT]]:
     """Flatten the options of a slash/autocomplete interaction.
 
@@ -411,7 +401,7 @@ for _channel_cls, _types in CHANNEL_TYPES.copy().items():
 CHANNEL_TYPES[hikari.InteractionChannel] = CHANNEL_TYPES[hikari.PartialChannel]
 
 
-def parse_channel_types(*channel_types: typing.Union[type[hikari.PartialChannel], int]) -> list[hikari.ChannelType]:
+def parse_channel_types(*channel_types: type[hikari.PartialChannel] | int) -> list[hikari.ChannelType]:
     """Parse a channel types collection to a list of channel type integers."""
     types_iter = itertools.chain.from_iterable(
         (hikari.ChannelType(type_),) if isinstance(type_, int) else CHANNEL_TYPES[type_] for type_ in channel_types
@@ -446,8 +436,8 @@ def repr_channel(channel_type: hikari.ChannelType, /) -> str:
 
 
 def cmp_command(
-    cmd: typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder],
-    other: typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder, None],
+    cmd: hikari.PartialCommand | hikari.api.CommandBuilder,
+    other: hikari.PartialCommand | hikari.api.CommandBuilder | None,
     /,
 ) -> bool:
     """Compare application command objects and command builders."""
@@ -479,10 +469,8 @@ def cmp_command(
 
 
 def cmp_all_commands(
-    commands: collections.Collection[typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder]],
-    other: collections.Mapping[
-        tuple[hikari.CommandType, str], typing.Union[hikari.PartialCommand, hikari.api.CommandBuilder]
-    ],
+    commands: collections.Collection[hikari.PartialCommand | hikari.api.CommandBuilder],
+    other: collections.Mapping[tuple[hikari.CommandType, str], hikari.PartialCommand | hikari.api.CommandBuilder],
     /,
 ) -> bool:
     """Compare two sets of command objects/builders."""
@@ -504,9 +492,9 @@ class MessageCommandIndex:
         strict: bool,
         /,
         *,
-        commands: typing.Optional[list[tanjun.MessageCommand[typing.Any]]] = None,
-        names_to_commands: typing.Optional[dict[str, tuple[str, tanjun.MessageCommand[typing.Any]]]] = None,
-        search_tree: typing.Optional[_TreeT] = None,
+        commands: list[tanjun.MessageCommand[typing.Any]] | None = None,
+        names_to_commands: dict[str, tuple[str, tanjun.MessageCommand[typing.Any]]] | None = None,
+        search_tree: _TreeT | None = None,
     ) -> None:
         """Initialise a message command index.
 
@@ -564,7 +552,7 @@ class MessageCommandIndex:
 
         else:  # strict indexes avoid using the search tree all together.
             # This needs to be explicitly typed for MyPy.
-            node: typing.Union[_TreeT, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]
+            node: _TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]
             for name in filter(None, command.names):
                 node = self.search_tree
                 # The search tree is kept case-insensitive as a check against the actual name
@@ -593,7 +581,7 @@ class MessageCommandIndex:
         self.commands.append(command)
         return True
 
-    def copy(self, *, parent: typing.Optional[tanjun.MessageCommandGroup[typing.Any]] = None) -> MessageCommandIndex:
+    def copy(self, *, parent: tanjun.MessageCommandGroup[typing.Any] | None = None) -> MessageCommandIndex:
         """In-place copy the index and its contained commands.
 
         Parameters
@@ -646,7 +634,7 @@ class MessageCommandIndex:
             return
 
         # This needs to be explicitly typed for MyPy.
-        node: typing.Union[_TreeT, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]
+        node: _TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]
         node = self.search_tree
         segments: list[tuple[int, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]] = []
         split = content.split(" ")
@@ -696,7 +684,7 @@ class MessageCommandIndex:
             return
 
         # This needs to be explicitly typed for MyPy.
-        node: typing.Union[_TreeT, list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]]
+        node: _TreeT | list[tuple[list[str], tanjun.MessageCommand[typing.Any]]]
         for name in filter(None, command.names):
             nodes: list[tuple[str, _TreeT]] = []
             node = self.search_tree

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved away from using `typing.runtime_checkable` as this is unreliable in
   newer Python versions.
 
+### Removed
+- Support for Python 3.9 and 3.10.
+
 ## [2.17.6] - 2024-10-07
 ### Changed
 - Support Python 3.13.

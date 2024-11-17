@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 name = "hikari-tanjun"
 version = "2.17.6"
 readme = "README.md"
-requires-python = ">=3.9.0,<3.14"
+requires-python = ">=3.11.0,<3.14"
 license = {file = "LICENSE"}
 authors = [ {name = "Faster Speeding", email="lucina@lmbyrne.dev"} ]
 keywords = ["hikari"]
@@ -16,8 +16,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -41,11 +39,10 @@ Changelog = "https://tanjun.cursed.solutions/changelog"
 name = "tanjun"
 
 [tool.black]
-extend-exclude = "^\\/tanjun\\/_internal\\/vendor\\/.*$"
 include = ".*pyi?$"
 line-length = 120
 skip-magic-trailing-comma = true
-target-version = ["py39"]
+target-version = ["py311"]
 
 [tool.codespell]
 ignore-regex = "TimeSchedule|Nd"
@@ -66,14 +63,12 @@ exclude_lines = [
     "^\\s*@abc.abstractmethod$",
     "^if typing.TYPE_CHECKING:$"
 ]
-omit = ["tanjun/_internal/vendor/*"]
 
 [tool.flake8]
 accept-encodings = "utf-8"
 count = true
 docstring-convention = "numpy"
 eradicate-aggressive = true
-exclude = ["tanjun/_internal/vendor/**"]
 extend-select = ["TC100", "TC101"]
 force-future-annotations = true
 ignore-decorators = "overload"
@@ -81,7 +76,7 @@ max-complexity = 20
 max-function-length = 100
 # Technically this is 120, but black has a policy of "1 or 2 over is fine if it is tidier", so we have to raise this.
 max-line-length = 130
-min_python_version = "3.9"
+min_python_version = "3.11"
 pep585-activation = "always"
 show_source = false
 statistics = false
@@ -116,6 +111,7 @@ per-file-ignores = [
     "docs_src/*.py: ASYNC102, ASYNC910, ASYNC911, DALL000, D100, D101, D103, E800, FA100, FA101, F841, INP001, N806, TC001, TC101",
     "examples/*.py: ASYNC102, ASYNC910, ASYNC911, DALL000, D100, D101, D103, E800, FA100, FA101, F401, F403, INP001, TC001, TC003",
     "noxfile.py: ASYNC102, ASYNC910, ASYNC911, D100, FA101, F401, F403, INP001",
+    "tanjun/abc.py: A005",  # A005 the module is shadowing a Python builtin module "abc"
     "tanjun/py.typed: ASYNC102, ASYNC910, ASYNC911, D100",
     "tests/*.py: ASYNC102, ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC003",
     "tests/test_annotations*.py: ASYNC102, ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC101, TC003",
@@ -126,11 +122,10 @@ per-file-ignores = [
 [tool.isort]
 profile = "black"
 force_single_line = true
-skip = ["tanjun/_internal/vendor"]
 
 [tool.mypy]
 # some good strict settings
-python_version = 3.9
+python_version = "3.11"
 strict = true
 warn_unreachable = true
 
@@ -145,9 +140,6 @@ warn_redundant_casts = false
 allow_redefinition = true
 disable_error_code = ["type-abstract"]
 
-# Ignore vendored modules
-exclude = ["tanjun/_internal/vendor/"]
-
 [tool.piped]
 default_sessions = [
     "reformat",
@@ -160,7 +152,6 @@ default_sessions = [
     "verify-types",
 ]
 extra_test_installs = ["."]
-path_ignore = "tanjun\\/_internal\\/vendor\\/"
 project_name = "tanjun"
 top_level_targets = ["./docs_src", "./examples", "./noxfile.py", "./tanjun", "./tests"]
 
@@ -170,7 +161,7 @@ top_level_targets = ["./docs_src", "./examples", "./noxfile.py", "./tanjun", "./
 [tool.piped.github_actions.publish]
 [tool.piped.github_actions.py_test]
 codeclimate_token = "117363998d7c6b4bab4ac57348026e1089767e142ccca3eb8cc37da6cf4cc8b9"
-python_versions = ["3.9", "3.10", "3.11", "3.12", "3.13-dev"]
+python_versions = ["3.11", "3.12", "3.13"]
 
 [tool.piped.github_actions.reformat]
 [tool.piped.github_actions.release_docs]
@@ -185,10 +176,9 @@ python_versions = ["3.9", "3.10", "3.11", "3.12", "3.13-dev"]
 exclude = "docs_src"
 
 [tool.pyright]
-exclude = ["tanjun/_internal/vendor"]
 include = ["docs_src", "examples", "tanjun", "noxfile.py", "tests"]
 
-pythonVersion = "3.9"
+pythonVersion = "3.11"
 typeCheckingMode = "strict"
 reportMissingModuleSource = "error"  # Is only "warning" on strict mode.
 
@@ -235,4 +225,3 @@ tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)
 | tanjun.dependencies.reloaders:(_PathLoader|_ScanResult)
 | .*Proto
 """
-exclude-modules = "tanjun._internal.vendor"

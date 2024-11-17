@@ -41,8 +41,7 @@ from .. import components
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
-
-    from typing_extensions import Self
+    from typing import Self
 
     _CheckSigT = typing.TypeVar("_CheckSigT", bound=tanjun.AnyCheckSig)
 
@@ -57,8 +56,8 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
 
     def __init__(self) -> None:
         self._checks: list[tanjun.CheckSig[_ContextT]] = []
-        self._component: typing.Optional[tanjun.Component] = None
-        self._hooks: typing.Optional[tanjun.Hooks[_ContextT]] = None
+        self._component: tanjun.Component | None = None
+        self._hooks: tanjun.Hooks[_ContextT] | None = None
         self._metadata: dict[typing.Any, typing.Any] = {}
 
     @property
@@ -67,12 +66,12 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         return self._checks.copy()
 
     @property
-    def component(self) -> typing.Optional[tanjun.Component]:
+    def component(self) -> tanjun.Component | None:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._component
 
     @property
-    def hooks(self) -> typing.Optional[tanjun.Hooks[_ContextT]]:
+    def hooks(self) -> tanjun.Hooks[_ContextT] | None:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         return self._hooks
 
@@ -89,7 +88,7 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
         inst._metadata = self._metadata.copy()
         return inst
 
-    def set_hooks(self, hooks: typing.Optional[tanjun.Hooks[_ContextT]], /) -> Self:
+    def set_hooks(self, hooks: tanjun.Hooks[_ContextT] | None, /) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         self._hooks = hooks
         return self

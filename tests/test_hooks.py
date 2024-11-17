@@ -33,7 +33,8 @@
 # pyright: reportPrivateUsage=none
 # This leads to too many false-positives around mocks.
 
-import mock
+from unittest import mock
+
 import pytest
 
 import tanjun

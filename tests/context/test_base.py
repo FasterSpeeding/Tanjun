@@ -36,10 +36,10 @@
 import types
 import typing
 from collections import abc as collections
+from unittest import mock
 
 import alluka
 import hikari
-import mock
 import pytest
 from hikari import traits
 
@@ -53,7 +53,7 @@ def stub_class(
     cls: type[_T],
     /,
     args: collections.Sequence[typing.Any] = (),
-    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    kwargs: collections.Mapping[str, typing.Any] | None = None,
     **namespace: typing.Any,
 ) -> _T:
     namespace["__slots__"] = ()

@@ -38,10 +38,10 @@ import datetime
 import types
 import typing
 from collections import abc as collections
+from unittest import mock
 
 import alluka
 import hikari
-import mock
 import pytest
 
 import tanjun
@@ -53,7 +53,7 @@ def stub_class(
     cls: type[_T],
     /,
     args: collections.Sequence[typing.Any] = (),
-    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    kwargs: collections.Mapping[str, typing.Any] | None = None,
     **namespace: typing.Any,
 ) -> _T:
     namespace["__slots__"] = ()
@@ -874,7 +874,7 @@ class TestAppCommandContext:
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=545), 545, 545.0])
     @pytest.mark.asyncio
     async def test_edit_initial_response_when_delete_after(
-        self, mock_client: mock.Mock, delete_after: typing.Union[datetime.timedelta, int, float]
+        self, mock_client: mock.Mock, delete_after: datetime.timedelta | int | float
     ):
         mock_delete_initial_response_after = mock.Mock()
         mock_interaction = mock.AsyncMock(created_at=datetime.datetime.now(tz=datetime.timezone.utc))
@@ -898,7 +898,7 @@ class TestAppCommandContext:
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=901), 901, 901.0])
     @pytest.mark.asyncio
     async def test_edit_initial_response_when_delete_after_will_have_expired(
-        self, mock_client: mock.Mock, delete_after: typing.Union[datetime.timedelta, int, float]
+        self, mock_client: mock.Mock, delete_after: datetime.timedelta | int | float
     ):
         mock_delete_initial_response_after = mock.Mock()
         mock_register_task = mock.Mock()
@@ -983,7 +983,7 @@ class TestSlashContext:
 
     @pytest.mark.parametrize("raw_options", [None, []])
     def test_options_property_when_no_options(
-        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
+        self, mock_client: mock.Mock, raw_options: list[hikari.OptionType] | None
     ):
         context = tanjun.context.SlashContext(
             mock_client, mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options), mock.Mock()
@@ -1032,7 +1032,7 @@ class TestSlashContext:
 
     @pytest.mark.parametrize("raw_options", [None, []])
     def test_options_property_for_command_group_with_no_sub_option(
-        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
+        self, mock_client: mock.Mock, raw_options: list[hikari.OptionType] | None
     ):
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         context = tanjun.context.SlashContext(mock_client, mock.Mock(options=[group_option]), mock.Mock())
@@ -1061,7 +1061,7 @@ class TestSlashContext:
 
     @pytest.mark.parametrize("raw_options", [None, []])
     def test_options_property_for_sub_command_group_with_no_sub_option(
-        self, mock_client: mock.Mock, raw_options: typing.Optional[list[hikari.OptionType]]
+        self, mock_client: mock.Mock, raw_options: list[hikari.OptionType] | None
     ):
         sub_group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND, options=raw_options)
         group_option = mock.Mock(type=hikari.OptionType.SUB_COMMAND_GROUP, options=[sub_group_option])

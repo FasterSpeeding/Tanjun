@@ -82,8 +82,7 @@ if typing.TYPE_CHECKING:
     import asyncio
     import datetime
     import pathlib
-
-    from typing_extensions import Self
+    from typing import Self
 
     from . import errors
 
@@ -125,7 +124,7 @@ _MenuValueT = typing.TypeVar("_MenuValueT", hikari.Message, hikari.InteractionMe
 CommandCallbackSig = collections.Callable[..., _CoroT[None]]
 """Deprecated type hint used to represent any command callback."""
 
-MetaEventSig = collections.Callable[..., typing.Union[_CoroT[None], None]]
+MetaEventSig = collections.Callable[..., _CoroT[None] | None]
 """Type hint of a client callback.
 
 The positional arguments this is guaranteed depend on the event name its being
@@ -134,131 +133,108 @@ subscribed to (more information the standard client callbacks can be found at
 synchronous or asynchronous but must return [None][].
 """
 
-# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
-if typing.TYPE_CHECKING:
-    import typing_extensions
+_MaybeAwaitable = _CoroT[_T] | _T
 
-    _MaybeAwaitable = typing.Union[_CoroT[_T], _T]
+AutocompleteSig = collections.Callable[
+    typing.Concatenate["AutocompleteContext", _AutocompleteValueT, ...], _CoroT[None]
+]
+"""Type hint of the signature an autocomplete callback should have.
 
-    AutocompleteSig = collections.Callable[
-        typing_extensions.Concatenate["AutocompleteContext", _AutocompleteValueT, ...], _CoroT[None]
-    ]
-    """Type hint of the signature an autocomplete callback should have.
+This represents the signature
+`async def (AutocompleteContext, int | str | float) -> None`
+where dependency injection is supported.
+"""
 
-    This represents the signature
-    `async def (AutocompleteContext, int | str | float) -> None`
-    where dependency injection is supported.
-    """
+CheckSig = collections.Callable[typing.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[bool]]
+"""Type hint of a generic context check used with Tanjun commands.
 
-    CheckSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[bool]]
-    """Type hint of a generic context check used with Tanjun commands.
+This may be registered with a command, client or component to add a rule
+which decides whether it should execute for each context passed to it.
 
-    This may be registered with a command, client or component to add a rule
-    which decides whether it should execute for each context passed to it.
+This represents the signatures `def (Context, ...) -> bool | None`
+and `async def (Context, ...) -> bool | None` where dependency
+injection is  supported.
 
-    This represents the signatures `def (Context, ...) -> bool | None`
-    and `async def (Context, ...) -> bool | None` where dependency
-    injection is  supported.
+Check callbacks may either return [False][] to indicate that the current
+command(s) don't match the context (without stopping execution) or raise
+[tanjun.FailedCheck][] to indicate that command execution should be halted
+early and marked as not found.
+"""
 
-    Check callbacks may either return [False][] to indicate that the current
-    command(s) don't match the context (without stopping execution) or raise
-    [tanjun.FailedCheck][] to indicate that command execution should be halted
-    early and marked as not found.
-    """
+AnyCheckSig = CheckSig["Context"]
+"""Type hint of a check callback for any command type."""
 
-    AnyCheckSig = CheckSig["Context"]
-    """Type hint of a check callback for any command type."""
+MenuCallbackSig = collections.Callable[typing.Concatenate["MenuContext", _MenuValueT, ...], _CoroT[None]]
+"""Type hint of a context menu command callback.
 
-    MenuCallbackSig = collections.Callable[typing_extensions.Concatenate["MenuContext", _MenuValueT, ...], _CoroT[None]]
-    """Type hint of a context menu command callback.
+This represents the signature
+`async def (MenuContext, hikari.Message, ...) -> None` or
+`async def (MenuContext, hikari.InteractionMember, ...) ->  None`
+where dependency injection is supported.
+"""
 
-    This represents the signature
-    `async def (MenuContext, hikari.Message, ...) -> None` or
-    `async def (MenuContext, hikari.InteractionMember, ...) ->  None`
-    where dependency injection is supported.
-    """
+_CommandCallbackSig = collections.Callable[typing.Concatenate[_ContextT_contra, ...], _CoroT[None]]
 
-    _CommandCallbackSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _CoroT[None]]
+MessageCallbackSig = _CommandCallbackSig["MessageContext"]
+"""Type hint of a message command callback.
 
-    MessageCallbackSig = _CommandCallbackSig["MessageContext"]
-    """Type hint of a message command callback.
+This represents the signature `async def (MessageContext, ...) -> None`
+where dependency injection is supported.
+"""
 
-    This represents the signature `async def (MessageContext, ...) -> None`
-    where dependency injection is supported.
-    """
+SlashCallbackSig = _CommandCallbackSig["SlashContext"]
+"""Type hint of a slash command callback.
 
-    SlashCallbackSig = _CommandCallbackSig["SlashContext"]
-    """Type hint of a slash command callback.
+This represents the signature `async def (SlashContext, ...) -> None`
+where dependency injection is supported.
+"""
 
-    This represents the signature `async def (SlashContext, ...) -> None`
-    where dependency injection is supported.
-    """
+ErrorHookSig = collections.Callable[typing.Concatenate[_ContextT_contra, Exception, ...], _MaybeAwaitable[bool | None]]
+"""Type hint of the callback used as a unexpected command error hook.
 
-    ErrorHookSig = collections.Callable[
-        typing_extensions.Concatenate[_ContextT_contra, Exception, ...], _MaybeAwaitable[typing.Optional[bool]]
-    ]
-    """Type hint of the callback used as a unexpected command error hook.
+This will be called whenever an unexpected [Exception][] is raised during the
+execution stage of a command (ignoring [tanjun.ParserError][] and expected
+[tanjun.TanjunError][] subclasses).
 
-    This will be called whenever an unexpected [Exception][] is raised during the
-    execution stage of a command (ignoring [tanjun.ParserError][] and expected
-    [tanjun.TanjunError][] subclasses).
+This represents the signatures `def (Context, Exception, ...) -> bool | None`
+and `async def (Context, Exception, ...) -> bool | None` where
+dependency injection is supported.
 
-    This represents the signatures `def (Context, Exception, ...) -> bool | None`
-    and `async def (Context, Exception, ...) -> bool | None` where
-    dependency injection is supported.
+[True][] is returned to indicate that the exception should be suppressed and
+[False][] is returned to indicate that the exception should be re-raised.
+"""
 
-    [True][] is returned to indicate that the exception should be suppressed and
-    [False][] is returned to indicate that the exception should be re-raised.
-    """
+ParserHookSig = collections.Callable[
+    typing.Concatenate[_ContextT_contra, "errors.ParserError", ...], _MaybeAwaitable[bool | None]
+]
+"""Type hint of the callback used as a command parser error hook.
 
-    ParserHookSig = collections.Callable[
-        typing_extensions.Concatenate[_ContextT_contra, "errors.ParserError", ...],
-        _MaybeAwaitable[typing.Optional[bool]],
-    ]
-    """Type hint of the callback used as a command parser error hook.
+This will be called whenever an parser [ParserError][tanjun.errors.ParserError]
+is raised during the execution stage of a command.
 
-    This will be called whenever an parser [ParserError][tanjun.errors.ParserError]
-    is raised during the execution stage of a command.
+This represents the signatures `def (Context, tanjun.ParserError, ...) -> None`
+and `async def (Context, tanjun.ParserError, ...) -> None` where
+dependency injection is supported.
 
-    This represents the signatures `def (Context, tanjun.ParserError, ...) -> None`
-    and `async def (Context, tanjun.ParserError, ...) -> None` where
-    dependency injection is supported.
+Parser errors are always suppressed (unlike general errors).
+"""
 
-    Parser errors are always suppressed (unlike general errors).
-    """
+HookSig = collections.Callable[typing.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[None]]
+"""Type hint of the callback used as a general command hook.
 
-    HookSig = collections.Callable[typing_extensions.Concatenate[_ContextT_contra, ...], _MaybeAwaitable[None]]
-    """Type hint of the callback used as a general command hook.
+This represents the signatures `def (Context, ...) -> None` and
+`async def (Context, ...) -> None` where dependency injection is
+supported.
+"""
 
-    This represents the signatures `def (Context, ...) -> None` and
-    `async def (Context, ...) -> None` where dependency injection is
-    supported.
-    """
+_EventT = typing.TypeVar("_EventT", bound=hikari.Event)
 
-    _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
+ListenerCallbackSig = collections.Callable[typing.Concatenate[_EventT, ...], _CoroT[None]]
+"""Type hint of a hikari event manager callback.
 
-    ListenerCallbackSig = collections.Callable[typing_extensions.Concatenate[_EventT, ...], _CoroT[None]]
-    """Type hint of a hikari event manager callback.
-
-    This represents the signature `async def (hikari.Event, ...) -> None` where
-    dependency injection is supported.
-    """
-
-# 3.9 and 3.10 just can't handle ending Concatenate with ... so we lie about this at runtime.
-else:
-    import types
-
-    AutocompleteSig = types.GenericAlias(collections.Callable[..., typing.Any], (_AutocompleteValueT,))
-    CheckSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
-    AnyCheckSig = CheckSig["Context"]
-    MenuCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_MenuValueT,))
-    MessageCallbackSig = collections.Callable[..., typing.Any]
-    SlashCallbackSig = collections.Callable[..., typing.Any]
-    ErrorHookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
-    ParserHookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
-    HookSig = types.GenericAlias(collections.Callable[..., typing.Any], (_ContextT_contra,))
-    _EventT = typing.TypeVar("_EventT", bound=hikari.Event)
-    ListenerCallbackSig = types.GenericAlias(collections.Callable[..., typing.Any], (_EventT,))
+This represents the signature `async def (hikari.Event, ...) -> None` where
+dependency injection is supported.
+"""
 
 
 AutocompleteCallbackSig = AutocompleteSig[_AutocompleteValueT]
@@ -304,7 +280,7 @@ class Context(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def cache(self) -> typing.Optional[hikari.api.Cache]:
+    def cache(self) -> hikari.api.Cache | None:
         """Hikari cache instance this context's command client was initialised with."""
 
     @property
@@ -314,7 +290,7 @@ class Context(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def component(self) -> typing.Optional[Component]:
+    def component(self) -> Component | None:
         """Object of the [Component][tanjun.abc.Component] this context is bound to.
 
         !!! note
@@ -324,7 +300,7 @@ class Context(alluka.Context):
 
     @property  # TODO: can we somehow have this always be present on the command execution facing interface
     @abc.abstractmethod
-    def command(self) -> typing.Optional[ExecutableCommand[Self]]:
+    def command(self) -> ExecutableCommand[Self] | None:
         """Object of the command this context is bound to.
 
         !!! note
@@ -339,12 +315,12 @@ class Context(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def events(self) -> typing.Optional[hikari.api.EventManager]:
+    def events(self) -> hikari.api.EventManager | None:
         """Object of the event manager this context's client was initialised with."""
 
     @property
     @abc.abstractmethod
-    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
+    def guild_id(self) -> hikari.Snowflake | None:
         """ID of the guild this command was executed in.
 
         Will be [None][] for all DM command executions.
@@ -365,7 +341,7 @@ class Context(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def member(self) -> typing.Optional[hikari.Member]:
+    def member(self) -> hikari.Member | None:
         """Guild member object of this command's author.
 
         Will be [None][] for DM command executions.
@@ -373,7 +349,7 @@ class Context(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
+    def server(self) -> hikari.api.InteractionServer | None:
         """Object of the Hikari interaction server provided for this context's client."""
 
     @property
@@ -383,7 +359,7 @@ class Context(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
+    def shard(self) -> hikari.api.GatewayShard | None:
         """Shard that triggered the context.
 
         !!! note
@@ -393,12 +369,12 @@ class Context(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def shards(self) -> typing.Optional[hikari.ShardAware]:
+    def shards(self) -> hikari.ShardAware | None:
         """Object of the Hikari shard manager this context's client was initialised with."""
 
     @property
     @abc.abstractmethod
-    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
+    def voice(self) -> hikari.api.VoiceComponent | None:
         """Object of the Hikari voice component this context's client was initialised with."""
 
     @property
@@ -407,7 +383,7 @@ class Context(alluka.Context):
         """Command name this execution was triggered with."""
 
     @abc.abstractmethod
-    def set_component(self, component: typing.Optional[Component], /) -> Self:
+    def set_component(self, component: Component | None, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -444,7 +420,7 @@ class Context(alluka.Context):
         """
 
     @abc.abstractmethod
-    async def fetch_guild(self) -> typing.Optional[hikari.Guild]:
+    async def fetch_guild(self) -> hikari.Guild | None:
         """Fetch the guild the context was invoked in.
 
         !!! note
@@ -475,7 +451,7 @@ class Context(alluka.Context):
         """
 
     @abc.abstractmethod
-    def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
+    def get_channel(self) -> hikari.TextableGuildChannel | None:
         """Retrieve the channel the context was invoked in from the cache.
 
         !!! note
@@ -492,7 +468,7 @@ class Context(alluka.Context):
         """
 
     @abc.abstractmethod
-    def get_guild(self) -> typing.Optional[hikari.Guild]:
+    def get_guild(self) -> hikari.Guild | None:
         """Fetch the guild that the context was invoked in.
 
         !!! note
@@ -532,7 +508,7 @@ class Context(alluka.Context):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedNoneOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedNoneOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -540,12 +516,8 @@ class Context(alluka.Context):
         embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
     ) -> hikari.Message:
         """Edit the initial response for this context.
 
@@ -644,7 +616,7 @@ class Context(alluka.Context):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedNoneOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedNoneOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedNoneOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -652,12 +624,8 @@ class Context(alluka.Context):
         embed: hikari.UndefinedNoneOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedNoneOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
     ) -> hikari.Message:
         """Edit the last response for this context.
 
@@ -778,7 +746,7 @@ class Context(alluka.Context):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: typing.Literal[True],
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -786,12 +754,8 @@ class Context(alluka.Context):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
     ) -> hikari.Message: ...
 
     @typing.overload
@@ -801,7 +765,7 @@ class Context(alluka.Context):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -809,13 +773,9 @@ class Context(alluka.Context):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-    ) -> typing.Optional[hikari.Message]: ...
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+    ) -> hikari.Message | None: ...
 
     @abc.abstractmethod
     async def respond(
@@ -823,7 +783,7 @@ class Context(alluka.Context):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = False,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -831,13 +791,9 @@ class Context(alluka.Context):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-    ) -> typing.Optional[hikari.Message]:
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+    ) -> hikari.Message | None:
         """Respond to this context.
 
         Parameters
@@ -946,7 +902,7 @@ class MessageContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def command(self) -> typing.Optional[MessageCommand[typing.Any]]:
+    def command(self) -> MessageCommand[typing.Any] | None:
         """Command that was invoked.
 
         !!! note
@@ -971,7 +927,7 @@ class MessageContext(Context, abc.ABC):
         """Prefix that triggered the context."""
 
     @abc.abstractmethod
-    def set_command(self, command: typing.Optional[MessageCommand[typing.Any]], /) -> Self:
+    def set_command(self, command: MessageCommand[typing.Any] | None, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -988,7 +944,7 @@ class MessageContext(Context, abc.ABC):
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
         ensure_result: bool = True,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
+        delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -998,15 +954,11 @@ class MessageContext(Context, abc.ABC):
         sticker: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialSticker]] = hikari.UNDEFINED,
         stickers: hikari.UndefinedOr[hikari.SnowflakeishSequence[hikari.PartialSticker]] = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        reply: typing.Union[bool, hikari.SnowflakeishOr[hikari.PartialMessage], hikari.UndefinedType] = False,
+        reply: bool | hikari.SnowflakeishOr[hikari.PartialMessage] | hikari.UndefinedType = False,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
         mentions_reply: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
     ) -> hikari.Message:
         """Respond to this context.
 
@@ -1128,12 +1080,12 @@ class SlashOption(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def type(self) -> typing.Union[hikari.OptionType, int]:
+    def type(self) -> hikari.OptionType | int:
         """Type of this option."""
 
     @property
     @abc.abstractmethod
-    def value(self) -> typing.Union[str, hikari.Snowflake, int, bool, float]:
+    def value(self) -> str | hikari.Snowflake | int | bool | float:
         """Value provided for this option.
 
         !!! note
@@ -1201,7 +1153,7 @@ class SlashOption(abc.ABC):
     @abc.abstractmethod
     def resolve_value(
         self,
-    ) -> typing.Union[hikari.Attachment, hikari.InteractionChannel, hikari.InteractionMember, hikari.Role, hikari.User]:
+    ) -> hikari.Attachment | hikari.InteractionChannel | hikari.InteractionMember | hikari.Role | hikari.User:
         """Resolve this option to an object value.
 
         Returns
@@ -1251,10 +1203,10 @@ class SlashOption(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]: ...
+    def resolve_to_member(self, *, default: _T) -> hikari.InteractionMember | _T: ...
 
     @abc.abstractmethod
-    def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
+    def resolve_to_member(self, *, default: _T = ...) -> hikari.InteractionMember | _T:
         """Resolve this option to a member object.
 
         Parameters
@@ -1290,7 +1242,7 @@ class SlashOption(abc.ABC):
         """
 
     @abc.abstractmethod
-    def resolve_to_mentionable(self) -> typing.Union[hikari.Role, hikari.User, hikari.Member]:
+    def resolve_to_mentionable(self) -> hikari.Role | hikari.User | hikari.Member:
         """Resolve this option to a mentionable object.
 
         Returns
@@ -1322,7 +1274,7 @@ class SlashOption(abc.ABC):
         """
 
     @abc.abstractmethod
-    def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
+    def resolve_to_user(self) -> hikari.User | hikari.Member:
         """Resolve this option to a user object.
 
         !!! note
@@ -1396,7 +1348,7 @@ class AppCommandContext(Context, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def member(self) -> typing.Optional[hikari.InteractionMember]:
+    def member(self) -> hikari.InteractionMember | None:
         """Object of the member that triggered this command if this is in a guild."""
 
     @property
@@ -1421,8 +1373,8 @@ class AppCommandContext(Context, abc.ABC):
     async def defer(
         self,
         *,
-        ephemeral: typing.Optional[bool] = None,
-        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
+        ephemeral: bool | None = None,
+        flags: hikari.UndefinedType | int | hikari.MessageFlag = hikari.UNDEFINED,
     ) -> None:
         """Defer the initial response for this context.
 
@@ -1454,8 +1406,8 @@ class AppCommandContext(Context, abc.ABC):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
-        ephemeral: typing.Optional[bool] = None,
+        delete_after: datetime.timedelta | float | int | None = None,
+        ephemeral: bool | None = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -1463,14 +1415,10 @@ class AppCommandContext(Context, abc.ABC):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        flags: typing.Union[hikari.UndefinedType, int, hikari.MessageFlag] = hikari.UNDEFINED,
+        flags: hikari.UndefinedType | int | hikari.MessageFlag = hikari.UNDEFINED,
     ) -> hikari.Message:
         """Create a followup response for this context.
 
@@ -1575,8 +1523,8 @@ class AppCommandContext(Context, abc.ABC):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        delete_after: typing.Union[datetime.timedelta, float, int, None] = None,
-        ephemeral: typing.Optional[bool] = None,
+        delete_after: datetime.timedelta | float | int | None = None,
+        ephemeral: bool | None = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,
         component: hikari.UndefinedOr[hikari.api.ComponentBuilder] = hikari.UNDEFINED,
@@ -1584,13 +1532,9 @@ class AppCommandContext(Context, abc.ABC):
         embed: hikari.UndefinedOr[hikari.Embed] = hikari.UNDEFINED,
         embeds: hikari.UndefinedOr[collections.Sequence[hikari.Embed]] = hikari.UNDEFINED,
         mentions_everyone: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
-        user_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialUser], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        role_mentions: typing.Union[
-            hikari.SnowflakeishSequence[hikari.PartialRole], bool, hikari.UndefinedType
-        ] = hikari.UNDEFINED,
-        flags: typing.Union[int, hikari.MessageFlag, hikari.UndefinedType] = hikari.UNDEFINED,
+        user_mentions: hikari.SnowflakeishSequence[hikari.PartialUser] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        role_mentions: hikari.SnowflakeishSequence[hikari.PartialRole] | bool | hikari.UndefinedType = hikari.UNDEFINED,
+        flags: int | hikari.MessageFlag | hikari.UndefinedType = hikari.UNDEFINED,
         tts: hikari.UndefinedOr[bool] = hikari.UNDEFINED,
     ) -> None:
         """Create the initial response for this context.
@@ -1747,7 +1691,7 @@ class MenuContext(AppCommandContext, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def command(self) -> typing.Optional[MenuCommand[typing.Any, typing.Any]]:
+    def command(self) -> MenuCommand[typing.Any, typing.Any] | None:
         """Command that was invoked.
 
         !!! note
@@ -1763,7 +1707,7 @@ class MenuContext(AppCommandContext, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def target(self) -> typing.Union[hikari.InteractionMember, hikari.User, hikari.Message]:
+    def target(self) -> hikari.InteractionMember | hikari.User | hikari.Message:
         """Object of the entity this menu targets."""
 
     @property
@@ -1772,7 +1716,7 @@ class MenuContext(AppCommandContext, abc.ABC):
         """The type of context menu this context is for."""
 
     @abc.abstractmethod
-    def set_command(self, command: typing.Optional[MenuCommand[typing.Any, typing.Any]], /) -> Self:
+    def set_command(self, command: MenuCommand[typing.Any, typing.Any] | None, /) -> Self:
         """Set the command for this context.
 
         Parameters
@@ -1787,10 +1731,10 @@ class MenuContext(AppCommandContext, abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]: ...
+    def resolve_to_member(self, *, default: _T) -> hikari.InteractionMember | _T: ...
 
     @abc.abstractmethod
-    def resolve_to_member(self, *, default: _T = ...) -> typing.Union[hikari.InteractionMember, _T]:
+    def resolve_to_member(self, *, default: _T = ...) -> hikari.InteractionMember | _T:
         """Resolve a user context menu context to a member object.
 
         Returns
@@ -1825,7 +1769,7 @@ class MenuContext(AppCommandContext, abc.ABC):
         """
 
     @abc.abstractmethod
-    def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
+    def resolve_to_user(self) -> hikari.User | hikari.Member:
         """Resolve a user context menu context to a user object.
 
         Returns
@@ -1847,7 +1791,7 @@ class SlashContext(AppCommandContext, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def command(self) -> typing.Optional[BaseSlashCommand]:
+    def command(self) -> BaseSlashCommand | None:
         """Command that was invoked.
 
         !!! note
@@ -1867,7 +1811,7 @@ class SlashContext(AppCommandContext, abc.ABC):
         """Type of application command this context is for."""
 
     @abc.abstractmethod
-    def set_command(self, command: typing.Optional[BaseSlashCommand], /) -> Self:
+    def set_command(self, command: BaseSlashCommand | None, /) -> Self:
         """Set the command for this context.
 
         Parameters
@@ -1894,7 +1838,7 @@ class AutocompleteContext(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def cache(self) -> typing.Optional[hikari.api.Cache]:
+    def cache(self) -> hikari.api.Cache | None:
         """Hikari cache instance this context's client was initialised with."""
 
     @property
@@ -1913,7 +1857,7 @@ class AutocompleteContext(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def events(self) -> typing.Optional[hikari.api.EventManager]:
+    def events(self) -> hikari.api.EventManager | None:
         """Object of the event manager this context's client was initialised with."""
 
     @property
@@ -1923,7 +1867,7 @@ class AutocompleteContext(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def guild_id(self) -> typing.Optional[hikari.Snowflake]:
+    def guild_id(self) -> hikari.Snowflake | None:
         """ID of the guild this autocomplete was triggered in.
 
         Will be [None][] for all DM autocomplete executions.
@@ -1931,7 +1875,7 @@ class AutocompleteContext(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def member(self) -> typing.Optional[hikari.Member]:
+    def member(self) -> hikari.Member | None:
         """Guild member object of this autocomplete's author.
 
         Will be [None][] for DM autocomplete executions.
@@ -1939,7 +1883,7 @@ class AutocompleteContext(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
+    def server(self) -> hikari.api.InteractionServer | None:
         """Object of the Hikari interaction server provided for this context's client."""
 
     @property
@@ -1949,7 +1893,7 @@ class AutocompleteContext(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def shard(self) -> typing.Optional[hikari.api.GatewayShard]:
+    def shard(self) -> hikari.api.GatewayShard | None:
         """Shard that triggered the context.
 
         !!! note
@@ -1959,12 +1903,12 @@ class AutocompleteContext(alluka.Context):
 
     @property
     @abc.abstractmethod
-    def shards(self) -> typing.Optional[hikari.ShardAware]:
+    def shards(self) -> hikari.ShardAware | None:
         """Object of the Hikari shard manager this context's client was initialised with."""
 
     @property
     @abc.abstractmethod
-    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
+    def voice(self) -> hikari.api.VoiceComponent | None:
         """Object of the Hikari voice component this context's client was initialised with."""
 
     @property
@@ -2022,7 +1966,7 @@ class AutocompleteContext(alluka.Context):
         """
 
     @abc.abstractmethod
-    async def fetch_guild(self) -> typing.Optional[hikari.Guild]:
+    async def fetch_guild(self) -> hikari.Guild | None:
         """Fetch the guild the context was invoked in.
 
         !!! note
@@ -2054,7 +1998,7 @@ class AutocompleteContext(alluka.Context):
         """
 
     @abc.abstractmethod
-    def get_channel(self) -> typing.Optional[hikari.TextableGuildChannel]:
+    def get_channel(self) -> hikari.TextableGuildChannel | None:
         """Retrieve the channel the context was invoked in from the cache.
 
         !!! note
@@ -2071,7 +2015,7 @@ class AutocompleteContext(alluka.Context):
         """
 
     @abc.abstractmethod
-    def get_guild(self) -> typing.Optional[hikari.Guild]:
+    def get_guild(self) -> hikari.Guild | None:
         """Fetch the guild that the context was invoked in.
 
         !!! note
@@ -2089,9 +2033,9 @@ class AutocompleteContext(alluka.Context):
     @abc.abstractmethod
     async def set_choices(
         self,
-        choices: typing.Union[
-            collections.Mapping[str, _AutocompleteValueT], collections.Iterable[tuple[str, _AutocompleteValueT]]
-        ] = ...,
+        choices: (
+            collections.Mapping[str, _AutocompleteValueT] | collections.Iterable[tuple[str, _AutocompleteValueT]]
+        ) = ...,
         /,
         **kwargs: _AutocompleteValueT,
     ) -> None:
@@ -2480,25 +2424,25 @@ class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
         exception: Exception,
         /,
         *,
-        hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None,
+        hooks: collections.Set[Hooks[_ContextT_contra]] | None = None,
     ) -> int:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_post_execution(
-        self, ctx: _ContextT_contra, /, *, hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None
+        self, ctx: _ContextT_contra, /, *, hooks: collections.Set[Hooks[_ContextT_contra]] | None = None
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_pre_execution(
-        self, ctx: _ContextT_contra, /, *, hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None
+        self, ctx: _ContextT_contra, /, *, hooks: collections.Set[Hooks[_ContextT_contra]] | None = None
     ) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
     async def trigger_success(
-        self, ctx: _ContextT_contra, /, *, hooks: typing.Optional[collections.Set[Hooks[_ContextT_contra]]] = None
+        self, ctx: _ContextT_contra, /, *, hooks: collections.Set[Hooks[_ContextT_contra]] | None = None
     ) -> None:
         raise NotImplementedError
 
@@ -2528,12 +2472,12 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
 
     @property
     @abc.abstractmethod
-    def component(self) -> typing.Optional[Component]:
+    def component(self) -> Component | None:
         """Component that the command is registered with."""
 
     @property
     @abc.abstractmethod
-    def hooks(self) -> typing.Optional[Hooks[_ContextT_co]]:
+    def hooks(self) -> Hooks[_ContextT_co] | None:
         """Hooks that are triggered when the command is executed."""
 
     @property
@@ -2565,7 +2509,7 @@ class ExecutableCommand(abc.ABC, typing.Generic[_ContextT_co]):
         """
 
     @abc.abstractmethod
-    def set_hooks(self, hooks: typing.Optional[Hooks[_ContextT_co]], /) -> Self:
+    def set_hooks(self, hooks: Hooks[_ContextT_co] | None, /) -> Self:
         """Set the hooks that are triggered when the command is executed.
 
         Parameters
@@ -2639,7 +2583,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
 
     @property
     @abc.abstractmethod
-    def default_member_permissions(self) -> typing.Optional[hikari.Permissions]:
+    def default_member_permissions(self) -> hikari.Permissions | None:
         """The default guild member permissions required to use this command.
 
         !!! warning
@@ -2652,7 +2596,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
 
     @property
     @abc.abstractmethod
-    def defaults_to_ephemeral(self) -> typing.Optional[bool]:
+    def defaults_to_ephemeral(self) -> bool | None:
         """Whether contexts executed by this command should default to ephemeral responses.
 
         This effects calls to
@@ -2669,7 +2613,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
 
     @property
     @abc.abstractmethod
-    def is_dm_enabled(self) -> typing.Optional[bool]:
+    def is_dm_enabled(self) -> bool | None:
         """Whether this command is enabled in DM contexts.
 
         !!! note
@@ -2692,7 +2636,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         """
 
     @property
-    def is_nsfw(self) -> typing.Optional[bool]:
+    def is_nsfw(self) -> bool | None:
         """Whether a command should only be accessible in channels marked as NSFW."""
 
     @property
@@ -2702,12 +2646,12 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
 
     @property
     @abc.abstractmethod
-    def tracked_command(self) -> typing.Optional[hikari.PartialCommand]:
+    def tracked_command(self) -> hikari.PartialCommand | None:
         """Object of the actual command this object tracks if set."""
 
     @property
     @abc.abstractmethod
-    def tracked_command_id(self) -> typing.Optional[hikari.Snowflake]:
+    def tracked_command_id(self) -> hikari.Snowflake | None:
         """ID of the actual command this object tracks if set."""
 
     @property
@@ -2716,7 +2660,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
         """The type of this application command."""
 
     @abc.abstractmethod
-    def build(self, *, component: typing.Optional[Component] = None) -> hikari.api.CommandBuilder:
+    def build(self, *, component: Component | None = None) -> hikari.api.CommandBuilder:
         """Get a builder object for this command.
 
         Parameters
@@ -2740,11 +2684,7 @@ class AppCommand(ExecutableCommand[_AppCommandContextT]):
 
     @abc.abstractmethod
     async def execute(
-        self,
-        ctx: _AppCommandContextT,
-        /,
-        *,
-        hooks: typing.Optional[collections.MutableSet[Hooks[_AppCommandContextT]]] = None,
+        self, ctx: _AppCommandContextT, /, *, hooks: collections.MutableSet[Hooks[_AppCommandContextT]] | None = None
     ) -> None:
         raise NotImplementedError
 
@@ -2771,12 +2711,12 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
 
     @property
     @abc.abstractmethod
-    def parent(self) -> typing.Optional[SlashCommandGroup]:
+    def parent(self) -> SlashCommandGroup | None:
         """Object of the group this command is in."""
 
     @property
     @abc.abstractmethod
-    def tracked_command(self) -> typing.Optional[hikari.SlashCommand]:
+    def tracked_command(self) -> hikari.SlashCommand | None:
         """Object of the actual command this object tracks if set."""
 
     @property
@@ -2785,7 +2725,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         """The type of this command."""
 
     @abc.abstractmethod
-    def build(self, *, component: typing.Optional[Component] = None) -> hikari.api.SlashCommandBuilder:
+    def build(self, *, component: Component | None = None) -> hikari.api.SlashCommandBuilder:
         """Get a builder object for this command.
 
         Parameters
@@ -2804,7 +2744,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         """
 
     @abc.abstractmethod
-    def copy(self, *, parent: typing.Optional[SlashCommandGroup] = None) -> Self:
+    def copy(self, *, parent: SlashCommandGroup | None = None) -> Self:
         """Create a copy of this command.
 
         Parameters
@@ -2819,7 +2759,7 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         """
 
     @abc.abstractmethod
-    def set_parent(self, parent: typing.Optional[SlashCommandGroup], /) -> Self:
+    def set_parent(self, parent: SlashCommandGroup | None, /) -> Self:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -2828,15 +2768,15 @@ class BaseSlashCommand(AppCommand[SlashContext], abc.ABC):
         ctx: SlashContext,
         /,
         *,
-        option: typing.Optional[hikari.CommandInteractionOption] = None,
-        hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None,
+        option: hikari.CommandInteractionOption | None = None,
+        hooks: collections.MutableSet[SlashHooks] | None = None,
     ) -> None:
         raise NotImplementedError
         ...
 
     @abc.abstractmethod
     async def execute_autocomplete(
-        self, ctx: AutocompleteContext, /, *, option: typing.Optional[hikari.AutocompleteInteractionOption] = None
+        self, ctx: AutocompleteContext, /, *, option: hikari.AutocompleteInteractionOption | None = None
     ) -> None: ...
 
 
@@ -2883,11 +2823,11 @@ class MenuCommand(AppCommand[MenuContext], typing.Generic[_MenuCallbackSigT, _Me
 
     @property
     @abc.abstractmethod
-    def tracked_command(self) -> typing.Optional[hikari.ContextMenuCommand]:
+    def tracked_command(self) -> hikari.ContextMenuCommand | None:
         """Object of the actual command this object tracks if set."""
 
     @abc.abstractmethod
-    def build(self, *, component: typing.Optional[Component] = None) -> hikari.api.ContextMenuCommandBuilder:
+    def build(self, *, component: Component | None = None) -> hikari.api.ContextMenuCommandBuilder:
         """Get a builder object for this command.
 
         Parameters
@@ -3059,16 +2999,16 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
 
     @property
     @abc.abstractmethod
-    def parent(self) -> typing.Optional[MessageCommandGroup[typing.Any]]:
+    def parent(self) -> MessageCommandGroup[typing.Any] | None:
         """Parent group of this command if applicable."""
 
     @property
     @abc.abstractmethod
-    def parser(self) -> typing.Optional[MessageParser]:
+    def parser(self) -> MessageParser | None:
         """Parser for this command."""
 
     @abc.abstractmethod
-    def set_parent(self, parent: typing.Optional[MessageCommandGroup[typing.Any]], /) -> Self:
+    def set_parent(self, parent: MessageCommandGroup[typing.Any] | None, /) -> Self:
         """Set the parent of this command.
 
         Parameters
@@ -3104,7 +3044,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
         """
 
     @abc.abstractmethod
-    def copy(self, *, parent: typing.Optional[MessageCommandGroup[typing.Any]] = None) -> Self:
+    def copy(self, *, parent: MessageCommandGroup[typing.Any] | None = None) -> Self:
         """Create a copy of this command.
 
         Parameters
@@ -3124,7 +3064,7 @@ class MessageCommand(ExecutableCommand[MessageContext], abc.ABC, typing.Generic[
 
     @abc.abstractmethod
     async def execute(
-        self, ctx: MessageContext, /, *, hooks: typing.Optional[collections.MutableSet[Hooks[MessageContext]]] = None
+        self, ctx: MessageContext, /, *, hooks: collections.MutableSet[Hooks[MessageContext]] | None = None
     ) -> None:
         raise NotImplementedError
 
@@ -3206,12 +3146,12 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def client(self) -> typing.Optional[Client]:
+    def client(self) -> Client | None:
         """Tanjun client this component is bound to."""
 
     @property
     @abc.abstractmethod
-    def default_app_cmd_permissions(self) -> typing.Optional[hikari.Permissions]:
+    def default_app_cmd_permissions(self) -> hikari.Permissions | None:
         """Default required guild member permissions for the commands in this component.
 
         This may be overridden by
@@ -3224,7 +3164,7 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def defaults_to_ephemeral(self) -> typing.Optional[bool]:
+    def defaults_to_ephemeral(self) -> bool | None:
         """Whether slash contexts executed in this component should default to ephemeral responses.
 
         This effects calls to
@@ -3243,7 +3183,7 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def dms_enabled_for_app_cmds(self) -> typing.Optional[bool]:
+    def dms_enabled_for_app_cmds(self) -> bool | None:
         """Whether application commands in this component should be enabled in DMs.
 
         !!! note
@@ -3255,7 +3195,7 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def is_case_sensitive(self) -> typing.Optional[bool]:
+    def is_case_sensitive(self) -> bool | None:
         """Whether this component should treat message command names case sensitive in search.
 
         If this is `None` then the client's case sensitivity will be used.
@@ -3263,7 +3203,7 @@ class Component(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+    def loop(self) -> asyncio.AbstractEventLoop | None:
         """The asyncio loop this client is bound to if it has been opened."""
 
     @property
@@ -3364,8 +3304,8 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     def with_menu_command(
-        self, command: typing.Optional[_MenuCommandT] = None, /, *, copy: bool = False
-    ) -> typing.Union[_MenuCommandT, collections.Callable[[_MenuCommandT], _MenuCommandT]]:
+        self, command: _MenuCommandT | None = None, /, *, copy: bool = False
+    ) -> _MenuCommandT | collections.Callable[[_MenuCommandT], _MenuCommandT]:
         """Add a menu command to this component through a decorator call.
 
         Parameters
@@ -3428,8 +3368,8 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     def with_slash_command(
-        self, command: typing.Optional[_BaseSlashCommandT] = None, /, *, copy: bool = False
-    ) -> typing.Union[_BaseSlashCommandT, collections.Callable[[_BaseSlashCommandT], _BaseSlashCommandT]]:
+        self, command: _BaseSlashCommandT | None = None, /, *, copy: bool = False
+    ) -> _BaseSlashCommandT | collections.Callable[[_BaseSlashCommandT], _BaseSlashCommandT]:
         """Add a slash command to this component through a decorator call.
 
         Parameters
@@ -3492,8 +3432,8 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     def with_message_command(
-        self, command: typing.Optional[_MessageCommandT] = None, /, *, copy: bool = False
-    ) -> typing.Union[_MessageCommandT, collections.Callable[[_MessageCommandT], _MessageCommandT]]:
+        self, command: _MessageCommandT | None = None, /, *, copy: bool = False
+    ) -> _MessageCommandT | collections.Callable[[_MessageCommandT], _MessageCommandT]:
         """Add a message command to this component through a decorator call.
 
         Parameters
@@ -3632,7 +3572,7 @@ class Component(abc.ABC):
         """
 
     @abc.abstractmethod
-    def execute_autocomplete(self, ctx: AutocompleteContext, /) -> typing.Optional[_CoroT[None]]:
+    def execute_autocomplete(self, ctx: AutocompleteContext, /) -> _CoroT[None] | None:
         """Execute an autocomplete context.
 
         !!! note
@@ -3657,8 +3597,8 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     async def execute_menu(
-        self, ctx: MenuContext, /, *, hooks: typing.Optional[collections.MutableSet[MenuHooks]] = None
-    ) -> typing.Optional[_CoroT[None]]:
+        self, ctx: MenuContext, /, *, hooks: collections.MutableSet[MenuHooks] | None = None
+    ) -> _CoroT[None] | None:
         """Execute a menu context.
 
         Parameters
@@ -3689,8 +3629,8 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     async def execute_slash(
-        self, ctx: SlashContext, /, *, hooks: typing.Optional[collections.MutableSet[SlashHooks]] = None
-    ) -> typing.Optional[_CoroT[None]]:
+        self, ctx: SlashContext, /, *, hooks: collections.MutableSet[SlashHooks] | None = None
+    ) -> _CoroT[None] | None:
         """Execute a slash context.
 
         Parameters
@@ -3721,7 +3661,7 @@ class Component(abc.ABC):
 
     @abc.abstractmethod
     async def execute_message(
-        self, ctx: MessageContext, /, *, hooks: typing.Optional[collections.MutableSet[MessageHooks]] = None
+        self, ctx: MessageContext, /, *, hooks: collections.MutableSet[MessageHooks] | None = None
     ) -> bool:
         """Execute a message context.
 
@@ -3862,7 +3802,7 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def cache(self) -> typing.Optional[hikari.api.Cache]:
+    def cache(self) -> hikari.api.Cache | None:
         """Hikari cache instance this command client was initialised with."""
 
     @property
@@ -3921,7 +3861,7 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def events(self) -> typing.Optional[hikari.api.EventManager]:
+    def events(self) -> hikari.api.EventManager | None:
         """Object of the event manager this client was initialised with.
 
         This is used for executing message commands if set.
@@ -3951,7 +3891,7 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def loop(self) -> typing.Optional[asyncio.AbstractEventLoop]:
+    def loop(self) -> asyncio.AbstractEventLoop | None:
         """The loop this client is bound to if it's alive."""
 
     @property
@@ -3980,7 +3920,7 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def server(self) -> typing.Optional[hikari.api.InteractionServer]:
+    def server(self) -> hikari.api.InteractionServer | None:
         """Object of the Hikari interaction server provided for this client.
 
         This is used for executing application commands if set.
@@ -3988,19 +3928,19 @@ class Client(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def shards(self) -> typing.Optional[hikari.ShardAware]:
+    def shards(self) -> hikari.ShardAware | None:
         """Object of the Hikari shard manager this client was initialised with."""
 
     @property
     @abc.abstractmethod
-    def voice(self) -> typing.Optional[hikari.api.VoiceComponent]:
+    def voice(self) -> hikari.api.VoiceComponent | None:
         """Object of the Hikari voice component this client was initialised with."""
 
     @abc.abstractmethod
     async def clear_application_commands(
         self,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> None:
         """Clear the commands declared either globally or for a specific guild.
@@ -4026,12 +3966,12 @@ class Client(abc.ABC):
     @abc.abstractmethod
     async def declare_global_commands(
         self,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        user_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
         """Set the global application commands for a bot based on the loaded components.
@@ -4089,9 +4029,9 @@ class Client(abc.ABC):
         self,
         command: BaseSlashCommand,
         /,
-        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        command_id: hikari.Snowflakeish | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.SlashCommand: ...
 
@@ -4101,9 +4041,9 @@ class Client(abc.ABC):
         self,
         command: MenuCommand[typing.Any, typing.Any],
         /,
-        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        command_id: hikari.Snowflakeish | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.ContextMenuCommand: ...
 
@@ -4113,9 +4053,9 @@ class Client(abc.ABC):
         self,
         command: AppCommand[typing.Any],
         /,
-        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        command_id: hikari.Snowflakeish | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.PartialCommand: ...
 
@@ -4124,9 +4064,9 @@ class Client(abc.ABC):
         self,
         command: AppCommand[typing.Any],
         /,
-        command_id: typing.Optional[hikari.Snowflakeish] = None,
+        command_id: hikari.Snowflakeish | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
     ) -> hikari.PartialCommand:
         """Declare a single slash command for a bot.
@@ -4161,14 +4101,14 @@ class Client(abc.ABC):
     @abc.abstractmethod
     async def declare_application_commands(
         self,
-        commands: collections.Iterable[typing.Union[AppCommand[typing.Any], hikari.api.CommandBuilder]],
+        commands: collections.Iterable[AppCommand[typing.Any] | hikari.api.CommandBuilder],
         /,
-        command_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        command_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
         *,
-        application: typing.Optional[hikari.SnowflakeishOr[hikari.PartialApplication]] = None,
+        application: hikari.SnowflakeishOr[hikari.PartialApplication] | None = None,
         guild: hikari.UndefinedOr[hikari.SnowflakeishOr[hikari.PartialGuild]] = hikari.UNDEFINED,
-        message_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
-        user_ids: typing.Optional[collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]]] = None,
+        message_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
+        user_ids: collections.Mapping[str, hikari.SnowflakeishOr[hikari.PartialCommand]] | None = None,
         force: bool = False,
     ) -> collections.Sequence[hikari.PartialCommand]:
         """Declare a collection of slash commands for a bot.
@@ -4264,7 +4204,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def get_component_by_name(self, name: str, /) -> typing.Optional[Component]:
+    def get_component_by_name(self, name: str, /) -> Component | None:
         """Get a component from this client by name.
 
         Parameters
@@ -4320,7 +4260,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def add_client_callback(self, name: typing.Union[str, ClientCallbackNames], /, *callbacks: MetaEventSig) -> Self:
+    def add_client_callback(self, name: str | ClientCallbackNames, /, *callbacks: MetaEventSig) -> Self:
         """Add a client callback.
 
         Parameters
@@ -4343,9 +4283,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def dispatch_client_callback(
-        self, name: typing.Union[str, ClientCallbackNames], /, *args: typing.Any
-    ) -> None:
+    async def dispatch_client_callback(self, name: str | ClientCallbackNames, /, *args: typing.Any) -> None:
         """Dispatch a client callback.
 
         Parameters
@@ -4362,9 +4300,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def get_client_callbacks(
-        self, name: typing.Union[str, ClientCallbackNames], /
-    ) -> collections.Collection[MetaEventSig]:
+    def get_client_callbacks(self, name: str | ClientCallbackNames, /) -> collections.Collection[MetaEventSig]:
         """Get a collection of the callbacks registered for a specific name.
 
         Parameters
@@ -4381,7 +4317,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def remove_client_callback(self, name: typing.Union[str, ClientCallbackNames], callback: MetaEventSig, /) -> Self:
+    def remove_client_callback(self, name: str | ClientCallbackNames, callback: MetaEventSig, /) -> Self:
         """Remove a client callback.
 
         Parameters
@@ -4408,7 +4344,7 @@ class Client(abc.ABC):
 
     @abc.abstractmethod
     def with_client_callback(
-        self, name: typing.Union[str, ClientCallbackNames], /
+        self, name: str | ClientCallbackNames, /
     ) -> collections.Callable[[_MetaEventSigT], _MetaEventSigT]:
         """Add a client callback through a decorator call.
 
@@ -4551,12 +4487,12 @@ class Client(abc.ABC):
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002
+        self, *, global_only: bool = False, type: hikari.CommandType | None = None  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]: ...
 
     @abc.abstractmethod
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Optional[hikari.CommandType] = None  # noqa: A002
+        self, *, global_only: bool = False, type: hikari.CommandType | None = None  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
         """Iterator over the menu commands registered to this client.
 
@@ -4640,9 +4576,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def load_directory(
-        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
-    ) -> Self:
+    def load_directory(self, directory: str | pathlib.Path, /, *, namespace: str | None = None) -> Self:
         r"""Load entities into this client from the modules in a directory.
 
         The same loading rules for [Client.load_modules][tanjun.abc.Client.load_modules]
@@ -4684,9 +4618,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def load_directory_async(
-        self, directory: typing.Union[str, pathlib.Path], /, *, namespace: typing.Optional[str] = None
-    ) -> None:
+    async def load_directory_async(self, directory: str | pathlib.Path, /, *, namespace: str | None = None) -> None:
         """Asynchronous variant of [Client.load_directory][tanjun.abc.Client.load_directory].
 
         Unlike [Client.load_directory][tanjun.abc.Client.load_directory], this
@@ -4697,7 +4629,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def load_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
+    def load_modules(self, *modules: str | pathlib.Path) -> Self:
         r"""Load entities into this client from modules based on present loaders.
 
         !!! note
@@ -4757,7 +4689,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def load_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+    async def load_modules_async(self, *modules: str | pathlib.Path) -> None:
         """Asynchronous variant of [Client.load_modules][tanjun.abc.Client.load_modules].
 
         Unlike [Client.load_modules][tanjun.abc.Client.load_modules], this
@@ -4768,7 +4700,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def unload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
+    def unload_modules(self, *modules: str | pathlib.Path) -> Self:
         r"""Unload entities from this client based on unloaders in one or more modules.
 
         !!! note
@@ -4821,7 +4753,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def reload_modules(self, *modules: typing.Union[str, pathlib.Path]) -> Self:
+    def reload_modules(self, *modules: str | pathlib.Path) -> Self:
         r"""Reload entities in this client based on the loaders in loaded module(s).
 
         !!! note
@@ -4871,7 +4803,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    async def reload_modules_async(self, *modules: typing.Union[str, pathlib.Path]) -> None:
+    async def reload_modules_async(self, *modules: str | pathlib.Path) -> None:
         """Asynchronous variant of [Client.reload_modules][tanjun.abc.Client.reload_modules].
 
         Unlike [Client.reload_modules][tanjun.abc.Client.reload_modules], this
@@ -4904,10 +4836,10 @@ class Client(abc.ABC):
 
     @typing.overload
     @abc.abstractmethod
-    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> typing.Union[_T, _DefaultT]: ...
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> _T | _DefaultT: ...
 
     @abc.abstractmethod
-    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT = ...) -> typing.Union[_T, _DefaultT]:
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT = ...) -> _T | _DefaultT:
         """Get the implementation for an injected type.
 
         Parameters
@@ -4969,7 +4901,7 @@ class Client(abc.ABC):
         """
 
     @abc.abstractmethod
-    def get_callback_override(self, callback: alluka.CallbackSig[_T], /) -> typing.Optional[alluka.CallbackSig[_T]]:
+    def get_callback_override(self, callback: alluka.CallbackSig[_T], /) -> alluka.CallbackSig[_T] | None:
         """Get the override for a specific injected callback.
 
         Parameters
