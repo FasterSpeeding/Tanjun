@@ -39,7 +39,6 @@ Changelog = "https://tanjun.cursed.solutions/changelog"
 name = "tanjun"
 
 [tool.black]
-extend-exclude = "^\\/tanjun\\/_internal\\/vendor\\/.*$"
 include = ".*pyi?$"
 line-length = 120
 skip-magic-trailing-comma = true
@@ -64,14 +63,12 @@ exclude_lines = [
     "^\\s*@abc.abstractmethod$",
     "^if typing.TYPE_CHECKING:$"
 ]
-omit = ["tanjun/_internal/vendor/*"]
 
 [tool.flake8]
 accept-encodings = "utf-8"
 count = true
 docstring-convention = "numpy"
 eradicate-aggressive = true
-exclude = ["tanjun/_internal/vendor/**"]
 extend-select = ["TC100", "TC101"]
 force-future-annotations = true
 ignore-decorators = "overload"
@@ -124,7 +121,6 @@ per-file-ignores = [
 [tool.isort]
 profile = "black"
 force_single_line = true
-skip = ["tanjun/_internal/vendor"]
 
 [tool.mypy]
 # some good strict settings
@@ -143,9 +139,6 @@ warn_redundant_casts = false
 allow_redefinition = true
 disable_error_code = ["type-abstract"]
 
-# Ignore vendored modules
-exclude = ["tanjun/_internal/vendor/"]
-
 [tool.piped]
 default_sessions = [
     "reformat",
@@ -158,7 +151,6 @@ default_sessions = [
     "verify-types",
 ]
 extra_test_installs = ["."]
-path_ignore = "tanjun\\/_internal\\/vendor\\/"
 project_name = "tanjun"
 top_level_targets = ["./docs_src", "./examples", "./noxfile.py", "./tanjun", "./tests"]
 
@@ -183,7 +175,6 @@ python_versions = ["3.11", "3.12", "3.13", "3.14-dev"]
 exclude = "docs_src"
 
 [tool.pyright]
-exclude = ["tanjun/_internal/vendor"]
 include = ["docs_src", "examples", "tanjun", "noxfile.py", "tests"]
 
 pythonVersion = "3.11"
@@ -233,4 +224,3 @@ tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)
 | tanjun.dependencies.reloaders:(_PathLoader|_ScanResult)
 | .*Proto
 """
-exclude-modules = "tanjun._internal.vendor"

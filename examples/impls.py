@@ -22,15 +22,15 @@ async def connect_to_database(*args: typing.Any, **kwargs: typing.Any) -> typing
 
 class DatabaseImpl:
     def __init__(self) -> None:
-        self._conn: typing.Optional[typing.Any] = None
+        self._conn: typing.Any | None = None
 
     async def connect(self, config: examples.config.ExampleConfig = tanjun.inject(type=examples.config.ExampleConfig)):
         self._conn = await connect_to_database(password=config.database_password, url=config.database_url)
 
-    async def get_guild_info(self, guild_id: int) -> typing.Optional[protos.GuildConfig]:
+    async def get_guild_info(self, guild_id: int) -> protos.GuildConfig | None:
         raise NotImplementedError
 
-    async def get_user_info(self, user_id: int) -> typing.Optional[protos.UserInfo]:
+    async def get_user_info(self, user_id: int) -> protos.UserInfo | None:
         raise NotImplementedError
 
     async def remove_user(self, user_id: int) -> None:

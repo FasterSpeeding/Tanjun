@@ -36,10 +36,10 @@
 import datetime
 import typing
 import urllib.parse
+from unittest import mock
 
 import freezegun
 import hikari
-import mock
 import pytest
 
 import tanjun
@@ -1570,7 +1570,7 @@ TOO_SMALL_SF = hikari.Snowflake.min() - 50
         ("<a:yagami:22222>", 22222),
     ],
 )
-def test_parse_snowflake(value: typing.Union[str, int], result: int):
+def test_parse_snowflake(value: str | int, result: int):
     assert tanjun.conversion.parse_snowflake(value) == result
 
 
@@ -1593,7 +1593,7 @@ def test_parse_snowflake(value: typing.Union[str, int], result: int):
         "",
     ],
 )
-def test_parse_snowflake_with_invalid_value(value: typing.Union[int, str]):
+def test_parse_snowflake_with_invalid_value(value: int | str):
     with pytest.raises(ValueError, match="abcas"):
         tanjun.conversion.parse_snowflake(value, message="abcas")
 
@@ -1608,7 +1608,7 @@ def test_search_snowflakes():
 
 
 @pytest.mark.parametrize(("value", "result"), [("43123", 43123), (1233211, 1233211), ("<#12333>", 12333)])
-def test_parse_channel_id(value: typing.Union[str, int], result: int):
+def test_parse_channel_id(value: str | int, result: int):
     assert tanjun.conversion.parse_channel_id(value) == result
 
 
@@ -1632,7 +1632,7 @@ def test_parse_channel_id(value: typing.Union[str, int], result: int):
         str(TOO_SMALL_SF),
     ],
 )
-def test_parse_channel_id_with_invalid_data(value: typing.Union[str, int]):
+def test_parse_channel_id_with_invalid_data(value: str | int):
     with pytest.raises(ValueError, match="a message"):
         tanjun.conversion.parse_channel_id(value, message="a message")
 
@@ -1648,7 +1648,7 @@ def test_search_channel_ids():
 @pytest.mark.parametrize(
     ("value", "result"), [("43123", 43123), (1233211, 1233211), ("<a:Name:12333>", 12333), ("<:name:32123>", 32123)]
 )
-def test_parse_emoji_id(value: typing.Union[str, int], result: int):
+def test_parse_emoji_id(value: str | int, result: int):
     assert tanjun.conversion.parse_emoji_id(value) == result
 
 
@@ -1669,7 +1669,7 @@ def test_parse_emoji_id(value: typing.Union[str, int], result: int):
         "<@!43123>",
     ],
 )
-def test_parse_emoji_id_with_invalid_values(value: typing.Union[str, int]):
+def test_parse_emoji_id_with_invalid_values(value: str | int):
     with pytest.raises(ValueError, match="a messages"):
         tanjun.conversion.parse_emoji_id(value, message="a messages")
 
@@ -1686,7 +1686,7 @@ def test_search_emoji_ids():
 
 
 @pytest.mark.parametrize(("value", "result"), [("43123", 43123), (1233211, 1233211), ("<@&1234321>", 1234321)])
-def test_parse_role_id(value: typing.Union[str, int], result: int):
+def test_parse_role_id(value: str | int, result: int):
     assert tanjun.conversion.parse_role_id(value) == result
 
 
@@ -1710,7 +1710,7 @@ def test_parse_role_id(value: typing.Union[str, int], result: int):
         "<a:name:432123>",
     ],
 )
-def test_parse_role_id_with_invalid_values(value: typing.Union[int, str]):
+def test_parse_role_id_with_invalid_values(value: int | str):
     with pytest.raises(ValueError, match="a messaged"):
         tanjun.conversion.parse_role_id(value, message="a messaged")
 
@@ -1726,7 +1726,7 @@ def test_search_role_ids():
 @pytest.mark.parametrize(
     ("value", "expected"), [("43123", 43123), ("<@!33333>", 33333), (1233211, 1233211), ("<@1234321>", 1234321)]
 )
-def test_parse_user_id(value: typing.Union[int, str], expected: int):
+def test_parse_user_id(value: int | str, expected: int):
     assert tanjun.conversion.parse_user_id(value) == expected
 
 
@@ -1750,7 +1750,7 @@ def test_parse_user_id(value: typing.Union[int, str], expected: int):
         "<:fdas:123>",
     ],
 )
-def test_parse_user_id_with_invalid_values(value: typing.Union[int, str]):
+def test_parse_user_id_with_invalid_values(value: int | str):
     with pytest.raises(ValueError, match="a"):
         tanjun.conversion.parse_user_id(value, message="a")
 
@@ -1772,7 +1772,7 @@ def test_search_user_ids():
         ("@me/1234/1234", (1234, 1234)),
     ],
 )
-def test_parse_message_id(value: typing.Union[int, str], expected: tuple[typing.Optional[int], int]):
+def test_parse_message_id(value: int | str, expected: tuple[int | None, int]):
     assert tanjun.conversion.parse_message_id(value) == expected
 
 

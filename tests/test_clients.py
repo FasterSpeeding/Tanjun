@@ -38,17 +38,15 @@ import importlib
 import inspect
 import pathlib
 import shutil
-import sys
 import tempfile
 import textwrap
 import typing
 import uuid
 from collections import abc as collections
+from unittest import mock
 
 import hikari
-import mock
 import pytest
-import typing_extensions
 
 import tanjun
 
@@ -63,7 +61,7 @@ class TestMessageAcceptsEnum:
             (tanjun.MessageAcceptsEnum.NONE, None),
         ],
     )
-    def test_get_event_type(self, value: tanjun.MessageAcceptsEnum, expected_type: typing.Optional[hikari.Event]):
+    def test_get_event_type(self, value: tanjun.MessageAcceptsEnum, expected_type: hikari.Event | None):
         assert value.get_event_type() == expected_type
 
 
@@ -92,7 +90,7 @@ class TestLoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_loader(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -104,7 +102,7 @@ class TestLoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_loader()(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -116,7 +114,7 @@ class TestLoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_loader(standard_impl=True)(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -127,7 +125,7 @@ class TestLoaderDescriptor:
     def test_load_when_must_be_std_and_not_std(self):
         mock_callback = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         with pytest.raises(TypeError, match="This loader requires instances of the standard Client implementation"):
@@ -139,7 +137,7 @@ class TestLoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback, standard_impl=False)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -151,7 +149,7 @@ class TestLoaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_loader(standard_impl=False)(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
 
         result = descriptor.load(mock_client)
@@ -205,7 +203,7 @@ class TestUnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_unloader(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)
@@ -217,7 +215,7 @@ class TestUnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_unloader()(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)
@@ -229,7 +227,7 @@ class TestUnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_unloader(standard_impl=True)(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)
@@ -240,7 +238,7 @@ class TestUnloaderDescriptor:
     def test_unload_when_must_be_std_and_not_std(self):
         mock_callback = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         with pytest.raises(TypeError, match="This unloader requires instances of the standard Client implementation"):
@@ -252,7 +250,7 @@ class TestUnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback, standard_impl=False)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)
@@ -264,7 +262,7 @@ class TestUnloaderDescriptor:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_unloader(standard_impl=False)(mock_callback)
-        typing_extensions.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
+        typing.assert_type(descriptor, collections.Callable[[tanjun.abc.Client], None])
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
 
         result = descriptor.unload(mock_client)
@@ -1328,7 +1326,7 @@ class TestClient:
         assert result is callback
         add_listener_.assert_called_once_with(hikari.BanEvent, callback)
 
-    def test_with_listener_with_type_hint_union(self):
+    def test_with_listener_with_type_hint_typing_union(self):
         async def callback(
             event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]
         ) -> None: ...
@@ -1345,7 +1343,7 @@ class TestClient:
         assert result is callback
         add_listener_.assert_has_calls([mock.call(hikari.RoleEvent, callback), mock.call(hikari.GuildEvent, callback)])
 
-    def test_with_listener_with_type_hint_union_nested_annotated(self):
+    def test_with_listener_with_type_hint_typing_union_nested_annotated(self):
         async def callback(
             event: typing.Annotated[
                 typing.Union[
@@ -1375,50 +1373,45 @@ class TestClient:
             ]
         )
 
-    # These tests covers syntax which was introduced in 3.10
-    if sys.version_info >= (3, 10):
+    def test_with_listener_with_type_hint_310_union(self):
+        async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
 
-        def test_with_listener_with_type_hint_310_union(self):
-            async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
+        add_listener_ = mock.Mock()
 
-            add_listener_ = mock.Mock()
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
 
-            class StubClient(tanjun.Client):
-                add_listener = add_listener_
+        client = StubClient(mock.Mock())
 
-            client = StubClient(mock.Mock())
+        result = client.with_listener()(callback)
 
-            result = client.with_listener()(callback)
+        assert result is callback
+        add_listener_.assert_has_calls([mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)])
 
-            assert result is callback
-            add_listener_.assert_has_calls(
-                [mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)]
-            )
+    def test_with_listener_with_type_hint_310_union_nested_annotated(self):
+        async def callback(
+            event: typing.Annotated[
+                typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
+            ]
+        ) -> None: ...
 
-        def test_with_listener_with_type_hint_310_union_nested_annotated(self):
-            async def callback(
-                event: typing.Annotated[
-                    typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
-                ]
-            ) -> None: ...
+        add_listener_ = mock.Mock()
 
-            add_listener_ = mock.Mock()
+        class StubClient(tanjun.Client):
+            add_listener = add_listener_
 
-            class StubClient(tanjun.Client):
-                add_listener = add_listener_
+        client = StubClient(mock.Mock())
 
-            client = StubClient(mock.Mock())
+        result = client.with_listener()(callback)
 
-            result = client.with_listener()(callback)
-
-            assert result is callback
-            add_listener_.assert_has_calls(
-                [
-                    mock.call(hikari.BanEvent, callback),
-                    mock.call(hikari.GuildEvent, callback),
-                    mock.call(hikari.InviteEvent, callback),
-                ]
-            )
+        assert result is callback
+        add_listener_.assert_has_calls(
+            [
+                mock.call(hikari.BanEvent, callback),
+                mock.call(hikari.GuildEvent, callback),
+                mock.call(hikari.InviteEvent, callback),
+            ]
+        )
 
     def test_add_prefix(self):
         client = tanjun.Client(mock.Mock())
@@ -5449,7 +5442,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5513,7 +5506,7 @@ class TestClient:
     ):
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5575,7 +5568,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5694,7 +5687,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5755,7 +5748,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5819,7 +5812,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: typing.Optional[tanjun.abc.SlashHooks]):
+        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6310,7 +6303,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6374,7 +6367,7 @@ class TestClient:
     ):
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6436,7 +6429,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6555,7 +6548,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6616,7 +6609,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6680,7 +6673,7 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: typing.Optional[tanjun.abc.MenuHooks]):
+        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
             async def _():
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value

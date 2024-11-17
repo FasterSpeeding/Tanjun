@@ -42,8 +42,7 @@ from . import errors
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
-
-    from typing_extensions import Self
+    from typing import Self
 
     _AnyCommandT = typing.TypeVar("_AnyCommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[tanjun.Context])
@@ -149,7 +148,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._error_callbacks.append(callback)
         return self
 
-    def set_on_error(self, callback: typing.Optional[tanjun.ErrorHookSig[_ContextT_contra]], /) -> Self:
+    def set_on_error(self, callback: tanjun.ErrorHookSig[_ContextT_contra] | None, /) -> Self:
         """Set the error callback for this hook object.
 
         !!! note
@@ -202,7 +201,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._parser_error_callbacks.append(callback)
         return self
 
-    def set_on_parser_error(self, callback: typing.Optional[tanjun.ParserHookSig[_ContextT_contra]], /) -> Self:
+    def set_on_parser_error(self, callback: tanjun.ParserHookSig[_ContextT_contra] | None, /) -> Self:
         """Set the parser error callback for this hook object.
 
         Parameters
@@ -248,7 +247,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._post_execution_callbacks.append(callback)
         return self
 
-    def set_post_execution(self, callback: typing.Optional[tanjun.HookSig[_ContextT_contra]], /) -> Self:
+    def set_post_execution(self, callback: tanjun.HookSig[_ContextT_contra] | None, /) -> Self:
         """Set the post-execution callback for this hook object.
 
         Parameters
@@ -291,7 +290,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._pre_execution_callbacks.append(callback)
         return self
 
-    def set_pre_execution(self, callback: typing.Optional[tanjun.HookSig[_ContextT_contra]], /) -> Self:
+    def set_pre_execution(self, callback: tanjun.HookSig[_ContextT_contra] | None, /) -> Self:
         """Set the pre-execution callback for this hook object.
 
         Parameters
@@ -334,7 +333,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         self._success_callbacks.append(callback)
         return self
 
-    def set_on_success(self, callback: typing.Optional[tanjun.HookSig[_ContextT_contra]], /) -> Self:
+    def set_on_success(self, callback: tanjun.HookSig[_ContextT_contra] | None, /) -> Self:
         """Set the success callback for this hook object.
 
         Parameters
@@ -378,7 +377,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         exception: Exception,
         /,
         *,
-        hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
+        hooks: collections.Set[tanjun.Hooks[_ContextT_contra]] | None = None,
     ) -> int:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         level = 0
@@ -397,11 +396,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
         return level
 
     async def trigger_post_execution(
-        self,
-        ctx: _ContextT_contra,
-        /,
-        *,
-        hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
+        self, ctx: _ContextT_contra, /, *, hooks: collections.Set[tanjun.Hooks[_ContextT_contra]] | None = None
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._post_execution_callbacks:
@@ -411,11 +406,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
             await asyncio.gather(*(hook.trigger_post_execution(ctx) for hook in hooks))
 
     async def trigger_pre_execution(
-        self,
-        ctx: _ContextT_contra,
-        /,
-        *,
-        hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
+        self, ctx: _ContextT_contra, /, *, hooks: collections.Set[tanjun.Hooks[_ContextT_contra]] | None = None
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._pre_execution_callbacks:
@@ -425,11 +416,7 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
             await asyncio.gather(*(hook.trigger_pre_execution(ctx) for hook in hooks))
 
     async def trigger_success(
-        self,
-        ctx: _ContextT_contra,
-        /,
-        *,
-        hooks: typing.Optional[collections.Set[tanjun.Hooks[_ContextT_contra]]] = None,
+        self, ctx: _ContextT_contra, /, *, hooks: collections.Set[tanjun.Hooks[_ContextT_contra]] | None = None
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._success_callbacks:

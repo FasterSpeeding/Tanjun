@@ -31,12 +31,11 @@
 from __future__ import annotations
 
 import inspect
-import sys
 import types
 import typing
+from unittest import mock
 
 import hikari
-import mock
 import pytest
 
 import tanjun
@@ -123,7 +122,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_called_once_with(hikari.BanEvent, callback)
 
-    def test_with_listener_with_type_hint_union(self):
+    def test_with_listener_with_type_hint_typing_union(self):
         async def callback(
             event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]
         ) -> None: ...
@@ -138,7 +137,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_has_calls([mock.call(hikari.RoleEvent, callback), mock.call(hikari.GuildEvent, callback)])
 
-    def test_with_listener_with_type_hint_union_nested_annotated(self):
+    def test_with_listener_with_type_hint_typing_union_nested_annotated(self):
         async def callback(
             event: typing.Annotated[
                 typing.Union[
@@ -166,43 +165,38 @@ class TestComponent:
             ]
         )
 
-    # These tests covers syntax which was introduced in 3.10
-    if sys.version_info >= (3, 10):
+    def test_with_listener_with_type_hint_310_union(self):
+        async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
 
-        def test_with_listener_with_type_hint_310_union(self):
-            async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
 
-            add_listener = mock.Mock()
-            component: tanjun.Component = types.new_class(
-                "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
-            )()
+        result = component.with_listener()(callback)
 
-            result = component.with_listener()(callback)
+        assert result is callback
+        add_listener.assert_has_calls([mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)])
 
-            assert result is callback
-            add_listener.assert_has_calls(
-                [mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)]
-            )
+    def test_with_listener_with_type_hint_310_union_nested_annotated(self):
+        async def callback(
+            event: typing.Annotated[
+                typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
+            ]
+        ) -> None: ...
 
-        def test_with_listener_with_type_hint_310_union_nested_annotated(self):
-            async def callback(
-                event: typing.Annotated[
-                    typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
-                ]
-            ) -> None: ...
+        add_listener = mock.Mock()
+        component: tanjun.Component = types.new_class(
+            "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
+        )()
 
-            add_listener = mock.Mock()
-            component: tanjun.Component = types.new_class(
-                "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
-            )()
+        result = component.with_listener()(callback)
 
-            result = component.with_listener()(callback)
-
-            assert result is callback
-            add_listener.assert_has_calls(
-                [
-                    mock.call(hikari.BanEvent, callback),
-                    mock.call(hikari.GuildEvent, callback),
-                    mock.call(hikari.InviteEvent, callback),
-                ]
-            )
+        assert result is callback
+        add_listener.assert_has_calls(
+            [
+                mock.call(hikari.BanEvent, callback),
+                mock.call(hikari.GuildEvent, callback),
+                mock.call(hikari.InviteEvent, callback),
+            ]
+        )

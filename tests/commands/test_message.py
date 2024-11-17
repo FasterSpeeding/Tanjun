@@ -54,7 +54,7 @@ def stub_class(
     cls: type[_T],
     /,
     args: collections.Sequence[typing.Any] = (),
-    kwargs: typing.Optional[collections.Mapping[str, typing.Any]] = None,
+    kwargs: collections.Mapping[str, typing.Any] | None = None,
     **namespace: typing.Any,
 ) -> _T:
     namespace["__slots__"] = ()
@@ -87,9 +87,9 @@ def test_as_message_command():
     ],
 )
 def test_as_message_command_when_wrapping_command(
-    other_command: typing.Union[
-        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MenuCommand[typing.Any, typing.Any]
-    ]
+    other_command: (
+        tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
+    )
 ):
     command = tanjun.as_message_command("a", "b")(other_command)
 
@@ -117,9 +117,9 @@ def test_as_message_command_group():
     ],
 )
 def test_as_message_command_group_when_wrapping_command(
-    other_command: typing.Union[
-        tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any], tanjun.MenuCommand[typing.Any, typing.Any]
-    ]
+    other_command: (
+        tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
+    )
 ):
     command = tanjun.as_message_command_group("c", "b", strict=True)(other_command)
 
@@ -138,9 +138,7 @@ class TestMessageCommand:
     )
     def test___init___when_command_object(
         self,
-        inner_command: typing.Union[
-            tanjun.SlashCommand[tanjun.abc.CommandCallbackSig], tanjun.MenuCommand[typing.Any, typing.Any]
-        ],
+        inner_command: tanjun.SlashCommand[tanjun.abc.CommandCallbackSig] | tanjun.MenuCommand[typing.Any, typing.Any],
     ):
         assert tanjun.MessageCommand(inner_command, "woow").callback is inner_command.callback
 

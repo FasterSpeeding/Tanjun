@@ -161,7 +161,7 @@ def get_video(value: str) -> Video: ...
 
 
 def annotations_example() -> None:
-    from typing import Annotated, Optional
+    from typing import Annotated
 
     from tanjun.annotations import Bool, Converted, Int, Ranged, Str, User
 
@@ -173,7 +173,7 @@ def annotations_example() -> None:
         name: Annotated[Str, "description"],
         age: Annotated[Int, Ranged(13, 130), "an int option with a min, max of 13, 130"],
         video: Annotated[Video, Converted(get_video), "a required string option which is converted with get_video"],
-        user: Annotated[Optional[User], "a user option which defaults to None"] = None,
+        user: Annotated[User | None, "a user option which defaults to None"] = None,
         enabled: Annotated[Bool, "a bool option which defaults to True"] = True,
     ) -> None: ...
 
@@ -195,7 +195,7 @@ def responding_to_commands_example() -> None:
     @tanjun.as_message_command("name")
     @tanjun.as_user_menu("name")
     async def command(
-        ctx: tanjun.abc.Context, user: typing.Annotated[typing.Optional[annotations.User], "The user to target"] = None
+        ctx: tanjun.abc.Context, user: typing.Annotated[annotations.User | None, "The user to target"] = None
     ) -> None:
         user = user or ctx.author
         message = await ctx.respond(
@@ -226,7 +226,7 @@ def autocomplete_example(component: tanjun.Component) -> None:
     @tanjun.with_str_slash_option("opt1", "description")
     @tanjun.with_str_slash_option("opt2", "description", default=None)
     @tanjun.as_slash_command("name", "description")
-    async def slash_command(ctx: tanjun.abc.SlashContext, opt1: str, opt2: typing.Optional[str]) -> None: ...
+    async def slash_command(ctx: tanjun.abc.SlashContext, opt1: str, opt2: str | None) -> None: ...
 
     @slash_command.with_str_autocomplete("opt1")
     async def opt1_autocomplete(ctx: tanjun.abc.AutocompleteContext, value: str) -> None:
@@ -323,7 +323,7 @@ def success_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
 
 def error_hook_example(hooks: tanjun.abc.AnyHooks) -> None:
     @hooks.with_on_error  # hooks.add_on_error
-    async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> typing.Optional[bool]: ...
+    async def error_hook(ctx: tanjun.abc.Context, error: Exception) -> bool | None: ...
 
 
 def parser_error_hook_example(hooks: tanjun.abc.AnyHooks) -> None:

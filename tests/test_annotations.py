@@ -35,15 +35,13 @@
 import enum
 import inspect
 import re
-import sys
 import typing
 from collections import abc as collections
+from unittest import mock
 
 import alluka
 import hikari
-import mock
 import pytest
-import typing_extensions
 
 import tanjun
 from tanjun import annotations
@@ -4778,7 +4776,7 @@ def test_for_user_option():
     assert tracked_option.type is hikari.OptionType.USER
 
 
-def test_when_annotated_not_top_level():
+def test_when_annotated_not_top_level_typing_union():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
@@ -4850,81 +4848,79 @@ def test_when_annotated_not_top_level():
     assert option.max_value is None
 
 
-if sys.version_info >= (3, 10):
+def test_when_annotated_not_top_level_3_10_union():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        *,
+        value: typing.Annotated[annotations.Str, annotations.Positional(), "nyaa"] | bool = False,
+        other_value: typing.Annotated[annotations.Int, "meow"] | None = None,
+    ) -> None:
+        raise NotImplementedError
 
-    def test_when_annotated_not_top_level_3_10_union():
-        @annotations.with_annotated_args(follow_wrapped=True)
-        @tanjun.as_slash_command("name", "description")
-        @tanjun.as_message_command("name")
-        async def command(
-            ctx: tanjun.abc.Context,
-            *,
-            value: typing.Annotated[annotations.Str, annotations.Positional(), "nyaa"] | bool = False,
-            other_value: typing.Annotated[annotations.Int, "meow"] | None = None,
-        ) -> None:
-            raise NotImplementedError
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="nyaa", is_required=False),
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="other_value",
+            description="meow",
+            is_required=False,
+            min_value=None,
+            max_value=None,
+        ),
+    ]
 
-        assert command.build().options == [
-            hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="nyaa", is_required=False),
-            hikari.CommandOption(
-                type=hikari.OptionType.INTEGER,
-                name="other_value",
-                description="meow",
-                is_required=False,
-                min_value=None,
-                max_value=None,
-            ),
-        ]
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "value"
+    assert tracked_option.name == "value"
+    assert tracked_option.type is hikari.OptionType.STRING
 
-        assert len(command._tracked_options) == 2
-        tracked_option = command._tracked_options["value"]
-        assert tracked_option.converters == []
-        assert tracked_option.default is tanjun.abc.NO_PASS
-        assert tracked_option.is_always_float is False
-        assert tracked_option.is_only_member is False
-        assert tracked_option.key == "value"
-        assert tracked_option.name == "value"
-        assert tracked_option.type is hikari.OptionType.STRING
+    tracked_option = command._tracked_options["other_value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "other_value"
+    assert tracked_option.name == "other_value"
+    assert tracked_option.type is hikari.OptionType.INTEGER
 
-        tracked_option = command._tracked_options["other_value"]
-        assert tracked_option.converters == []
-        assert tracked_option.default is tanjun.abc.NO_PASS
-        assert tracked_option.is_always_float is False
-        assert tracked_option.is_only_member is False
-        assert tracked_option.key == "other_value"
-        assert tracked_option.name == "other_value"
-        assert tracked_option.type is hikari.OptionType.INTEGER
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
 
-        assert isinstance(command.wrapped_command, tanjun.MessageCommand)
-        assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "value"
+    assert argument.converters == []
+    assert argument.default is tanjun.abc.NO_PASS
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
 
-        assert len(command.wrapped_command.parser.arguments) == 1
-        argument = command.wrapped_command.parser.arguments[0]
-        assert argument.key == "value"
-        assert argument.converters == []
-        assert argument.default is tanjun.abc.NO_PASS
-        assert argument.is_greedy is False
-        assert argument.is_multi is False
-        assert argument.min_length is None
-        assert argument.max_length is None
-        assert argument.min_value is None
-        assert argument.max_value is None
-
-        assert len(command.wrapped_command.parser.options) == 1
-        option = command.wrapped_command.parser.options[0]
-        assert option.key == "other_value"
-        assert option.names == ["--other-value"]
-        assert option.converters == [int]
-        assert option.default is tanjun.abc.NO_PASS
-        assert option.empty_value is tanjun.abc.NO_DEFAULT
-        assert option.is_multi is False
-        assert option.min_length is None
-        assert option.max_length is None
-        assert option.min_value is None
-        assert option.max_value is None
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "other_value"
+    assert option.names == ["--other-value"]
+    assert option.converters == [int]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
-def test_when_annotated_handles_unions():
+def test_when_annotated_handles_typing_unions():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("name", "description")
     @tanjun.as_message_command("name")
@@ -4996,78 +4992,76 @@ def test_when_annotated_handles_unions():
     assert option.max_value is None
 
 
-if sys.version_info >= (3, 10):
+def test_when_annotated_handles_3_10_unions():
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("name", "description")
+    @tanjun.as_message_command("name")
+    async def command(
+        ctx: tanjun.abc.Context,
+        *,
+        value: typing.Annotated[annotations.Str | bool, annotations.Positional(), "nyaa"] = False,
+        other_value: typing.Annotated[annotations.Int | None, "meow"] = None,
+    ) -> None:
+        raise NotImplementedError
 
-    def test_when_annotated_handles_3_10_unions():
-        @annotations.with_annotated_args(follow_wrapped=True)
-        @tanjun.as_slash_command("name", "description")
-        @tanjun.as_message_command("name")
-        async def command(
-            ctx: tanjun.abc.Context,
-            *,
-            value: typing.Annotated[annotations.Str | bool, annotations.Positional(), "nyaa"] = False,
-            other_value: typing.Annotated[annotations.Int | None, "meow"] = None,
-        ) -> None:
-            raise NotImplementedError
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="nyaa", is_required=False),
+        hikari.CommandOption(
+            type=hikari.OptionType.INTEGER,
+            name="other_value",
+            description="meow",
+            is_required=False,
+            min_value=None,
+            max_value=None,
+        ),
+    ]
 
-        assert command.build().options == [
-            hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="nyaa", is_required=False),
-            hikari.CommandOption(
-                type=hikari.OptionType.INTEGER,
-                name="other_value",
-                description="meow",
-                is_required=False,
-                min_value=None,
-                max_value=None,
-            ),
-        ]
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "value"
+    assert tracked_option.name == "value"
+    assert tracked_option.type is hikari.OptionType.STRING
 
-        assert len(command._tracked_options) == 2
-        tracked_option = command._tracked_options["value"]
-        assert tracked_option.converters == []
-        assert tracked_option.default is tanjun.abc.NO_PASS
-        assert tracked_option.is_always_float is False
-        assert tracked_option.is_only_member is False
-        assert tracked_option.key == "value"
-        assert tracked_option.name == "value"
-        assert tracked_option.type is hikari.OptionType.STRING
+    tracked_option = command._tracked_options["other_value"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "other_value"
+    assert tracked_option.name == "other_value"
+    assert tracked_option.type is hikari.OptionType.INTEGER
 
-        tracked_option = command._tracked_options["other_value"]
-        assert tracked_option.converters == []
-        assert tracked_option.default is tanjun.abc.NO_PASS
-        assert tracked_option.is_always_float is False
-        assert tracked_option.is_only_member is False
-        assert tracked_option.key == "other_value"
-        assert tracked_option.name == "other_value"
-        assert tracked_option.type is hikari.OptionType.INTEGER
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
 
-        assert isinstance(command.wrapped_command, tanjun.MessageCommand)
-        assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "value"
+    assert argument.converters == []
+    assert argument.default is tanjun.abc.NO_PASS
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
 
-        assert len(command.wrapped_command.parser.arguments) == 1
-        argument = command.wrapped_command.parser.arguments[0]
-        assert argument.key == "value"
-        assert argument.converters == []
-        assert argument.default is tanjun.abc.NO_PASS
-        assert argument.is_greedy is False
-        assert argument.is_multi is False
-        assert argument.min_length is None
-        assert argument.max_length is None
-        assert argument.min_value is None
-        assert argument.max_value is None
-
-        assert len(command.wrapped_command.parser.options) == 1
-        option = command.wrapped_command.parser.options[0]
-        assert option.key == "other_value"
-        assert option.names == ["--other-value"]
-        assert option.converters == [int]
-        assert option.default is tanjun.abc.NO_PASS
-        assert option.empty_value is tanjun.abc.NO_DEFAULT
-        assert option.is_multi is False
-        assert option.min_length is None
-        assert option.max_length is None
-        assert option.min_value is None
-        assert option.max_value is None
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "other_value"
+    assert option.names == ["--other-value"]
+    assert option.converters == [int]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_parse_annotated_args_with_descriptions_argument():
@@ -6183,7 +6177,7 @@ def test_mentionable_field_when_type_mismatch():
     with pytest.raises(
         RuntimeError,
         match=re.escape(
-            "Conflicting option types of typing.Union[hikari.users.User, hikari.guilds.Role] and "
+            "Conflicting option types of hikari.users.User | hikari.guilds.Role and "
             "<class 'hikari.guilds.Role'> found for 'ghost' parameter"
         ),
     ):
@@ -6767,7 +6761,7 @@ def test_with_unpacked_stdlib_typed_dict():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -6822,11 +6816,11 @@ def test_with_unpacked_stdlib_typed_dict():
 
 
 def test_with_unpacked_other_syntax_typed_dict():
-    TypedDict = typing_extensions.TypedDict(  # noqa: N806
+    TypedDict = typing.TypedDict(  # noqa: N806
         "TypedDict",
         {
-            "baz": typing_extensions.NotRequired[typing.Annotated[annotations.Float, "eep"]],
-            "ban": typing_extensions.Required[typing.Annotated[annotations.Color, "beep"]],
+            "baz": typing.NotRequired[typing.Annotated[annotations.Float, "eep"]],
+            "ban": typing.Required[typing.Annotated[annotations.Color, "beep"]],
             "pickle": typing.Literal["Candy"],
             "nyaa": typing.Annotated[annotations.Bool, "meow"],
         },
@@ -6835,7 +6829,7 @@ def test_with_unpacked_other_syntax_typed_dict():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -6913,13 +6907,13 @@ def test_with_unpacked_other_syntax_typed_dict():
 
 
 def test_with_empty_unpacked_typed_dict():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         pickle: str
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == []
@@ -6931,16 +6925,16 @@ def test_with_empty_unpacked_typed_dict():
 
 
 def test_with_empty_unpacked_typed_dict_where_total_is_false():
-    class TypedDict(typing_extensions.TypedDict, total=False):
+    class TypedDict(typing.TypedDict, total=False):
         me: typing.Annotated[annotations.Role, "c"]
-        too: typing_extensions.Required[typing.Annotated[annotations.Bool, "b"]]
+        too: typing.Required[typing.Annotated[annotations.Bool, "b"]]
         nope: str
         three: typing.Annotated[annotations.Str, "a"]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7019,17 +7013,15 @@ def test_with_empty_unpacked_typed_dict_where_total_is_false():
 
 
 def test_with_unpacked_typed_dict_and_other_args():
-    class TypedDict(typing_extensions.TypedDict):
-        other: typing_extensions.NotRequired[typing.Annotated[annotations.Int, "bat"]]
+    class TypedDict(typing.TypedDict):
+        other: typing.NotRequired[typing.Annotated[annotations.Int, "bat"]]
         value: typing.Annotated[annotations.User, "meow"]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
     async def command(
-        ctx: tanjun.abc.Context,
-        blam: typing.Annotated[annotations.Bool, "sleep"],
-        **kwargs: typing_extensions.Unpack[TypedDict],
+        ctx: tanjun.abc.Context, blam: typing.Annotated[annotations.Bool, "sleep"], **kwargs: typing.Unpack[TypedDict]
     ) -> None:
         raise NotImplementedError
 
@@ -7108,13 +7100,13 @@ def test_with_unpacked_typed_dict_and_other_args():
 
 
 def test_with_unpacked_typed_dict_and_attachment():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         field: typing.Annotated[annotations.Attachment, "meow"]
-        other: typing_extensions.NotRequired[typing.Annotated[annotations.Attachment, "nyaa"]]
+        other: typing.NotRequired[typing.Annotated[annotations.Attachment, "nyaa"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7143,14 +7135,14 @@ def test_with_unpacked_typed_dict_and_attachment():
 
 
 def test_with_unpacked_typed_dict_and_bool():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         fi: typing.Annotated[annotations.Bool, "nn"]
-        to: typing_extensions.NotRequired[typing.Annotated[annotations.Bool, "xn"]]
+        to: typing.NotRequired[typing.Annotated[annotations.Bool, "xn"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7207,14 +7199,14 @@ def test_with_unpacked_typed_dict_and_bool():
 
 
 def test_with_unpacked_typed_dict_and_channel():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Channel, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Channel, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Channel, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7273,16 +7265,14 @@ def test_with_unpacked_typed_dict_and_channel():
 
 
 def test_with_unpacked_typed_dict_and_choices():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Str, annotations.Choices({"hi": "meow", "blam": "xd"}), "maaaa"]
-        oo: typing_extensions.NotRequired[
-            typing.Annotated[annotations.Int, annotations.Choices({"m": 1, "ddd": 420}), "xat"]
-        ]
+        oo: typing.NotRequired[typing.Annotated[annotations.Int, annotations.Choices({"m": 1, "ddd": 420}), "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7351,14 +7341,14 @@ def test_with_unpacked_typed_dict_and_choices():
 
 
 def test_with_unpacked_typed_dict_and_color():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Color, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Color, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Color, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7418,14 +7408,14 @@ def test_with_unpacked_typed_dict_and_converted():
     mock_callback_1 = mock.Mock()
     mock_callback_2 = mock.Mock()
 
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[typing.Any, annotations.Converted(mock_callback_1), "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[typing.Any, annotations.Converted(mock_callback_2), "xat"]]
+        oo: typing.NotRequired[typing.Annotated[typing.Any, annotations.Converted(mock_callback_2), "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7482,14 +7472,14 @@ def test_with_unpacked_typed_dict_and_converted():
 
 
 def test_with_unpacked_typed_dict_and_datetime():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Datetime, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Datetime, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Datetime, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7546,14 +7536,14 @@ def test_with_unpacked_typed_dict_and_datetime():
 
 
 def test_with_unpacked_typed_dict_and_default():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Default(0), "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Float, annotations.Default(0.1), "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Float, annotations.Default(0.1), "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7610,15 +7600,15 @@ def test_with_unpacked_typed_dict_and_default():
 
 
 def test_with_unpacked_typed_dict_and_flag():
-    class TypedDict(typing_extensions.TypedDict):
-        of: typing_extensions.NotRequired[
+    class TypedDict(typing.TypedDict):
+        of: typing.NotRequired[
             typing.Annotated[annotations.Int, annotations.Flag(aliases=["-o"], empty_value="aaaa"), "maaaa"]
         ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7655,14 +7645,14 @@ def test_with_unpacked_typed_dict_and_flag():
 
 
 def test_with_unpacked_typed_dict_and_float():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Float, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Float, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Float, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7719,13 +7709,13 @@ def test_with_unpacked_typed_dict_and_float():
 
 
 def test_with_unpacked_typed_dict_and_greedy():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Str, annotations.Greedy(), "maaaa"]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7761,14 +7751,14 @@ def test_with_unpacked_typed_dict_and_greedy():
 
 
 def test_with_unpacked_typed_dict_and_int():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Int, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Int, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Int, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7825,13 +7815,13 @@ def test_with_unpacked_typed_dict_and_int():
 
 
 def test_with_unpacked_typed_dict_and_interaction_channel():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.InteractionChannel, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.InteractionChannel, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.InteractionChannel, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7860,13 +7850,13 @@ def test_with_unpacked_typed_dict_and_interaction_channel():
 
 
 def test_with_unpacked_typed_dict_and_interaction_member():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.InteractionMember, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.InteractionMember, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.InteractionMember, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7895,14 +7885,14 @@ def test_with_unpacked_typed_dict_and_interaction_member():
 
 
 def test_with_unpacked_typed_dict_and_length():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Str, annotations.Length(232), "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Str, annotations.Length(4, 128), "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Str, annotations.Length(4, 128), "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -7968,14 +7958,14 @@ def test_with_unpacked_typed_dict_and_length():
 
 
 def test_with_unpacked_typed_dict_and_max():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Max(453), "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Float, annotations.Max(69.420), "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Float, annotations.Max(69.420), "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8036,14 +8026,14 @@ def test_with_unpacked_typed_dict_and_max():
 
 
 def test_with_unpacked_typed_dict_and_member():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Member, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Member, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Member, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8100,14 +8090,14 @@ def test_with_unpacked_typed_dict_and_member():
 
 
 def test_with_unpacked_typed_dict_and_mentionable():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Mentionable, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Mentionable, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Mentionable, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8164,14 +8154,14 @@ def test_with_unpacked_typed_dict_and_mentionable():
 
 
 def test_with_unpacked_typed_dict_and_min():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Float, annotations.Min(3.2), "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Int, annotations.Min(32), "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Int, annotations.Min(32), "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8232,14 +8222,14 @@ def test_with_unpacked_typed_dict_and_min():
 
 
 def test_with_unpacked_typed_dict_and_name():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Float, annotations.Name("hi"), "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.User, annotations.Name("nye"), "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.User, annotations.Name("nye"), "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8296,13 +8286,13 @@ def test_with_unpacked_typed_dict_and_name():
 
 
 def test_with_unpacked_typed_dict_and_positional():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Positional(), "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Str, annotations.Positional(), "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Str, annotations.Positional(), "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert isinstance(command.parser, tanjun.ShlexParser)
@@ -8334,14 +8324,14 @@ def test_with_unpacked_typed_dict_and_positional():
 
 
 def test_with_unpacked_typed_dict_and_ranged():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Int, annotations.Ranged(4, 64), "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Float, annotations.Ranged(12.21, 54.34), "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Float, annotations.Ranged(12.21, 54.34), "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8407,14 +8397,14 @@ def test_with_unpacked_typed_dict_and_ranged():
 
 
 def test_with_unpacked_typed_dict_and_role():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Role, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Role, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Role, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8471,14 +8461,14 @@ def test_with_unpacked_typed_dict_and_role():
 
 
 def test_with_unpacked_typed_dict_and_snowflake():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Snowflake, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Snowflake, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Snowflake, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8535,13 +8525,13 @@ def test_with_unpacked_typed_dict_and_snowflake():
 
 
 def test_with_unpacked_typed_dict_and_snowflake_or():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[
             typing.Union[annotations.Role, hikari.Snowflake],
             annotations.SnowflakeOr(parse_id=tanjun.conversion.parse_role_id),
             "maaaa",
         ]
-        oo: typing_extensions.NotRequired[
+        oo: typing.NotRequired[
             typing.Annotated[
                 typing.Union[annotations.Member, hikari.Snowflake],
                 annotations.SnowflakeOr(parse_id=tanjun.conversion.parse_user_id),
@@ -8552,7 +8542,7 @@ def test_with_unpacked_typed_dict_and_snowflake_or():
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8609,14 +8599,14 @@ def test_with_unpacked_typed_dict_and_snowflake_or():
 
 
 def test_with_unpacked_typed_dict_and_str():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.Str, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.Str, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.Str, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8673,18 +8663,18 @@ def test_with_unpacked_typed_dict_and_str():
 
 
 def test_with_unpacked_typed_dict_and_these_channels():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[
             annotations.Channel, annotations.TheseChannels(hikari.ChannelType.DM, hikari.GuildThreadChannel), "maaaa"
         ]
-        oo: typing_extensions.NotRequired[
+        oo: typing.NotRequired[
             typing.Annotated[annotations.Channel, annotations.TheseChannels(hikari.GuildTextChannel), "xat"]
         ]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8767,14 +8757,14 @@ def test_with_unpacked_typed_dict_and_these_channels():
 
 
 def test_with_unpacked_typed_dict_and_user():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         of: typing.Annotated[annotations.User, "maaaa"]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]
+        oo: typing.NotRequired[typing.Annotated[annotations.User, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         raise NotImplementedError
 
     assert command.build().options == [
@@ -8833,12 +8823,12 @@ def test_with_unpacked_typed_dict_and_user():
 def test_ignores_non_typed_dict_class_in_kwargs_unpack():
     class CustomClass:
         of: typing.Annotated[annotations.User, "maaaa"]  # pyright: ignore[reportUninitializedInstanceVariable]
-        oo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]  # type: ignore
+        oo: typing.NotRequired[typing.Annotated[annotations.User, "xat"]]  # type: ignore
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[CustomClass]) -> None:  # type: ignore
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[CustomClass]) -> None:  # type: ignore
         raise NotImplementedError
 
     assert command.build().options == []
@@ -8849,9 +8839,9 @@ def test_ignores_non_typed_dict_class_in_kwargs_unpack():
 
 
 def test_ignores_non_unpack_kwargs():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         meow: typing.Annotated[annotations.User, "maaaa"]
-        echo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]
+        echo: typing.NotRequired[typing.Annotated[annotations.User, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
@@ -8867,14 +8857,14 @@ def test_ignores_non_unpack_kwargs():
 
 
 def test_ignores_unpack_typed_dict_for_varargs():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         meow: typing.Annotated[annotations.User, "maaaa"]
-        echo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]
+        echo: typing.NotRequired[typing.Annotated[annotations.User, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, *args: typing_extensions.Unpack[TypedDict]) -> None:  # type: ignore
+    async def command(ctx: tanjun.abc.Context, *args: typing.Unpack[TypedDict]) -> None:  # type: ignore
         raise NotImplementedError
 
     assert command.build().options == []
@@ -8885,14 +8875,14 @@ def test_ignores_unpack_typed_dict_for_varargs():
 
 
 def test_ignores_unpack_typed_dict_for_non_var_arg():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         meow: typing.Annotated[annotations.User, "maaaa"]
-        echo: typing_extensions.NotRequired[typing.Annotated[annotations.User, "xat"]]
+        echo: typing.NotRequired[typing.Annotated[annotations.User, "xat"]]
 
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, arg: typing_extensions.Unpack[TypedDict]) -> None:  # type: ignore
+    async def command(ctx: tanjun.abc.Context, arg: typing.Unpack[TypedDict]) -> None:  # type: ignore
         raise NotImplementedError
 
     assert command.build().options == []

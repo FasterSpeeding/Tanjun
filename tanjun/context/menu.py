@@ -44,13 +44,14 @@ from . import slash
 if typing.TYPE_CHECKING:
     import asyncio
     from collections import abc as collections
-
-    from typing_extensions import Self
+    from typing import Self
 
     _T = typing.TypeVar("_T")
-    _ResponseTypeT = typing.Union[
-        hikari.api.InteractionMessageBuilder, hikari.api.InteractionDeferredBuilder, hikari.api.InteractionModalBuilder
-    ]
+    _ResponseTypeT = (
+        hikari.api.InteractionMessageBuilder
+        | hikari.api.InteractionDeferredBuilder
+        | hikari.api.InteractionModalBuilder
+    )
 
 
 _VALID_TYPES: frozenset[typing.Literal[hikari.CommandType.USER, hikari.CommandType.MESSAGE]] = frozenset(
@@ -70,8 +71,8 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         register_task: collections.Callable[[asyncio.Task[typing.Any]], None],
         *,
         default_to_ephemeral: bool = False,
-        future: typing.Optional[asyncio.Future[_ResponseTypeT]] = None,
-        on_not_found: typing.Optional[collections.Callable[[tanjun.MenuContext], collections.Awaitable[None]]] = None,
+        future: asyncio.Future[_ResponseTypeT] | None = None,
+        on_not_found: collections.Callable[[tanjun.MenuContext], collections.Awaitable[None]] | None = None,
     ) -> None:
         """Initialise a menu command context.
 
@@ -92,13 +93,13 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
             Callback used to indicate no matching command was found.
         """
         super().__init__(client, interaction, register_task, default_to_ephemeral=default_to_ephemeral, future=future)
-        self._command: typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]] = None
+        self._command: tanjun.MenuCommand[typing.Any, typing.Any] | None = None
         self._marked_not_found = False
         self._on_not_found = on_not_found
         self._set_type_special_case(tanjun.MenuContext, self)._set_type_special_case(MenuContext, self)
 
     @property
-    def command(self) -> typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]]:
+    def command(self) -> tanjun.MenuCommand[typing.Any, typing.Any] | None:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         return self._command
 
@@ -114,7 +115,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         return next(iter(mapping.keys()))
 
     @property
-    def target(self) -> typing.Union[hikari.InteractionMember, hikari.User, hikari.Message]:
+    def target(self) -> hikari.InteractionMember | hikari.User | hikari.Message:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
         mapping = (
@@ -147,7 +148,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
             self._marked_not_found = True
             await self._on_not_found(self)
 
-    def set_command(self, command: typing.Optional[tanjun.MenuCommand[typing.Any, typing.Any]], /) -> Self:
+    def set_command(self, command: tanjun.MenuCommand[typing.Any, typing.Any] | None, /) -> Self:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         if command:
             self._set_type_special_case(tanjun.MenuCommand, command)
@@ -162,11 +163,11 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
     def resolve_to_member(self) -> hikari.InteractionMember: ...
 
     @typing.overload
-    def resolve_to_member(self, *, default: _T) -> typing.Union[hikari.InteractionMember, _T]: ...
+    def resolve_to_member(self, *, default: _T) -> hikari.InteractionMember | _T: ...
 
     def resolve_to_member(
-        self, *, default: typing.Union[_T, _internal.Default] = _internal.DEFAULT
-    ) -> typing.Union[hikari.InteractionMember, _T]:
+        self, *, default: _T | _internal.Default = _internal.DEFAULT
+    ) -> hikari.InteractionMember | _T:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
         if self._interaction.resolved.members:
@@ -188,7 +189,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
 
         raise TypeError("Cannot resolve user menu context to a message")
 
-    def resolve_to_user(self) -> typing.Union[hikari.User, hikari.Member]:
+    def resolve_to_user(self) -> hikari.User | hikari.Member:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
         assert self._interaction.resolved
         return self.resolve_to_member(default=None) or next(iter(self._interaction.resolved.users.values()))
