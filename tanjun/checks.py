@@ -1032,7 +1032,7 @@ def all_checks(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.abc.Context], collections.Coroutine[typing.Any, typing.Any, bool]]
+    collections.abc.Callable[[tanjun.abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
         A check which will pass if all of the provided check callbacks pass.
     """
     return _AllChecks[_ContextT]([check, *checks])
