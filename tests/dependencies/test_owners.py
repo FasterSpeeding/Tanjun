@@ -35,9 +35,9 @@
 import asyncio
 import datetime
 import time
+from unittest import mock
 
 import hikari
-import mock
 import pytest
 
 import tanjun

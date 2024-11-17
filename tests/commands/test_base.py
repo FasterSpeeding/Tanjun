@@ -37,8 +37,8 @@
 import types
 import typing
 from collections import abc as collections
+from unittest import mock
 
-import mock
 import pytest
 
 from tanjun.commands import base as base_command

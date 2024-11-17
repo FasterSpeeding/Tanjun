@@ -36,7 +36,7 @@ A few examples of pdoc style would be:
   always be in the style of `` [link.to.thing][] `` with no type information included.
 * Documenting fluent methods: The return type for fluent methods should be given as `Self` with the description for it
   following the lines of something like "the {x} instance to enable chained calls".
-* Union types sohuld be annotated in code and documentation using `|` style and `T | None`/`T | hikari.UndefinedType`
+* Union types should be annotated in code and documentation using `|` style and `T | None`/`T | hikari.UndefinedType`
   are preferred over `T | None`/`hikari.UndefinedOr[T]`
 
 ### CHANGELOG.md
@@ -65,7 +65,7 @@ good references for how projects should be type-hinted to be `type-complete`.
 
 * This project deviates from the common convention of importing types from the typing module and instead
   imports the typing module itself to use generics and types in it like `typing.Annotated`.
-* Since this project supports python 3.9+, the `typing` types which were deprecated by
+* Since this project supports python 3.11+, the `typing` types which were deprecated by
   [PEP 585](https://www.python.org/dev/peps/pep-0585/) should be avoided in favour of their `collections.abc`,
   builtin, `re` and `contextlib` equivalents.
 * The standard approach for using `collections.abc` types within this project is to `import collections.abc as collections`.

@@ -36,10 +36,10 @@ import asyncio
 import datetime
 import re
 import typing
+from unittest import mock
 
 import freezegun
 import hikari
-import mock
 import pytest
 
 import tanjun

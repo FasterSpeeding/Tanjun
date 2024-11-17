@@ -3118,7 +3118,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                import mock
+                from unittest import mock
 
                 import tanjun
 
@@ -3172,7 +3172,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                import mock
+                from unittest import mock
 
                 import tanjun
 
@@ -3210,7 +3210,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                import mock
+                from unittest import mock
 
                 import tanjun
 
@@ -3252,7 +3252,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                import mock
+                from unittest import mock
 
                 import tanjun
 
@@ -3307,7 +3307,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                import mock
+                from unittest import mock
 
                 import tanjun
 
@@ -3350,7 +3350,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                import mock
+                from unittest import mock
 
                 import tanjun
 
@@ -3435,7 +3435,7 @@ class TestClient:
         temp_file.write(
             textwrap.dedent(
                 """
-                import mock
+                from unittest import mock
 
                 import tanjun
 
