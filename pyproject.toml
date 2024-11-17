@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 name = "hikari-tanjun"
 version = "2.17.6"
 readme = "README.md"
-requires-python = ">=3.9.0,<3.14"
+requires-python = ">=3.11.0,<3.14"
 license = {file = "LICENSE"}
 authors = [ {name = "Faster Speeding", email="lucina@lmbyrne.dev"} ]
 keywords = ["hikari"]
@@ -16,8 +16,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -45,7 +43,7 @@ extend-exclude = "^\\/tanjun\\/_internal\\/vendor\\/.*$"
 include = ".*pyi?$"
 line-length = 120
 skip-magic-trailing-comma = true
-target-version = ["py39"]
+target-version = ["py311"]
 
 [tool.codespell]
 ignore-regex = "TimeSchedule|Nd"
@@ -81,7 +79,7 @@ max-complexity = 20
 max-function-length = 100
 # Technically this is 120, but black has a policy of "1 or 2 over is fine if it is tidier", so we have to raise this.
 max-line-length = 130
-min_python_version = "3.9"
+min_python_version = "3.11"
 pep585-activation = "always"
 show_source = false
 statistics = false
@@ -130,7 +128,7 @@ skip = ["tanjun/_internal/vendor"]
 
 [tool.mypy]
 # some good strict settings
-python_version = 3.9
+python_version = "3.11"
 strict = true
 warn_unreachable = true
 
@@ -170,7 +168,7 @@ top_level_targets = ["./docs_src", "./examples", "./noxfile.py", "./tanjun", "./
 [tool.piped.github_actions.publish]
 [tool.piped.github_actions.py_test]
 codeclimate_token = "117363998d7c6b4bab4ac57348026e1089767e142ccca3eb8cc37da6cf4cc8b9"
-python_versions = ["3.9", "3.10", "3.11", "3.12", "3.13-dev"]
+python_versions = ["3.11", "3.12", "3.13", "3.14-dev"]
 
 [tool.piped.github_actions.reformat]
 [tool.piped.github_actions.release_docs]
@@ -188,7 +186,7 @@ exclude = "docs_src"
 exclude = ["tanjun/_internal/vendor"]
 include = ["docs_src", "examples", "tanjun", "noxfile.py", "tests"]
 
-pythonVersion = "3.9"
+pythonVersion = "3.11"
 typeCheckingMode = "strict"
 reportMissingModuleSource = "error"  # Is only "warning" on strict mode.
 
