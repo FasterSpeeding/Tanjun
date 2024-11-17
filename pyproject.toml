@@ -109,18 +109,18 @@ ignore = [
     "E704",    # Incompatible with black: E704 multiple statements on one line (def)
     #"ASYNC910", # Return from async function with no guaranteed checkpoint or exception since function definition.
     #"ASYNC911", # exit from async iterable with no guaranteed checkpoint since function definition
-    "ASYNC102", #await inside __aexit__ on line 247 must have shielded cancel scope with a timeout.
+    #"ASYNC102", #await inside __aexit__ on line 247 must have shielded cancel scope with a timeout.
 ]
 per-file-ignores = [
-    "*.py: ASYNC910, ASYNC911",
-    "docs_src/*.py: ASYNC910, ASYNC911, DALL000, D100, D101, D103, E800, FA100, FA101, F841, INP001, N806, TC001, TC101",
-    "examples/*.py: ASYNC910, ASYNC911, DALL000, D100, D101, D103, E800, FA100, FA101, F401, F403, INP001, TC001, TC003",
-    "noxfile.py: ASYNC910, ASYNC911, D100, FA101, F401, F403, INP001",
-    "tanjun/py.typed: ASYNC910, ASYNC911, D100",
-    "tests/*.py: ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC003",
-    "tests/test_annotations*.py: ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC101, TC003",
-    "tests/test_clients*.py: ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC101",
-    "tests/test_components*.py: ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC101",
+    "*.py: ASYNC102, ASYNC910, ASYNC911",
+    "docs_src/*.py: ASYNC102, ASYNC910, ASYNC911, DALL000, D100, D101, D103, E800, FA100, FA101, F841, INP001, N806, TC001, TC101",
+    "examples/*.py: ASYNC102, ASYNC910, ASYNC911, DALL000, D100, D101, D103, E800, FA100, FA101, F401, F403, INP001, TC001, TC003",
+    "noxfile.py: ASYNC102, ASYNC910, ASYNC911, D100, FA101, F401, F403, INP001",
+    "tanjun/py.typed: ASYNC102, ASYNC910, ASYNC911, D100",
+    "tests/*.py: ASYNC102, ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC003",
+    "tests/test_annotations*.py: ASYNC102, ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC101, TC003",
+    "tests/test_clients*.py: ASYNC102, ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC101",
+    "tests/test_components*.py: ASYNC102, ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC101",
 ]
 
 [tool.isort]
