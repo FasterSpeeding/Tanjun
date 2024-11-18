@@ -1406,7 +1406,7 @@ def to_datetime(value: str, /) -> datetime.datetime:
     except StopIteration:
         raise ValueError("Not a valid datetime") from None
 
-    return datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+    return datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC)
 
 
 _VALID_DATETIME_STYLES = frozenset(("t", "T", "d", "D", "f", "F", "R"))
@@ -1453,7 +1453,7 @@ def from_datetime(value: datetime.datetime | datetime.timedelta, /, *, style: st
         If an invalid style is provided.
     """
     if isinstance(value, datetime.timedelta):
-        return from_datetime(datetime.datetime.now(tz=datetime.timezone.utc) + value, style="R")
+        return from_datetime(datetime.datetime.now(tz=datetime.UTC) + value, style="R")
 
     if style not in _VALID_DATETIME_STYLES:
         raise ValueError(f"Invalid style: {style}")

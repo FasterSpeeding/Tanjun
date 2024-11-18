@@ -1819,8 +1819,8 @@ def test_split_url_when_wrapped():
 @pytest.mark.parametrize(
     ("value", "expected"),
     [
-        ("<t:123321123>", datetime.datetime(1973, 11, 28, 7, 52, 3, tzinfo=datetime.timezone.utc)),
-        ("<t:3232133:t>", datetime.datetime(1970, 2, 7, 9, 48, 53, tzinfo=datetime.timezone.utc)),
+        ("<t:123321123>", datetime.datetime(1973, 11, 28, 7, 52, 3, tzinfo=datetime.UTC)),
+        ("<t:3232133:t>", datetime.datetime(1970, 2, 7, 9, 48, 53, tzinfo=datetime.UTC)),
     ],
 )
 def test_to_datetime(value: str, expected: datetime.datetime):
@@ -1834,7 +1834,7 @@ def test_to_datetime_with_invalid_values(value: str):
 
 
 def test_from_datetime():
-    date = datetime.datetime(2021, 9, 15, 14, 16, 18, 829252, tzinfo=datetime.timezone.utc)
+    date = datetime.datetime(2021, 9, 15, 14, 16, 18, 829252, tzinfo=datetime.UTC)
 
     result = tanjun.conversion.from_datetime(date, style="d")
 
@@ -1842,7 +1842,7 @@ def test_from_datetime():
 
 
 def test_from_datetime_with_default_style():
-    date = datetime.datetime(2021, 9, 15, 14, 16, 18, 829252, tzinfo=datetime.timezone.utc)
+    date = datetime.datetime(2021, 9, 15, 14, 16, 18, 829252, tzinfo=datetime.UTC)
 
     result = tanjun.conversion.from_datetime(date)
 
@@ -1857,14 +1857,14 @@ def test_from_datetime_for_naive_datetime():
 
 
 def test_from_datetime_for_invalid_style():
-    date = datetime.datetime.now(tz=datetime.timezone.utc)
+    date = datetime.datetime.now(tz=datetime.UTC)
 
     with pytest.raises(ValueError, match="Invalid style: granddad"):
         tanjun.conversion.from_datetime(date, style="granddad")
 
 
 def test_from_datetime_for_time_delta():
-    with freezegun.freeze_time(datetime.datetime(2022, 12, 30, 6, 33, 47, 52643, tzinfo=datetime.timezone.utc)):
+    with freezegun.freeze_time(datetime.datetime(2022, 12, 30, 6, 33, 47, 52643, tzinfo=datetime.UTC)):
         result = tanjun.conversion.from_datetime(datetime.timedelta(days=21, hours=23, minutes=32, seconds=34))
 
     assert result == "<t:1674281181:R>"
