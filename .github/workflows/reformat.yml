@@ -18,18 +18,11 @@ jobs:
         with:
           submodules: "true"
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
-        with:
-          python-version: "3.11"
-
-      - name: install prerequisites
-        run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install -r ./piped/python/base-requirements/nox.txt
+      - name: Install Python
+        uses: ./.github/actions/setup-py
 
       - name: Reformat
-        run: python -m nox -s reformat bot-package-diff
+        run: nox -s reformat bot-package-diff
 
       - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
         with:
@@ -37,4 +30,4 @@ jobs:
           path: gogo.patch
 
       - name: Check diff file
-        run: python -m nox -s is-diff-file-empty
+        run: nox -s is-diff-file-empty

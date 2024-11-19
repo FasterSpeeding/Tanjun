@@ -14,18 +14,11 @@ jobs:
         with:
           submodules: "true"
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
-        with:
-          python-version: "3.11"
-
-      - name: install prerequisites
-        run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install -r ./piped/python/base-requirements/nox.txt
+      - name: Install Python
+        uses: ./.github/actions/setup-py
 
       - name: Upgrade dependency locks
-        run: python -m nox -s freeze-locks
+        run: nox -s freeze-locks
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f
