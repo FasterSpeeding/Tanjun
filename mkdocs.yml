@@ -54,7 +54,7 @@ plugins:
       handlers:
         python:
           import:
-            - https://docs.python.org/3.11/objects.inv
+            - https://docs.python.org/3.13/objects.inv
             - https://docs.hikari-py.dev/en/latest/objects.inv
             - https://alluka.cursed.solutions/objects.inv
             - https://sake.cursed.solutions/objects.inv
