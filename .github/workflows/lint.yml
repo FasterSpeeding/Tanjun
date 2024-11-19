@@ -24,24 +24,17 @@ jobs:
         with:
           submodules: "true"
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
-        with:
-          python-version: "3.11"
-
-      - name: install prerequisites
-        run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install -r ./piped/python/base-requirements/nox.txt
+      - name: Install Python
+        uses: ./.github/actions/setup-py
 
       - name: Lint markup
-        run: python -m nox -s verify-markup
+        run: nox -s verify-markup
 
       - name: Check spelling
-        run: python -m nox -s spell-check
+        run: nox -s spell-check
 
       - name: Lint with flake8
-        run: python -m nox -s flake8
+        run: nox -s flake8
 
       - name: Check slotting
-        run: python -m nox -s slot-check
+        run: nox -s slot-check
