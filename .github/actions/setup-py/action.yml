@@ -1,0 +1,19 @@
+name: "Install Python"
+description: "Install a specific Python version"
+inputs:
+  python-version:
+    description: "Python version to install"
+    required: false
+    default: "3.11"
+runs:
+  using: composite
+  steps:
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
+      id: install-py
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install Nox
+      run: pipx install nox --python "${{ steps.install-py.outputs.python-path }}"
+      shell: bash
