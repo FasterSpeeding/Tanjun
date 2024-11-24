@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Moved away from using `typing.runtime_checkable` as this is unreliable in
   newer Python versions.
+- [tanjun.parsing][] now consistently supports both the `typing` and
+  `typing_extensions` implementations of [typing.Unpack][] and [typing.TypedDict].
 
 ### Removed
 - Support for Python 3.9 and 3.10.

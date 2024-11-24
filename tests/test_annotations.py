@@ -42,6 +42,7 @@ from unittest import mock
 import alluka
 import hikari
 import pytest
+import typing_extensions
 
 import tanjun
 from tanjun import annotations
@@ -8890,6 +8891,86 @@ def test_ignores_unpack_typed_dict_for_non_var_arg():
 
     assert isinstance(command.wrapped_command, tanjun.MessageCommand)
     assert command.wrapped_command.parser is None
+
+
+def test_with_typing_extensions_unpacked_and_typed_dict():
+    class TypedDict(typing_extensions.TypedDict):
+        pickle: typing.Annotated[annotations.Str, "MAMA"]
+        dill: typing.Annotated[typing.NotRequired[annotations.Bool], "OHHHHHH"]
+
+    @annotations.with_annotated_args(follow_wrapped=True)
+    @tanjun.as_slash_command("a", "b")
+    @tanjun.as_message_command("x", "3")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        raise NotImplementedError
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING,
+            name="pickle",
+            channel_types=None,
+            description="MAMA",
+            is_required=True,
+            min_value=None,
+            max_value=None,
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.BOOLEAN,
+            name="dill",
+            channel_types=None,
+            description="OHHHHHH",
+            is_required=False,
+            min_value=None,
+            max_value=None,
+        ),
+    ]
+
+    assert len(command._tracked_options) == 2
+    tracked_option = command._tracked_options["pickle"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_DEFAULT
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "pickle"
+    assert tracked_option.name == "pickle"
+    assert tracked_option.type is hikari.OptionType.STRING
+
+    tracked_option = command._tracked_options["dill"]
+    assert tracked_option.converters == []
+    assert tracked_option.default is tanjun.abc.NO_PASS
+    assert tracked_option.is_always_float is False
+    assert tracked_option.is_only_member is False
+    assert tracked_option.key == "dill"
+    assert tracked_option.name == "dill"
+    assert tracked_option.type is hikari.OptionType.BOOLEAN
+
+    assert isinstance(command.wrapped_command, tanjun.MessageCommand)
+    assert isinstance(command.wrapped_command.parser, tanjun.ShlexParser)
+
+    assert len(command.wrapped_command.parser.arguments) == 1
+    argument = command.wrapped_command.parser.arguments[0]
+    assert argument.key == "pickle"
+    assert argument.converters == []
+    assert argument.default is tanjun.abc.NO_DEFAULT
+    assert argument.is_greedy is False
+    assert argument.is_multi is False
+    assert argument.min_length is None
+    assert argument.max_length is None
+    assert argument.min_value is None
+    assert argument.max_value is None
+
+    assert len(command.wrapped_command.parser.options) == 1
+    option = command.wrapped_command.parser.options[0]
+    assert option.key == "dill"
+    assert option.names == ["--dill"]
+    assert option.converters == [tanjun.to_bool]
+    assert option.default is tanjun.abc.NO_PASS
+    assert option.empty_value is tanjun.abc.NO_DEFAULT
+    assert option.is_multi is False
+    assert option.min_length is None
+    assert option.max_length is None
+    assert option.min_value is None
+    assert option.max_value is None
 
 
 def test_ignores_untyped_kwargs():
