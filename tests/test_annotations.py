@@ -42,10 +42,10 @@ from unittest import mock
 import alluka
 import hikari
 import pytest
+import typing_extensions
 
 import tanjun
 from tanjun import annotations
-import typing_extensions
 
 
 class TestChoices:
@@ -8893,7 +8893,6 @@ def test_ignores_unpack_typed_dict_for_non_var_arg():
     assert command.wrapped_command.parser is None
 
 
-
 def test_with_typing_extensions_unpacked_and_typed_dict():
     class TypedDict(typing_extensions.TypedDict):
         pickle: typing.Annotated[annotations.Str, "MAMA"]
@@ -8972,7 +8971,6 @@ def test_with_typing_extensions_unpacked_and_typed_dict():
     assert option.max_length is None
     assert option.min_value is None
     assert option.max_value is None
-
 
 
 def test_ignores_untyped_kwargs():
