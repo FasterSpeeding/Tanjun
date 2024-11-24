@@ -2564,7 +2564,8 @@ class _ArgConfig:
     SLASH_OPTION_ADDER[hikari.InteractionMember] = SLASH_OPTION_ADDER[hikari.Member]
 
 
-_WRAPPER_TYPES = {typing.Required, typing.NotRequired}
+_WRAPPER_TYPES = {typing.Required, typing.NotRequired, typing_extensions.Required, typing_extensions.NotRequired}
+_UNPACK_TYPES = {typing.Unpack, typing_extensions.Unpack}
 
 
 def _snoop_annotation_args(type_: typing.Any, /) -> collections.Iterator[typing.Any]:
@@ -2652,11 +2653,11 @@ def parse_annotated_args(
             )
             continue
 
-        if typing.get_origin(parameter.annotation) is not typing.Unpack:
+        if typing.get_origin(parameter.annotation) not in _UNPACK_TYPES:
             continue
 
         typed_dict = typing.get_args(parameter.annotation)[0]
-        if not typing.is_typeddict(typed_dict):
+        if not typing_extensions.is_typeddict(typed_dict):
             continue
 
         for name, annotation in typing.get_type_hints(typed_dict, include_extras=True).items():
