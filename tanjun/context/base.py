@@ -34,37 +34,47 @@ __all__: list[str] = []
 
 import typing
 
-import alluka
 import hikari
 from hikari import snowflakes
+
+import typing_extensions
 
 from tanjun import abc as tanjun
 
 if typing.TYPE_CHECKING:
+    from collections import abc as collections
     from typing import Self
 
+    from alluka import abc as alluka
 
-class BaseContext(alluka.BasicContext, tanjun.Context):
-    """Base class for the standard command context implementations."""
+    _T = typing.TypeVar("_T")
+    _DefaultT = typing.TypeVar("_DefaultT")
 
-    __slots__ = ("_component", "_final", "_tanjun_client")
+
+class BaseContext(tanjun.Context):
+    """Base class for the standard command context implementations.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
+
+    __slots__ = ("_client", "_component", "_final")
 
     def __init__(self, client: tanjun.Client, /) -> None:
-        super().__init__(client.injector)
-        self._tanjun_client = client
+        self._client = client
         self._component: tanjun.Component | None = None
         self._final = False
-        self._set_type_special_case(tanjun.Context, self)
 
     @property
     def cache(self) -> hikari.api.Cache | None:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._tanjun_client.cache
+        return self._client.cache
 
     @property
     def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._tanjun_client
+        return self._client
 
     @property
     def component(self) -> tanjun.Component | None:
@@ -74,41 +84,41 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
     @property
     def events(self) -> hikari.api.EventManager | None:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._tanjun_client.events
+        return self._client.events
 
     @property
     def server(self) -> hikari.api.InteractionServer | None:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._tanjun_client.server
+        return self._client.server
 
     @property
     def rest(self) -> hikari.api.RESTClient:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._tanjun_client.rest
+        return self._client.rest
 
     @property
     def shard(self) -> hikari.api.GatewayShard | None:
         # <<inherited docstring from tanjun.abc.Context>>.
-        if not self._tanjun_client.shards:
+        if not self._client.shards:
             return None
 
         if self.guild_id is not None:
-            shard_id = snowflakes.calculate_shard_id(self._tanjun_client.shards, self.guild_id)
+            shard_id = snowflakes.calculate_shard_id(self._client.shards, self.guild_id)
 
         else:
             shard_id = 0
 
-        return self._tanjun_client.shards.shards[shard_id]
+        return self._client.shards.shards[shard_id]
 
     @property
     def shards(self) -> hikari.ShardAware | None:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._tanjun_client.shards
+        return self._client.shards
 
     @property
     def voice(self) -> hikari.api.VoiceComponent | None:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._tanjun_client.voice
+        return self._client.voice
 
     def _assert_not_final(self) -> None:
         if self._final:
@@ -129,19 +139,13 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
     def set_component(self, component: tanjun.Component | None, /) -> Self:
         # <<inherited docstring from tanjun.abc.Context>>.
         self._assert_not_final()
-        if component:
-            self._set_type_special_case(tanjun.Component, component)
-
-        elif self._component:
-            self._remove_type_special_case(tanjun.Component)
-
         self._component = component
         return self
 
     def get_channel(self) -> hikari.TextableGuildChannel | None:
         # <<inherited docstring from tanjun.abc.Context>>.
-        if self._tanjun_client.cache:
-            channel = self._tanjun_client.cache.get_guild_channel(self.channel_id)
+        if self._client.cache:
+            channel = self._client.cache.get_guild_channel(self.channel_id)
             assert channel is None or isinstance(channel, hikari.TextableGuildChannel)
             return channel
 
@@ -149,20 +153,86 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
 
     def get_guild(self) -> hikari.Guild | None:
         # <<inherited docstring from tanjun.abc.Context>>.
-        if self.guild_id is not None and self._tanjun_client.cache:
-            return self._tanjun_client.cache.get_guild(self.guild_id)
+        if self.guild_id is not None and self._client.cache:
+            return self._client.cache.get_guild(self.guild_id)
 
         return None  # MyPy compat
 
     async def fetch_channel(self) -> hikari.TextableChannel:
         # <<inherited docstring from tanjun.abc.Context>>.
-        channel = await self._tanjun_client.rest.fetch_channel(self.channel_id)
+        channel = await self._client.rest.fetch_channel(self.channel_id)
         assert isinstance(channel, hikari.TextableChannel)
         return channel
 
     async def fetch_guild(self) -> hikari.Guild | None:  # TODO: or raise?
         # <<inherited docstring from tanjun.abc.Context>>.
         if self.guild_id is not None:
-            return await self._tanjun_client.rest.fetch_guild(self.guild_id)
+            return await self._client.rest.fetch_guild(self.guild_id)
 
         return None  # MyPy compat
+
+    @property
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def injection_client(self) -> alluka.Client:
+        return self._client.injector
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def cache_result(self, callback: alluka.CallbackSig[_T], value: _T, /) -> None:
+        return None
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(
+        self,
+        callback: collections.Callable[..., collections.Coroutine[typing.Any, typing.Any, typing.Any]],
+        *args: typing.Any,
+        **kwargs: typing.Any,
+    ) -> typing.NoReturn: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T:
+        return self._client.injector.call_with_di(callback, *args, **kwargs)
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    async def call_with_async_di(self, callback: alluka.CallbackSig[_T], *args: typing.Any, **kwargs: typing.Any) -> _T:
+        return await self._client.injector.call_with_async_di(callback, *args, **kwargs)
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /) -> _T: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /, *, default: _DefaultT) -> _T | _DefaultT: ...
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(
+        self, callback: alluka.CallbackSig[_T], /, *, default: tanjun.NoDefault | _DefaultT = tanjun.NO_DEFAULT
+    ) -> _T | _DefaultT:
+        if default is tanjun.NO_DEFAULT:
+            raise KeyError
+
+        return default
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /) -> _T: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> _T | _DefaultT: ...
+
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(
+        self, type_: type[_T], /, *, default: tanjun.NoDefault | _DefaultT = tanjun.NO_DEFAULT
+    ) -> _T | _DefaultT:
+        result: _T | _DefaultT | tanjun.NoDefault = self._client.injector.get_type_dependency(type_, default=default)
+
+        if result is tanjun.NO_DEFAULT:
+            raise KeyError
+
+        return result

@@ -433,6 +433,7 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
     if type_ is BucketResource.CHANNEL:
         return ctx.channel_id
 
+    alluka_ctx = alluka.local.get_context(default=None) or ctx.injection_client.make_context()
     if type_ is BucketResource.PARENT_CHANNEL:
         channel: hikari.PartialChannel | None  # MyPy compat
         if ctx.guild_id is None:
@@ -441,13 +442,15 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
         if cached_channel := ctx.get_channel():
             return cached_channel.parent_id or ctx.guild_id
 
-        channel_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.PermissibleGuildChannel], default=None)
+        channel_cache = alluka_ctx.get_type_dependency(
+            async_cache.SfCache[hikari.PermissibleGuildChannel], default=None
+        )
         if channel_cache:  # noqa: SIM102
             # Has to be nested cause of pyright bug:
             if channel := await channel_cache.get(ctx.channel_id, default=None):
                 return channel.parent_id or ctx.guild_id
 
-        thread_cache = ctx.get_type_dependency(async_cache.SfCache[hikari.GuildThreadChannel], default=None)
+        thread_cache = alluka_ctx.get_type_dependency(async_cache.SfCache[hikari.GuildThreadChannel], default=None)
         if thread_cache:  # noqa: SIM102
             # Has to be nested cause of pyright bug
             if channel := await thread_cache.get(ctx.channel_id, default=None):
@@ -470,7 +473,7 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
         try_rest = not roles
         if try_rest:  # noqa: SIM102
             # Has to be nested cause of pyright bug
-            if role_cache := ctx.get_type_dependency(async_cache.SfCache[hikari.Role], default=None):
+            if role_cache := alluka_ctx.get_type_dependency(async_cache.SfCache[hikari.Role], default=None):
                 try:
                     roles = filter(None, [await _try_get_role(role_cache, role_id) for role_id in ctx.member.role_ids])
                     try_rest = False

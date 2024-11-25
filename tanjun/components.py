@@ -50,6 +50,8 @@ from . import abc as tanjun
 if typing.TYPE_CHECKING:
     from typing import Self
 
+    import alluka
+
     from . import schedules as schedules_
 
     _AppCommandContextT = typing.TypeVar("_AppCommandContextT", bound=tanjun.AppCommandContext)
@@ -1167,7 +1169,8 @@ class Component(tanjun.Component):
         return self
 
     async def _check_context(self, ctx: tanjun.Context, /) -> bool:
-        return await _internal.gather_checks(ctx, self._checks)
+        alluka_ctx = alluka.local.get_context() or ctx.injection_client.make_context()
+        return await _internal.gather_checks(ctx, self._checks, alluka_ctx=alluka_ctx)
 
     async def _check_message_context(
         self, ctx: tanjun.MessageContext, /

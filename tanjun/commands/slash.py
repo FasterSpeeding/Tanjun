@@ -55,6 +55,7 @@ import unicodedata
 import warnings
 from collections import abc as collections
 
+import alluka
 import hikari
 import typing_extensions
 
@@ -819,7 +820,7 @@ class _TrackedOption:
             if isinstance(converter, conversion.BaseConverter):  # pyright: ignore[reportUnnecessaryIsInstance]
                 converter.check_client(client, f"{self.name} slash command option")
 
-    async def convert(self, ctx: tanjun.SlashContext, value: typing.Any, /) -> typing.Any:
+    async def convert(self, ctx: alluka.abc.Context, value: typing.Any, /) -> typing.Any:
         if not self.converters:
             return value
 
@@ -3115,7 +3116,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
         return decorator
 
-    async def _process_args(self, ctx: tanjun.SlashContext, /) -> collections.Mapping[str, typing.Any]:
+    async def _process_args(
+        self, alluka_ctx: alluka.abc.Context, ctx: tanjun.SlashContext, /
+    ) -> collections.Mapping[str, typing.Any]:
         keyword_args: dict[
             str, int | float | str | hikari.Attachment | hikari.User | hikari.Role | hikari.InteractionChannel
         ] = {}
@@ -3159,7 +3162,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
                     value = float(value)
 
                 if tracked_option.converters:
-                    value = await tracked_option.convert(ctx, option.value)
+                    value = await tracked_option.convert(alluka_ctx, option.value)
 
                 keyword_args[tracked_option.key] = value
 
@@ -3181,14 +3184,15 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         own_hooks = self._hooks or _EMPTY_HOOKS
         try:
             await own_hooks.trigger_pre_execution(ctx, hooks=hooks)
+            alluka_ctx = alluka.local.get_context(default=None) or ctx.injection_client.make_context()
 
             if self._tracked_options:
-                kwargs = await self._process_args(ctx)
+                kwargs = await self._process_args(alluka_ctx, ctx)
 
             else:
                 kwargs = _EMPTY_DICT
 
-            await ctx.call_with_async_di(self._callback, ctx, **kwargs)
+            await alluka_ctx.call_with_async_di(self._callback, ctx, **kwargs)
 
         except errors.CommandError as exc:
             await exc.send(ctx)
@@ -3232,7 +3236,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             error_message = f"No autocomplete callback found for '{ctx.focused.name}' option"
             raise RuntimeError(error_message)
 
-        await ctx.call_with_async_di(callback, ctx, ctx.focused.value)
+        alluka_ctx = alluka.local.get_context(default=None) or ctx.injection_client.make_context()
+        await alluka_ctx.call_with_async_di(callback, ctx, ctx.focused.value)
 
     def copy(self, *, parent: tanjun.SlashCommandGroup | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.

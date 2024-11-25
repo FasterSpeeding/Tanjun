@@ -60,7 +60,12 @@ _VALID_TYPES: frozenset[typing.Literal[hikari.CommandType.USER, hikari.CommandTy
 
 
 class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
-    """Standard menu command execution context."""
+    """Standard menu command execution context.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ("_command", "_marked_not_found", "_on_not_found")
 
@@ -96,7 +101,6 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         self._command: tanjun.MenuCommand[typing.Any, typing.Any] | None = None
         self._marked_not_found = False
         self._on_not_found = on_not_found
-        self._set_type_special_case(tanjun.MenuContext, self)._set_type_special_case(MenuContext, self)  # noqa: SLF001
 
     @property
     def command(self) -> tanjun.MenuCommand[typing.Any, typing.Any] | None:
@@ -152,12 +156,6 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
 
     def set_command(self, command: tanjun.MenuCommand[typing.Any, typing.Any] | None, /) -> Self:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
-        if command:
-            self._set_type_special_case(tanjun.MenuCommand, command)
-
-        elif self._command:
-            self._remove_type_special_case(tanjun.MenuContext)
-
         self._command = command
         return self
 

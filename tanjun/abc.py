@@ -73,6 +73,7 @@ import abc
 import enum
 import typing
 from collections import abc as collections
+import typing_extensions
 
 import hikari
 from alluka import abc as alluka
@@ -263,7 +264,12 @@ NO_PASS = _DefaultFlag.NO_PASS
 
 
 class Context(alluka.Context):
-    """Interface for the context of a command execution."""
+    """Interface for the context of a command execution.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -893,9 +899,73 @@ class Context(alluka.Context):
             If an internal error occurs on Discord while handling the request.
         """
 
+    @property
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def injection_client(self) -> alluka.Client: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def cache_result(self, callback: alluka.CallbackSig[_T], value: _T, /) -> None: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(
+        self, callback: collections.Callable[..., _CoroT[typing.Any]], *args: typing.Any, **kwargs: typing.Any
+    ) -> typing.NoReturn: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    async def call_with_async_di(
+        self, callback: alluka.CallbackSig[_T], *args: typing.Any, **kwargs: typing.Any
+    ) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /, *, default: _DefaultT) -> _T | _DefaultT: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /, *, default: _DefaultT = ...) -> _T | _DefaultT: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> _T | _DefaultT: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT = ...) -> _T | _DefaultT: ...
+
 
 class MessageContext(Context, abc.ABC):
-    """Interface of a message command specific context."""
+    """Interface of a message command specific context.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -1301,7 +1371,12 @@ class SlashOption(abc.ABC):
 
 
 class AppCommandContext(Context, abc.ABC):
-    """Base class for application command contexts."""
+    """Base class for application command contexts.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -1684,7 +1759,12 @@ class AppCommandContext(Context, abc.ABC):
 
 
 class MenuContext(AppCommandContext, abc.ABC):
-    """Interface of a menu command context."""
+    """Interface of a menu command context.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -1784,7 +1864,12 @@ class MenuContext(AppCommandContext, abc.ABC):
 
 
 class SlashContext(AppCommandContext, abc.ABC):
-    """Interface of a slash command specific context."""
+    """Interface of a slash command specific context.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -1821,7 +1906,12 @@ class SlashContext(AppCommandContext, abc.ABC):
 
 
 class AutocompleteContext(alluka.Context):
-    """Interface of an autocomplete context."""
+    """Interface of an autocomplete context.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = ()
 
@@ -2061,6 +2151,65 @@ class AutocompleteContext(alluka.Context):
         ValueError
             If more than 25 choices are passed.
         """
+
+    @property
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def injection_client(self) -> alluka.Client: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def cache_result(self, callback: alluka.CallbackSig[_T], value: _T, /) -> None: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(
+        self, callback: collections.Callable[..., _CoroT[typing.Any]], *args: typing.Any, **kwargs: typing.Any
+    ) -> typing.NoReturn: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def call_with_di(self, callback: collections.Callable[..., _T], *args: typing.Any, **kwargs: typing.Any) -> _T: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    async def call_with_async_di(
+        self, callback: alluka.CallbackSig[_T], *args: typing.Any, **kwargs: typing.Any
+    ) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /, *, default: _DefaultT) -> _T | _DefaultT: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_cached_result(self, callback: alluka.CallbackSig[_T], /, *, default: _DefaultT = ...) -> _T | _DefaultT: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /) -> _T: ...
+
+    @typing.overload
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT) -> _T | _DefaultT: ...
+
+    @abc.abstractmethod
+    @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
+    def get_type_dependency(self, type_: type[_T], /, *, default: _DefaultT = ...) -> _T | _DefaultT: ...
 
 
 class Hooks(abc.ABC, typing.Generic[_ContextT_contra]):
