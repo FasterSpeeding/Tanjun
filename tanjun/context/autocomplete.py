@@ -36,9 +36,8 @@ __all__: list[str] = ["AutocompleteContext"]
 import typing
 
 import hikari
-from hikari import snowflakes
-
 import typing_extensions
+from hikari import snowflakes
 
 from tanjun import _internal
 from tanjun import abc as tanjun

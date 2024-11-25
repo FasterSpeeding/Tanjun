@@ -35,9 +35,8 @@ __all__: list[str] = []
 import typing
 
 import hikari
-from hikari import snowflakes
-
 import typing_extensions
+from hikari import snowflakes
 
 from tanjun import abc as tanjun
 

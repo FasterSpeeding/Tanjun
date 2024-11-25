@@ -73,9 +73,9 @@ import abc
 import enum
 import typing
 from collections import abc as collections
-import typing_extensions
 
 import hikari
+import typing_extensions
 from alluka import abc as alluka
 
 if typing.TYPE_CHECKING:
