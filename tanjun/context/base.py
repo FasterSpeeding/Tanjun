@@ -45,7 +45,7 @@ if typing.TYPE_CHECKING:
     from typing import Self
 
 
-class BaseContext(alluka.BasicContext, tanjun.Context):
+class BaseContext(alluka.Context, tanjun.Context):
     """Base class for the standard command context implementations."""
 
     __slots__ = ("_tanjun_client", "_component", "_final")
