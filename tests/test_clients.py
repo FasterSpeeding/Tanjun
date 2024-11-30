@@ -5465,7 +5465,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -5529,7 +5529,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
                 task = asyncio.current_task()
 
             return _()
@@ -5591,7 +5591,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -5710,7 +5710,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks is None
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -5771,7 +5771,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.slash_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -5835,7 +5835,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -6328,7 +6328,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -6392,7 +6392,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
                 task = asyncio.current_task()
 
             return _()
@@ -6454,7 +6454,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -6638,7 +6638,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is None
+                assert hooks == {command_dispatch_client.menu_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -6704,7 +6704,7 @@ class TestClient:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is None
+                assert hooks == {command_dispatch_client.hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
