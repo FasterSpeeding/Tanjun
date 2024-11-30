@@ -114,6 +114,7 @@ ignore = [
     "COM812",  # Trailing comma missing (incompatible with black)
     "FIX002",  # Line contains TODO, consider resolving the issue
     "I001",    # [*] Import block is un-sorted or un-formatted
+    "PYI041",  # Use `float` instead of `int | float`
     "S101",    # Use of `assert` detected
     "SIM108",  # Use ternary operator `` instead of `if`-`else`-block
     "TD002",   # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
@@ -141,8 +142,43 @@ ignore = [
     "D102",    # Missing docstring in public method
     "D103",    # Missing docstring in public function
     "D104",    # Missing docstring in public package
+    "FBT001",  # Boolean-typed positional argument in function definition
+    "PGH003",  # Use specific rule codes when ignoring type issues
     "PLR2004", # Magic value used in comparison, consider replacing `` with a constant variable
-    "SLF001",  # Private member accessed: `_injector`
+    "SLF001",  # Private member accessed: ``
+]
+"tests/test_annotations_future_annotations.py" = [
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "PLW0603", # Using the global statement to update `` is discouraged
+    "UP007",   # [*] Use `X | Y` for type annotations
+]
+"tests/test_annotations.py" = [
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "UP007",   # [*] Use `X | Y` for type annotations
+]
+"tests/test_clients_future_annotations.py" = [
+    "B008",     # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "PLW0603",  # Using the global statement to update `` is discouraged
+    "UP007",    # [*] Use `X | Y` for type annotations
+]
+"tests/test_clients.py" = [
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "UP007",   # [*] Use `X | Y` for type annotations
+]
+"tests/test_components_future_annotations.py" = [
+    "B008",     # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "PGH003",   # Use specific rule codes when ignoring type issues
+    "PLW0603",  # Using the global statement to update `` is discouraged
+    "UP007",    # [*] Use `X | Y` for type annotations
+]
+"tests/test_components.py" = [
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "PGH003",  # Use specific rule codes when ignoring type issues
+    "UP007",   # [*] Use `X | Y` for type annotations
+]
+"tests/test_schedules.py" = [
+    "DTZ001",  # `datetime.datetime()` called without a `tzinfo` argument
+    "DTZ005",  # `datetime.datetime.now()` called without a `tz` argument
 ]
 
 [tool.ruff.lint.mccabe]
@@ -264,3 +300,6 @@ tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)
 | tanjun.dependencies.reloaders:(_PathLoader|_ScanResult)
 | .*Proto
 """
+
+[tool.uv]
+reinstall-package = ["hikari-tanjun"]

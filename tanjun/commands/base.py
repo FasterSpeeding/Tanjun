@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -36,8 +35,8 @@ __all__: list[str] = ["PartialCommand"]
 import copy
 import typing
 
-from .. import abc as tanjun
-from .. import components
+from tanjun import abc as tanjun
+from tanjun import components
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections

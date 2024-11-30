@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -247,7 +246,6 @@ __all__: list[str] = [
 import abc
 import dataclasses
 import datetime
-import enum
 import inspect
 import itertools
 import operator
@@ -266,6 +264,7 @@ from .commands import message
 from .commands import slash
 
 if typing.TYPE_CHECKING:
+    import enum
     from typing import Self
 
     _T = typing.TypeVar("_T")
@@ -376,11 +375,11 @@ class _Field(_ConfigIdentifier):
         "_empty_value",
         "_is_greedy",
         "_is_positional",
+        "_max_length",
+        "_max_value",
         "_message_names",
         "_min_length",
-        "_max_length",
         "_min_value",
-        "_max_value",
         "_option_type",
         "_slash_name",
         "_snowflake_converter",
@@ -1461,7 +1460,8 @@ class _ChoicesMeta(abc.ABCMeta):
             converter = None
 
         else:
-            raise TypeError("Enum must be a subclass of str, float or int")
+            error_message = "Enum must be a subclass of str, float or int"
+            raise TypeError(error_message)
 
         enum_onverter = _EnumConverter(enum_)
         # TODO: do we want to wrap the convert callback to give better failed parse messages?
@@ -1890,7 +1890,7 @@ class Length(_ConfigIdentifier, metaclass=_LengthMeta):
     specified and ignores any specified step.
     """
 
-    __slots__ = ("_min_length", "_max_length")
+    __slots__ = ("_max_length", "_min_length")
 
     @typing.overload
     def __init__(self, max_length: int, /) -> None: ...
@@ -2296,9 +2296,10 @@ def _ensure_value(name: str, type_: type[_T], value: typing.Any | None, /) -> _T
     if value is None or isinstance(value, type_):
         return value
 
-    raise TypeError(
+    error_message = (
         f"{name.capitalize()} value of type {type(value).__name__} is not valid for a {type_.__name__} argument"
     )
+    raise TypeError(error_message)
 
 
 def _ensure_values(
@@ -2309,9 +2310,10 @@ def _ensure_values(
 
     for value in mapping.values():
         if not isinstance(value, type_):
-            raise TypeError(
+            error_message = (
                 f"{name.capitalize()} of type {type(value).__name__} is not valid for a {type_.__name__} argument"
             )
+            raise TypeError(error_message)
 
     return typing.cast("collections.Mapping[str, _T]", mapping)
 
@@ -2351,11 +2353,11 @@ class _ArgConfig:
         "is_positional",
         "key",
         "main_message_name",
-        "min_length",
         "max_length",
-        "min_value",
         "max_value",
         "message_names",
+        "min_length",
+        "min_value",
         "option_type",
         "range_or_slice",
         "slash_name",
@@ -2390,9 +2392,10 @@ class _ArgConfig:
 
     def set_option_type(self, option_type: typing.Any, /) -> None:
         if self.option_type is not None and option_type != self.option_type:
-            raise RuntimeError(
+            error_message = (
                 f"Conflicting option types of {self.option_type} and {option_type} found for {self.key!r} parameter"
             )
+            raise RuntimeError(error_message)
 
         self.option_type = option_type
 
@@ -2404,7 +2407,7 @@ class _ArgConfig:
             elif not self.description and isinstance(arg, str):
                 self.description = arg
 
-            elif isinstance(arg, (range, slice)):
+            elif isinstance(arg, range | slice):
                 self.range_or_slice = arg
 
         return self
@@ -2450,7 +2453,8 @@ class _ArgConfig:
                 converters = (conversion.ToChannel(allowed_types=self.channel_types or None),)
 
             elif not self.has_natural_default:
-                raise RuntimeError(f"{self.option_type!r} is not supported for message commands")
+                error_message = f"{self.option_type!r} is not supported for message commands"
+                raise RuntimeError(error_message)
 
             else:
                 # If there is a real default then this should just be left to always default
@@ -2463,7 +2467,8 @@ class _ArgConfig:
         for command in commands:
             if command.parser:
                 if not isinstance(command.parser, parsing.AbstractOptionParser):
-                    raise TypeError("Expected parser to be an instance of tanjun.parsing.AbstractOptionParser")
+                    error_message = "Expected parser to be an instance of tanjun.parsing.AbstractOptionParser"
+                    raise TypeError(error_message)
 
                 parser = command.parser
 
@@ -2484,7 +2489,8 @@ class _ArgConfig:
                 )
 
             elif self.default is tanjun.NO_DEFAULT:
-                raise ValueError(f"Flag argument {self.key!r} must have a default")
+                error_message = f"Flag argument {self.key!r} must have a default"
+                raise ValueError(error_message)
 
             else:
                 parser.add_option(
@@ -2506,7 +2512,8 @@ class _ArgConfig:
             option_adder = self.SLASH_OPTION_ADDER[self.option_type]
             for command in commands:
                 if not self.description:
-                    raise ValueError(f"Missing description for argument {self.key!r}")
+                    error_message = f"Missing description for argument {self.key!r}"
+                    raise ValueError(error_message)
 
                 option_adder(self, command, self.description)
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Tanjun Examples - A collection of examples for Tanjun.
 # Written in 2021 by Faster Speeding Lucina@lmbyrne.dev
 #
@@ -47,7 +46,7 @@ async def run() -> None:
     bot.run()
 
 
-def main():
+def main() -> None:
     asyncio.run(run())
 
 

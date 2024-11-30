@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -36,11 +35,12 @@ __all__: list[str] = ["MessageCommand", "MessageCommandGroup", "as_message_comma
 import copy
 import typing
 
-from .. import _internal
-from .. import abc as tanjun
-from .. import components
-from .. import errors
-from .. import hooks as hooks_
+from tanjun import _internal
+from tanjun import abc as tanjun
+from tanjun import components
+from tanjun import errors
+from tanjun import hooks as hooks_
+
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -100,7 +100,7 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
     """
 
     def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             wrapped_command = callback
             # Cast needed cause of pyright bug.
             callback = typing.cast("_MessageCallbackSigT", callback.callback)
@@ -157,7 +157,7 @@ def as_message_command_group(
     """
 
     def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             wrapped_command = callback
             # Cast needed cause of pyright bug
             callback = typing.cast("_MessageCallbackSigT", callback.callback)
@@ -228,7 +228,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             Whether to validate that option keys match the command callback's signature.
         """
         super().__init__()
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             # Cast needed cause of pyright bug.
             callback = typing.cast("_MessageCallbackSigT", callback.callback)
 
@@ -349,7 +349,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             raise
 
         except Exception as exc:
-            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:  # noqa: ASYNC120
+            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
                 raise
 
         else:
@@ -580,7 +580,8 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
     ) -> None:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if ctx.message.content is None:
-            raise ValueError("Cannot execute a command with a content-less message")
+            error_message = "Cannot execute a command with a content-less message"
+            raise ValueError(error_message)
 
         if self._hooks:
             if hooks is None:

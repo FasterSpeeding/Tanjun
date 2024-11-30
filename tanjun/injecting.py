@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -49,7 +48,6 @@ __all__: list[str] = [
     "injected",
 ]
 
-import collections.abc as collections
 import typing
 
 import alluka
@@ -63,6 +61,8 @@ from alluka.abc import CallbackSig
 from alluka.abc import Context as AbstractInjectionContext
 
 if typing.TYPE_CHECKING:
+    import collections.abc as collections
+
     from . import abc as tanjun
 
 _T = typing.TypeVar("_T")

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -70,7 +69,7 @@ def stub_class(
     return typing.cast("type[_T]", new_cls)(*args, **kwargs or {})
 
 
-def test_slash_command_group():
+def test_slash_command_group() -> None:
     command = tanjun.slash_command_group(
         "a_name",
         "very",
@@ -91,7 +90,7 @@ def test_slash_command_group():
     assert isinstance(command, tanjun.SlashCommandGroup)
 
 
-def test_slash_command_group_with_default():
+def test_slash_command_group_with_default() -> None:
     command = tanjun.slash_command_group("a_name", "very")
 
     assert command.tracked_command_id is None
@@ -103,7 +102,7 @@ def test_slash_command_group_with_default():
     assert isinstance(command, tanjun.SlashCommandGroup)
 
 
-def test_as_slash_command():
+def test_as_slash_command() -> None:
     mock_callback = mock.Mock()
 
     command = tanjun.as_slash_command(
@@ -144,7 +143,7 @@ def test_as_slash_command_when_wrapping_command(
     other_command: (
         tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
     )
-):
+) -> None:
     command = tanjun.as_slash_command(
         "a_very",
         "cool name",
@@ -171,7 +170,7 @@ def test_as_slash_command_when_wrapping_command(
     assert isinstance(command, tanjun.SlashCommand)
 
 
-def test_as_slash_command_with_defaults():
+def test_as_slash_command_with_defaults() -> None:
     mock_callback = mock.Mock()
 
     command = tanjun.as_slash_command("a_very", "cool name")(mock_callback)
@@ -186,7 +185,7 @@ def test_as_slash_command_with_defaults():
     assert isinstance(command, tanjun.SlashCommand)
 
 
-def test_with_attachment_slash_option():
+def test_with_attachment_slash_option() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_attachment_slash_option(
@@ -199,7 +198,7 @@ def test_with_attachment_slash_option():
     )
 
 
-def test_with_attachment_slash_option_with_defaults():
+def test_with_attachment_slash_option_with_defaults() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_attachment_slash_option("meow", "nyaa")(mock_command)
@@ -210,7 +209,7 @@ def test_with_attachment_slash_option_with_defaults():
     )
 
 
-def test_with_str_slash_option():
+def test_with_str_slash_option() -> None:
     mock_autocomplete = mock.Mock()
     mock_command = mock.MagicMock()
     mock_converter = mock.Mock()
@@ -244,7 +243,7 @@ def test_with_str_slash_option():
     )
 
 
-def test_with_str_slash_option_with_defaults():
+def test_with_str_slash_option_with_defaults() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_str_slash_option("a_name", "a_value")(mock_command)
@@ -265,7 +264,7 @@ def test_with_str_slash_option_with_defaults():
     )
 
 
-def test_with_int_slash_option():
+def test_with_int_slash_option() -> None:
     mock_autocomplete = mock.Mock()
     mock_command = mock.MagicMock()
     mock_converter = mock.Mock()
@@ -299,7 +298,7 @@ def test_with_int_slash_option():
     )
 
 
-def test_with_int_slash_option_with_defaults():
+def test_with_int_slash_option_with_defaults() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_int_slash_option("im_con", "con man")(mock_command)
@@ -320,7 +319,7 @@ def test_with_int_slash_option_with_defaults():
     )
 
 
-def test_with_float_slash_option():
+def test_with_float_slash_option() -> None:
     mock_autocomplete = mock.Mock()
     mock_command = mock.MagicMock()
     mock_converter = mock.Mock()
@@ -356,7 +355,7 @@ def test_with_float_slash_option():
     )
 
 
-def test_with_float_slash_option_with_defaults():
+def test_with_float_slash_option_with_defaults() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_float_slash_option("hi", "bye")(mock_command)
@@ -378,7 +377,7 @@ def test_with_float_slash_option_with_defaults():
     )
 
 
-def test_with_bool_slash_option():
+def test_with_bool_slash_option() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_bool_slash_option("bool", "bool me man", default=False, key="audience", pass_as_kwarg=False)(
@@ -391,7 +390,7 @@ def test_with_bool_slash_option():
     )
 
 
-def test_with_bool_slash_option_with_defaults():
+def test_with_bool_slash_option_with_defaults() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_bool_slash_option("bool", "bool me man")(mock_command)
@@ -402,7 +401,7 @@ def test_with_bool_slash_option_with_defaults():
     )
 
 
-def test_with_user_slash_option():
+def test_with_user_slash_option() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_user_slash_option(
@@ -415,7 +414,7 @@ def test_with_user_slash_option():
     )
 
 
-def test_with_user_slash_option_with_defaults():
+def test_with_user_slash_option_with_defaults() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_user_slash_option("victim", "who're we getting next?")(mock_command)
@@ -426,7 +425,7 @@ def test_with_user_slash_option_with_defaults():
     )
 
 
-def test_with_member_slash_option():
+def test_with_member_slash_option() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_member_slash_option("no", "hihihi?", default=123321, key="member")(mock_command)
@@ -435,7 +434,7 @@ def test_with_member_slash_option():
     mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=123321, key="member")
 
 
-def test_with_member_slash_option_with_defaults():
+def test_with_member_slash_option_with_defaults() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_member_slash_option("no", "hihihi?")(mock_command)
@@ -444,7 +443,7 @@ def test_with_member_slash_option_with_defaults():
     mock_command.add_member_option.assert_called_once_with("no", "hihihi?", default=tanjun.abc.NO_DEFAULT, key=None)
 
 
-def test_with_channel_slash_option():
+def test_with_channel_slash_option() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_channel_slash_option(
@@ -467,7 +466,7 @@ def test_with_channel_slash_option():
     )
 
 
-def test_with_channel_slash_option_with_defaults():
+def test_with_channel_slash_option_with_defaults() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_channel_slash_option("channel", "channel?")(mock_command)
@@ -478,7 +477,7 @@ def test_with_channel_slash_option_with_defaults():
     )
 
 
-def test_with_role_slash_option():
+def test_with_role_slash_option() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_role_slash_option("role", "role?", default=333, key="paradise", pass_as_kwarg=False)(
@@ -491,7 +490,7 @@ def test_with_role_slash_option():
     )
 
 
-def test_with_role_slash_option_with_defaults():
+def test_with_role_slash_option_with_defaults() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_role_slash_option("role", "role?")(mock_command)
@@ -502,7 +501,7 @@ def test_with_role_slash_option_with_defaults():
     )
 
 
-def test_with_mentionable_slash_option():
+def test_with_mentionable_slash_option() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_mentionable_slash_option("mentu", "mentu?", default=333, key="gun", pass_as_kwarg=False)(
@@ -515,7 +514,7 @@ def test_with_mentionable_slash_option():
     )
 
 
-def test_with_mentionable_slash_option_with_defaults():
+def test_with_mentionable_slash_option_with_defaults() -> None:
     mock_command = mock.MagicMock()
 
     result = tanjun.with_mentionable_slash_option("mentu", "mentu?", pass_as_kwarg=True)(mock_command)
@@ -527,7 +526,7 @@ def test_with_mentionable_slash_option_with_defaults():
 
 
 class TestTrackedOption:
-    def test_init(self):
+    def test_init(self) -> None:
         mock_converter = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(
             name="name",
@@ -548,14 +547,14 @@ class TestTrackedOption:
         assert option.default == "default"
 
     @pytest.mark.asyncio
-    async def test_convert_when_no_converters(self):
+    async def test_convert_when_no_converters(self) -> None:
         mock_value = mock.Mock()
         option = tanjun.commands.slash._TrackedOption(name="hi", key="bye", option_type=hikari.OptionType.INTEGER)
 
         assert await option.convert(mock.Mock(), mock_value) is mock_value
 
     @pytest.mark.asyncio
-    async def test_convert_when_all_fail(self):
+    async def test_convert_when_all_fail(self) -> None:
         exc_1 = ValueError()
         exc_2 = ValueError()
         mock_converter_1 = mock.Mock()
@@ -578,7 +577,7 @@ class TestTrackedOption:
         )
 
     @pytest.mark.asyncio
-    async def test_convert(self):
+    async def test_convert(self) -> None:
         mock_converter_1 = mock.Mock()
         mock_converter_2 = mock.Mock()
         mock_converter_3 = mock.Mock()
@@ -610,7 +609,7 @@ _INVALID_NAMES = ["☠︎⍓︎♋︎♋︎ ⬧︎♏︎■︎◻︎♋︎♓︎
 
 class TestBaseSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test__init__with_invalid_name(self, name: str):
+    def test__init__with_invalid_name(self, name: str) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -619,7 +618,7 @@ class TestBaseSlashCommand:
             stub_class(tanjun.commands.BaseSlashCommand, args=(name, "desccc"))
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test__init__with_invalid_localised_name(self, name: str):
+    def test__init__with_invalid_localised_name(self, name: str) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -631,7 +630,7 @@ class TestBaseSlashCommand:
             )
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test__init__with_invalid_localised_default_name(self, name: str):
+    def test__init__with_invalid_localised_default_name(self, name: str) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -645,22 +644,22 @@ class TestBaseSlashCommand:
                 ),
             )
 
-    def test__init__when_no_names_provided(self):
+    def test__init__when_no_names_provided(self) -> None:
         with pytest.raises(RuntimeError, match="No default name given"):
             tanjun.commands.SlashCommand(mock.AsyncMock(), {"id": "id"}, "description")
 
-    def test__init__when_name_too_long(self):
+    def test__init__when_name_too_long(self) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             stub_class(tanjun.commands.BaseSlashCommand, args=("x" * 33, "description"))
 
-    def test__init__when_localised_name_too_long(self):
+    def test__init__when_localised_name_too_long(self) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             stub_class(
                 tanjun.commands.BaseSlashCommand,
                 args=({hikari.Locale.DE: "x" * 33, hikari.Locale.JA: "op", hikari.Locale.KO: "opop"}, "description"),
             )
 
-    def test__init__when_localised_default_name_too_long(self):
+    def test__init__when_localised_default_name_too_long(self) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             stub_class(
                 tanjun.commands.BaseSlashCommand,
@@ -670,11 +669,11 @@ class TestBaseSlashCommand:
                 ),
             )
 
-    def test__init__when_name_too_short(self):
+    def test__init__when_name_too_short(self) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             stub_class(tanjun.commands.BaseSlashCommand, args=("", "description"))
 
-    def test__init__when_localised_name_too_short(self):
+    def test__init__when_localised_name_too_short(self) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             stub_class(
                 tanjun.commands.BaseSlashCommand,
@@ -684,7 +683,7 @@ class TestBaseSlashCommand:
                 ),
             )
 
-    def test__init__when_localised_default_name_too_short(self):
+    def test__init__when_localised_default_name_too_short(self) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             stub_class(
                 tanjun.commands.BaseSlashCommand,
@@ -699,18 +698,18 @@ class TestBaseSlashCommand:
                 ),
             )
 
-    def test__init__when_name_isnt_lowercase(self):
+    def test__init__when_name_isnt_lowercase(self) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'VooDOo' must be lowercase"):
             stub_class(tanjun.commands.BaseSlashCommand, args=("VooDOo", "desccc"))
 
-    def test__init__when_localised_name_isnt_lowercase(self):
+    def test__init__when_localised_name_isnt_lowercase(self) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'BeepBeep' must be lowercase"):
             stub_class(
                 tanjun.commands.BaseSlashCommand,
                 args=({hikari.Locale.DE: "im_a_very_good_german", hikari.Locale.ES_ES: "BeepBeep"}, "desccc"),
             )
 
-    def test__init__when_localised_default_name_isnt_lowercase(self):
+    def test__init__when_localised_default_name_isnt_lowercase(self) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'WoreLSA' must be lowercase"):
             stub_class(
                 tanjun.commands.BaseSlashCommand,
@@ -720,61 +719,61 @@ class TestBaseSlashCommand:
                 ),
             )
 
-    def test__init__when_no_descriptions_provided(self):
+    def test__init__when_no_descriptions_provided(self) -> None:
         with pytest.raises(RuntimeError, match="No default description given"):
             tanjun.commands.SlashCommand(mock.AsyncMock(), "name", {"id": "path"})
 
-    def test__init__when_description_too_long(self):
+    def test__init__when_description_too_long(self) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             stub_class(tanjun.commands.BaseSlashCommand, args=("gary", "x" * 101))
 
-    def test__init__when_localised_description_too_long(self):
+    def test__init__when_localised_description_too_long(self) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             stub_class(
                 tanjun.commands.BaseSlashCommand,
                 args=("gary", {hikari.Locale.ES_ES: "x" * 101, hikari.Locale.EL: "el salvador"}),
             )
 
-    def test__init__when_localised_default_description_too_long(self):
+    def test__init__when_localised_default_description_too_long(self) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             stub_class(
                 tanjun.commands.BaseSlashCommand, args=("gary", {"default": "x" * 101, hikari.Locale.EL: "el salvador"})
             )
 
-    def test__init__when_description_too_short(self):
+    def test__init__when_description_too_short(self) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             stub_class(tanjun.commands.BaseSlashCommand, args=("gary", ""))
 
-    def test__init__when_localised_description_too_short(self):
+    def test__init__when_localised_description_too_short(self) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             stub_class(
                 tanjun.commands.BaseSlashCommand, args=("gary", {hikari.Locale.EL: "", hikari.Locale.CS: "essa"})
             )
 
-    def test__init__when_localised_default_description_too_short(self):
+    def test__init__when_localised_default_description_too_short(self) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             stub_class(tanjun.commands.BaseSlashCommand, args=("gary", {"default": "", hikari.Locale.CS: "essa"}))
 
-    def test_default_member_permissions_property(self):
+    def test_default_member_permissions_property(self) -> None:
         command = stub_class(
             tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"default_member_permissions": 54312312}
         )
 
         assert command.default_member_permissions == 54312312
 
-    def test_defaults_to_ephemeral_property(self):
+    def test_defaults_to_ephemeral_property(self) -> None:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"))
 
         assert command.set_ephemeral_default(True).defaults_to_ephemeral is True
 
-    def test_description_properties(self):
+    def test_description_properties(self) -> None:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "desccc"))
 
         assert command.description == "desccc"
         assert command.description_localisations == {}
         assert command._descriptions.id is None
 
-    def test_description_properties_when_localised(self):
+    def test_description_properties_when_localised(self) -> None:
         command = stub_class(
             tanjun.commands.BaseSlashCommand,
             args=(
@@ -797,7 +796,7 @@ class TestBaseSlashCommand:
         }
         assert command._descriptions.id == "about"
 
-    def test_description_properties_when_localised_implicit_default(self):
+    def test_description_properties_when_localised_implicit_default(self) -> None:
         command = stub_class(
             tanjun.commands.BaseSlashCommand,
             args=("eep", {hikari.Locale.HU: "how are you", hikari.Locale.JA: "nihongo", hikari.Locale.TR: "no"}),
@@ -811,7 +810,7 @@ class TestBaseSlashCommand:
         }
         assert command._descriptions.id is None
 
-    def test_description_properties_when_dict_without_localisations(self):
+    def test_description_properties_when_dict_without_localisations(self) -> None:
         command = stub_class(
             tanjun.commands.BaseSlashCommand, args=("meep", {"default": "ok girl boss", "id": "idididid"})
         )
@@ -820,29 +819,29 @@ class TestBaseSlashCommand:
         assert command.description_localisations == {}
         assert command._descriptions.id == "idididid"
 
-    def test_is_dm_enabled_property(self):
+    def test_is_dm_enabled_property(self) -> None:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("hi", "no"), kwargs={"dm_enabled": False})
 
         assert command.is_dm_enabled is False
 
-    def test_is_global_property(self):
+    def test_is_global_property(self) -> None:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yeet", "No"), kwargs={"is_global": False})
 
         assert command.is_global is False
 
-    def test_is_nsfw_property(self):
+    def test_is_nsfw_property(self) -> None:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yeet", "No"), kwargs={"nsfw": True})
 
         assert command.is_nsfw is True
 
-    def test_name_properties(self):
+    def test_name_properties(self) -> None:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
         assert command.name == "yee"
         assert command.name_localisations == {}
         assert command._names.id is None
 
-    def test_name_properties_when_localised(self):
+    def test_name_properties_when_localised(self) -> None:
         command = stub_class(
             tanjun.commands.BaseSlashCommand,
             args=(
@@ -865,7 +864,7 @@ class TestBaseSlashCommand:
         }
         assert command._names.id == "43"
 
-    def test_name_properties_when_localised_implicit_default(self):
+    def test_name_properties_when_localised_implicit_default(self) -> None:
         command = stub_class(
             tanjun.commands.BaseSlashCommand,
             args=({hikari.Locale.HI: "hug", hikari.Locale.HR: "human eaters", hikari.Locale.KO: "kyoto"}, "o"),
@@ -879,26 +878,26 @@ class TestBaseSlashCommand:
         }
         assert command._names.id is None
 
-    def test_name_properties_when_dict_without_localisations(self):
+    def test_name_properties_when_dict_without_localisations(self) -> None:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=({"default": "this_default", "id": "meep"}, "boop"))
 
         assert command.name == "this_default"
         assert command.name_localisations == {}
         assert command._names.id == "meep"
 
-    def test_parent_property(self):
+    def test_parent_property(self) -> None:
         mock_parent = mock.Mock()
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
         assert command.set_parent(mock_parent).parent is mock_parent
 
-    def test_tracked_command_property(self):
+    def test_tracked_command_property(self) -> None:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
         mock_command = mock.Mock(hikari.SlashCommand)
 
         assert command.set_tracked_command(mock_command).tracked_command is mock_command
 
-    def test_tracked_command_id_property(self):
+    def test_tracked_command_id_property(self) -> None:
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
         mock_command = mock.Mock(hikari.SlashCommand)
 
@@ -906,7 +905,7 @@ class TestBaseSlashCommand:
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio
-    async def test_check_context(self):
+    async def test_check_context(self) -> None:
         mock_callback = mock.Mock()
         mock_other_callback = mock.Mock()
         mock_context = mock.Mock()
@@ -926,7 +925,7 @@ class TestBaseSlashCommand:
         mock_context.set_command.assert_has_calls([mock.call(command), mock.call(None)])
 
     @pytest.mark.skip(reason="TODO")
-    def test_copy(self):
+    def test_copy(self) -> None:
         mock_parent = mock.MagicMock()
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
@@ -936,7 +935,7 @@ class TestBaseSlashCommand:
         assert isinstance(result, tanjun.commands.BaseSlashCommand)
         assert result.parent is mock_parent
 
-    def test_load_into_component_when_no_parent(self):
+    def test_load_into_component_when_no_parent(self) -> None:
         mock_component = mock.Mock()
         command = stub_class(tanjun.commands.BaseSlashCommand, args=("yee", "nsoosos"))
 
@@ -946,14 +945,14 @@ class TestBaseSlashCommand:
 
 
 class TestSlashCommandGroup:
-    def test_commands_property(self):
+    def test_commands_property(self) -> None:
         mock_command = mock.Mock()
         mock_other_command = mock.Mock()
         command = tanjun.SlashCommandGroup("yee", "nsoosos").add_command(mock_command).add_command(mock_other_command)
 
         assert list(command.commands) == [mock_command, mock_other_command]
 
-    def test_build(self):
+    def test_build(self) -> None:
         mock_command = mock.Mock(tanjun.abc.SlashCommand)
         mock_command_group = mock.Mock(tanjun.abc.SlashCommandGroup)
         command_group = (
@@ -1005,7 +1004,7 @@ class TestSlashCommandGroup:
             )
         )
 
-    def test_build_with_optional_fields(self):
+    def test_build_with_optional_fields(self) -> None:
         command_group = tanjun.SlashCommandGroup(
             "yee", "nsoosos", dm_enabled=False, default_member_permissions=hikari.Permissions(4321123), nsfw=True
         )
@@ -1017,7 +1016,7 @@ class TestSlashCommandGroup:
         assert result.is_nsfw is True
         assert result.options == []
 
-    def test_build_with_localised_fields(self):
+    def test_build_with_localised_fields(self) -> None:
         command = tanjun.SlashCommand[typing.Any](
             mock.Mock(),
             {hikari.Locale.EN_GB: "yeet", hikari.Locale.FI: "beat", "default": "shinji", hikari.Locale.JA: "ayanami"},
@@ -1042,7 +1041,7 @@ class TestSlashCommandGroup:
             hikari.Locale.EN_US: "meep meep",
         }
 
-    def test_build_with_localised_fields_and_implicit_default(self):
+    def test_build_with_localised_fields_and_implicit_default(self) -> None:
         command = tanjun.SlashCommand[typing.Any](
             mock.Mock(),
             {
@@ -1075,7 +1074,7 @@ class TestSlashCommandGroup:
             hikari.Locale.EN_US: "meep meep",
         }
 
-    def test_build_with_bound_component_field_inheritance(self):
+    def test_build_with_bound_component_field_inheritance(self) -> None:
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").bind_component(
             mock.Mock(default_app_cmd_permissions=hikari.Permissions(5412123), dms_enabled_for_app_cmds=True)
         )
@@ -1086,7 +1085,7 @@ class TestSlashCommandGroup:
         assert result.is_dm_enabled is True
         assert result.options == []
 
-    def test_build_with_passed_component_field_inheritance(self):
+    def test_build_with_passed_component_field_inheritance(self) -> None:
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").bind_component(
             mock.Mock(default_app_cmd_permissions=hikari.Permissions(54312312), dms_enabled_for_app_cmds=True)
         )
@@ -1102,9 +1101,9 @@ class TestSlashCommandGroup:
         assert result.options == []
 
     @pytest.mark.skip(reason="TODO")
-    def test_copy(self): ...
+    def test_copy(self) -> None: ...
 
-    def test_add_command(self):
+    def test_add_command(self) -> None:
         command_group = tanjun.SlashCommandGroup("yeet", "need")
         mock_command = mock.Mock()
 
@@ -1114,7 +1113,7 @@ class TestSlashCommandGroup:
         mock_command.set_parent.assert_called_once_with(command_group)
         assert mock_command in command_group.commands
 
-    def test_add_command_when_too_many_commands(self):
+    def test_add_command_when_too_many_commands(self) -> None:
         command_group = tanjun.SlashCommandGroup("yeet", "need")
         mock_command = mock.Mock()
 
@@ -1127,7 +1126,7 @@ class TestSlashCommandGroup:
         mock_command.set_parent.assert_not_called()
         assert mock_command not in command_group.commands
 
-    def test_add_command_when_too_many_commands_when_name_already_present(self):
+    def test_add_command_when_too_many_commands_when_name_already_present(self) -> None:
         mock_command = mock.Mock()
         mock_command.name = "yeet"
         command_group = tanjun.SlashCommandGroup("yeet", "need").add_command(mock_command)
@@ -1140,7 +1139,7 @@ class TestSlashCommandGroup:
         mock_command.set_parent.assert_not_called()
         assert mock_command not in command_group.commands
 
-    def test_add_command_when_nested(self):
+    def test_add_command_when_nested(self) -> None:
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").set_parent(mock.Mock())
         mock_sub_command = mock.Mock(tanjun.abc.SlashCommand)
 
@@ -1150,13 +1149,13 @@ class TestSlashCommandGroup:
         mock_sub_command.set_parent.assert_called_once_with(command_group)
         assert mock_sub_command in command_group.commands
 
-    def test_add_command_when_attempting_to_double_nest_groups(self):
+    def test_add_command_when_attempting_to_double_nest_groups(self) -> None:
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").set_parent(mock.Mock())
 
         with pytest.raises(ValueError, match="Cannot add a slash command group to a nested slash command group"):
             command_group.add_command(mock.Mock(tanjun.abc.SlashCommandGroup))
 
-    def test_as_sub_command(self):
+    def test_as_sub_command(self) -> None:
         async def mock_callback(ctx: tanjun.abc.SlashContext) -> None:
             raise NotImplementedError
 
@@ -1173,7 +1172,7 @@ class TestSlashCommandGroup:
         assert result._arg_names is not None
         assert result in command_group.commands
 
-    def test_as_sub_command_with_optional_args(self):
+    def test_as_sub_command_with_optional_args(self) -> None:
         async def mock_callback(ctx: tanjun.abc.SlashContext) -> None:
             raise NotImplementedError
 
@@ -1197,7 +1196,7 @@ class TestSlashCommandGroup:
         assert result._arg_names is None
         assert result in command_group.commands
 
-    def test_make_sub_group(self):
+    def test_make_sub_group(self) -> None:
         command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
 
         result = command_group.make_sub_group("cats", "for life")
@@ -1208,7 +1207,7 @@ class TestSlashCommandGroup:
         assert result.defaults_to_ephemeral is None
         assert result in command_group.commands
 
-    def test_make_sub_group_with_optional_args(self):
+    def test_make_sub_group_with_optional_args(self) -> None:
         command_group = tanjun.SlashCommandGroup("nyaa", "yippe")
 
         result = command_group.make_sub_group("lovely", "cats", default_to_ephemeral=True)
@@ -1219,7 +1218,7 @@ class TestSlashCommandGroup:
         assert result.defaults_to_ephemeral is True
         assert result in command_group.commands
 
-    def test_remove_command(self):
+    def test_remove_command(self) -> None:
         mock_sub_command = mock.Mock(tanjun.abc.SlashCommand)
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").set_parent(mock.Mock()).add_command(mock_sub_command)
 
@@ -1228,7 +1227,7 @@ class TestSlashCommandGroup:
         assert result is command_group
         assert mock_sub_command not in command_group.commands
 
-    def test_with_command(self):
+    def test_with_command(self) -> None:
         command_group = tanjun.SlashCommandGroup("yee", "nsoosos").set_parent(mock.Mock())
         mock_sub_command = mock.Mock(tanjun.abc.SlashCommand)
 
@@ -1238,7 +1237,7 @@ class TestSlashCommandGroup:
         assert mock_sub_command in command_group.commands
 
     @pytest.mark.asyncio
-    async def test_execute(self):
+    async def test_execute(self) -> None:
         mock_command = mock.AsyncMock(set_parent=mock.Mock(), defaults_to_ephemeral=None)
         mock_command.name = "sex"
         mock_command.check_context.return_value = True
@@ -1256,7 +1255,7 @@ class TestSlashCommandGroup:
         mock_context.set_ephemeral_default.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_execute_when_sub_command_has_ephemeral_default_set(self):
+    async def test_execute_when_sub_command_has_ephemeral_default_set(self) -> None:
         mock_command = mock.AsyncMock(set_parent=mock.Mock(), defaults_to_ephemeral=True)
         mock_command.name = "sex"
         mock_command.check_context.return_value = True
@@ -1274,7 +1273,7 @@ class TestSlashCommandGroup:
         mock_context.set_ephemeral_default.assert_called_once_with(True)
 
     @pytest.mark.asyncio
-    async def test_execute_when_not_found(self):
+    async def test_execute_when_not_found(self) -> None:
         command_group = stub_class(
             tanjun.SlashCommandGroup, check_context=mock.AsyncMock(return_value=True), args=("yee", "nsoosos")
         )
@@ -1287,7 +1286,7 @@ class TestSlashCommandGroup:
         mock_context.set_ephemeral_default.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_execute_when_checks_fail(self):
+    async def test_execute_when_checks_fail(self) -> None:
         mock_command = mock.AsyncMock(set_parent=mock.Mock(), defaults_to_ephemeral=None)
         mock_command.name = "sex"
         mock_command.check_context.return_value = False
@@ -1306,7 +1305,7 @@ class TestSlashCommandGroup:
         mock_context.set_ephemeral_default.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_execute_when_nested(self):
+    async def test_execute_when_nested(self) -> None:
         mock_command = mock.AsyncMock(
             check_context=mock.AsyncMock(return_value=True), set_parent=mock.Mock(), defaults_to_ephemeral=None
         )
@@ -1341,7 +1340,7 @@ class TestSlashCommand:
             | tanjun.MessageCommand[tanjun.abc.CommandCallbackSig]
             | tanjun.MenuCommand[typing.Any, typing.Any]
         ),
-    ):
+    ) -> None:
         assert tanjun.SlashCommand(inner_command, "woow", "no").callback is inner_command.callback
 
     @pytest.fixture
@@ -1352,7 +1351,7 @@ class TestSlashCommand:
         return mock_command
 
     @pytest.mark.asyncio
-    async def test___call__(self):
+    async def test___call__(self) -> None:
         mock_callback = mock.AsyncMock()
         command = tanjun.SlashCommand[typing.Any](mock_callback, "yee", "nsoosos")
 
@@ -1360,13 +1359,13 @@ class TestSlashCommand:
 
         mock_callback.assert_awaited_once_with(1, 3, a=4, b=5)
 
-    def test_callback_property(self):
+    def test_callback_property(self) -> None:
         mock_callback = mock.Mock()
         command = tanjun.SlashCommand[typing.Any](mock_callback, "yee", "nsoosos")
 
         assert command.callback is mock_callback
 
-    def test_load_into_component(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_load_into_component(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         mock_component = mock.Mock()
 
         with mock.patch.object(tanjun.commands.BaseSlashCommand, "load_into_component") as load_into_component:
@@ -1374,7 +1373,7 @@ class TestSlashCommand:
 
             load_into_component.assert_called_once_with(mock_component)
 
-    def test_load_into_component_when_wrapped_command_set(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_load_into_component_when_wrapped_command_set(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         mock_component = mock.Mock()
         mock_other_command = mock.Mock()
         command._wrapped_command = mock_other_command
@@ -1386,7 +1385,9 @@ class TestSlashCommand:
 
         mock_other_command.load_into_component.assert_not_called()
 
-    def test_load_into_component_when_wrapped_command_is_loadable(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_load_into_component_when_wrapped_command_is_loadable(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         mock_component = mock.Mock()
         mock_other_command = mock.Mock(tanjun.components.AbstractComponentLoader)
         command._wrapped_command = mock_other_command
@@ -1398,7 +1399,7 @@ class TestSlashCommand:
 
         mock_other_command.load_into_component.assert_called_once_with(mock_component)
 
-    def test__add_option_when_no_signature(self):
+    def test__add_option_when_no_signature(self) -> None:
         with pytest.raises(ValueError, match=".+"):
             inspect.Signature.from_callable(int)
 
@@ -1406,45 +1407,45 @@ class TestSlashCommand:
 
         command.add_str_option("meow", "description").add_int_option("nom", "nom", key="no")
 
-    def test__add_option_when_kwargs(self):
+    def test__add_option_when_kwargs(self) -> None:
         @tanjun.as_slash_command("name", "description")
-        async def command(ctx: tanjun.abc.SlashContext, **kwargs: typing.Any): ...
+        async def command(ctx: tanjun.abc.SlashContext, **kwargs: typing.Any) -> None: ...
 
         command.add_str_option("meow", "description").add_int_option("nom", "nom", key="no")
 
-    def test__add_option_when_valid_name(self):
+    def test__add_option_when_valid_name(self) -> None:
         @tanjun.as_slash_command("name", "description")
-        async def command(ctx: tanjun.abc.SlashContext, meowth: str, bam: int): ...
+        async def command(ctx: tanjun.abc.SlashContext, meowth: str, bam: int) -> None: ...
 
         command.add_str_option("meowth", "description").add_int_option("bams", "bams", key="bam")
 
-    def test__add_option_when_invalid_key(self):
+    def test__add_option_when_invalid_key(self) -> None:
         @tanjun.as_slash_command("name", "description")
-        async def command(ctx: tanjun.abc.SlashContext, *args: str): ...
+        async def command(ctx: tanjun.abc.SlashContext, *args: str) -> None: ...
 
         with pytest.raises(ValueError, match=f"'meow' is not a valid keyword argument for {command.callback}"):
             command.add_str_option("meow", "description")
 
-    def test__add_option_when_invalid_overridden_key(self):
+    def test__add_option_when_invalid_overridden_key(self) -> None:
         @tanjun.as_slash_command("name", "description")
-        async def command(ctx: tanjun.abc.SlashContext, *args: str, meow: str): ...
+        async def command(ctx: tanjun.abc.SlashContext, *args: str, meow: str) -> None: ...
 
         with pytest.raises(ValueError, match=f"'yeet' is not a valid keyword argument for {command.callback}"):
             command.add_str_option("meow", "description", key="yeet")
 
-    def test__add_option_when_invalid_key_but_not_validating(self):
+    def test__add_option_when_invalid_key_but_not_validating(self) -> None:
         @tanjun.as_slash_command("name", "description", validate_arg_keys=False)
-        async def command(ctx: tanjun.abc.SlashContext): ...
+        async def command(ctx: tanjun.abc.SlashContext) -> None: ...
 
         command.add_str_option("name", "description")
 
-    def test__add_option_when_invalid_overriden_key_but_not_validating(self):
+    def test__add_option_when_invalid_overriden_key_but_not_validating(self) -> None:
         @tanjun.as_slash_command("name", "description", validate_arg_keys=False)
-        async def command(ctx: tanjun.abc.SlashContext, meow: str): ...
+        async def command(ctx: tanjun.abc.SlashContext, meow: str) -> None: ...
 
         command.add_str_option("meow", "description", key="pet")
 
-    def test_add_attachment_option(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_attachment_option(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_attachment_option("me", "ow", default="no attached", key="bbb")
 
         option = command.build().options[0]
@@ -1469,7 +1470,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_attachment_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_attachment_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_attachment_option("nya", "aaaa")
 
         option = command.build().options[0]
@@ -1495,7 +1496,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_attachment_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_attachment_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_attachment_option("me", "how", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -1506,7 +1507,7 @@ class TestSlashCommand:
         assert option.type is hikari.OptionType.ATTACHMENT
         assert option.name not in command._tracked_options
 
-    def test_add_attachment_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_attachment_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_attachment_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
             {
@@ -1533,7 +1534,7 @@ class TestSlashCommand:
 
     def test_add_attachment_option_with_localised_explicit_default_and_id(
         self, command: tanjun.SlashCommand[typing.Any]
-    ):
+    ) -> None:
         command.add_attachment_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
             {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
@@ -1552,7 +1553,7 @@ class TestSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_add_attachment_option_with_localised_name_regex_mismatch(
         self, command: tanjun.SlashCommand[typing.Any], name: str
-    ):
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -1560,23 +1561,29 @@ class TestSlashCommand:
         ):
             command.add_attachment_option({hikari.Locale.BG: name}, "description")
 
-    def test_add_attachment_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_attachment_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_attachment_option({hikari.Locale.KO: "xy3" * 11}, "description")
 
-    def test_add_attachment_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_attachment_option_with_localised_name_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_attachment_option({hikari.Locale.EL: ""}, "description")
 
-    def test_add_attachment_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_attachment_option_with_localised_description_too_long(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_attachment_option("name", {hikari.Locale.EN_US: "y" * 101})
 
-    def test_add_attachment_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_attachment_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_attachment_option("name", {hikari.Locale.IT: ""})
 
-    def test_add_str_option(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         mock_converter = mock.Mock()
         command.add_str_option(
             "boom",
@@ -1614,7 +1621,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_str_option_with_choices_list(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_choices_list(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_str_option("boom", "No u", choices=["video", "channel", "playlist"])
 
         option = command.build().options[0]
@@ -1625,7 +1632,7 @@ class TestSlashCommand:
         ]
         assert option.name in command._tracked_options
 
-    def test_add_str_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         choice_1 = hikari.CommandChoice(name="ea", name_localizations={"a": "b"}, value="meow")
         choice_2 = hikari.CommandChoice(name="s", name_localizations={"a": "h"}, value="meowa")
         choice_3 = hikari.CommandChoice(name="f", name_localizations={"a": "bf"}, value="mesow")
@@ -1635,7 +1642,7 @@ class TestSlashCommand:
         assert option.choices == [choice_1, choice_2, choice_3]
         assert option.name in command._tracked_options
 
-    def test_add_str_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.warns(DeprecationWarning):
             command.add_str_option(
                 "boom",
@@ -1652,7 +1659,7 @@ class TestSlashCommand:
         ]
         assert option.name in command._tracked_options
 
-    def test_add_str_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_str_option("boom", "No u")
 
         option = command.build().options[0]
@@ -1677,7 +1684,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_str_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_str_option("hi", "Nou", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -1687,7 +1694,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_add_str_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -1695,89 +1702,97 @@ class TestSlashCommand:
         ):
             command.add_str_option(name, "aye")
 
-    def test_add_str_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'BeBooBp' must be lowercase"):
             command.add_str_option("BeBooBp", "aye")
 
-    def test_add_str_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_str_option("boi", "a" * 101)
 
-    def test_add_str_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_str_option("boi", "")
 
-    def test_add_str_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_str_option("x" * 33, "description")
 
-    def test_add_str_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_str_option("", "description")
 
-    def test_add_str_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         for index in range(25):
             command.add_str_option(str(index), str(index))
 
         with pytest.raises(ValueError, match="Slash commands cannot have more than 25 options"):
             command.add_str_option("namae", "aye")
 
-    def test_add_str_option_with_too_many_choices(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_too_many_choices(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_str_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
 
-    def test_add_str_option_when_min_length_is_greater_than_max_length(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_min_length_is_greater_than_max_length(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="`min_length` cannot be greater than `max_length`"):
             command.add_str_option("a", "b", min_length=434, max_length=432)
 
-    def test_add_str_option_when_min_length_is_equal_to_max_length(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_min_length_is_equal_to_max_length(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_str_option("beat", "yeet", min_length=43, max_length=43)
 
         option = command.build().options[0]
         assert option.min_length == 43
         assert option.max_length == 43
 
-    def test_add_str_option_when_min_length_is_less_than_0(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_min_length_is_less_than_0(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="`min_length` must be greater than or equal to 0"):
             command.add_str_option("bb", "aa", min_length=-1)
 
-    def test_add_str_option_when_min_length_is_0(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_min_length_is_0(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_str_option("bb", "aa", min_length=0)
 
         option = command.build().options[0]
         assert option.min_length == 0
 
-    def test_add_str_option_when_min_length_is_greater_than_6000(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_min_length_is_greater_than_6000(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="`min_length` must be less than or equal to 6000"):
             command.add_str_option("bbbb", "aaa", min_length=6001)
 
-    def test_add_str_option_when_min_length_is_6000(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_min_length_is_6000(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_str_option("bb", "aa", min_length=6000)
 
         option = command.build().options[0]
         assert option.min_length == 6000
 
-    def test_add_str_option_when_max_length_is_less_than_1(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_max_length_is_less_than_1(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="`max_length` must be greater than or equal to 1"):
             command.add_str_option("bbbbbb", "aaaa", max_length=0)
 
-    def test_add_str_option_when_max_length_is_0(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_max_length_is_0(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_str_option("bb", "aa", min_length=0)
 
         option = command.build().options[0]
         assert option.min_length == 0
 
-    def test_add_str_option_when_max_length_is_greater_than_6000(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_max_length_is_greater_than_6000(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="`max_length` must be less than or equal to 6000"):
             command.add_str_option("bbbbbbbbb", "aaaaaa", max_length=6001)
 
-    def test_add_str_option_when_max_length_is_6000(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_max_length_is_6000(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_str_option("bb", "aa", max_length=6000)
 
         option = command.build().options[0]
         assert option.max_length == 6000
 
-    def test_add_str_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_str_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
             {
@@ -1802,7 +1817,9 @@ class TestSlashCommand:
         }
         assert option.type is hikari.OptionType.STRING
 
-    def test_add_str_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_str_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
             {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
@@ -1821,7 +1838,7 @@ class TestSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_add_str_option_with_localised_name_regex_mismatch(
         self, command: tanjun.SlashCommand[typing.Any], name: str
-    ):
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -1829,23 +1846,25 @@ class TestSlashCommand:
         ):
             command.add_str_option({hikari.Locale.EN_GB: name}, "description")
 
-    def test_add_str_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_str_option({hikari.Locale.KO: "xy3" * 11}, "description")
 
-    def test_add_str_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_str_option({hikari.Locale.EL: ""}, "description")
 
-    def test_add_str_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_str_option("name", {hikari.Locale.EN_US: "y" * 101})
 
-    def test_add_str_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_str_option("name", {hikari.Locale.IT: ""})
 
-    def test_add_str_option_when_converters_is_flat_enum(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_str_option_when_converters_is_flat_enum(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         class Enum(str, enum.Enum):
             FOO = "i can't"
             BAR = "meow"
@@ -1855,7 +1874,7 @@ class TestSlashCommand:
 
         assert list(command._tracked_options["boom"].converters) == [Enum]
 
-    def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         mock_converter = mock.Mock()
 
         command.add_int_option(
@@ -1882,7 +1901,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_int_option_with_min_and_max_value(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_min_and_max_value(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_int_option("sesese", "asasasa", min_value=123321, max_value=6451231)
 
         option = command.build().options[0]
@@ -1900,11 +1919,11 @@ class TestSlashCommand:
 
         assert option.name in command._tracked_options
 
-    def test_add_int_option_when_min_greater_than_max(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_when_min_greater_than_max(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="`min_value` cannot be greater than `max_value`"):
             command.add_int_option("sesese", "asasasa", min_value=33232, max_value=2232)
 
-    def test_add_int_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.warns(DeprecationWarning):
             command.add_int_option("see", "seesee", choices=[("les", 1), ("g", 43)])  # type: ignore
 
@@ -1912,7 +1931,7 @@ class TestSlashCommand:
         assert option.choices == [hikari.CommandChoice(name="les", value=1), hikari.CommandChoice(name="g", value=43)]
         assert option.name in command._tracked_options
 
-    def test_add_int_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         choice_1 = hikari.CommandChoice(name="a", name_localizations={"b": "c"}, value="d")
         choice_2 = hikari.CommandChoice(name="e", name_localizations={"f": "g"}, value="h")
         choice_3 = hikari.CommandChoice(name="i", name_localizations={"j": "k"}, value="l")
@@ -1923,7 +1942,7 @@ class TestSlashCommand:
         assert option.choices == [choice_1, choice_2, choice_3]
         assert option.name in command._tracked_options
 
-    def test_add_int_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_int_option("e", "a")
 
         option = command.build().options[0]
@@ -1946,7 +1965,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_int_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_int_option("hiu", "Nouu", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -1956,7 +1975,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_add_int_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -1964,38 +1983,38 @@ class TestSlashCommand:
         ):
             command.add_int_option(name, "aye")
 
-    def test_add_int_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'YAWN' must be lowercase"):
             command.add_int_option("YAWN", "aye")
 
-    def test_add_int_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_int_option("boi", "a" * 101)
 
-    def test_add_int_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_int_option("eep", "")
 
-    def test_add_int_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_int_option("x" * 33, "description")
 
-    def test_add_int_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_int_option("", "description")
 
-    def test_add_int_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         for index in range(25):
             command.add_str_option(str(index), str(index))
 
         with pytest.raises(ValueError, match="Slash commands cannot have more than 25 options"):
             command.add_int_option("namae", "aye")
 
-    def test_add_int_option_with_too_many_choices(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_too_many_choices(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_int_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
 
-    def test_add_int_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_int_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
             {
@@ -2020,7 +2039,9 @@ class TestSlashCommand:
         }
         assert option.type is hikari.OptionType.INTEGER
 
-    def test_add_int_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_int_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
             {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
@@ -2039,7 +2060,7 @@ class TestSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_add_int_option_with_localised_name_regex_mismatch(
         self, command: tanjun.SlashCommand[typing.Any], name: str
-    ):
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2047,23 +2068,25 @@ class TestSlashCommand:
         ):
             command.add_int_option({hikari.Locale.DE: name}, "description")
 
-    def test_add_int_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_int_option({hikari.Locale.KO: "xy3" * 11}, "description")
 
-    def test_add_int_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_int_option({hikari.Locale.EL: ""}, "description")
 
-    def test_add_int_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_int_option("name", {hikari.Locale.EN_US: "y" * 101})
 
-    def test_add_int_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_int_option("name", {hikari.Locale.IT: ""})
 
-    def test_add_int_option_when_converters_is_flat_enum(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_int_option_when_converters_is_flat_enum(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         class Enum(int, enum.Enum):
             THERE_IS_NO = 543
             THERE_IS_YES = 123123
@@ -2072,7 +2095,7 @@ class TestSlashCommand:
 
         assert list(command._tracked_options["see"].converters) == [Enum]
 
-    def test_add_float_option(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         mock_converter = mock.Mock()
         command.add_float_option(
             "sesese", "asasasa", choices={"no": 4.4, "ok": 6.9}, converters=[mock_converter], default="eaf", key="meow"
@@ -2101,7 +2124,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is True
         assert tracked.is_only_member is False
 
-    def test_add_float_option_with_min_and_max_value(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_min_and_max_value(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_float_option("sesese", "asasasa", min_value=5213.123, max_value=6523.123)
 
         option = command.build().options[0]
@@ -2119,7 +2142,9 @@ class TestSlashCommand:
 
         assert option.name in command._tracked_options
 
-    def test_add_float_option_when_ints_passed_for_min_and_max_value(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_when_ints_passed_for_min_and_max_value(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_float_option("sesese", "asasasa", min_value=3543, max_value=54123)
 
         option = command.build().options[0]
@@ -2137,11 +2162,11 @@ class TestSlashCommand:
 
         assert option.name in command._tracked_options
 
-    def test_add_float_option_when_min_greater_than_max(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_when_min_greater_than_max(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="`min_value` cannot be greater than `max_value`"):
             command.add_float_option("sesese", "asasasa", min_value=333.222, max_value=222.333)
 
-    def test_add_float_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_choices_object_list(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         choice_1 = hikari.CommandChoice(name="g", name_localizations={"g": "d", "e": "o"}, value="o")
         choice_2 = hikari.CommandChoice(name="t", name_localizations={"d": "g", "ed": "os"}, value="for")
         choice_3 = hikari.CommandChoice(name="s", name_localizations={"f": "g", "a": "od"}, value="go")
@@ -2151,7 +2176,9 @@ class TestSlashCommand:
         assert option.choices == [choice_1, choice_2, choice_3]
         assert option.name in command._tracked_options
 
-    def test_add_float_option_with_deprecated_choices_tuple_list(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_deprecated_choices_tuple_list(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.warns(DeprecationWarning):
             command.add_float_option("easy", "aaa", choices=[("blam", 4.20), ("blam2", 6.9)])  # type: ignore
 
@@ -2162,7 +2189,7 @@ class TestSlashCommand:
         ]
         assert option.name in command._tracked_options
 
-    def test_add_float_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_float_option("easy", "aaa")
 
         option = command.build().options[0]
@@ -2185,7 +2212,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is True
         assert tracked.is_only_member is False
 
-    def test_add_float_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_float_option("123", "321", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -2195,7 +2222,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_add_float_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2203,38 +2230,38 @@ class TestSlashCommand:
         ):
             command.add_float_option(name, "aye")
 
-    def test_add_float_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'Bloop' must be lowercase"):
             command.add_float_option("Bloop", "aye")
 
-    def test_add_float_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_float_option("boi", "a" * 101)
 
-    def test_add_float_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_float_option("eep", "")
 
-    def test_add_float_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_float_option("x" * 33, "description")
 
-    def test_add_float_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_float_option("", "description")
 
-    def test_add_float_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         for index in range(25):
             command.add_str_option(str(index), str(index))
 
         with pytest.raises(ValueError, match="Slash commands cannot have more than 25 options"):
             command.add_float_option("namae", "aye")
 
-    def test_add_float_option_with_too_many_choices(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_too_many_choices(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Slash command options cannot have more than 25 choices"):
             command.add_float_option("namae", "aye", choices={mock.Mock(): mock.Mock() for _ in range(26)})
 
-    def test_add_float_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_float_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
             {
@@ -2259,7 +2286,9 @@ class TestSlashCommand:
         }
         assert option.type is hikari.OptionType.FLOAT
 
-    def test_add_float_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_float_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
             {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
@@ -2278,7 +2307,7 @@ class TestSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_add_float_option_with_localised_name_regex_mismatch(
         self, command: tanjun.SlashCommand[typing.Any], name: str
-    ):
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2286,23 +2315,27 @@ class TestSlashCommand:
         ):
             command.add_float_option({hikari.Locale.FI: name}, "description")
 
-    def test_add_float_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_float_option({hikari.Locale.KO: "xy3" * 11}, "description")
 
-    def test_add_float_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_float_option({hikari.Locale.EL: ""}, "description")
 
-    def test_add_float_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_localised_description_too_long(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_float_option("name", {hikari.Locale.EN_US: "y" * 101})
 
-    def test_add_float_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_float_option("name", {hikari.Locale.IT: ""})
 
-    def test_add_float_option_when_converters_is_flat_enum(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_float_option_when_converters_is_flat_enum(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         class Enum(enum.Enum):
             MEOW = 431.123
             NYAA = 3243.543
@@ -2311,7 +2344,7 @@ class TestSlashCommand:
 
         assert list(command._tracked_options["sesese"].converters) == [Enum]
 
-    def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_bool_option("eaassa", "saas", default="feel", key="o")
 
         option = command.build().options[0]
@@ -2334,7 +2367,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_bool_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_bool_option("essssss", "aaaaaaa")
 
         option = command.build().options[0]
@@ -2357,7 +2390,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_bool_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_bool_option("222", "333", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -2367,7 +2400,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_add_bool_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2375,34 +2408,34 @@ class TestSlashCommand:
         ):
             command.add_bool_option(name, "aye")
 
-    def test_add_bool_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'SNOOO' must be lowercase"):
             command.add_bool_option("SNOOO", "aye")
 
-    def test_add_bool_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_bool_option("boi", "a" * 101)
 
-    def test_add_bool_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_bool_option("boi", "")
 
-    def test_add_bool_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_bool_option("x" * 33, "description")
 
-    def test_add_bool_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_bool_option("", "description")
 
-    def test_add_bool_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         for index in range(25):
             command.add_str_option(str(index), str(index))
 
         with pytest.raises(ValueError, match="Slash commands cannot have more than 25 options"):
             command.add_bool_option("namae", "aye")
 
-    def test_add_bool_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_bool_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
             {
@@ -2427,7 +2460,9 @@ class TestSlashCommand:
         }
         assert option.type is hikari.OptionType.BOOLEAN
 
-    def test_add_bool_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_bool_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
             {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
@@ -2446,7 +2481,7 @@ class TestSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_add_bool_option_with_localised_name_regex_mismatch(
         self, command: tanjun.SlashCommand[typing.Any], name: str
-    ):
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2454,23 +2489,27 @@ class TestSlashCommand:
         ):
             command.add_bool_option({hikari.Locale.SV_SE: name}, "description")
 
-    def test_add_bool_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_bool_option({hikari.Locale.KO: "xy3" * 11}, "description")
 
-    def test_add_bool_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_bool_option({hikari.Locale.EL: ""}, "description")
 
-    def test_add_bool_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_with_localised_description_too_long(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_bool_option("name", {hikari.Locale.EN_US: "y" * 101})
 
-    def test_add_bool_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_bool_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_bool_option("name", {hikari.Locale.IT: ""})
 
-    def test_add_user_option(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_user_option("yser", "nanm", default="nou", key="oh")
 
         option = command.build().options[0]
@@ -2493,7 +2532,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_user_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_user_option("fafafa", "sfsfsf")
 
         option = command.build().options[0]
@@ -2516,7 +2555,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_user_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_user_option("eee", "333", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -2526,7 +2565,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_add_user_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2534,34 +2573,34 @@ class TestSlashCommand:
         ):
             command.add_user_option(name, "aye")
 
-    def test_add_user_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'WWWWWWWWWWW' must be lowercase"):
             command.add_user_option("WWWWWWWWWWW", "aye")
 
-    def test_add_user_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_user_option("boi", "a" * 101)
 
-    def test_add_user_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_user_option("boi", "")
 
-    def test_add_user_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_user_option("x" * 33, "description")
 
-    def test_add_user_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_user_option("", "description")
 
-    def test_add_user_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         for index in range(25):
             command.add_str_option(str(index), str(index))
 
         with pytest.raises(ValueError, match="Slash commands cannot have more than 25 options"):
             command.add_user_option("namae", "aye")
 
-    def test_add_user_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_user_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
             {
@@ -2586,7 +2625,9 @@ class TestSlashCommand:
         }
         assert option.type is hikari.OptionType.USER
 
-    def test_add_user_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_user_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
             {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
@@ -2605,7 +2646,7 @@ class TestSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_add_user_option_with_localised_name_regex_mismatch(
         self, command: tanjun.SlashCommand[typing.Any], name: str
-    ):
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2613,23 +2654,27 @@ class TestSlashCommand:
         ):
             command.add_user_option({hikari.Locale.BG: name}, "description")
 
-    def test_add_user_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_user_option({hikari.Locale.KO: "xy3" * 11}, "description")
 
-    def test_add_user_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_user_option({hikari.Locale.EL: ""}, "description")
 
-    def test_add_user_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_with_localised_description_too_long(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_user_option("name", {hikari.Locale.EN_US: "y" * 101})
 
-    def test_add_user_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_user_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_user_option("name", {hikari.Locale.IT: ""})
 
-    def test_add_member_option(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_member_option("ddddd", "sssss", default="dsasds", key="key2")
 
         option = command.build().options[0]
@@ -2652,7 +2697,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is True
 
-    def test_add_member_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_member_option("asasas", "fdssdddsds")
 
         option = command.build().options[0]
@@ -2676,7 +2721,7 @@ class TestSlashCommand:
         assert tracked.is_only_member is True
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_add_member_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2684,34 +2729,34 @@ class TestSlashCommand:
         ):
             command.add_member_option(name, "aye")
 
-    def test_add_member_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'YEET' must be lowercase"):
             command.add_member_option("YEET", "aye")
 
-    def test_add_member_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_member_option("boi", "a" * 101)
 
-    def test_add_member_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_member_option("boi", "")
 
-    def test_add_member_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_member_option("x" * 33, "description")
 
-    def test_add_member_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_member_option("", "description")
 
-    def test_add_member_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         for index in range(25):
             command.add_str_option(str(index), str(index))
 
         with pytest.raises(ValueError, match="Slash commands cannot have more than 25 options"):
             command.add_member_option("namae", "aye")
 
-    def test_add_member_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_member_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
             {
@@ -2738,7 +2783,9 @@ class TestSlashCommand:
 
         assert command._tracked_options[option.name].is_only_member is True
 
-    def test_add_member_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_member_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
             {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
@@ -2759,7 +2806,7 @@ class TestSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_add_member_option_with_localised_name_regex_mismatch(
         self, command: tanjun.SlashCommand[typing.Any], name: str
-    ):
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2767,23 +2814,27 @@ class TestSlashCommand:
         ):
             command.add_member_option({hikari.Locale.FR: name}, "description")
 
-    def test_add_member_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_member_option({hikari.Locale.KO: "xy3" * 11}, "description")
 
-    def test_add_member_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_member_option({hikari.Locale.EL: ""}, "description")
 
-    def test_add_member_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_with_localised_description_too_long(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_member_option("name", {hikari.Locale.EN_US: "y" * 101})
 
-    def test_add_member_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_member_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_member_option("name", {hikari.Locale.IT: ""})
 
-    def test_add_channel_option(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_channel_option("c", "d", default="eee", key="eep")
 
         option = command.build().options[0]
@@ -2806,7 +2857,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_channel_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_channel_option("channel", "chaaa")
 
         option = command.build().options[0]
@@ -2877,18 +2928,18 @@ class TestSlashCommand:
         command: tanjun.SlashCommand[typing.Any],
         classes: list[type[hikari.PartialChannel] | int],
         int_types: list[int] | None,
-    ):
+    ) -> None:
         command.add_channel_option("channel", "chaaa", types=classes)
 
         option = command.build().options[0]
         assert set(option.channel_types or ()) == set(int_types or ())
         assert len(option.channel_types or ()) == len(int_types or ())
 
-    def test_add_channel_option_with_invalid_type(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_with_invalid_type(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Unknown channel type <class 'bool'>"):
             command.add_channel_option("channel", "chaaa", types=(bool,))  # type: ignore
 
-    def test_add_channel_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_channel_option("dsds", "www", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -2898,7 +2949,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_add_channel_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2906,34 +2957,34 @@ class TestSlashCommand:
         ):
             command.add_channel_option(name, "aye")
 
-    def test_add_channel_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'MeOw' must be lowercase"):
             command.add_channel_option("MeOw", "aye")
 
-    def test_add_channel_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_channel_option("boi", "a" * 101)
 
-    def test_add_channel_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_channel_option("boi", "")
 
-    def test_add_channel_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_channel_option("x" * 33, "description")
 
-    def test_add_channel_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_channel_option("", "description")
 
-    def test_add_channel_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         for index in range(25):
             command.add_str_option(str(index), str(index))
 
         with pytest.raises(ValueError, match="Slash commands cannot have more than 25 options"):
             command.add_channel_option("namae", "aye")
 
-    def test_add_channel_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_channel_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
             {
@@ -2958,7 +3009,9 @@ class TestSlashCommand:
         }
         assert option.type is hikari.OptionType.CHANNEL
 
-    def test_add_channel_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_channel_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
             {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
@@ -2977,7 +3030,7 @@ class TestSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_add_channel_option_with_localised_name_regex_mismatch(
         self, command: tanjun.SlashCommand[typing.Any], name: str
-    ):
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -2985,23 +3038,27 @@ class TestSlashCommand:
         ):
             command.add_channel_option({hikari.Locale.KO: name}, "description")
 
-    def test_add_channel_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_channel_option({hikari.Locale.KO: "xy3" * 11}, "description")
 
-    def test_add_channel_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_channel_option({hikari.Locale.EL: ""}, "description")
 
-    def test_add_channel_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_with_localised_description_too_long(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_channel_option("name", {hikari.Locale.EN_US: "y" * 101})
 
-    def test_add_channel_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_channel_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_channel_option("name", {hikari.Locale.IT: ""})
 
-    def test_add_role_option(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_role_option("jhjh", "h", default="shera", key="catra")
 
         option = command.build().options[0]
@@ -3024,7 +3081,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_role_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_role_option("hhhhh", "h")
 
         option = command.build().options[0]
@@ -3047,7 +3104,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_role_option_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_role_option("22222", "ddddd", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -3057,7 +3114,7 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_add_role_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -3065,34 +3122,34 @@ class TestSlashCommand:
         ):
             command.add_role_option(name, "aye")
 
-    def test_add_role_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'MeeP' must be lowercase"):
             command.add_role_option("MeeP", "aye")
 
-    def test_add_role_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_role_option("boi", "a" * 101)
 
-    def test_add_role_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_role_option("boi", "")
 
-    def test_add_role_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_role_option("x" * 33, "description")
 
-    def test_add_role_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_role_option("", "description")
 
-    def test_add_role_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         for index in range(25):
             command.add_str_option(str(index), str(index))
 
         with pytest.raises(ValueError, match="Slash commands cannot have more than 25 options"):
             command.add_role_option("namae", "aye")
 
-    def test_add_role_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_role_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
             {
@@ -3117,7 +3174,9 @@ class TestSlashCommand:
         }
         assert option.type is hikari.OptionType.ROLE
 
-    def test_add_role_option_with_localised_explicit_default_and_id(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_with_localised_explicit_default_and_id(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_role_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
             {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
@@ -3136,7 +3195,7 @@ class TestSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_add_role_option_with_localised_name_regex_mismatch(
         self, command: tanjun.SlashCommand[typing.Any], name: str
-    ):
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -3144,23 +3203,27 @@ class TestSlashCommand:
         ):
             command.add_role_option({hikari.Locale.EL: name}, "description")
 
-    def test_add_role_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_role_option({hikari.Locale.KO: "xy3" * 11}, "description")
 
-    def test_add_role_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_role_option({hikari.Locale.EL: ""}, "description")
 
-    def test_add_role_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_with_localised_description_too_long(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_role_option("name", {hikari.Locale.EN_US: "y" * 101})
 
-    def test_add_role_option_with_localised_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_role_option_with_localised_description_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_role_option("name", {hikari.Locale.IT: ""})
 
-    def test_add_mentionable_option(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_mentionable_option("単純", "iwi", default="ywy", key="neko")
 
         option = command.build().options[0]
@@ -3183,7 +3246,7 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_mentionable_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_with_defaults(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_mentionable_option("shera-ra", "hhh")
 
         option = command.build().options[0]
@@ -3206,7 +3269,9 @@ class TestSlashCommand:
         assert tracked.is_always_float is False
         assert tracked.is_only_member is False
 
-    def test_add_mentionable_option_option_when_not_pass_as_kwarg(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_option_when_not_pass_as_kwarg(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         command.add_mentionable_option("333ww", "dsdsds", pass_as_kwarg=False)
 
         option = command.build().options[0]
@@ -3216,7 +3281,9 @@ class TestSlashCommand:
         assert option.name not in command._tracked_options
 
     @pytest.mark.parametrize("name", _INVALID_NAMES)
-    def test_add_mentionable_option_with_invalid_name(self, name: str, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_with_invalid_name(
+        self, name: str, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -3224,34 +3291,34 @@ class TestSlashCommand:
         ):
             command.add_mentionable_option(name, "aye")
 
-    def test_add_mentionable_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_when_name_isnt_lowercase(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Invalid name provided, 'Sharlette' must be lowercase"):
             command.add_mentionable_option("Sharlette", "aye")
 
-    def test_add_mentionable_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_when_description_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_mentionable_option("boi", "a" * 101)
 
-    def test_add_mentionable_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_when_description_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_mentionable_option("boi", "")
 
-    def test_add_mentionable_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_when_name_too_long(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_mentionable_option("x" * 33, "description")
 
-    def test_add_mentionable_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_when_name_too_short(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_mentionable_option("", "description")
 
-    def test_add_mentionable_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_when_too_many_options(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         for index in range(25):
             command.add_str_option(str(index), str(index))
 
         with pytest.raises(ValueError, match="Slash commands cannot have more than 25 options"):
             command.add_mentionable_option("namae", "aye")
 
-    def test_add_mentionable_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_with_localised_fields(self, command: tanjun.SlashCommand[typing.Any]) -> None:
         command.add_mentionable_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", hikari.Locale.EN_US: "bungus"},
             {
@@ -3278,7 +3345,7 @@ class TestSlashCommand:
 
     def test_add_mentionable_option_with_localised_explicit_default_and_id(
         self, command: tanjun.SlashCommand[typing.Any]
-    ):
+    ) -> None:
         command.add_mentionable_option(
             {hikari.Locale.EN_GB: "meep", hikari.Locale.DE: "moop", "default": "bungus"},
             {hikari.Locale.DA: "description girl", "default": "meep meep", hikari.Locale.FI: "finished for the cats"},
@@ -3297,7 +3364,7 @@ class TestSlashCommand:
     @pytest.mark.parametrize("name", _INVALID_NAMES)
     def test_add_mentionable_option_with_localised_name_regex_mismatch(
         self, command: tanjun.SlashCommand[typing.Any], name: str
-    ):
+    ) -> None:
         with pytest.raises(
             ValueError,
             match=f"Invalid name provided, {name!r} doesn't match the required regex "
@@ -3305,36 +3372,42 @@ class TestSlashCommand:
         ):
             command.add_mentionable_option({hikari.Locale.BG: name}, "description")
 
-    def test_add_mentionable_option_with_localised_name_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_with_localised_name_too_long(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Name must be less than or equal to 32 characters in length"):
             command.add_mentionable_option({hikari.Locale.KO: "xy3" * 11}, "description")
 
-    def test_add_mentionable_option_with_localised_name_too_short(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_with_localised_name_too_short(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Name must be greater than or equal to 1 characters in length"):
             command.add_mentionable_option({hikari.Locale.EL: ""}, "description")
 
-    def test_add_mentionable_option_with_localised_description_too_long(self, command: tanjun.SlashCommand[typing.Any]):
+    def test_add_mentionable_option_with_localised_description_too_long(
+        self, command: tanjun.SlashCommand[typing.Any]
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be less than or equal to 100 characters in length"):
             command.add_mentionable_option("name", {hikari.Locale.EN_US: "y" * 101})
 
     def test_add_mentionable_option_with_localised_description_too_short(
         self, command: tanjun.SlashCommand[typing.Any]
-    ):
+    ) -> None:
         with pytest.raises(ValueError, match="Description must be greater than or equal to 1 characters in length"):
             command.add_mentionable_option("name", {hikari.Locale.IT: ""})
 
     @pytest.mark.skip(reason="TODO")
-    def test_build(self): ...
+    def test_build(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_build_with_localised_fields(self): ...
+    def test_build_with_localised_fields(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_build_with_localised_fields_and_implicit_default(self): ...
+    def test_build_with_localised_fields_and_implicit_default(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio
-    async def test_execute(self): ...
+    async def test_execute(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_copy(self): ...
+    def test_copy(self) -> None: ...

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -45,21 +44,21 @@ import tanjun
 
 
 class TestLazyConstant:
-    def test_callback_property(self):
+    def test_callback_property(self) -> None:
         mock_callback = mock.Mock()
 
         assert tanjun.LazyConstant(mock_callback).callback is mock_callback
 
-    def test_get_value(self):
+    def test_get_value(self) -> None:
         assert tanjun.LazyConstant(mock.Mock()).get_value() is None
 
-    def test_reset(self):
+    def test_reset(self) -> None:
         constant = tanjun.LazyConstant(mock.Mock()).set_value(mock.Mock())
 
         constant.reset()
         assert constant.get_value() is None
 
-    def test_set_value(self):
+    def test_set_value(self) -> None:
         mock_value = mock.Mock()
         constant = tanjun.LazyConstant(mock.Mock())
         constant._lock = mock.Mock()
@@ -70,7 +69,7 @@ class TestLazyConstant:
         assert constant.get_value() is mock_value
         assert constant._lock is None
 
-    def test_set_value_when_value_already_set(self):
+    def test_set_value_when_value_already_set(self) -> None:
         mock_value = mock.Mock()
         constant = tanjun.LazyConstant(mock.Mock()).set_value(mock_value)
         constant._lock = mock.Mock()
@@ -81,7 +80,7 @@ class TestLazyConstant:
         assert constant.get_value() is mock_value
 
     @pytest.mark.asyncio
-    async def test_acquire(self):
+    async def test_acquire(self) -> None:
         with mock.patch.object(asyncio, "Lock") as lock:
             constant = tanjun.LazyConstant(mock.Mock())
             lock.assert_not_called()
@@ -98,15 +97,15 @@ class TestLazyConstant:
 
 @pytest.mark.skip(reason="Not Implemented")
 @pytest.mark.asyncio
-async def test_make_lc_resolver_when_already_cached(): ...
+async def test_make_lc_resolver_when_already_cached() -> None: ...
 
 
 @pytest.mark.skip(reason="Not Implemented")
 @pytest.mark.asyncio
-async def test_make_lc_resolver(): ...
+async def test_make_lc_resolver() -> None: ...
 
 
-def test_inject_lc():
+def test_inject_lc() -> None:
     mock_type: typing.Any = mock.Mock()
 
     with (
@@ -121,13 +120,13 @@ def test_inject_lc():
 
 
 @pytest.mark.parametrize("expire_after", [0.0, -1, datetime.timedelta(seconds=-2)])
-def test_cache_callback_when_invalid_expire_after(expire_after: float | int | datetime.timedelta):
+def test_cache_callback_when_invalid_expire_after(expire_after: float | int | datetime.timedelta) -> None:
     with pytest.raises(ValueError, match="expire_after must be more than 0 seconds"):
         tanjun.dependencies.data.cache_callback(mock.Mock(), expire_after=expire_after)
 
 
 @pytest.mark.asyncio
-async def test_cache_callback():
+async def test_cache_callback() -> None:
     mock_callback = mock.AsyncMock()
     mock_context = mock.AsyncMock()
     cached_callback = tanjun.dependencies.data.cache_callback(mock_callback)
@@ -150,7 +149,7 @@ async def test_cache_callback():
 
 @pytest.mark.parametrize("expire_after", [4, 4.0, datetime.timedelta(seconds=4)])
 @pytest.mark.asyncio
-async def test_cache_callback_when_expired(expire_after: float | int | datetime.timedelta):
+async def test_cache_callback_when_expired(expire_after: float | int | datetime.timedelta) -> None:
     mock_callback = mock.AsyncMock()
     mock_first_context = mock.AsyncMock()
     mock_second_context = mock.AsyncMock()
@@ -180,7 +179,7 @@ async def test_cache_callback_when_expired(expire_after: float | int | datetime.
 
 @pytest.mark.parametrize("expire_after", [15, 15.0, datetime.timedelta(seconds=15)])
 @pytest.mark.asyncio
-async def test_cache_callback_when_not_expired(expire_after: float | int | datetime.timedelta):
+async def test_cache_callback_when_not_expired(expire_after: float | int | datetime.timedelta) -> None:
     mock_callback = mock.AsyncMock()
     mock_context = mock.AsyncMock()
     cached_callback = tanjun.dependencies.data.cache_callback(mock_callback, expire_after=expire_after)
@@ -206,7 +205,7 @@ async def test_cache_callback_when_not_expired(expire_after: float | int | datet
     assert len(results) == 6
 
 
-def test_cached_inject():
+def test_cached_inject() -> None:
     mock_callback = mock.Mock()
 
     with (
@@ -220,7 +219,7 @@ def test_cached_inject():
     cache_callback.assert_called_once_with(mock_callback, expire_after=datetime.timedelta(seconds=15))
 
 
-def test_cached_inject_with_defaults():
+def test_cached_inject_with_defaults() -> None:
     mock_callback = mock.Mock()
 
     with (

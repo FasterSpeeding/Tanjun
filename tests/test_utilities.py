@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -35,7 +34,7 @@
 import tanjun
 
 
-def test_aliases():
+def test_aliases() -> None:
     assert set(tanjun.utilities.__all__) == {
         "ALL_PERMISSIONS",
         "DM_PERMISSIONS",

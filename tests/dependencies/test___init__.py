@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -39,7 +38,7 @@ import hikari
 import tanjun
 
 
-def test_set_standard_dependencies():
+def test_set_standard_dependencies() -> None:
     mock_client = mock.Mock(tanjun.Client)
     mock_client.set_type_dependency.return_value = mock_client
 

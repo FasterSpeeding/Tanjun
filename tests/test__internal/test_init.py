@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -44,7 +43,7 @@ from tanjun import _internal
 
 
 @pytest.mark.asyncio
-async def test_gather_checks_handles_no_checks():
+async def test_gather_checks_handles_no_checks() -> None:
     mock_ctx = mock.AsyncMock()
     assert await _internal.gather_checks(mock_ctx, ()) is True
 
@@ -52,7 +51,7 @@ async def test_gather_checks_handles_no_checks():
 
 
 @pytest.mark.asyncio
-async def test_gather_checks_handles_failed_check():
+async def test_gather_checks_handles_failed_check() -> None:
     mock_ctx = mock.Mock()
     mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, False, True])
     check_1 = mock.Mock()
@@ -67,7 +66,7 @@ async def test_gather_checks_handles_failed_check():
 
 
 @pytest.mark.asyncio
-async def test_gather_checks_handles_check_failed_by_raise():
+async def test_gather_checks_handles_check_failed_by_raise() -> None:
     mock_ctx = mock.Mock()
     mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, tanjun.FailedCheck, True])
     check_1 = mock.Mock()
@@ -82,7 +81,7 @@ async def test_gather_checks_handles_check_failed_by_raise():
 
 
 @pytest.mark.asyncio
-async def test_gather_checks():
+async def test_gather_checks() -> None:
     mock_ctx = mock.Mock()
     mock_ctx.call_with_async_di = mock.AsyncMock(side_effect=[True, True, True])
     check_1 = mock.Mock()
@@ -97,7 +96,7 @@ async def test_gather_checks():
 
 
 class TestCastedView:
-    def test___getitem___for_non_existant_entry(self):
+    def test___getitem___for_non_existant_entry(self) -> None:
         mock_cast = mock.Mock()
         view = _internal.CastedView[typing.Any, typing.Any]({}, mock_cast)
 
@@ -106,7 +105,7 @@ class TestCastedView:
 
         mock_cast.assert_not_called()
 
-    def test___getitem___for_buffered_entry(self):
+    def test___getitem___for_buffered_entry(self) -> None:
         mock_cast = mock.Mock()
         mock_value = mock.MagicMock()
         view = _internal.CastedView[typing.Any, str]({"a": "b"}, mock_cast)
@@ -117,7 +116,7 @@ class TestCastedView:
         assert result is mock_value
         mock_cast.assert_not_called()
 
-    def test___getitem___for_not_buffered_entry(self):
+    def test___getitem___for_not_buffered_entry(self) -> None:
         mock_cast = mock.Mock()
         mock_value = mock.MagicMock()
         view = _internal.CastedView[typing.Any, typing.Any]({"a": mock_value}, mock_cast)
@@ -128,21 +127,21 @@ class TestCastedView:
         assert view._buffer["a"] is mock_cast.return_value
         mock_cast.assert_called_once_with(mock_value)
 
-    def test___iter__(self):
+    def test___iter__(self) -> None:
         mock_iter = mock.Mock(return_value=iter((1, 2, 3)))
         mock_dict = mock.Mock(__iter__=mock_iter)
         view = _internal.CastedView[int, int](mock_dict, mock.Mock())
 
         assert iter(view) is mock_iter.return_value
 
-    def test___len___(self):
+    def test___len___(self) -> None:
         mock_dict = mock.Mock(__len__=mock.Mock(return_value=43123))
         view = _internal.CastedView[int, int](mock_dict, mock.Mock())
 
         assert len(view) == 43123
 
 
-def test_ensure_parse_channel_types_has_every_channel_class():
+def test_ensure_parse_channel_types_has_every_channel_class() -> None:
     for _, attribute in inspect.getmembers(hikari):
         if isinstance(attribute, type) and issubclass(attribute, hikari.PartialChannel):
             result = _internal.parse_channel_types(attribute)
@@ -150,7 +149,7 @@ def test_ensure_parse_channel_types_has_every_channel_class():
             assert result
 
 
-def test_ensure_repr_channel_has_every_real_channel_type():
+def test_ensure_repr_channel_has_every_real_channel_type() -> None:
     for channel_type in hikari.ChannelType:
         result = _internal.repr_channel(channel_type)
 
@@ -159,5 +158,5 @@ def test_ensure_repr_channel_has_every_real_channel_type():
         assert result != "Unknown"
 
 
-def test_ensure_repr_channel_defaults_to_unknown():
+def test_ensure_repr_channel_defaults_to_unknown() -> None:
     assert _internal.repr_channel(hikari.ChannelType(-1)) == "Unknown"

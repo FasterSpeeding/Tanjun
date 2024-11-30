@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -56,14 +55,14 @@ class TestMenuContext:
     ) -> tanjun.context.MenuContext:
         return tanjun.context.MenuContext(mock_client, mock_interaction, mock.Mock())
 
-    def test_command_property(self, mock_client: tanjun.Client, mock_interaction: hikari.CommandInteraction):
+    def test_command_property(self, mock_client: tanjun.Client, mock_interaction: hikari.CommandInteraction) -> None:
         context = tanjun.context.MenuContext(mock_client, mock_interaction, mock.Mock())
 
         assert context.command is None
 
     def test_target_id_property_when_user_menu(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         assert isinstance(mock_interaction.resolved, mock.Mock)
         mock_interaction.resolved.users = {12354123: mock.Mock()}
         mock_interaction.resolved.messages = {}
@@ -72,7 +71,7 @@ class TestMenuContext:
 
     def test_target_id_property_when_message_menu(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         assert isinstance(mock_interaction.resolved, mock.Mock)
         mock_interaction.resolved.users = {}
         mock_interaction.resolved.messages = {65123123: mock.Mock()}
@@ -81,7 +80,7 @@ class TestMenuContext:
 
     def test_target_id_property_when_unknown_menu_type(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         assert isinstance(mock_interaction.resolved, mock.Mock)
         mock_interaction.resolved.users = {}
         mock_interaction.resolved.messages = {}
@@ -91,7 +90,7 @@ class TestMenuContext:
 
     def test_target_property_when_user_menu(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         mock_user = mock.Mock()
         assert isinstance(mock_interaction.resolved, mock.Mock)
         mock_interaction.resolved.users = {54123543: mock_user}
@@ -102,7 +101,7 @@ class TestMenuContext:
 
     def test_target_property_when_user_menu_and_member(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         mock_member = mock.Mock()
         assert isinstance(mock_interaction.resolved, mock.Mock)
         mock_interaction.resolved.users = {54123543: mock.Mock()}
@@ -113,7 +112,7 @@ class TestMenuContext:
 
     def test_target_property_when_message_menu(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         mock_message = mock.Mock()
         assert isinstance(mock_interaction.resolved, mock.Mock)
         mock_interaction.resolved.users = {}
@@ -124,7 +123,7 @@ class TestMenuContext:
 
     def test_target_property_when_unknown_menu_type(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         assert isinstance(mock_interaction.resolved, mock.Mock)
         mock_interaction.resolved.users = {}
         mock_interaction.resolved.members = {}
@@ -133,7 +132,7 @@ class TestMenuContext:
         with pytest.raises(RuntimeError, match="Unknown menu type"):
             context.target
 
-    def test_triggering_name_property(self, context: tanjun.context.menu.MenuContext):
+    def test_triggering_name_property(self, context: tanjun.context.menu.MenuContext) -> None:
         assert context.triggering_name is context.interaction.command_name
 
     @pytest.mark.parametrize("command_type", [hikari.CommandType.MESSAGE, hikari.CommandType.USER])
@@ -142,13 +141,13 @@ class TestMenuContext:
         context: tanjun.context.MenuContext,
         mock_interaction: hikari.CommandInteraction,
         command_type: hikari.CommandType,
-    ):
+    ) -> None:
         mock_interaction.command_type = command_type
 
         assert context.type is mock_interaction.command_type
 
     @pytest.mark.asyncio
-    async def test_mark_not_found(self):
+    async def test_mark_not_found(self) -> None:
         on_not_found = mock.AsyncMock()
         context = tanjun.context.MenuContext(
             mock.Mock(), mock.Mock(options=None), mock.Mock(), on_not_found=on_not_found
@@ -159,13 +158,13 @@ class TestMenuContext:
         on_not_found.assert_awaited_once_with(context)
 
     @pytest.mark.asyncio
-    async def test_mark_not_found_when_no_callback(self):
+    async def test_mark_not_found_when_no_callback(self) -> None:
         context = tanjun.context.MenuContext(mock.Mock(), mock.Mock(options=None), mock.Mock(), on_not_found=None)
 
         await context.mark_not_found()
 
     @pytest.mark.asyncio
-    async def test_mark_not_found_when_already_marked_as_not_found(self):
+    async def test_mark_not_found_when_already_marked_as_not_found(self) -> None:
         on_not_found = mock.AsyncMock()
         context = tanjun.context.MenuContext(
             mock.Mock(), mock.Mock(options=None), mock.Mock(), on_not_found=on_not_found
@@ -177,7 +176,7 @@ class TestMenuContext:
 
         on_not_found.assert_not_called()
 
-    def test_set_command(self, context: tanjun.context.MenuContext):
+    def test_set_command(self, context: tanjun.context.MenuContext) -> None:
         mock_command = mock.Mock()
 
         result = context.set_command(mock_command)
@@ -185,7 +184,9 @@ class TestMenuContext:
         assert context.command is mock_command
         assert result is context
 
-    def test_resolve_to_member(self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction):
+    def test_resolve_to_member(
+        self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
+    ) -> None:
         mock_member = mock.Mock()
         assert isinstance(mock_interaction, mock.Mock)
         mock_interaction.resolved.members = {123534: mock_member}
@@ -197,7 +198,7 @@ class TestMenuContext:
 
     def test_resolve_to_member_when_not_user_type(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         assert isinstance(mock_interaction, mock.Mock)
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.users = {}
@@ -207,7 +208,7 @@ class TestMenuContext:
 
     def test_resolve_to_member_when_user_but_no_member(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         assert isinstance(mock_interaction, mock.Mock)
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.users = {1235432: mock.Mock()}
@@ -217,7 +218,7 @@ class TestMenuContext:
 
     def test_resolve_to_member_when_user_but_no_member_and_default(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         assert isinstance(mock_interaction, mock.Mock)
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.users = {1235432: mock.Mock()}
@@ -227,7 +228,9 @@ class TestMenuContext:
 
         assert result is mock_default
 
-    def test_resolve_to_message(self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction):
+    def test_resolve_to_message(
+        self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
+    ) -> None:
         mock_message = mock.Mock()
         assert isinstance(mock_interaction, mock.Mock)
         mock_interaction.resolved.messages = {3421123: mock_message}
@@ -238,14 +241,16 @@ class TestMenuContext:
 
     def test_resolve_to_message_when_not_message_type(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         assert isinstance(mock_interaction, mock.Mock)
         mock_interaction.resolved.messages = {}
 
         with pytest.raises(TypeError, match="Cannot resolve user menu context to a message"):
             context.resolve_to_message()
 
-    def test_resolve_to_user(self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction):
+    def test_resolve_to_user(
+        self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
+    ) -> None:
         mock_user = mock.Mock()
         assert isinstance(mock_interaction, mock.Mock)
         mock_interaction.resolved.members = {}
@@ -257,7 +262,7 @@ class TestMenuContext:
 
     def test_resolve_to_user_when_member(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         mock_member = mock.Mock()
         assert isinstance(mock_interaction, mock.Mock)
         mock_interaction.resolved.members = {123534: mock_member}
@@ -269,7 +274,7 @@ class TestMenuContext:
 
     def test_resolve_to_user_when_not_user_type(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
-    ):
+    ) -> None:
         assert isinstance(mock_interaction, mock.Mock)
         mock_interaction.resolved.members = {}
         mock_interaction.resolved.users = {}

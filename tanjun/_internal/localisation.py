@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -37,9 +36,9 @@ import typing
 
 import hikari
 
-from .. import _internal
-from .. import abc as tanjun
-from .. import dependencies
+from tanjun import _internal
+from tanjun import abc as tanjun
+from tanjun import dependencies
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -49,7 +48,7 @@ if typing.TYPE_CHECKING:
 class MaybeLocalised:
     """Class used for handling name and description localisation."""
 
-    __slots__ = ("default_value", "_field_name", "id", "localised_values")
+    __slots__ = ("_field_name", "default_value", "id", "localised_values")
 
     def __init__(
         self, field_name: str, field: str | collections.Mapping[str, str] | collections.Iterable[tuple[str, str]], /
@@ -92,7 +91,8 @@ class MaybeLocalised:
                 entry = next(iter(self.localised_values.values()), None)
 
             if entry is None:
-                raise RuntimeError(f"No default {field_name} given")
+                error_message = f"No default {field_name} given"
+                raise RuntimeError(error_message)
 
             self.default_value = entry
 
@@ -157,12 +157,14 @@ class MaybeLocalised:
         """
         for value in self._values():
             if not match(value):
-                raise ValueError(
+                error_message = (
                     f"Invalid {self._field_name} provided, {value!r} doesn't match the required regex `{pattern}`"
                 )
+                raise ValueError(error_message)
 
             if lower_only and value.lower() != value:
-                raise ValueError(f"Invalid {self._field_name} provided, {value!r} must be lowercase")
+                error_message = f"Invalid {self._field_name} provided, {value!r} must be lowercase"
+                raise ValueError(error_message)
 
         return self
 
@@ -186,14 +188,16 @@ class MaybeLocalised:
         real_max_len = lengths[-1]
 
         if real_max_len > max_length:
-            raise ValueError(
+            error_message = (
                 f"{self._field_name.capitalize()} must be less than or equal to {max_length} characters in length"
             )
+            raise ValueError(error_message)
 
         if real_min_len < min_length:
-            raise ValueError(
+            error_message = (
                 f"{self._field_name.capitalize()} must be greater than or equal to {min_length} characters in length"
             )
+            raise ValueError(error_message)
 
         return self
 
@@ -251,12 +255,14 @@ def to_localise_id(
     """
     if field_name:
         if field_type == "name" or field_type == "description":
-            raise RuntimeError(f"Field_name must not be provided for {field_type} fields")
+            error_message = f"Field_name must not be provided for {field_type} fields"
+            raise RuntimeError(error_message)
 
         return f"{command_type}:{command_name}:{field_type}:{field_name}"
 
     if field_type != "name" and field_type != "description":
-        raise RuntimeError(f"Field_name must be provided for {field_type} fields")
+        error_message = f"Field_name must be provided for {field_type} fields"
+        raise RuntimeError(error_message)
 
     return f"{command_type}:{command_name}:{field_type}"
 

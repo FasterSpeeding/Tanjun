@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -126,7 +125,7 @@ from .owners import Owners
 from .reloaders import HotReloader
 
 if typing.TYPE_CHECKING:
-    from .. import abc as _tanjun
+    from tanjun import abc as _tanjun
 
 
 def set_standard_dependencies(client: _tanjun.Client, /) -> None:

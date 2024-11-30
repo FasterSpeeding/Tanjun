@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -94,7 +93,8 @@ class _ManualClock:
 
     def spawn_ticker(self) -> "_ManualClock":
         if self._is_ticking and self._keep_ticking:
-            raise RuntimeError("Already ticking")
+            error_message = "Already ticking"
+            raise RuntimeError(error_message)
 
         if self._is_ticking:
             self._keep_ticking = True
@@ -137,9 +137,10 @@ class _ManualClock:
             return await self._next_tick()
 
         self._is_ticking = False
+        return None
 
 
-def test_as_interval():
+def test_as_interval() -> None:
     mock_callback = mock.Mock()
 
     result = tanjun.as_interval(123, fatal_exceptions=[KeyError], ignored_exceptions=[TabError], max_runs=55)(
@@ -154,16 +155,16 @@ def test_as_interval():
 
 
 class TestIntervalSchedule:
-    def test_callback_property(self):
+    def test_callback_property(self) -> None:
         mock_callback = mock.Mock()
         interval = tanjun.schedules.IntervalSchedule(mock_callback, 123)
 
         assert interval.callback is mock_callback
 
-    def test_is_alive(self):
+    def test_is_alive(self) -> None:
         assert tanjun.schedules.IntervalSchedule(mock.Mock(), 34123).is_alive is False
 
-    def test_is_alive_when_is_alive(self):
+    def test_is_alive_when_is_alive(self) -> None:
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
         interval._task = mock.Mock()
 
@@ -172,16 +173,16 @@ class TestIntervalSchedule:
     @pytest.mark.parametrize(
         "interval", [datetime.timedelta(days=7, hours=13, minutes=8, seconds=54), 652134, 652134.0]
     )
-    def test_interval_property(self, interval: int | float | datetime.timedelta):
+    def test_interval_property(self, interval: int | float | datetime.timedelta) -> None:
         interval_ = tanjun.schedules.IntervalSchedule(mock.Mock(), interval)
 
         assert interval_.interval == datetime.timedelta(days=7, hours=13, minutes=8, seconds=54)
 
-    def test_iteration_count_property(self):
+    def test_iteration_count_property(self) -> None:
         assert tanjun.schedules.IntervalSchedule(mock.Mock(), 123).iteration_count == 0
 
     @pytest.mark.asyncio
-    async def test_call_dunder_method(self):
+    async def test_call_dunder_method(self) -> None:
         mock_callback = mock.AsyncMock()
         interval = tanjun.schedules.IntervalSchedule(typing.cast("tanjun.schedules._CallbackSig", mock_callback), 123)
 
@@ -189,7 +190,7 @@ class TestIntervalSchedule:
 
         mock_callback.assert_awaited_once_with(123, 543, sex="OK", boo="31123")
 
-    def test_copy(self):
+    def test_copy(self) -> None:
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
         interval._tasks.append(mock.Mock())
 
@@ -202,14 +203,14 @@ class TestIntervalSchedule:
         assert result._tasks is not interval._tasks
         assert result is not interval
 
-    def test_copy_when_schedule_is_active(self):
+    def test_copy_when_schedule_is_active(self) -> None:
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
         interval._task = mock.Mock()
 
         with pytest.raises(RuntimeError, match="Cannot copy an active schedule"):
             interval.copy()
 
-    def test_load_into_component(self):
+    def test_load_into_component(self) -> None:
         mock_component = mock.Mock(tanjun.Component)
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
@@ -217,13 +218,13 @@ class TestIntervalSchedule:
 
         mock_component.add_schedule.assert_called_once_with(interval)
 
-    def test_load_into_component_when_no_add_schedule_method(self):
+    def test_load_into_component_when_no_add_schedule_method(self) -> None:
         mock_component = mock.Mock(object)
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         interval.load_into_component(mock_component)
 
-    def test_set_start_callback(self):
+    def test_set_start_callback(self) -> None:
         mock_callback = mock.Mock()
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
@@ -233,7 +234,7 @@ class TestIntervalSchedule:
         assert interval._start_callback
         assert interval._start_callback is mock_callback
 
-    def test_set_stop_callback(self):
+    def test_set_stop_callback(self) -> None:
         mock_callback = mock.Mock()
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
@@ -244,7 +245,7 @@ class TestIntervalSchedule:
         assert interval._stop_callback is mock_callback
 
     @pytest.mark.asyncio
-    async def test__execute(self):
+    async def test__execute(self) -> None:
         mock_client = mock.AsyncMock()
         mock_callback = mock.Mock()
         stop = mock.Mock()
@@ -260,7 +261,7 @@ class TestIntervalSchedule:
         stop.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test__execute_when_fatal_exception(self):
+    async def test__execute_when_fatal_exception(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.AsyncMock()
         mock_client.call_with_async_di.side_effect = KeyError("hihihiih")
@@ -278,7 +279,7 @@ class TestIntervalSchedule:
         assert interval._tasks == []
 
     @pytest.mark.asyncio
-    async def test__execute_when_ignored_exception(self):
+    async def test__execute_when_ignored_exception(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.AsyncMock()
         mock_client.call_with_async_di.side_effect = IndexError("hihihiih")
@@ -295,7 +296,7 @@ class TestIntervalSchedule:
         stop.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test__execute_when_exception(self):
+    async def test__execute_when_exception(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.AsyncMock()
         error = ValueError("hihihiih")
@@ -314,12 +315,12 @@ class TestIntervalSchedule:
 
     @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio
-    async def test__loop(self):
+    async def test__loop(self) -> None:
         mock_client = alluka.Client()
         call_times: list[int] = []
 
         @_print_tb
-        async def callback():
+        async def callback() -> None:
             call_times.append(time.time_ns())
             clock.spawn_ticker()
 
@@ -348,7 +349,7 @@ class TestIntervalSchedule:
 
     @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio
-    async def test__loop_when_max_runs(self):
+    async def test__loop_when_max_runs(self) -> None:
         mock_client = alluka.Client()
         call_times: list[int] = []
         close_event = asyncio.Event()
@@ -389,7 +390,7 @@ class TestIntervalSchedule:
 
     @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio
-    async def test__loop_when_start_and_stop_callbacks_set(self):
+    async def test__loop_when_start_and_stop_callbacks_set(self) -> None:
         mock_client = alluka.Client()
         call_times: list[int] = []
         start_time = None
@@ -436,7 +437,7 @@ class TestIntervalSchedule:
 
     @pytest.mark.parametrize("fatal_exceptions", [[LookupError], []])
     @pytest.mark.asyncio
-    async def test__loop_and_start_raises(self, fatal_exceptions: list[type[Exception]]):
+    async def test__loop_and_start_raises(self, fatal_exceptions: list[type[Exception]]) -> None:
         error = KeyError()
         mock_client = mock.Mock()
         mock_client.call_with_async_di = mock.AsyncMock(side_effect=error)
@@ -461,7 +462,7 @@ class TestIntervalSchedule:
         assert interval._task is None
 
     @pytest.mark.asyncio
-    async def test__loop_and_start_raises_ignored(self):
+    async def test__loop_and_start_raises_ignored(self) -> None:
         mock_client = mock.Mock()
         mock_client.call_with_async_di = mock.AsyncMock(side_effect=KeyError())
         mock_client.get_callback_override.return_value = None
@@ -486,7 +487,7 @@ class TestIntervalSchedule:
         get_running_loop.return_value.create_task.assert_not_called()
         sleep.assert_called_once_with(123.0)
 
-    def test_start(self):
+    def test_start(self) -> None:
         mock_client = mock.Mock()
         loop_method = mock.Mock()
         interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
@@ -504,7 +505,7 @@ class TestIntervalSchedule:
         get_running_loop.return_value.create_task.assert_called_once_with(loop_method.return_value)
         get_running_loop.assert_called_once_with()
 
-    def test_start_when_passed_event_loop(self):
+    def test_start_when_passed_event_loop(self) -> None:
         mock_client = mock.Mock()
         mock_loop = mock.Mock()
         loop_method = mock.Mock()
@@ -521,7 +522,7 @@ class TestIntervalSchedule:
         assert interval.is_alive is True
         mock_loop.create_task.assert_called_once_with(loop_method.return_value)
 
-    def test_start_when_passed_event_loop_isnt_active(self):
+    def test_start_when_passed_event_loop_isnt_active(self) -> None:
         mock_loop = mock.Mock()
         mock_loop.is_running.return_value = False
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
@@ -531,7 +532,7 @@ class TestIntervalSchedule:
 
         assert interval._task is None
 
-    def test_start_when_already_active(self):
+    def test_start_when_already_active(self) -> None:
         mock_task = mock.Mock()
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
         interval._task = mock_task
@@ -542,7 +543,7 @@ class TestIntervalSchedule:
         assert interval._task is mock_task
 
     @pytest.mark.asyncio
-    async def test_force_stop(self):
+    async def test_force_stop(self) -> None:
         mock_task = mock.Mock()
         mock_task_1 = asyncio.create_task(asyncio.sleep(2, result=None))
         mock_task_2 = asyncio.create_task(asyncio.sleep(2, result=None))
@@ -569,7 +570,7 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_force_stop_when_stop_callback_set(self):
+    async def test_force_stop_when_stop_callback_set(self) -> None:
         mock_task = mock.Mock()
         mock_client = mock.AsyncMock()
         mock_stop_callback = mock.Mock()
@@ -588,7 +589,7 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
 
     @pytest.mark.asyncio
-    async def test_force_stop_when_stop_callback_stop_raises(self):
+    async def test_force_stop_when_stop_callback_stop_raises(self) -> None:
         mock_task = mock.Mock()
         mock_client = mock.AsyncMock()
         mock_client.call_with_async_di.side_effect = KeyError
@@ -608,7 +609,7 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
 
     @pytest.mark.asyncio
-    async def test_force_stop_when_stop_callback_raises_ignored(self):
+    async def test_force_stop_when_stop_callback_raises_ignored(self) -> None:
         mock_task = mock.Mock()
         mock_client = mock.AsyncMock()
         mock_client.call_with_async_di.side_effect = ValueError
@@ -630,7 +631,7 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
 
     @pytest.mark.asyncio
-    async def test_force_stop_when_no_tasks(self):
+    async def test_force_stop_when_no_tasks(self) -> None:
         mock_task = mock.Mock()
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
         interval._client = mock.AsyncMock()
@@ -643,14 +644,14 @@ class TestIntervalSchedule:
         assert interval._task is None
         assert interval._tasks == []
 
-    def test_force_stop_when_not_active(self):
+    def test_force_stop_when_not_active(self) -> None:
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         with pytest.raises(RuntimeError, match="Schedule is not running"):
             interval.force_stop()
 
     @pytest.mark.asyncio
-    async def test_stop(self):
+    async def test_stop(self) -> None:
         mock_task = mock.Mock()
         mock_client = mock.AsyncMock()
         mock_task_1 = asyncio.create_task(asyncio.sleep(0.2, result=None))
@@ -677,7 +678,7 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_stop_when_no_tasks(self):
+    async def test_stop_when_no_tasks(self) -> None:
         mock_task = mock.Mock()
         mock_client = mock.AsyncMock()
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
@@ -695,7 +696,7 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_stop_when_some_tasks_time_out(self):
+    async def test_stop_when_some_tasks_time_out(self) -> None:
         mock_task = mock.Mock()
         mock_client = mock.AsyncMock()
         mock_task_1 = asyncio.create_task(asyncio.sleep(0.1, result=None))
@@ -727,7 +728,7 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_stop_when_stop_callback_stop_set(self):
+    async def test_stop_when_stop_callback_stop_set(self) -> None:
         mock_task = mock.Mock()
         mock_client = mock.AsyncMock()
         mock_stop_callback = mock.Mock()
@@ -744,7 +745,7 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
 
     @pytest.mark.asyncio
-    async def test_stop_when_stop_callback_stop_raises(self):
+    async def test_stop_when_stop_callback_stop_raises(self) -> None:
         mock_task = mock.Mock()
         mock_client = mock.AsyncMock()
         mock_client.call_with_async_di.side_effect = TypeError
@@ -762,7 +763,7 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
 
     @pytest.mark.asyncio
-    async def test_stop_when_stop_callback_raises_ignored(self):
+    async def test_stop_when_stop_callback_raises_ignored(self) -> None:
         mock_task = mock.Mock()
         mock_client = mock.AsyncMock()
         mock_client.call_with_async_di.side_effect = RuntimeError
@@ -782,13 +783,13 @@ class TestIntervalSchedule:
         mock_client.call_with_async_di.assert_awaited_once_with(mock_stop_callback)
 
     @pytest.mark.asyncio
-    async def test_stop_when_not_active(self):
+    async def test_stop_when_not_active(self) -> None:
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
 
         with pytest.raises(RuntimeError, match="Schedule is not running"):
             await interval.stop()
 
-    def test_with_start_callback(self):
+    def test_with_start_callback(self) -> None:
         set_start_callback = mock.Mock()
         interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
@@ -802,7 +803,7 @@ class TestIntervalSchedule:
         assert result is mock_callback
         set_start_callback.assert_called_once_with(mock_callback)
 
-    def test_with_stop_callback(self):
+    def test_with_stop_callback(self) -> None:
         set_stop_callback = mock.Mock()
         interval: tanjun.schedules.IntervalSchedule[typing.Any] = types.new_class(
             "StubIntervalSchedule",
@@ -816,7 +817,7 @@ class TestIntervalSchedule:
         assert result is mock_callback
         set_stop_callback.assert_called_once_with(mock_callback)
 
-    def test_set_ignored_exceptions(self):
+    def test_set_ignored_exceptions(self) -> None:
         mock_exception: typing.Any = mock.Mock()
         mock_other_exception: typing.Any = mock.Mock()
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
@@ -825,7 +826,7 @@ class TestIntervalSchedule:
 
         assert interval._ignored_exceptions == (mock_exception, mock_other_exception)
 
-    def test_set_fatal_exceptions(self):
+    def test_set_fatal_exceptions(self) -> None:
         mock_exception: typing.Any = mock.Mock()
         mock_other_exception: typing.Any = mock.Mock()
         interval = tanjun.schedules.IntervalSchedule(mock.Mock(), 123)
@@ -836,19 +837,19 @@ class TestIntervalSchedule:
 
 
 class TestTimeSchedule:
-    def test_callback_property(self):
+    def test_callback_property(self) -> None:
         mock_callback = mock.AsyncMock()
         interval = tanjun.schedules.TimeSchedule(mock_callback)
 
         assert interval.callback is mock_callback
 
-    def test_is_alive_property(self):
+    def test_is_alive_property(self) -> None:
         interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
 
         assert interval.is_alive is False
 
     @pytest.mark.asyncio
-    async def test_is_alive_property_when_is_alive(self):
+    async def test_is_alive_property_when_is_alive(self) -> None:
         mock_callback = mock.AsyncMock()
         client = alluka.Client()
         interval = tanjun.schedules.TimeSchedule(mock_callback)
@@ -883,7 +884,7 @@ class TestTimeSchedule:
                 id="Multiple months too large",
             ),
             pytest.param(
-                {"months": range(0, 14)},
+                {"months": range(14)},
                 r"months must be \(inclusively\) between 1 and 12, not 0 and 13",
                 id="Months range out of range",
             ),
@@ -904,7 +905,7 @@ class TestTimeSchedule:
                 id="Multiple days too large",
             ),
             pytest.param(
-                {"days": range(0, 34)},
+                {"days": range(34)},
                 r"days must be \(inclusively\) between 1 and 31, not 0 and 33",
                 id="days range out of range",
             ),
@@ -954,7 +955,7 @@ class TestTimeSchedule:
                 id="Multiple hours too large",
             ),
             pytest.param(
-                {"hours": range(0, 25)},
+                {"hours": range(25)},
                 r"hours must be \(inclusively\) between 0 and 23, not 0 and 24",
                 id="Hours range out of range",
             ),
@@ -979,11 +980,10 @@ class TestTimeSchedule:
                 id="Multiple minutes too large",
             ),
             pytest.param(
-                {"minutes": range(0, 61)},
+                {"minutes": range(61)},
                 r"minutes must be \(inclusively\) between 0 and 59, not 0 and 60",
                 id="Minutes range out of range",
             ),
-            #
             pytest.param(
                 {"seconds": -1},
                 r"seconds value must be \(inclusively\) between 0 and 59, not -1",
@@ -1005,13 +1005,13 @@ class TestTimeSchedule:
                 id="Multiple seconds too large",
             ),
             pytest.param(
-                {"seconds": range(0, 61)},
+                {"seconds": range(61)},
                 r"seconds must be \(inclusively\) between 0 and 59, not 0 and 60",
                 id="Seconds range out of range",
             ),
         ],
     )
-    def test_init_with_out_of_range_value(self, kwargs: dict[str, typing.Any], expected_message: str):
+    def test_init_with_out_of_range_value(self, kwargs: dict[str, typing.Any], expected_message: str) -> None:
         with pytest.raises(ValueError, match=expected_message):
             tanjun.schedules.TimeSchedule(mock.Mock(), **kwargs)
 
@@ -1030,12 +1030,12 @@ class TestTimeSchedule:
             pytest.param({"seconds": [3, 4, 5, 6.54, 3]}, "Cannot pass floats for seconds", id="Multiple seconds"),
         ],
     )
-    def test_init_when_float_passed(self, kwargs: dict[str, typing.Any], expected_message: str):
+    def test_init_when_float_passed(self, kwargs: dict[str, typing.Any], expected_message: str) -> None:
         with pytest.raises(TypeError, match=expected_message):
             tanjun.schedules.TimeSchedule(mock.Mock(), **kwargs)
 
     @pytest.mark.asyncio
-    async def test_call_dunder_method(self):
+    async def test_call_dunder_method(self) -> None:
         mock_callback: typing.Any = mock.AsyncMock()
         interval = tanjun.schedules.TimeSchedule(mock_callback)
 
@@ -1044,7 +1044,7 @@ class TestTimeSchedule:
         assert result is None
         mock_callback.assert_awaited_once_with(123, "32", a=432, b=123)
 
-    def test_copy(self):
+    def test_copy(self) -> None:
         mock_callback: typing.Any = mock.AsyncMock()
         interval = tanjun.schedules.TimeSchedule(mock_callback)
         interval._tasks.append(mock.Mock())
@@ -1058,14 +1058,14 @@ class TestTimeSchedule:
         assert result._config == interval._config
         assert result._config is not interval._config
 
-    def test_copy_when_schedule_is_active(self):
+    def test_copy_when_schedule_is_active(self) -> None:
         interval = tanjun.schedules.TimeSchedule(mock.Mock())
         interval._task = mock.Mock()
 
         with pytest.raises(RuntimeError, match="Cannot copy an active schedule"):
             interval.copy()
 
-    def test_load_into_component(self):
+    def test_load_into_component(self) -> None:
         mock_component = mock.Mock(tanjun.Component)
         interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
 
@@ -1073,13 +1073,13 @@ class TestTimeSchedule:
 
         mock_component.add_schedule.assert_called_once_with(interval)
 
-    def test_load_into_component_when_not_loader(self):
+    def test_load_into_component_when_not_loader(self) -> None:
         mock_component = mock.Mock(object)
         interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
 
         interval.load_into_component(mock_component)
 
-    def test_start(self):
+    def test_start(self) -> None:
         class StubSchedule(tanjun.schedules.TimeSchedule[typing.Any]): ...
 
         mock_client = mock.Mock()
@@ -1095,7 +1095,7 @@ class TestTimeSchedule:
         get_running_loop.return_value.create_task.assert_called_once_with(interval._loop.return_value)
         interval._loop.assert_called_once_with(mock_client)
 
-    def test_start_when_passed_event_loop(self):
+    def test_start_when_passed_event_loop(self) -> None:
         class StubSchedule(tanjun.schedules.TimeSchedule[typing.Any]): ...
 
         mock_client = mock.Mock()
@@ -1110,7 +1110,7 @@ class TestTimeSchedule:
         mock_loop.create_task.assert_called_once_with(interval._loop.return_value)
         interval._loop.assert_called_once_with(mock_client)
 
-    def test_start_when_passed_event_loop_isnt_active(self):
+    def test_start_when_passed_event_loop_isnt_active(self) -> None:
         interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
         mock_loop = mock.Mock()
         mock_loop.is_running.return_value = False
@@ -1119,7 +1119,7 @@ class TestTimeSchedule:
             interval.start(mock.Mock(), loop=mock_loop)
 
     @pytest.mark.asyncio
-    async def test_start_when_already_running(self):
+    async def test_start_when_already_running(self) -> None:
         interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
         interval.start(mock.Mock())
         try:
@@ -1130,7 +1130,7 @@ class TestTimeSchedule:
             interval.force_stop()
 
     @pytest.mark.asyncio
-    async def test_force_stop(self):
+    async def test_force_stop(self) -> None:
         mock_loop_task = mock.Mock()
         mock_task_1 = asyncio.create_task(asyncio.sleep(60, result=None))
         mock_task_2 = asyncio.create_task(asyncio.sleep(60, result=None))
@@ -1151,7 +1151,7 @@ class TestTimeSchedule:
         assert mock_task_2.cancelled() is True
         assert mock_task_3.cancelled() is True
 
-    def test_force_stop_when_no_tasks(self):
+    def test_force_stop_when_no_tasks(self) -> None:
         mock_loop_task = mock.Mock()
         interval = tanjun.schedules.TimeSchedule(mock.Mock())
         interval._task = mock_loop_task
@@ -1161,14 +1161,14 @@ class TestTimeSchedule:
         assert interval.is_alive is False
         assert interval._task is None
 
-    def test_force_stop_when_not_active(self):
+    def test_force_stop_when_not_active(self) -> None:
         interval = tanjun.schedules.TimeSchedule(mock.Mock())
 
         with pytest.raises(RuntimeError, match="Schedule is not running"):
             interval.force_stop()
 
     @pytest.mark.asyncio
-    async def test_stop(self):
+    async def test_stop(self) -> None:
         mock_task = mock.Mock()
         mock_task_1 = asyncio.create_task(asyncio.sleep(0.2, result=None))
         mock_task_2 = asyncio.create_task(asyncio.sleep(0.2, result=None))
@@ -1190,7 +1190,7 @@ class TestTimeSchedule:
         assert mock_task_3.result() is None
 
     @pytest.mark.asyncio
-    async def test_stop_when_some_tasks_time_out(self):
+    async def test_stop_when_some_tasks_time_out(self) -> None:
         mock_task = mock.Mock()
         mock_task_1 = asyncio.create_task(asyncio.sleep(0.6, result=None))
         mock_task_2 = asyncio.create_task(asyncio.sleep(0.2, result=None))
@@ -1219,7 +1219,7 @@ class TestTimeSchedule:
         assert mock_task_4.result() is None
 
     @pytest.mark.asyncio
-    async def test_stop_when_not_running(self):
+    async def test_stop_when_not_running(self) -> None:
         interval = tanjun.schedules.TimeSchedule(mock.AsyncMock())
 
         with pytest.raises(RuntimeError, match="Schedule is not running"):
@@ -1306,25 +1306,25 @@ class TestTimeSchedule:
             pytest.param(
                 {"months": [7, 4], "days": [14, 7], "hours": [17, 12], "minutes": [55, 22], "seconds": [30, 10]},
                 datetime.datetime(2016, 3, 4, 10, 40, 30),
-                _chain(
-                    (
-                        d,
-                        datetime.timedelta(seconds=20),
-                        datetime.timedelta(minutes=32, seconds=40),
-                        datetime.timedelta(seconds=20),
-                    )
-                    for d in (
-                        datetime.timedelta(days=34, seconds=6100, microseconds=500001),
-                        datetime.timedelta(hours=4, minutes=26, seconds=40),
-                        datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
-                        datetime.timedelta(hours=4, minutes=26, seconds=40),
-                        datetime.timedelta(days=83, hours=18, minutes=26, seconds=40),
-                        datetime.timedelta(hours=4, minutes=26, seconds=40),
-                        datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
-                        datetime.timedelta(hours=4, minutes=26, seconds=40),
-                    )
-                )
-                + [
+                [
+                    *_chain(
+                        (
+                            d,
+                            datetime.timedelta(seconds=20),
+                            datetime.timedelta(minutes=32, seconds=40),
+                            datetime.timedelta(seconds=20),
+                        )
+                        for d in (
+                            datetime.timedelta(days=34, seconds=6100, microseconds=500001),
+                            datetime.timedelta(hours=4, minutes=26, seconds=40),
+                            datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
+                            datetime.timedelta(hours=4, minutes=26, seconds=40),
+                            datetime.timedelta(days=83, hours=18, minutes=26, seconds=40),
+                            datetime.timedelta(hours=4, minutes=26, seconds=40),
+                            datetime.timedelta(days=6, hours=18, minutes=26, seconds=40),
+                            datetime.timedelta(hours=4, minutes=26, seconds=40),
+                        )
+                    ),
                     datetime.timedelta(days=266, hours=18, minutes=26, seconds=40),
                     datetime.timedelta(seconds=20),
                     datetime.timedelta(seconds=1),
@@ -1390,18 +1390,25 @@ class TestTimeSchedule:
             pytest.param(
                 {"months": range(11, 13), "days": [1, 15], "hours": range(7, 5, -1), "minutes": range(3, 1, -1)},
                 datetime.datetime(2016, 7, 15, 12, 22, 10, 500001),
-                _chain(
-                    (d, datetime.timedelta(minutes=1), datetime.timedelta(minutes=59), datetime.timedelta(minutes=1))
-                    for d in (
-                        datetime.timedelta(days=108, hours=17, minutes=39, seconds=50),
-                        datetime.timedelta(days=13, hours=22, minutes=59),
-                        datetime.timedelta(days=15, hours=22, minutes=59),
-                        datetime.timedelta(days=13, hours=22, minutes=59),
-                        datetime.timedelta(days=320, hours=22, minutes=59),
-                        datetime.timedelta(days=13, hours=22, minutes=59),
-                    )
-                )
-                + [datetime.timedelta(days=3)],
+                [
+                    *_chain(
+                        (
+                            d,
+                            datetime.timedelta(minutes=1),
+                            datetime.timedelta(minutes=59),
+                            datetime.timedelta(minutes=1),
+                        )
+                        for d in (
+                            datetime.timedelta(days=108, hours=17, minutes=39, seconds=50),
+                            datetime.timedelta(days=13, hours=22, minutes=59),
+                            datetime.timedelta(days=15, hours=22, minutes=59),
+                            datetime.timedelta(days=13, hours=22, minutes=59),
+                            datetime.timedelta(days=320, hours=22, minutes=59),
+                            datetime.timedelta(days=13, hours=22, minutes=59),
+                        )
+                    ),
+                    datetime.timedelta(days=3),
+                ],
                 datetime.timedelta(days=487, hours=18, minutes=41, seconds=50),
                 [
                     *(
@@ -1536,7 +1543,7 @@ class TestTimeSchedule:
         tick_fors: list[datetime.timedelta],
         sleep_for: datetime.timedelta,
         expected_dates: list[datetime.datetime],
-    ):
+    ) -> None:
         # Ensure test-data integrity
         assert start < expected_dates[0], "Start must be before expected dates"
         assert sorted(expected_dates) == expected_dates, "Expected dates must be sorted"
@@ -1544,7 +1551,7 @@ class TestTimeSchedule:
         called_at: list[datetime.datetime] = []
 
         @_print_tb
-        async def callback():
+        async def callback() -> None:
             called_at.append(datetime.datetime.now())
             clock.spawn_ticker()
 
@@ -1564,7 +1571,7 @@ class TestTimeSchedule:
 
     @pytest.mark.timeout(_TIMEOUT)
     @pytest.mark.asyncio
-    async def test_error_handling(self):
+    async def test_error_handling(self) -> None:
         called_at: list[datetime.datetime] = []
 
         @_print_tb
@@ -1573,13 +1580,16 @@ class TestTimeSchedule:
             clock.spawn_ticker()
             length = len(called_at)
             if length == 1:
-                raise RuntimeError("Not caught")
+                error_message = "Not caught"
+                raise RuntimeError(error_message)
 
             if length == 2:
-                raise ValueError("Ignored")
+                error_message = "Ignored"
+                raise ValueError(error_message)
 
             if length == 3:
-                raise TypeError("Fatal")
+                error_message = "Fatal"
+                raise TypeError(error_message)
 
         schedule = (
             tanjun.schedules.as_time_schedule(hours=[4, 6], minutes=30)(callback)

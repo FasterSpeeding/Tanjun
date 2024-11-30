@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -4475,19 +4474,19 @@ class Client(abc.ABC):
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.MESSAGE]  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.MESSAGE]
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]: ...
 
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.USER]  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.USER]
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]: ...
 
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: hikari.CommandType | None = None  # noqa: A002
+        self, *, global_only: bool = False, type: hikari.CommandType | None = None
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]: ...
 
     @abc.abstractmethod

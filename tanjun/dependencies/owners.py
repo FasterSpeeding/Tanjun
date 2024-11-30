@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -47,7 +46,7 @@ from . import async_cache
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    from .. import abc as tanjun
+    from tanjun import abc as tanjun
 
 
 _T = typing.TypeVar("_T")
@@ -155,7 +154,8 @@ class Owners(AbstractOwners):
             expire_after = float(expire_after)
 
         if expire_after <= 0:
-            raise ValueError("Expire after must be greater than 0 seconds")
+            error_message = "Expire after must be greater than 0 seconds"
+            raise ValueError(error_message)
 
         self._fallback_to_application = fallback_to_application
         self._owner_ids = {hikari.Snowflake(id_) for id_ in owners} if owners else set[hikari.Snowflake]()

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -60,7 +59,7 @@ def context() -> tanjun.abc.Context:
 
 @pytest.mark.asyncio
 class TestOwnerCheck:
-    async def test(self):
+    async def test(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = True
         mock_context = mock.Mock()
@@ -71,7 +70,7 @@ class TestOwnerCheck:
         assert result is True
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false(self):
+    async def test_when_false(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock()
@@ -82,9 +81,9 @@ class TestOwnerCheck:
         assert result is False
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false_and_error(self):
+    async def test_when_false_and_error(self) -> None:
         class MockException(Exception):
-            def __init__(self): ...
+            def __init__(self) -> None: ...
 
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
@@ -96,7 +95,7 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false_and_error_message(self):
+    async def test_when_false_and_error_message(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock()
@@ -107,7 +106,7 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false_and_error_message_dict(self):
+    async def test_when_false_and_error_message_dict(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
@@ -121,7 +120,7 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false_and_error_message_dict_but_not_app_command(self):
+    async def test_when_false_and_error_message_dict_but_not_app_command(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock(tanjun.abc.Context)
@@ -134,7 +133,7 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false_and_error_message_dict_defaults(self):
+    async def test_when_false_and_error_message_dict_defaults(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
@@ -148,7 +147,7 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false_and_error_message_dict_explicit_default(self):
+    async def test_when_false_and_error_message_dict_explicit_default(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
@@ -167,7 +166,7 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false_and_error_message_localiser(self):
+    async def test_when_false_and_error_message_localiser(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eepers creepers")
@@ -185,7 +184,7 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false_and_error_message_localiser_overridden_id(self):
+    async def test_when_false_and_error_message_localiser_overridden_id(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eepers creepers")
@@ -215,7 +214,7 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false_and_error_message_localiser_defaults(self):
+    async def test_when_false_and_error_message_localiser_defaults(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="eepers creepers")
@@ -238,7 +237,7 @@ class TestOwnerCheck:
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
-    async def test_when_false_and_halt_execution(self):
+    async def test_when_false_and_halt_execution(self) -> None:
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock()
@@ -252,7 +251,7 @@ class TestOwnerCheck:
 
 @pytest.mark.asyncio
 class TestNsfwCheck:
-    async def test_when_is_dm(self):
+    async def test_when_is_dm(self) -> None:
         mock_context = mock.Mock(guild_id=None)
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error=TypeError, error_message="meep", halt_execution=True)
@@ -263,7 +262,7 @@ class TestNsfwCheck:
         assert result is True
         get_perm_channel.assert_not_called()
 
-    async def test(self):
+    async def test(self) -> None:
         mock_context = mock.Mock()
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error_message=None)
@@ -274,7 +273,7 @@ class TestNsfwCheck:
         assert result is True
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false(self):
+    async def test_when_false(self) -> None:
         mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.NsfwCheck(error_message=None)
 
@@ -284,9 +283,9 @@ class TestNsfwCheck:
         assert result is False
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false_when_error(self):
+    async def test_when_false_when_error(self) -> None:
         class MockException(Exception):
-            def __init__(self): ...
+            def __init__(self) -> None: ...
 
         mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.NsfwCheck(error=MockException, error_message="nye")
@@ -299,7 +298,7 @@ class TestNsfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false_and_error_message(self):
+    async def test_when_false_and_error_message(self) -> None:
         mock_context = mock.Mock()
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error_message="meow me")
@@ -312,7 +311,7 @@ class TestNsfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false_and_error_message_dict(self):
+    async def test_when_false_and_error_message_dict(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.HU
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
@@ -328,7 +327,7 @@ class TestNsfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false_and_error_message_dict_but_not_app_command(self):
+    async def test_when_false_and_error_message_dict_but_not_app_command(self) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(
@@ -348,7 +347,7 @@ class TestNsfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false_and_error_message_dict_defaults(self):
+    async def test_when_false_and_error_message_dict_defaults(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.DA
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
@@ -368,7 +367,7 @@ class TestNsfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false_and_error_message_dict_explicit_default(self):
+    async def test_when_false_and_error_message_dict_explicit_default(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.DA
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
@@ -389,7 +388,7 @@ class TestNsfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false_and_error_message_localiser(self):
+    async def test_when_false_and_error_message_localiser(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow meow")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.EN_GB
@@ -414,7 +413,7 @@ class TestNsfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false_and_error_message_localiser_overridden_id(self):
+    async def test_when_false_and_error_message_localiser_overridden_id(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow meow")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.EN_GB
@@ -444,7 +443,7 @@ class TestNsfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false_and_error_message_localiser_defaults(self):
+    async def test_when_false_and_error_message_localiser_defaults(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow meow")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.FR
@@ -473,7 +472,7 @@ class TestNsfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_false_and_halt_execution(self):
+    async def test_when_false_and_halt_execution(self) -> None:
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.NsfwCheck(error_message="yeet", halt_execution=True)
@@ -489,7 +488,7 @@ class TestNsfwCheck:
 
 @pytest.mark.asyncio
 class TestSfwCheck:
-    async def test_when_is_dm(self):
+    async def test_when_is_dm(self) -> None:
         mock_context = mock.Mock(guild_id=None)
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error=ValueError, error_message="lll", halt_execution=True)
@@ -500,7 +499,7 @@ class TestSfwCheck:
         assert result is True
         get_perm_channel.assert_not_called()
 
-    async def test(self):
+    async def test(self) -> None:
         mock_context = mock.Mock()
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error_message=None)
@@ -511,7 +510,7 @@ class TestSfwCheck:
         assert result is True
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw(self):
+    async def test_when_is_nsfw(self) -> None:
         mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.SfwCheck(error_message=None)
 
@@ -521,9 +520,9 @@ class TestSfwCheck:
         assert result is False
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw_and_error(self):
+    async def test_when_is_nsfw_and_error(self) -> None:
         class MockException(Exception):
-            def __init__(self): ...
+            def __init__(self) -> None: ...
 
         mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
         check = tanjun.checks.SfwCheck(error=MockException, error_message="bye")
@@ -536,7 +535,7 @@ class TestSfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw_and_error_message(self):
+    async def test_when_is_nsfw_and_error_message(self) -> None:
         mock_context = mock.Mock()
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error_message="meow me")
@@ -549,7 +548,7 @@ class TestSfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw_and_error_message_dict(self):
+    async def test_when_is_nsfw_and_error_message_dict(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.DA
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
@@ -565,7 +564,7 @@ class TestSfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw_and_error_message_dict_but_not_app_command(self):
+    async def test_when_is_nsfw_and_error_message_dict_but_not_app_command(self) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(
@@ -585,7 +584,7 @@ class TestSfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw_and_error_message_dict_defaults(self):
+    async def test_when_is_nsfw_and_error_message_dict_defaults(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.FR
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
@@ -601,7 +600,7 @@ class TestSfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw_and_error_message_dict_explicit_default(self):
+    async def test_when_is_nsfw_and_error_message_dict_explicit_default(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.locale = hikari.Locale.FR
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
@@ -622,7 +621,7 @@ class TestSfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw_and_error_message_localiser(self):
+    async def test_when_is_nsfw_and_error_message_localiser(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="oh no girl")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.DA
@@ -642,7 +641,7 @@ class TestSfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw_and_error_message_localiser_overridden_id(self):
+    async def test_when_is_nsfw_and_error_message_localiser_overridden_id(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="oh no girl")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.EN_GB
@@ -681,7 +680,7 @@ class TestSfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw_and_error_message_localiser_defaults(self):
+    async def test_when_is_nsfw_and_error_message_localiser_defaults(self) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="oh no girl")
         mock_context.type = hikari.CommandType.USER
         mock_context.interaction.locale = hikari.Locale.DE
@@ -720,7 +719,7 @@ class TestSfwCheck:
 
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
-    async def test_when_is_nsfw_and_halt_execution(self):
+    async def test_when_is_nsfw_and_halt_execution(self) -> None:
         mock_context = mock.Mock(rest=mock.AsyncMock())
         mock_context.client = tanjun.Client(mock.AsyncMock(), cache=mock.Mock())
         check = tanjun.checks.SfwCheck(error_message="yeet", halt_execution=True)
@@ -735,16 +734,16 @@ class TestSfwCheck:
 
 
 class TestDmCheck:
-    def test_for_dm(self):
+    def test_for_dm(self) -> None:
         check = tanjun.checks.DmCheck(error=ValueError, error_message="meow", halt_execution=True)
         assert check(mock.Mock(guild_id=None)) is True
 
-    def test_for_guild(self):
+    def test_for_guild(self) -> None:
         assert tanjun.checks.DmCheck(error_message=None)(mock.Mock(guild_id=3123)) is False
 
-    def test_for_guild_when_error(self):
+    def test_for_guild_when_error(self) -> None:
         class MockException(Exception):
-            def __init__(self): ...
+            def __init__(self) -> None: ...
 
         check = tanjun.checks.DmCheck(error=MockException, error_message="meow")
         mock_context = mock.Mock(guild_id=3123)
@@ -752,21 +751,21 @@ class TestDmCheck:
         with pytest.raises(MockException):
             assert check(mock_context)
 
-    def test_for_guild_when_halt_execution(self):
+    def test_for_guild_when_halt_execution(self) -> None:
         check = tanjun.checks.DmCheck(error_message="beep", halt_execution=True)
         mock_context = mock.Mock(guild_id=3123)
 
         with pytest.raises(tanjun.HaltExecution):
             assert check(mock_context)
 
-    def test_for_guild_when_error_message(self):
+    def test_for_guild_when_error_message(self) -> None:
         check = tanjun.checks.DmCheck(error_message="message")
         mock_context = mock.Mock(guild_id=3123)
 
         with pytest.raises(tanjun.CommandError, match="message"):
             assert check(mock_context)
 
-    def test_for_guild_when_error_message_dict(self):
+    def test_for_guild_when_error_message_dict(self) -> None:
         check = tanjun.checks.DmCheck(
             error_message={
                 hikari.Locale.ES_ES: "weeb girl",
@@ -780,7 +779,7 @@ class TestDmCheck:
         with pytest.raises(tanjun.CommandError, match="tax girl"):
             assert check(mock_context)
 
-    def test_for_guild_when_error_message_dict_but_not_app_command(self):
+    def test_for_guild_when_error_message_dict_but_not_app_command(self) -> None:
         check = tanjun.checks.DmCheck(
             error_message={
                 hikari.Locale.ES_ES: "weeb girl",
@@ -794,7 +793,7 @@ class TestDmCheck:
         with pytest.raises(tanjun.CommandError, match="weeby girl"):
             assert check(mock_context)
 
-    def test_for_guild_when_error_message_dict_defaults(self):
+    def test_for_guild_when_error_message_dict_defaults(self) -> None:
         check = tanjun.checks.DmCheck(
             error_message={
                 hikari.Locale.EN_GB: "tea girl",
@@ -808,7 +807,7 @@ class TestDmCheck:
         with pytest.raises(tanjun.CommandError, match="tea girl"):
             assert check(mock_context)
 
-    def test_for_guild_when_error_message_dict_explicit_default(self):
+    def test_for_guild_when_error_message_dict_explicit_default(self) -> None:
         check = tanjun.checks.DmCheck(
             error_message={
                 hikari.Locale.EN_GB: "tea girl",
@@ -823,7 +822,7 @@ class TestDmCheck:
         with pytest.raises(tanjun.CommandError, match="man girl"):
             assert check(mock_context)
 
-    def test_for_guild_when_error_message_localiser(self):
+    def test_for_guild_when_error_message_localiser(self) -> None:
         check = tanjun.checks.DmCheck(
             error_message={
                 hikari.Locale.EN_GB: "tea girl",
@@ -842,7 +841,7 @@ class TestDmCheck:
         with pytest.raises(tanjun.CommandError, match="me girl"):
             assert check(mock_context, localiser=localiser)
 
-    def test_for_guild_when_error_message_localiser_overridden_id(self):
+    def test_for_guild_when_error_message_localiser_overridden_id(self) -> None:
         check = tanjun.checks.DmCheck(
             error_message={
                 hikari.Locale.EN_GB: "tea girl",
@@ -869,7 +868,7 @@ class TestDmCheck:
         with pytest.raises(tanjun.CommandError, match="my girl"):
             assert check(mock_context, localiser=localiser)
 
-    def test_for_guild_when_error_message_localiser_defaults(self):
+    def test_for_guild_when_error_message_localiser_defaults(self) -> None:
         check = tanjun.checks.DmCheck(
             error_message={
                 hikari.Locale.ES_ES: "weeb girl",
@@ -890,38 +889,38 @@ class TestDmCheck:
 
 
 class TestGuildCheck:
-    def test_for_guild(self):
+    def test_for_guild(self) -> None:
         check = tanjun.checks.GuildCheck(error=IndentationError, error_message="meow", halt_execution=True)
 
         assert check(mock.Mock(guild_id=123123)) is True
 
-    def test_for_dm(self):
+    def test_for_dm(self) -> None:
         assert tanjun.checks.GuildCheck(error_message=None)(mock.Mock(guild_id=None)) is False
 
-    def test_for_dm_when_error(self):
+    def test_for_dm_when_error(self) -> None:
         class MockException(Exception):
-            def __init__(self): ...
+            def __init__(self) -> None: ...
 
         check = tanjun.checks.GuildCheck(error=MockException, error_message="meep")
 
         with pytest.raises(MockException):
             assert check(mock.Mock(guild_id=None))
 
-    def test_for_dm_when_halt_execution(self):
+    def test_for_dm_when_halt_execution(self) -> None:
         check = tanjun.checks.GuildCheck(error_message="beep", halt_execution=True)
         mock_context = mock.Mock(guild_id=None)
 
         with pytest.raises(tanjun.HaltExecution):
             check(mock_context)
 
-    def test_for_dm_when_error_message(self):
+    def test_for_dm_when_error_message(self) -> None:
         check = tanjun.checks.GuildCheck(error_message="hi")
         mock_context = mock.Mock(guild_id=None)
 
         with pytest.raises(tanjun.CommandError, match="hi"):
             check(mock_context)
 
-    def test_for_dm_when_error_message_dict(self):
+    def test_for_dm_when_error_message_dict(self) -> None:
         check = tanjun.checks.GuildCheck(
             error_message={
                 hikari.Locale.EN_GB: "hi",
@@ -935,7 +934,7 @@ class TestGuildCheck:
         with pytest.raises(tanjun.CommandError, match="Konnichiwa"):
             check(mock_context)
 
-    def test_for_dm_when_error_message_dict_but_not_app_command(self):
+    def test_for_dm_when_error_message_dict_but_not_app_command(self) -> None:
         check = tanjun.checks.GuildCheck(
             error_message={
                 hikari.Locale.EN_US: "*shoots*",
@@ -949,7 +948,7 @@ class TestGuildCheck:
         with pytest.raises(tanjun.CommandError, match=r"\*heals\*"):
             check(mock_context)
 
-    def test_for_dm_when_error_message_dict_defaults(self):
+    def test_for_dm_when_error_message_dict_defaults(self) -> None:
         check = tanjun.checks.GuildCheck(
             error_message={
                 hikari.Locale.SV_SE: "Blåhaj my beloved",
@@ -964,7 +963,7 @@ class TestGuildCheck:
         with pytest.raises(tanjun.CommandError, match="Blåhaj my beloved"):
             check(mock_context)
 
-    def test_for_dm_when_error_message_dict_explicit_default(self):
+    def test_for_dm_when_error_message_dict_explicit_default(self) -> None:
         check = tanjun.checks.GuildCheck(
             error_message={
                 hikari.Locale.SV_SE: "Blåhaj my beloved",
@@ -980,7 +979,7 @@ class TestGuildCheck:
         with pytest.raises(tanjun.CommandError, match="nyaa"):
             check(mock_context)
 
-    def test_for_dm_when_error_message_localiser(self):
+    def test_for_dm_when_error_message_localiser(self) -> None:
         check = tanjun.checks.GuildCheck(
             error_message={
                 hikari.Locale.SV_SE: "Blåhaj my beloved",
@@ -1000,7 +999,7 @@ class TestGuildCheck:
         with pytest.raises(tanjun.CommandError, match="Please uwu me"):
             check(mock_context, localiser=localiser)
 
-    def test_for_dm_when_error_message_localiser_overridden_id(self):
+    def test_for_dm_when_error_message_localiser_overridden_id(self) -> None:
         check = tanjun.checks.GuildCheck(
             error_message={
                 hikari.Locale.SV_SE: "Blåhaj my beloved",
@@ -1025,7 +1024,7 @@ class TestGuildCheck:
         with pytest.raises(tanjun.CommandError, match="Blåhaj fan 69"):
             check(mock_context, localiser=localiser)
 
-    def test_for_dm_when_error_message_localiser_defaults(self):
+    def test_for_dm_when_error_message_localiser_defaults(self) -> None:
         check = tanjun.checks.GuildCheck(
             error_message={
                 hikari.Locale.SV_SE: "Blåhaj my beloved",
@@ -1172,7 +1171,7 @@ DM_PERMISSIONS = ("required_perms", list(_perm_combos(tanjun.permissions.DM_PERM
 @pytest.mark.asyncio
 class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+    async def test(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock()
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
 
@@ -1187,7 +1186,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock()
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message=None)
 
@@ -1202,7 +1201,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
@@ -1224,7 +1223,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock()
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message="yeet feet")
 
@@ -1241,7 +1240,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_error_message_dict(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock()
         check = tanjun.checks.AuthorPermissionCheck(
             required_perms, error_message={hikari.Locale.BG: "yeet", "default": "moop"}
@@ -1260,7 +1259,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock()
         check = tanjun.checks.AuthorPermissionCheck(required_perms, halt_execution=True)
 
@@ -1275,7 +1274,9 @@ class TestAuthorPermissionCheck:
         )
 
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test_for_interaction_member(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+    async def test_for_interaction_member(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions
+    ) -> None:
         mock_context = mock.Mock(member=mock.Mock(hikari.InteractionMember, permissions=actual_perms))
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
 
@@ -1286,7 +1287,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(member=mock.Mock(hikari.InteractionMember, permissions=actual_perms))
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message=None)
 
@@ -1297,7 +1298,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
@@ -1312,7 +1313,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(member=mock.Mock(hikari.InteractionMember, permissions=actual_perms))
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message="yeet feet")
 
@@ -1322,7 +1323,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms_and_error_message_dict(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(
             tanjun.abc.AppCommandContext, member=mock.Mock(hikari.InteractionMember, permissions=actual_perms)
         )
@@ -1338,7 +1339,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms_and_error_message_dict_defaults(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(
             tanjun.abc.AppCommandContext, member=mock.Mock(hikari.InteractionMember, permissions=actual_perms)
         )
@@ -1354,7 +1355,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms_and_error_message_dict_explicit_default(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(
             tanjun.abc.AppCommandContext, member=mock.Mock(hikari.InteractionMember, permissions=actual_perms)
         )
@@ -1375,7 +1376,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms_and_error_message_localiser(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(
             tanjun.abc.AppCommandContext,
             member=mock.Mock(hikari.InteractionMember, permissions=actual_perms),
@@ -1398,7 +1399,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms_and_error_message_localiser_overridden_id(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(
             tanjun.abc.AppCommandContext,
             member=mock.Mock(hikari.InteractionMember, permissions=actual_perms),
@@ -1430,7 +1431,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms_and_error_message_localiser_defaults(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(
             tanjun.abc.AppCommandContext,
             member=mock.Mock(hikari.InteractionMember, permissions=actual_perms),
@@ -1463,7 +1464,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_member_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(member=mock.Mock(hikari.InteractionMember, permissions=actual_perms))
         check = tanjun.checks.AuthorPermissionCheck(required_perms, halt_execution=True)
 
@@ -1471,7 +1472,7 @@ class TestAuthorPermissionCheck:
             await check(mock_context)
 
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test_for_guild_user(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+    async def test_for_guild_user(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
 
@@ -1488,7 +1489,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_guild_user_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message=None)
 
@@ -1505,7 +1506,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_guild_user_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
@@ -1528,7 +1529,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_guild_user_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message="beat yo meow")
 
@@ -1547,7 +1548,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_guild_user_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, halt_execution=True)
 
@@ -1564,7 +1565,7 @@ class TestAuthorPermissionCheck:
         )
 
     @pytest.mark.parametrize(*DM_PERMISSIONS)
-    async def test_for_dm(self, required_perms: hikari.Permissions):
+    async def test_for_dm(self, required_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(guild_id=None, member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error=mock.Mock(), halt_execution=True)
 
@@ -1573,7 +1574,7 @@ class TestAuthorPermissionCheck:
         assert result is True
 
     @pytest.mark.parametrize(*INVALID_DM_PERMISSIONS)
-    async def test_for_dm_when_missing_perms(self, required_perms: hikari.Permissions):
+    async def test_for_dm_when_missing_perms(self, required_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(guild_id=None, member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message=None)
 
@@ -1584,7 +1585,7 @@ class TestAuthorPermissionCheck:
     @pytest.mark.parametrize(*MISSING_DM_PERMISSIONS)
     async def test_for_dm_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
@@ -1597,7 +1598,7 @@ class TestAuthorPermissionCheck:
         mock_error_callback.assert_called_once_with(missing_perms)
 
     @pytest.mark.parametrize(*INVALID_DM_PERMISSIONS)
-    async def test_for_dm_when_missing_perms_and_error_message(self, required_perms: hikari.Permissions):
+    async def test_for_dm_when_missing_perms_and_error_message(self, required_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(guild_id=None, member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, error_message="aye lmao")
 
@@ -1605,7 +1606,7 @@ class TestAuthorPermissionCheck:
             await check(mock_context)
 
     @pytest.mark.parametrize(*INVALID_DM_PERMISSIONS)
-    async def test_for_dm_when_missing_perms_and_halt_execution(self, required_perms: hikari.Permissions):
+    async def test_for_dm_when_missing_perms_and_halt_execution(self, required_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(guild_id=None, member=None)
         check = tanjun.checks.AuthorPermissionCheck(required_perms, halt_execution=True)
 
@@ -1616,7 +1617,7 @@ class TestAuthorPermissionCheck:
 @pytest.mark.asyncio
 class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+    async def test(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache.get_member.return_value = None
         mock_context.rest = mock.AsyncMock()
@@ -1637,7 +1638,7 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test_when_no_cache(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+    async def test_when_no_cache(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache = None
         mock_context.rest = mock.AsyncMock()
@@ -1657,7 +1658,9 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test_when_no_async_cache(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+    async def test_when_no_async_cache(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache.get_member.return_value = None
         mock_context.rest = mock.AsyncMock()
@@ -1675,7 +1678,7 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test_when_no_caches(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+    async def test_when_no_caches(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache = None
         mock_context.rest = mock.AsyncMock()
@@ -1694,7 +1697,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache.get_member.return_value = None
         mock_context.rest = mock.AsyncMock()
@@ -1717,7 +1720,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
@@ -1746,7 +1749,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache.get_member.return_value = None
         mock_context.rest = mock.AsyncMock()
@@ -1771,7 +1774,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_error_message_dict(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache.get_member.return_value = None
         mock_context.rest = mock.AsyncMock()
@@ -1798,7 +1801,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache.get_member.return_value = None
         mock_context.rest = mock.AsyncMock()
@@ -1821,7 +1824,9 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_awaited_once_with(mock_context.guild_id, mock_own_user.id)
 
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test_for_cached_member(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+    async def test_for_cached_member(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -1843,7 +1848,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_cached_member_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -1865,7 +1870,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_cached_member_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
@@ -1893,7 +1898,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_cached_member_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -1917,7 +1922,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_cached_member_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -1939,7 +1944,9 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*PERMISSIONS)
-    async def test_for_async_cached_member(self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions):
+    async def test_for_async_cached_member(
+        self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache.get_member.return_value = None
         mock_context.rest = mock.AsyncMock()
@@ -1961,7 +1968,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_async_cached_member_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache.get_member.return_value = None
         mock_context.rest = mock.AsyncMock()
@@ -1983,7 +1990,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_async_cached_member_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
@@ -2011,7 +2018,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_async_cached_member_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache.get_member.return_value = None
         mock_context.rest = mock.AsyncMock()
@@ -2035,7 +2042,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_async_cached_member_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.Context)
         mock_context.cache.get_member.return_value = None
         mock_context.rest = mock.AsyncMock()
@@ -2059,7 +2066,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.rest = mock.AsyncMock()
@@ -2079,7 +2086,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.rest = mock.AsyncMock()
@@ -2099,7 +2106,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
@@ -2122,7 +2129,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.rest = mock.AsyncMock()
@@ -2144,7 +2151,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_dict(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.interaction.locale = hikari.Locale.EN_GB
@@ -2170,7 +2177,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_dict_defaults(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.interaction.locale = hikari.Locale.FR
@@ -2196,7 +2203,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_dict_explicit_default(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.interaction.locale = hikari.Locale.FR
@@ -2227,7 +2234,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_localiser(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow command")
         mock_context.interaction.app_permissions = actual_perms
         mock_context.interaction.locale = hikari.Locale.EN_US
@@ -2258,7 +2265,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_localiser_overridden_id(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow command")
         mock_context.interaction.app_permissions = actual_perms
         mock_context.interaction.locale = hikari.Locale.EN_US
@@ -2298,7 +2305,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_error_message_localiser_defaults(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext, triggering_name="meow command")
         mock_context.interaction.app_permissions = actual_perms
         mock_context.interaction.locale = hikari.Locale.FR
@@ -2334,7 +2341,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_PERMISSIONS)
     async def test_for_interaction_context_with_app_permissions_when_missing_perms_and_halt_execution(
         self, required_perms: hikari.Permissions, actual_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         mock_context = mock.Mock(tanjun.abc.AppCommandContext)
         mock_context.interaction.app_permissions = actual_perms
         mock_context.rest = mock.AsyncMock()
@@ -2354,7 +2361,7 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*DM_PERMISSIONS)
-    async def test_for_dm(self, required_perms: hikari.Permissions):
+    async def test_for_dm(self, required_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -2371,7 +2378,7 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*INVALID_DM_PERMISSIONS)
-    async def test_for_dm_when_missing_perms(self, required_perms: hikari.Permissions):
+    async def test_for_dm_when_missing_perms(self, required_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -2390,7 +2397,7 @@ class TestOwnPermissionCheck:
     @pytest.mark.parametrize(*MISSING_DM_PERMISSIONS)
     async def test_for_dm_when_missing_perms_and_error_callback(
         self, required_perms: hikari.Permissions, missing_perms: hikari.Permissions
-    ):
+    ) -> None:
         class StubError(Exception): ...
 
         mock_error_callback = mock.Mock(side_effect=StubError)
@@ -2410,7 +2417,7 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*INVALID_DM_PERMISSIONS)
-    async def test_for_dm_when_missing_perms_and_error_message(self, required_perms: hikari.Permissions):
+    async def test_for_dm_when_missing_perms_and_error_message(self, required_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -2429,7 +2436,7 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_not_called()
 
     @pytest.mark.parametrize(*INVALID_DM_PERMISSIONS)
-    async def test_for_dm_when_missing_perms_and_halt_execution(self, required_perms: hikari.Permissions):
+    async def test_for_dm_when_missing_perms_and_halt_execution(self, required_perms: hikari.Permissions) -> None:
         mock_context = mock.Mock(tanjun.abc.Context, guild_id=None)
         mock_context.rest = mock.AsyncMock()
         mock_own_user = mock.Mock()
@@ -2448,7 +2455,7 @@ class TestOwnPermissionCheck:
         mock_context.rest.fetch_member.assert_not_called()
 
 
-def test_with_dm_check(command: mock.Mock):
+def test_with_dm_check(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
 
     with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
@@ -2461,7 +2468,7 @@ def test_with_dm_check(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_dm_check_with_keyword_arguments(command: mock.Mock):
+def test_with_dm_check_with_keyword_arguments(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
@@ -2476,7 +2483,7 @@ def test_with_dm_check_with_keyword_arguments(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_dm_check_when_follow_wrapping(command: mock.Mock):
+def test_with_dm_check_when_follow_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(
         tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
     )
@@ -2491,7 +2498,7 @@ def test_with_dm_check_when_follow_wrapping(command: mock.Mock):
         )
 
 
-def test_with_dm_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+def test_with_dm_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = None
     with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
         assert tanjun.checks.with_dm_check(follow_wrapped=True)(command) is command
@@ -2502,7 +2509,7 @@ def test_with_dm_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock)
         )
 
 
-def test_with_dm_check_when_follow_wrapping_and_unsupported_command():
+def test_with_dm_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.MessageCommand)
     command.add_check.return_value = command
     with pytest.raises(AttributeError):
@@ -2517,7 +2524,7 @@ def test_with_dm_check_when_follow_wrapping_and_unsupported_command():
         )
 
 
-def test_with_dm_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+def test_with_dm_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
     with pytest.raises(AttributeError):
         command.wrapped_command.wrapped_command
@@ -2532,7 +2539,7 @@ def test_with_dm_check_when_follow_wrapping_and_wrapping_unsupported_command(com
         )
 
 
-def test_with_guild_check(command: mock.Mock):
+def test_with_guild_check(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
 
     with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
@@ -2545,7 +2552,7 @@ def test_with_guild_check(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_guild_check_with_keyword_arguments(command: mock.Mock):
+def test_with_guild_check_with_keyword_arguments(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
@@ -2560,7 +2567,7 @@ def test_with_guild_check_with_keyword_arguments(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_guild_check_when_follow_wrapping(command: mock.Mock):
+def test_with_guild_check_when_follow_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(
         tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
     )
@@ -2575,7 +2582,7 @@ def test_with_guild_check_when_follow_wrapping(command: mock.Mock):
         )
 
 
-def test_with_guild_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+def test_with_guild_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = None
     with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
         assert tanjun.checks.with_guild_check(follow_wrapped=True)(command) is command
@@ -2586,7 +2593,7 @@ def test_with_guild_check_when_follow_wrapping_and_not_wrapping(command: mock.Mo
         )
 
 
-def test_with_guild_check_when_follow_wrapping_and_unsupported_command():
+def test_with_guild_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
     with pytest.raises(AttributeError):
@@ -2601,7 +2608,7 @@ def test_with_guild_check_when_follow_wrapping_and_unsupported_command():
         )
 
 
-def test_with_guild_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+def test_with_guild_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
     with pytest.raises(AttributeError):
         command.wrapped_command.wrapped_command
@@ -2616,7 +2623,7 @@ def test_with_guild_check_when_follow_wrapping_and_wrapping_unsupported_command(
         )
 
 
-def test_with_nsfw_check(command: mock.Mock):
+def test_with_nsfw_check(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
 
     with mock.patch.object(tanjun.checks, "NsfwCheck", return_value=mock.AsyncMock()) as nsfw_check:
@@ -2629,7 +2636,7 @@ def test_with_nsfw_check(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_nsfw_check_with_keyword_arguments(command: mock.Mock):
+def test_with_nsfw_check_with_keyword_arguments(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
@@ -2644,7 +2651,7 @@ def test_with_nsfw_check_with_keyword_arguments(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_nsfw_check_when_follow_wrapping(command: mock.Mock):
+def test_with_nsfw_check_when_follow_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(
         tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
     )
@@ -2659,7 +2666,7 @@ def test_with_nsfw_check_when_follow_wrapping(command: mock.Mock):
         )
 
 
-def test_with_nsfw_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+def test_with_nsfw_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = None
     with mock.patch.object(tanjun.checks, "NsfwCheck") as nsfw_check:
         assert tanjun.checks.with_nsfw_check(follow_wrapped=True)(command) is command
@@ -2670,7 +2677,7 @@ def test_with_nsfw_check_when_follow_wrapping_and_not_wrapping(command: mock.Moc
         )
 
 
-def test_with_nsfw_check_when_follow_wrapping_and_unsupported_command():
+def test_with_nsfw_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
     with pytest.raises(AttributeError):
@@ -2685,7 +2692,7 @@ def test_with_nsfw_check_when_follow_wrapping_and_unsupported_command():
         )
 
 
-def test_with_nsfw_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+def test_with_nsfw_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
     with pytest.raises(AttributeError):
         command.wrapped_command.wrapped_command
@@ -2700,7 +2707,7 @@ def test_with_nsfw_check_when_follow_wrapping_and_wrapping_unsupported_command(c
         )
 
 
-def test_with_sfw_check(command: mock.Mock):
+def test_with_sfw_check(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
 
     with mock.patch.object(tanjun.checks, "SfwCheck", return_value=mock.AsyncMock()) as sfw_check:
@@ -2713,7 +2720,7 @@ def test_with_sfw_check(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_sfw_check_with_keyword_arguments(command: mock.Mock):
+def test_with_sfw_check_with_keyword_arguments(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
@@ -2728,7 +2735,7 @@ def test_with_sfw_check_with_keyword_arguments(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_sfw_check_when_follow_wrapping(command: mock.Mock):
+def test_with_sfw_check_when_follow_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(
         tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
     )
@@ -2743,7 +2750,7 @@ def test_with_sfw_check_when_follow_wrapping(command: mock.Mock):
         )
 
 
-def test_with_sfw_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+def test_with_sfw_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = None
     with mock.patch.object(tanjun.checks, "SfwCheck") as sfw_check:
         assert tanjun.checks.with_sfw_check(follow_wrapped=True)(command) is command
@@ -2754,7 +2761,7 @@ def test_with_sfw_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock
         )
 
 
-def test_with_sfw_check_when_follow_wrapping_and_unsupported_command():
+def test_with_sfw_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
     with pytest.raises(AttributeError):
@@ -2769,7 +2776,7 @@ def test_with_sfw_check_when_follow_wrapping_and_unsupported_command():
         )
 
 
-def test_with_sfw_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+def test_with_sfw_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
     with pytest.raises(AttributeError):
@@ -2785,7 +2792,7 @@ def test_with_sfw_check_when_follow_wrapping_and_wrapping_unsupported_command(co
         )
 
 
-def test_with_owner_check(command: mock.Mock):
+def test_with_owner_check(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
 
     with mock.patch.object(tanjun.checks, "OwnerCheck") as owner_check:
@@ -2798,7 +2805,7 @@ def test_with_owner_check(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_owner_check_with_keyword_arguments(command: mock.Mock):
+def test_with_owner_check_with_keyword_arguments(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
     mock_check = object()
@@ -2813,7 +2820,7 @@ def test_with_owner_check_with_keyword_arguments(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_owner_check_when_follow_wrapping(command: mock.Mock):
+def test_with_owner_check_when_follow_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(
         tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
     )
@@ -2828,7 +2835,7 @@ def test_with_owner_check_when_follow_wrapping(command: mock.Mock):
         )
 
 
-def test_with_owner_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+def test_with_owner_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = None
     with mock.patch.object(tanjun.checks, "OwnerCheck") as owner_check:
         assert tanjun.checks.with_owner_check(follow_wrapped=True)(command) is command
@@ -2839,7 +2846,7 @@ def test_with_owner_check_when_follow_wrapping_and_not_wrapping(command: mock.Mo
         )
 
 
-def test_with_owner_check_when_follow_wrapping_and_unsupported_command():
+def test_with_owner_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
     with pytest.raises(AttributeError):
@@ -2854,7 +2861,7 @@ def test_with_owner_check_when_follow_wrapping_and_unsupported_command():
         )
 
 
-def test_with_owner_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+def test_with_owner_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
     with pytest.raises(AttributeError):
         command.wrapped_command.wrapped_command
@@ -2869,7 +2876,7 @@ def test_with_owner_check_when_follow_wrapping_and_wrapping_unsupported_command(
         )
 
 
-def test_with_author_permission_check(command: mock.Mock):
+def test_with_author_permission_check(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
 
     with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
@@ -2886,7 +2893,7 @@ def test_with_author_permission_check(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_author_permission_check_with_keyword_arguments(command: mock.Mock):
+def test_with_author_permission_check_with_keyword_arguments(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
@@ -2903,7 +2910,7 @@ def test_with_author_permission_check_with_keyword_arguments(command: mock.Mock)
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_author_permission_check_when_follow_wrapping(command: mock.Mock):
+def test_with_author_permission_check_when_follow_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(
         tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
     )
@@ -2921,7 +2928,7 @@ def test_with_author_permission_check_when_follow_wrapping(command: mock.Mock):
         )
 
 
-def test_with_author_permission_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+def test_with_author_permission_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = None
     with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
         assert tanjun.checks.with_author_permission_check(435213, follow_wrapped=True)(command) is command
@@ -2935,7 +2942,7 @@ def test_with_author_permission_check_when_follow_wrapping_and_not_wrapping(comm
         )
 
 
-def test_with_author_permission_check_when_follow_wrapping_and_unsupported_command():
+def test_with_author_permission_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
     with pytest.raises(AttributeError):
@@ -2953,7 +2960,7 @@ def test_with_author_permission_check_when_follow_wrapping_and_unsupported_comma
         )
 
 
-def test_with_author_permission_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+def test_with_author_permission_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
     with pytest.raises(AttributeError):
         command.wrapped_command.wrapped_command
@@ -2971,7 +2978,7 @@ def test_with_author_permission_check_when_follow_wrapping_and_wrapping_unsuppor
         )
 
 
-def test_with_own_permission_check(command: mock.Mock):
+def test_with_own_permission_check(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
 
     with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
@@ -2988,7 +2995,7 @@ def test_with_own_permission_check(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_own_permission_check_with_keyword_arguments(command: mock.Mock):
+def test_with_own_permission_check_with_keyword_arguments(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.SlashCommand)
     mock_error_callback = mock.Mock()
 
@@ -3005,7 +3012,7 @@ def test_with_own_permission_check_with_keyword_arguments(command: mock.Mock):
         command.wrapped_command.add_check.assert_not_called()
 
 
-def test_with_own_permission_check_when_follow_wrapping(command: mock.Mock):
+def test_with_own_permission_check_when_follow_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(
         tanjun.MessageCommand, wrapped_command=mock.Mock(tanjun.SlashCommand, wrapped_command=None)
     )
@@ -3023,7 +3030,7 @@ def test_with_own_permission_check_when_follow_wrapping(command: mock.Mock):
         )
 
 
-def test_with_own_permission_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock):
+def test_with_own_permission_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock) -> None:
     command.wrapped_command = None
     with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
         assert tanjun.checks.with_own_permission_check(5412312, follow_wrapped=True)(command) is command
@@ -3037,7 +3044,7 @@ def test_with_own_permission_check_when_follow_wrapping_and_not_wrapping(command
         )
 
 
-def test_with_own_permission_check_when_follow_wrapping_and_unsupported_command():
+def test_with_own_permission_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
     with pytest.raises(AttributeError):
@@ -3055,7 +3062,7 @@ def test_with_own_permission_check_when_follow_wrapping_and_unsupported_command(
         )
 
 
-def test_with_own_permission_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock):
+def test_with_own_permission_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
     with pytest.raises(AttributeError):
         command.wrapped_command.wrapped_command
@@ -3073,7 +3080,7 @@ def test_with_own_permission_check_when_follow_wrapping_and_wrapping_unsupported
         )
 
 
-def test_with_check(command: mock.Mock):
+def test_with_check(command: mock.Mock) -> None:
     mock_check = mock.Mock()
 
     result = tanjun.checks.with_check(mock_check)(command)
@@ -3083,7 +3090,7 @@ def test_with_check(command: mock.Mock):
 
 
 @pytest.mark.asyncio
-async def test_all_checks():
+async def test_all_checks() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3104,7 +3111,7 @@ async def test_all_checks():
 
 
 @pytest.mark.asyncio
-async def test_all_checks_when_check_raises():
+async def test_all_checks_when_check_raises() -> None:
     class MockError(Exception): ...
 
     mock_check_1 = mock.Mock()
@@ -3123,7 +3130,7 @@ async def test_all_checks_when_check_raises():
 
 
 @pytest.mark.asyncio
-async def test_all_checks_when_first_fails():
+async def test_all_checks_when_first_fails() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3138,7 +3145,7 @@ async def test_all_checks_when_first_fails():
 
 
 @pytest.mark.asyncio
-async def test_all_checks_when_last_fails():
+async def test_all_checks_when_last_fails() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3159,7 +3166,7 @@ async def test_all_checks_when_last_fails():
 
 
 @pytest.mark.asyncio
-async def test_all_checks_when_any_check_fails():
+async def test_all_checks_when_any_check_fails() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3176,7 +3183,7 @@ async def test_all_checks_when_any_check_fails():
     )
 
 
-def test_with_all_checks():
+def test_with_all_checks() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3191,7 +3198,7 @@ def test_with_all_checks():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_first_check_passes():
+async def test_any_checks_when_first_check_passes() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3208,7 +3215,7 @@ async def test_any_checks_when_first_check_passes():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_last_check_passes():
+async def test_any_checks_when_last_check_passes() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3231,7 +3238,7 @@ async def test_any_checks_when_last_check_passes():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_check_passes():
+async def test_any_checks_when_check_passes() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3264,7 +3271,7 @@ async def test_any_checks_when_check_passes():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail():
+async def test_any_checks_when_all_fail() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3285,9 +3292,9 @@ async def test_any_checks_when_all_fail():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail_and_error():
+async def test_any_checks_when_all_fail_and_error() -> None:
     class MockException(Exception):
-        def __init__(self): ...
+        def __init__(self) -> None: ...
 
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
@@ -3309,7 +3316,7 @@ async def test_any_checks_when_all_fail_and_error():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail_and_halt_execution():
+async def test_any_checks_when_all_fail_and_halt_execution() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3330,7 +3337,7 @@ async def test_any_checks_when_all_fail_and_halt_execution():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail_and_error_message():
+async def test_any_checks_when_all_fail_and_error_message() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3351,7 +3358,7 @@ async def test_any_checks_when_all_fail_and_error_message():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail_and_error_message_dict():
+async def test_any_checks_when_all_fail_and_error_message_dict() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3378,7 +3385,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail_and_error_message_dict_but_not_app_command():
+async def test_any_checks_when_all_fail_and_error_message_dict_but_not_app_command() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3410,7 +3417,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict_but_not_app_comma
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail_and_error_message_dict_defaults():
+async def test_any_checks_when_all_fail_and_error_message_dict_defaults() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3437,7 +3444,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict_defaults():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail_and_error_message_dict_explicit_default():
+async def test_any_checks_when_all_fail_and_error_message_dict_explicit_default() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3469,7 +3476,7 @@ async def test_any_checks_when_all_fail_and_error_message_dict_explicit_default(
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail_and_error_message_localiser():
+async def test_any_checks_when_all_fail_and_error_message_localiser() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3500,7 +3507,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_id():
+async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_id() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3540,7 +3547,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser_overridden_i
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_all_fail_and_error_message_localiser_defaults():
+async def test_any_checks_when_all_fail_and_error_message_localiser_defaults() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3576,7 +3583,7 @@ async def test_any_checks_when_all_fail_and_error_message_localiser_defaults():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_generic_unsuppressed_error_raised():
+async def test_any_checks_when_generic_unsuppressed_error_raised() -> None:
     class MockError(Exception): ...
 
     mock_check_1 = mock.Mock()
@@ -3595,7 +3602,7 @@ async def test_any_checks_when_generic_unsuppressed_error_raised():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_generic_error_suppressed():
+async def test_any_checks_when_generic_error_suppressed() -> None:
     class MockError(Exception): ...
 
     mock_check_1 = mock.Mock()
@@ -3620,7 +3627,7 @@ async def test_any_checks_when_generic_error_suppressed():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_halt_execution_not_suppressed():
+async def test_any_checks_when_halt_execution_not_suppressed() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3637,7 +3644,7 @@ async def test_any_checks_when_halt_execution_not_suppressed():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_halt_execution_suppressed():
+async def test_any_checks_when_halt_execution_suppressed() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3658,7 +3665,7 @@ async def test_any_checks_when_halt_execution_suppressed():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_command_error_not_suppressed():
+async def test_any_checks_when_command_error_not_suppressed() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3675,7 +3682,7 @@ async def test_any_checks_when_command_error_not_suppressed():
 
 
 @pytest.mark.asyncio
-async def test_any_checks_when_command_error_suppressed():
+async def test_any_checks_when_command_error_suppressed() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()
@@ -3695,7 +3702,7 @@ async def test_any_checks_when_command_error_suppressed():
     )
 
 
-def test_with_any_checks():
+def test_with_any_checks() -> None:
     mock_check_1 = mock.Mock()
     mock_check_2 = mock.Mock()
     mock_check_3 = mock.Mock()

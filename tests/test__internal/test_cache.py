@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -42,7 +41,7 @@ from tanjun._internal import cache
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_hikari_cached_channel():
+async def test_get_perm_channel_when_hikari_cached_channel() -> None:
     mock_cache = mock.Mock()
     mock_rest = mock.AsyncMock()
     mock_rest.fetch_channel.side_effect = RuntimeError
@@ -63,7 +62,7 @@ async def test_get_perm_channel_when_hikari_cached_channel():
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_hikari_cached_channel_and_other_caches_not_implemented():
+async def test_get_perm_channel_when_hikari_cached_channel_and_other_caches_not_implemented() -> None:
     mock_cache = mock.Mock()
     mock_rest = mock.AsyncMock()
     mock_rest.fetch_channel.side_effect = RuntimeError
@@ -76,7 +75,7 @@ async def test_get_perm_channel_when_hikari_cached_channel_and_other_caches_not_
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_async_cached_channel():
+async def test_get_perm_channel_when_async_cached_channel() -> None:
     mock_cache = mock.Mock()
     mock_cache.get_guild_channel.return_value = None
     mock_rest = mock.AsyncMock()
@@ -97,7 +96,7 @@ async def test_get_perm_channel_when_async_cached_channel():
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_async_cached_channel_and_other_caches_not_implemented():
+async def test_get_perm_channel_when_async_cached_channel_and_other_caches_not_implemented() -> None:
     mock_rest = mock.AsyncMock()
     mock_rest.fetch_channel.side_effect = RuntimeError
     mock_async_channel_cache = mock.AsyncMock()
@@ -112,7 +111,7 @@ async def test_get_perm_channel_when_async_cached_channel_and_other_caches_not_i
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_rest_channel():
+async def test_get_perm_channel_when_rest_channel() -> None:
     mock_cache = mock.Mock()
     mock_cache.get_guild_channel.return_value = None
     mock_rest = mock.AsyncMock()
@@ -135,7 +134,7 @@ async def test_get_perm_channel_when_rest_channel():
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_rest_channel_and_caches_not_implemented():
+async def test_get_perm_channel_when_rest_channel_and_caches_not_implemented() -> None:
     mock_rest = mock.AsyncMock()
     mock_rest.fetch_channel.return_value = mock.Mock(hikari.PermissibleGuildChannel)
     mock_rest.fetch_channel.return_value.type = hikari.ChannelType.GUILD_TEXT
@@ -148,7 +147,7 @@ async def test_get_perm_channel_when_rest_channel_and_caches_not_implemented():
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_async_cached_thread_and_hikari_cached_parent():
+async def test_get_perm_channel_when_async_cached_thread_and_hikari_cached_parent() -> None:
     mock_channel = mock.Mock()
     mock_cache = mock.Mock()
     mock_cache.get_guild_channel.side_effect = [None, mock_channel]
@@ -172,7 +171,9 @@ async def test_get_perm_channel_when_async_cached_thread_and_hikari_cached_paren
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_async_cached_thread_and_hikari_cached_parent_and_other_caches_not_implemented():
+async def test_get_perm_channel_when_async_cached_thread_and_hikari_cached_parent_and_other_caches_not_implemented() -> (
+    None
+):
     mock_channel = mock.Mock()
     mock_cache = mock.Mock()
     mock_cache.get_guild_channel.side_effect = [None, mock_channel]
@@ -192,7 +193,7 @@ async def test_get_perm_channel_when_async_cached_thread_and_hikari_cached_paren
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_async_cached_thread_and_async_cached_parent():
+async def test_get_perm_channel_when_async_cached_thread_and_async_cached_parent() -> None:
     mock_cache = mock.Mock()
     mock_cache.get_guild_channel.return_value = None
     mock_rest = mock.AsyncMock()
@@ -214,7 +215,9 @@ async def test_get_perm_channel_when_async_cached_thread_and_async_cached_parent
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_async_cached_thread_and_async_cached_parent_and_other_caches_not_implemented():
+async def test_get_perm_channel_when_async_cached_thread_and_async_cached_parent_and_other_caches_not_implemented() -> (
+    None
+):
     mock_rest = mock.AsyncMock()
     mock_rest.fetch_channel.side_effect = RuntimeError
     mock_async_channel_cache = mock.AsyncMock()
@@ -234,7 +237,7 @@ async def test_get_perm_channel_when_async_cached_thread_and_async_cached_parent
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_async_cached_thread_and_rest_parent():
+async def test_get_perm_channel_when_async_cached_thread_and_rest_parent() -> None:
     mock_cache = mock.Mock()
     mock_cache.get_guild_channel.return_value = None
     mock_rest = mock.AsyncMock()
@@ -257,7 +260,7 @@ async def test_get_perm_channel_when_async_cached_thread_and_rest_parent():
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_async_cached_thread_and_rest_parent_and_other_caches_not_implemented():
+async def test_get_perm_channel_when_async_cached_thread_and_rest_parent_and_other_caches_not_implemented() -> None:
     mock_rest = mock.AsyncMock()
     mock_rest.fetch_channel.return_value = mock.Mock(hikari.PermissibleGuildChannel)
     mock_async_thread_cache = mock.AsyncMock()
@@ -274,7 +277,7 @@ async def test_get_perm_channel_when_async_cached_thread_and_rest_parent_and_oth
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_rest_thread_and_hikari_cached_parent():
+async def test_get_perm_channel_when_rest_thread_and_hikari_cached_parent() -> None:
     mock_channel = mock.Mock()
     mock_cache = mock.Mock()
     mock_cache.get_guild_channel.side_effect = [None, mock_channel]
@@ -299,7 +302,7 @@ async def test_get_perm_channel_when_rest_thread_and_hikari_cached_parent():
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_rest_thread_and_hikari_cached_parent_and_other_caches_not_implemented():
+async def test_get_perm_channel_when_rest_thread_and_hikari_cached_parent_and_other_caches_not_implemented() -> None:
     mock_channel = mock.Mock()
     mock_cache = mock.Mock()
     mock_cache.get_guild_channel.side_effect = [None, mock_channel]
@@ -316,7 +319,7 @@ async def test_get_perm_channel_when_rest_thread_and_hikari_cached_parent_and_ot
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_rest_thread_and_async_cached_parent():
+async def test_get_perm_channel_when_rest_thread_and_async_cached_parent() -> None:
     mock_channel = mock.Mock()
     mock_cache = mock.Mock()
     mock_cache.get_guild_channel.return_value = None
@@ -343,7 +346,7 @@ async def test_get_perm_channel_when_rest_thread_and_async_cached_parent():
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_rest_thread_and_async_cached_parent_and_other_caches_not_implemented():
+async def test_get_perm_channel_when_rest_thread_and_async_cached_parent_and_other_caches_not_implemented() -> None:
     mock_channel = mock.Mock()
     mock_rest = mock.AsyncMock()
     mock_rest.fetch_channel.return_value = mock.Mock(hikari.GuildThreadChannel, parent_id=76656345)
@@ -364,7 +367,7 @@ async def test_get_perm_channel_when_rest_thread_and_async_cached_parent_and_oth
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_rest_thread_and_rest_parent():
+async def test_get_perm_channel_when_rest_thread_and_rest_parent() -> None:
     mock_channel = mock.Mock(hikari.PermissibleGuildChannel)
     mock_thread = mock.Mock(hikari.GuildThreadChannel, parent_id=342234234)
     mock_thread.type = hikari.ChannelType.GUILD_PUBLIC_THREAD
@@ -389,7 +392,7 @@ async def test_get_perm_channel_when_rest_thread_and_rest_parent():
 
 
 @pytest.mark.asyncio
-async def test_get_perm_channel_when_rest_thread_and_rest_parent_and_caches_not_implemented():
+async def test_get_perm_channel_when_rest_thread_and_rest_parent_and_caches_not_implemented() -> None:
     mock_channel = mock.Mock(hikari.PermissibleGuildChannel)
     mock_thread = mock.Mock(hikari.GuildThreadChannel, parent_id=342234234)
     mock_thread.type = hikari.ChannelType.GUILD_PUBLIC_THREAD

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Tanjun Examples - A collection of examples for Tanjun.
 # Written in 2021 by Faster Speeding Lucina@lmbyrne.dev
 #

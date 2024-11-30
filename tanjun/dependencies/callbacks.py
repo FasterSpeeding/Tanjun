@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -33,11 +32,16 @@ from __future__ import annotations
 
 __all__: list[str] = ["fetch_my_user"]
 
-import alluka
+from typing import TYPE_CHECKING
+
 import hikari
 
-from .. import abc as tanjun  # noqa: TC002
-from . import async_cache  # noqa: TC002
+if TYPE_CHECKING:
+    import alluka
+
+    from tanjun import abc as tanjun
+
+    from . import async_cache
 
 
 async def fetch_my_user(
@@ -76,6 +80,7 @@ async def fetch_my_user(
             return user
 
     if client.rest.token_type is not hikari.TokenType.BOT:
-        raise RuntimeError("Cannot fetch current user with a REST client that's bound to a client credentials token")
+        error_message = "Cannot fetch current user with a REST client that's bound to a client credentials token"
+        raise RuntimeError(error_message)
 
     return await client.rest.fetch_my_user()

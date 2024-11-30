@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -56,7 +55,6 @@ __all__: list[str] = [
 
 import typing
 
-import alluka
 import hikari
 
 from . import _internal
@@ -69,6 +67,8 @@ from ._internal import localisation
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
+
+    import alluka
 
     _ContextT_contra = typing.TypeVar("_ContextT_contra", bound=tanjun.Context, contravariant=True)
 
@@ -102,7 +102,7 @@ def _optional_kwargs(
 
 
 class _Check:
-    __slots__ = ("_error", "_error_message", "_halt_execution", "_localise_id", "__weakref__")
+    __slots__ = ("__weakref__", "_error", "_error_message", "_halt_execution", "_localise_id")
 
     def __init__(
         self,
@@ -1002,13 +1002,13 @@ def with_check(
 
 
 class _AllChecks(typing.Generic[_ContextT]):
-    __slots__ = ("_checks", "__weakref__")
+    __slots__ = ("__weakref__", "_checks")
 
     def __init__(self, checks: list[tanjun.CheckSig[_ContextT]]) -> None:
         self._checks = checks
 
     async def __call__(self, ctx: _ContextT, /) -> bool:
-        for check in self._checks:  # noqa: SIM111
+        for check in self._checks:
             if not await ctx.call_with_async_di(check, ctx):
                 return False
 

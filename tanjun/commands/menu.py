@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -37,12 +36,13 @@ import typing
 
 import hikari
 
-from .. import _internal
-from .. import abc as tanjun
-from .. import components
-from .. import errors
-from .. import hooks as hooks_
-from .._internal import localisation
+from tanjun import _internal
+from tanjun import abc as tanjun
+from tanjun import components
+from tanjun import errors
+from tanjun import hooks as hooks_
+from tanjun._internal import localisation
+
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -170,7 +170,7 @@ def as_message_menu(
     def decorator(
         callback: _CallbackishT[_MessageCallbackSigT], /
     ) -> MenuCommand[_MessageCallbackSigT, typing.Literal[hikari.CommandType.MESSAGE]]:
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             wrapped_command = callback
             # Cast needed cause of a pyright bug
             callback = typing.cast("_MessageCallbackSigT", callback.callback)
@@ -297,7 +297,7 @@ def as_user_menu(
     def decorator(
         callback: _CallbackishT[_UserCallbackSigT], /
     ) -> MenuCommand[_UserCallbackSigT, typing.Literal[hikari.CommandType.USER]]:
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             wrapped_command = callback
             # Cast needed cause of a pyright bug
             callback = typing.cast("_UserCallbackSigT", callback.callback)
@@ -514,9 +514,10 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         names = localisation.MaybeLocalised("name", name).assert_length(1, 32)
 
         if type_ not in _VALID_TYPES:
-            raise ValueError("Command type must be message or user")
+            error_message = "Command type must be message or user"
+            raise ValueError(error_message)
 
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             # Cast needed cause of a pyright bug
             callback = typing.cast("_UserCallbackSigT", callback.callback)
 
@@ -627,7 +628,8 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
     def set_tracked_command(self, command: hikari.PartialCommand, /) -> Self:
         # <<inherited docstring from tanjun.abc.MenuCommand>>.
         if not isinstance(command, hikari.ContextMenuCommand):
-            raise TypeError("Command must be a ContextMenuCommand")
+            error_message = "Command must be a ContextMenuCommand"
+            raise TypeError(error_message)
 
         self._tracked_command = command
         return self
@@ -695,7 +697,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
             await ctx.mark_not_found()
 
         except Exception as exc:
-            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:  # noqa: ASYNC120
+            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
                 raise
 
         else:

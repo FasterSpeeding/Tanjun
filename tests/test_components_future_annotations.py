@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -42,8 +41,8 @@ import tanjun
 
 
 class TestComponent:
-    def test_with_listener_no_provided_event(self):
-        async def callback(foo) -> None:  # type: ignore
+    def test_with_listener_no_provided_event(self) -> None:
+        async def callback(foo) -> None:  # type: ignore  # noqa: ANN001
             ...
 
         add_listener = mock.Mock()
@@ -56,7 +55,7 @@ class TestComponent:
 
         add_listener.assert_not_called()
 
-    def test_with_listener_no_provided_event_callback_has_no_signature(self):
+    def test_with_listener_no_provided_event_callback_has_no_signature(self) -> None:
         with pytest.raises(ValueError, match=".+"):
             inspect.Signature.from_callable(int)
 
@@ -70,7 +69,7 @@ class TestComponent:
 
         add_listener.assert_not_called()
 
-    def test_with_listener_with_type_hint(self):
+    def test_with_listener_with_type_hint(self) -> None:
         async def callback(event: hikari.BanCreateEvent) -> None: ...
 
         add_listener = mock.Mock()
@@ -83,7 +82,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_called_once_with(hikari.BanCreateEvent, callback)
 
-    def test_with_listener_with_type_hint_in_annotated(self):
+    def test_with_listener_with_type_hint_in_annotated(self) -> None:
         async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None: ...
 
         add_listener = mock.Mock()
@@ -96,7 +95,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_called_once_with(hikari.BanCreateEvent, callback)
 
-    def test_with_listener_with_positional_only_type_hint(self):
+    def test_with_listener_with_positional_only_type_hint(self) -> None:
         async def callback(event: hikari.BanDeleteEvent, /) -> None: ...
 
         add_listener = mock.Mock()
@@ -109,7 +108,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_called_once_with(hikari.BanDeleteEvent, callback)
 
-    def test_with_listener_with_var_positional_type_hint(self):
+    def test_with_listener_with_var_positional_type_hint(self) -> None:
         async def callback(*event: hikari.BanEvent) -> None: ...
 
         add_listener = mock.Mock()
@@ -122,9 +121,9 @@ class TestComponent:
         assert result is callback
         add_listener.assert_called_once_with(hikari.BanEvent, callback)
 
-    def test_with_listener_with_type_hint_typing_union(self):
+    def test_with_listener_with_type_hint_typing_union(self) -> None:
         async def callback(
-            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]
+            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]  # noqa: PYI051
         ) -> None: ...
 
         add_listener = mock.Mock()
@@ -137,7 +136,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_has_calls([mock.call(hikari.RoleEvent, callback), mock.call(hikari.GuildEvent, callback)])
 
-    def test_with_listener_with_type_hint_typing_union_nested_annotated(self):
+    def test_with_listener_with_type_hint_typing_union_nested_annotated(self) -> None:
         async def callback(
             event: typing.Annotated[
                 typing.Union[
@@ -165,8 +164,10 @@ class TestComponent:
             ]
         )
 
-    def test_with_listener_with_type_hint_310_union(self):
-        async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
+    def test_with_listener_with_type_hint_310_union(self) -> None:
+        async def callback(
+            event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str,  # noqa: PYI051
+        ) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -178,7 +179,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_has_calls([mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)])
 
-    def test_with_listener_with_type_hint_310_union_nested_annotated(self):
+    def test_with_listener_with_type_hint_310_union_nested_annotated(self) -> None:
         async def callback(
             event: typing.Annotated[
                 typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"

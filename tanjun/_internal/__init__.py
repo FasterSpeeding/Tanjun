@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -47,10 +46,10 @@ from collections import abc as collections
 
 import hikari
 
-from .. import errors
+from tanjun import errors
 
 if typing.TYPE_CHECKING:
-    from .. import abc as tanjun
+    from tanjun import abc as tanjun
 
     _T = typing.TypeVar("_T")
     _P = typing.ParamSpec("_P")
@@ -228,14 +227,17 @@ def infer_listener_types(
     try:
         signature = inspect.Signature.from_callable(callback, eval_str=True)
     except ValueError:  # Callback has no signature
-        raise ValueError("Missing event type") from None
+        error_message = "Missing event type"
+        raise ValueError(error_message) from None
 
     parameter = next(iter(signature.parameters.values()), None)
     if not parameter or parameter.kind not in _POSITIONAL_TYPES:
-        raise ValueError("Missing positional event argument") from None
+        error_message = "Missing positional event argument"
+        raise ValueError(error_message) from None
 
     if parameter.annotation is parameter.empty:
-        raise ValueError("Missing event argument annotation") from None
+        error_message = "Missing event argument annotation"
+        raise ValueError(error_message) from None
 
     event_types: list[type[hikari.Event]] = []
 
@@ -248,7 +250,8 @@ def infer_listener_types(
             pass
 
     if not event_types:
-        raise TypeError(f"No valid event types found in the signature of {callback}") from None
+        error_message = f"No valid event types found in the signature of {callback}"
+        raise TypeError(error_message) from None
 
     return event_types
 
@@ -411,7 +414,8 @@ def parse_channel_types(*channel_types: type[hikari.PartialChannel] | int) -> li
         return list(dict.fromkeys(types_iter))
 
     except KeyError as exc:
-        raise ValueError(f"Unknown channel type {exc.args[0]}") from exc
+        error_message = f"Unknown channel type {exc.args[0]}"
+        raise ValueError(error_message) from exc
 
 
 _CHANNEL_TYPE_REPS: dict[hikari.ChannelType, str] = {
@@ -456,8 +460,8 @@ def cmp_command(
     if cmd.name_localizations != other.name_localizations:
         return False
 
-    if isinstance(cmd, (hikari.SlashCommand, hikari.api.SlashCommandBuilder)):
-        assert isinstance(other, (hikari.SlashCommand, hikari.api.SlashCommandBuilder))
+    if isinstance(cmd, hikari.SlashCommand | hikari.api.SlashCommandBuilder):
+        assert isinstance(other, hikari.SlashCommand | hikari.api.SlashCommandBuilder)
         if cmd.description != other.description or cmd.description_localizations != other.description_localizations:
             return False
 
@@ -536,7 +540,8 @@ class MessageCommandIndex:
 
         if self.is_strict:
             if any(" " in name for name in command.names):
-                raise ValueError("Command name cannot contain spaces in a strict collection")
+                error_message = "Command name cannot contain spaces in a strict collection"
+                raise ValueError(error_message)
 
             names = list(filter(None, command.names))
             insensitive_names = [name.casefold() for name in command.names]

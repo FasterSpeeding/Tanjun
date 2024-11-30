@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Tanjun Examples - A collection of examples for Tanjun.
 # Written in 2021 by Faster Speeding Lucina@lmbyrne.dev
 #
@@ -28,7 +27,7 @@ async def guild_command(
     # The implementation for this is provided with Client.set_type_dependency.
     ctx: tanjun.abc.MessageContext,
     database: protos.DatabaseProto = tanjun.inject(type=protos.DatabaseProto),
-):
+) -> None:
     assert ctx.guild_id is not None  # This is checked by the "with_guild_check"
     guild_info = await database.get_guild_info(ctx.guild_id)
 
@@ -54,7 +53,8 @@ async def user(
 
     if not user:
         # CommandError's message will be sent as a response message.
-        raise tanjun.CommandError("No information stored for you")
+        error_message = "No information stored for you"
+        raise tanjun.CommandError(error_message)
 
     ...  # TODO: implement response
 

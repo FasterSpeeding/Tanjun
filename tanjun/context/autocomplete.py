@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -40,8 +39,8 @@ import alluka
 import hikari
 from hikari import snowflakes
 
-from .. import _internal
-from .. import abc as tanjun
+from tanjun import _internal
+from tanjun import abc as tanjun
 
 if typing.TYPE_CHECKING:
     import asyncio
@@ -54,7 +53,7 @@ if typing.TYPE_CHECKING:
 class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     """Standard implementation of an autocomplete context."""
 
-    __slots__ = ("_tanjun_client", "_command_name", "_focused", "_future", "_has_responded", "_interaction", "_options")
+    __slots__ = ("_command_name", "_focused", "_future", "_has_responded", "_interaction", "_options", "_tanjun_client")
 
     def __init__(
         self,
@@ -217,11 +216,13 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     ) -> None:
         # <<inherited docstring from tanjun.abc.AutocompleteContext>>.
         if self._has_responded:
-            raise RuntimeError("Cannot set choices after responding")
+            error_message = "Cannot set choices after responding"
+            raise RuntimeError(error_message)
 
         choices = dict(choices, **kwargs)
         if len(choices) > 25:
-            raise ValueError("Cannot set more than 25 choices")
+            error_message = "Cannot set more than 25 choices"
+            raise ValueError(error_message)
 
         self._has_responded = True
         choice_objects = [
