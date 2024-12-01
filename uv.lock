@@ -545,7 +545,7 @@ type-checking = [
 
 [package.metadata]
 requires-dist = [
-    { name = "alluka", specifier = ">=0.2.0,<1" },
+    { name = "alluka", specifier = ">=0.4,<1" },
     { name = "hikari", specifier = ">=2.0.0.dev115,<3" },
     { name = "typing-extensions", specifier = ">=4.5,<5" },
 ]
