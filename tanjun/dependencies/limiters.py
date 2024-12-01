@@ -120,7 +120,7 @@ class AbstractCooldownManager(abc.ABC):
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
     ) -> datetime.datetime | None:
-        """Deprecated method."""
+        """Deprecated method."""  # noqa: D401
 
     @typing_extensions.deprecated("Use .acquire or .try_acquire and .release to manage cooldowns")
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
@@ -129,7 +129,7 @@ class AbstractCooldownManager(abc.ABC):
         Use
         [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire]
         and [AbstractCooldownManager.release][tanjun.dependencies.limiters.AbstractCooldownManager.release].
-        """
+        """  # noqa: D401
         try:
             await self.try_acquire(bucket_id, ctx)
 

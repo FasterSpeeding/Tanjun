@@ -112,10 +112,14 @@ select = ["ALL"]
 ignore = [
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in ``
     "COM812",  # Trailing comma missing (incompatible with black)
+    "D102",    # Missing docstring in public method
+    "D105",    # Missing docstring in magic method
     "FIX002",  # Line contains TODO, consider resolving the issue
     "I001",    # [*] Import block is un-sorted or un-formatted
+    "N818",    # Exception name `FailedModuleUnload` should be named with an Error suffix
     "PYI041",  # Use `float` instead of `int | float`
     "S101",    # Use of `assert` detected
+    "SIM105",  # Use `contextlib.suppress(Error)` instead of `try`-`except`-`pass`
     "SIM108",  # Use ternary operator `` instead of `if`-`else`-block
     "TD002",   # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
     "TD003",   # Missing issue link on the line following this TODO
@@ -123,29 +127,46 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "docs_src/**/*.py" = [
+    "ARG001",  # Unused function argument: ``
     "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
     "D100",    # Missing docstring in public module
     "D101",    # Missing docstring in public class
     "D102",    # Missing docstring in public method
     "D103",    # Missing docstring in public function
+    "FBT002",  # Boolean default positional argument in function definition
     "F841",    # Local variable `` is assigned to but never used
     "INP001",  # File `` is part of an implicit namespace package. Add an `__init__.py`.
+    "N806",    # Variable `` in function should be lowercase
     "PIE790",  # [*] Unnecessary `...` literal
+    "PYI013",  # [*] Non-empty class body must not contain `...`
     "T201",    # `print` found
+]
+"examples/**/*.py" = [
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "D100",    # Missing docstring in public module
+    "D101",    # Missing docstring in public class
+    "D102",    # Missing docstring in public method
+    "D103",    # Missing docstring in public function
+    "FBT001",  # Boolean-typed positional argument in function definition
+    "PIE790",  # [*] Unnecessary `...` literal
+    "PYI013",  # [*] Non-empty class body must not contain `...`
 ]
 "noxfile.py" = [
     "F403",  # `from noxfile import *` used; unable to detect undefined name
 ]
 "tests/**/*.py" = [
-    "D100",    # Missing docstring in public module
-    "D101",    # Missing docstring in public class
-    "D102",    # Missing docstring in public method
-    "D103",    # Missing docstring in public function
-    "D104",    # Missing docstring in public package
-    "FBT001",  # Boolean-typed positional argument in function definition
-    "PGH003",  # Use specific rule codes when ignoring type issues
-    "PLR2004", # Magic value used in comparison, consider replacing `` with a constant variable
-    "SLF001",  # Private member accessed: ``
+    "D100",     # Missing docstring in public module
+    "D101",     # Missing docstring in public class
+    "D102",     # Missing docstring in public method
+    "D103",     # Missing docstring in public function
+    "D104",     # Missing docstring in public package
+    "FBT001",   # Boolean-typed positional argument in function definition
+    "FBT002",   # Boolean default positional argument in function definition
+    "FBT003",   # Boolean positional value in function call
+    "PLR0915",  # Too many statements
+    "PGH003",   # Use specific rule codes when ignoring type issues
+    "PLR2004",  # Magic value used in comparison, consider replacing `` with a constant variable
+    "SLF001",   # Private member accessed: ``
 ]
 "tests/test_annotations_future_annotations.py" = [
     "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
@@ -155,6 +176,9 @@ ignore = [
 "tests/test_annotations.py" = [
     "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
     "UP007",   # [*] Use `X | Y` for type annotations
+]
+"tests/test_checks.py" = [
+    "ARG002",  # Unused method argument: ``
 ]
 "tests/test_clients_future_annotations.py" = [
     "B008",     # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
@@ -192,8 +216,10 @@ max-line-length = 130
 convention = "numpy"
 
 [tool.ruff.lint.pylint]
-max-args = 12
-max-branches = 15
+max-args = 20
+max-branches = 20
+max-returns = 15
+max-statements = 100
 
 [tool.isort]
 profile = "black"

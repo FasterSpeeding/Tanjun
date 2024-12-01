@@ -88,17 +88,17 @@ if typing.TYPE_CHECKING:
 _ContextT = typing.TypeVar("_ContextT", bound=tanjun.Context)
 
 
-def _add_to_command(command: _CommandT, check: tanjun.AnyCheckSig, follow_wrapped: bool) -> _CommandT:
+def _add_to_command(command: _CommandT, check: tanjun.AnyCheckSig, *, follow_wrapped: bool) -> _CommandT:
     return _internal.apply_to_wrapped(command, lambda c: c.add_check(check), command, follow_wrapped=follow_wrapped)
 
 
 def _optional_kwargs(
-    command: _CommandT | None, check: tanjun.AnyCheckSig, follow_wrapped: bool
+    command: _CommandT | None, check: tanjun.AnyCheckSig, *, follow_wrapped: bool
 ) -> _CommandT | collections.Callable[[_CommandT], _CommandT]:
     if command:
-        return _add_to_command(command, check, follow_wrapped)
+        return _add_to_command(command, check, follow_wrapped=follow_wrapped)
 
-    return lambda c: _add_to_command(c, check, follow_wrapped)
+    return lambda c: _add_to_command(c, check, follow_wrapped=follow_wrapped)
 
 
 class _Check:
@@ -108,9 +108,9 @@ class _Check:
         self,
         error: collections.Callable[..., Exception] | None,
         error_message: str | collections.Mapping[str, str] | None,
-        halt_execution: bool,
         /,
         *,
+        halt_execution: bool,
         id_name: str | None = None,
     ) -> None:
         self._error = error
@@ -121,10 +121,10 @@ class _Check:
     def _handle_result(
         self,
         ctx: tanjun.Context,
-        result: bool,
         localiser: dependencies.AbstractLocaliser | None = None,
         /,
         *args: typing.Any,
+        result: bool,
     ) -> bool:
         if not result:
             if self._error:
@@ -175,7 +175,7 @@ class OwnerCheck(_Check):
 
             This takes priority over `error_message`.
         """
-        super().__init__(error, error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution=halt_execution)
 
     async def __call__(
         self,
@@ -185,7 +185,8 @@ class OwnerCheck(_Check):
         *,
         localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None,
     ) -> bool:
-        return self._handle_result(ctx, await dependency.check_ownership(ctx.client, ctx.author), localiser)
+        result = await dependency.check_ownership(ctx.client, ctx.author)
+        return self._handle_result(ctx, localiser, result=result)
 
 
 async def _get_is_nsfw(ctx: tanjun.Context, /, *, dm_default: bool) -> bool:
@@ -232,12 +233,13 @@ class NsfwCheck(_Check):
 
             This takes priority over `error_message`.
         """
-        super().__init__(error, error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution=halt_execution)
 
     async def __call__(
         self, ctx: tanjun.Context, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
-        return self._handle_result(ctx, await _get_is_nsfw(ctx, dm_default=True), localiser)
+        result = await _get_is_nsfw(ctx, dm_default=True)
+        return self._handle_result(ctx, localiser, result=result)
 
 
 class SfwCheck(_Check):
@@ -277,12 +279,13 @@ class SfwCheck(_Check):
 
             This takes priority over `error_message`.
         """
-        super().__init__(error, error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution=halt_execution)
 
     async def __call__(
         self, ctx: tanjun.Context, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
-        return self._handle_result(ctx, not await _get_is_nsfw(ctx, dm_default=False), localiser)
+        result = await _get_is_nsfw(ctx, dm_default=False)
+        return self._handle_result(ctx, localiser, result=not result)
 
 
 class DmCheck(_Check):
@@ -322,12 +325,12 @@ class DmCheck(_Check):
 
             This takes priority over `error_message`.
         """
-        super().__init__(error, error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution=halt_execution)
 
     def __call__(
         self, ctx: tanjun.Context, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
-        return self._handle_result(ctx, ctx.guild_id is None, localiser)
+        return self._handle_result(ctx, localiser, result=ctx.guild_id is None)
 
 
 class GuildCheck(_Check):
@@ -367,12 +370,12 @@ class GuildCheck(_Check):
 
             This takes priority over `error_message`.
         """
-        super().__init__(error, error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution=halt_execution)
 
     def __call__(
         self, ctx: tanjun.Context, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
     ) -> bool:
-        return self._handle_result(ctx, ctx.guild_id is not None, localiser)
+        return self._handle_result(ctx, localiser, result=ctx.guild_id is not None)
 
 
 class AuthorPermissionCheck(_Check):
@@ -425,7 +428,7 @@ class AuthorPermissionCheck(_Check):
 
             This takes priority over `error_message`.
         """
-        super().__init__(error, error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution=halt_execution)
         self._permissions = permissions
 
     async def __call__(
@@ -450,7 +453,7 @@ class AuthorPermissionCheck(_Check):
             perms = await permissions.fetch_permissions(ctx.client, ctx.member, channel=ctx.channel_id)
 
         missing_perms = ~perms & self._permissions
-        return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, localiser, missing_perms)
+        return self._handle_result(ctx, localiser, missing_perms, result=missing_perms is hikari.Permissions.NONE)
 
 
 _MemberCacheT = None | dependencies.SfGuildBound[hikari.Member]
@@ -506,7 +509,7 @@ class OwnPermissionCheck(_Check):
 
             This takes priority over `error_message`.
         """
-        super().__init__(error, error_message, halt_execution)
+        super().__init__(error, error_message, halt_execution=halt_execution)
         self._permissions = permissions
 
     async def __call__(
@@ -515,7 +518,7 @@ class OwnPermissionCheck(_Check):
         /,
         *,
         localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None,
-        my_user: hikari.OwnUser = dependencies.inject_lc(hikari.OwnUser),
+        my_user: hikari.OwnUser = dependencies.inject_lc(hikari.OwnUser),  # noqa: B008
         member_cache: alluka.Injected[_MemberCacheT] = None,
     ) -> bool:
         if ctx.guild_id is None:
@@ -534,7 +537,7 @@ class OwnPermissionCheck(_Check):
             perms = await permissions.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
         missing_perms = ~perms & self._permissions
-        return self._handle_result(ctx, missing_perms is hikari.Permissions.NONE, localiser, missing_perms)
+        return self._handle_result(ctx, localiser, missing_perms, result=missing_perms is hikari.Permissions.NONE)
 
 
 @typing.overload
@@ -593,7 +596,9 @@ def with_dm_check(
         The command this check was added to.
     """
     return _optional_kwargs(
-        command, DmCheck(error=error, halt_execution=halt_execution, error_message=error_message), follow_wrapped
+        command,
+        DmCheck(error=error, halt_execution=halt_execution, error_message=error_message),
+        follow_wrapped=follow_wrapped,
     )
 
 
@@ -653,7 +658,9 @@ def with_guild_check(
         The command this check was added to.
     """
     return _optional_kwargs(
-        command, GuildCheck(error=error, halt_execution=halt_execution, error_message=error_message), follow_wrapped
+        command,
+        GuildCheck(error=error, halt_execution=halt_execution, error_message=error_message),
+        follow_wrapped=follow_wrapped,
     )
 
 
@@ -713,7 +720,9 @@ def with_nsfw_check(
         The command this check was added to.
     """
     return _optional_kwargs(
-        command, NsfwCheck(error=error, halt_execution=halt_execution, error_message=error_message), follow_wrapped
+        command,
+        NsfwCheck(error=error, halt_execution=halt_execution, error_message=error_message),
+        follow_wrapped=follow_wrapped,
     )
 
 
@@ -773,7 +782,9 @@ def with_sfw_check(
         The command this check was added to.
     """
     return _optional_kwargs(
-        command, SfwCheck(error=error, halt_execution=halt_execution, error_message=error_message), follow_wrapped
+        command,
+        SfwCheck(error=error, halt_execution=halt_execution, error_message=error_message),
+        follow_wrapped=follow_wrapped,
     )
 
 
@@ -833,7 +844,9 @@ def with_owner_check(
         The command this check was added to.
     """
     return _optional_kwargs(
-        command, OwnerCheck(error=error, halt_execution=halt_execution, error_message=error_message), follow_wrapped
+        command,
+        OwnerCheck(error=error, halt_execution=halt_execution, error_message=error_message),
+        follow_wrapped=follow_wrapped,
     )
 
 
@@ -890,7 +903,7 @@ def with_author_permission_check(
     return lambda command: _add_to_command(
         command,
         AuthorPermissionCheck(permissions, error=error, halt_execution=halt_execution, error_message=error_message),
-        follow_wrapped,
+        follow_wrapped=follow_wrapped,
     )
 
 
@@ -947,7 +960,7 @@ def with_own_permission_check(
     return lambda command: _add_to_command(
         command,
         OwnPermissionCheck(permissions, error=error, halt_execution=halt_execution, error_message=error_message),
-        follow_wrapped,
+        follow_wrapped=follow_wrapped,
     )
 
 
@@ -998,7 +1011,7 @@ def with_check(
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A command decorator callback which adds the check.
     """
-    return lambda command: _add_to_command(command, check, follow_wrapped)
+    return lambda command: _add_to_command(command, check, follow_wrapped=follow_wrapped)
 
 
 class _AllChecks(typing.Generic[_ContextT]):
@@ -1099,7 +1112,7 @@ def with_all_checks(
     collections.abc.Callable[[tanjun.abc.Context], collections.abc.Coroutine[typing.Any, typing.Any, bool]]
         A check which will pass if all of the provided check callbacks pass.
     """
-    return lambda c: _add_to_command(c, all_checks(check, *checks), follow_wrapped)
+    return lambda c: _add_to_command(c, all_checks(check, *checks), follow_wrapped=follow_wrapped)
 
 
 class _AnyChecks(_Check, typing.Generic[_ContextT]):
@@ -1110,10 +1123,11 @@ class _AnyChecks(_Check, typing.Generic[_ContextT]):
         checks: list[tanjun.CheckSig[_ContextT]],
         error: collections.Callable[[], Exception] | None,
         error_message: str | collections.Mapping[str, str] | None,
-        halt_execution: bool,
         suppress: tuple[type[Exception], ...],
+        *,
+        halt_execution: bool,
     ) -> None:
-        super().__init__(error, error_message, halt_execution, id_name="any_check")
+        super().__init__(error, error_message, halt_execution=halt_execution, id_name="any_check")
         self._checks = checks
         self._suppress = suppress
 
@@ -1131,7 +1145,7 @@ class _AnyChecks(_Check, typing.Generic[_ContextT]):
             except self._suppress:
                 pass
 
-        return self._handle_result(ctx, False, localiser)
+        return self._handle_result(ctx, localiser, result=False)
 
 
 def any_checks(
@@ -1176,7 +1190,7 @@ def any_checks(
     collections.abc.Callable[[tanjun.abc.ExecutableCommand], tanjun.abc.ExecutableCommand]
         A decorator which adds the generated check to a command.
     """
-    return _AnyChecks[_ContextT]([check, *checks], error, error_message, halt_execution, suppress)
+    return _AnyChecks[_ContextT]([check, *checks], error, error_message, suppress, halt_execution=halt_execution)
 
 
 @typing.overload
@@ -1287,5 +1301,5 @@ def with_any_checks(
         any_checks(
             check, *checks, error=error, error_message=error_message, halt_execution=halt_execution, suppress=suppress
         ),
-        follow_wrapped,
+        follow_wrapped=follow_wrapped,
     )

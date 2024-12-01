@@ -61,6 +61,9 @@ if typing.TYPE_CHECKING:
     from . import abc as tanjun
 
 
+_MAX_MENTIONS = 100
+
+
 class TanjunError(Exception):
     """The base class for all errors raised by Tanjun."""
 
@@ -208,12 +211,12 @@ class CommandError(TanjunError):
             error_message = "Cannot specify both embed and embeds"
             raise ValueError(error_message)
 
-        if isinstance(role_mentions, collections.Sequence) and len(role_mentions) > 100:
-            error_message = "Cannot specify more than 100 role mentions"
+        if isinstance(role_mentions, collections.Sequence) and len(role_mentions) > _MAX_MENTIONS:
+            error_message = f"Cannot specify more than {_MAX_MENTIONS} role mentions"
             raise ValueError(error_message)
 
-        if isinstance(user_mentions, collections.Sequence) and len(user_mentions) > 100:
-            error_message = "Cannot specify more than 100 user mentions"
+        if isinstance(user_mentions, collections.Sequence) and len(user_mentions) > _MAX_MENTIONS:
+            error_message = f"Cannot specify more than {_MAX_MENTIONS} user mentions"
             raise ValueError(error_message)
 
         self.attachments = [attachment] if attachment else attachments

@@ -83,9 +83,9 @@ if typing.TYPE_CHECKING:
     )
 
     # Pyright bug doesn't accept Var = Class | Class as a type
-    _AnyConverterSig = typing.Union["ConverterSig[float]", "ConverterSig[int]", "ConverterSig[str]"]
+    _AnyConverterSig = typing.Union["ConverterSig[float]", "ConverterSig[int]", "ConverterSig[str]"]  # noqa: UP007
     # Pyright bug doesn't accept Var = Class | Class as a type
-    _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
+    _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]  # noqa: UP007
 
     _IntAutocompleteSigT = typing.TypeVar("_IntAutocompleteSigT", bound=tanjun.AutocompleteSig[int])
     _FloatAutocompleteSigT = typing.TypeVar("_FloatAutocompleteSigT", bound=tanjun.AutocompleteSig[float])
@@ -126,6 +126,12 @@ _VALID_NAME_UNICODE_CATEGORIES = frozenset(
     )
 )
 _VALID_NAME_CHARACTERS = frozenset(("-", "_"))
+_MAX_OPTIONS = 25
+
+_DEVI_FIRST_CHAR = 0x0900
+_DEVI_LAST_CHAR = 0x097F
+_THAI_FIRST_CHAR = 0x0E00
+_THAI_LAST_CHAR = 0x0E7F
 
 
 def _check_name_char(character: str, /) -> bool:
@@ -139,8 +145,8 @@ def _check_name_char(character: str, /) -> bool:
     return (
         character in _VALID_NAME_CHARACTERS
         or unicodedata.category(character) in _VALID_NAME_UNICODE_CATEGORIES
-        or 0x0900 >= (code_point := ord(character)) <= 0x097F
-        or 0x0E00 >= code_point <= 0x0E7F
+        or _DEVI_FIRST_CHAR >= (code_point := ord(character)) <= _DEVI_LAST_CHAR
+        or _THAI_FIRST_CHAR >= code_point <= _THAI_LAST_CHAR
     )
 
 
@@ -1055,7 +1061,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     def copy(self, *, parent: tanjun.SlashCommandGroup | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy()
-        inst._parent = parent
+        inst._parent = parent  # noqa: SLF001
         return inst
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
@@ -1223,7 +1229,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
     def copy(self, *, parent: tanjun.SlashCommandGroup | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy(parent=parent)
-        inst._commands = {name: command.copy(parent=inst) for name, command in self._commands.items()}
+        inst._commands = {name: command.copy(parent=inst) for name, command in self._commands.items()}  # noqa: SLF001
         return inst
 
     def add_command(self, command: tanjun.BaseSlashCommand, /) -> Self:
@@ -1246,8 +1252,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             error_message = "Cannot add a slash command group to a nested slash command group"
             raise ValueError(error_message)
 
-        if len(self._commands) == 25:
-            error_message = "Cannot add more than 25 commands to a slash command group"
+        if len(self._commands) == _MAX_OPTIONS:
+            error_message = f"Cannot add more than {_MAX_OPTIONS} commands to a slash command group"
             raise ValueError(error_message)
 
         if command.name in self._commands:
@@ -1660,7 +1666,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
     else:
 
-        async def __call__(self, *args, **kwargs) -> None:
+        async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
             await self._callback(*args, **kwargs)
 
     @property
@@ -1748,8 +1754,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         names.assert_length(1, 32).assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
         descriptions.assert_length(1, 100)
 
-        if len(self._builder.options) == 25:
-            error_message = "Slash commands cannot have more than 25 options"
+        if len(self._builder.options) == _MAX_OPTIONS:
+            error_message = f"Slash commands cannot have more than {_MAX_OPTIONS} options"
             raise ValueError(error_message)
 
         if min_value is not None and max_value is not None and min_value > max_value:
@@ -1807,8 +1813,8 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
                 else:
                     actual_choices.append(choice)
 
-        if actual_choices and len(actual_choices) > 25:
-            error_message = "Slash command options cannot have more than 25 choices"
+        if actual_choices and len(actual_choices) > _MAX_OPTIONS:
+            error_message = f"Slash command options cannot have more than {_MAX_OPTIONS} choices"
             raise ValueError(error_message)
 
         required = default is tanjun.NO_DEFAULT
@@ -3164,7 +3170,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         ctx: tanjun.SlashContext,
         /,
         *,
-        option: hikari.CommandInteractionOption | None = None,
+        option: hikari.CommandInteractionOption | None = None,  # noqa: ARG002
         hooks: collections.MutableSet[tanjun.SlashHooks] | None = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
@@ -3202,7 +3208,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     async def execute_autocomplete(
-        self, ctx: tanjun.AutocompleteContext, /, *, option: hikari.AutocompleteInteractionOption | None = None
+        self,
+        ctx: tanjun.AutocompleteContext,
+        /,
+        *,
+        option: hikari.AutocompleteInteractionOption | None = None,  # noqa: ARG002
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         if ctx.focused.type is hikari.OptionType.STRING:
@@ -3227,5 +3237,5 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
     def copy(self, *, parent: tanjun.SlashCommandGroup | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy(parent=parent)
-        inst._callback = copy.copy(self._callback)
+        inst._callback = copy.copy(self._callback)  # noqa: SLF001
         return inst

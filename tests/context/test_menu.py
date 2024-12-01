@@ -86,7 +86,7 @@ class TestMenuContext:
         mock_interaction.resolved.messages = {}
 
         with pytest.raises(RuntimeError, match="Unknown menu type"):
-            context.target_id
+            context.target_id  # noqa: B018
 
     def test_target_property_when_user_menu(
         self, context: tanjun.context.MenuContext, mock_interaction: hikari.CommandInteraction
@@ -130,7 +130,7 @@ class TestMenuContext:
         mock_interaction.resolved.messages = {}
 
         with pytest.raises(RuntimeError, match="Unknown menu type"):
-            context.target
+            context.target  # noqa: B018
 
     def test_triggering_name_property(self, context: tanjun.context.menu.MenuContext) -> None:
         assert context.triggering_name is context.interaction.command_name

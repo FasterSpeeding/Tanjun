@@ -82,9 +82,9 @@ class PartialCommand(tanjun.ExecutableCommand[_ContextT], components.AbstractCom
     def copy(self) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = copy.copy(self)
-        inst._checks = [copy.copy(check) for check in self._checks]
-        inst._hooks = self._hooks.copy() if self._hooks else None
-        inst._metadata = self._metadata.copy()
+        inst._checks = [copy.copy(check) for check in self._checks]  # noqa: SLF001
+        inst._hooks = self._hooks.copy() if self._hooks else None  # noqa: SLF001
+        inst._metadata = self._metadata.copy()  # noqa: SLF001
         return inst
 
     def set_hooks(self, hooks: tanjun.Hooks[_ContextT] | None, /) -> Self:

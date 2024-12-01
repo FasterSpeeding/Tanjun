@@ -125,7 +125,7 @@ def message_command_example(bot: hikari.GatewayBotAware) -> None:
 
 
 def message_command_group_example() -> None:
-    # prefixes=["!"]
+    # . prefixes=["!"]
 
     @tanjun.as_message_command_group("groupy")
     async def groupy_group(ctx: tanjun.abc.MessageContext) -> None: ...

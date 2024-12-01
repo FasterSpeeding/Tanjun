@@ -249,7 +249,7 @@ _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=SlashCallbackSig
 
 class _DefaultFlag(enum.Enum):
     NO_DEFAULT = object()
-    NO_PASS = object()
+    NO_PASS = object()  # noqa: PIE796
 
 
 NO_DEFAULT: NoDefault = _DefaultFlag.NO_DEFAULT
@@ -1356,7 +1356,7 @@ class AppCommandContext(Context, abc.ABC):
         """Type of application command this context is for."""
 
     @abc.abstractmethod
-    def set_ephemeral_default(self, state: bool, /) -> Self:
+    def set_ephemeral_default(self, state: bool, /) -> Self:  # noqa: FBT001
         """Set the ephemeral default state for this context.
 
         Parameters
@@ -4493,7 +4493,7 @@ class Client(abc.ABC):
     def iter_menu_commands(
         self, *, global_only: bool = False, type: hikari.CommandType | None = None  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
-        """Iterator over the menu commands registered to this client.
+        """Iterate over the menu commands registered to this client.
 
         Parameters
         ----------

@@ -1730,7 +1730,9 @@ class Flag(_ConfigIdentifier):
         """
         if default is not tanjun.NO_DEFAULT:
             warnings.warn(
-                "Flag.__init__'s `default` argument is deprecated, use Default instead", category=DeprecationWarning
+                "Flag.__init__'s `default` argument is deprecated, use Default instead",
+                stacklevel=2,
+                category=DeprecationWarning,
             )
 
         self._aliases = aliases
@@ -2519,8 +2521,11 @@ class _ArgConfig:
 
         return self
 
-    SLASH_OPTION_ADDER: dict[
-        typing.Any, collections.Callable[[Self, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]]
+    SLASH_OPTION_ADDER: typing.ClassVar[
+        dict[
+            typing.Any,
+            collections.Callable[[Self, slash.SlashCommand[typing.Any], str], slash.SlashCommand[typing.Any]],
+        ]
     ] = {
         hikari.Attachment: lambda self, c, d: c.add_attachment_option(
             self.slash_name, d, default=self.default, key=self.key

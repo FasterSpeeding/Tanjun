@@ -65,7 +65,6 @@ if typing.TYPE_CHECKING:
 
     from . import abc as tanjun
 
-_T = typing.TypeVar("_T")
 _CallbackSigT = typing.TypeVar("_CallbackSigT", bound=alluka.abc.CallbackSig[typing.Any])
 
 

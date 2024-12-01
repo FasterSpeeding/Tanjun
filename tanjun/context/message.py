@@ -111,7 +111,11 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self._message = message
         self._triggering_name = triggering_name
         self._triggering_prefix = triggering_prefix
-        self._set_type_special_case(tanjun.MessageContext, self)._set_type_special_case(MessageContext, self)
+        (
+            self._set_type_special_case(tanjun.MessageContext, self)._set_type_special_case(  # noqa: SLF001
+                MessageContext, self
+            )
+        )
 
     def __repr__(self) -> str:
         return f"MessageContext <{self._message!r}, {self._command!r}>"
@@ -181,12 +185,16 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self._assert_not_final()
         if command:
             # TODO: command group?
-            self._set_type_special_case(tanjun.ExecutableCommand, command)._set_type_special_case(
+            self._set_type_special_case(tanjun.ExecutableCommand, command)._set_type_special_case(  # noqa: SLF001
                 tanjun.MessageCommand, command
             )
 
         elif self._command:
-            self._remove_type_special_case(tanjun.ExecutableCommand)._remove_type_special_case(tanjun.MessageCommand)
+            (
+                self._remove_type_special_case(tanjun.ExecutableCommand)._remove_type_special_case(  # noqa: SLF001
+                    tanjun.MessageCommand
+                )
+            )
 
         self._command = command
         return self
@@ -345,7 +353,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        ensure_result: bool = True,
+        ensure_result: bool = True,  # noqa: ARG002
         delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,

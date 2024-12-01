@@ -446,7 +446,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self._defer_task = asyncio.create_task(self._auto_defer(count_down))
         return self
 
-    def set_ephemeral_default(self, state: bool, /) -> Self:
+    def set_ephemeral_default(self, state: bool, /) -> Self:  # noqa: FBT001
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         self._assert_not_final()  # TODO: document not final assertions.
         self._defaults_to_ephemeral = state
@@ -1025,7 +1025,11 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         command_name, options = _internal.flatten_options(interaction.command_name, interaction.options)
         self._command_name = command_name
         self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
-        (self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(SlashContext, self))
+        (
+            self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(  # noqa: SLF001
+                SlashContext, self
+            )
+        )
 
     @property
     def command(self) -> tanjun.BaseSlashCommand | None:
@@ -1060,7 +1064,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         if command:
             # TODO: command group?
             (
-                self._set_type_special_case(tanjun.ExecutableCommand, command)
+                self._set_type_special_case(tanjun.ExecutableCommand, command)  # noqa: SLF001
                 ._set_type_special_case(tanjun.AppCommand, command)
                 ._set_type_special_case(tanjun.BaseSlashCommand, command)
                 ._set_type_special_case(tanjun.SlashCommand, command)
@@ -1068,7 +1072,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
 
         elif self._command:
             (
-                self._remove_type_special_case(tanjun.ExecutableCommand)
+                self._remove_type_special_case(tanjun.ExecutableCommand)  # noqa: SLF001
                 ._remove_type_special_case(tanjun.AppCommand)
                 ._remove_type_special_case(tanjun.BaseSlashCommand)
                 ._remove_type_special_case(tanjun.SlashCommand)

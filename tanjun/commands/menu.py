@@ -542,7 +542,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
 
     else:
 
-        async def __call__(self, *args, **kwargs) -> None:
+        async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
             await self._callback(*args, **kwargs)
 
     @property
@@ -665,7 +665,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
     def copy(self, *, parent: tanjun.SlashCommandGroup | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy()
-        inst._parent = parent
+        inst._parent = parent  # noqa: SLF001
         return inst
 
     async def execute(

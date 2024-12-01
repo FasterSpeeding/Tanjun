@@ -87,7 +87,7 @@ class TestBaseContext:
     def test_client_property(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         assert context.client is mock_client
 
-    def test_component_property(self, context: base_context.BaseContext, mock_component: tanjun.abc.Component) -> None:
+    def test_component_property(self, context: base_context.BaseContext) -> None:
         assert context.component is None
 
     def test_events_proprety(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:

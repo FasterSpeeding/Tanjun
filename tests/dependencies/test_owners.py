@@ -46,7 +46,7 @@ class TestOwners:
     @pytest.mark.parametrize("value", [0, -1.0, datetime.timedelta(seconds=-2)])
     def test_init_with_invalid_expire_after(self, value: int | float | datetime.timedelta) -> None:
         with pytest.raises(ValueError, match="Expire after must be greater than 0 seconds"):
-            tanjun.dependencies.Owners(expire_after=-1)
+            tanjun.dependencies.Owners(expire_after=value)
 
     @pytest.mark.asyncio
     async def test_check_ownership_when_user_in_owner_ids(self) -> None:

@@ -252,7 +252,7 @@ def test_with_no_annotations() -> None:
     async def command(
         ctx: tanjun.abc.Context,
         injected: alluka.Injected[int],
-        yeet,  # type: ignore
+        yeet,  # type: ignore  # noqa: ANN001
         other_injected: str = alluka.inject(type=str),
     ) -> None: ...
 
@@ -267,7 +267,7 @@ def test_with_no_annotations_but_message_parser_already_set() -> None:
     async def command(
         ctx: tanjun.abc.Context,
         injected: alluka.Injected[int],
-        beat,  # type: ignore
+        beat,  # type: ignore  # noqa: ANN001
         other_injected: str = alluka.inject(type=str),
     ) -> None: ...
 
@@ -348,8 +348,8 @@ def test_when_follow_wrapping_and_wrapping_unsupported_command() -> None:
     command: tanjun.MessageCommand[typing.Any] = tanjun.as_message_command("beep")(
         mock.Mock(tanjun.abc.SlashCommand, callback=mock_callback)
     )
-    with pytest.raises(AttributeError):
-        command.wrapped_command.wrapped_command  # type: ignore
+
+    assert not hasattr(command.wrapped_command, "wrapped_command")
 
     annotations.parse_annotated_args(command, follow_wrapped=True)
 
@@ -6815,7 +6815,7 @@ def test_with_unpacked_stdlib_typed_dict() -> None:
 
 
 def test_with_unpacked_other_syntax_typed_dict() -> None:
-    TypedDict = typing.TypedDict(
+    TypedDict = typing.TypedDict(  # noqa: UP013
         "TypedDict",
         {
             "baz": typing.NotRequired[typing.Annotated[annotations.Float, "eep"]],
@@ -8975,7 +8975,7 @@ def test_ignores_untyped_kwargs() -> None:
     @annotations.with_annotated_args(follow_wrapped=True)
     @tanjun.as_slash_command("a", "b")
     @tanjun.as_message_command("x", "3")
-    async def command(ctx: tanjun.abc.Context, **kwargs) -> None:  # type: ignore
+    async def command(ctx: tanjun.abc.Context, **kwargs) -> None:  # type: ignore  # noqa: ANN003
         raise NotImplementedError
 
     assert command.build().options == []

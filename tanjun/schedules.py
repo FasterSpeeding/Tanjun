@@ -139,7 +139,7 @@ class _ComponentProto(typing.Protocol):
 
 def _is_component_proto(value: typing.Any, /) -> typing.TypeGuard[_ComponentProto]:
     try:
-        value.add_schedule
+        value.add_schedule  # noqa: B018
 
     except AttributeError:
         return False
@@ -155,7 +155,7 @@ def as_interval(
     ignored_exceptions: collections.Sequence[type[Exception]] = (),
     max_runs: int | None = None,
 ) -> collections.Callable[[_CallbackSigT], IntervalSchedule[_CallbackSigT]]:
-    """Decorator to create an schedule.
+    """Decorate a function to create an interval schedule.
 
     Examples
     --------
@@ -302,7 +302,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             raise RuntimeError(error_message)
 
         inst = copy.copy(self)
-        inst._tasks = []
+        inst._tasks = []  # noqa: SLF001
         return inst
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
@@ -353,7 +353,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         except self._ignored_exceptions:
             pass
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             traceback.print_exc()
 
     def _add_task(self, task: asyncio.Task[None], /) -> None:
@@ -375,7 +375,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
                 except self._ignored_exceptions:
                     pass
 
-                except Exception:
+                except Exception:  # noqa: BLE001
                     traceback.print_exc()
                     self._task = None
                     return
@@ -387,7 +387,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
             self._add_task(event_loop.create_task(self.stop()))
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             traceback.print_exc()
 
     async def _on_stop(self, client: alluka.Client, /) -> None:
@@ -398,7 +398,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             except self._ignored_exceptions:
                 pass
 
-            except Exception:
+            except Exception:  # noqa: BLE001
                 traceback.print_exc()
 
     def start(self, client: alluka.Client, /, *, loop: asyncio.AbstractEventLoop | None = None) -> None:
@@ -1057,9 +1057,9 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
             raise RuntimeError(error_message)
 
         inst = copy.copy(self)
-        self._config = copy.copy(self._config)
-        self._config.current_date = datetime.datetime.min.replace(tzinfo=self._config.timezone)
-        inst._tasks = []
+        inst._config = copy.copy(self._config)  # noqa: SLF001
+        inst._config.current_date = datetime.datetime.min.replace(tzinfo=self._config.timezone)  # noqa: SLF001
+        inst._tasks = []  # noqa: SLF001
         return inst
 
     async def _execute(self, client: alluka.Client, /) -> None:
@@ -1073,7 +1073,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         except self._ignored_exceptions:
             pass
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             traceback.print_exc()
 
     def _add_task(self, task: asyncio.Task[None], /) -> None:

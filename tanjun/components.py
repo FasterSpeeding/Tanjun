@@ -65,7 +65,7 @@ if typing.TYPE_CHECKING:
 
     _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
     # Pyright bug doesn't accept Var = Class | Class as a type
-    _WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
+    _WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]  # noqa: UP007
 
 _LOGGER = logging.getLogger("hikari.tanjun.components")
 
@@ -119,7 +119,7 @@ def _filter_scope(scope: collections.Mapping[str, typing.Any], /) -> collections
 class _ComponentManager(tanjun.ClientLoader):
     __slots__ = ("_component", "_copy")
 
-    def __init__(self, component: Component, copy: bool) -> None:
+    def __init__(self, component: Component, *, copy: bool) -> None:
         self._component = component
         self._copy = copy
 
@@ -206,7 +206,7 @@ class Component(tanjun.Component):
         self._loop: asyncio.AbstractEventLoop | None = None
         self._menu_commands: dict[tuple[hikari.CommandType, str], tanjun.MenuCommand[typing.Any, typing.Any]] = {}
         self._menu_hooks: tanjun.MenuHooks | None = None
-        self._message_commands = _internal.MessageCommandIndex(strict)
+        self._message_commands = _internal.MessageCommandIndex(strict=strict)
         self._message_hooks: tanjun.MessageHooks | None = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._name = name or str(uuid.uuid4())
@@ -322,15 +322,15 @@ class Component(tanjun.Component):
     def copy(self) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
         inst = copy.copy(self)
-        inst._checks = [copy.copy(check) for check in self._checks]
-        inst._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
-        inst._hooks = self._hooks.copy() if self._hooks else None
-        inst._listeners = {
+        inst._checks = [copy.copy(check) for check in self._checks]  # noqa: SLF001
+        inst._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}  # noqa: SLF001
+        inst._hooks = self._hooks.copy() if self._hooks else None  # noqa: SLF001
+        inst._listeners = {  # noqa: SLF001
             event: [copy.copy(listener) for listener in listeners] for event, listeners in self._listeners.items()
         }
-        inst._message_commands = self._message_commands.copy()
-        inst._metadata = self._metadata.copy()
-        inst._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []
+        inst._message_commands = self._message_commands.copy()  # noqa: SLF001
+        inst._metadata = self._metadata.copy()  # noqa: SLF001
+        inst._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []  # noqa: SLF001
         return inst
 
     @typing.overload
@@ -1194,7 +1194,7 @@ class Component(tanjun.Component):
         self, content: str, /, *, case_sensitive: bool = True
     ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Component>>.
-        return self._message_commands.find(content, case_sensitive)
+        return self._message_commands.find(content, case_sensitive=case_sensitive)
 
     def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.Component>>.
@@ -1423,4 +1423,4 @@ class Component(tanjun.Component):
         tanjun.abc.ClientLoader
             The loader for this component.
         """
-        return _ComponentManager(self, copy)
+        return _ComponentManager(self, copy=copy)

@@ -96,7 +96,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         self._command: tanjun.MenuCommand[typing.Any, typing.Any] | None = None
         self._marked_not_found = False
         self._on_not_found = on_not_found
-        self._set_type_special_case(tanjun.MenuContext, self)._set_type_special_case(MenuContext, self)
+        self._set_type_special_case(tanjun.MenuContext, self)._set_type_special_case(MenuContext, self)  # noqa: SLF001
 
     @property
     def command(self) -> tanjun.MenuCommand[typing.Any, typing.Any] | None:

@@ -213,6 +213,8 @@ NamedFields = typing.Literal["check", "choice.name", "option.description", "opti
 _UnnamedFields = typing.Literal["description", "name"]
 _FieldType = NamedFields | _UnnamedFields
 
+_FIELD_NAME_EXCLUDE = {"name", "description"}
+
 
 @typing.overload
 def to_localise_id(
@@ -254,13 +256,13 @@ def to_localise_id(
         The generated localied field ID.
     """
     if field_name:
-        if field_type == "name" or field_type == "description":
+        if field_type in _FIELD_NAME_EXCLUDE:
             error_message = f"Field_name must not be provided for {field_type} fields"
             raise RuntimeError(error_message)
 
         return f"{command_type}:{command_name}:{field_type}:{field_name}"
 
-    if field_type != "name" and field_type != "description":
+    if field_type not in _FIELD_NAME_EXCLUDE:
         error_message = f"Field_name must be provided for {field_type} fields"
         raise RuntimeError(error_message)
 
@@ -317,5 +319,5 @@ def _localise_slash_option(
             choice.name_localizations.update(name_variants)
 
     if option.options:
-        for option in option.options:
-            _localise_slash_option(option, name, localiser)
+        for opt in option.options:
+            _localise_slash_option(opt, name, localiser)

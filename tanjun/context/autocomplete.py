@@ -50,6 +50,9 @@ if typing.TYPE_CHECKING:
     _ValueT = typing.TypeVar("_ValueT", int, float, str)
 
 
+_MAX_CHOICES = 25
+
+
 class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
     """Standard implementation of an autocomplete context."""
 
@@ -91,7 +94,11 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
         assert focused is not None
         self._command_name = command_name
         self._focused = focused
-        self._set_type_special_case(AutocompleteContext, self)._set_type_special_case(tanjun.AutocompleteContext, self)
+        (
+            self._set_type_special_case(AutocompleteContext, self)._set_type_special_case(  # noqa: SLF001
+                tanjun.AutocompleteContext, self
+            )
+        )
 
     @property
     def author(self) -> hikari.User:
@@ -220,8 +227,8 @@ class AutocompleteContext(alluka.BasicContext, tanjun.AutocompleteContext):
             raise RuntimeError(error_message)
 
         choices = dict(choices, **kwargs)
-        if len(choices) > 25:
-            error_message = "Cannot set more than 25 choices"
+        if len(choices) > _MAX_CHOICES:
+            error_message = f"Cannot set more than {_MAX_CHOICES} choices"
             raise ValueError(error_message)
 
         self._has_responded = True

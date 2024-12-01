@@ -66,10 +66,10 @@ if typing.TYPE_CHECKING:
     _T_contra = typing.TypeVar("_T_contra", contravariant=True)
 
     class _CmpProto(typing.Protocol[_T_contra]):
-        def __gt__(self, __other: _T_contra) -> bool:
+        def __gt__(self, other: _T_contra, /) -> bool:
             raise NotImplementedError
 
-        def __lt__(self, __other: _T_contra) -> bool:
+        def __lt__(self, other: _T_contra, /) -> bool:
             raise NotImplementedError
 
     class _SizedCmpProto(_CmpProto[_T_contra]):
@@ -78,7 +78,7 @@ if typing.TYPE_CHECKING:
 
     _CmpProtoT = typing.TypeVar("_CmpProtoT", bound=_CmpProto[typing.Any])
     # Pyright bug doesn't accept Var = Class | Class as a type
-    _MaybeIterable = typing.Union[collections.Iterable["_T"], "_T"]
+    _MaybeIterable = typing.Union[collections.Iterable["_T"], "_T"]  # noqa: UP007
     _SizedCmpProtoT = typing.TypeVar("_SizedCmpProtoT", bound=_SizedCmpProto[typing.Any])
 
 
@@ -1697,7 +1697,7 @@ class Parameter:
             A copy of the parameter.
         """
         inst = copy.copy(self)
-        inst._converters = [copy.copy(converter) for converter in self._converters]
+        inst._converters = [copy.copy(converter) for converter in self._converters]  # noqa: SLF001
         return inst
 
 
@@ -1930,8 +1930,8 @@ class ShlexParser(AbstractOptionParser):
     def copy(self) -> Self:
         # <<inherited docstring from AbstractOptionParser>>.
         inst = copy.copy(self)
-        inst._arguments = [argument.copy() for argument in self._arguments]
-        inst._options = [option.copy() for option in self._options]
+        inst._arguments = [argument.copy() for argument in self._arguments]  # noqa: SLF001
+        inst._options = [option.copy() for option in self._options]  # noqa: SLF001
         return inst
 
     def _assert_key(self, key: str, /) -> None:

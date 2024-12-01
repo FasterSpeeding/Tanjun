@@ -134,7 +134,7 @@ class TestClient:
 
     def test_with_listener_with_type_hint_typing_union(self) -> None:
         async def callback(
-            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]
+            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]  # noqa: PYI051
         ) -> None: ...
 
         add_listener_ = mock.Mock()
@@ -180,7 +180,9 @@ class TestClient:
         )
 
     def test_with_listener_with_type_hint_310_union(self) -> None:
-        async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
+        async def callback(
+            event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str,  # noqa: PYI051
+        ) -> None: ...
 
         add_listener_ = mock.Mock()
 

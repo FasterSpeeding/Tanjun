@@ -153,11 +153,15 @@ where dependency injection is supported.
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
 _MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
+_MAX_MENU_COUNT = 5
+_MAX_SLASH_COUNT = 100
+
 
 class _LoaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.update_wrapper
     def __init__(
         self,
         callback: collections.Callable[[Client], None] | collections.Callable[[tanjun.Client], None],
+        *,
         standard_impl: bool,
     ) -> None:
         self._callback = callback
@@ -196,6 +200,7 @@ class _UnloaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.upd
     def __init__(
         self,
         callback: collections.Callable[[Client], None] | collections.Callable[[tanjun.Client], None],
+        *,
         standard_impl: bool,
     ) -> None:
         self._callback = callback
@@ -292,12 +297,12 @@ def as_loader(
         The decorated load callback.
     """
     if callback:
-        return _LoaderDescriptor(callback, standard_impl)
+        return _LoaderDescriptor(callback, standard_impl=standard_impl)
 
     def decorator(
         callback: collections.Callable[[tanjun.Client], None], /
     ) -> collections.Callable[[tanjun.Client], None]:
-        return _LoaderDescriptor(callback, standard_impl)
+        return _LoaderDescriptor(callback, standard_impl=standard_impl)
 
     return decorator
 
@@ -366,12 +371,12 @@ def as_unloader(
         The decorated unload callback.
     """
     if callback:
-        return _UnloaderDescriptor(callback, standard_impl)
+        return _UnloaderDescriptor(callback, standard_impl=standard_impl)
 
     def decorator(
         callback: collections.Callable[[tanjun.Client], None], /
     ) -> collections.Callable[[tanjun.Client], None]:
-        return _UnloaderDescriptor(callback, standard_impl)
+        return _UnloaderDescriptor(callback, standard_impl=standard_impl)
 
     return decorator
 
@@ -488,8 +493,9 @@ def _log_clients(
     server: hikari.api.InteractionServer | None,
     rest: hikari.api.RESTClient,
     shards: hikari.ShardAware | None,
-    event_managed: bool,
     /,
+    *,
+    event_managed: bool,
 ) -> None:
     _LOGGER.info(
         "%s initialised with the following components: %s",
@@ -719,7 +725,7 @@ class Client(tanjun.Client):
             * If `command_ids` is passed when `declare_global_commands` is `False`.
         """
         if _LOGGER.isEnabledFor(logging.INFO):
-            _log_clients(cache, events, server, rest, shards, event_managed)
+            _log_clients(cache, events, server, rest, shards, event_managed=event_managed)
 
         if not events and not server:
             _LOGGER.warning(
@@ -778,7 +784,7 @@ class Client(tanjun.Client):
             events.subscribe(hikari.StoppingEvent, self._on_stopping)
 
         (
-            self.set_type_dependency(tanjun.Client, self)
+            self.set_type_dependency(tanjun.Client, self)  # noqa: SLF001
             .set_type_dependency(Client, self)
             .set_type_dependency(type(self), self)
             .set_type_dependency(hikari.api.RESTClient, rest)
@@ -797,9 +803,9 @@ class Client(tanjun.Client):
 
         dependencies.set_standard_dependencies(self)
         self._schedule_startup_registers(
-            set_global_commands,
-            declare_global_commands,
-            command_ids,
+            set_global_commands=set_global_commands,
+            declare_global_commands=declare_global_commands,
+            command_ids=command_ids,
             message_ids=message_ids,
             user_ids=user_ids,
             _stack_level=_stack_level,
@@ -813,6 +819,7 @@ class Client(tanjun.Client):
 
     def _schedule_startup_registers(
         self,
+        *,
         set_global_commands: hikari.SnowflakeishOr[hikari.PartialGuild] | bool = False,
         declare_global_commands: (
             hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool
@@ -1134,7 +1141,7 @@ class Client(tanjun.Client):
 
         return self
 
-    async def __aenter__(self) -> Client:
+    async def __aenter__(self) -> Self:
         await self.open()
         return self
 
@@ -1496,16 +1503,22 @@ class Client(tanjun.Client):
                 "registered for them " + ", ".join(f"{type_}:{name}" for type_, name in conflicts)
             )
 
-        if message_count > 5:
-            error_message = "You can only declare up to 5 top level message context menus in a guild or globally"
+        if message_count > _MAX_MENU_COUNT:
+            error_message = (
+                "You can only declare up to {_MAX_MENU_COUNT} top level message context menus in a guild or globally"
+            )
             raise ValueError(error_message)
 
-        if slash_count > 100:
-            error_message = "You can only declare up to 100 top level slash commands in a guild or globally"
+        if slash_count > _MAX_SLASH_COUNT:
+            error_message = (
+                f"You can only declare up to {_MAX_SLASH_COUNT} top level slash commands in a guild or globally"
+            )
             raise ValueError(error_message)
 
-        if user_count > 5:
-            error_message = "You can only declare up to 5 top level message context menus in a guild or globally"
+        if user_count > _MAX_MENU_COUNT:
+            error_message = (
+                f"You can only declare up to {_MAX_MENU_COUNT} top level message context menus in a guild or globally"
+            )
             raise ValueError(error_message)
 
         application = application or self._cached_application_id or await self.fetch_rest_application_id()
@@ -1551,7 +1564,7 @@ class Client(tanjun.Client):
         self._auto_defer_after = float(time) if time is not None else None
         return self
 
-    def set_case_sensitive(self, state: bool, /) -> Self:
+    def set_case_sensitive(self, state: bool, /) -> Self:  # noqa: FBT001
         """Set whether this client defaults to being case sensitive for message commands.
 
         Parameters
@@ -1589,7 +1602,7 @@ class Client(tanjun.Client):
         self._default_app_cmd_permissions = hikari.Permissions(permissions)
         return self
 
-    def set_dms_enabled_for_app_cmds(self, state: bool, /) -> Self:
+    def set_dms_enabled_for_app_cmds(self, state: bool, /) -> Self:  # noqa: FBT001
         """Set whether this clients's commands should be enabled in DMs.
 
         Parameters
@@ -1611,7 +1624,7 @@ class Client(tanjun.Client):
         self._dms_enabled_for_app_cmds = state
         return self
 
-    def set_ephemeral_default(self, state: bool, /) -> Self:
+    def set_ephemeral_default(self, state: bool, /) -> Self:  # noqa: FBT001
         """Set whether slash contexts spawned by this client should default to ephemeral responses.
 
         This defaults to [False][] if not explicitly set.
@@ -1861,7 +1874,7 @@ class Client(tanjun.Client):
         self._make_slash_context = maker
         return self
 
-    def set_human_only(self, value: bool = True, /) -> Self:
+    def set_human_only(self, value: bool = True, /) -> Self:  # noqa: FBT001, FBT002
         """Set whether or not message commands execution should be limited to "human" users.
 
         !!! note
@@ -2591,7 +2604,8 @@ class Client(tanjun.Client):
 
     def load_modules(self, *modules: str | pathlib.Path) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
-        for module_path in modules:
+        for path in modules:
+            module_path = path
             if isinstance(module_path, pathlib.Path):
                 module_path = _normalize_path(module_path)
 
@@ -2613,7 +2627,8 @@ class Client(tanjun.Client):
     async def load_modules_async(self, *modules: str | pathlib.Path) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         loop = asyncio.get_running_loop()
-        for module_path in modules:
+        for path in modules:
+            module_path = path
             if isinstance(module_path, pathlib.Path):
                 module_path = await loop.run_in_executor(None, _normalize_path, module_path)
 
@@ -2632,7 +2647,8 @@ class Client(tanjun.Client):
 
     def unload_modules(self, *modules: str | pathlib.Path) -> Self:
         # <<inherited docstring from tanjun.ab.Client>>.
-        for module_path in modules:
+        for path in modules:
+            module_path = path
             if isinstance(module_path, str):
                 modules_dict: dict[typing.Any, types.ModuleType] = self._modules
 
@@ -2705,7 +2721,8 @@ class Client(tanjun.Client):
 
     def reload_modules(self, *modules: str | pathlib.Path) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
-        for module_path in modules:
+        for path in modules:
+            module_path = path
             if isinstance(module_path, pathlib.Path):
                 module_path = _normalize_path(module_path)
 
@@ -2727,7 +2744,8 @@ class Client(tanjun.Client):
     async def reload_modules_async(self, *modules: str | pathlib.Path) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         loop = asyncio.get_running_loop()
-        for module_path in modules:
+        for path in modules:
+            module_path = path
             if isinstance(module_path, pathlib.Path):
                 module_path = await loop.run_in_executor(None, _normalize_path, module_path)
 

@@ -157,7 +157,7 @@ def make_lc_resolver(
         ctx: alluka.Injected[alluka.abc.Context],
         # LazyConstant gets type arguments at runtime and Injected can't be used here as that'd fail to
         # resolve.
-        constant: LazyConstant[_T] = alluka.inject(type=LazyConstant[type_]),
+        constant: LazyConstant[_T] = alluka.inject(type=LazyConstant[type_]),  # noqa: B008
     ) -> _T:
         """Resolve a lazy constant."""
         if (value := constant.get_value()) is not None:
@@ -167,7 +167,7 @@ def make_lc_resolver(
             if (value := constant.get_value()) is not None:
                 return value
 
-            result = await ctx.call_with_async_di(constant.callback)  # type: ignore
+            result = await ctx.call_with_async_di(constant.callback)  # type: ignore  # noqa: PGH003
             constant.set_value(result)
             return result
 

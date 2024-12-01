@@ -82,15 +82,15 @@ class TestOwnerCheck:
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
 
     async def test_when_false_and_error(self) -> None:
-        class MockException(Exception):
+        class MockError(Exception):
             def __init__(self) -> None: ...
 
         mock_dependency = mock.AsyncMock()
         mock_dependency.check_ownership.return_value = False
         mock_context = mock.Mock()
-        check = tanjun.checks.OwnerCheck(error=MockException, error_message="hi")
+        check = tanjun.checks.OwnerCheck(error=MockError, error_message="hi")
 
-        with pytest.raises(MockException):
+        with pytest.raises(MockError):
             await check(mock_context, mock_dependency)
 
         mock_dependency.check_ownership.assert_awaited_once_with(mock_context.client, mock_context.author)
@@ -284,14 +284,14 @@ class TestNsfwCheck:
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_false_when_error(self) -> None:
-        class MockException(Exception):
+        class MockError(Exception):
             def __init__(self) -> None: ...
 
         mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
-        check = tanjun.checks.NsfwCheck(error=MockException, error_message="nye")
+        check = tanjun.checks.NsfwCheck(error=MockError, error_message="nye")
 
         with (
-            pytest.raises(MockException),
+            pytest.raises(MockError),
             mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=None)) as get_perm_channel,
         ):
             await check(mock_context)
@@ -521,14 +521,14 @@ class TestSfwCheck:
         get_perm_channel.assert_awaited_once_with(mock_context.client, mock_context.channel_id)
 
     async def test_when_is_nsfw_and_error(self) -> None:
-        class MockException(Exception):
+        class MockError(Exception):
             def __init__(self) -> None: ...
 
         mock_context = mock.Mock(client=tanjun.Client(mock.AsyncMock(), cache=mock.Mock()))
-        check = tanjun.checks.SfwCheck(error=MockException, error_message="bye")
+        check = tanjun.checks.SfwCheck(error=MockError, error_message="bye")
 
         with (
-            pytest.raises(MockException),
+            pytest.raises(MockError),
             mock.patch.object(cache, "get_perm_channel", return_value=mock.Mock(is_nsfw=True)) as get_perm_channel,
         ):
             await check(mock_context)
@@ -742,13 +742,13 @@ class TestDmCheck:
         assert tanjun.checks.DmCheck(error_message=None)(mock.Mock(guild_id=3123)) is False
 
     def test_for_guild_when_error(self) -> None:
-        class MockException(Exception):
+        class MockError(Exception):
             def __init__(self) -> None: ...
 
-        check = tanjun.checks.DmCheck(error=MockException, error_message="meow")
+        check = tanjun.checks.DmCheck(error=MockError, error_message="meow")
         mock_context = mock.Mock(guild_id=3123)
 
-        with pytest.raises(MockException):
+        with pytest.raises(MockError):
             assert check(mock_context)
 
     def test_for_guild_when_halt_execution(self) -> None:
@@ -898,12 +898,12 @@ class TestGuildCheck:
         assert tanjun.checks.GuildCheck(error_message=None)(mock.Mock(guild_id=None)) is False
 
     def test_for_dm_when_error(self) -> None:
-        class MockException(Exception):
+        class MockError(Exception):
             def __init__(self) -> None: ...
 
-        check = tanjun.checks.GuildCheck(error=MockException, error_message="meep")
+        check = tanjun.checks.GuildCheck(error=MockError, error_message="meep")
 
-        with pytest.raises(MockException):
+        with pytest.raises(MockError):
             assert check(mock.Mock(guild_id=None))
 
     def test_for_dm_when_halt_execution(self) -> None:
@@ -2512,8 +2512,8 @@ def test_with_dm_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock)
 def test_with_dm_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.MessageCommand)
     command.add_check.return_value = command
-    with pytest.raises(AttributeError):
-        command.wrapped_command
+
+    assert not hasattr(command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
         assert tanjun.checks.with_dm_check(follow_wrapped=True)(command) is command
@@ -2526,8 +2526,8 @@ def test_with_dm_check_when_follow_wrapping_and_unsupported_command() -> None:
 
 def test_with_dm_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
-    with pytest.raises(AttributeError):
-        command.wrapped_command.wrapped_command
+
+    assert not hasattr(command.wrapped_command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "DmCheck") as dm_check:
         assert tanjun.checks.with_dm_check(follow_wrapped=True)(command) is command
@@ -2596,8 +2596,8 @@ def test_with_guild_check_when_follow_wrapping_and_not_wrapping(command: mock.Mo
 def test_with_guild_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
-    with pytest.raises(AttributeError):
-        command.wrapped_command
+
+    assert not hasattr(command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
         assert tanjun.checks.with_guild_check(follow_wrapped=True)(command) is command
@@ -2610,8 +2610,8 @@ def test_with_guild_check_when_follow_wrapping_and_unsupported_command() -> None
 
 def test_with_guild_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
-    with pytest.raises(AttributeError):
-        command.wrapped_command.wrapped_command
+
+    assert not hasattr(command.wrapped_command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "GuildCheck") as guild_check:
         assert tanjun.checks.with_guild_check(follow_wrapped=True)(command) is command
@@ -2680,8 +2680,8 @@ def test_with_nsfw_check_when_follow_wrapping_and_not_wrapping(command: mock.Moc
 def test_with_nsfw_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
-    with pytest.raises(AttributeError):
-        command.wrapped_command
+
+    assert not hasattr(command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "NsfwCheck") as nsfw_check:
         assert tanjun.checks.with_nsfw_check(follow_wrapped=True)(command) is command
@@ -2694,8 +2694,8 @@ def test_with_nsfw_check_when_follow_wrapping_and_unsupported_command() -> None:
 
 def test_with_nsfw_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
-    with pytest.raises(AttributeError):
-        command.wrapped_command.wrapped_command
+
+    assert not hasattr(command.wrapped_command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "NsfwCheck") as nsfw_check:
         assert tanjun.checks.with_nsfw_check(follow_wrapped=True)(command) is command
@@ -2764,8 +2764,8 @@ def test_with_sfw_check_when_follow_wrapping_and_not_wrapping(command: mock.Mock
 def test_with_sfw_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
-    with pytest.raises(AttributeError):
-        command.wrapped_command
+
+    assert not hasattr(command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "SfwCheck") as sfw_check:
         assert tanjun.checks.with_sfw_check(follow_wrapped=True)(command) is command
@@ -2779,8 +2779,8 @@ def test_with_sfw_check_when_follow_wrapping_and_unsupported_command() -> None:
 def test_with_sfw_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
-    with pytest.raises(AttributeError):
-        command.wrapped_command.wrapped_command
+
+    assert not hasattr(command.wrapped_command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "SfwCheck") as sfw_check:
         assert tanjun.checks.with_sfw_check(follow_wrapped=True)(command) is command
@@ -2849,8 +2849,8 @@ def test_with_owner_check_when_follow_wrapping_and_not_wrapping(command: mock.Mo
 def test_with_owner_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
-    with pytest.raises(AttributeError):
-        command.wrapped_command
+
+    assert not hasattr(command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "OwnerCheck") as owner_check:
         assert tanjun.checks.with_owner_check(follow_wrapped=True)(command) is command
@@ -2863,8 +2863,8 @@ def test_with_owner_check_when_follow_wrapping_and_unsupported_command() -> None
 
 def test_with_owner_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
-    with pytest.raises(AttributeError):
-        command.wrapped_command.wrapped_command
+
+    assert not hasattr(command.wrapped_command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "OwnerCheck") as owner_check:
         assert tanjun.checks.with_owner_check(follow_wrapped=True)(command) is command
@@ -2945,8 +2945,8 @@ def test_with_author_permission_check_when_follow_wrapping_and_not_wrapping(comm
 def test_with_author_permission_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
-    with pytest.raises(AttributeError):
-        command.wrapped_command
+
+    assert not hasattr(command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
         assert tanjun.checks.with_author_permission_check(435213, follow_wrapped=True)(command) is command
@@ -2962,8 +2962,8 @@ def test_with_author_permission_check_when_follow_wrapping_and_unsupported_comma
 
 def test_with_author_permission_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
-    with pytest.raises(AttributeError):
-        command.wrapped_command.wrapped_command
+
+    assert not hasattr(command.wrapped_command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "AuthorPermissionCheck") as author_permission_check:
         assert tanjun.checks.with_author_permission_check(435213, follow_wrapped=True)(command) is command
@@ -3047,8 +3047,8 @@ def test_with_own_permission_check_when_follow_wrapping_and_not_wrapping(command
 def test_with_own_permission_check_when_follow_wrapping_and_unsupported_command() -> None:
     command = mock.Mock(tanjun.abc.SlashCommand)
     command.add_check.return_value = command
-    with pytest.raises(AttributeError):
-        command.wrapped_command
+
+    assert not hasattr(command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
         assert tanjun.checks.with_own_permission_check(5412312, follow_wrapped=True)(command) is command
@@ -3064,8 +3064,8 @@ def test_with_own_permission_check_when_follow_wrapping_and_unsupported_command(
 
 def test_with_own_permission_check_when_follow_wrapping_and_wrapping_unsupported_command(command: mock.Mock) -> None:
     command.wrapped_command = mock.Mock(tanjun.abc.SlashCommand)
-    with pytest.raises(AttributeError):
-        command.wrapped_command.wrapped_command
+
+    assert not hasattr(command.wrapped_command, "wrapped_command")
 
     with mock.patch.object(tanjun.checks, "OwnPermissionCheck") as own_permission_check:
         assert tanjun.checks.with_own_permission_check(5412312, follow_wrapped=True)(command) is command
@@ -3293,7 +3293,7 @@ async def test_any_checks_when_all_fail() -> None:
 
 @pytest.mark.asyncio
 async def test_any_checks_when_all_fail_and_error() -> None:
-    class MockException(Exception):
+    class MockError(Exception):
         def __init__(self) -> None: ...
 
     mock_check_1 = mock.Mock()
@@ -3301,9 +3301,9 @@ async def test_any_checks_when_all_fail_and_error() -> None:
     mock_check_3 = mock.Mock()
     mock_context = mock.Mock()
     mock_context.call_with_async_di = mock.AsyncMock(side_effect=[False, tanjun.FailedCheck, False])
-    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error=MockException, error_message="hi")
+    check = tanjun.checks.any_checks(mock_check_1, mock_check_2, mock_check_3, error=MockError, error_message="hi")
 
-    with pytest.raises(MockException):
+    with pytest.raises(MockError):
         await check(mock_context)
 
     mock_context.call_with_async_di.assert_has_awaits(

@@ -1182,7 +1182,7 @@ class TestClient:
         add_listener_.assert_called_once_with(hikari.GuildAvailableEvent, mock_callback)
 
     def test_with_listener_no_provided_event(self) -> None:
-        async def callback(foo) -> None:  # type: ignore
+        async def callback(foo) -> None:  # type: ignore  # noqa: ANN001
             ...
 
         add_listener_ = mock.Mock()
@@ -1327,7 +1327,7 @@ class TestClient:
 
     def test_with_listener_with_type_hint_typing_union(self) -> None:
         async def callback(
-            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]
+            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]  # noqa: PYI051
         ) -> None: ...
 
         add_listener_ = mock.Mock()
@@ -1373,7 +1373,9 @@ class TestClient:
         )
 
     def test_with_listener_with_type_hint_310_union(self) -> None:
-        async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
+        async def callback(
+            event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str,  # noqa: PYI051
+        ) -> None: ...
 
         add_listener_ = mock.Mock()
 
@@ -2030,7 +2032,7 @@ class TestClient:
     def temp_file(self) -> collections.Iterator[typing.IO[str]]:
         # A try, finally is used to delete the file rather than relying on delete=True behaviour
         # as on Windows the file cannot be accessed by other processes if delete is True.
-        temp_file_ = tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False)
+        temp_file_ = tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False)  # noqa: SIM115
         try:
             with temp_file_:
                 yield temp_file_
@@ -5461,7 +5463,9 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5525,7 +5529,9 @@ class TestClient:
     ) -> None:
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5587,7 +5593,9 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5706,7 +5714,9 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5767,7 +5777,9 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -5831,7 +5843,9 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6324,7 +6338,9 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
+        async def execution_callback(
+            ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6388,7 +6404,9 @@ class TestClient:
     ) -> None:
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
+        async def execution_callback(
+            ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
@@ -6450,7 +6468,9 @@ class TestClient:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
+        async def execution_callback(
+            ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
             async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value

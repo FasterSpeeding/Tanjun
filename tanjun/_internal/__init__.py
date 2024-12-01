@@ -284,7 +284,7 @@ class _WrappedProto(typing.Protocol):
 
 def _has_wrapped(value: typing.Any, /) -> typing.TypeGuard[_WrappedProto]:
     try:
-        value.wrapped_command
+        value.wrapped_command  # noqa: B018
 
     except AttributeError:
         return False
@@ -467,7 +467,7 @@ def cmp_command(
 
         opts = cmd.options or ()
         other_opts = other.options or ()
-        return len(opts) == len(other_opts) and all(itertools.starmap(operator.eq, zip(opts, other_opts)))
+        return len(opts) == len(other_opts) and all(itertools.starmap(operator.eq, zip(opts, other_opts, strict=True)))
 
     return True
 
@@ -493,9 +493,8 @@ class MessageCommandIndex:
 
     def __init__(
         self,
-        strict: bool,
-        /,
         *,
+        strict: bool,
         commands: list[tanjun.MessageCommand[typing.Any]] | None = None,
         names_to_commands: dict[str, tuple[str, tanjun.MessageCommand[typing.Any]]] | None = None,
         search_tree: _TreeT | None = None,
@@ -553,7 +552,9 @@ class MessageCommandIndex:
 
             # Case insensitive keys are used here as a subsequent check against the original
             # name can be used for case-sensitive lookup.
-            self.names_to_commands.update((key, (name, command)) for key, name in zip(insensitive_names, names))
+            self.names_to_commands.update(
+                (key, (name, command)) for key, name in zip(insensitive_names, names, strict=True)
+            )
 
         else:  # strict indexes avoid using the search tree all together.
             # This needs to be explicitly typed for MyPy.
@@ -602,7 +603,7 @@ class MessageCommandIndex:
         commands = {command: command.copy(parent=parent) for command in self.commands}
         memo = {id(command): new_command for command, new_command in commands.items()}
         return MessageCommandIndex(
-            self.is_strict,
+            strict=self.is_strict,
             commands=list(commands.values()),
             names_to_commands={
                 key: (name, commands[command]) for key, (name, command) in self.names_to_commands.items()
@@ -611,7 +612,7 @@ class MessageCommandIndex:
         )
 
     def find(
-        self, content: str, case_sensitive: bool, /
+        self, content: str, /, *, case_sensitive: bool
     ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         """Find commands in the index.
 

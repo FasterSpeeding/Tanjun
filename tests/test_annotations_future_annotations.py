@@ -115,7 +115,7 @@ def test_with_no_annotations() -> None:
     async def command(
         ctx: tanjun.abc.Context,
         injected: alluka.Injected[int],
-        yeat,  # type: ignore
+        yeat,  # type: ignore  # noqa: ANN001
         other_injected: str = alluka.inject(type=str),
     ) -> None: ...
 
@@ -130,7 +130,7 @@ def test_with_no_annotations_but_message_parser_already_set() -> None:
     async def command(
         ctx: tanjun.abc.Context,
         injected: alluka.Injected[int],
-        beat,  # type: ignore
+        beat,  # type: ignore  # noqa: ANN001
         other_injected: str = alluka.inject(type=str),
     ) -> None: ...
 
@@ -211,8 +211,8 @@ def test_when_follow_wrapping_and_wrapping_unsupported_command() -> None:
     command: tanjun.MessageCommand[typing.Any] = tanjun.as_message_command("beep")(
         mock.Mock(tanjun.abc.SlashCommand, callback=mock_callback)
     )
-    with pytest.raises(AttributeError):
-        command.wrapped_command.wrapped_command  # type: ignore
+
+    assert not hasattr(command.wrapped_command, "wrapped_command")
 
     annotations.with_annotated_args(follow_wrapped=True)(command)
 
@@ -1176,7 +1176,7 @@ def test_with_generic_default() -> None:
         async def command(
             ctx: tanjun.abc.Context,
             argument: typing.Annotated[
-                annotations.Default[annotations.Str, "nyaa"], "meow"  # noqa: F821  # type: ignore
+                annotations.Default[annotations.Str, "nyaa"], "meow"  # noqa: F821, UP037  # type: ignore
             ],
         ) -> None: ...
 
