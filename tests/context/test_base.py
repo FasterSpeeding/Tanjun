@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -82,54 +81,54 @@ class TestBaseContext:
     def context(self, mock_client: mock.Mock) -> base_context.BaseContext:
         return stub_class(base_context.BaseContext, args=(mock_client,))
 
-    def test_cache_property(self, context: tanjun.abc.Context, mock_client: mock.Mock):
+    def test_cache_property(self, context: tanjun.abc.Context, mock_client: mock.Mock) -> None:
         assert context.cache is mock_client.cache
 
-    def test_client_property(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    def test_client_property(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         assert context.client is mock_client
 
-    def test_component_property(self, context: base_context.BaseContext, mock_component: tanjun.abc.Component):
+    def test_component_property(self, context: base_context.BaseContext) -> None:
         assert context.component is None
 
-    def test_events_proprety(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    def test_events_proprety(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         assert context.events is mock_client.events
 
-    def test_rest_property(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    def test_rest_property(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         assert context.rest is mock_client.rest
 
-    def test_server_property(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    def test_server_property(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         assert context.server is mock_client.server
 
-    def test_shard_property(self, mock_client: mock.Mock):
+    def test_shard_property(self, mock_client: mock.Mock) -> None:
         mock_shard = mock.Mock()
         mock_client.shards = mock.MagicMock(spec=traits.ShardAware, shard_count=5, shards={2: mock_shard})
         context = stub_class(base_context.BaseContext, guild_id=hikari.Snowflake(123321123312), args=(mock_client,))
 
         assert context.shard is mock_shard
 
-    def test_shard_property_when_dm(self, mock_client: mock.Mock):
+    def test_shard_property_when_dm(self, mock_client: mock.Mock) -> None:
         mock_shard = mock.Mock()
         mock_client.shards = mock.Mock(shards={0: mock_shard})
         context = stub_class(base_context.BaseContext, guild_id=None, args=(mock_client,))
 
         assert context.shard is mock_shard
 
-    def test_shard_property_when_no_shards(self, context: tanjun.context.MessageContext):
+    def test_shard_property_when_no_shards(self, context: tanjun.context.MessageContext) -> None:
         context._tanjun_client = mock.Mock(shards=None)
 
         assert context.shard is None
 
-    def test_shards_property(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    def test_shards_property(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         assert context.shards is mock_client.shards
 
-    def test_voice_property(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    def test_voice_property(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         assert context.voice is mock_client.voice
 
-    def test_finalise(self, context: base_context.BaseContext):
+    def test_finalise(self, context: base_context.BaseContext) -> None:
         context.finalise()
         assert context._final is True
 
-    def test_set_component(self, context: base_context.BaseContext):
+    def test_set_component(self, context: base_context.BaseContext) -> None:
         component = mock.Mock()
 
         assert context.set_component(component) is context
@@ -137,7 +136,7 @@ class TestBaseContext:
         assert context.component is component
         assert context.get_type_dependency(tanjun.abc.Component) is component
 
-    def test_set_component_when_none_and_previously_set(self, context: base_context.BaseContext):
+    def test_set_component_when_none_and_previously_set(self, context: base_context.BaseContext) -> None:
         mock_component = mock.Mock()
         context.set_component(mock_component)
         context.set_component(None)
@@ -147,7 +146,7 @@ class TestBaseContext:
         with pytest.raises(KeyError):
             context.get_type_dependency(tanjun.abc.Component)
 
-    def test_set_component_when_none(self, context: base_context.BaseContext):
+    def test_set_component_when_none(self, context: base_context.BaseContext) -> None:
         context.set_component(None)
         context.set_component(None)
 
@@ -156,7 +155,7 @@ class TestBaseContext:
         with pytest.raises(KeyError):
             context.get_type_dependency(tanjun.abc.Component)
 
-    def test_set_component_when_final(self, context: base_context.BaseContext):
+    def test_set_component_when_final(self, context: base_context.BaseContext) -> None:
         component = mock.Mock()
         context.finalise()
 
@@ -165,7 +164,7 @@ class TestBaseContext:
 
         assert context.component is not component
 
-    def test_get_channel(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    def test_get_channel(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         assert mock_client.cache is not None
         mock_client.cache.get_guild_channel.return_value = mock.Mock(hikari.TextableGuildChannel)
 
@@ -173,7 +172,9 @@ class TestBaseContext:
 
         mock_client.cache.get_guild_channel.assert_called_once_with(context.channel_id)
 
-    def test_get_channel_when_cache_returns_none(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    def test_get_channel_when_cache_returns_none(
+        self, context: base_context.BaseContext, mock_client: mock.Mock
+    ) -> None:
         assert mock_client.cache is not None
         mock_client.cache.get_guild_channel.return_value = None
 
@@ -181,22 +182,22 @@ class TestBaseContext:
 
         mock_client.cache.get_guild_channel.assert_called_once_with(context.channel_id)
 
-    def test_get_channel_when_cacheless(self):
+    def test_get_channel_when_cacheless(self) -> None:
         context = stub_class(base_context.BaseContext, guild_id=None, args=(mock.Mock(cache=None),))
 
         assert context.get_channel() is None
 
-    def test_get_guild(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    def test_get_guild(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         assert mock_client.cache is not None
         assert context.get_guild() is mock_client.cache.get_guild.return_value
         mock_client.cache.get_guild.assert_called_once_with(context.guild_id)
 
-    def test_get_guild_when_cacheless(self):
+    def test_get_guild_when_cacheless(self) -> None:
         context = stub_class(base_context.BaseContext, guild_id=None, args=(mock.Mock(cache=None),))
 
         assert context.get_guild() is None
 
-    def test_get_guild_when_dm_bound(self):
+    def test_get_guild_when_dm_bound(self) -> None:
         mock_client = mock.MagicMock()
         context = stub_class(base_context.BaseContext, guild_id=None, args=(mock_client,))
 
@@ -204,7 +205,7 @@ class TestBaseContext:
         mock_client.cache.get_guild.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_fetch_channel(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    async def test_fetch_channel(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         mock_client.rest.fetch_channel.return_value = mock.Mock(hikari.TextableChannel)
 
         result = await context.fetch_channel()
@@ -213,14 +214,14 @@ class TestBaseContext:
         mock_client.rest.fetch_channel.assert_called_once_with(context.channel_id)
 
     @pytest.mark.asyncio
-    async def test_fetch_guild(self, context: base_context.BaseContext, mock_client: mock.Mock):
+    async def test_fetch_guild(self, context: base_context.BaseContext, mock_client: mock.Mock) -> None:
         result = await context.fetch_guild()
 
         assert result is mock_client.rest.fetch_guild.return_value
         mock_client.rest.fetch_guild.assert_called_once_with(context.guild_id)
 
     @pytest.mark.asyncio
-    async def test_fetch_guild_when_dm_bound(self, mock_client: mock.Mock):
+    async def test_fetch_guild_when_dm_bound(self, mock_client: mock.Mock) -> None:
         context = stub_class(base_context.BaseContext, guild_id=None, args=(mock_client,))
 
         result = await context.fetch_guild()

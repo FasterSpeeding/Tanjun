@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -68,7 +67,7 @@ def stub_class(
     return typing.cast("type[_T]", new_cls)(*args, **kwargs or {})
 
 
-def test_as_message_command():
+def test_as_message_command() -> None:
     mock_callback = mock.Mock()
 
     command = tanjun.as_message_command("a", "b")(mock_callback)
@@ -90,14 +89,14 @@ def test_as_message_command_when_wrapping_command(
     other_command: (
         tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
     )
-):
+) -> None:
     command = tanjun.as_message_command("a", "b")(other_command)
 
     assert command.wrapped_command is other_command
     assert command.callback is other_command.callback
 
 
-def test_as_message_command_group():
+def test_as_message_command_group() -> None:
     mock_callback = mock.Mock()
 
     command = tanjun.as_message_command_group("c", "b", strict=True)(mock_callback)
@@ -120,7 +119,7 @@ def test_as_message_command_group_when_wrapping_command(
     other_command: (
         tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
     )
-):
+) -> None:
     command = tanjun.as_message_command_group("c", "b", strict=True)(other_command)
 
     assert command.wrapped_command is other_command
@@ -139,14 +138,14 @@ class TestMessageCommand:
     def test___init___when_command_object(
         self,
         inner_command: tanjun.SlashCommand[tanjun.abc.CommandCallbackSig] | tanjun.MenuCommand[typing.Any, typing.Any],
-    ):
+    ) -> None:
         assert tanjun.MessageCommand(inner_command, "woow").callback is inner_command.callback
 
     @pytest.mark.skip(reason="TODO")
-    def test___repr__(self): ...
+    def test___repr__(self) -> None: ...
 
     @pytest.mark.asyncio
-    async def test___call__(self):
+    async def test___call__(self) -> None:
         callback = mock.AsyncMock()
         command = tanjun.as_message_command(callback, "yee", "nsoosos")(callback)
 
@@ -154,31 +153,31 @@ class TestMessageCommand:
 
         callback.assert_awaited_once_with(65123, "okokok", a="odoosd", gf=435123)
 
-    def test_callback_property(self):
+    def test_callback_property(self) -> None:
         mock_callback = mock.Mock()
 
         assert tanjun.MessageCommand(mock_callback, "yee", "nsoosos").callback is mock_callback
 
-    def test_names_property(self):
+    def test_names_property(self) -> None:
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc")
 
         assert command.names == ["aaaaa", "bbbbb", "ccccc"]
 
-    def test_parent_property(self):
+    def test_parent_property(self) -> None:
         mock_parent = mock.Mock()
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parent(mock_parent)
 
         assert command.parent is mock_parent
 
-    def test_parser_property(self):
+    def test_parser_property(self) -> None:
         mock_parser = mock.Mock()
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parser(mock_parser)
 
         assert command.parser is mock_parser
 
-    def test_set_parser(self):
+    def test_set_parser(self) -> None:
         @tanjun.as_message_command("meow")
-        async def command(ctx: tanjun.abc.MessageContext, name: str, value: int, beep: bool): ...
+        async def command(ctx: tanjun.abc.MessageContext, name: str, value: int, beep: bool) -> None: ...
 
         parser = tanjun.parsing.ShlexParser().validate_arg_keys("other", ["name", "value"])
         command.set_parser(parser)
@@ -186,7 +185,7 @@ class TestMessageCommand:
         tanjun.with_option("value", "--value", default=None)(command)
         tanjun.with_argument("beep")(command)
 
-    def test_set_parser_when_no_signature(self):
+    def test_set_parser_when_no_signature(self) -> None:
         with pytest.raises(ValueError, match=".+"):
             inspect.Signature.from_callable(int)
 
@@ -195,9 +194,9 @@ class TestMessageCommand:
         tanjun.with_option("meow", "--nyaa", default=123)(command)
         tanjun.with_argument("meow")(command)
 
-    def test_set_parser_when_invalid_argument_key(self):
+    def test_set_parser_when_invalid_argument_key(self) -> None:
         @tanjun.as_message_command("meow")
-        async def meow_command(ctx: tanjun.abc.MessageContext, *args: str, name: str): ...
+        async def meow_command(ctx: tanjun.abc.MessageContext, *args: str, name: str) -> None: ...
 
         parser = tanjun.parsing.ShlexParser().validate_arg_keys("other", ["name", "beep"])
         meow_command.set_parser(parser)
@@ -205,9 +204,9 @@ class TestMessageCommand:
         with pytest.raises(ValueError, match="'beep' is not a valid keyword argument for meow_command"):
             tanjun.with_argument("beep")(meow_command)
 
-    def test_set_parser_when_invalid_option_key(self):
+    def test_set_parser_when_invalid_option_key(self) -> None:
         @tanjun.as_message_command("meow")
-        async def command_name(ctx: tanjun.abc.MessageContext, *args: str, name: str): ...
+        async def command_name(ctx: tanjun.abc.MessageContext, *args: str, name: str) -> None: ...
 
         parser = tanjun.parsing.ShlexParser().validate_arg_keys("other", ["name", "nock"])
         command_name.set_parser(parser)
@@ -215,41 +214,41 @@ class TestMessageCommand:
         with pytest.raises(ValueError, match="'nock' is not a valid keyword argument for command_name"):
             tanjun.with_option("nock", "--nock", default=123)(command_name)
 
-    def test_set_parser_when_invalid_key_but_not_validating(self):
+    def test_set_parser_when_invalid_key_but_not_validating(self) -> None:
         @tanjun.as_message_command("meow", validate_arg_keys=False)
-        async def command(ctx: tanjun.abc.MessageContext, name: str): ...
+        async def command(ctx: tanjun.abc.MessageContext, name: str) -> None: ...
 
         tanjun.with_option("meow", "--nyaa", default=123)(command)
         tanjun.with_argument("meow")(command)
 
-    def test_set_parser_when_invalid_argument_key_added_afterwards(self):
+    def test_set_parser_when_invalid_argument_key_added_afterwards(self) -> None:
         @tanjun.with_argument("name")
         @tanjun.as_message_command("meow")
-        async def next_command(ctx: tanjun.abc.MessageContext, name: str): ...
+        async def next_command(ctx: tanjun.abc.MessageContext, name: str) -> None: ...
 
         with pytest.raises(ValueError, match="'se' is not a valid keyword argument for next_command"):
             tanjun.with_argument("se")(next_command)
 
-    def test_set_parser_when_invalid_option_key_added_afterwards(self):
+    def test_set_parser_when_invalid_option_key_added_afterwards(self) -> None:
         @tanjun.with_option("name", "--name", default="")
         @tanjun.as_message_command("meow")
-        async def nyaa_command(ctx: tanjun.abc.MessageContext, name: str): ...
+        async def nyaa_command(ctx: tanjun.abc.MessageContext, name: str) -> None: ...
 
         with pytest.raises(ValueError, match="'boop' is not a valid keyword argument for nyaa_command"):
             tanjun.with_option("boop", "--boop", default=123)(nyaa_command)
 
-    def test_set_parser_when_invalid_option_key_added_afterwards_but_not_validating(self):
+    def test_set_parser_when_invalid_option_key_added_afterwards_but_not_validating(self) -> None:
         @tanjun.with_argument("blam")
         @tanjun.with_option("name", "--name", default="")
         @tanjun.as_message_command("meow", validate_arg_keys=False)
-        async def command(ctx: tanjun.abc.MessageContext, name: str, blam: int): ...
+        async def command(ctx: tanjun.abc.MessageContext, name: str, blam: int) -> None: ...
 
         tanjun.with_option("boop", "--boop", default=123)(command)
         tanjun.with_argument("not_a_name")(command)
 
-    def test_set_parser_when_argument_key_invalid_for_other_linked_callback(self):
+    def test_set_parser_when_argument_key_invalid_for_other_linked_callback(self) -> None:
         @tanjun.as_message_command("name", "description")
-        async def command(ctx: tanjun.abc.MessageContext, name: str, meow: str, meowed: str): ...
+        async def command(ctx: tanjun.abc.MessageContext, name: str, meow: str, meowed: str) -> None: ...
 
         parser = tanjun.parsing.ShlexParser()
         parser.validate_arg_keys("test_callback", ["meow", "bye"])
@@ -258,9 +257,9 @@ class TestMessageCommand:
         with pytest.raises(ValueError, match="'meowed' is not a valid keyword argument for test_callback"):
             tanjun.with_argument("meowed")(command)
 
-    def test_set_parser_when_option_key_invalid_for_other_linked_callback(self):
+    def test_set_parser_when_option_key_invalid_for_other_linked_callback(self) -> None:
         @tanjun.as_message_command("name", "description")
-        async def command(ctx: tanjun.abc.MessageContext, name: str, eep: str, nyaned: bool): ...
+        async def command(ctx: tanjun.abc.MessageContext, name: str, eep: str, nyaned: bool) -> None: ...
 
         parser = tanjun.parsing.ShlexParser()
         parser.validate_arg_keys("test_callback", ["eep", "e"])
@@ -269,18 +268,18 @@ class TestMessageCommand:
         with pytest.raises(ValueError, match="'nyaned' is not a valid keyword argument for test_callback"):
             tanjun.with_option("nyaned", "--nyaned", default=123)(command)
 
-    def test_set_parser_when_existing_argument_not_valid_for_callback(self):
+    def test_set_parser_when_existing_argument_not_valid_for_callback(self) -> None:
         @tanjun.as_message_command("name", "description")
-        async def eep_command(ctx: tanjun.abc.MessageContext, name: str, meow: str, meowed: str): ...
+        async def eep_command(ctx: tanjun.abc.MessageContext, name: str, meow: str, meowed: str) -> None: ...
 
         parser = tanjun.parsing.ShlexParser().add_argument("meow").add_argument("meowed").add_argument("namer")
 
         with pytest.raises(ValueError, match="'namer' is not a valid keyword argument for eep_command"):
             eep_command.set_parser(parser)
 
-    def test_set_parser_when_existing_option_not_valid_for_callback(self):
+    def test_set_parser_when_existing_option_not_valid_for_callback(self) -> None:
         @tanjun.as_message_command("name", "description")
-        async def test_command(ctx: tanjun.abc.MessageContext, name: str, eep: str, nyaned: bool): ...
+        async def test_command(ctx: tanjun.abc.MessageContext, name: str, eep: str, nyaned: bool) -> None: ...
 
         parser = (
             tanjun.parsing.ShlexParser()
@@ -292,7 +291,7 @@ class TestMessageCommand:
         with pytest.raises(ValueError, match="'bang' is not a valid keyword argument for test_command"):
             test_command.set_parser(parser)
 
-    def test_set_parser_when_callback_has_no_name(self):
+    def test_set_parser_when_callback_has_no_name(self) -> None:
         class OtherCallback:
             async def __call__(self, ctx: tanjun.abc.Context, name: str, beep: int) -> None: ...
 
@@ -301,10 +300,10 @@ class TestMessageCommand:
         parser = tanjun.parsing.ShlexParser()
         tanjun.MessageCommand(other_callback, "name", validate_arg_keys=True).set_parser(parser)
 
-        with pytest.raises(ValueError, match=f"'boop' is not a valid keyword argument for {repr(other_callback)}"):
+        with pytest.raises(ValueError, match=f"'boop' is not a valid keyword argument for {other_callback!r}"):
             parser.add_argument("boop")
 
-    def test_bind_client(self):
+    def test_bind_client(self) -> None:
         mock_client = mock.Mock()
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc")
 
@@ -313,7 +312,7 @@ class TestMessageCommand:
 
             bind_client.assert_called_once_with(mock_client)
 
-    def test_bind_client_when_has_parser(self):
+    def test_bind_client_when_has_parser(self) -> None:
         mock_client = mock.Mock()
         mock_parser = mock.Mock()
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parser(mock_parser)
@@ -325,7 +324,7 @@ class TestMessageCommand:
 
         mock_parser.bind_client.assert_called_once_with(mock_client)
 
-    def test_bind_component(self):
+    def test_bind_component(self) -> None:
         mock_component = mock.Mock()
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc")
 
@@ -334,7 +333,7 @@ class TestMessageCommand:
 
             bind_component.assert_called_once_with(mock_component)
 
-    def test_bind_component_when_has_parser(self):
+    def test_bind_component_when_has_parser(self) -> None:
         mock_component = mock.Mock()
         mock_parser = mock.Mock()
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "aaaaa", "bbbbb", "ccccc").set_parser(mock_parser)
@@ -347,10 +346,10 @@ class TestMessageCommand:
         mock_parser.bind_component.assert_called_once_with(mock_component)
 
     @pytest.mark.skip(reason="TODO")
-    def test_copy(self): ...
+    def test_copy(self) -> None: ...
 
     @pytest.mark.asyncio
-    async def test_check_context(self):
+    async def test_check_context(self) -> None:
         mock_check = mock.Mock()
         mock_other_check = mock.Mock()
         mock_context = mock.Mock()
@@ -371,9 +370,9 @@ class TestMessageCommand:
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio
-    async def test_execute(self): ...
+    async def test_execute(self) -> None: ...
 
-    def test_load_into_component(self):
+    def test_load_into_component(self) -> None:
         mock_component = mock.Mock()
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
 
@@ -381,7 +380,7 @@ class TestMessageCommand:
 
         mock_component.add_message_command.assert_called_once_with(command)
 
-    def test_load_into_component_when_wrapped_command_set(self):
+    def test_load_into_component_when_wrapped_command_set(self) -> None:
         mock_component = mock.Mock()
         mock_other_command = mock.Mock()
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -392,7 +391,7 @@ class TestMessageCommand:
         mock_component.add_message_command.assert_called_once_with(command)
         mock_other_command.load_into_component.assert_not_called()
 
-    def test_load_into_component_when_wrapped_command_is_loadable(self):
+    def test_load_into_component_when_wrapped_command_is_loadable(self) -> None:
         mock_component = mock.Mock()
         mock_other_command = mock.Mock(tanjun.components.AbstractComponentLoader)
         command = tanjun.MessageCommand[typing.Any](mock.Mock(), "yee", "nsoosos")
@@ -406,18 +405,18 @@ class TestMessageCommand:
 
 class TestMessageCommandGroup:
     @pytest.mark.skip(reason="TODO")
-    def test___repr__(self): ...
+    def test___repr__(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_commands_property(self): ...
+    def test_commands_property(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_is_strict_property(self): ...
+    def test_is_strict_property(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_copy(self): ...
+    def test_copy(self) -> None: ...
 
-    def test_add_command(self):
+    def test_add_command(self) -> None:
         mock_command = mock.Mock(names=["meow"])
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos")
 
@@ -427,7 +426,7 @@ class TestMessageCommandGroup:
         mock_command.set_parent.assert_called_once_with(command_group)
         assert mock_command in command_group.commands
 
-    def test_add_command_when_already_present(self):
+    def test_add_command_when_already_present(self) -> None:
         mock_command = mock.Mock(names=["nyaa", "echo"])
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos")
 
@@ -436,7 +435,7 @@ class TestMessageCommandGroup:
         assert result is command_group
         assert list(command_group.commands).count(mock_command) == 1
 
-    def test_add_command_when_strict(self):
+    def test_add_command_when_strict(self) -> None:
         mock_command = mock.Mock(names={"a", "b"})
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
 
@@ -446,13 +445,13 @@ class TestMessageCommandGroup:
         mock_command.set_parent.assert_called_once_with(command_group)
         assert mock_command in command_group.commands
 
-    def test_add_command_when_strict_and_space_in_any_name(self):
+    def test_add_command_when_strict_and_space_in_any_name(self) -> None:
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
 
         with pytest.raises(ValueError, match="Command name cannot contain spaces in a strict collection"):
             command_group.add_command(mock.Mock(names={"a space", "b"}))
 
-    def test_add_command_when_strict_and_conflicts_found(self):
+    def test_add_command_when_strict_and_conflicts_found(self) -> None:
         command_group = (
             tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
             .add_command(mock.Mock(names={"aaa", "b"}))
@@ -468,7 +467,7 @@ class TestMessageCommandGroup:
         ):
             command_group.add_command(mock.Mock(names={"aaa", "dsaasd"}))
 
-    def test_as_sub_command(self):
+    def test_as_sub_command(self) -> None:
         async def mock_callback(ctx: tanjun.abc.Context) -> None: ...
 
         other_mock_callback = mock.Mock()
@@ -480,7 +479,7 @@ class TestMessageCommandGroup:
         assert result.names == ["neco"]
         assert result._arg_names is not None
 
-    def test_as_sub_command_with_optional_args(self):
+    def test_as_sub_command_with_optional_args(self) -> None:
         async def mock_callback(ctx: tanjun.abc.Context) -> None: ...
 
         command_group = tanjun.MessageCommandGroup(mock_callback, "meow")
@@ -490,7 +489,7 @@ class TestMessageCommandGroup:
         assert result.names == ["neco", "nyan"]
         assert result._arg_names is None
 
-    def test_as_sub_group(self):
+    def test_as_sub_group(self) -> None:
         async def mock_callback(ctx: tanjun.abc.Context) -> None: ...
 
         other_mock_callback = mock.Mock()
@@ -503,7 +502,7 @@ class TestMessageCommandGroup:
         assert result.is_strict is False
         assert result._arg_names is not None
 
-    def test_as_sub_group_with_optional_args(self):
+    def test_as_sub_group_with_optional_args(self) -> None:
         async def mock_callback(ctx: tanjun.abc.Context) -> None: ...
 
         command_group = tanjun.MessageCommandGroup(mock_callback, "meow")
@@ -514,7 +513,7 @@ class TestMessageCommandGroup:
         assert result.is_strict is True
         assert result._arg_names is None
 
-    def test_remove_command(self):
+    def test_remove_command(self) -> None:
         mock_command = mock.Mock(names=["echo"])
         command_group = tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "a", "b").add_command(mock_command)
 
@@ -523,7 +522,7 @@ class TestMessageCommandGroup:
         assert result is command_group
         assert mock_command not in command_group.commands
 
-    def test_remove_command_when_strict(self):
+    def test_remove_command_when_strict(self) -> None:
         mock_command = mock.Mock(names={"abba", "bba", "dadaba"})
         mock_other_command = mock.Mock(names={"me", "OwOy"})
         command_group = (
@@ -542,7 +541,7 @@ class TestMessageCommandGroup:
         }
         assert command_group._commands.commands == [mock_other_command]
 
-    def test_with_command(self):
+    def test_with_command(self) -> None:
         add_command = mock.Mock()
         command = stub_class(
             tanjun.MessageCommandGroup[typing.Any], add_command=add_command, args=(mock.Mock(), "a", "b")
@@ -554,7 +553,7 @@ class TestMessageCommandGroup:
         assert result is mock_command
         add_command.assert_called_once_with(mock_command)
 
-    def test_bind_client(self):
+    def test_bind_client(self) -> None:
         mock_command_1 = mock.Mock(names=["hi"])
         mock_command_2 = mock.Mock(names=["bye"])
         mock_command_3 = mock.Mock(names=["meow"])
@@ -575,7 +574,7 @@ class TestMessageCommandGroup:
         mock_command_2.bind_client.assert_called_once_with(mock_client)
         mock_command_3.bind_client.assert_called_once_with(mock_client)
 
-    def test_bind_component(self):
+    def test_bind_component(self) -> None:
         mock_command_1 = mock.Mock(names=["hi"])
         mock_command_2 = mock.Mock(names=["bye"])
         mock_command_3 = mock.Mock(names=["meow"])
@@ -596,7 +595,7 @@ class TestMessageCommandGroup:
         mock_command_2.bind_component.assert_called_once_with(mock_component)
         mock_command_3.bind_component.assert_called_once_with(mock_component)
 
-    def test_find_command(self):
+    def test_find_command(self) -> None:
         mock_command_1 = mock.Mock(names={"i am", "sexy", "jk", "unless"})
         mock_command_2 = mock.Mock(names={"i", "owo uwu", "no u"})
         command_group = (
@@ -611,7 +610,7 @@ class TestMessageCommandGroup:
 
         assert results == {("i", mock_command_2), ("i am", mock_command_1)}
 
-    def test_find_command_when_strict(self):
+    def test_find_command_when_strict(self) -> None:
         mock_command_1 = mock.Mock(names={"ok", "no"})
         command_group = (
             tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
@@ -624,7 +623,7 @@ class TestMessageCommandGroup:
 
         assert results == [("ok", mock_command_1)]
 
-    def test_find_command_when_strict_and_unknown_name(self):
+    def test_find_command_when_strict_and_unknown_name(self) -> None:
         command_group = (
             tanjun.MessageCommandGroup[typing.Any](mock.Mock(), "yee", "nsoosos", strict=True)
             .add_command(mock.Mock(names={"ok", "no"}))
@@ -637,7 +636,7 @@ class TestMessageCommandGroup:
         assert results == []
 
     @pytest.mark.asyncio
-    async def test_execute_no_message_content(self):
+    async def test_execute_no_message_content(self) -> None:
         mock_context = mock.Mock()
         mock_context.message.content = None
 
@@ -649,7 +648,7 @@ class TestMessageCommandGroup:
             await command_group.execute(mock_context)
 
     @pytest.mark.asyncio
-    async def test_execute(self):
+    async def test_execute(self) -> None:
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
@@ -683,7 +682,7 @@ class TestMessageCommandGroup:
         mock_command_3.execute.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_execute_no_pass_through_hooks(self):
+    async def test_execute_no_pass_through_hooks(self) -> None:
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
@@ -716,7 +715,7 @@ class TestMessageCommandGroup:
         mock_command_3.execute.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_execute_no_hooks(self):
+    async def test_execute_no_hooks(self) -> None:
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
@@ -746,7 +745,7 @@ class TestMessageCommandGroup:
         mock_command_3.execute.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_execute_falls_back_to_own_callback(self):
+    async def test_execute_falls_back_to_own_callback(self) -> None:
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
@@ -775,7 +774,7 @@ class TestMessageCommandGroup:
         mock_command_2.execute.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_execute_falls_back_to_own_callback_no_pass_through_hooks(self):
+    async def test_execute_falls_back_to_own_callback_no_pass_through_hooks(self) -> None:
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False
@@ -803,7 +802,7 @@ class TestMessageCommandGroup:
         mock_command_2.execute.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_execute_falls_back_to_own_callback_no_hooks(self):
+    async def test_execute_falls_back_to_own_callback_no_hooks(self) -> None:
         mock_callback = mock.Mock()
         mock_command_1 = mock.AsyncMock()
         mock_command_1.check_context.return_value = False

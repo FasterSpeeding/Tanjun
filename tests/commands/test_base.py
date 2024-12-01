@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -75,10 +74,10 @@ class TestPartialCommand:
             "PartialCommand", (base_command.PartialCommand[typing.Any],), exec_body=lambda body: body.update(fields)
         )()
 
-    def test_metadata_property(self, command: base_command.PartialCommand[typing.Any]):
+    def test_metadata_property(self, command: base_command.PartialCommand[typing.Any]) -> None:
         assert command.metadata is command._metadata
 
-    def test_copy(self, command: base_command.PartialCommand[typing.Any]):
+    def test_copy(self, command: base_command.PartialCommand[typing.Any]) -> None:
         mock_check = mock.MagicMock()
         command._checks = [mock_check]
         command._hooks = mock.Mock()
@@ -93,13 +92,13 @@ class TestPartialCommand:
         assert new_command._hooks is command._hooks.copy.return_value
         assert new_command._metadata is mock_metadata.copy.return_value
 
-    def test_set_hooks(self, command: base_command.PartialCommand[typing.Any]):
+    def test_set_hooks(self, command: base_command.PartialCommand[typing.Any]) -> None:
         mock_hooks = mock.Mock()
 
         assert command.set_hooks(mock_hooks) is command
         assert command.hooks is mock_hooks
 
-    def test_set_metadata(self, command: base_command.PartialCommand[typing.Any]):
+    def test_set_metadata(self, command: base_command.PartialCommand[typing.Any]) -> None:
         key = mock.Mock()
         value = mock.Mock()
 
@@ -108,21 +107,21 @@ class TestPartialCommand:
         assert result is command
         assert command.metadata[key] is value
 
-    def test_add_check(self, command: base_command.PartialCommand[typing.Any]):
+    def test_add_check(self, command: base_command.PartialCommand[typing.Any]) -> None:
         mock_check = mock.Mock()
 
         assert command.add_check(mock_check) is command
 
         assert command.checks == [mock_check]
 
-    def test_add_check_when_already_present(self, command: base_command.PartialCommand[typing.Any]):
+    def test_add_check_when_already_present(self, command: base_command.PartialCommand[typing.Any]) -> None:
         mock_check = mock.Mock()
 
         assert command.add_check(mock_check).add_check(mock_check) is command
 
         assert list(command.checks).count(mock_check) == 1
 
-    def test_add_check_with_multiple_checks(self, command: base_command.PartialCommand[typing.Any]):
+    def test_add_check_with_multiple_checks(self, command: base_command.PartialCommand[typing.Any]) -> None:
         mock_check_1 = mock.Mock()
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
@@ -131,7 +130,7 @@ class TestPartialCommand:
 
         assert command.checks == [mock_check_2, mock_check_3, mock_check_1]
 
-    def test_remove_check(self, command: base_command.PartialCommand[typing.Any]):
+    def test_remove_check(self, command: base_command.PartialCommand[typing.Any]) -> None:
         mock_check = mock.Mock()
         command.add_check(mock_check)
 
@@ -140,7 +139,7 @@ class TestPartialCommand:
         assert result is command
         assert command.checks == []
 
-    def test_with_check(self, command: base_command.PartialCommand[typing.Any]):
+    def test_with_check(self, command: base_command.PartialCommand[typing.Any]) -> None:
         mock_check = mock.Mock()
         add_check = mock.Mock()
         command = stub_class(base_command.PartialCommand, add_check=add_check)
@@ -148,7 +147,7 @@ class TestPartialCommand:
         assert command.with_check(mock_check) is mock_check
         add_check.assert_called_once_with(mock_check)
 
-    def test_with_check_when_already_present(self, command: base_command.PartialCommand[typing.Any]):
+    def test_with_check_when_already_present(self, command: base_command.PartialCommand[typing.Any]) -> None:
         mock_check = mock.Mock()
 
         command.add_check(mock_check).with_check(mock_check)
@@ -156,10 +155,10 @@ class TestPartialCommand:
 
         assert list(command.checks).count(mock_check) == 1
 
-    def test_bind_client(self, command: base_command.PartialCommand[typing.Any]):
+    def test_bind_client(self, command: base_command.PartialCommand[typing.Any]) -> None:
         command.bind_client(mock.Mock())
 
-    def test_bind_component(self, command: base_command.PartialCommand[typing.Any]):
+    def test_bind_component(self, command: base_command.PartialCommand[typing.Any]) -> None:
         mock_component = mock.Mock()
 
         command.bind_component(mock_component)

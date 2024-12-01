@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Tanjun Examples - A collection of examples for Tanjun.
 # Written in 2023 by Faster Speeding Lucina@lmbyrne.dev
 #
@@ -126,19 +125,19 @@ def message_command_example(bot: hikari.GatewayBotAware) -> None:
 
 
 def message_command_group_example() -> None:
-    # prefixes=["!"]
+    # . prefixes=["!"]
 
     @tanjun.as_message_command_group("groupy")
-    async def groupy_group(ctx: tanjun.abc.MessageContext): ...
+    async def groupy_group(ctx: tanjun.abc.MessageContext) -> None: ...
 
     @groupy_group.as_sub_command("sus drink")
-    async def sus_drink_command(ctx: tanjun.abc.MessageContext): ...
+    async def sus_drink_command(ctx: tanjun.abc.MessageContext) -> None: ...
 
     @groupy_group.as_sub_group("tour")
-    async def tour_group(ctx: tanjun.abc.MessageContext): ...
+    async def tour_group(ctx: tanjun.abc.MessageContext) -> None: ...
 
     @tour_group.as_sub_command("de france")
-    async def de_france_command(ctx: tanjun.abc.MessageContext): ...
+    async def de_france_command(ctx: tanjun.abc.MessageContext) -> None: ...
 
 
 def context_menu_example(component: tanjun.Component) -> None:
@@ -286,20 +285,22 @@ def using_checks_example() -> None:
     @component.with_check
     async def db_check(ctx: tanjun.abc.Context, db: alluka.Injected[Db]) -> bool:
         if (await db.get_user(ctx.author.id)).banned:
-            raise tanjun.CommandError("You are banned from using this bot")
+            error_message = "You are banned from using this bot"
+            raise tanjun.CommandError(error_message)
 
         return False
 
     @tanjun.with_owner_check(follow_wrapped=True)
     @tanjun.as_message_command("name")
     @tanjun.as_slash_command("name", "description")
-    async def owner_only_command(ctx: tanjun.abc.Context): ...
+    async def owner_only_command(ctx: tanjun.abc.Context) -> None: ...
 
 
 def custom_check_example() -> None:
     def check(ctx: tanjun.abc.Context) -> bool:
         if ctx.author.discriminator % 2:
-            raise tanjun.CommandError("You are not one of the chosen ones")
+            error_message = "You are not one of the chosen ones"
+            raise tanjun.CommandError(error_message)
 
         return True
 

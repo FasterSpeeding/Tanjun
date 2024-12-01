@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -37,10 +36,10 @@ import typing
 
 import hikari
 
-from ..dependencies import async_cache
+from tanjun.dependencies import async_cache
 
 if typing.TYPE_CHECKING:
-    from .. import abc as tanjun
+    from tanjun import abc as tanjun
 
 _ChannelCacheT = async_cache.SfCache[hikari.PermissibleGuildChannel]
 _ThreadCacheT = async_cache.SfCache[hikari.GuildThreadChannel]
@@ -77,7 +76,7 @@ async def get_perm_channel(client: tanjun.Client, channel_id: hikari.Snowflake, 
     thread_cache = client.injector.get_type_dependency(_ThreadCacheT, default=None)
     if thread_cache:  # noqa: SIM102
         # Has to be nested cause of pyright bug:
-        if thread := await thread_cache.get(channel_id, default=None):  # noqa: SIM102
+        if thread := await thread_cache.get(channel_id, default=None):
             # Has to be nested cause of pyright bug.
             if client.cache and (channel := client.cache.get_guild_channel(thread.parent_id)):
                 return channel

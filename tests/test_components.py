@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -51,17 +50,17 @@ mock_global_loader_3 = mock.Mock(tanjun.components.AbstractComponentLoader)
 
 
 class TestComponent:
-    def test_loop_property(self):
+    def test_loop_property(self) -> None:
         mock_loop = mock.Mock()
         component = tanjun.Component()
         component._loop = mock_loop
 
         assert component.loop is mock_loop
 
-    def test_name_property(self):
+    def test_name_property(self) -> None:
         assert tanjun.Component(name="aye").name == "aye"
 
-    def test_metadata_property(self):
+    def test_metadata_property(self) -> None:
         component = tanjun.Component()
 
         assert component.metadata == {}
@@ -70,17 +69,17 @@ class TestComponent:
 
         assert component.metadata == {"foo": "bar"}
 
-    def test_default_app_cmd_permissions_property(self):
+    def test_default_app_cmd_permissions_property(self) -> None:
         assert tanjun.Component().default_app_cmd_permissions is None
 
-    def test_defaults_to_ephemeral_property(self):
+    def test_defaults_to_ephemeral_property(self) -> None:
         assert tanjun.Component().defaults_to_ephemeral is None
 
-    def test_dms_enabled_for_app_cmds_property(self):
+    def test_dms_enabled_for_app_cmds_property(self) -> None:
         assert tanjun.Component().dms_enabled_for_app_cmds is None
 
     @pytest.mark.asyncio
-    async def test__add_task(self):
+    async def test__add_task(self) -> None:
         mock_task_1 = mock.Mock()
         mock_task_2 = mock.Mock()
         mock_task_3 = mock.Mock()
@@ -99,7 +98,7 @@ class TestComponent:
         assert component._tasks == [mock_task_1, mock_task_2, mock_task_3]
 
     @pytest.mark.asyncio
-    async def test__add_task_when_empty(self):
+    async def test__add_task_when_empty(self) -> None:
         mock_task = asyncio.create_task(asyncio.sleep(50))
         component = tanjun.Component()
 
@@ -114,7 +113,7 @@ class TestComponent:
         assert component._tasks == []
 
     @pytest.mark.asyncio
-    async def test__add_task_when_task_already_done(self):
+    async def test__add_task_when_task_already_done(self) -> None:
         mock_task = asyncio.create_task(asyncio.sleep(50))
         mock_task.cancel()
         # This is done to allow any finished tasks to be removed.
@@ -126,9 +125,9 @@ class TestComponent:
         assert component._tasks == []
 
     @pytest.mark.skip(reason="TODO")
-    def test_copy(self): ...
+    def test_copy(self) -> None: ...
 
-    def test_load_from_scope(self):
+    def test_load_from_scope(self) -> None:
         # Some of the variables in this test have a type: ignore and noqa on them,
         # this is to silence warnings about these variables being "unused" which
         # we ignore in this case as we're testing that detect_command can deal with
@@ -149,7 +148,7 @@ class TestComponent:
         mock_loader_2.load_into_component.assert_called_once_with(component)
         mock_loader_3.load_into_component.assert_called_once_with(component)
 
-    def test_load_from_scope_when_including_globals(self):
+    def test_load_from_scope_when_including_globals(self) -> None:
         # Some of the variables in this test have a type: ignore and noqa on them,
         # this is to silence warnings about these variables being "unused" which
         # we ignore in this case as we're testing that detect_command can deal with
@@ -177,7 +176,7 @@ class TestComponent:
         mock_global_loader_2.reset_mock()
         mock_global_loader_3.reset_mock()
 
-    def test_load_from_scope_with_explicitly_passed_scope(self):
+    def test_load_from_scope_with_explicitly_passed_scope(self) -> None:
         mock_un_used_loader = mock.Mock(tanjun.components.AbstractComponentLoader)
         mock_loader_1 = mock.Mock(tanjun.components.AbstractComponentLoader)
         mock_loader_2 = mock.Mock(tanjun.components.AbstractComponentLoader)
@@ -203,12 +202,12 @@ class TestComponent:
         mock_loader_2.load_into_component.assert_called_once_with(component)
         mock_loader_3.load_into_component.assert_called_once_with(component)
 
-    def test_load_from_scope_when_both_include_globals_and_passed_scope(self):
+    def test_load_from_scope_when_both_include_globals_and_passed_scope(self) -> None:
         component = tanjun.Component()
         with pytest.raises(ValueError, match="Cannot specify include_globals as True when scope is passed"):
             component.load_from_scope(include_globals=True, scope={})  # type: ignore
 
-    def test_load_from_scope_when_stack_inspection_not_supported(self):
+    def test_load_from_scope_when_stack_inspection_not_supported(self) -> None:
         component = tanjun.Component()
 
         with (
@@ -220,22 +219,22 @@ class TestComponent:
         ):
             component.load_from_scope()
 
-    def test_set_default_app_command_permissions(self):
+    def test_set_default_app_command_permissions(self) -> None:
         component = tanjun.Component().set_default_app_command_permissions(3123)
 
         assert component.default_app_cmd_permissions == hikari.Permissions(3123)
 
-    def test_set_dms_enabled_for_app_cmds(self):
+    def test_set_dms_enabled_for_app_cmds(self) -> None:
         component = tanjun.Component().set_dms_enabled_for_app_cmds(False)
 
         assert component.dms_enabled_for_app_cmds is False
 
-    def test_set_ephemeral_default(self):
+    def test_set_ephemeral_default(self) -> None:
         client = tanjun.Component().set_ephemeral_default(False)
 
         assert client.defaults_to_ephemeral is False
 
-    def test_set_metadata(self):
+    def test_set_metadata(self) -> None:
         component = tanjun.Component()
         key = mock.Mock()
         value = mock.Mock()
@@ -245,7 +244,7 @@ class TestComponent:
         assert result is component
         assert component.metadata[key] is value
 
-    def test_set_hooks(self):
+    def test_set_hooks(self) -> None:
         mock_hooks = mock.Mock()
         component = tanjun.Component()
 
@@ -254,7 +253,7 @@ class TestComponent:
         assert result is component
         assert component.hooks is mock_hooks
 
-    def test_set_hooks_when_none(self):
+    def test_set_hooks_when_none(self) -> None:
         component = tanjun.Component().set_hooks(mock.Mock())
 
         result = component.set_hooks(None)
@@ -262,7 +261,7 @@ class TestComponent:
         assert result is component
         assert component.hooks is None
 
-    def test_set_menu_hooks(self):
+    def test_set_menu_hooks(self) -> None:
         mock_hooks = mock.Mock()
         component = tanjun.Component()
 
@@ -271,7 +270,7 @@ class TestComponent:
         assert result is component
         assert component.menu_hooks is mock_hooks
 
-    def test_set_menu_hooks_when_none(self):
+    def test_set_menu_hooks_when_none(self) -> None:
         component = tanjun.Component().set_menu_hooks(mock.Mock())
 
         result = component.set_menu_hooks(None)
@@ -279,7 +278,7 @@ class TestComponent:
         assert result is component
         assert component.menu_hooks is None
 
-    def test_set_message_hooks(self):
+    def test_set_message_hooks(self) -> None:
         mock_hooks = mock.Mock()
         component = tanjun.Component()
 
@@ -288,7 +287,7 @@ class TestComponent:
         assert result is component
         assert component.message_hooks is mock_hooks
 
-    def test_set_message_hooks_when_none(self):
+    def test_set_message_hooks_when_none(self) -> None:
         component = tanjun.Component().set_message_hooks(mock.Mock())
 
         result = component.set_message_hooks(None)
@@ -296,7 +295,7 @@ class TestComponent:
         assert result is component
         assert component.message_hooks is None
 
-    def test_set_slash_hooks(self):
+    def test_set_slash_hooks(self) -> None:
         mock_hooks = mock.Mock()
         component = tanjun.Component()
 
@@ -305,7 +304,7 @@ class TestComponent:
         assert result is component
         assert component.slash_hooks is mock_hooks
 
-    def test_set_slash_hooks_when_none(self):
+    def test_set_slash_hooks_when_none(self) -> None:
         component = tanjun.Component().set_slash_hooks(mock.Mock())
 
         result = component.set_slash_hooks(None)
@@ -313,7 +312,7 @@ class TestComponent:
         assert result is component
         assert component.slash_hooks is None
 
-    def test_add_check(self):
+    def test_add_check(self) -> None:
         mock_check = mock.Mock()
         component = tanjun.Component()
 
@@ -321,7 +320,7 @@ class TestComponent:
 
         assert result is component
 
-    def test_add_check_when_already_present(self):
+    def test_add_check_when_already_present(self) -> None:
         mock_check = mock.Mock()
         component = tanjun.Component().add_check(mock_check)
 
@@ -330,7 +329,7 @@ class TestComponent:
         assert list(component.checks).count(mock_check) == 1
         assert result is component
 
-    def test_add_check_with_multiple_checks(self):
+    def test_add_check_with_multiple_checks(self) -> None:
         mock_check_1 = mock.Mock()
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
@@ -340,7 +339,7 @@ class TestComponent:
 
         assert component.checks == [mock_check_2, mock_check_3, mock_check_1]
 
-    def test_remove_check(self):
+    def test_remove_check(self) -> None:
         component = tanjun.Component().add_check(mock.Mock())
 
         result = component.remove_check(next(iter(component.checks)))
@@ -348,11 +347,11 @@ class TestComponent:
         assert result is component
         assert not component.checks
 
-    def test_remove_check_when_not_present(self):
+    def test_remove_check_when_not_present(self) -> None:
         with pytest.raises(ValueError, match=".+"):
             tanjun.Component().remove_check(mock.Mock())
 
-    def test_with_check(self):
+    def test_with_check(self) -> None:
         add_check = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_check": add_check})
@@ -364,7 +363,7 @@ class TestComponent:
         assert result is mock_check
         add_check.assert_called_once_with(mock_check)
 
-    def test_add_client_callback(self):
+    def test_add_client_callback(self) -> None:
         mock_callback = mock.Mock()
         mock_other_callback = mock.Mock()
         component = tanjun.Component()
@@ -374,7 +373,7 @@ class TestComponent:
         assert result is component
         assert component.get_client_callbacks("aye") == [mock_callback, mock_other_callback]
 
-    def test_add_client_callback_when_already_present(self):
+    def test_add_client_callback_when_already_present(self) -> None:
         mock_callback = mock.Mock()
         component = tanjun.Component().add_client_callback("baaa", mock_callback)
 
@@ -383,7 +382,7 @@ class TestComponent:
         assert result is component
         assert list(component.get_client_callbacks("baaa")).count(mock_callback) == 1
 
-    def test_add_client_callback_when_client_bound(self):
+    def test_add_client_callback_when_client_bound(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         component = tanjun.Component().bind_client(mock_client)
@@ -394,7 +393,7 @@ class TestComponent:
         assert component.get_client_callbacks("aye") == [mock_callback]
         mock_client.add_client_callback.assert_called_once_with("aye", mock_callback)
 
-    def test_add_client_callback_for_multiple_callbacks(self):
+    def test_add_client_callback_for_multiple_callbacks(self) -> None:
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
         mock_callback_3 = mock.Mock()
@@ -410,7 +409,7 @@ class TestComponent:
             [mock.call("aye", mock_callback_3), mock.call("aye", mock_callback_1)]
         )
 
-    def test_remove_client_callback(self):
+    def test_remove_client_callback(self) -> None:
         mock_callback = mock.Mock()
         mock_other_callback = mock.Mock()
         component = (
@@ -423,7 +422,7 @@ class TestComponent:
 
         assert component.get_client_callbacks("baye") == [mock_other_callback]
 
-    def test_remove_client_callback_when_name_not_found(self):
+    def test_remove_client_callback_when_name_not_found(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
 
@@ -432,7 +431,7 @@ class TestComponent:
 
         mock_client.remove_client_callback.assert_not_called()
 
-    def test_remove_client_callback_when_callback_not_found(self):
+    def test_remove_client_callback_when_callback_not_found(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         mock_other_callback = mock.Mock()
@@ -444,7 +443,7 @@ class TestComponent:
         mock_client.remove_client_callback.assert_not_called()
         assert component.get_client_callbacks("sex") == [mock_other_callback]
 
-    def test_remove_client_callback_when_client_bound(self):
+    def test_remove_client_callback_when_client_bound(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         component = tanjun.Component().add_client_callback("bay", mock_callback).bind_client(mock_client)
@@ -454,7 +453,7 @@ class TestComponent:
         assert component.get_client_callbacks("bay") == ()
         mock_client.remove_client_callback.assert_called_once_with("bay", mock_callback)
 
-    def test_remove_client_callback_when_no_callbacks_left(self):
+    def test_remove_client_callback_when_no_callbacks_left(self) -> None:
         mock_callback = mock.Mock()
         component = tanjun.Component().add_client_callback("slay", mock_callback)
 
@@ -462,7 +461,7 @@ class TestComponent:
 
         assert component.get_client_callbacks("slay") == ()
 
-    def test_with_client_callback(self):
+    def test_with_client_callback(self) -> None:
         add_client_callback = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent",
@@ -476,7 +475,7 @@ class TestComponent:
         assert result is mock_callback
         add_client_callback.assert_called_once_with("aye", mock_callback)
 
-    def test_add_command_for_menu_command(self):
+    def test_add_command_for_menu_command(self) -> None:
         mock_command = mock.Mock(tanjun.abc.MenuCommand)
         add_menu_command = mock.Mock()
         add_message_command = mock.Mock()
@@ -500,7 +499,7 @@ class TestComponent:
         add_message_command.assert_not_called()
         add_slash_command.assert_not_called()
 
-    def test_add_command_for_message_command(self):
+    def test_add_command_for_message_command(self) -> None:
         mock_command = mock.Mock(tanjun.abc.MessageCommand)
         add_menu_command = mock.Mock()
         add_message_command = mock.Mock()
@@ -524,7 +523,7 @@ class TestComponent:
         add_message_command.assert_called_once_with(mock_command)
         add_slash_command.assert_not_called()
 
-    def test_add_command_for_slash_command(self):
+    def test_add_command_for_slash_command(self) -> None:
         mock_command = mock.Mock(tanjun.abc.SlashCommand)
         add_menu_command = mock.Mock()
         add_message_command = mock.Mock()
@@ -548,7 +547,7 @@ class TestComponent:
         add_message_command.assert_not_called()
         add_slash_command.assert_called_once_with(mock_command)
 
-    def test_add_command_for_unknown_type(self):
+    def test_add_command_for_unknown_type(self) -> None:
         mock_command = mock.Mock()
         add_menu_command = mock.Mock()
         add_message_command = mock.Mock()
@@ -578,7 +577,7 @@ class TestComponent:
         add_message_command.assert_not_called()
         add_slash_command.assert_not_called()
 
-    def test_remove_command_for_menu_command(self):
+    def test_remove_command_for_menu_command(self) -> None:
         mock_command = mock.Mock(tanjun.abc.MenuCommand)
         remove_menu_command = mock.Mock()
         remove_message_command = mock.Mock()
@@ -602,7 +601,7 @@ class TestComponent:
         remove_message_command.assert_not_called()
         remove_slash_command.assert_not_called()
 
-    def test_remove_command_for_message_command(self):
+    def test_remove_command_for_message_command(self) -> None:
         mock_command = mock.Mock(tanjun.abc.MessageCommand)
         remove_menu_command = mock.Mock()
         remove_message_command = mock.Mock()
@@ -626,7 +625,7 @@ class TestComponent:
         remove_message_command.assert_called_once_with(mock_command)
         remove_slash_command.assert_not_called()
 
-    def test_remove_command_for_slash_command(self):
+    def test_remove_command_for_slash_command(self) -> None:
         mock_command = mock.Mock(tanjun.abc.SlashCommand)
         remove_menu_command = mock.Mock()
         remove_message_command = mock.Mock()
@@ -650,7 +649,7 @@ class TestComponent:
         remove_message_command.assert_not_called()
         remove_slash_command.assert_called_once_with(mock_command)
 
-    def test_remove_command_for_unknown_type(self):
+    def test_remove_command_for_unknown_type(self) -> None:
         mock_command = mock.Mock()
         remove_menu_command = mock.Mock()
         remove_message_command = mock.Mock()
@@ -677,7 +676,7 @@ class TestComponent:
         remove_message_command.assert_not_called()
         remove_slash_command.assert_not_called()
 
-    def test_with_command(self):
+    def test_with_command(self) -> None:
         add_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
@@ -691,7 +690,7 @@ class TestComponent:
         mock_command.copy.assert_not_called()
         mock_command.wrapped_command.copy.assert_not_called()
 
-    def test_with_command_when_follow_wrapped(self):
+    def test_with_command_when_follow_wrapped(self) -> None:
         add_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
@@ -704,7 +703,7 @@ class TestComponent:
         add_command.assert_called_once_with(mock_command)
         mock_command.copy.assert_not_called()
 
-    def test_with_command_when_wrapping_and_follow_wrapped(self):
+    def test_with_command_when_wrapping_and_follow_wrapped(self) -> None:
         add_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
@@ -730,7 +729,7 @@ class TestComponent:
         mock_command.wrapped_command.copy.assert_not_called()
         mock_command.wrapped_command.wrapped_command.copy.assert_not_called()
 
-    def test_with_command_when_copy(self):
+    def test_with_command_when_copy(self) -> None:
         add_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
@@ -743,7 +742,7 @@ class TestComponent:
         add_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
-    def test_with_command_when_wrapping_and_follow_wrapped_and_copy(self):
+    def test_with_command_when_wrapping_and_follow_wrapped_and_copy(self) -> None:
         add_command = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_command": add_command})
@@ -760,7 +759,7 @@ class TestComponent:
         mock_command.copy.assert_called_once_with()
         mock_command.wrapped_command.copy.assert_called_once_with()
 
-    def test_add_menu_command(self):
+    def test_add_menu_command(self) -> None:
         mock_command = mock.Mock(type=hikari.CommandType.USER)
         mock_command.name = "Ok"
         mock_other_command = mock.Mock(type=hikari.CommandType.MESSAGE)
@@ -779,7 +778,7 @@ class TestComponent:
 
         assert list(result.menu_commands) == [mock_command, mock_other_command, mock_3rd_command]
 
-    def test_add_menu_command_when_bound_to_a_client(self):
+    def test_add_menu_command_when_bound_to_a_client(self) -> None:
         mock_command = mock.Mock()
         mock_command.name = "gay"
         mock_client = mock.Mock()
@@ -792,7 +791,7 @@ class TestComponent:
         mock_command.bind_component.assert_called_once_with(component)
         mock_command.bind_client.assert_called_once_with(mock_client)
 
-    def test_remove_menu_command(self):
+    def test_remove_menu_command(self) -> None:
         mock_command = mock.Mock(type=hikari.CommandType.USER)
         mock_command.name = "42231"
         mock_other_command = mock.Mock(type=hikari.CommandType.MESSAGE)
@@ -805,14 +804,14 @@ class TestComponent:
         assert mock_command not in component.menu_commands
         assert mock_other_command in component.menu_commands
 
-    def test_remove_menu_command_when_not_found(self):
+    def test_remove_menu_command_when_not_found(self) -> None:
         mock_command = mock.Mock()
         mock_command.name = "42231"
 
         with pytest.raises(ValueError, match=".+"):
             tanjun.Component().remove_menu_command(mock_command)
 
-    def test_with_menu_command(self):
+    def test_with_menu_command(self) -> None:
         mock_command = mock.Mock()
         add_menu_command = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -825,7 +824,7 @@ class TestComponent:
         add_menu_command.assert_called_once_with(mock_command)
         mock_command.copy.assert_not_called()
 
-    def test_with_menu_command_when_copy(self):
+    def test_with_menu_command_when_copy(self) -> None:
         mock_command = mock.Mock()
         add_menu_command = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -838,7 +837,7 @@ class TestComponent:
         add_menu_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
-    def test_add_slash_command(self):
+    def test_add_slash_command(self) -> None:
         mock_command = mock.Mock()
         mock_command.name = "gay"
         component = tanjun.Component()
@@ -850,7 +849,7 @@ class TestComponent:
         mock_command.bind_component.assert_called_once_with(component)
         mock_command.bind_client.assert_not_called()
 
-    def test_add_slash_command_when_already_present(self):
+    def test_add_slash_command_when_already_present(self) -> None:
         mock_command = mock.Mock()
         mock_command.name = "gay"
         component = tanjun.Component().add_slash_command(mock_command)
@@ -863,7 +862,7 @@ class TestComponent:
         mock_command.bind_component.assert_not_called()
         mock_command.bind_client.assert_not_called()
 
-    def test_add_slash_command_when_bound_to_a_client(self):
+    def test_add_slash_command_when_bound_to_a_client(self) -> None:
         mock_command = mock.Mock()
         mock_command.name = "gay"
         mock_client = mock.Mock()
@@ -876,7 +875,7 @@ class TestComponent:
         mock_command.bind_component.assert_called_once_with(component)
         mock_command.bind_client.assert_called_once_with(mock_client)
 
-    def test_remove_slash_command(self):
+    def test_remove_slash_command(self) -> None:
         mock_command = mock.Mock()
         mock_command.name = "42231"
         component = tanjun.Component().add_slash_command(mock_command)
@@ -886,14 +885,14 @@ class TestComponent:
         assert result is component
         assert not component.slash_commands
 
-    def test_remove_slash_command_when_not_found(self):
+    def test_remove_slash_command_when_not_found(self) -> None:
         mock_command = mock.Mock()
         mock_command.name = "42231"
 
         with pytest.raises(ValueError, match=".+"):
             tanjun.Component().remove_slash_command(mock_command)
 
-    def test_with_slash_command(self):
+    def test_with_slash_command(self) -> None:
         mock_command = mock.Mock()
         add_slash_command = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -908,7 +907,7 @@ class TestComponent:
         add_slash_command.assert_called_once_with(mock_command)
         mock_command.copy.assert_not_called()
 
-    def test_with_slash_command_when_copy(self):
+    def test_with_slash_command_when_copy(self) -> None:
         mock_command = mock.Mock()
         add_slash_command = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -923,7 +922,7 @@ class TestComponent:
         add_slash_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
-    def test_add_message_command(self):
+    def test_add_message_command(self) -> None:
         component = tanjun.Component(strict=True)
         mock_command = mock.Mock(names=("a", "b"))
 
@@ -934,7 +933,7 @@ class TestComponent:
         mock_command.bind_client.assert_not_called()
         mock_command.bind_component.assert_called_once_with(component)
 
-    def test_add_message_command_when_already_registered(self):
+    def test_add_message_command_when_already_registered(self) -> None:
         mock_command = mock.Mock(names=("a", "b"))
         component = tanjun.Component(strict=True).add_message_command(mock_command)
         mock_command.reset_mock()
@@ -946,7 +945,7 @@ class TestComponent:
         mock_command.bind_component.assert_not_called()
         assert list(component.message_commands).count(mock_command) == 1
 
-    def test_add_message_command_when_already_client_bound(self):
+    def test_add_message_command_when_already_client_bound(self) -> None:
         mock_client = mock.Mock()
         component = tanjun.Component(strict=True).bind_client(mock_client)
         mock_command = mock.Mock(names=("a", "b"))
@@ -958,7 +957,7 @@ class TestComponent:
         mock_command.bind_client.assert_called_once_with(mock_client)
         mock_command.bind_component.assert_called_once_with(component)
 
-    def test_add_message_command_when_strict(self):
+    def test_add_message_command_when_strict(self) -> None:
         mock_client = mock.Mock()
         component = tanjun.Component(strict=True).bind_client(mock_client)
         mock_command = mock.Mock(names=("a", "B", "fAn"))
@@ -976,7 +975,7 @@ class TestComponent:
         }
         assert component._message_commands.commands == [mock_command]
 
-    def test_add_message_command_when_strict_and_space_in_a_name(self):
+    def test_add_message_command_when_strict_and_space_in_a_name(self) -> None:
         component = tanjun.Component(strict=True)
         mock_command = mock.Mock(names=("a b",))
 
@@ -986,7 +985,7 @@ class TestComponent:
         mock_command.bind_client.assert_not_called()
         mock_command.bind_component.assert_not_called()
 
-    def test_add_message_command_when_strict_and_conflict_found(self):
+    def test_add_message_command_when_strict_and_conflict_found(self) -> None:
         component = tanjun.Component(strict=True).add_message_command(mock.Mock(names=("a", "bb")))
         mock_command = mock.Mock(names=("a", "bb", "cccc", "dd"))
 
@@ -1002,7 +1001,7 @@ class TestComponent:
         mock_command.bind_client.assert_not_called()
         mock_command.bind_component.assert_not_called()
 
-    def test_remove_message_command(self):
+    def test_remove_message_command(self) -> None:
         mock_command = mock.Mock(names=["a"])
         component = tanjun.Component().add_message_command(mock_command)
 
@@ -1011,13 +1010,13 @@ class TestComponent:
         assert result is component
         assert not component.message_commands
 
-    def test_remove_message_command_when_not_found(self):
+    def test_remove_message_command_when_not_found(self) -> None:
         mock_command = mock.Mock(names=["a"])
 
         with pytest.raises(ValueError, match=".+"):
             tanjun.Component().remove_message_command(mock_command)
 
-    def test_remove_message_command_when_strict(self):
+    def test_remove_message_command_when_strict(self) -> None:
         mock_command = mock.Mock(names=("a", "b", "f"))
         mock_other_command = mock.Mock(names=("meow", "NyAa"))
         component = (
@@ -1033,7 +1032,7 @@ class TestComponent:
         }
         assert component._message_commands.commands == [mock_other_command]
 
-    def test_with_message_command(self):
+    def test_with_message_command(self) -> None:
         mock_command = mock.Mock()
         add_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1047,7 +1046,7 @@ class TestComponent:
         assert result is mock_command
         add_message_command.assert_called_once_with(mock_command)
 
-    def test_with_message_command_when_copy(self):
+    def test_with_message_command_when_copy(self) -> None:
         mock_command = mock.Mock()
         add_message_command = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1062,7 +1061,7 @@ class TestComponent:
         add_message_command.assert_called_once_with(mock_command.copy.return_value)
         mock_command.copy.assert_called_once_with()
 
-    def test_add_listener(self):
+    def test_add_listener(self) -> None:
         mock_listener = mock.Mock()
         component = tanjun.Component()
 
@@ -1071,7 +1070,7 @@ class TestComponent:
         assert result is component
         assert mock_listener in component.listeners[hikari.MessageCreateEvent]
 
-    def test_add_listener_when_other_listener_present(self):
+    def test_add_listener_when_other_listener_present(self) -> None:
         mock_listener = mock.Mock()
         mock_other_listener = mock.Mock()
         component = tanjun.Component().add_listener(hikari.MessageCreateEvent, mock_other_listener)
@@ -1082,7 +1081,7 @@ class TestComponent:
         assert mock_listener in component.listeners[hikari.MessageCreateEvent]
         assert mock_other_listener in component.listeners[hikari.MessageCreateEvent]
 
-    def test_add_listener_when_client_bound(self):
+    def test_add_listener_when_client_bound(self) -> None:
         mock_listener = mock.Mock()
         mock_client = mock.Mock()
         component = tanjun.Component().bind_client(mock_client)
@@ -1093,7 +1092,7 @@ class TestComponent:
         assert mock_listener in component.listeners[hikari.MessageCreateEvent]
         mock_client.add_listener.assert_called_once_with(hikari.MessageCreateEvent, mock_listener)
 
-    def test_add_listener_when_already_present(self):
+    def test_add_listener_when_already_present(self) -> None:
         mock_listener = mock.Mock()
         mock_client = mock.Mock()
         component = tanjun.Component().bind_client(mock_client).add_listener(hikari.MessageCreateEvent, mock_listener)
@@ -1105,7 +1104,7 @@ class TestComponent:
         assert list(component.listeners[hikari.MessageCreateEvent]).count(mock_listener) == 1
         mock_client.add_listener.assert_not_called()
 
-    def test_add_listener_for_multiple_listeners(self):
+    def test_add_listener_for_multiple_listeners(self) -> None:
         mock_listener_1 = mock.Mock()
         mock_listener_2 = mock.Mock()
         mock_listener_3 = mock.Mock()
@@ -1121,7 +1120,7 @@ class TestComponent:
             [mock.call(hikari.GuildEvent, mock_listener_1), mock.call(hikari.GuildEvent, mock_listener_3)]
         )
 
-    def test_remove_listener(self):
+    def test_remove_listener(self) -> None:
         mock_callback = mock.Mock()
         component = (
             tanjun.Component()
@@ -1134,14 +1133,14 @@ class TestComponent:
         assert result is component
         assert mock_callback not in component.listeners[hikari.MessageDeleteEvent]
 
-    def test_remove_listener_when_last_listener_for_event_type(self):
+    def test_remove_listener_when_last_listener_for_event_type(self) -> None:
         mock_callback = mock.Mock()
         component = tanjun.Component().add_listener(hikari.GuildEvent, mock_callback)
 
         component.remove_listener(hikari.GuildEvent, mock_callback)
         assert hikari.GuildEvent not in component.listeners
 
-    def test_remove_listener_when_client_bound(self):
+    def test_remove_listener_when_client_bound(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         component = (
@@ -1156,7 +1155,7 @@ class TestComponent:
         assert mock_callback not in component.listeners[hikari.MessageDeleteEvent]
         mock_client.remove_listener.assert_called_once_with(hikari.MessageDeleteEvent, mock_callback)
 
-    def test_remove_listener_when_event_type_not_found(self):
+    def test_remove_listener_when_event_type_not_found(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         component = tanjun.Component().bind_client(mock_client)
@@ -1166,7 +1165,7 @@ class TestComponent:
 
         mock_client.remove_listener.assert_not_called()
 
-    def test_remove_listener_when_listener_not_found(self):
+    def test_remove_listener_when_listener_not_found(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         component = tanjun.Component().bind_client(mock_client).add_listener(hikari.MessageDeleteEvent, mock.Mock())
@@ -1176,7 +1175,7 @@ class TestComponent:
 
         mock_client.remove_listener.assert_not_called()
 
-    def test_with_listener(self):
+    def test_with_listener(self) -> None:
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
@@ -1188,8 +1187,8 @@ class TestComponent:
         assert result is mock_listener
         add_listener.assert_called_once_with(hikari.Event, mock_listener)
 
-    def test_with_listener_no_provided_event(self):
-        async def callback(foo) -> None:  # type: ignore
+    def test_with_listener_no_provided_event(self) -> None:
+        async def callback(foo) -> None:  # type: ignore  # noqa: ANN001
             ...
 
         add_listener = mock.Mock()
@@ -1202,7 +1201,7 @@ class TestComponent:
 
         add_listener.assert_not_called()
 
-    def test_with_listener_no_provided_event_callback_has_no_signature(self):
+    def test_with_listener_no_provided_event_callback_has_no_signature(self) -> None:
         with pytest.raises(ValueError, match=".+"):
             inspect.Signature.from_callable(int)
 
@@ -1216,7 +1215,7 @@ class TestComponent:
 
         add_listener.assert_not_called()
 
-    def test_with_listener_missing_positional_event_arg(self):
+    def test_with_listener_missing_positional_event_arg(self) -> None:
         async def callback(*, event: hikari.Event, **kwargs: str) -> None: ...
 
         add_listener = mock.Mock()
@@ -1229,7 +1228,7 @@ class TestComponent:
 
         add_listener.assert_not_called()
 
-    def test_with_listener_no_args(self):
+    def test_with_listener_no_args(self) -> None:
         async def callback() -> None: ...
 
         add_listener = mock.Mock()
@@ -1242,7 +1241,7 @@ class TestComponent:
 
         add_listener.assert_not_called()
 
-    def test_with_listener_with_multiple_events(self):
+    def test_with_listener_with_multiple_events(self) -> None:
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_listener": add_listener})
@@ -1262,7 +1261,7 @@ class TestComponent:
             ]
         )
 
-    def test_with_listener_with_type_hint(self):
+    def test_with_listener_with_type_hint(self) -> None:
         async def callback(event: hikari.BanCreateEvent) -> None: ...
 
         add_listener = mock.Mock()
@@ -1275,7 +1274,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_called_once_with(hikari.BanCreateEvent, callback)
 
-    def test_with_listener_with_type_hint_in_annotated(self):
+    def test_with_listener_with_type_hint_in_annotated(self) -> None:
         async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None: ...
 
         add_listener = mock.Mock()
@@ -1288,7 +1287,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_called_once_with(hikari.BanCreateEvent, callback)
 
-    def test_with_listener_with_positional_only_type_hint(self):
+    def test_with_listener_with_positional_only_type_hint(self) -> None:
         async def callback(event: hikari.BanDeleteEvent, /) -> None: ...
 
         add_listener = mock.Mock()
@@ -1301,7 +1300,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_called_once_with(hikari.BanDeleteEvent, callback)
 
-    def test_with_listener_with_var_positional_type_hint(self):
+    def test_with_listener_with_var_positional_type_hint(self) -> None:
         async def callback(*event: hikari.BanEvent) -> None: ...
 
         add_listener = mock.Mock()
@@ -1314,9 +1313,9 @@ class TestComponent:
         assert result is callback
         add_listener.assert_called_once_with(hikari.BanEvent, callback)
 
-    def test_with_listener_with_type_hint_typing_union(self):
+    def test_with_listener_with_type_hint_typing_union(self) -> None:
         async def callback(
-            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]
+            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]  # noqa: PYI051
         ) -> None: ...
 
         add_listener = mock.Mock()
@@ -1329,7 +1328,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_has_calls([mock.call(hikari.RoleEvent, callback), mock.call(hikari.GuildEvent, callback)])
 
-    def test_with_listener_with_type_hint_typing_union_nested_annotated(self):
+    def test_with_listener_with_type_hint_typing_union_nested_annotated(self) -> None:
         async def callback(
             event: typing.Annotated[
                 typing.Union[
@@ -1357,8 +1356,10 @@ class TestComponent:
             ]
         )
 
-    def test_with_listener_with_type_hint_310_union(self):
-        async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
+    def test_with_listener_with_type_hint_310_union(self) -> None:
+        async def callback(
+            event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str,  # noqa: PYI051
+        ) -> None: ...
 
         add_listener = mock.Mock()
         component: tanjun.Component = types.new_class(
@@ -1370,7 +1371,7 @@ class TestComponent:
         assert result is callback
         add_listener.assert_has_calls([mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)])
 
-    def test_with_listener_with_type_hint_310_union_nested_annotated(self):
+    def test_with_listener_with_type_hint_310_union_nested_annotated(self) -> None:
         async def callback(
             event: typing.Annotated[
                 typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
@@ -1393,7 +1394,7 @@ class TestComponent:
             ]
         )
 
-    def test_add_on_close(self):
+    def test_add_on_close(self) -> None:
         mock_callback = mock.Mock()
         component = tanjun.Component()
 
@@ -1402,7 +1403,7 @@ class TestComponent:
         assert result is component
         assert list(component._on_close) == [mock_callback]
 
-    def test_add_on_close_for_multiple_callbacks(self):
+    def test_add_on_close_for_multiple_callbacks(self) -> None:
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
         mock_callback_3 = mock.Mock()
@@ -1413,7 +1414,7 @@ class TestComponent:
         assert result is component
         assert list(component._on_close) == [mock_callback_2, mock_callback_3, mock_callback_1]
 
-    def test_with_on_close(self):
+    def test_with_on_close(self) -> None:
         mock_add_on_close = mock.Mock()
         mock_callback = mock.Mock()
 
@@ -1427,7 +1428,7 @@ class TestComponent:
         assert result is mock_callback
         mock_add_on_close.assert_called_once_with(mock_callback)
 
-    def test_add_on_open(self):
+    def test_add_on_open(self) -> None:
         mock_callback = mock.Mock()
         component = tanjun.Component()
 
@@ -1436,7 +1437,7 @@ class TestComponent:
         assert result is component
         assert list(component._on_open) == [mock_callback]
 
-    def test_add_on_open_for_multiple_callbacks(self):
+    def test_add_on_open_for_multiple_callbacks(self) -> None:
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
         mock_callback_3 = mock.Mock()
@@ -1447,7 +1448,7 @@ class TestComponent:
         assert result is component
         assert list(component._on_open) == [mock_callback_3, mock_callback_2, mock_callback_1]
 
-    def test_with_on_open(self):
+    def test_with_on_open(self) -> None:
         mock_add_on_open = mock.Mock()
         mock_callback = mock.Mock()
 
@@ -1461,7 +1462,7 @@ class TestComponent:
         assert result is mock_callback
         mock_add_on_open.assert_called_once_with(mock_callback)
 
-    def test_bind_client(self):
+    def test_bind_client(self) -> None:
         mock_client = mock.Mock()
         mock_message_command = mock.Mock(names=["hi"])
         mock_other_message_command = mock.Mock(names="meow")
@@ -1498,7 +1499,7 @@ class TestComponent:
             [mock.call("a", mock_callback), mock.call("b", mock_other_callback)]
         )
 
-    def test_bind_client_when_already_bound(self):
+    def test_bind_client_when_already_bound(self) -> None:
         mock_client = mock.Mock()
         mock_message_command = mock.Mock(names=["echo"])
         mock_slash_command = mock.Mock()
@@ -1520,7 +1521,7 @@ class TestComponent:
         mock_client.add_listener.assert_not_called()
         mock_client.assert_not_called()
 
-    def test_unbind_client(self):
+    def test_unbind_client(self) -> None:
         mock_client = mock.Mock(
             remove_listener=mock.Mock(side_effect=[None, ValueError, LookupError]),
             remove_client_callback=mock.Mock(side_effect=[None, ValueError, LookupError]),
@@ -1560,7 +1561,7 @@ class TestComponent:
             ]
         )
 
-    def test_unbind_client_when_not_bound(self):
+    def test_unbind_client_when_not_bound(self) -> None:
         mock_client = mock.Mock()
         component = (
             tanjun.Component().add_listener(hikari.VoiceEvent, mock.Mock()).add_client_callback("32123", mock.Mock())
@@ -1573,7 +1574,7 @@ class TestComponent:
         mock_client.remove_listener.assert_not_called()
         mock_client.remove_client_callback.assert_not_called()
 
-    def test_unbind_client_when_bound_to_different_client(self):
+    def test_unbind_client_when_bound_to_different_client(self) -> None:
         mock_client = mock.Mock()
         mock_other_client = mock.Mock()
         component = (
@@ -1593,41 +1594,41 @@ class TestComponent:
         mock_other_client.remove_client_callback.assert_not_called()
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_message_name(self): ...
+    def test_check_message_name(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_message_name_when_not_found(self): ...
+    def test_check_message_name_when_not_found(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_message_name_when_strict(self): ...
+    def test_check_message_name_when_strict(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_message_name_when_strict_and_not_found(self): ...
+    def test_check_message_name_when_strict_and_not_found(self) -> None: ...
 
-    def test_check_slash_name(self):
+    def test_check_slash_name(self) -> None:
         mock_command = mock.Mock()
         mock_command.name = "test"
         assert list(tanjun.Component().add_slash_command(mock_command).check_slash_name("test")) == [mock_command]
 
-    def test_check_slash_name_when_not_found(self):
+    def test_check_slash_name_when_not_found(self) -> None:
         assert list(tanjun.Component().add_slash_command(mock.Mock()).check_slash_name("a")) == []
 
     @pytest.mark.skip(reason="TODO")
-    def test_execute_autocomplete(self): ...  # includes _execute_interaction, and _check_context
+    def test_execute_autocomplete(self) -> None: ...  # includes _execute_interaction, and _check_context
 
     @pytest.mark.skip(reason="TODO")
-    def test_execute_menu(self): ...  # includes _execute_interaction, and _check_context
+    def test_execute_menu(self) -> None: ...  # includes _execute_interaction, and _check_context
 
     @pytest.mark.skip(reason="TODO")
-    def test_execute_message(self): ...  # Includes _check_message_context and _check_context
+    def test_execute_message(self) -> None: ...  # Includes _check_message_context and _check_context
 
     @pytest.mark.skip(reason="TODO")
-    def test_execute_slash(self): ...  # includes _execute_interaction, and _check_context
+    def test_execute_slash(self) -> None: ...  # includes _execute_interaction, and _check_context
 
     @pytest.mark.skip(reason="TODO")
-    def test__load_from_properties(self): ...  # Should test this based on todo
+    def test__load_from_properties(self) -> None: ...  # Should test this based on todo
 
-    def test_add_schedule(self):
+    def test_add_schedule(self) -> None:
         mock_schedule = mock.Mock()
         component = tanjun.Component()
 
@@ -1637,7 +1638,7 @@ class TestComponent:
         assert component.schedules == [mock_schedule]
         mock_schedule.start.assert_not_called()
 
-    def test_add_schedule_when_active(self):
+    def test_add_schedule_when_active(self) -> None:
         mock_schedule = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         mock_loop = mock.Mock()
@@ -1651,7 +1652,7 @@ class TestComponent:
         assert component.schedules == [mock_schedule]
         mock_schedule.start.assert_called_once_with(mock_client.injector, loop=mock_loop)
 
-    def test_remove_schedule(self):
+    def test_remove_schedule(self) -> None:
         mock_schedule = mock.Mock(is_alive=False)
         component = tanjun.Component().add_schedule(mock_schedule)
         assert mock_schedule in component.schedules
@@ -1662,7 +1663,7 @@ class TestComponent:
         assert mock_schedule not in component.schedules
         mock_schedule.stop.assert_not_called()
 
-    def test_remove_schedule_when_is_alive(self):
+    def test_remove_schedule_when_is_alive(self) -> None:
         mock_loop = mock.Mock()
         mock_schedule = mock.Mock(is_alive=True)
         mock__add_task = mock.Mock()
@@ -1682,7 +1683,7 @@ class TestComponent:
         mock_loop.create_task.assert_called_once_with(mock_schedule.stop.return_value)
         mock__add_task.assert_called_once_with(mock_loop.create_task.return_value)
 
-    def test_with_schedule(self):
+    def test_with_schedule(self) -> None:
         add_schedule = mock.Mock()
         component: tanjun.Component = types.new_class(
             "StubComponent", (tanjun.Component,), exec_body=lambda ns: ns.update({"add_schedule": add_schedule})
@@ -1695,7 +1696,7 @@ class TestComponent:
         add_schedule.assert_called_once_with(mock_schedule)
 
     @pytest.mark.asyncio
-    async def test_close(self):
+    async def test_close(self) -> None:
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
         mock_schedule_1 = mock.AsyncMock(is_alive=True)
@@ -1729,7 +1730,7 @@ class TestComponent:
         assert component.loop is None
 
     @pytest.mark.asyncio
-    async def test_close_when_unbind(self):
+    async def test_close_when_unbind(self) -> None:
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
         mock_schedule_1 = mock.AsyncMock()
@@ -1760,14 +1761,14 @@ class TestComponent:
         assert component.loop is None
 
     @pytest.mark.asyncio
-    async def test_close_when_not_active(self):
+    async def test_close_when_not_active(self) -> None:
         component = tanjun.Component()
 
         with pytest.raises(RuntimeError, match="Component isn't active"):
             await component.close()
 
     @pytest.mark.asyncio
-    async def test_open(self):
+    async def test_open(self) -> None:
         mock_callback_1 = mock.Mock()
         mock_callback_2 = mock.Mock()
         mock_schedule_1 = mock.Mock()
@@ -1795,7 +1796,7 @@ class TestComponent:
         mock_schedule_2.start.assert_called_once_with(mock_client.injector, loop=get_running_loop.return_value)
 
     @pytest.mark.asyncio
-    async def test_open_when_already_active(self):
+    async def test_open_when_already_active(self) -> None:
         component = tanjun.Component()
         component._loop = mock.Mock()
 
@@ -1803,19 +1804,19 @@ class TestComponent:
             await component.open()
 
     @pytest.mark.asyncio
-    async def test_open_when_not_client_bound(self):
+    async def test_open_when_not_client_bound(self) -> None:
         component = tanjun.Component()
 
         with pytest.raises(RuntimeError, match="Client isn't bound yet"):
             await component.open()
 
-    def test_make_loader_has_load_property(self):
+    def test_make_loader_has_load_property(self) -> None:
         assert tanjun.Component().make_loader(copy=False).has_load is True
 
-    def test_make_loader_has_unload_property(self):
+    def test_make_loader_has_unload_property(self) -> None:
         assert tanjun.Component().make_loader(copy=False).has_unload is True
 
-    def test_make_loader_load(self):
+    def test_make_loader_load(self) -> None:
         component = tanjun.Component()
         loader = component.make_loader(copy=False)
         mock_client = mock.Mock()
@@ -1825,7 +1826,7 @@ class TestComponent:
         assert result is True
         mock_client.add_component.assert_called_once_with(component)
 
-    def test_make_loader_load_when_copy(self):
+    def test_make_loader_load_when_copy(self) -> None:
         mock_copy = mock.Mock()
         mock_client = mock.Mock()
 
@@ -1838,7 +1839,7 @@ class TestComponent:
         mock_copy.assert_called_once_with()
         mock_client.add_component.assert_called_once_with(mock_copy.return_value)
 
-    def test_make_loader_unload(self):
+    def test_make_loader_unload(self) -> None:
         mock_client = mock.Mock()
         loader = tanjun.Component(name="trans catgirls").make_loader()
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -61,24 +60,24 @@ class TestMessageAcceptsEnum:
             (tanjun.MessageAcceptsEnum.NONE, None),
         ],
     )
-    def test_get_event_type(self, value: tanjun.MessageAcceptsEnum, expected_type: hikari.Event | None):
+    def test_get_event_type(self, value: tanjun.MessageAcceptsEnum, expected_type: hikari.Event | None) -> None:
         assert value.get_event_type() == expected_type
 
 
 class TestLoaderDescriptor:
-    def test_has_load_property(self):
+    def test_has_load_property(self) -> None:
         loader = tanjun.as_loader(mock.Mock())
         assert isinstance(loader, tanjun.clients._LoaderDescriptor)
 
         assert loader.has_load is True
 
-    def test_has_unload_property(self):
+    def test_has_unload_property(self) -> None:
         loader = tanjun.as_loader(mock.Mock())
         assert isinstance(loader, tanjun.clients._LoaderDescriptor)
 
         assert loader.has_unload is False
 
-    def test___call__(self):
+    def test___call__(self) -> None:
         mock_callback = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback)
 
@@ -86,7 +85,7 @@ class TestLoaderDescriptor:
 
         mock_callback.assert_called_once_with(1, "3", 3, a=31, e="43")
 
-    def test_load(self):
+    def test_load(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_loader(mock_callback)
@@ -98,7 +97,7 @@ class TestLoaderDescriptor:
         assert result is True
         mock_callback.assert_called_once_with(mock_client)
 
-    def test_load_when_called_as_decorator(self):
+    def test_load_when_called_as_decorator(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_loader()(mock_callback)
@@ -110,7 +109,7 @@ class TestLoaderDescriptor:
         assert result is True
         mock_callback.assert_called_once_with(mock_client)
 
-    def test_load_when_called_as_decorator_and_args_passed(self):
+    def test_load_when_called_as_decorator_and_args_passed(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_loader(standard_impl=True)(mock_callback)
@@ -122,7 +121,7 @@ class TestLoaderDescriptor:
         assert result is True
         mock_callback.assert_called_once_with(mock_client)
 
-    def test_load_when_must_be_std_and_not_std(self):
+    def test_load_when_must_be_std_and_not_std(self) -> None:
         mock_callback = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback)
         typing.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
@@ -133,7 +132,7 @@ class TestLoaderDescriptor:
 
         mock_callback.assert_not_called()
 
-    def test_load_when_abc_allowed(self):
+    def test_load_when_abc_allowed(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback, standard_impl=False)
@@ -145,7 +144,7 @@ class TestLoaderDescriptor:
         assert result is True
         mock_callback.assert_called_once_with(mock_client)
 
-    def test_load_when_abc_allowed_and_called_as_decorator(self):
+    def test_load_when_abc_allowed_and_called_as_decorator(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_loader(standard_impl=False)(mock_callback)
@@ -157,7 +156,7 @@ class TestLoaderDescriptor:
         assert result is True
         mock_callback.assert_called_once_with(mock_client)
 
-    def test_unload(self):
+    def test_unload(self) -> None:
         mock_callback = mock.Mock()
         descriptor = tanjun.as_loader(mock_callback)
         assert isinstance(descriptor, tanjun.clients._LoaderDescriptor)
@@ -169,19 +168,19 @@ class TestLoaderDescriptor:
 
 
 class TestUnloaderDescriptor:
-    def test_has_load_property(self):
+    def test_has_load_property(self) -> None:
         loader = tanjun.as_unloader(mock.Mock())
         assert isinstance(loader, tanjun.clients._UnloaderDescriptor)
 
         assert loader.has_load is False
 
-    def test_has_unload_property(self):
+    def test_has_unload_property(self) -> None:
         loader = tanjun.as_unloader(mock.Mock())
         assert isinstance(loader, tanjun.clients._UnloaderDescriptor)
 
         assert loader.has_unload is True
 
-    def test___call__(self):
+    def test___call__(self) -> None:
         mock_callback = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback)
 
@@ -189,7 +188,7 @@ class TestUnloaderDescriptor:
 
         mock_callback.assert_called_once_with(1, "2", 3, a=31, b="312")
 
-    def test_load(self):
+    def test_load(self) -> None:
         mock_callback = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback)
         assert isinstance(descriptor, tanjun.clients._UnloaderDescriptor)
@@ -199,7 +198,7 @@ class TestUnloaderDescriptor:
         assert result is False
         mock_callback.assert_not_called()
 
-    def test_unload(self):
+    def test_unload(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_unloader(mock_callback)
@@ -211,7 +210,7 @@ class TestUnloaderDescriptor:
         assert result is True
         mock_callback.assert_called_once_with(mock_client)
 
-    def test_unload_when_called_as_decorator(self):
+    def test_unload_when_called_as_decorator(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_unloader()(mock_callback)
@@ -223,7 +222,7 @@ class TestUnloaderDescriptor:
         assert result is True
         mock_callback.assert_called_once_with(mock_client)
 
-    def test_unload_called_as_decorator_and_args_passed(self):
+    def test_unload_called_as_decorator_and_args_passed(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock(tanjun.Client)
         descriptor = tanjun.as_unloader(standard_impl=True)(mock_callback)
@@ -235,7 +234,7 @@ class TestUnloaderDescriptor:
         assert result is True
         mock_callback.assert_called_once_with(mock_client)
 
-    def test_unload_when_must_be_std_and_not_std(self):
+    def test_unload_when_must_be_std_and_not_std(self) -> None:
         mock_callback = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback)
         typing.assert_type(descriptor, collections.Callable[[tanjun.Client], None])
@@ -246,7 +245,7 @@ class TestUnloaderDescriptor:
 
         mock_callback.assert_not_called()
 
-    def test_unload_when_abc_allowed(self):
+    def test_unload_when_abc_allowed(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_unloader(mock_callback, standard_impl=False)
@@ -258,7 +257,7 @@ class TestUnloaderDescriptor:
         assert result is True
         mock_callback.assert_called_once_with(mock_client)
 
-    def test_unload_when_abc_allowed_and_called_as_decorator(self):
+    def test_unload_when_abc_allowed_and_called_as_decorator(self) -> None:
         mock_callback = mock.Mock()
         mock_client = mock.Mock()
         descriptor = tanjun.as_unloader(standard_impl=False)(mock_callback)
@@ -273,18 +272,18 @@ class TestUnloaderDescriptor:
 
 class TestClient:
     @pytest.mark.skip(reason="TODO")
-    def test___init__(self): ...
+    def test___init__(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_from_gateway_bot(self): ...
+    def test_from_gateway_bot(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_from_gateway_bot_when_cache_aware(self): ...
+    def test_from_gateway_bot_when_cache_aware(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_from_rest_bot(self): ...
+    def test_from_rest_bot(self) -> None: ...
 
-    def test_from_rest_bot_when_bot_managed(self):
+    def test_from_rest_bot_when_bot_managed(self) -> None:
         mock_bot = mock.Mock()
 
         client = tanjun.Client.from_rest_bot(mock_bot, bot_managed=True)
@@ -293,15 +292,15 @@ class TestClient:
         mock_bot.add_shutdown_callback.assert_called_once_with(client._on_stopping)
 
     @pytest.mark.skip(reason="TODO")
-    def test___repr__(self): ...
+    def test___repr__(self) -> None: ...
 
     @pytest.mark.asyncio
-    async def test__on_starting(self):
+    async def test__on_starting(self) -> None:
         mock_open = mock.AsyncMock()
         mock_rest = mock.AsyncMock()
 
         class TestClient(tanjun.Client):
-            open = mock_open  # noqa: VNE003
+            open = mock_open
 
         client = TestClient(mock_rest)
 
@@ -310,7 +309,7 @@ class TestClient:
         mock_open.assert_awaited_once_with()
 
     @pytest.mark.asyncio
-    async def test__on_stopping(self):
+    async def test__on_stopping(self) -> None:
         mock_close = mock.AsyncMock()
         mock_rest = mock.AsyncMock()
 
@@ -324,10 +323,10 @@ class TestClient:
         mock_close.assert_awaited_once_with()
 
     @pytest.mark.skip(reason="TODO")
-    def test__schedule_startup_registers(self): ...
+    def test__schedule_startup_registers(self) -> None: ...
 
     @pytest.mark.asyncio
-    async def test__add_task(self):
+    async def test__add_task(self) -> None:
         mock_task_1 = mock.Mock()
         mock_task_2 = mock.Mock()
         mock_task_3 = mock.Mock()
@@ -346,7 +345,7 @@ class TestClient:
         assert client._tasks == [mock_task_1, mock_task_2, mock_task_3]
 
     @pytest.mark.asyncio
-    async def test__add_task_when_empty(self):
+    async def test__add_task_when_empty(self) -> None:
         mock_task = asyncio.create_task(asyncio.sleep(50))
         client = tanjun.Client(mock.AsyncMock())
 
@@ -361,7 +360,7 @@ class TestClient:
         assert client._tasks == []
 
     @pytest.mark.asyncio
-    async def test__add_task_when_task_already_done(self):
+    async def test__add_task_when_task_already_done(self) -> None:
         mock_task = asyncio.create_task(asyncio.sleep(50))
         mock_task.cancel()
         # This is done to allow any finished tasks to be removed.
@@ -373,12 +372,12 @@ class TestClient:
         assert client._tasks == []
 
     @pytest.mark.asyncio
-    async def test_context_manager(self):
+    async def test_context_manager(self) -> None:
         open_ = mock.AsyncMock()
         close_ = mock.AsyncMock()
 
         class MockClient(tanjun.Client):
-            open = open_  # noqa: VNE003
+            open = open_
             close = close_
 
         async with MockClient(mock.Mock()):
@@ -395,7 +394,7 @@ class TestClient:
 
         class StudClient(tanjun.Client):
             __slots__ = ()
-            open = open_  # noqa: VNE003
+            open = open_
             close = close_
 
         client = StudClient(mock.Mock())
@@ -526,7 +525,7 @@ class TestClient:
         assert client.voice is None
 
     @pytest.mark.asyncio
-    async def test_declare_application_command_when_command_id_provided(self):
+    async def test_declare_application_command_when_command_id_provided(self) -> None:
         rest = mock.AsyncMock()
         client = tanjun.Client(rest)
         rest.edit_application_command.return_value = mock.Mock()
@@ -549,7 +548,7 @@ class TestClient:
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_declare_application_command_when_command_id_provided_and_slash_command(self):
+    async def test_declare_application_command_when_command_id_provided_and_slash_command(self) -> None:
         rest = mock.AsyncMock()
         client = tanjun.Client(rest)
         rest.edit_application_command.return_value = mock.Mock(hikari.SlashCommand)
@@ -571,7 +570,7 @@ class TestClient:
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_declare_application_command_when_command_id_provided_for_slash_builder(self):
+    async def test_declare_application_command_when_command_id_provided_for_slash_builder(self) -> None:
         rest = mock.AsyncMock()
         client = tanjun.Client(rest)
         rest.edit_application_command.return_value = mock.Mock(hikari.SlashCommand)
@@ -594,7 +593,7 @@ class TestClient:
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_declare_application_command_when_command_id_provided_and_cached_app_id(self):
+    async def test_declare_application_command_when_command_id_provided_and_cached_app_id(self) -> None:
         rest = mock.AsyncMock()
         rest.edit_application_command.return_value = mock.Mock(hikari.SlashCommand)
         client = tanjun.Client(rest)
@@ -618,7 +617,7 @@ class TestClient:
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_declare_application_command_when_command_id_provided_fetchs_app_id(self):
+    async def test_declare_application_command_when_command_id_provided_fetchs_app_id(self) -> None:
         fetch_rest_application_id_ = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -647,7 +646,7 @@ class TestClient:
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_declare_application_command(self):
+    async def test_declare_application_command(self) -> None:
         rest = mock.AsyncMock()
         client = tanjun.Client(rest)
         mock_command = mock.Mock()
@@ -664,7 +663,7 @@ class TestClient:
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_declare_application_command_inherits_config(self):
+    async def test_declare_application_command_inherits_config(self) -> None:
         rest = mock.AsyncMock()
         client = tanjun.Client(rest).set_default_app_command_permissions(213321).set_dms_enabled_for_app_cmds(False)
         mock_command = mock.Mock()
@@ -683,7 +682,7 @@ class TestClient:
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_declare_application_command_when_cached_app_id(self):
+    async def test_declare_application_command_when_cached_app_id(self) -> None:
         rest = mock.AsyncMock()
         client = tanjun.Client(rest)
         client._cached_application_id = hikari.Snowflake(54123123)
@@ -699,7 +698,7 @@ class TestClient:
         mock_command.set_tracked_command.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_declare_application_command_fetchs_app_id(self):
+    async def test_declare_application_command_fetchs_app_id(self) -> None:
         fetch_rest_application_id_ = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -723,9 +722,9 @@ class TestClient:
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio
-    async def test_declare_application_commands(self): ...
+    async def test_declare_application_commands(self) -> None: ...
 
-    def test_set_set_default_app_command_permissions(self):
+    def test_set_set_default_app_command_permissions(self) -> None:
         client = tanjun.Client(mock.Mock())
 
         result = client.set_default_app_command_permissions(hikari.Permissions(5421123))
@@ -733,7 +732,7 @@ class TestClient:
         assert result is client
         assert client.default_app_cmd_permissions == 5421123
 
-    def test_set_default_app_command_permissions(self):
+    def test_set_default_app_command_permissions(self) -> None:
         client = tanjun.Client(mock.Mock())
 
         result = client.set_dms_enabled_for_app_cmds(False)
@@ -742,9 +741,9 @@ class TestClient:
         assert client.dms_enabled_for_app_cmds is False
 
     @pytest.mark.skip(reason="TODO")
-    def test_set_hikari_trait_injectors(self): ...
+    def test_set_hikari_trait_injectors(self) -> None: ...
 
-    def test_set_interaction_not_found(self):
+    def test_set_interaction_not_found(self) -> None:
         mock_set_menu_not_found = mock.Mock()
         mock_set_slash_not_found = mock.Mock()
         mock_message = mock.Mock()
@@ -763,7 +762,7 @@ class TestClient:
         mock_set_slash_not_found.assert_called_once_with(mock_message)
 
     @pytest.mark.asyncio
-    async def test_set_interaction_accepts_when_running(self):
+    async def test_set_interaction_accepts_when_running(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         await client.open()
 
@@ -771,14 +770,14 @@ class TestClient:
             client.set_interaction_accepts(tanjun.InteractionAcceptsEnum.NONE)
 
     @pytest.mark.asyncio
-    async def test_set_message_accepts_when_running(self):
+    async def test_set_message_accepts_when_running(self) -> None:
         client = tanjun.Client(mock.AsyncMock(), events=mock.Mock())
         await client.open()
 
         with pytest.raises(RuntimeError, match="Cannot change this config while the client is running"):
             client.set_message_accepts(tanjun.MessageAcceptsEnum.NONE)
 
-    def test_set_metadata(self):
+    def test_set_metadata(self) -> None:
         client = tanjun.Client(mock.Mock())
         key = mock.Mock()
         value = mock.Mock()
@@ -789,15 +788,15 @@ class TestClient:
         assert client.metadata[key] is value
 
     @pytest.mark.skip(reason="TODO")
-    async def test_clear_commands(self): ...
+    async def test_clear_commands(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    async def test_set_global_commands(self): ...
+    async def test_set_global_commands(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    async def test_declare_global_commands(self): ...
+    async def test_declare_global_commands(self) -> None: ...
 
-    def test_set_human_only(self):
+    def test_set_human_only(self) -> None:
         client = tanjun.Client(mock.Mock()).set_human_only(False)
 
         result = client.set_human_only(True)
@@ -806,7 +805,7 @@ class TestClient:
         assert client.is_human_only is True
         assert tanjun.clients._check_human in client.checks
 
-    def test_set_human_only_when_false(self):
+    def test_set_human_only_when_false(self) -> None:
         client = tanjun.Client(mock.Mock()).set_human_only(True).set_human_only(True)
 
         result = client.set_human_only(False)
@@ -815,7 +814,7 @@ class TestClient:
         assert client.is_human_only is False
         assert tanjun.clients._check_human not in client.checks
 
-    def test_set_human_only_with_dupped_true_calls(self):
+    def test_set_human_only_with_dupped_true_calls(self) -> None:
         client = tanjun.Client(mock.Mock()).set_human_only(False)
 
         client.set_human_only(True)
@@ -825,7 +824,7 @@ class TestClient:
         assert client.is_human_only is True
         assert list(client.checks).count(tanjun.clients._check_human) == 1
 
-    def test_add_check(self):
+    def test_add_check(self) -> None:
         mock_check = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
@@ -834,7 +833,7 @@ class TestClient:
         assert result is client
         assert mock_check in client.checks
 
-    def test_add_check_when_already_present(self):
+    def test_add_check_when_already_present(self) -> None:
         mock_check = mock.Mock()
         client = tanjun.Client(mock.Mock()).add_check(mock_check)
 
@@ -843,7 +842,7 @@ class TestClient:
         assert result is client
         assert list(client.checks).count(mock_check) == 1
 
-    def test_add_check_with_multiple_checks(self):
+    def test_add_check_with_multiple_checks(self) -> None:
         mock_check_1 = mock.Mock()
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
@@ -853,7 +852,7 @@ class TestClient:
 
         assert client.checks == [mock_check_2, mock_check_3, mock_check_1]
 
-    def test_remove_check(self):
+    def test_remove_check(self) -> None:
         mock_check = mock.Mock()
         client = tanjun.Client(mock.Mock()).add_check(mock_check)
 
@@ -862,7 +861,7 @@ class TestClient:
         assert result is client
         assert mock_check not in client.checks
 
-    def test_remove_check_when_not_present(self):
+    def test_remove_check_when_not_present(self) -> None:
         mock_check = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
@@ -871,7 +870,7 @@ class TestClient:
 
         assert mock_check not in client.checks
 
-    def test_with_check(self):
+    def test_with_check(self) -> None:
         mock_check = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
@@ -880,7 +879,7 @@ class TestClient:
         assert result is mock_check
         assert result in client.checks
 
-    def test_with_check_when_already_present(self):
+    def test_with_check_when_already_present(self) -> None:
         mock_check = mock.Mock()
         client = tanjun.Client(mock.Mock()).add_check(mock_check)
 
@@ -890,7 +889,7 @@ class TestClient:
         assert list(client.checks).count(mock_check) == 1
 
     @pytest.mark.asyncio
-    async def test_check(self):
+    async def test_check(self) -> None:
         mock_check_1 = mock.Mock()
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
@@ -909,7 +908,7 @@ class TestClient:
         )
 
     @pytest.mark.asyncio
-    async def test_check_when_one_returns_false(self):
+    async def test_check_when_one_returns_false(self) -> None:
         mock_check_1 = mock.Mock()
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
@@ -928,7 +927,7 @@ class TestClient:
         )
 
     @pytest.mark.asyncio
-    async def test_check_when_one_raises(self):
+    async def test_check_when_one_raises(self) -> None:
         mock_check_1 = mock.Mock()
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
@@ -951,7 +950,7 @@ class TestClient:
         )
 
     @pytest.mark.asyncio
-    async def test_check_when_one_raises_failed_check(self):
+    async def test_check_when_one_raises_failed_check(self) -> None:
         mock_check_1 = mock.Mock()
         mock_check_2 = mock.Mock()
         mock_check_3 = mock.Mock()
@@ -970,15 +969,15 @@ class TestClient:
         )
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_component(self): ...
+    def test_add_component(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_component_when_already_present(self): ...
+    def test_add_component_when_already_present(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_component_when_is_alive(self): ...
+    def test_add_component_when_is_alive(self) -> None: ...
 
-    def test_get_component_by_name(self):
+    def test_get_component_by_name(self) -> None:
         mock_component = mock.Mock()
         mock_component.name = "vader"
         client = (
@@ -990,19 +989,19 @@ class TestClient:
 
         assert client.get_component_by_name("vader") is mock_component
 
-    def test_get_component_by_name_when_not_present(self):
+    def test_get_component_by_name_when_not_present(self) -> None:
         assert tanjun.Client(mock.AsyncMock()).get_component_by_name("test") is None
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_component(self): ...
+    def test_remove_component(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_component_when_not_present(self): ...
+    def test_remove_component_when_not_present(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_component_when_is_alive(self): ...
+    def test_remove_component_when_is_alive(self) -> None: ...
 
-    def test_remove_component_by_name(self):
+    def test_remove_component_by_name(self) -> None:
         remove_component_ = mock.Mock()
         mock_add_task = mock.Mock()
 
@@ -1021,46 +1020,46 @@ class TestClient:
         remove_component_.assert_called_once_with(mock_component)
         mock_add_task.assert_not_called()
 
-    def test_remove_component_by_name_when_not_present(self):
+    def test_remove_component_by_name_when_not_present(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
 
         with pytest.raises(KeyError):
             client.remove_component_by_name("nyan")
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_client_callback(self): ...
+    def test_add_client_callback(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_client_callback_when_already_present(self): ...
+    def test_add_client_callback_when_already_present(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_client_callback_for_multiple_callbacks(self): ...
+    def test_add_client_callback_for_multiple_callbacks(self) -> None: ...
 
     @pytest.mark.asyncio
-    async def test_dispatch_client_callback(self): ...
+    async def test_dispatch_client_callback(self) -> None: ...
 
     @pytest.mark.asyncio
-    async def test_dispatch_client_callback_when_name_not_found(self): ...
+    async def test_dispatch_client_callback_when_name_not_found(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_get_client_callbacks(self): ...
+    def test_get_client_callbacks(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_get_client_callbacks_when_name_not_found(self): ...
+    def test_get_client_callbacks_when_name_not_found(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_client_callback(self): ...
+    def test_remove_client_callback(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_client_callback_when_name_not_found(self): ...
+    def test_remove_client_callback_when_name_not_found(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_client_callback_when_callback_not_found(self): ...
+    def test_remove_client_callback_when_callback_not_found(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_remove_client_callback_when_last_callback(self): ...
+    def test_remove_client_callback_when_last_callback(self) -> None: ...
 
-    def test_with_client_callback(self):
+    def test_with_client_callback(self) -> None:
         add_client_callback_ = mock.Mock()
 
         class StubClient(tanjun.Client):
@@ -1076,24 +1075,24 @@ class TestClient:
         add_client_callback_.assert_called_once_with("aye", mock_callback)
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener(self): ...
+    def test_add_listener(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener_when_already_present(self): ...
+    def test_add_listener_when_already_present(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener_for_multiple_callbacks(self): ...
+    def test_add_listener_for_multiple_callbacks(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener_when_alive(self): ...
+    def test_add_listener_when_alive(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener_when_alive_and_events(self): ...
+    def test_add_listener_when_alive_and_events(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_add_listener_when_events(self): ...
+    def test_add_listener_when_events(self) -> None: ...
 
-    def test_remove_listener(self):
+    def test_remove_listener(self) -> None:
         mock_callback = mock.Mock()
         client = (
             tanjun.Client(mock.Mock())
@@ -1106,13 +1105,13 @@ class TestClient:
         assert result is client
         assert mock_callback not in client.listeners[hikari.GuildTypingEvent]
 
-    def test_remove_listener_when_event_type_not_present(self):
+    def test_remove_listener_when_event_type_not_present(self) -> None:
         client = tanjun.Client(mock.Mock())
 
         with pytest.raises(KeyError):
             client.remove_listener(hikari.GuildTypingEvent, mock.Mock())
 
-    def test_remove_listener_when_callback_not_present(self):
+    def test_remove_listener_when_callback_not_present(self) -> None:
         mock_other_callback = mock.Mock()
         mock_injector = mock.Mock()
         client = tanjun.Client(mock.Mock(), injector=mock_injector).add_listener(
@@ -1125,7 +1124,7 @@ class TestClient:
         assert client.listeners[hikari.GuildTypingEvent] == [mock_injector.auto_inject_async.return_value]
         mock_injector.auto_inject_async.assert_called_once_with(mock_other_callback)
 
-    def test_remove_listener_when_last_listener(self):
+    def test_remove_listener_when_last_listener(self) -> None:
         mock_callback = mock.Mock()
         client = tanjun.Client(mock.Mock()).add_listener(hikari.RoleEvent, mock_callback)
 
@@ -1133,7 +1132,7 @@ class TestClient:
 
         assert hikari.RoleEvent not in client.listeners
 
-    def test_remove_listener_when_alive(self):
+    def test_remove_listener_when_alive(self) -> None:
         mock_callback = mock.Mock()
         client = tanjun.Client(mock.Mock()).add_listener(hikari.RoleEvent, mock_callback)
         client._loop = mock.Mock()
@@ -1142,7 +1141,7 @@ class TestClient:
 
         assert hikari.RoleEvent not in client.listeners
 
-    def test_remove_listener_when_alive_and_events(self):
+    def test_remove_listener_when_alive_and_events(self) -> None:
         mock_events = mock.Mock()
         mock_injector = mock.Mock()
         mock_callback = mock.Mock()
@@ -1156,7 +1155,7 @@ class TestClient:
         assert hikari.RoleEvent not in client.listeners
         mock_events.unsubscribe.assert_called_once_with(hikari.RoleEvent, mock_injector.auto_inject_async.return_value)
 
-    def test_remove_listener_when_events(self):
+    def test_remove_listener_when_events(self) -> None:
         mock_events = mock.Mock()
         mock_callback = mock.Mock()
         client = tanjun.Client(mock.Mock(), events=mock_events, event_managed=False).add_listener(
@@ -1168,7 +1167,7 @@ class TestClient:
         assert hikari.RoleEvent not in client.listeners
         mock_events.unsubscribe.assert_not_called()
 
-    def test_with_listener(self):
+    def test_with_listener(self) -> None:
         add_listener_ = mock.Mock()
 
         class StubClient(tanjun.Client):
@@ -1182,8 +1181,8 @@ class TestClient:
         assert result is mock_callback
         add_listener_.assert_called_once_with(hikari.GuildAvailableEvent, mock_callback)
 
-    def test_with_listener_no_provided_event(self):
-        async def callback(foo) -> None:  # type: ignore
+    def test_with_listener_no_provided_event(self) -> None:
+        async def callback(foo) -> None:  # type: ignore  # noqa: ANN001
             ...
 
         add_listener_ = mock.Mock()
@@ -1198,7 +1197,7 @@ class TestClient:
 
         add_listener_.assert_not_called()
 
-    def test_with_listener_no_provided_event_callback_has_no_signature(self):
+    def test_with_listener_no_provided_event_callback_has_no_signature(self) -> None:
         with pytest.raises(ValueError, match=".+"):
             inspect.Signature.from_callable(int)
 
@@ -1214,7 +1213,7 @@ class TestClient:
 
         add_listener_.assert_not_called()
 
-    def test_with_listener_missing_positional_event_arg(self):
+    def test_with_listener_missing_positional_event_arg(self) -> None:
         async def callback(*, event: hikari.Event, **kwargs: str) -> None: ...
 
         add_listener_ = mock.Mock()
@@ -1229,7 +1228,7 @@ class TestClient:
 
         add_listener_.assert_not_called()
 
-    def test_with_listener_no_args(self):
+    def test_with_listener_no_args(self) -> None:
         async def callback() -> None: ...
 
         add_listener_ = mock.Mock()
@@ -1244,7 +1243,7 @@ class TestClient:
 
         add_listener_.assert_not_called()
 
-    def test_with_listener_with_multiple_events(self):
+    def test_with_listener_with_multiple_events(self) -> None:
         add_listener_ = mock.Mock()
 
         class StubClient(tanjun.Client):
@@ -1266,7 +1265,7 @@ class TestClient:
             ]
         )
 
-    def test_with_listener_with_type_hint(self):
+    def test_with_listener_with_type_hint(self) -> None:
         async def callback(event: hikari.BanCreateEvent) -> None: ...
 
         add_listener_ = mock.Mock()
@@ -1281,7 +1280,7 @@ class TestClient:
         assert result is callback
         add_listener_.assert_called_once_with(hikari.BanCreateEvent, callback)
 
-    def test_with_listener_with_type_hint_in_annotated(self):
+    def test_with_listener_with_type_hint_in_annotated(self) -> None:
         async def callback(event: typing.Annotated[hikari.BanCreateEvent, 123, 321]) -> None: ...
 
         add_listener_ = mock.Mock()
@@ -1296,7 +1295,7 @@ class TestClient:
         assert result is callback
         add_listener_.assert_called_once_with(hikari.BanCreateEvent, callback)
 
-    def test_with_listener_with_positional_only_type_hint(self):
+    def test_with_listener_with_positional_only_type_hint(self) -> None:
         async def callback(event: hikari.BanDeleteEvent, /) -> None: ...
 
         add_listener_ = mock.Mock()
@@ -1311,7 +1310,7 @@ class TestClient:
         assert result is callback
         add_listener_.assert_called_once_with(hikari.BanDeleteEvent, callback)
 
-    def test_with_listener_with_var_positional_type_hint(self):
+    def test_with_listener_with_var_positional_type_hint(self) -> None:
         async def callback(*event: hikari.BanEvent) -> None: ...
 
         add_listener_ = mock.Mock()
@@ -1326,9 +1325,9 @@ class TestClient:
         assert result is callback
         add_listener_.assert_called_once_with(hikari.BanEvent, callback)
 
-    def test_with_listener_with_type_hint_typing_union(self):
+    def test_with_listener_with_type_hint_typing_union(self) -> None:
         async def callback(
-            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]
+            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]  # noqa: PYI051
         ) -> None: ...
 
         add_listener_ = mock.Mock()
@@ -1343,7 +1342,7 @@ class TestClient:
         assert result is callback
         add_listener_.assert_has_calls([mock.call(hikari.RoleEvent, callback), mock.call(hikari.GuildEvent, callback)])
 
-    def test_with_listener_with_type_hint_typing_union_nested_annotated(self):
+    def test_with_listener_with_type_hint_typing_union_nested_annotated(self) -> None:
         async def callback(
             event: typing.Annotated[
                 typing.Union[
@@ -1373,8 +1372,10 @@ class TestClient:
             ]
         )
 
-    def test_with_listener_with_type_hint_310_union(self):
-        async def callback(event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str) -> None: ...
+    def test_with_listener_with_type_hint_310_union(self) -> None:
+        async def callback(
+            event: hikari.ShardEvent | typing.Literal[""] | hikari.VoiceEvent | str,  # noqa: PYI051
+        ) -> None: ...
 
         add_listener_ = mock.Mock()
 
@@ -1388,7 +1389,7 @@ class TestClient:
         assert result is callback
         add_listener_.assert_has_calls([mock.call(hikari.ShardEvent, callback), mock.call(hikari.VoiceEvent, callback)])
 
-    def test_with_listener_with_type_hint_310_union_nested_annotated(self):
+    def test_with_listener_with_type_hint_310_union_nested_annotated(self) -> None:
         async def callback(
             event: typing.Annotated[
                 typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
@@ -1413,7 +1414,7 @@ class TestClient:
             ]
         )
 
-    def test_add_prefix(self):
+    def test_add_prefix(self) -> None:
         client = tanjun.Client(mock.Mock())
 
         result = client.add_prefix("aye")
@@ -1421,7 +1422,7 @@ class TestClient:
         assert result is client
         assert "aye" in client.prefixes
 
-    def test_add_prefix_when_already_present(self):
+    def test_add_prefix_when_already_present(self) -> None:
         client = tanjun.Client(mock.Mock()).add_prefix("lmao")
 
         result = client.add_prefix("lmao")
@@ -1429,7 +1430,7 @@ class TestClient:
         assert result is client
         assert list(client.prefixes).count("lmao") == 1
 
-    def test_add_prefix_when_iterable(self):
+    def test_add_prefix_when_iterable(self) -> None:
         client = tanjun.Client(mock.Mock())
 
         result = client.add_prefix(["Grand", "dad", "FNAF"])
@@ -1439,7 +1440,7 @@ class TestClient:
         assert list(client.prefixes).count("dad") == 1
         assert list(client.prefixes).count("FNAF") == 1
 
-    def test_add_prefix_when_iterable_and_already_present(self):
+    def test_add_prefix_when_iterable_and_already_present(self) -> None:
         client = tanjun.Client(mock.Mock()).add_prefix(["naye", "laala", "OBAMA"])
 
         result = client.add_prefix(["naye", "OBAMA", "bourg"])
@@ -1450,7 +1451,7 @@ class TestClient:
         assert list(client.prefixes).count("OBAMA") == 1
         assert list(client.prefixes).count("bourg") == 1
 
-    def test_remove_prefix(self):
+    def test_remove_prefix(self) -> None:
         client = tanjun.Client(mock.Mock()).add_prefix("lmao")
 
         result = client.remove_prefix("lmao")
@@ -1458,13 +1459,13 @@ class TestClient:
         assert result is client
         assert "lmao" not in client.prefixes
 
-    def test_remove_prefix_when_not_present(self):
+    def test_remove_prefix_when_not_present(self) -> None:
         client = tanjun.Client(mock.Mock())
 
         with pytest.raises(ValueError, match=".+"):
             client.remove_prefix("lmao")
 
-    def test_set_prefix_getter(self):
+    def test_set_prefix_getter(self) -> None:
         mock_getter = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
@@ -1473,7 +1474,7 @@ class TestClient:
         assert result is client
         assert client.prefix_getter is mock_getter
 
-    def test_set_prefix_getter_when_none(self):
+    def test_set_prefix_getter_when_none(self) -> None:
         client = tanjun.Client(mock.Mock()).set_prefix_getter(mock.Mock())
 
         result = client.set_prefix_getter(None)
@@ -1481,7 +1482,7 @@ class TestClient:
         assert result is client
         assert client.prefix_getter is None
 
-    def test_with_prefix_getter(self):
+    def test_with_prefix_getter(self) -> None:
         mock_getter = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
@@ -1490,7 +1491,7 @@ class TestClient:
         assert result is mock_getter
         assert client.prefix_getter is mock_getter
 
-    def test_iter_commands(self):
+    def test_iter_commands(self) -> None:
         mock_menu_1 = mock.Mock(is_global=True)
         mock_menu_2 = mock.Mock(is_global=False)
         mock_menu_3 = mock.Mock(is_global=False)
@@ -1533,7 +1534,7 @@ class TestClient:
             mock_slash_3,
         ]
 
-    def test_iter_menu_commands(self):
+    def test_iter_menu_commands(self) -> None:
         mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
         mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
         mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
@@ -1550,7 +1551,7 @@ class TestClient:
 
         assert result == [mock_command_1, mock_command_2, mock_command_3, mock_command_4]
 
-    def test_iter_menu_commands_when_global_only(self):
+    def test_iter_menu_commands_when_global_only(self) -> None:
         mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
         mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
         mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
@@ -1567,7 +1568,7 @@ class TestClient:
 
         assert result == [mock_command_1, mock_command_4]
 
-    def test_iter_menu_commands_when_filtering_for_user(self):
+    def test_iter_menu_commands_when_filtering_for_user(self) -> None:
         mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
         mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
         mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
@@ -1584,7 +1585,7 @@ class TestClient:
 
         assert result == [mock_command_1, mock_command_3]
 
-    def test_iter_menu_commands_when_filtering_for_message(self):
+    def test_iter_menu_commands_when_filtering_for_message(self) -> None:
         mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
         mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
         mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
@@ -1601,7 +1602,7 @@ class TestClient:
 
         assert result == [mock_command_2, mock_command_4]
 
-    def test_iter_menu_commands_when_filtering_for_user_and_global_only(self):
+    def test_iter_menu_commands_when_filtering_for_user_and_global_only(self) -> None:
         mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
         mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
         mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
@@ -1618,7 +1619,7 @@ class TestClient:
 
         assert result == [mock_command_1]
 
-    def test_iter_menu_commands_when_filtering_for_message_and_global_only(self):
+    def test_iter_menu_commands_when_filtering_for_message_and_global_only(self) -> None:
         mock_command_1 = mock.Mock(is_global=True, type=hikari.CommandType.USER)
         mock_command_2 = mock.Mock(is_global=False, type=hikari.CommandType.MESSAGE)
         mock_command_3 = mock.Mock(is_global=False, type=hikari.CommandType.USER)
@@ -1635,7 +1636,7 @@ class TestClient:
 
         assert result == [mock_command_4]
 
-    def test_iter_message_commands(self):
+    def test_iter_message_commands(self) -> None:
         mock_command_1 = mock.Mock()
         mock_command_2 = mock.Mock()
         mock_command_3 = mock.Mock()
@@ -1654,7 +1655,7 @@ class TestClient:
 
         assert commands == [mock_command_1, mock_command_2, mock_command_3, mock_command_4, mock_command_5]
 
-    def test_iter_slash_commands(self):
+    def test_iter_slash_commands(self) -> None:
         mock_command_1 = mock.Mock()
         mock_command_2 = mock.Mock()
         mock_command_3 = mock.Mock()
@@ -1673,7 +1674,7 @@ class TestClient:
 
         assert commands == [mock_command_1, mock_command_2, mock_command_3, mock_command_4, mock_command_5]
 
-    def test_iter_slash_commands_when_global_only(self):
+    def test_iter_slash_commands_when_global_only(self) -> None:
         mock_command_1 = mock.Mock(is_global=True)
         mock_command_2 = mock.Mock(is_global=True)
         mock_command_3 = mock.Mock(is_global=True)
@@ -1692,24 +1693,24 @@ class TestClient:
         assert commands == [mock_command_1, mock_command_2, mock_command_3, mock_command_4]
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_message_name(self): ...
+    def test_check_message_name(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
-    def test_check_slash_name(self): ...
-
-    @pytest.mark.skip(reason="TODO")
-    @pytest.mark.asyncio
-    async def test_close(self): ...
+    def test_check_slash_name(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio
-    async def test_open(self): ...
+    async def test_close(self) -> None: ...
 
     @pytest.mark.skip(reason="TODO")
     @pytest.mark.asyncio
-    async def test_fetch_rest_application_id(self): ...
+    async def test_open(self) -> None: ...
 
-    def test_set_ephemeral_default(self):
+    @pytest.mark.skip(reason="TODO")
+    @pytest.mark.asyncio
+    async def test_fetch_rest_application_id(self) -> None: ...
+
+    def test_set_ephemeral_default(self) -> None:
         client = tanjun.Client(mock.Mock())
 
         result = client.set_ephemeral_default(True)
@@ -1717,7 +1718,7 @@ class TestClient:
         assert result is client
         assert client.defaults_to_ephemeral is True
 
-    def test_set_hooks(self):
+    def test_set_hooks(self) -> None:
         mock_hooks = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
@@ -1726,7 +1727,7 @@ class TestClient:
         assert result is client
         assert client.hooks is mock_hooks
 
-    def test_set_hooks_when_none(self):
+    def test_set_hooks_when_none(self) -> None:
         client = tanjun.Client(mock.Mock()).set_hooks(mock.Mock())
 
         result = client.set_hooks(None)
@@ -1734,7 +1735,7 @@ class TestClient:
         assert result is client
         assert client.hooks is None
 
-    def test_set_menu_hooks(self):
+    def test_set_menu_hooks(self) -> None:
         mock_hooks = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
@@ -1743,7 +1744,7 @@ class TestClient:
         assert result is client
         assert client.menu_hooks is mock_hooks
 
-    def test_set_menu_hooks_when_none(self):
+    def test_set_menu_hooks_when_none(self) -> None:
         client = tanjun.Client(mock.Mock()).set_menu_hooks(mock.Mock())
 
         result = client.set_menu_hooks(None)
@@ -1751,7 +1752,7 @@ class TestClient:
         assert result is client
         assert client.menu_hooks is None
 
-    def test_set_message_hooks(self):
+    def test_set_message_hooks(self) -> None:
         mock_hooks = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
@@ -1760,7 +1761,7 @@ class TestClient:
         assert result is client
         assert client.message_hooks is mock_hooks
 
-    def test_set_message_hooks_when_none(self):
+    def test_set_message_hooks_when_none(self) -> None:
         client = tanjun.Client(mock.Mock()).set_message_hooks(mock.Mock())
 
         result = client.set_message_hooks(None)
@@ -1768,7 +1769,7 @@ class TestClient:
         assert result is client
         assert client.message_hooks is None
 
-    def test_set_slash_hooks(self):
+    def test_set_slash_hooks(self) -> None:
         mock_hooks = mock.Mock()
         client = tanjun.Client(mock.Mock())
 
@@ -1777,7 +1778,7 @@ class TestClient:
         assert result is client
         assert client.slash_hooks is mock_hooks
 
-    def test_set_slash_hooks_when_none(self):
+    def test_set_slash_hooks_when_none(self) -> None:
         client = tanjun.Client(mock.Mock()).set_slash_hooks(mock.Mock())
 
         result = client.set_slash_hooks(None)
@@ -1785,7 +1786,7 @@ class TestClient:
         assert result is client
         assert client.slash_hooks is None
 
-    def test_load_directory(self):
+    def test_load_directory(self) -> None:
         mock_load_modules = mock.Mock()
 
         class StubClient(tanjun.Client):
@@ -1815,7 +1816,7 @@ class TestClient:
         finally:
             shutil.rmtree(temp_dir)
 
-    def test_load_directory_with_namespace(self):
+    def test_load_directory_with_namespace(self) -> None:
         mock_load_modules = mock.Mock()
 
         class StubClient(tanjun.Client):
@@ -1845,7 +1846,7 @@ class TestClient:
         finally:
             shutil.rmtree(temp_dir)
 
-    def test_load_directory_when_suppressed_error_raised(self):
+    def test_load_directory_when_suppressed_error_raised(self) -> None:
         mock_load_modules = mock.Mock(
             side_effect=[tanjun.ModuleMissingLoaders("b", "by"), tanjun.ModuleStateConflict("nyaa.meow", "sleep"), None]
         )
@@ -1875,7 +1876,7 @@ class TestClient:
         finally:
             shutil.rmtree(temp_dir)
 
-    def test_load_directory_when_fails_to_load(self):
+    def test_load_directory_when_fails_to_load(self) -> None:
         mock_exc = tanjun.FailedModuleLoad("trans.rights")
         mock_load_modules = mock.Mock(side_effect=[None, mock_exc])
 
@@ -1905,7 +1906,7 @@ class TestClient:
             shutil.rmtree(temp_dir)
 
     @pytest.mark.asyncio
-    async def test_load_directory_async(self):
+    async def test_load_directory_async(self) -> None:
         mock_load_modules = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -1936,7 +1937,7 @@ class TestClient:
             shutil.rmtree(temp_dir)
 
     @pytest.mark.asyncio
-    async def test_load_directory_async_with_namespace(self):
+    async def test_load_directory_async_with_namespace(self) -> None:
         mock_load_modules = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -1967,7 +1968,7 @@ class TestClient:
             shutil.rmtree(temp_dir)
 
     @pytest.mark.asyncio
-    async def test_load_directory_async_when_suppressed_error_raised(self):
+    async def test_load_directory_async_when_suppressed_error_raised(self) -> None:
         mock_load_modules = mock.AsyncMock(
             side_effect=[tanjun.ModuleMissingLoaders("b", "by"), tanjun.ModuleStateConflict("nyaa.meow", "sleep"), None]
         )
@@ -1998,7 +1999,7 @@ class TestClient:
             shutil.rmtree(temp_dir)
 
     @pytest.mark.asyncio
-    async def test_load_directory_async_when_fails_to_load(self):
+    async def test_load_directory_async_when_fails_to_load(self) -> None:
         mock_exc = tanjun.FailedModuleLoad("trans.rights")
         mock_load_modules = mock.AsyncMock(side_effect=[None, mock_exc])
 
@@ -2031,7 +2032,7 @@ class TestClient:
     def temp_file(self) -> collections.Iterator[typing.IO[str]]:
         # A try, finally is used to delete the file rather than relying on delete=True behaviour
         # as on Windows the file cannot be accessed by other processes if delete is True.
-        temp_file_ = tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False)
+        temp_file_ = tempfile.NamedTemporaryFile("w+", suffix=".py", delete=False)  # noqa: SIM115
         try:
             with temp_file_:
                 yield temp_file_
@@ -2039,7 +2040,7 @@ class TestClient:
         finally:
             pathlib.Path(temp_file_.name).unlink(missing_ok=False)
 
-    def test__load_modules_with_system_path(self, temp_file: typing.IO[str]):
+    def test__load_modules_with_system_path(self, temp_file: typing.IO[str]) -> None:
         add_component_ = mock.Mock()
         add_client_callback_ = mock.Mock()
 
@@ -2096,7 +2097,7 @@ class TestClient:
         add_component_.assert_has_calls([mock.call(5533), mock.call(123)])
         add_client_callback_.assert_has_calls([mock.call(554444), mock.call(4312)])
 
-    def test__load_modules_with_system_path_respects_all(self, temp_file: typing.IO[str]):
+    def test__load_modules_with_system_path_respects_all(self, temp_file: typing.IO[str]) -> None:
         add_component_ = mock.Mock()
         add_client_callback_ = mock.Mock()
 
@@ -2158,7 +2159,7 @@ class TestClient:
         add_component_.assert_has_calls([mock.call(123), mock.call(777), mock.call(5432)])
         add_client_callback_.assert_has_calls([mock.call(4312), mock.call(778), mock.call(6543456)])
 
-    def test__load_modules_with_system_path_when_all_and_no_loaders_found(self, temp_file: typing.IO[str]):
+    def test__load_modules_with_system_path_when_all_and_no_loaders_found(self, temp_file: typing.IO[str]) -> None:
         add_component_ = mock.Mock()
         add_client_callback_ = mock.Mock()
 
@@ -2199,7 +2200,7 @@ class TestClient:
         with pytest.raises(tanjun.ModuleMissingLoaders):
             generator.send(module)
 
-    def test__load_modules_with_system_path_when_no_loaders_found(self, temp_file: typing.IO[str]):
+    def test__load_modules_with_system_path_when_no_loaders_found(self, temp_file: typing.IO[str]) -> None:
         add_component_ = mock.Mock()
         add_client_callback_ = mock.Mock()
 
@@ -2234,7 +2235,7 @@ class TestClient:
         with pytest.raises(tanjun.ModuleMissingLoaders):
             generator.send(module)
 
-    def test__load_modules_with_system_path_when_loader_raises(self, temp_file: typing.IO[str]):
+    def test__load_modules_with_system_path_when_loader_raises(self, temp_file: typing.IO[str]) -> None:
         add_component_ = mock.Mock()
         add_client_callback_ = mock.Mock()
 
@@ -2271,7 +2272,7 @@ class TestClient:
         assert isinstance(exc_info.value.__cause__, RuntimeError)
         assert exc_info.value.__cause__.args == ("Mummy uwu",)
 
-    def test__load_modules_with_system_path_when_already_loaded(self, temp_file: typing.IO[str]):
+    def test__load_modules_with_system_path_when_already_loaded(self, temp_file: typing.IO[str]) -> None:
         client = tanjun.Client(mock.AsyncMock())
         temp_file.write(textwrap.dedent("""raise NotImplementedError("This shouldn't ever be imported")"""))
         temp_file.flush()
@@ -2282,7 +2283,7 @@ class TestClient:
         with pytest.raises(tanjun.ModuleStateConflict):
             next(generator)
 
-    def test__load_modules_with_system_path_for_unknown_path(self):
+    def test__load_modules_with_system_path_for_unknown_path(self) -> None:
         class MockClient(tanjun.Client):
             add_component = mock.Mock()
             add_client_callback = mock.Mock()
@@ -2295,7 +2296,7 @@ class TestClient:
         with pytest.raises(ModuleNotFoundError):
             next_()
 
-    def test__load_modules_with_python_module_path(self):
+    def test__load_modules_with_python_module_path(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         priv_loader = mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=True))
 
@@ -2327,7 +2328,7 @@ class TestClient:
         mock_module.other_loader.load.assert_called_once_with(client)
         priv_loader.load.assert_not_called()
 
-    def test__load_modules_with_python_module_path_respects_all(self):
+    def test__load_modules_with_python_module_path_respects_all(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         priv_loader = mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=True))
 
@@ -2361,7 +2362,7 @@ class TestClient:
         priv_loader.load.assert_called_once_with(client)
         mock_module.another_loader.load.assert_called_once_with(client)
 
-    def test__load_modules_with_python_module_path_when_no_loader_found(self):
+    def test__load_modules_with_python_module_path_when_no_loader_found(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         mock_module = mock.Mock(
             object=123,
@@ -2382,7 +2383,7 @@ class TestClient:
 
         mock_module.loader.load.assert_called_once_with(client)
 
-    def test__load_modules_with_python_module_path_when_loader_raises(self):
+    def test__load_modules_with_python_module_path_when_loader_raises(self) -> None:
         mock_exception = KeyError("ayayaya")
         mock_module = mock.Mock(
             foo=5686544536876, bar=object(), load_module=mock.Mock(tanjun.abc.ClientLoader, has_load=True)
@@ -2400,7 +2401,7 @@ class TestClient:
 
         assert exc_info.value.__cause__ is mock_exception
 
-    def test__load_modules_with_python_module_path_when_already_loaded(self):
+    def test__load_modules_with_python_module_path_when_already_loaded(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         client._modules["ayayayaya.ok"] = mock.Mock()
         generator = client._load_module("ayayayaya.ok")
@@ -2408,7 +2409,7 @@ class TestClient:
         with pytest.raises(tanjun.ModuleStateConflict):
             next(generator)
 
-    def test_load_modules(self):
+    def test_load_modules(self) -> None:
         mock_path = mock.Mock(pathlib.Path)
         mock_gen_1 = mock.Mock(__next__=mock.Mock())
         mock_gen_1.send.side_effect = StopIteration
@@ -2436,7 +2437,7 @@ class TestClient:
         mock_gen_2.__next__.return_value.assert_called_once_with()
         mock_gen_2.send.assert_called_once_with(mock_gen_2.__next__.return_value.return_value)
 
-    def test_load_modules_when_module_import_raises(self):
+    def test_load_modules_when_module_import_raises(self) -> None:
         mock_exception = ValueError("aye")
         mock_gen = mock.Mock(__next__=mock.Mock())
         mock_gen.__next__.return_value.side_effect = mock_exception
@@ -2460,7 +2461,7 @@ class TestClient:
 
     @mock.patch.object(asyncio, "get_running_loop")
     @pytest.mark.asyncio
-    async def test_load_modules_async(self, get_running_loop: mock.Mock):
+    async def test_load_modules_async(self, get_running_loop: mock.Mock) -> None:
         mock_executor_result_1 = mock.Mock()
         mock_executor_result_2 = mock.Mock()
         mock_executor_result_3 = mock.Mock()
@@ -2498,7 +2499,7 @@ class TestClient:
 
     @mock.patch.object(asyncio, "get_running_loop")
     @pytest.mark.asyncio
-    async def test_load_modules_async_when_module_import_raises(self, get_running_loop: mock.Mock):
+    async def test_load_modules_async_when_module_import_raises(self, get_running_loop: mock.Mock) -> None:
         mock_exception = ValueError("aye")
         mock_gen = mock.Mock(__next__=mock.Mock())
         get_running_loop.return_value.run_in_executor = mock.AsyncMock(side_effect=mock_exception)
@@ -2519,7 +2520,7 @@ class TestClient:
         get_running_loop.return_value.run_in_executor.assert_called_once_with(None, mock_gen.__next__.return_value)
         mock_gen.send.assert_not_called()
 
-    def test_unload_modules_with_system_path(self):
+    def test_unload_modules_with_system_path(self) -> None:
         priv_unloader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             __dunder_loader__=mock.Mock(tanjun.abc.ClientLoader),
@@ -2541,7 +2542,7 @@ class TestClient:
         priv_unloader.unload.assert_not_called()
         assert path.resolve() not in client._path_modules
 
-    def test_unload_modules_with_system_path_respects_all(self):
+    def test_unload_modules_with_system_path_respects_all(self) -> None:
         priv_unload = mock.Mock(tanjun.abc.ClientLoader)
         mock_module = mock.Mock(
             __all__=["FullMetal", "_priv_unload", "unload_module", "_bar", "foo", "load_module", "missing"],
@@ -2566,7 +2567,7 @@ class TestClient:
         mock_module.not_in_all.unload.assert_not_called()
         assert path.resolve() not in client._path_modules
 
-    def test_unload_modules_with_system_path_when_not_loaded(self):
+    def test_unload_modules_with_system_path_when_not_loaded(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         path = pathlib.Path("naye")
 
@@ -2575,7 +2576,7 @@ class TestClient:
 
         assert path.resolve() not in client._path_modules
 
-    def test_unload_modules_with_system_path_when_no_unloaders_found(self):
+    def test_unload_modules_with_system_path_when_no_unloaders_found(self) -> None:
         mock_module = mock.Mock(
             foo=5686544536876,
             bar=object(),
@@ -2591,7 +2592,7 @@ class TestClient:
 
         assert client._path_modules[path.resolve()] is mock_module
 
-    def test_unload_modules_with_system_path_when_all_and_no_unloaders_found(self):
+    def test_unload_modules_with_system_path_when_all_and_no_unloaders_found(self) -> None:
         mock_module = mock.Mock(
             __all__=["FullMetal", "bar", "foo", "load_module", "missing"],
             foo=5686544536876,
@@ -2609,7 +2610,7 @@ class TestClient:
 
         assert client._path_modules[path.resolve()] is mock_module
 
-    def test_unload_modules_with_system_path_when_unloader_raises(self):
+    def test_unload_modules_with_system_path_when_unloader_raises(self) -> None:
         mock_exception = ValueError("aye")
         mock_module = mock.Mock(
             foo=5686544536876,
@@ -2630,7 +2631,7 @@ class TestClient:
         assert exc_info.value.__cause__ is mock_exception
         assert client._path_modules[path.resolve()] is mock_module
 
-    def test_unload_modules_with_python_module_path(self):
+    def test_unload_modules_with_python_module_path(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         priv_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=True))
 
@@ -2655,7 +2656,7 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert "okokok.no" not in client._modules
 
-    def test_unload_modules_with_python_module_path_respects_all(self):
+    def test_unload_modules_with_python_module_path_respects_all(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         priv_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=True))
 
@@ -2683,7 +2684,7 @@ class TestClient:
         mock_module.another_loader.unload.assert_called_once_with(client)
         assert "okokok.no.u" not in client._modules
 
-    def test_unload_modules_with_python_module_path_when_not_loaded(self):
+    def test_unload_modules_with_python_module_path_when_not_loaded(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
 
         with pytest.raises(tanjun.ModuleStateConflict):
@@ -2691,7 +2692,7 @@ class TestClient:
 
         assert "gay.cat" not in client._modules
 
-    def test_unload_modules_with_python_module_path_when_no_unloaders_found_and_all(self):
+    def test_unload_modules_with_python_module_path_when_no_unloaders_found_and_all(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         other_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=True))
 
@@ -2716,7 +2717,7 @@ class TestClient:
         mock_module.loader.unload.assert_called_once_with(client)
         assert "senpai.uwu" in client._modules
 
-    def test_unload_modules_with_python_module_path_when_no_unloaders_found(self):
+    def test_unload_modules_with_python_module_path_when_no_unloaders_found(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
 
         mock_module = mock.Mock(
@@ -2737,7 +2738,7 @@ class TestClient:
         mock_module.loader.unload.assert_called_once_with(client)
         assert "okokok.nok" in client._modules
 
-    def test_unload_modules_with_python_module_path_when_unloader_raises(self):
+    def test_unload_modules_with_python_module_path_when_unloader_raises(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         mock_exception = TypeError("Big shot")
         mock_module = mock.Mock(
@@ -2754,7 +2755,7 @@ class TestClient:
         assert client._modules["ea s"] is mock_module
         assert "ea s" in client._modules
 
-    def test__reload_modules_with_python_module_path(self):
+    def test__reload_modules_with_python_module_path(self) -> None:
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         priv_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=False))
         old_module = mock.Mock(
@@ -2817,7 +2818,7 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert client._modules["waifus"] is new_module
 
-    def test__reload_modules_with_python_module_path_when_no_unloaders_found(self):
+    def test__reload_modules_with_python_module_path_when_no_unloaders_found(self) -> None:
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             load=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=True), has_unload=False),
@@ -2844,7 +2845,7 @@ class TestClient:
         new_module.loader.unload.assert_not_called()
         assert client._modules["waifus"] is old_module
 
-    def test__reload_modules_with_python_module_path_when_no_loaders_found_in_new_module(self):
+    def test__reload_modules_with_python_module_path_when_no_loaders_found_in_new_module(self) -> None:
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
@@ -2888,7 +2889,7 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert client._modules["yuri.waifus"] is old_module
 
-    def test__reload_modules_with_python_module_path_when_all(self):
+    def test__reload_modules_with_python_module_path_when_all(self) -> None:
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
@@ -2949,7 +2950,7 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert client._modules["waifus"] is new_module
 
-    def test__reload_modules_with_python_module_path_when_all_and_no_unloaders_found(self):
+    def test__reload_modules_with_python_module_path_when_all_and_no_unloaders_found(self) -> None:
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             loader=mock.Mock(tanjun.abc.ClientLoader, has_unload=False),
@@ -2980,7 +2981,7 @@ class TestClient:
         new_module.loader.unload.assert_not_called()
         assert client._modules["waifus"] is old_module
 
-    def test__reload_modules_with_python_module_path_when_all_and_no_loaders_found_in_new_module(self):
+    def test__reload_modules_with_python_module_path_when_all_and_no_loaders_found_in_new_module(self) -> None:
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
@@ -3035,7 +3036,7 @@ class TestClient:
         new_module.loader.unload.assert_not_called()
         assert client._modules["yuri.waifus"] is old_module
 
-    def test__reload_modules_with_python_module_path_and_not_loaded(self):
+    def test__reload_modules_with_python_module_path_and_not_loaded(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         generator = client._reload_module("aya.gay.no")
 
@@ -3044,7 +3045,7 @@ class TestClient:
 
         assert "aya.gay.no" not in client._modules
 
-    def test__reload_modules_with_python_module_path_rolls_back_when_new_module_loader_raises(self):
+    def test__reload_modules_with_python_module_path_rolls_back_when_new_module_loader_raises(self) -> None:
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         priv_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=False))
         old_module = mock.Mock(
@@ -3104,7 +3105,7 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert client._modules["waifus"] is old_module
 
-    def test__reload_modules_with_system_path(self, temp_file: typing.IO[str]):
+    def test__reload_modules_with_system_path(self, temp_file: typing.IO[str]) -> None:
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             loader=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(unload=False)),
@@ -3160,7 +3161,7 @@ class TestClient:
         new_module._priv_loader.load.assert_not_called()
         new_module._priv_loader.unload.assert_not_called()
 
-    def test__reload_modules_with_system_path_when_no_unloaders_found(self, temp_file: typing.IO[str]):
+    def test__reload_modules_with_system_path_when_no_unloaders_found(self, temp_file: typing.IO[str]) -> None:
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             load=mock.Mock(tanjun.abc.ClientLoader, load=mock.Mock(return_value=True), has_unload=False),
@@ -3195,7 +3196,9 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert client._path_modules[path] is old_module
 
-    def test__reload_modules_with_system_path_when_no_loaders_found_in_new_module(self, temp_file: typing.IO[str]):
+    def test__reload_modules_with_system_path_when_no_loaders_found_in_new_module(
+        self, temp_file: typing.IO[str]
+    ) -> None:
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             loader=mock.Mock(tanjun.abc.ClientLoader),
@@ -3236,7 +3239,7 @@ class TestClient:
         old_priv_loader.unload.assert_not_called()
         assert client._path_modules[path] is old_module
 
-    def test__reload_modules_with_system_path_when_all(self, temp_file: typing.IO[str]):
+    def test__reload_modules_with_system_path_when_all(self, temp_file: typing.IO[str]) -> None:
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             loader=mock.Mock(tanjun.abc.ClientLoader),
@@ -3291,7 +3294,7 @@ class TestClient:
         new_module._priv_loader.load.assert_called_once_with(client)
         new_module._priv_loader.unload.assert_not_called()
 
-    def test__reload_modules_with_system_path_when_all_and_no_unloaders_found(self, temp_file: typing.IO[str]):
+    def test__reload_modules_with_system_path_when_all_and_no_unloaders_found(self, temp_file: typing.IO[str]) -> None:
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
             loader=mock.Mock(tanjun.abc.ClientLoader, has_unload=False),
@@ -3333,7 +3336,7 @@ class TestClient:
 
     def test__reload_modules_with_system_path_when_all_and_no_loaders_found_in_new_module(
         self, temp_file: typing.IO[str]
-    ):
+    ) -> None:
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         old_module = mock.Mock(
@@ -3387,7 +3390,7 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert client._path_modules[path] is old_module
 
-    def test__reload_modules_with_system_path_and_not_loaded(self):
+    def test__reload_modules_with_system_path_and_not_loaded(self) -> None:
         client = tanjun.Client(mock.AsyncMock())
         random_path = pathlib.Path(uuid.uuid4().hex)
         generator = client._reload_module(random_path)
@@ -3397,7 +3400,7 @@ class TestClient:
 
         assert random_path not in client._path_modules
 
-    def test__reload_modules_with_system_path_for_unknown_path(self):
+    def test__reload_modules_with_system_path_for_unknown_path(self) -> None:
         old_module = mock.Mock(
             loader=mock.Mock(tanjun.abc.ClientLoader),
             ok=123,
@@ -3419,7 +3422,9 @@ class TestClient:
         old_module.other_loader.unload.assert_not_called()
         assert random_path in client._path_modules
 
-    def test__reload_modules_with_system_path_rolls_back_when_new_module_loader_raises(self, temp_file: typing.IO[str]):
+    def test__reload_modules_with_system_path_rolls_back_when_new_module_loader_raises(
+        self, temp_file: typing.IO[str]
+    ) -> None:
         old_priv_loader = mock.Mock(tanjun.abc.ClientLoader)
         priv_loader = mock.Mock(tanjun.abc.ClientLoader, unload=mock.Mock(return_value=False))
         old_module = mock.Mock(
@@ -3470,7 +3475,7 @@ class TestClient:
         priv_loader.unload.assert_not_called()
         assert client._path_modules[path] is old_module
 
-    def test_reload_modules(self):
+    def test_reload_modules(self) -> None:
         mock_path = mock.Mock(pathlib.Path)
         mock_gen_1 = mock.Mock(__next__=mock.Mock())
         mock_gen_1.send.side_effect = StopIteration
@@ -3498,7 +3503,7 @@ class TestClient:
         mock_gen_2.__next__.return_value.assert_called_once_with()
         mock_gen_2.send.assert_called_once_with(mock_gen_2.__next__.return_value.return_value)
 
-    def test_reload_modules_when_module_loader_raises(self):
+    def test_reload_modules_when_module_loader_raises(self) -> None:
         mock_exception = TypeError("FOO")
         mock_gen = mock.Mock(__next__=mock.Mock())
         mock_gen.__next__.return_value.side_effect = mock_exception
@@ -3521,7 +3526,7 @@ class TestClient:
 
     @mock.patch.object(asyncio, "get_running_loop")
     @pytest.mark.asyncio
-    async def test_reload_modules_async(self, get_running_loop: mock.Mock):
+    async def test_reload_modules_async(self, get_running_loop: mock.Mock) -> None:
         mock_executor_result_1 = mock.Mock()
         mock_executor_result_2 = mock.Mock()
         mock_executor_result_3 = mock.Mock()
@@ -3559,7 +3564,7 @@ class TestClient:
 
     @mock.patch.object(asyncio, "get_running_loop")
     @pytest.mark.asyncio
-    async def test_reload_modules_async_when_module_loader_raises(self, get_running_loop: mock.Mock):
+    async def test_reload_modules_async_when_module_loader_raises(self, get_running_loop: mock.Mock) -> None:
         mock_exception = RuntimeError("eeeee")
         get_running_loop.return_value.run_in_executor = mock.AsyncMock(side_effect=mock_exception)
         mock_gen = mock.Mock(__next__=mock.Mock())
@@ -3599,7 +3604,7 @@ class TestClient:
         )
 
     @pytest.mark.asyncio
-    async def test_on_message_create_event(self, command_dispatch_client: tanjun.Client):
+    async def test_on_message_create_event(self, command_dispatch_client: tanjun.Client) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -3631,7 +3636,7 @@ class TestClient:
         command_dispatch_client.dispatch_client_callback.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_on_message_create_event_when_prefix_getter(self, command_dispatch_client: tanjun.Client):
+    async def test_on_message_create_event_when_prefix_getter(self, command_dispatch_client: tanjun.Client) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         ctx_maker.return_value.call_with_async_di = mock.AsyncMock(return_value=["sex", "!"])
@@ -3666,7 +3671,9 @@ class TestClient:
         ctx_maker.return_value.call_with_async_di.assert_awaited_once_with(prefix_getter, ctx_maker.return_value)
 
     @pytest.mark.asyncio
-    async def test_on_message_create_event_when_no_message_content(self, command_dispatch_client: tanjun.Client):
+    async def test_on_message_create_event_when_no_message_content(
+        self, command_dispatch_client: tanjun.Client
+    ) -> None:
         ctx_maker = mock.Mock()
         command_dispatch_client.set_message_ctx_maker(ctx_maker)
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -3682,7 +3689,7 @@ class TestClient:
         command_dispatch_client.dispatch_client_callback.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_on_message_create_event_when_prefix_not_found(self, command_dispatch_client: tanjun.Client):
+    async def test_on_message_create_event_when_prefix_not_found(self, command_dispatch_client: tanjun.Client) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="42"))
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
         mock_component_2 = mock.AsyncMock(bind_client=mock.Mock())
@@ -3707,7 +3714,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_message_create_event_when_custom_prefix_getter_not_found(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="42"))
         ctx_maker.return_value.call_with_async_di = mock.AsyncMock(return_value=["aye", "naye"])
         prefix_getter = mock.Mock()
@@ -3733,7 +3740,9 @@ class TestClient:
         ctx_maker.return_value.call_with_async_di.assert_called_once_with(prefix_getter, ctx_maker.return_value)
 
     @pytest.mark.asyncio
-    async def test_on_message_create_event_when_only_message_hooks(self, command_dispatch_client: tanjun.Client):
+    async def test_on_message_create_event_when_only_message_hooks(
+        self, command_dispatch_client: tanjun.Client
+    ) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -3765,7 +3774,9 @@ class TestClient:
         command_dispatch_client.dispatch_client_callback.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_on_message_create_event_when_only_generic_hooks(self, command_dispatch_client: tanjun.Client):
+    async def test_on_message_create_event_when_only_generic_hooks(
+        self, command_dispatch_client: tanjun.Client
+    ) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -3797,7 +3808,7 @@ class TestClient:
         command_dispatch_client.dispatch_client_callback.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_on_message_create_event_when_no_hooks(self, command_dispatch_client: tanjun.Client):
+    async def test_on_message_create_event_when_no_hooks(self, command_dispatch_client: tanjun.Client) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -3829,7 +3840,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_message_create_event_when_checks_raise_command_error(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -3862,7 +3873,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_message_create_event_when_checks_raise_halt_execution(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -3893,7 +3904,9 @@ class TestClient:
         )
 
     @pytest.mark.asyncio
-    async def test_on_message_create_event_when_checks_returns_false(self, command_dispatch_client: tanjun.Client):
+    async def test_on_message_create_event_when_checks_returns_false(
+        self, command_dispatch_client: tanjun.Client
+    ) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -3926,7 +3939,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_message_create_event_when_component_raises_command_error(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -3965,7 +3978,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_message_create_event_when_component_raises_halt_execution(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -4002,7 +4015,7 @@ class TestClient:
         )
 
     @pytest.mark.asyncio
-    async def test_on_message_create_event_when_not_found(self, command_dispatch_client: tanjun.Client):
+    async def test_on_message_create_event_when_not_found(self, command_dispatch_client: tanjun.Client) -> None:
         ctx_maker = mock.Mock(return_value=mock.Mock(content="!  42", respond=mock.AsyncMock()))
         ctx_maker.return_value.set_content.return_value = ctx_maker.return_value
         mock_component_1 = mock.AsyncMock(bind_client=mock.Mock())
@@ -4041,7 +4054,7 @@ class TestClient:
     # Interaction create event
 
     @pytest.mark.asyncio
-    async def test__on_menu_not_found(self):
+    async def test__on_menu_not_found(self) -> None:
         dispatch_client_callback_ = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -4056,7 +4069,7 @@ class TestClient:
         dispatch_client_callback_.assert_awaited_once_with(tanjun.ClientCallbackNames.MENU_COMMAND_NOT_FOUND, ctx)
 
     @pytest.mark.asyncio
-    async def test__on_menu_not_found_when_already_responded(self):
+    async def test__on_menu_not_found_when_already_responded(self) -> None:
         dispatch_client_callback_ = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -4071,7 +4084,7 @@ class TestClient:
         dispatch_client_callback_.assert_awaited_once_with(tanjun.ClientCallbackNames.MENU_COMMAND_NOT_FOUND, ctx)
 
     @pytest.mark.asyncio
-    async def test__on_menu_not_found_when_not_found_messages_disabled(self):
+    async def test__on_menu_not_found_when_not_found_messages_disabled(self) -> None:
         dispatch_client_callback_ = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -4086,7 +4099,7 @@ class TestClient:
         dispatch_client_callback_.assert_awaited_once_with(tanjun.ClientCallbackNames.MENU_COMMAND_NOT_FOUND, ctx)
 
     @pytest.mark.asyncio
-    async def test__on_slash_not_found(self):
+    async def test__on_slash_not_found(self) -> None:
         dispatch_client_callback_ = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -4101,7 +4114,7 @@ class TestClient:
         dispatch_client_callback_.assert_awaited_once_with(tanjun.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
 
     @pytest.mark.asyncio
-    async def test__on_slash_not_found_when_already_responded(self):
+    async def test__on_slash_not_found_when_already_responded(self) -> None:
         dispatch_client_callback_ = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -4116,7 +4129,7 @@ class TestClient:
         dispatch_client_callback_.assert_awaited_once_with(tanjun.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
 
     @pytest.mark.asyncio
-    async def test__on_slash_not_found_when_not_found_messages_disabled(self):
+    async def test__on_slash_not_found_when_not_found_messages_disabled(self) -> None:
         dispatch_client_callback_ = mock.AsyncMock()
 
         class StubClient(tanjun.Client):
@@ -4131,7 +4144,7 @@ class TestClient:
         dispatch_client_callback_.assert_awaited_once_with(tanjun.ClientCallbackNames.SLASH_COMMAND_NOT_FOUND, ctx)
 
     @pytest.mark.asyncio
-    async def test_on_gateway_autocomplete_create(self, command_dispatch_client: tanjun.Client):
+    async def test_on_gateway_autocomplete_create(self, command_dispatch_client: tanjun.Client) -> None:
         mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
         mock_component_2 = mock.Mock(execute_autocomplete=mock.AsyncMock())
         mock_component_3 = mock.Mock(execute_autocomplete=mock.Mock())
@@ -4152,7 +4165,7 @@ class TestClient:
         mock_component_3.execute_autocomplete.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_on_gateway_autocomplete_create_when_not_found(self, command_dispatch_client: tanjun.Client):
+    async def test_on_gateway_autocomplete_create_when_not_found(self, command_dispatch_client: tanjun.Client) -> None:
         mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
         mock_component_2 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
         mock_component_3 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
@@ -4173,7 +4186,7 @@ class TestClient:
         mock_component_3.execute_autocomplete.assert_called_once_with(mock_make_ctx.return_value)
 
     @pytest.mark.asyncio
-    async def test_on_gateway_command_create_for_slash_command(self, command_dispatch_client: tanjun.Client):
+    async def test_on_gateway_command_create_for_slash_command(self, command_dispatch_client: tanjun.Client) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4223,7 +4236,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_ephemeral_default(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4272,7 +4285,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_not_auto_deferring(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4317,7 +4330,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_no_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4363,7 +4376,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_only_slash_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4412,7 +4425,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_only_generic_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4461,7 +4474,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_not_found(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4506,7 +4519,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_checks_raise_command_error(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4550,7 +4563,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_checks_raise_halt_execution(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4592,7 +4605,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_component_raises_command_error(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4640,7 +4653,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_component_raises_halt_execution(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4686,7 +4699,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_slash_command_when_checks_fail(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.SlashContext,
@@ -4726,7 +4739,7 @@ class TestClient:
         mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio
-    async def test_on_gateway_command_create_for_menu_command(self, command_dispatch_client: tanjun.Client):
+    async def test_on_gateway_command_create_for_menu_command(self, command_dispatch_client: tanjun.Client) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -4776,7 +4789,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_ephemeral_default(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -4825,7 +4838,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_not_auto_deferring(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -4870,7 +4883,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_no_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -4916,7 +4929,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_only_menu_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -4965,7 +4978,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_only_generic_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -5014,7 +5027,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_not_found(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -5059,7 +5072,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_checks_raise_command_error(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -5103,7 +5116,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_checks_raise_halt_execution(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -5141,7 +5154,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_component_raises_command_error(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -5189,7 +5202,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_component_raises_halt_execution(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -5235,7 +5248,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_gateway_command_create_for_menu_command_when_checks_fail(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_ctx_maker = mock.Mock(
             return_value=mock.Mock(
                 tanjun.context.MenuContext,
@@ -5275,7 +5288,9 @@ class TestClient:
         mock_ctx_maker.return_value.cancel_defer.assert_called_once_with()
 
     @pytest.mark.asyncio
-    async def test_on_interaction_create_event_for_command_interaction(self, command_dispatch_client: tanjun.Client):
+    async def test_on_interaction_create_event_for_command_interaction(
+        self, command_dispatch_client: tanjun.Client
+    ) -> None:
         mock_event = mock.Mock(
             interaction=mock.Mock(hikari.CommandInteraction, type=hikari.InteractionType.APPLICATION_COMMAND)
         )
@@ -5291,7 +5306,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_interaction_create_event_for_command_interaction_when_commands_disabled(
         self, command_dispatch_client: tanjun.Client, allow: tanjun.InteractionAcceptsEnum
-    ):
+    ) -> None:
         command_dispatch_client.set_interaction_accepts(allow)
         mock_event = mock.Mock(
             interaction=mock.Mock(hikari.CommandInteraction, type=hikari.InteractionType.APPLICATION_COMMAND)
@@ -5307,7 +5322,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_interaction_create_event_for_autocomplete_interaction(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_event = mock.Mock(
             interaction=mock.Mock(hikari.AutocompleteInteraction, type=hikari.InteractionType.AUTOCOMPLETE)
         )
@@ -5323,7 +5338,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_interaction_create_event_for_autocomplete_interaction_when_autocomplete_disabled(
         self, command_dispatch_client: tanjun.Client, allow: tanjun.InteractionAcceptsEnum
-    ):
+    ) -> None:
         command_dispatch_client.set_interaction_accepts(allow)
         mock_event = mock.Mock(
             interaction=mock.Mock(hikari.AutocompleteInteraction, type=hikari.InteractionType.AUTOCOMPLETE)
@@ -5339,7 +5354,7 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_interaction_create_event_for_unknown_interaction_type(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_event = mock.Mock(interaction=mock.Mock(hikari.PartialInteraction, type=-1))
         command_dispatch_client.on_gateway_autocomplete_create = mock.AsyncMock()
         command_dispatch_client.on_gateway_command_create = mock.AsyncMock()
@@ -5350,11 +5365,11 @@ class TestClient:
         command_dispatch_client.on_gateway_autocomplete_create.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_on_autocomplete_interaction_request(self, command_dispatch_client: tanjun.Client):
+    async def test_on_autocomplete_interaction_request(self, command_dispatch_client: tanjun.Client) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.AutocompleteContext):
+        async def execution_callback(ctx: tanjun.abc.AutocompleteContext) -> None:
             nonlocal task
             assert ctx is mock_make_ctx.return_value
             mock_make_ctx.call_args.kwargs["future"].set_result(mock_result)
@@ -5383,10 +5398,12 @@ class TestClient:
         mock_add_task.assert_called_once_with(task)
 
     @pytest.mark.asyncio
-    async def test_on_autocomplete_interaction_request_when_no_result_set(self, command_dispatch_client: tanjun.Client):
+    async def test_on_autocomplete_interaction_request_when_no_result_set(
+        self, command_dispatch_client: tanjun.Client
+    ) -> None:
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.AutocompleteContext):
+        async def execution_callback(ctx: tanjun.abc.AutocompleteContext) -> None:
             nonlocal task
             assert ctx is mock_make_ctx.return_value
             task = asyncio.current_task()
@@ -5414,7 +5431,9 @@ class TestClient:
         mock_add_task.assert_called_once_with(task)
 
     @pytest.mark.asyncio
-    async def test_on_autocomplete_interaction_request_when_not_found(self, command_dispatch_client: tanjun.Client):
+    async def test_on_autocomplete_interaction_request_when_not_found(
+        self, command_dispatch_client: tanjun.Client
+    ) -> None:
         mock_component_1 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
         mock_component_2 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
         mock_component_3 = mock.Mock(execute_autocomplete=mock.Mock(return_value=None))
@@ -5438,15 +5457,19 @@ class TestClient:
         mock_add_task.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_on_command_interaction_request_for_slash_command(self, command_dispatch_client: tanjun.Client):
+    async def test_on_command_interaction_request_for_slash_command(
+        self, command_dispatch_client: tanjun.Client
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -5503,14 +5526,16 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_future_not_set(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
                 task = asyncio.current_task()
 
             return _()
@@ -5564,15 +5589,17 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_ephemeral_default(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.slash_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -5628,11 +5655,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_not_auto_deferring(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
             task = asyncio.current_task()
@@ -5683,15 +5710,17 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_no_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks is None
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -5744,15 +5773,17 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_only_slash_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.slash_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -5808,15 +5839,17 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_only_generic_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.SlashContext, hooks: tanjun.abc.SlashHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -5872,11 +5905,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_not_found(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
             task = asyncio.current_task()
@@ -5926,10 +5959,10 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_not_found_and_no_result(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             task = asyncio.current_task()
 
@@ -5978,11 +6011,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_checks_raise_command_error(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def error_send_callback(ctx: tanjun.abc.Context):
+        async def error_send_callback(ctx: tanjun.abc.Context) -> None:
             nonlocal task
             assert ctx is mock_ctx_maker.return_value
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
@@ -6032,10 +6065,10 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_checks_raise_command_error_and_result_not_given(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         task = None
 
-        async def error_send_callback(ctx: tanjun.abc.Context):
+        async def error_send_callback(ctx: tanjun.abc.Context) -> None:
             nonlocal task
             assert ctx is mock_ctx_maker.return_value
             task = asyncio.current_task()
@@ -6084,11 +6117,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_checks_raise_halt_execution(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
             task = asyncio.current_task()
@@ -6135,11 +6168,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_component_raises_command_error(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def error_send_callback(ctx: tanjun.abc.Context):
+        async def error_send_callback(ctx: tanjun.abc.Context) -> None:
             nonlocal task
             assert ctx is mock_ctx_maker.return_value
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
@@ -6194,11 +6227,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_component_raises_halt_execution(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
             task = asyncio.current_task()
@@ -6251,11 +6284,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_slash_command_when_checks_fail(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
             task = asyncio.current_task()
@@ -6299,15 +6332,19 @@ class TestClient:
         mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_on_command_interaction_request_for_menu_command(self, command_dispatch_client: tanjun.Client):
+    async def test_on_command_interaction_request_for_menu_command(
+        self, command_dispatch_client: tanjun.Client
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -6364,14 +6401,16 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_future_not_set(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
                 task = asyncio.current_task()
 
             return _()
@@ -6425,15 +6464,17 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_ephemeral_default(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks, command_dispatch_client.menu_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -6489,11 +6530,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_not_auto_deferring(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
             task = asyncio.current_task()
@@ -6544,15 +6585,17 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_no_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks is None
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -6605,15 +6648,17 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_only_menu_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.menu_hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -6669,15 +6714,17 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_only_generic_hooks(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def execution_callback(ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None):
-            async def _():
+        async def execution_callback(
+            ctx: tanjun.abc.MenuContext, hooks: tanjun.abc.MenuHooks | None
+        ) -> collections.Coroutine[typing.Any, typing.Any, None]:
+            async def _() -> None:
                 nonlocal task
                 assert ctx is mock_ctx_maker.return_value
-                assert hooks is hooks
+                assert hooks == {command_dispatch_client.hooks}
                 mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
                 task = asyncio.current_task()
 
@@ -6733,11 +6780,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_not_found(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
             task = asyncio.current_task()
@@ -6787,10 +6834,10 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_not_found_and_no_result(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             task = asyncio.current_task()
 
@@ -6839,11 +6886,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_checks_raise_command_error(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def error_send_callback(ctx: tanjun.abc.Context):
+        async def error_send_callback(ctx: tanjun.abc.Context) -> None:
             nonlocal task
             assert ctx is mock_ctx_maker.return_value
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
@@ -6893,10 +6940,10 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_checks_raise_command_error_and_result_not_given(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         task = None
 
-        async def error_send_callback(ctx: tanjun.abc.Context):
+        async def error_send_callback(ctx: tanjun.abc.Context) -> None:
             nonlocal task
             assert ctx is mock_ctx_maker.return_value
             task = asyncio.current_task()
@@ -6945,11 +6992,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_checks_raise_halt_execution(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
             task = asyncio.current_task()
@@ -6996,11 +7043,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_component_raises_command_error(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def error_send_callback(ctx: tanjun.abc.Context):
+        async def error_send_callback(ctx: tanjun.abc.Context) -> None:
             nonlocal task
             assert ctx is mock_ctx_maker.return_value
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
@@ -7055,11 +7102,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_component_raises_halt_execution(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
             task = asyncio.current_task()
@@ -7112,11 +7159,11 @@ class TestClient:
     @pytest.mark.asyncio
     async def test_on_command_interaction_request_for_menu_command_when_checks_fail(
         self, command_dispatch_client: tanjun.Client
-    ):
+    ) -> None:
         mock_result = mock.Mock()
         task = None
 
-        async def not_found_callback():
+        async def not_found_callback() -> None:
             nonlocal task
             mock_ctx_maker.call_args.kwargs["future"].set_result(mock_result)
             task = asyncio.current_task()
@@ -7160,7 +7207,7 @@ class TestClient:
         mock_ctx_maker.return_value.cancel_defer.assert_not_called()
 
 
-def test__normalize_path():
+def test__normalize_path() -> None:
     mock_path = mock.Mock()
 
     result = tanjun.clients._normalize_path(mock_path)
@@ -7170,7 +7217,7 @@ def test__normalize_path():
     mock_path.expanduser.return_value.resolve.assert_called_once_with()
 
 
-def test__normalize_path_when_expanduser_fails():
+def test__normalize_path_when_expanduser_fails() -> None:
     mock_path = mock.Mock()
     mock_path.expanduser.side_effect = RuntimeError
 

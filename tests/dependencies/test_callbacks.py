@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -41,7 +40,7 @@ import tanjun
 
 
 @pytest.mark.asyncio
-async def test_fetch_my_user_when_cached():
+async def test_fetch_my_user_when_cached() -> None:
     mock_client = mock.Mock()
     mock_cache = mock.AsyncMock()
 
@@ -54,7 +53,7 @@ async def test_fetch_my_user_when_cached():
 
 
 @pytest.mark.asyncio
-async def test_fetch_my_user_when_not_cached_but_async_cache_returns():
+async def test_fetch_my_user_when_not_cached_but_async_cache_returns() -> None:
     mock_client = mock.Mock()
     mock_client.cache.get_me.return_value = None
     mock_cache = mock.AsyncMock()
@@ -68,7 +67,7 @@ async def test_fetch_my_user_when_not_cached_but_async_cache_returns():
 
 
 @pytest.mark.asyncio
-async def test_fetch_my_user_when_no_cache_but_async_cache_returns():
+async def test_fetch_my_user_when_no_cache_but_async_cache_returns() -> None:
     mock_client = mock.Mock()
     mock_client.cache = None
     mock_cache = mock.AsyncMock()
@@ -81,7 +80,7 @@ async def test_fetch_my_user_when_no_cache_but_async_cache_returns():
 
 
 @pytest.mark.asyncio
-async def test_fetch_my_user_when_not_cached_token_type_isnt_bot():
+async def test_fetch_my_user_when_not_cached_token_type_isnt_bot() -> None:
     mock_client = mock.Mock()
     mock_client.rest.token_type = hikari.TokenType.BEARER
     mock_client.cache.get_me.return_value = None
@@ -96,7 +95,7 @@ async def test_fetch_my_user_when_not_cached_token_type_isnt_bot():
 
 
 @pytest.mark.asyncio
-async def test_fetch_my_user_when_not_cache_bound_and_async_cache_returns_none_falls_back_to_rest():
+async def test_fetch_my_user_when_not_cache_bound_and_async_cache_returns_none_falls_back_to_rest() -> None:
     mock_client = mock.Mock()
     mock_client.rest.token_type = hikari.TokenType.BOT
     mock_client.rest.fetch_my_user = mock.AsyncMock(return_value=mock.Mock())
@@ -112,7 +111,7 @@ async def test_fetch_my_user_when_not_cache_bound_and_async_cache_returns_none_f
 
 
 @pytest.mark.asyncio
-async def test_fetch_my_user_when_not_cache_bound_and_not_async_cache_falls_back_to_rest():
+async def test_fetch_my_user_when_not_cache_bound_and_not_async_cache_falls_back_to_rest() -> None:
     mock_client = mock.Mock()
     mock_client.rest.token_type = hikari.TokenType.BOT
     mock_client.rest.fetch_my_user = mock.AsyncMock(return_value=mock.Mock())

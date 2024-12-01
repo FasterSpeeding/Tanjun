@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -67,10 +66,10 @@ if typing.TYPE_CHECKING:
     _T_contra = typing.TypeVar("_T_contra", contravariant=True)
 
     class _CmpProto(typing.Protocol[_T_contra]):
-        def __gt__(self, __other: _T_contra) -> bool:
+        def __gt__(self, other: _T_contra, /) -> bool:
             raise NotImplementedError
 
-        def __lt__(self, __other: _T_contra) -> bool:
+        def __lt__(self, other: _T_contra, /) -> bool:
             raise NotImplementedError
 
     class _SizedCmpProto(_CmpProto[_T_contra]):
@@ -79,7 +78,7 @@ if typing.TYPE_CHECKING:
 
     _CmpProtoT = typing.TypeVar("_CmpProtoT", bound=_CmpProto[typing.Any])
     # Pyright bug doesn't accept Var = Class | Class as a type
-    _MaybeIterable = typing.Union[collections.Iterable["_T"], "_T"]
+    _MaybeIterable = typing.Union[collections.Iterable["_T"], "_T"]  # noqa: UP007
     _SizedCmpProtoT = typing.TypeVar("_SizedCmpProtoT", bound=_SizedCmpProto[typing.Any])
 
 
@@ -534,7 +533,8 @@ async def _covert_option_or_empty(
     if option.empty_value is not tanjun.NO_DEFAULT:
         return option.empty_value
 
-    raise errors.NotEnoughArgumentsError(f"Option '{option.key} cannot be empty.", option.key)
+    error_message = f"Option '{option.key} cannot be empty."
+    raise errors.NotEnoughArgumentsError(error_message, option.key)
 
 
 class _SemanticShlex(_ShlexTokenizer):
@@ -567,15 +567,15 @@ class _SemanticShlex(_ShlexTokenizer):
 
             elif not option.is_multi and (value := next(values_iter, ...)) is not ...:
                 if next(values_iter, ...) is not ...:
-                    raise errors.TooManyArgumentsError(
-                        f"Option `{option.key}` can only take a single value", option.key
-                    )
+                    error_message = f"Option `{option.key}` can only take a single value"
+                    raise errors.TooManyArgumentsError(error_message, option.key)
 
                 kwargs[option.key] = await _covert_option_or_empty(self.__ctx, option, value)
 
             elif option.default is tanjun.NO_DEFAULT:
                 # If this is reached then no value was found.
-                raise errors.NotEnoughArgumentsError(f"Missing required option `{option.key}`", option.key)
+                error_message = f"Missing required option `{option.key}`"
+                raise errors.NotEnoughArgumentsError(error_message, option.key)
 
             elif option.default is not tanjun.NO_PASS:
                 kwargs[option.key] = option.default
@@ -593,9 +593,8 @@ class _SemanticShlex(_ShlexTokenizer):
 
             elif argument.default is tanjun.NO_DEFAULT:
                 # If this is reached then no value was found.
-                raise errors.NotEnoughArgumentsError(
-                    f"Missing value for required argument '{argument.key}'", argument.key
-                )
+                error_message = f"Missing value for required argument '{argument.key}'"
+                raise errors.NotEnoughArgumentsError(error_message, argument.key)
 
             elif argument.default is not tanjun.NO_PASS:
                 kwargs[argument.key] = argument.default
@@ -615,7 +614,8 @@ def _get_or_set_parser(command: tanjun.MessageCommand[typing.Any], /) -> Abstrac
     if isinstance(command.parser, AbstractOptionParser):
         return command.parser
 
-    raise TypeError("Expected parser to be an instance of tanjun.parsing.AbstractOptionParser")
+    error_message = "Expected parser to be an instance of tanjun.parsing.AbstractOptionParser"
+    raise TypeError(error_message)
 
 
 @typing.overload
@@ -1513,10 +1513,10 @@ class Parameter:
         "_default",
         "_is_multi",
         "_key",
-        "_min_length",
         "_max_length",
-        "_min_value",
         "_max_value",
+        "_min_length",
+        "_min_value",
     )
 
     def __init__(
@@ -1545,7 +1545,8 @@ class Parameter:
         self._max_value = max_value
 
         if key.startswith("-"):
-            raise ValueError("parameter key cannot start with `-`")
+            error_message = "parameter key cannot start with `-`"
+            raise ValueError(error_message)
 
         if isinstance(converters, collections.Iterable):
             for converter in converters:
@@ -1646,22 +1647,24 @@ class Parameter:
     def _validate(self, value: typing.Any, /) -> None:
         # asserts value >= self._min_value
         if self._min_value is not None and self._min_value > value:
-            raise errors.ConversionError(
-                f"{self._key!r} must be greater than or equal to {self._min_value!r}", self._key
-            )
+            error_message = f"{self._key!r} must be greater than or equal to {self._min_value!r}"
+            raise errors.ConversionError(error_message, self._key)
 
         # asserts value <= self._max_value
         if self._max_value is not None and self._max_value < value:
-            raise errors.ConversionError(f"{self._key!r} must be less than or equal to {self._max_value!r}", self._key)
+            error_message = f"{self._key!r} must be less than or equal to {self._max_value!r}"
+            raise errors.ConversionError(error_message, self._key)
 
         length: int | None = None
         # asserts that len(value) >= self._min_length
         if self._min_length is not None and self._min_length > (length := len(value)):
-            raise errors.ConversionError(f"{self._key!r} must be longer than {self._min_length - 1}", self._key)
+            error_message = f"{self._key!r} must be longer than {self._min_length - 1}"
+            raise errors.ConversionError(error_message, self._key)
 
         # asserts that len(value) <= self._max_length
         if self._max_length is not None and self._max_length < (len(value) if length is None else length):
-            raise errors.ConversionError(f"{self._key!r} can't be longer than {self._max_length}", self._key)
+            error_message = f"{self._key!r} can't be longer than {self._max_length}"
+            raise errors.ConversionError(error_message, self._key)
 
     async def convert(self, ctx: tanjun.Context, value: str, /) -> typing.Any:
         """Convert the given value to the type of this parameter."""
@@ -1682,7 +1685,8 @@ class Parameter:
                 return result
 
         parameter_type = "option" if isinstance(self, Option) else "argument"
-        raise errors.ConversionError(f"Couldn't convert {parameter_type} '{self._key}'", self._key, errors=sources)
+        error_message = f"Couldn't convert {parameter_type} '{self._key}'"
+        raise errors.ConversionError(error_message, self._key, errors=sources)
 
     def copy(self) -> Self:
         """Copy the parameter.
@@ -1693,7 +1697,7 @@ class Parameter:
             A copy of the parameter.
         """
         inst = copy.copy(self)
-        inst._converters = [copy.copy(converter) for converter in self._converters]
+        inst._converters = [copy.copy(converter) for converter in self._converters]  # noqa: SLF001
         return inst
 
 
@@ -1764,7 +1768,8 @@ class Argument(Parameter):
             Whether this argument can be passed multiple times.
         """
         if greedy and multi:
-            raise ValueError("Argument cannot be both greed and multi.")
+            error_message = "Argument cannot be both greed and multi."
+            raise ValueError(error_message)
 
         self._is_greedy = greedy
         super().__init__(
@@ -1865,7 +1870,8 @@ class Option(Parameter):
             If this option can be provided multiple times.
         """
         if not name.startswith("-") or not all(n.startswith("-") for n in names):
-            raise ValueError("All option names must start with `-`")
+            error_message = "All option names must start with `-`"
+            raise ValueError(error_message)
 
         self._empty_value = empty_value
         self._names: list[str] = [name, *names]
@@ -1924,14 +1930,15 @@ class ShlexParser(AbstractOptionParser):
     def copy(self) -> Self:
         # <<inherited docstring from AbstractOptionParser>>.
         inst = copy.copy(self)
-        inst._arguments = [argument.copy() for argument in self._arguments]
-        inst._options = [option.copy() for option in self._options]
+        inst._arguments = [argument.copy() for argument in self._arguments]  # noqa: SLF001
+        inst._options = [option.copy() for option in self._options]  # noqa: SLF001
         return inst
 
     def _assert_key(self, key: str, /) -> None:
         for callback_name, names in self._callback_arg_names:
             if key not in names:
-                raise ValueError(f"{key!r} is not a valid keyword argument for {callback_name}")
+                error_message = f"{key!r} is not a valid keyword argument for {callback_name}"
+                raise ValueError(error_message)
 
     @typing.overload
     def add_argument(
@@ -2040,7 +2047,8 @@ class ShlexParser(AbstractOptionParser):
 
         for argument_ in self._arguments:
             if argument_.is_multi or argument_.is_greedy:
-                raise ValueError("Multi or greedy argument must be the last argument")
+                error_message = "Multi or greedy argument must be the last argument"
+                raise ValueError(error_message)
 
         self._arguments.append(argument)
         return self
@@ -2191,7 +2199,8 @@ class ShlexParser(AbstractOptionParser):
 
         for parameter in itertools.chain(self._options, self._arguments):
             if parameter.key not in names:
-                raise ValueError(f"{parameter.key!r} is not a valid keyword argument for {callback_name}")
+                error_message = f"{parameter.key!r} is not a valid keyword argument for {callback_name}"
+                raise ValueError(error_message)
 
 
 def with_parser(command: _CommandT, /) -> _CommandT:
@@ -2223,6 +2232,7 @@ def with_parser(command: _CommandT, /) -> _CommandT:
         If the command already has a parser set.
     """
     if command.parser:
-        raise ValueError("Command already has a parser set")
+        error_message = "Command already has a parser set"
+        raise ValueError(error_message)
 
     return command.set_parser(ShlexParser())

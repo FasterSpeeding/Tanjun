@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Tanjun Examples - A collection of examples for Tanjun.
 # Written in 2021 by Faster Speeding Lucina@lmbyrne.dev
 #
@@ -52,7 +51,8 @@ async def slash_check(
 
     # If they don't then we raise a special error which will be caught
     # by the command handler and displayed to the user.
-    raise tanjun.CommandError("You cannot use this command until you have setup an account")
+    error_message = "You cannot use this command until you have setup an account"
+    raise tanjun.CommandError(error_message)
 
 
 # It's worth noting that since this check takes `MessageContext` it is

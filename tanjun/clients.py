@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -154,11 +153,15 @@ where dependency injection is supported.
 _LOGGER: typing.Final[logging.Logger] = logging.getLogger("hikari.tanjun.clients")
 _MENU_TYPES = frozenset((hikari.CommandType.MESSAGE, hikari.CommandType.USER))
 
+_MAX_MENU_COUNT = 5
+_MAX_SLASH_COUNT = 100
+
 
 class _LoaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.update_wrapper
     def __init__(
         self,
         callback: collections.Callable[[Client], None] | collections.Callable[[tanjun.Client], None],
+        *,
         standard_impl: bool,
     ) -> None:
         self._callback = callback
@@ -179,7 +182,8 @@ class _LoaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.updat
     def load(self, client: tanjun.Client, /) -> bool:
         if self._must_be_std:
             if not isinstance(client, Client):
-                raise TypeError("This loader requires instances of the standard Client implementation")
+                error_message = "This loader requires instances of the standard Client implementation"
+                raise TypeError(error_message)
 
             self._callback(client)
 
@@ -196,6 +200,7 @@ class _UnloaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.upd
     def __init__(
         self,
         callback: collections.Callable[[Client], None] | collections.Callable[[tanjun.Client], None],
+        *,
         standard_impl: bool,
     ) -> None:
         self._callback = callback
@@ -219,7 +224,8 @@ class _UnloaderDescriptor(tanjun.ClientLoader):  # Slots mess with functools.upd
     def unload(self, client: tanjun.Client, /) -> bool:
         if self._must_be_std:
             if not isinstance(client, Client):
-                raise TypeError("This unloader requires instances of the standard Client implementation")
+                error_message = "This unloader requires instances of the standard Client implementation"
+                raise TypeError(error_message)
 
             self._callback(client)
 
@@ -291,12 +297,12 @@ def as_loader(
         The decorated load callback.
     """
     if callback:
-        return _LoaderDescriptor(callback, standard_impl)
+        return _LoaderDescriptor(callback, standard_impl=standard_impl)
 
     def decorator(
         callback: collections.Callable[[tanjun.Client], None], /
     ) -> collections.Callable[[tanjun.Client], None]:
-        return _LoaderDescriptor(callback, standard_impl)
+        return _LoaderDescriptor(callback, standard_impl=standard_impl)
 
     return decorator
 
@@ -365,12 +371,12 @@ def as_unloader(
         The decorated unload callback.
     """
     if callback:
-        return _UnloaderDescriptor(callback, standard_impl)
+        return _UnloaderDescriptor(callback, standard_impl=standard_impl)
 
     def decorator(
         callback: collections.Callable[[tanjun.Client], None], /
     ) -> collections.Callable[[tanjun.Client], None]:
-        return _UnloaderDescriptor(callback, standard_impl)
+        return _UnloaderDescriptor(callback, standard_impl=standard_impl)
 
     return decorator
 
@@ -458,7 +464,7 @@ async def on_parser_error(ctx: tanjun.Context, error: errors.ParserError, /) -> 
 
 
 class _StartDeclarer:
-    __slots__ = ("client", "command_ids", "guild_id", "message_ids", "user_ids", "__weakref__")
+    __slots__ = ("__weakref__", "client", "command_ids", "guild_id", "message_ids", "user_ids")
 
     def __init__(
         self,
@@ -487,8 +493,9 @@ def _log_clients(
     server: hikari.api.InteractionServer | None,
     rest: hikari.api.RESTClient,
     shards: hikari.ShardAware | None,
-    event_managed: bool,
     /,
+    *,
+    event_managed: bool,
 ) -> None:
     _LOGGER.info(
         "%s initialised with the following components: %s",
@@ -535,13 +542,9 @@ class Client(tanjun.Client):
         "_events",
         "_grab_mention_prefix",
         "_hooks",
+        "_injector",
         "_interaction_accepts",
         "_is_case_sensitive",
-        "_menu_hooks",
-        "_menu_not_found",
-        "_slash_hooks",
-        "_slash_not_found",
-        "_injector",
         "_is_closing",
         "_listeners",
         "_loop",
@@ -549,6 +552,8 @@ class Client(tanjun.Client):
         "_make_menu_context",
         "_make_message_context",
         "_make_slash_context",
+        "_menu_hooks",
+        "_menu_not_found",
         "_message_accepts",
         "_message_hooks",
         "_metadata",
@@ -559,6 +564,8 @@ class Client(tanjun.Client):
         "_rest",
         "_server",
         "_shards",
+        "_slash_hooks",
+        "_slash_not_found",
         "_tasks",
         "_voice",
     )
@@ -718,7 +725,7 @@ class Client(tanjun.Client):
             * If `command_ids` is passed when `declare_global_commands` is `False`.
         """
         if _LOGGER.isEnabledFor(logging.INFO):
-            _log_clients(cache, events, server, rest, shards, event_managed)
+            _log_clients(cache, events, server, rest, shards, event_managed=event_managed)
 
         if not events and not server:
             _LOGGER.warning(
@@ -770,13 +777,14 @@ class Client(tanjun.Client):
 
         if event_managed:
             if not events:
-                raise ValueError("Client cannot be event managed without an event manager")
+                error_message = "Client cannot be event managed without an event manager"
+                raise ValueError(error_message)
 
             events.subscribe(hikari.StartingEvent, self._on_starting)
             events.subscribe(hikari.StoppingEvent, self._on_stopping)
 
         (
-            self.set_type_dependency(tanjun.Client, self)
+            self.set_type_dependency(tanjun.Client, self)  # noqa: SLF001
             .set_type_dependency(Client, self)
             .set_type_dependency(type(self), self)
             .set_type_dependency(hikari.api.RESTClient, rest)
@@ -795,9 +803,9 @@ class Client(tanjun.Client):
 
         dependencies.set_standard_dependencies(self)
         self._schedule_startup_registers(
-            set_global_commands,
-            declare_global_commands,
-            command_ids,
+            set_global_commands=set_global_commands,
+            declare_global_commands=declare_global_commands,
+            command_ids=command_ids,
             message_ids=message_ids,
             user_ids=user_ids,
             _stack_level=_stack_level,
@@ -811,6 +819,7 @@ class Client(tanjun.Client):
 
     def _schedule_startup_registers(
         self,
+        *,
         set_global_commands: hikari.SnowflakeishOr[hikari.PartialGuild] | bool = False,
         declare_global_commands: (
             hikari.SnowflakeishSequence[hikari.PartialGuild] | hikari.SnowflakeishOr[hikari.PartialGuild] | bool
@@ -831,10 +840,11 @@ class Client(tanjun.Client):
         declare_global_commands = declare_global_commands or set_global_commands
         if isinstance(declare_global_commands, collections.Sequence):
             if command_ids and len(declare_global_commands) > 1:
-                raise ValueError(
+                error_message = (
                     "Cannot provide specific command_ids while automatically "
                     "declaring commands marked as 'global' in multiple-guilds on startup"
                 )
+                raise ValueError(error_message)
 
             for guild in declare_global_commands:
                 _LOGGER.info("Registering startup command declarer for %s guild", guild)
@@ -860,7 +870,8 @@ class Client(tanjun.Client):
                 )
 
             elif command_ids:
-                raise ValueError("Cannot pass command IDs when not declaring global commands")
+                error_message = "Cannot pass command IDs when not declaring global commands"
+                raise ValueError(error_message)
 
         else:
             self.add_client_callback(
@@ -1130,7 +1141,7 @@ class Client(tanjun.Client):
 
         return self
 
-    async def __aenter__(self) -> Client:
+    async def __aenter__(self) -> Self:
         await self.open()
         return self
 
@@ -1492,14 +1503,23 @@ class Client(tanjun.Client):
                 "registered for them " + ", ".join(f"{type_}:{name}" for type_, name in conflicts)
             )
 
-        if message_count > 5:
-            raise ValueError("You can only declare up to 5 top level message context menus in a guild or globally")
+        if message_count > _MAX_MENU_COUNT:
+            error_message = (
+                "You can only declare up to {_MAX_MENU_COUNT} top level message context menus in a guild or globally"
+            )
+            raise ValueError(error_message)
 
-        if slash_count > 100:
-            raise ValueError("You can only declare up to 100 top level slash commands in a guild or globally")
+        if slash_count > _MAX_SLASH_COUNT:
+            error_message = (
+                f"You can only declare up to {_MAX_SLASH_COUNT} top level slash commands in a guild or globally"
+            )
+            raise ValueError(error_message)
 
-        if user_count > 5:
-            raise ValueError("You can only declare up to 5 top level message context menus in a guild or globally")
+        if user_count > _MAX_MENU_COUNT:
+            error_message = (
+                f"You can only declare up to {_MAX_MENU_COUNT} top level message context menus in a guild or globally"
+            )
+            raise ValueError(error_message)
 
         application = application or self._cached_application_id or await self.fetch_rest_application_id()
         target_type = "global" if guild is hikari.UNDEFINED else f"guild {int(guild)}"
@@ -1544,7 +1564,7 @@ class Client(tanjun.Client):
         self._auto_defer_after = float(time) if time is not None else None
         return self
 
-    def set_case_sensitive(self, state: bool, /) -> Self:
+    def set_case_sensitive(self, state: bool, /) -> Self:  # noqa: FBT001
         """Set whether this client defaults to being case sensitive for message commands.
 
         Parameters
@@ -1582,7 +1602,7 @@ class Client(tanjun.Client):
         self._default_app_cmd_permissions = hikari.Permissions(permissions)
         return self
 
-    def set_dms_enabled_for_app_cmds(self, state: bool, /) -> Self:
+    def set_dms_enabled_for_app_cmds(self, state: bool, /) -> Self:  # noqa: FBT001
         """Set whether this clients's commands should be enabled in DMs.
 
         Parameters
@@ -1604,7 +1624,7 @@ class Client(tanjun.Client):
         self._dms_enabled_for_app_cmds = state
         return self
 
-    def set_ephemeral_default(self, state: bool, /) -> Self:
+    def set_ephemeral_default(self, state: bool, /) -> Self:  # noqa: FBT001
         """Set whether slash contexts spawned by this client should default to ephemeral responses.
 
         This defaults to [False][] if not explicitly set.
@@ -1704,7 +1724,8 @@ class Client(tanjun.Client):
             If called while the client is running.
         """
         if self._loop:
-            raise RuntimeError("Cannot change this config while the client is running")
+            error_message = "Cannot change this config while the client is running"
+            raise RuntimeError(error_message)
 
         self._interaction_accepts = accepts
         return self
@@ -1727,10 +1748,12 @@ class Client(tanjun.Client):
             when the client doesn't have a linked event manager.
         """
         if accepts.get_event_type() and not self._events:
-            raise ValueError("Cannot set accepts level on a client with no event manager")
+            error_message = "Cannot set accepts level on a client with no event manager"
+            raise ValueError(error_message)
 
         if self._loop:
-            raise RuntimeError("Cannot change this config while the client is running")
+            error_message = "Cannot change this config while the client is running"
+            raise RuntimeError(error_message)
 
         self._message_accepts = accepts
         return self
@@ -1851,7 +1874,7 @@ class Client(tanjun.Client):
         self._make_slash_context = maker
         return self
 
-    def set_human_only(self, value: bool = True, /) -> Self:
+    def set_human_only(self, value: bool = True, /) -> Self:  # noqa: FBT001, FBT002
         """Set whether or not message commands execution should be limited to "human" users.
 
         !!! note
@@ -1956,7 +1979,8 @@ class Client(tanjun.Client):
             If the component's name is already registered.
         """
         if component.name in self._components:
-            raise ValueError(f"A component named {component.name!r} is already registered.")
+            error_message = f"A component named {component.name!r} is already registered."
+            raise ValueError(error_message)
 
         component.bind_client(self)
         self._components[component.name] = component
@@ -1977,7 +2001,8 @@ class Client(tanjun.Client):
         # <<inherited docstring from tanjun.abc.Client>>.
         stored_component = self._components.get(component.name)
         if not stored_component or stored_component != component:
-            raise ValueError(f"The component {component!r} is not registered.")
+            error_message = f"The component {component!r} is not registered."
+            raise ValueError(error_message)
 
         del self._components[component.name]
 
@@ -2209,17 +2234,17 @@ class Client(tanjun.Client):
 
     @typing.overload
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.MESSAGE]  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.MESSAGE]
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]: ...
 
     @typing.overload
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.USER]  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.USER]
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]: ...
 
     @typing.overload
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: hikari.CommandType | None = None  # noqa: A002.
+        self, *, global_only: bool = False, type: hikari.CommandType | None = None
     ) -> collections.Iterator[tanjun.MenuCommand[typing.Any, typing.Any]]: ...
 
     def iter_menu_commands(
@@ -2231,7 +2256,8 @@ class Client(tanjun.Client):
 
         if type:
             if type not in _MENU_TYPES:
-                raise ValueError("Command type filter must be USER or MESSAGE")
+                error_message = "Command type filter must be USER or MESSAGE"
+                raise ValueError(error_message)
 
             return filter(lambda c: c.type == type, self.iter_menu_commands(global_only=global_only, type=None))
 
@@ -2284,7 +2310,8 @@ class Client(tanjun.Client):
             If the client isn't running.
         """
         if not self._loop:
-            raise RuntimeError("Client isn't active")
+            error_message = "Client isn't active"
+            raise RuntimeError(error_message)
 
         if self._is_closing:
             event = asyncio.Event()
@@ -2334,7 +2361,8 @@ class Client(tanjun.Client):
             If the client is already active.
         """
         if self._loop:
-            raise RuntimeError("Client is already alive")
+            error_message = "Client is already alive"
+            raise RuntimeError(error_message)
 
         self._loop = asyncio.get_running_loop()
         self._is_closing = False
@@ -2532,7 +2560,8 @@ class Client(tanjun.Client):
                 found = True
 
         if not found:
-            raise errors.ModuleMissingLoaders(f"Didn't find any loaders in {module_path}", module_path)
+            error_message = f"Didn't find any loaders in {module_path}"
+            raise errors.ModuleMissingLoaders(error_message, module_path)
 
     def _call_unloaders(self, module_path: str | pathlib.Path, loaders: list[tanjun.ClientLoader], /) -> None:
         found = False
@@ -2541,14 +2570,16 @@ class Client(tanjun.Client):
                 found = True
 
         if not found:
-            raise errors.ModuleMissingUnloaders(f"Didn't find any unloaders in {module_path}", module_path)
+            error_message = f"Didn't find any unloaders in {module_path}"
+            raise errors.ModuleMissingUnloaders(error_message, module_path)
 
     def _load_module(
         self, module_path: str | pathlib.Path, /
     ) -> collections.Generator[collections.Callable[[], types.ModuleType], types.ModuleType, None]:
         if isinstance(module_path, str):
             if module_path in self._modules:
-                raise errors.ModuleStateConflict(f"module {module_path} already loaded", module_path)
+                error_message = f"module {module_path} already loaded"
+                raise errors.ModuleStateConflict(error_message, module_path)
 
             _LOGGER.info("Loading from %s", module_path)
             module = yield _LoadModule(module_path)
@@ -2560,7 +2591,8 @@ class Client(tanjun.Client):
 
         else:
             if module_path in self._path_modules:
-                raise errors.ModuleStateConflict(f"Module at {module_path} already loaded", module_path)
+                error_message = f"Module at {module_path} already loaded"
+                raise errors.ModuleStateConflict(error_message, module_path)
 
             _LOGGER.info("Loading from %s", module_path)
             module = yield _LoadModule(module_path)
@@ -2572,7 +2604,8 @@ class Client(tanjun.Client):
 
     def load_modules(self, *modules: str | pathlib.Path) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
-        for module_path in modules:
+        for path in modules:
+            module_path = path
             if isinstance(module_path, pathlib.Path):
                 module_path = _normalize_path(module_path)
 
@@ -2586,14 +2619,16 @@ class Client(tanjun.Client):
             except StopIteration:
                 pass
             else:
-                raise RuntimeError("Generator didn't finish")
+                error_message = "Generator didn't finish"
+                raise RuntimeError(error_message)
 
         return self
 
     async def load_modules_async(self, *modules: str | pathlib.Path) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         loop = asyncio.get_running_loop()
-        for module_path in modules:
+        for path in modules:
+            module_path = path
             if isinstance(module_path, pathlib.Path):
                 module_path = await loop.run_in_executor(None, _normalize_path, module_path)
 
@@ -2607,11 +2642,13 @@ class Client(tanjun.Client):
             except StopIteration:
                 pass
             else:
-                raise RuntimeError("Generator didn't finish")
+                error_message = "Generator didn't finish"
+                raise RuntimeError(error_message)
 
     def unload_modules(self, *modules: str | pathlib.Path) -> Self:
         # <<inherited docstring from tanjun.ab.Client>>.
-        for module_path in modules:
+        for path in modules:
+            module_path = path
             if isinstance(module_path, str):
                 modules_dict: dict[typing.Any, types.ModuleType] = self._modules
 
@@ -2621,7 +2658,8 @@ class Client(tanjun.Client):
 
             module = modules_dict.get(module_path)
             if not module:
-                raise errors.ModuleStateConflict(f"Module {module_path!s} not loaded", module_path)
+                error_message = f"Module {module_path!s} not loaded"
+                raise errors.ModuleStateConflict(error_message, module_path)
 
             _LOGGER.info("Unloading from %s", module_path)
             with _WrapLoadError(errors.FailedModuleUnload, module_path):
@@ -2645,7 +2683,8 @@ class Client(tanjun.Client):
             modules_dict = self._path_modules
 
         if not old_module:
-            raise errors.ModuleStateConflict(f"Module {module_path} not loaded", module_path)
+            error_message = f"Module {module_path} not loaded"
+            raise errors.ModuleStateConflict(error_message, module_path)
 
         load_module = load_module or _ReloadModule(old_module)  # If this is None then it's a Python path.
         _LOGGER.info("Reloading %s", module_path)
@@ -2654,7 +2693,8 @@ class Client(tanjun.Client):
         # We assert that the old module has unloaders early to avoid unnecessarily
         # importing the new module.
         if not any(loader.has_unload for loader in old_loaders):
-            raise errors.ModuleMissingUnloaders(f"Didn't find any unloaders in old {module_path}", module_path)
+            error_message = f"Didn't find any unloaders in old {module_path}"
+            raise errors.ModuleMissingUnloaders(error_message, module_path)
 
         module = yield load_module
 
@@ -2663,7 +2703,8 @@ class Client(tanjun.Client):
         # We assert that the new module has loaders early to avoid unnecessarily
         # unloading then rolling back when we know it's going to fail to load.
         if not any(loader.has_load for loader in loaders):
-            raise errors.ModuleMissingLoaders(f"Didn't find any loaders in new {module_path}", module_path)
+            error_message = f"Didn't find any loaders in new {module_path}"
+            raise errors.ModuleMissingLoaders(error_message, module_path)
 
         with _WrapLoadError(errors.FailedModuleUnload, module_path):
             # This will never raise MissingLoaders as we assert this earlier
@@ -2680,7 +2721,8 @@ class Client(tanjun.Client):
 
     def reload_modules(self, *modules: str | pathlib.Path) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
-        for module_path in modules:
+        for path in modules:
+            module_path = path
             if isinstance(module_path, pathlib.Path):
                 module_path = _normalize_path(module_path)
 
@@ -2694,14 +2736,16 @@ class Client(tanjun.Client):
             except StopIteration:
                 pass
             else:
-                raise RuntimeError("Generator didn't finish")
+                error_message = "Generator didn't finish"
+                raise RuntimeError(error_message)
 
         return self
 
     async def reload_modules_async(self, *modules: str | pathlib.Path) -> None:
         # <<inherited docstring from tanjun.abc.Client>>.
         loop = asyncio.get_running_loop()
-        for module_path in modules:
+        for path in modules:
+            module_path = path
             if isinstance(module_path, pathlib.Path):
                 module_path = await loop.run_in_executor(None, _normalize_path, module_path)
 
@@ -2717,7 +2761,8 @@ class Client(tanjun.Client):
                 pass
 
             else:
-                raise RuntimeError("Generator didn't finish")
+                error_message = "Generator didn't finish"
+                raise RuntimeError(error_message)
 
     def set_type_dependency(self, type_: type[_T], value: _T, /) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
@@ -2882,7 +2927,8 @@ class Client(tanjun.Client):
             hooks = self._get_menu_hooks()
 
         else:
-            raise RuntimeError(f"Unknown command type {interaction.command_type}")
+            error_message = f"Unknown command type {interaction.command_type}"
+            raise RuntimeError(error_message)
 
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
@@ -2890,7 +2936,7 @@ class Client(tanjun.Client):
         try:
             if not await self.check(ctx):
                 await _mark_not_found_event(ctx)
-                return
+                return None
 
             for component in self._components.values():
                 # This is set on each iteration to ensure that any component
@@ -2918,9 +2964,10 @@ class Client(tanjun.Client):
                 await exc.send(ctx)
             finally:
                 ctx.cancel_defer()
-            return
+            return None
 
         await _mark_not_found_event(ctx)
+        return None
 
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
         """Handle a gateway interaction create event.
@@ -2936,13 +2983,15 @@ class Client(tanjun.Client):
             if self._interaction_accepts & InteractionAcceptsEnum.COMMANDS:
                 assert isinstance(event.interaction, hikari.CommandInteraction)
                 return await self.on_gateway_command_create(event.interaction)
+            return None
 
-        elif (
+        if (
             event.interaction.type is hikari.InteractionType.AUTOCOMPLETE
             and self._interaction_accepts & InteractionAcceptsEnum.AUTOCOMPLETE
         ):
             assert isinstance(event.interaction, hikari.AutocompleteInteraction)
             return await self.on_gateway_autocomplete_create(event.interaction)
+        return None
 
     async def on_autocomplete_interaction_request(
         self, interaction: hikari.AutocompleteInteraction, /
@@ -2970,7 +3019,8 @@ class Client(tanjun.Client):
                 self._add_task(task)
                 return await future
 
-        raise RuntimeError(f"Autocomplete not found for {interaction!r}")
+        error_message = f"Autocomplete not found for {interaction!r}"
+        raise RuntimeError(error_message)
 
     async def on_command_interaction_request(
         self, interaction: hikari.CommandInteraction, /
@@ -3017,7 +3067,8 @@ class Client(tanjun.Client):
             hooks = self._get_menu_hooks()
 
         else:
-            raise RuntimeError(f"Unknown command type {interaction.command_type}")
+            error_message = f"Unknown command type {interaction.command_type}"
+            raise RuntimeError(error_message)
 
         if self._auto_defer_after is not None:
             ctx.start_defer_timer(self._auto_defer_after)
@@ -3108,7 +3159,7 @@ def _get_loaders(module: types.ModuleType, module_path: str | pathlib.Path, /) -
         iterator = (
             member
             for name, member in inspect.getmembers(module)
-            if not name.startswith("_") or name.startswith("__") and name.endswith("__")
+            if not name.startswith("_") or (name.startswith("__") and name.endswith("__"))
         )
 
     return [value for value in iterator if isinstance(value, tanjun.ClientLoader)]
@@ -3120,7 +3171,8 @@ def _get_path_module(module_path: pathlib.Path, /) -> types.ModuleType:
 
     # https://github.com/python/typeshed/issues/2793
     if not spec or not isinstance(spec.loader, importlib.abc.Loader):
-        raise ModuleNotFoundError(f"Module not found at {module_path}", name=module_name, path=str(module_path))
+        error_message = f"Module not found at {module_path}"
+        raise ModuleNotFoundError(error_message, name=module_name, path=str(module_path))
 
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -3144,7 +3196,7 @@ class _WrapLoadError:
         if (
             exc
             and isinstance(exc, Exception)
-            and not isinstance(exc, (errors.ModuleMissingLoaders, errors.ModuleMissingUnloaders))
+            and not isinstance(exc, errors.ModuleMissingLoaders | errors.ModuleMissingUnloaders)
         ):
             raise self._error(*self._args, **self._kwargs) from exc
 

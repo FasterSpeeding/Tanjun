@@ -15,5 +15,5 @@ runs:
         python-version: ${{ inputs.python-version }}
 
     - name: Install Nox
-      run: pipx install nox --python "${{ steps.install-py.outputs.python-path }}"
+      run: pipx install uv nox[uv] --python "${{ steps.install-py.outputs.python-path }}"
       shell: bash

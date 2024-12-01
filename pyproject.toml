@@ -35,6 +35,49 @@ Repository = "https://github.com/FasterSpeeding/Tanjun"
 Documentation = "https://tanjun.cursed.solutions/"
 Changelog = "https://tanjun.cursed.solutions/changelog"
 
+[dependency-groups]
+docs = [
+    "markdown-include>=0.8",
+    "mkdocs>=1.4.2",
+    "mkdocstrings[python]>=0.19",
+    "mkdocs-material>=8.5.11",
+    "mkdocs-minify-plugin>=0.6.4",
+]
+freeze-locks = ["uv"]
+lint = [
+    "codespell>=2.2.2",
+    "pre-commit-hooks>=4.4",
+    "slotscheck>=0.16.1",
+    "ruff",
+]
+publish = ["flit>=3.8.0"]
+reformat = [
+    "black>=22.10.0",
+    "isort>=5.11.3",
+    "pre-commit-hooks>=4.4",
+    "pycln>=2.1.2",
+    "sort-all>=1.2",
+]
+templating = ["Jinja2>=3.1.2"]
+tests = [
+    "pytest>=7",
+    "pytest-cov>=4",
+    "pytest-sugar>=0.9.6",
+    "pytest-timeout>=2.1",
+    "freezegun>=1.2.2",
+    "pytest-asyncio>=0.20.1",
+    "pytest-timeout>=2.1",
+    "pytest-xdist>=3.1",
+    # The pytest extensions aren't compatible with v8 yet.
+    "pytest==7.4.0",
+]
+type-checking = [
+    "mypy>=0.991",
+    "nox",
+    "pyright>=1.1.285",
+    {include-group = "tests"},
+]
+
 [tool.flit.module]
 name = "tanjun"
 
@@ -64,60 +107,119 @@ exclude_lines = [
     "^if typing.TYPE_CHECKING:$"
 ]
 
-[tool.flake8]
-accept-encodings = "utf-8"
-count = true
-docstring-convention = "numpy"
-eradicate-aggressive = true
-extend-select = ["TC100", "TC101"]
-force-future-annotations = true
-ignore-decorators = "overload"
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in ``
+    "COM812",  # Trailing comma missing (incompatible with black)
+    "D102",    # Missing docstring in public method
+    "D105",    # Missing docstring in magic method
+    "FIX002",  # Line contains TODO, consider resolving the issue
+    "I001",    # [*] Import block is un-sorted or un-formatted
+    "N818",    # Exception name `FailedModuleUnload` should be named with an Error suffix
+    "PYI041",  # Use `float` instead of `int | float`
+    "S101",    # Use of `assert` detected
+    "SIM105",  # Use `contextlib.suppress(Error)` instead of `try`-`except`-`pass`
+    "SIM108",  # Use ternary operator `` instead of `if`-`else`-block
+    "TD002",   # Missing author in TODO; try: `# TODO(<author_name>): ...` or `# TODO @<author_name>: ...`
+    "TD003",   # Missing issue link on the line following this TODO
+]
+
+[tool.ruff.lint.per-file-ignores]
+"docs_src/**/*.py" = [
+    "ARG001",  # Unused function argument: ``
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "D100",    # Missing docstring in public module
+    "D101",    # Missing docstring in public class
+    "D102",    # Missing docstring in public method
+    "D103",    # Missing docstring in public function
+    "FBT002",  # Boolean default positional argument in function definition
+    "F841",    # Local variable `` is assigned to but never used
+    "INP001",  # File `` is part of an implicit namespace package. Add an `__init__.py`.
+    "N806",    # Variable `` in function should be lowercase
+    "PIE790",  # [*] Unnecessary `...` literal
+    "PYI013",  # [*] Non-empty class body must not contain `...`
+    "T201",    # `print` found
+]
+"examples/**/*.py" = [
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "D100",    # Missing docstring in public module
+    "D101",    # Missing docstring in public class
+    "D102",    # Missing docstring in public method
+    "D103",    # Missing docstring in public function
+    "FBT001",  # Boolean-typed positional argument in function definition
+    "PIE790",  # [*] Unnecessary `...` literal
+    "PYI013",  # [*] Non-empty class body must not contain `...`
+]
+"noxfile.py" = [
+    "F403",  # `from noxfile import *` used; unable to detect undefined name
+]
+"tests/**/*.py" = [
+    "D100",     # Missing docstring in public module
+    "D101",     # Missing docstring in public class
+    "D102",     # Missing docstring in public method
+    "D103",     # Missing docstring in public function
+    "D104",     # Missing docstring in public package
+    "FBT001",   # Boolean-typed positional argument in function definition
+    "FBT002",   # Boolean default positional argument in function definition
+    "FBT003",   # Boolean positional value in function call
+    "PLR0915",  # Too many statements
+    "PGH003",   # Use specific rule codes when ignoring type issues
+    "PLR2004",  # Magic value used in comparison, consider replacing `` with a constant variable
+    "SLF001",   # Private member accessed: ``
+]
+"tests/test_annotations_future_annotations.py" = [
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "PLW0603", # Using the global statement to update `` is discouraged
+    "UP007",   # [*] Use `X | Y` for type annotations
+]
+"tests/test_annotations.py" = [
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "UP007",   # [*] Use `X | Y` for type annotations
+]
+"tests/test_checks.py" = [
+    "ARG002",  # Unused method argument: ``
+]
+"tests/test_clients_future_annotations.py" = [
+    "B008",     # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "PLW0603",  # Using the global statement to update `` is discouraged
+    "UP007",    # [*] Use `X | Y` for type annotations
+]
+"tests/test_clients.py" = [
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "UP007",   # [*] Use `X | Y` for type annotations
+]
+"tests/test_components_future_annotations.py" = [
+    "B008",     # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "PGH003",   # Use specific rule codes when ignoring type issues
+    "PLW0603",  # Using the global statement to update `` is discouraged
+    "UP007",    # [*] Use `X | Y` for type annotations
+]
+"tests/test_components.py" = [
+    "B008",    # Do not perform function call `` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable
+    "PGH003",  # Use specific rule codes when ignoring type issues
+    "UP007",   # [*] Use `X | Y` for type annotations
+]
+"tests/test_schedules.py" = [
+    "DTZ001",  # `datetime.datetime()` called without a `tzinfo` argument
+    "DTZ005",  # `datetime.datetime.now()` called without a `tz` argument
+]
+
+[tool.ruff.lint.mccabe]
 max-complexity = 20
-max-function-length = 100
+
+[tool.ruff.lint.pycodestyle]
 # Technically this is 120, but black has a policy of "1 or 2 over is fine if it is tidier", so we have to raise this.
 max-line-length = 130
-min_python_version = "3.11"
-pep585-activation = "always"
-show_source = false
-statistics = false
-ignore = [
-    "A003",    # class attribute is shadowing a builtin
-    "CFQ004",  # Function has too many returns.
-    "CFQ002",  # Function has too many arguments.
-    "D102",    # Missing docstring in public method.
-    "D105",    # Magic methods not having a docstring.
-    "D401",    # Conflicts with property doc-strings too much.
-    "D404",    # Conflicts with property doc-strings too much.
-    "D412",    # No blank lines allowed between a section header and its content
-    "E402",    # Module level import not at top of file (isn't compatible with our import style).
-    "IFS001",  # "use a oneliner here".
-    "N818",    # Exceptions should have an "Error" suffix in their name
-    "SIM105",  # Use contextlib.suppress
-    "TRY003",  # Avoid specifying long messages outside the exception class (this hits way too many std exceptions rn)
-    "T101",    # TO-DO comment detection (T102 is FIX-ME and T103 is XXX).
-    "W503",    # line break before binary operator.
-    "W504",    # line break before binary operator (again, I guess).
-    "S101",    # Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
-    "E203",    # whitespace before ':'
-    "E231",    # missing whitespace after ','
-    "E701",    # Incompatible with black: E701 multiple statements on one line (colon)
-    "E704",    # Incompatible with black: E704 multiple statements on one line (def)
-    #"ASYNC910", # Return from async function with no guaranteed checkpoint or exception since function definition.
-    #"ASYNC911", # exit from async iterable with no guaranteed checkpoint since function definition
-    #"ASYNC102", #await inside __aexit__ on line 247 must have shielded cancel scope with a timeout.
-]
-per-file-ignores = [
-    "*.py: ASYNC102, ASYNC910, ASYNC911",
-    "docs_src/*.py: ASYNC102, ASYNC910, ASYNC911, DALL000, D100, D101, D103, E800, FA100, FA101, F841, INP001, N806, TC001, TC101",
-    "examples/*.py: ASYNC102, ASYNC910, ASYNC911, DALL000, D100, D101, D103, E800, FA100, FA101, F401, F403, INP001, TC001, TC003",
-    "noxfile.py: ASYNC102, ASYNC910, ASYNC911, D100, FA101, F401, F403, INP001",
-    "tanjun/abc.py: A005",  # A005 the module is shadowing a Python builtin module "abc"
-    "tanjun/py.typed: ASYNC102, ASYNC910, ASYNC911, D100",
-    "tests/*.py: ASYNC102, ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC003",
-    "tests/test_annotations*.py: ASYNC102, ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC101, TC003",
-    "tests/test_clients*.py: ASYNC102, ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC101",
-    "tests/test_components*.py: ASYNC102, ASYNC910, ASYNC911, CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC101",
-]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pylint]
+max-args = 20
+max-branches = 20
+max-returns = 15
+max-statements = 100
 
 [tool.isort]
 profile = "black"
@@ -144,7 +246,7 @@ disable_error_code = ["type-abstract"]
 default_sessions = [
     "reformat",
     "verify-markup",
-    "flake8",
+    "lint",
     "spell-check",
     "slot-check",
     "type-check",
@@ -169,7 +271,6 @@ python_versions = ["3.11", "3.12", "3.13"]
 [tool.piped.github_actions.type_check]
 [tool.piped.github_actions.update_licence]
 [tool.piped.github_actions.upgrade_locks]
-[tool.piped.github_actions.verify_locks]
 [tool.piped.github_actions.verify_types]
 
 [tool.pycln]
@@ -225,3 +326,6 @@ tanjun.clients:(_LoaderDescriptor|_UnloaderDescriptor)
 | tanjun.dependencies.reloaders:(_PathLoader|_ScanResult)
 | .*Proto
 """
+
+[tool.uv]
+reinstall-package = ["hikari-tanjun"]

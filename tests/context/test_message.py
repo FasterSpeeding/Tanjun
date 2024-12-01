@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -89,54 +88,54 @@ class TestMessageContext:
             triggering_prefix="bonhoven",
         )
 
-    def test___repr__(self, context: tanjun.context.MessageContext):
+    def test___repr__(self, context: tanjun.context.MessageContext) -> None:
         assert repr(context) == f"MessageContext <{context.message!r}, {context.command!r}>"
 
-    def test_author_property(self, context: tanjun.context.MessageContext):
+    def test_author_property(self, context: tanjun.context.MessageContext) -> None:
         assert context.author is context.message.author
 
-    def test_channel_id_property(self, context: tanjun.context.MessageContext):
+    def test_channel_id_property(self, context: tanjun.context.MessageContext) -> None:
         assert context.channel_id is context.message.channel_id
 
-    def test_created_at_property(self, context: tanjun.context.MessageContext):
+    def test_created_at_property(self, context: tanjun.context.MessageContext) -> None:
         assert context.created_at is context.message.created_at
 
-    def test_guild_id_property(self, context: tanjun.context.MessageContext):
+    def test_guild_id_property(self, context: tanjun.context.MessageContext) -> None:
         assert context.guild_id is context.message.guild_id
 
-    def test_has_responded_property(self, context: tanjun.context.MessageContext):
+    def test_has_responded_property(self, context: tanjun.context.MessageContext) -> None:
         assert context.has_responded is False
 
-    def test_has_responded_property_when_initial_repsonse_id_set(self, context: tanjun.context.MessageContext):
+    def test_has_responded_property_when_initial_repsonse_id_set(self, context: tanjun.context.MessageContext) -> None:
         context._initial_response_id = hikari.Snowflake(321123)
 
         assert context.has_responded is True
 
-    def test_is_human_property(self, context: tanjun.context.MessageContext):
+    def test_is_human_property(self, context: tanjun.context.MessageContext) -> None:
         context.message.author = mock.Mock(is_bot=False)
         context.message.webhook_id = None
 
         assert context.is_human is True
 
-    def test_is_human_property_when_is_bot(self, context: tanjun.context.MessageContext):
+    def test_is_human_property_when_is_bot(self, context: tanjun.context.MessageContext) -> None:
         context.message.author = mock.Mock(is_bot=True)
         context.message.webhook_id = None
 
         assert context.is_human is False
 
-    def test_is_human_property_when_is_webhook(self, context: tanjun.context.MessageContext):
+    def test_is_human_property_when_is_webhook(self, context: tanjun.context.MessageContext) -> None:
         context.message.author = mock.Mock(is_bot=False)
         context.message.webhook_id = hikari.Snowflake(123321)
 
         assert context.is_human is False
 
-    def test_member_property(self, context: tanjun.context.MessageContext):
+    def test_member_property(self, context: tanjun.context.MessageContext) -> None:
         assert context.member is context.message.member
 
-    def test_message_property(self, context: tanjun.context.MessageContext):
+    def test_message_property(self, context: tanjun.context.MessageContext) -> None:
         assert context.message is context._message
 
-    def test_set_command(self, context: tanjun.context.MessageContext):
+    def test_set_command(self, context: tanjun.context.MessageContext) -> None:
         mock_command = mock.Mock()
 
         assert context.set_command(mock_command) is context
@@ -145,7 +144,7 @@ class TestMessageContext:
         assert context.get_type_dependency(tanjun.abc.ExecutableCommand) is mock_command
         assert context.get_type_dependency(tanjun.abc.MessageCommand) is mock_command
 
-    def test_set_command_when_none(self, context: tanjun.context.MessageContext):
+    def test_set_command_when_none(self, context: tanjun.context.MessageContext) -> None:
         context.set_command(None)
         context.set_command(None)
 
@@ -157,7 +156,7 @@ class TestMessageContext:
         with pytest.raises(KeyError):
             assert context.get_type_dependency(tanjun.abc.MessageCommand)
 
-    def test_set_command_when_none_and_previously_set(self, context: tanjun.context.MessageContext):
+    def test_set_command_when_none_and_previously_set(self, context: tanjun.context.MessageContext) -> None:
         mock_command = mock.Mock()
         context.set_command(mock_command)
         context.set_command(None)
@@ -170,7 +169,7 @@ class TestMessageContext:
         with pytest.raises(KeyError):
             assert context.get_type_dependency(tanjun.abc.MessageCommand)
 
-    def test_set_command_when_finalised(self, context: tanjun.context.MessageContext):
+    def test_set_command_when_finalised(self, context: tanjun.context.MessageContext) -> None:
         context.finalise()
         mock_command = mock.Mock()
 
@@ -179,11 +178,11 @@ class TestMessageContext:
 
         assert context.command is not mock_command
 
-    def test_set_content(self, context: tanjun.context.MessageContext):
+    def test_set_content(self, context: tanjun.context.MessageContext) -> None:
         assert context.set_content("hi") is context
         assert context.content == "hi"
 
-    def test_set_content_when_finalised(self, context: tanjun.context.MessageContext):
+    def test_set_content_when_finalised(self, context: tanjun.context.MessageContext) -> None:
         context.finalise()
 
         with pytest.raises(TypeError):
@@ -191,12 +190,12 @@ class TestMessageContext:
 
         assert context.content != "hi"
 
-    def test_set_triggering_name(self, context: tanjun.context.MessageContext):
+    def test_set_triggering_name(self, context: tanjun.context.MessageContext) -> None:
         assert context.set_triggering_name("bonjour") is context
 
         assert context.triggering_name == "bonjour"
 
-    def test_set_triggering_name_when_finalised(self, context: tanjun.context.MessageContext):
+    def test_set_triggering_name_when_finalised(self, context: tanjun.context.MessageContext) -> None:
         context.finalise()
 
         with pytest.raises(TypeError):
@@ -204,12 +203,12 @@ class TestMessageContext:
 
         assert context.triggering_name != "bonjour2"
 
-    def test_set_triggering_prefix(self, context: tanjun.context.MessageContext):
+    def test_set_triggering_prefix(self, context: tanjun.context.MessageContext) -> None:
         assert context.set_triggering_prefix("bonhoven") is context
 
         assert context.triggering_prefix == "bonhoven"
 
-    def test_set_triggering_prefix_when_finalised(self, context: tanjun.context.MessageContext):
+    def test_set_triggering_prefix_when_finalised(self, context: tanjun.context.MessageContext) -> None:
         context.finalise()
 
         with pytest.raises(TypeError):
@@ -218,7 +217,9 @@ class TestMessageContext:
         assert context.triggering_prefix != "bonhoven2"
 
     @pytest.mark.asyncio
-    async def test_delete_initial_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
+    async def test_delete_initial_response(
+        self, context: tanjun.context.MessageContext, mock_client: mock.Mock
+    ) -> None:
         context._initial_response_id = hikari.Snowflake(32123)
 
         await context.delete_initial_response()
@@ -228,14 +229,14 @@ class TestMessageContext:
     @pytest.mark.asyncio
     async def test_delete_initial_response_when_no_initial_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
-    ):
+    ) -> None:
         with pytest.raises(LookupError):
             await context.delete_initial_response()
 
         mock_client.rest.delete_message.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_delete_last_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
+    async def test_delete_last_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock) -> None:
         context._last_response_id = hikari.Snowflake(32123)
 
         await context.delete_last_response()
@@ -245,14 +246,14 @@ class TestMessageContext:
     @pytest.mark.asyncio
     async def test_delete_last_response_when_no_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
-    ):
+    ) -> None:
         with pytest.raises(LookupError):
             await context.delete_last_response()
 
         mock_client.rest.delete_message.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_edit_initial_response(self, mock_client: mock.Mock):
+    async def test_edit_initial_response(self, mock_client: mock.Mock) -> None:
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
         context = stub_class(
@@ -303,7 +304,7 @@ class TestMessageContext:
     @pytest.mark.asyncio
     async def test_edit_initial_response_when_no_initial_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
-    ):
+    ) -> None:
         with pytest.raises(LookupError):
             await context.edit_initial_response("hi")
 
@@ -313,7 +314,7 @@ class TestMessageContext:
     @pytest.mark.asyncio
     async def test_edit_initial_response_when_delete_after(
         self, delete_after: datetime.timedelta | float | int, mock_client: mock.Mock
-    ):
+    ) -> None:
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
         context = stub_class(
@@ -331,7 +332,7 @@ class TestMessageContext:
         mock_register_task.assert_called_once_with(create_task.return_value)
 
     @pytest.mark.asyncio
-    async def test_edit_last_response(self, mock_client: mock.Mock):
+    async def test_edit_last_response(self, mock_client: mock.Mock) -> None:
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
         context = stub_class(
@@ -380,7 +381,7 @@ class TestMessageContext:
     @pytest.mark.asyncio
     async def test_edit_last_response_when_no_last_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
-    ):
+    ) -> None:
         with pytest.raises(LookupError):
             await context.edit_last_response("hi")
 
@@ -390,7 +391,7 @@ class TestMessageContext:
     @pytest.mark.asyncio
     async def test_edit_last_response_when_delete_after(
         self, mock_client: mock.Mock, delete_after: datetime.timedelta | int | float
-    ):
+    ) -> None:
         mock_register_task = mock.Mock()
         mock_delete_after = mock.Mock()
         context = stub_class(
@@ -408,7 +409,7 @@ class TestMessageContext:
         mock_register_task.assert_called_once_with(create_task.return_value)
 
     @pytest.mark.asyncio
-    async def test_fetch_initial_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
+    async def test_fetch_initial_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock) -> None:
         context._initial_response_id = hikari.Snowflake(32123)
 
         message = await context.fetch_initial_response()
@@ -419,14 +420,14 @@ class TestMessageContext:
     @pytest.mark.asyncio
     async def test_fetch_initial_response_when_no_initial_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
-    ):
+    ) -> None:
         with pytest.raises(LookupError):
             await context.fetch_initial_response()
 
         mock_client.rest.fetch_message.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_fetch_last_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock):
+    async def test_fetch_last_response(self, context: tanjun.context.MessageContext, mock_client: mock.Mock) -> None:
         context._last_response_id = hikari.Snowflake(32123)
 
         message = await context.fetch_last_response()
@@ -437,7 +438,7 @@ class TestMessageContext:
     @pytest.mark.asyncio
     async def test_fetch_last_response_when_no_last_response(
         self, context: tanjun.context.MessageContext, mock_client: mock.Mock
-    ):
+    ) -> None:
         context._last_response_id = None
         with pytest.raises(LookupError):
             await context.fetch_last_response()
@@ -445,7 +446,7 @@ class TestMessageContext:
         mock_client.rest.fetch_message.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test__delete_after(self, context: tanjun.context.MessageContext):
+    async def test__delete_after(self, context: tanjun.context.MessageContext) -> None:
         mock_message = mock.AsyncMock()
 
         with mock.patch.object(asyncio, "sleep") as sleep:
@@ -455,7 +456,7 @@ class TestMessageContext:
             mock_message.delete.assert_awaited_once_with()
 
     @pytest.mark.asyncio
-    async def test__delete_after_handles_not_found_error(self, context: tanjun.context.MessageContext):
+    async def test__delete_after_handles_not_found_error(self, context: tanjun.context.MessageContext) -> None:
         mock_message = mock.AsyncMock()
         mock_message.delete.side_effect = hikari.NotFoundError(url="", headers={}, raw_body=None)
 
@@ -466,7 +467,7 @@ class TestMessageContext:
             mock_message.delete.assert_awaited_once_with()
 
     @pytest.mark.asyncio
-    async def test_respond(self):
+    async def test_respond(self) -> None:
         mock_delete_after = mock.Mock()
         mock_register_task = mock.Mock()
         context = stub_class(
@@ -525,7 +526,7 @@ class TestMessageContext:
         mock_delete_after.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_respond_when_initial_response_id_already_set(self, context: tanjun.context.MessageContext):
+    async def test_respond_when_initial_response_id_already_set(self, context: tanjun.context.MessageContext) -> None:
         context._initial_response_id = hikari.Snowflake(32123)
 
         await context.respond("hi")
@@ -534,7 +535,7 @@ class TestMessageContext:
 
     @pytest.mark.parametrize("delete_after", [datetime.timedelta(seconds=123), 123, 123.0])
     @pytest.mark.asyncio
-    async def test_respond_when_delete_after(self, delete_after: int | float | datetime.timedelta):
+    async def test_respond_when_delete_after(self, delete_after: int | float | datetime.timedelta) -> None:
         mock_delete_after = mock.Mock()
         mock_register_task = mock.Mock()
         context = stub_class(

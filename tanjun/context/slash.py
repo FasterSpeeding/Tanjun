@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -41,8 +40,9 @@ import typing
 
 import hikari
 
-from .. import _internal
-from .. import abc as tanjun
+from tanjun import _internal
+from tanjun import abc as tanjun
+
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -82,7 +82,7 @@ class SlashOption(tanjun.SlashOption):
 
     __slots__ = ("_option", "_resolved")
 
-    def __init__(self, resolved: hikari.ResolvedOptionData | None, option: hikari.CommandInteractionOption, /):
+    def __init__(self, resolved: hikari.ResolvedOptionData | None, option: hikari.CommandInteractionOption, /) -> None:
         """Initialise a slash option.
 
         Parameters
@@ -93,7 +93,8 @@ class SlashOption(tanjun.SlashOption):
             The raw interaction option.
         """
         if option.value is None:
-            raise ValueError("Cannot build a slash option with a value-less API representation")
+            error_message = "Cannot build a slash option with a value-less API representation"
+            raise ValueError(error_message)
 
         self._option = option
         self._resolved = resolved
@@ -123,7 +124,8 @@ class SlashOption(tanjun.SlashOption):
         if self.type is hikari.OptionType.BOOLEAN:
             return bool(self._option.value)
 
-        raise TypeError("Option is not a boolean")
+        error_message = "Option is not a boolean"
+        raise TypeError(error_message)
 
     def float(self) -> float:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
@@ -131,7 +133,8 @@ class SlashOption(tanjun.SlashOption):
             assert self._option.value is not None
             return float(self._option.value)
 
-        raise TypeError("Option is not a float")
+        error_message = "Option is not a float"
+        raise TypeError(error_message)
 
     def integer(self) -> int:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
@@ -139,7 +142,8 @@ class SlashOption(tanjun.SlashOption):
             assert self._option.value is not None
             return int(self._option.value)
 
-        raise TypeError("Option is not an integer")
+        error_message = "Option is not an integer"
+        raise TypeError(error_message)
 
     def snowflake(self) -> hikari.Snowflake:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
@@ -147,14 +151,16 @@ class SlashOption(tanjun.SlashOption):
             assert self._option.value is not None
             return hikari.Snowflake(self._option.value)
 
-        raise TypeError("Option is not a unique resource")
+        error_message = "Option is not a unique resource"
+        raise TypeError(error_message)
 
     def string(self) -> str:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
         if self.type is hikari.OptionType.STRING:
             return str(self._option.value)
 
-        raise TypeError("Option is not a string")
+        error_message = "Option is not a string"
+        raise TypeError(error_message)
 
     def resolve_value(
         self,
@@ -175,7 +181,8 @@ class SlashOption(tanjun.SlashOption):
         if self._option.type is hikari.OptionType.MENTIONABLE:
             return self.resolve_to_mentionable()
 
-        raise TypeError(f"Option type {self._option.type} isn't resolvable")
+        error_message = f"Option type {self._option.type} isn't resolvable"
+        raise TypeError(error_message)
 
     def resolve_to_attachment(self) -> hikari.Attachment:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
@@ -184,7 +191,8 @@ class SlashOption(tanjun.SlashOption):
             assert self._resolved
             return self._resolved.attachments[hikari.Snowflake(self._option.value)]
 
-        raise TypeError(f"Cannot resolve non-attachment type {self._option.type} to an attachment")
+        error_message = f"Cannot resolve non-attachment type {self._option.type} to an attachment"
+        raise TypeError(error_message)
 
     def resolve_to_channel(self) -> hikari.InteractionChannel:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
@@ -194,7 +202,8 @@ class SlashOption(tanjun.SlashOption):
             assert self._resolved
             return self._resolved.channels[hikari.Snowflake(self._option.value)]
 
-        raise TypeError(f"Cannot resolve non-channel option type {self._option.type} to a channel")
+        error_message = f"Cannot resolve non-channel option type {self._option.type} to a channel"
+        raise TypeError(error_message)
 
     @typing.overload
     def resolve_to_member(self) -> hikari.InteractionMember: ...
@@ -216,7 +225,8 @@ class SlashOption(tanjun.SlashOption):
             if default is not _internal.DEFAULT:
                 return default
 
-            raise LookupError("User isn't in the current guild") from None
+            error_message = "User isn't in the current guild"
+            raise LookupError(error_message) from None
 
         if self._option.type is hikari.OptionType.MENTIONABLE:
             assert self._option.value is not None
@@ -229,9 +239,11 @@ class SlashOption(tanjun.SlashOption):
                 if default is not _internal.DEFAULT:
                     return default
 
-                raise LookupError("User isn't in the current guild")
+                error_message = "User isn't in the current guild"
+                raise LookupError(error_message)
 
-        raise TypeError(f"Cannot resolve non-user option type {self._option.type} to a member")
+        error_message = f"Cannot resolve non-user option type {self._option.type} to a member"
+        raise TypeError(error_message)
 
     def resolve_to_mentionable(self) -> hikari.Role | hikari.User | hikari.Member:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
@@ -250,7 +262,8 @@ class SlashOption(tanjun.SlashOption):
         if self._option.type is hikari.OptionType.ROLE:
             return self.resolve_to_role()
 
-        raise TypeError(f"Cannot resolve non-mentionable option type {self._option.type} to a mentionable entity.")
+        error_message = f"Cannot resolve non-mentionable option type {self._option.type} to a mentionable entity."
+        raise TypeError(error_message)
 
     def resolve_to_role(self) -> hikari.Role:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
@@ -264,7 +277,8 @@ class SlashOption(tanjun.SlashOption):
             if role:
                 return role
 
-        raise TypeError(f"Cannot resolve non-role option type {self._option.type} to a role")
+        error_message = f"Cannot resolve non-role option type {self._option.type} to a role"
+        raise TypeError(error_message)
 
     def resolve_to_user(self) -> hikari.User | hikari.Member:
         # <<inherited docstring from tanjun.abc.SlashOption>>.
@@ -280,7 +294,8 @@ class SlashOption(tanjun.SlashOption):
             if result := self._resolved.members.get(user_id) or self._resolved.users.get(user_id):
                 return result
 
-        raise TypeError(f"Cannot resolve non-user option type {self._option.type} to a user")
+        error_message = f"Cannot resolve non-user option type {self._option.type} to a user"
+        raise TypeError(error_message)
 
 
 class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
@@ -425,12 +440,13 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         """
         self._assert_not_final()
         if self._defer_task:
-            raise RuntimeError("Defer timer already set")
+            error_message = "Defer timer already set"
+            raise RuntimeError(error_message)
 
         self._defer_task = asyncio.create_task(self._auto_defer(count_down))
         return self
 
-    def set_ephemeral_default(self, state: bool, /) -> Self:
+    def set_ephemeral_default(self, state: bool, /) -> Self:  # noqa: FBT001
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         self._assert_not_final()  # TODO: document not final assertions.
         self._defaults_to_ephemeral = state
@@ -453,7 +469,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 if in_defer_task:
                     return
 
-                raise RuntimeError("Context has already been responded to")
+                error_message = "Context has already been responded to"
+                raise RuntimeError(error_message)
 
             self._has_been_deferred = True
             if self._response_future:
@@ -466,11 +483,10 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
 
     def _validate_delete_after(self, delete_after: float | int | datetime.timedelta, /) -> float:
         delete_after = _delete_after_to_float(delete_after)
-        time_left = (
-            _INTERACTION_LIFETIME - (datetime.datetime.now(tz=datetime.timezone.utc) - self.created_at)
-        ).total_seconds()
+        time_left = (_INTERACTION_LIFETIME - (datetime.datetime.now(tz=datetime.UTC) - self.created_at)).total_seconds()
         if delete_after + 10 > time_left:
-            raise ValueError("This interaction will have expired before delete_after is reached")
+            error_message = "This interaction will have expired before delete_after is reached"
+            raise ValueError(error_message)
 
         return delete_after
 
@@ -590,12 +606,14 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
     ) -> None:
         delete_after = self._validate_delete_after(delete_after) if delete_after is not None else None
         if self._has_responded:
-            raise RuntimeError("Initial response has already been created")
+            error_message = "Initial response has already been created"
+            raise RuntimeError(error_message)
 
         if self._has_been_deferred:
-            raise RuntimeError(
+            error_message = (
                 "edit_initial_response must be used to set the initial response after a context has been deferred"
             )
+            raise RuntimeError(error_message)
 
         self.cancel_defer()
         if not self._response_future:
@@ -696,7 +714,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 self._has_responded = True
                 return
 
-            raise LookupError("Context has no last response")
+            error_message = "Context has no last response"
+            raise LookupError(error_message)
 
         await self._interaction.delete_message(self._last_response_id)
 
@@ -788,7 +807,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
                 role_mentions=role_mentions,
             )
 
-        raise LookupError("Context has no previous responses")
+        error_message = "Context has no previous responses"
+        raise LookupError(error_message)
 
     async def fetch_initial_response(self) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
@@ -802,7 +822,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         if self._has_responded:
             return await self.fetch_initial_response()
 
-        raise LookupError("Context has no previous known responses")
+        error_message = "Context has no previous known responses"
+        raise LookupError(error_message)
 
     async def create_modal_response(
         self,
@@ -816,7 +837,8 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         # <<inherited docstring from tanjun.abc.AppCommandContext>>.
         async with self._response_lock:
             if self._has_responded or self._has_been_deferred:
-                raise RuntimeError("Initial response has already been created")
+                error_message = "Initial response has already been created"
+                raise RuntimeError(error_message)
 
             if self._response_future:
                 components, _ = _to_list(component, components, None, hikari.api.ComponentBuilder, "component")
@@ -947,7 +969,8 @@ def _to_list(
     /,
 ) -> tuple[hikari.UndefinedOr[list[_T]], hikari.UndefinedOr[_OtherT]]:
     if singular is not hikari.UNDEFINED and plural is not hikari.UNDEFINED:
-        raise ValueError(f"Only one of {name} or {name}s may be passed")
+        error_message = f"Only one of {name} or {name}s may be passed"
+        raise ValueError(error_message)
 
     if singular is not hikari.UNDEFINED:
         return [singular], other
@@ -1002,7 +1025,11 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         command_name, options = _internal.flatten_options(interaction.command_name, interaction.options)
         self._command_name = command_name
         self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
-        (self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(SlashContext, self))
+        (
+            self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(  # noqa: SLF001
+                SlashContext, self
+            )
+        )
 
     @property
     def command(self) -> tanjun.BaseSlashCommand | None:
@@ -1037,7 +1064,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         if command:
             # TODO: command group?
             (
-                self._set_type_special_case(tanjun.ExecutableCommand, command)
+                self._set_type_special_case(tanjun.ExecutableCommand, command)  # noqa: SLF001
                 ._set_type_special_case(tanjun.AppCommand, command)
                 ._set_type_special_case(tanjun.BaseSlashCommand, command)
                 ._set_type_special_case(tanjun.SlashCommand, command)
@@ -1045,7 +1072,7 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
 
         elif self._command:
             (
-                self._remove_type_special_case(tanjun.ExecutableCommand)
+                self._remove_type_special_case(tanjun.ExecutableCommand)  # noqa: SLF001
                 ._remove_type_special_case(tanjun.AppCommand)
                 ._remove_type_special_case(tanjun.BaseSlashCommand)
                 ._remove_type_special_case(tanjun.SlashCommand)

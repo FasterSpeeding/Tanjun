@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -250,7 +249,7 @@ _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=SlashCallbackSig
 
 class _DefaultFlag(enum.Enum):
     NO_DEFAULT = object()
-    NO_PASS = object()
+    NO_PASS = object()  # noqa: PIE796
 
 
 NO_DEFAULT: NoDefault = _DefaultFlag.NO_DEFAULT
@@ -1357,7 +1356,7 @@ class AppCommandContext(Context, abc.ABC):
         """Type of application command this context is for."""
 
     @abc.abstractmethod
-    def set_ephemeral_default(self, state: bool, /) -> Self:
+    def set_ephemeral_default(self, state: bool, /) -> Self:  # noqa: FBT001
         """Set the ephemeral default state for this context.
 
         Parameters
@@ -4475,26 +4474,26 @@ class Client(abc.ABC):
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.MESSAGE]  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.MESSAGE]
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.MESSAGE]]]: ...
 
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.USER]  # noqa: A002
+        self, *, global_only: bool = False, type: typing.Literal[hikari.CommandType.USER]
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Literal[hikari.CommandType.USER]]]: ...
 
     @typing.overload
     @abc.abstractmethod
     def iter_menu_commands(
-        self, *, global_only: bool = False, type: hikari.CommandType | None = None  # noqa: A002
+        self, *, global_only: bool = False, type: hikari.CommandType | None = None
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]: ...
 
     @abc.abstractmethod
     def iter_menu_commands(
         self, *, global_only: bool = False, type: hikari.CommandType | None = None  # noqa: A002
     ) -> collections.Iterator[MenuCommand[typing.Any, typing.Any]]:
-        """Iterator over the menu commands registered to this client.
+        """Iterate over the menu commands registered to this client.
 
         Parameters
         ----------

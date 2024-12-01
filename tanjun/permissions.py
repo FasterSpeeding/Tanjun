@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -139,7 +138,8 @@ def calculate_permissions(
         guild channel.
     """
     if member.guild_id != guild.id:
-        raise ValueError("Member object isn't from the provided guild")
+        error_message = "Member object isn't from the provided guild"
+        raise ValueError(error_message)
 
     # Guild owners are implicitly admins.
     if guild.owner_id == member.user.id:
@@ -228,7 +228,7 @@ async def fetch_permissions(
     if guild.owner_id == member.user.id:
         return ALL_PERMISSIONS
 
-    roles = roles or client.cache and client.cache.get_roles_view_for_guild(member.guild_id)
+    roles = roles or (client.cache and client.cache.get_roles_view_for_guild(member.guild_id))
     if not roles:  # noqa: SIM102
         # Has to be nested cause of pyright bug.
         if role_cache := client.get_type_dependency(_GuldRoleCacheT, default=None):
@@ -247,7 +247,8 @@ async def fetch_permissions(
 
     channel = await _fetch_channel(client, channel)
     if channel.guild_id != guild.id:
-        raise ValueError("Channel doesn't match up with the member's guild")
+        error_message = "Channel doesn't match up with the member's guild"
+        raise ValueError(error_message)
 
     return _calculate_channel_overwrites(channel, member, permissions)
 
@@ -340,7 +341,8 @@ async def fetch_everyone_permissions(
                 break
 
         else:
-            raise RuntimeError("Failed to find guild's @everyone role")
+            error_message = "Failed to find guild's @everyone role"
+            raise RuntimeError(error_message)
 
     permissions = role.permissions
     # Admin permission overrides all overwrites and is only applicable to roles.

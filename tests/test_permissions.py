@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -36,92 +35,92 @@ import pytest
 
 
 @pytest.mark.skip(reason="Not implemented")
-def test_calculate_permissions(): ...
+def test_calculate_permissions() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-def test_calculate_permissions_when_guild_owner(): ...
+def test_calculate_permissions_when_guild_owner() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-def test_calculate_permissions_when_admin_role(): ...
+def test_calculate_permissions_when_admin_role() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
-def test_calculate_permissions_when_no_channel(): ...
-
-
-@pytest.mark.skip(reason="Not implemented")
-@pytest.mark.asyncio
-async def test_fetch_permissions(): ...
+def test_calculate_permissions_when_no_channel() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_permissions_when_guild_owner(): ...
+async def test_fetch_permissions() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_permissions_when_admin_role(): ...
+async def test_fetch_permissions_when_guild_owner() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_permissions_when_no_channel(): ...
+async def test_fetch_permissions_when_admin_role() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_permissions_when_channel_object_provided(): ...
+async def test_fetch_permissions_when_no_channel() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_permissions_for_uncached_entities(): ...
+async def test_fetch_permissions_when_channel_object_provided() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_permissions_for_no_cache(): ...
-
-
-@pytest.mark.skip(reason="Not implemented")
-def test_calculate_everyone_permissions(): ...
-
-
-@pytest.mark.skip(reason="Not implemented")
-def test_calculate_everyone_permissions_admin_role(): ...
-
-
-@pytest.mark.skip(reason="Not implemented")
-def test_calculate_everyone_permissions_no_channel(): ...
-
-
-@pytest.mark.asyncio
-async def test_fetch_everyone_permissions(): ...
+async def test_fetch_permissions_for_uncached_entities() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_everyone_permissions_admin_role(): ...
+async def test_fetch_permissions_for_no_cache() -> None: ...
+
+
+@pytest.mark.skip(reason="Not implemented")
+def test_calculate_everyone_permissions() -> None: ...
+
+
+@pytest.mark.skip(reason="Not implemented")
+def test_calculate_everyone_permissions_admin_role() -> None: ...
+
+
+@pytest.mark.skip(reason="Not implemented")
+def test_calculate_everyone_permissions_no_channel() -> None: ...
+
+
+@pytest.mark.asyncio
+async def test_fetch_everyone_permissions() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_everyone_permissions_for_uncached_entities(): ...
+async def test_fetch_everyone_permissions_admin_role() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_everyone_permissions_for_no_cache(): ...
+async def test_fetch_everyone_permissions_for_uncached_entities() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_everyone_permissions_no_channel(): ...
+async def test_fetch_everyone_permissions_for_no_cache() -> None: ...
 
 
 @pytest.mark.skip(reason="Not implemented")
 @pytest.mark.asyncio
-async def test_fetch_everyone_permissions_channel_object_provided(): ...
+async def test_fetch_everyone_permissions_no_channel() -> None: ...
+
+
+@pytest.mark.skip(reason="Not implemented")
+@pytest.mark.asyncio
+async def test_fetch_everyone_permissions_channel_object_provided() -> None: ...

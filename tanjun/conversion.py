@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -82,7 +81,6 @@ import typing
 import urllib.parse as urlparse
 from collections import abc as collections
 
-import alluka
 import hikari
 import typing_extensions
 
@@ -91,6 +89,8 @@ from . import abc as tanjun
 from .dependencies import async_cache
 
 if typing.TYPE_CHECKING:
+    import alluka
+
     from . import parsing
 
     _PartialChannelT = typing.TypeVar("_PartialChannelT", bound=hikari.PartialChannel)
@@ -182,7 +182,7 @@ class BaseConverter:
         parent_name
             The name of the converter's parent, used for warning messages.
         """
-        enabled_components = client.cache and client.cache.settings.components or hikari.api.CacheComponents.NONE
+        enabled_components = (client.cache and client.cache.settings.components) or hikari.api.CacheComponents.NONE
         enabled_intents = client.shards.intents if client.shards else hikari.Intents.NONE
         missing_components = hikari.api.CacheComponents.NONE
         needed_intents = hikari.Intents.NONE
@@ -322,9 +322,10 @@ class ToChannel(BaseConverter):
 
     def _assert_type(self, channel: _PartialChannelT, /) -> _PartialChannelT:
         if self._allowed_types is not None and channel.type not in self._allowed_types:
-            raise ValueError(
+            error_message = (
                 f"Only the following channel types are allowed for this argument: {self._allowed_types_repr}"
             )
+            raise ValueError(error_message)
 
         return channel
 
@@ -385,7 +386,8 @@ class ToChannel(BaseConverter):
             except hikari.NotFoundError:
                 pass
 
-        raise ValueError("Couldn't find channel")
+        error_message = "Couldn't find channel"
+        raise ValueError(error_message)
 
 
 @typing_extensions.deprecated("Use ToChannel instead")
@@ -439,7 +441,8 @@ class ToEmoji(BaseConverter):
                 return await cache.get(emoji_id)
 
             except async_cache.EntryNotFound:
-                raise ValueError("Couldn't find emoji") from None
+                error_message = "Couldn't find emoji"
+                raise ValueError(error_message) from None
 
             except async_cache.CacheMissError:
                 pass
@@ -451,7 +454,8 @@ class ToEmoji(BaseConverter):
             except hikari.NotFoundError:
                 pass
 
-        raise ValueError("Couldn't find emoji")
+        error_message = "Couldn't find emoji"
+        raise ValueError(error_message)
 
 
 @typing_extensions.deprecated("Use ToEmoji")
@@ -494,7 +498,8 @@ class ToGuild(BaseConverter):
                 return await cache.get(guild_id)
 
             except async_cache.EntryNotFound:
-                raise ValueError("Couldn't find guild") from None
+                error_message = "Couldn't find guild"
+                raise ValueError(error_message) from None
 
             except async_cache.CacheMissError:
                 pass
@@ -505,7 +510,8 @@ class ToGuild(BaseConverter):
         except hikari.NotFoundError:
             pass
 
-        raise ValueError("Couldn't find guild")
+        error_message = "Couldn't find guild"
+        raise ValueError(error_message)
 
 
 @typing_extensions.deprecated("Use ToGuild")
@@ -544,7 +550,8 @@ class ToInvite(BaseConverter):
                 return await cache.get(argument)
 
             except async_cache.EntryNotFound:
-                raise ValueError("Couldn't find invite") from None
+                error_message = "Couldn't find invite"
+                raise ValueError(error_message) from None
 
             except async_cache.CacheMissError:
                 pass
@@ -554,7 +561,8 @@ class ToInvite(BaseConverter):
         except hikari.NotFoundError:
             pass
 
-        raise ValueError("Couldn't find invite")
+        error_message = "Couldn't find invite"
+        raise ValueError(error_message)
 
 
 @typing_extensions.deprecated("Use ToInvite")
@@ -603,7 +611,8 @@ class ToInviteWithMetadata(BaseConverter):
             if invite := await cache.get(argument, default=None):
                 return invite
 
-        raise ValueError("Couldn't find invite")
+        error_message = "Couldn't find invite"
+        raise ValueError(error_message)
 
 
 @typing_extensions.deprecated("Use ToInviteWithMetadata")
@@ -643,7 +652,8 @@ class ToMember(BaseConverter):
         cache: alluka.Injected[_MemberCacheT | None] = None,
     ) -> hikari.Member:
         if ctx.guild_id is None:
-            raise ValueError("Cannot get a member from a DM channel")
+            error_message = "Cannot get a member from a DM channel"
+            raise ValueError(error_message)
 
         try:
             user_id = parse_user_id(argument, message="No valid user mention or ID found")
@@ -665,7 +675,8 @@ class ToMember(BaseConverter):
                     return await cache.get_from_guild(ctx.guild_id, user_id)
 
                 except async_cache.EntryNotFound:
-                    raise ValueError("Couldn't find member in this guild") from None
+                    error_message = "Couldn't find member in this guild"
+                    raise ValueError(error_message) from None
 
                 except async_cache.CacheMissError:
                     pass
@@ -676,7 +687,8 @@ class ToMember(BaseConverter):
             except hikari.NotFoundError:
                 pass
 
-        raise ValueError("Couldn't find member in this guild")
+        error_message = "Couldn't find member in this guild"
+        raise ValueError(error_message)
 
 
 @typing_extensions.deprecated("Use ToMember")
@@ -724,7 +736,8 @@ class ToPresence(BaseConverter):
         cache: alluka.Injected[_PresenceCacheT | None] = None,
     ) -> hikari.MemberPresence:
         if ctx.guild_id is None:
-            raise ValueError("Cannot get a presence from a DM channel")
+            error_message = "Cannot get a presence from a DM channel"
+            raise ValueError(error_message)
 
         user_id = parse_user_id(argument, message="No valid member mention or ID found")
         if ctx.cache and (presence := ctx.cache.get_presence(ctx.guild_id, user_id)):
@@ -735,7 +748,8 @@ class ToPresence(BaseConverter):
             if presence := await cache.get_from_guild(ctx.guild_id, user_id, default=None):
                 return presence
 
-        raise ValueError("Couldn't find presence in current guild")
+        error_message = "Couldn't find presence in current guild"
+        raise ValueError(error_message)
 
 
 @typing_extensions.deprecated("Use ToPresence")
@@ -777,7 +791,8 @@ class ToRole(BaseConverter):
                 return await cache.get(role_id)
 
             except async_cache.EntryNotFound:
-                raise ValueError("Couldn't find role") from None
+                error_message = "Couldn't find role"
+                raise ValueError(error_message) from None
 
             except async_cache.CacheMissError:
                 pass
@@ -787,7 +802,8 @@ class ToRole(BaseConverter):
                 if role.id == role_id:
                     return role
 
-        raise ValueError("Couldn't find role")
+        error_message = "Couldn't find role"
+        raise ValueError(error_message)
 
 
 @typing_extensions.deprecated("Use ToRole")
@@ -831,7 +847,8 @@ class ToUser(BaseConverter):
                 return await cache.get(user_id)
 
             except async_cache.EntryNotFound:
-                raise ValueError("Couldn't find user") from None
+                error_message = "Couldn't find user"
+                raise ValueError(error_message) from None
 
             except async_cache.CacheMissError:
                 pass
@@ -842,7 +859,8 @@ class ToUser(BaseConverter):
         except hikari.NotFoundError:
             pass
 
-        raise ValueError("Couldn't find user")
+        error_message = "Couldn't find user"
+        raise ValueError(error_message)
 
 
 @typing_extensions.deprecated("Use ToUser")
@@ -891,7 +909,8 @@ class ToMessage(BaseConverter):
                 return await cache.get(message_id)
 
             except async_cache.EntryNotFound:
-                raise ValueError("Couldn't find message") from None
+                error_message = "Couldn't find message"
+                raise ValueError(error_message) from None
 
             except async_cache.CacheMissError:
                 pass
@@ -902,7 +921,8 @@ class ToMessage(BaseConverter):
         except hikari.NotFoundError:
             pass
 
-        raise ValueError("Couldn't find message")
+        error_message = "Couldn't find message"
+        raise ValueError(error_message)
 
 
 _VoiceStateCacheT = async_cache.SfGuildBound[hikari.VoiceState]
@@ -944,7 +964,8 @@ class ToVoiceState(BaseConverter):
         cache: alluka.Injected[_VoiceStateCacheT | None] = None,
     ) -> hikari.VoiceState:
         if ctx.guild_id is None:
-            raise ValueError("Cannot get a voice state from a DM channel")
+            error_message = "Cannot get a voice state from a DM channel"
+            raise ValueError(error_message)
 
         user_id = parse_user_id(argument, message="No valid user mention or ID found")
 
@@ -956,7 +977,8 @@ class ToVoiceState(BaseConverter):
             if state := await cache.get_from_guild(ctx.guild_id, user_id, default=None):
                 return state
 
-        raise ValueError("Voice state couldn't be found for current guild")
+        error_message = "Voice state couldn't be found for current guild"
+        raise ValueError(error_message)
 
 
 @typing_extensions.deprecated("Use ToVoiceState")
@@ -1404,7 +1426,8 @@ def to_datetime(value: str, /) -> datetime.datetime:
         timestamp = int(next(_DATETIME_REGEX.finditer(value)).groups()[0])
 
     except StopIteration:
-        raise ValueError("Not a valid datetime") from None
+        error_message = "Not a valid datetime"
+        raise ValueError(error_message) from None
 
     return datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC)
 
@@ -1456,10 +1479,12 @@ def from_datetime(value: datetime.datetime | datetime.timedelta, /, *, style: st
         return from_datetime(datetime.datetime.now(tz=datetime.UTC) + value, style="R")
 
     if style not in _VALID_DATETIME_STYLES:
-        raise ValueError(f"Invalid style: {style}")
+        error_message = f"Invalid style: {style}"
+        raise ValueError(error_message)
 
     if value.tzinfo is None:
-        raise ValueError("Cannot convert naive datetimes, please specify a timezone.")
+        error_message = "Cannot convert naive datetimes, please specify a timezone."
+        raise ValueError(error_message)
 
     return f"<t:{round(value.timestamp())}:{style}>"
 
@@ -1502,7 +1527,8 @@ def to_bool(value: str, /) -> bool:
     if value in _NO_VALUES:
         return False
 
-    raise ValueError(f"Invalid bool value `{value}`")
+    error_message = f"Invalid bool value `{value}`"
+    raise ValueError(error_message)
 
 
 def to_color(argument: _SnowflakeIsh, /) -> hikari.Color:
@@ -1518,7 +1544,8 @@ def to_color(argument: _SnowflakeIsh, /) -> hikari.Color:
         if len(values) == 1:
             return hikari.Color.of(values[0])
 
-        raise ValueError("Not a valid color representation")  # noqa: TC004
+        error_message = "Not a valid color representation"
+        raise ValueError(error_message)
 
     return hikari.Color.of(argument)
 
@@ -1535,7 +1562,7 @@ _TYPE_OVERRIDES: dict[typing.Any, collections.Callable[[str], typing.Any]] = {
 }
 
 
-def override_type(cls: parsing.ConverterSig[typing.Any], /) -> parsing.ConverterSig[typing.Any]:  # noqa: D103
+def override_type(cls: parsing.ConverterSig[typing.Any], /) -> parsing.ConverterSig[typing.Any]:
     return _TYPE_OVERRIDES.get(cls, cls)
 
 

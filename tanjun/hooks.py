@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -84,8 +83,8 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     __slots__ = (
         "_error_callbacks",
         "_parser_error_callbacks",
-        "_pre_execution_callbacks",
         "_post_execution_callbacks",
+        "_pre_execution_callbacks",
         "_success_callbacks",
     )
 

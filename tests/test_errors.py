@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -42,7 +41,7 @@ import tanjun
 
 
 class TestCommandError:
-    def test_init_dunder_method(self):
+    def test_init_dunder_method(self) -> None:
         mock_attachment = mock.Mock()
         mock_component = mock.Mock()
         mock_embed = mock.Mock()
@@ -67,7 +66,7 @@ class TestCommandError:
         assert error.user_mentions == [2332]
         assert error.role_mentions == [6534]
 
-    def test_init_dunder_method_for_singular_fields(self):
+    def test_init_dunder_method_for_singular_fields(self) -> None:
         mock_attachment = mock.Mock()
         mock_component = mock.Mock()
         mock_embed = mock.Mock()
@@ -78,7 +77,7 @@ class TestCommandError:
         assert error.components == [mock_component]
         assert error.embeds == [mock_embed]
 
-    def test_init_dunder_method_for_partial(self):
+    def test_init_dunder_method_for_partial(self) -> None:
         error = tanjun.CommandError()
 
         assert error.content is hikari.UNDEFINED
@@ -90,23 +89,23 @@ class TestCommandError:
         assert error.role_mentions is hikari.UNDEFINED
         assert error.user_mentions is hikari.UNDEFINED
 
-    def test_init_dunder_method_when_both_attachment_and_attachments_passed(self):
+    def test_init_dunder_method_when_both_attachment_and_attachments_passed(self) -> None:
         with pytest.raises(ValueError, match="Cannot specify both attachment and attachments"):
             tanjun.CommandError(attachment=mock.Mock(), attachments=[mock.Mock()])
 
-    def test_init_dunder_method_when_both_component_and_components_passed(self):
+    def test_init_dunder_method_when_both_component_and_components_passed(self) -> None:
         with pytest.raises(ValueError, match="Cannot specify both component and components"):
             tanjun.CommandError(component=mock.Mock(), components=[mock.Mock()])
 
-    def test_init_dunder_method_when_both_embed_and_embeds_passed(self):
+    def test_init_dunder_method_when_both_embed_and_embeds_passed(self) -> None:
         with pytest.raises(ValueError, match="Cannot specify both embed and embeds"):
             tanjun.CommandError(embed=mock.Mock(), embeds=[mock.Mock()])
 
-    def test_str_dunder_method(self):
+    def test_str_dunder_method(self) -> None:
         assert str(tanjun.CommandError("bar")) == "bar"
 
     @pytest.mark.asyncio
-    async def test_send(self):
+    async def test_send(self) -> None:
         error = tanjun.CommandError()
         mock_context = mock.AsyncMock()
 
@@ -126,7 +125,7 @@ class TestCommandError:
         )
 
     @pytest.mark.asyncio
-    async def test_send_when_all_fields(self):
+    async def test_send_when_all_fields(self) -> None:
         mock_attachment = mock.Mock()
         mock_component = mock.Mock()
         mock_embed = mock.Mock()
@@ -159,18 +158,18 @@ class TestCommandError:
 
 
 class TestParserError:
-    def test__init__(self):
+    def test__init__(self) -> None:
         error = tanjun.ParserError("bank", "no u")
 
         assert error.message == "bank"
         assert error.parameter == "no u"
 
-    def test__str__(self):
+    def test__str__(self) -> None:
         assert str(tanjun.ParserError("bankette", "now2")) == "bankette"
 
 
 class TestConversionError:
-    def test__init__(self):
+    def test__init__(self) -> None:
         mock_error = mock.Mock()
 
         error = tanjun.ConversionError("bankettete", "aye", errors=[mock_error])
@@ -181,7 +180,7 @@ class TestConversionError:
 
 
 class TestNotEnoughArgumentsError:
-    def test__init__(self):
+    def test__init__(self) -> None:
         error = tanjun.NotEnoughArgumentsError("aye", "naye")
 
         assert error.message == "aye"
@@ -189,7 +188,7 @@ class TestNotEnoughArgumentsError:
 
 
 class TestTooManyArgumentsError:
-    def test__init__(self):
+    def test__init__(self) -> None:
         error = tanjun.TooManyArgumentsError("blank", "fama")
 
         assert error.message == "blank"
@@ -197,7 +196,7 @@ class TestTooManyArgumentsError:
 
 
 class TestModuleMissingLoaders:
-    def test___init__(self):
+    def test___init__(self) -> None:
         error = tanjun.ModuleMissingLoaders("foo", "bar")
 
         assert error.message == "foo"
@@ -205,7 +204,7 @@ class TestModuleMissingLoaders:
 
 
 class TestModuleMissingUnloaders:
-    def test___init__(self):
+    def test___init__(self) -> None:
         error = tanjun.ModuleMissingUnloaders("beep", "boop")
 
         assert error.message == "beep"
@@ -213,7 +212,7 @@ class TestModuleMissingUnloaders:
 
 
 class TestModuleStateConflict:
-    def test___init__(self):
+    def test___init__(self) -> None:
         error = tanjun.ModuleStateConflict("esxd", "dsaasd")
 
         assert error.message == "esxd"
@@ -221,14 +220,14 @@ class TestModuleStateConflict:
 
 
 class TestFailedModuleLoad:
-    def test___init__(self):
+    def test___init__(self) -> None:
         error = tanjun.FailedModuleLoad("beat/my/boobs")
 
         assert error.path == "beat/my/boobs"
 
 
 class TestFailedModuleUnload:
-    def test___init__(self):
+    def test___init__(self) -> None:
         error = tanjun.FailedModuleUnload("yeet/ok")
 
         assert error.path == "yeet/ok"

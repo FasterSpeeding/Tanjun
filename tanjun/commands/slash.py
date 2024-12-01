@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -59,13 +58,14 @@ from collections import abc as collections
 import hikari
 import typing_extensions
 
-from .. import _internal
-from .. import abc as tanjun
-from .. import components
-from .. import conversion
-from .. import errors
-from .. import hooks as hooks_
-from .._internal import localisation
+from tanjun import _internal
+from tanjun import abc as tanjun
+from tanjun import components
+from tanjun import conversion
+from tanjun import errors
+from tanjun import hooks as hooks_
+from tanjun._internal import localisation
+
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -83,9 +83,9 @@ if typing.TYPE_CHECKING:
     )
 
     # Pyright bug doesn't accept Var = Class | Class as a type
-    _AnyConverterSig = typing.Union["ConverterSig[float]", "ConverterSig[int]", "ConverterSig[str]"]
+    _AnyConverterSig = typing.Union["ConverterSig[float]", "ConverterSig[int]", "ConverterSig[str]"]  # noqa: UP007
     # Pyright bug doesn't accept Var = Class | Class as a type
-    _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
+    _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]  # noqa: UP007
 
     _IntAutocompleteSigT = typing.TypeVar("_IntAutocompleteSigT", bound=tanjun.AutocompleteSig[int])
     _FloatAutocompleteSigT = typing.TypeVar("_FloatAutocompleteSigT", bound=tanjun.AutocompleteSig[float])
@@ -126,6 +126,12 @@ _VALID_NAME_UNICODE_CATEGORIES = frozenset(
     )
 )
 _VALID_NAME_CHARACTERS = frozenset(("-", "_"))
+_MAX_OPTIONS = 25
+
+_DEVI_FIRST_CHAR = 0x0900
+_DEVI_LAST_CHAR = 0x097F
+_THAI_FIRST_CHAR = 0x0E00
+_THAI_LAST_CHAR = 0x0E7F
 
 
 def _check_name_char(character: str, /) -> bool:
@@ -139,8 +145,8 @@ def _check_name_char(character: str, /) -> bool:
     return (
         character in _VALID_NAME_CHARACTERS
         or unicodedata.category(character) in _VALID_NAME_UNICODE_CATEGORIES
-        or 0x0900 >= (code_point := ord(character)) <= 0x097F
-        or 0x0E00 >= code_point <= 0x0E7F
+        or _DEVI_FIRST_CHAR >= (code_point := ord(character)) <= _DEVI_LAST_CHAR
+        or _THAI_FIRST_CHAR >= code_point <= _THAI_LAST_CHAR
     )
 
 
@@ -240,7 +246,7 @@ def slash_command_group(
         * If the command name doesn't fit Discord's requirements.
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
-    """  # noqa: E501
+    """
     return SlashCommandGroup(
         name,
         description,
@@ -366,10 +372,10 @@ def as_slash_command(
         * If the command name doesn't fit Discord's requirements.
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
-    """  # noqa: D202, E501
+    """
 
     def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             wrapped_command = callback
             # Cast needed cause of a pyright bug
             callback = typing.cast("_SlashCallbackSigT", callback.callback)
@@ -825,7 +831,8 @@ class _TrackedOption:
             except ValueError as exc:
                 exceptions.append(exc)
 
-        raise errors.ConversionError(f"Couldn't convert {self.type} '{self.name}'", self.name, errors=exceptions)
+        error_message = f"Couldn't convert {self.type} '{self.name}'"
+        raise errors.ConversionError(error_message, self.name, errors=exceptions)
 
 
 class _SlashCommandBuilder(hikari.impl.SlashCommandBuilder):
@@ -1012,7 +1019,8 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     def set_tracked_command(self, command: hikari.PartialCommand, /) -> Self:
         # <<inherited docstring from tanjun.abc.AppCommand>>.
         if not isinstance(command, hikari.SlashCommand):
-            raise TypeError("The tracked command must be a slash command")
+            error_message = "The tracked command must be a slash command"
+            raise TypeError(error_message)
 
         self._tracked_command = command
         return self
@@ -1053,7 +1061,7 @@ class BaseSlashCommand(base.PartialCommand[tanjun.SlashContext], tanjun.BaseSlas
     def copy(self, *, parent: tanjun.SlashCommandGroup | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy()
-        inst._parent = parent
+        inst._parent = parent  # noqa: SLF001
         return inst
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
@@ -1136,7 +1144,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: E501
+        """
         super().__init__(
             name,
             description,
@@ -1221,7 +1229,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
     def copy(self, *, parent: tanjun.SlashCommandGroup | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy(parent=parent)
-        inst._commands = {name: command.copy(parent=inst) for name, command in self._commands.items()}
+        inst._commands = {name: command.copy(parent=inst) for name, command in self._commands.items()}  # noqa: SLF001
         return inst
 
     def add_command(self, command: tanjun.BaseSlashCommand, /) -> Self:
@@ -1241,13 +1249,16 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             Object of this group to enable chained calls.
         """
         if self._parent and isinstance(command, tanjun.SlashCommandGroup):
-            raise ValueError("Cannot add a slash command group to a nested slash command group")
+            error_message = "Cannot add a slash command group to a nested slash command group"
+            raise ValueError(error_message)
 
-        if len(self._commands) == 25:
-            raise ValueError("Cannot add more than 25 commands to a slash command group")
+        if len(self._commands) == _MAX_OPTIONS:
+            error_message = f"Cannot add more than {_MAX_OPTIONS} commands to a slash command group"
+            raise ValueError(error_message)
 
         if command.name in self._commands:
-            raise ValueError(f"Command with name {command.name!r} already exists in this group")
+            error_message = f"Command with name {command.name!r} already exists in this group"
+            raise ValueError(error_message)
 
         command.set_parent(self)
         self._commands[command.name] = command
@@ -1315,7 +1326,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: D202, E501
+        """
 
         def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> SlashCommand[_SlashCallbackSigT]:
             cmd = as_slash_command(
@@ -1373,7 +1384,7 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: E501
+        """
         return self.with_command(slash_command_group(name, description, default_to_ephemeral=default_to_ephemeral))
 
     def remove_command(self, command: tanjun.BaseSlashCommand, /) -> Self:
@@ -1424,7 +1435,8 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             option = option.options[0]
 
         else:
-            raise RuntimeError("Missing sub-command option")
+            error_message = "Missing sub-command option"
+            raise RuntimeError(error_message)
 
         if command := self._commands.get(option.name):
             if command.defaults_to_ephemeral is not None:
@@ -1446,11 +1458,13 @@ class SlashCommandGroup(BaseSlashCommand, tanjun.SlashCommandGroup):
             option = option.options[0]
 
         else:
-            raise RuntimeError("Missing sub-command option")
+            error_message = "Missing sub-command option"
+            raise RuntimeError(error_message)
 
         command = self._commands.get(option.name)
         if not command:
-            raise RuntimeError(f"Sub-command '{option.name}' no found")
+            error_message = f"Sub-command '{option.name}' no found"
+            raise RuntimeError(error_message)
 
         await command.execute_autocomplete(ctx, option=option)
 
@@ -1460,10 +1474,12 @@ def _assert_in_range(name: str, value: int | None, min_value: int, max_value: in
         return
 
     if value < min_value:
-        raise ValueError(f"`{name}` must be greater than or equal to {min_value}")
+        error_message = f"`{name}` must be greater than or equal to {min_value}"
+        raise ValueError(error_message)
 
     if value > max_value:
-        raise ValueError(f"`{name}` must be less than or equal to {max_value}")
+        error_message = f"`{name}` must be less than or equal to {max_value}"
+        raise ValueError(error_message)
 
 
 class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
@@ -1613,7 +1629,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: E501
+        """
         super().__init__(
             name,
             description,
@@ -1623,7 +1639,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             is_global=is_global,
             nsfw=nsfw,
         )
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             # Cast needed cause of a pyright bug
             callback = typing.cast("_SlashCallbackSigT", callback.callback)
 
@@ -1650,7 +1666,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
 
     else:
 
-        async def __call__(self, *args, **kwargs) -> None:
+        async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
             await self._callback(*args, **kwargs)
 
     @property
@@ -1738,21 +1754,25 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         names.assert_length(1, 32).assert_matches(_SCOMMAND_NAME_REG, _validate_name, lower_only=True)
         descriptions.assert_length(1, 100)
 
-        if len(self._builder.options) == 25:
-            raise ValueError("Slash commands cannot have more than 25 options")
+        if len(self._builder.options) == _MAX_OPTIONS:
+            error_message = f"Slash commands cannot have more than {_MAX_OPTIONS} options"
+            raise ValueError(error_message)
 
         if min_value is not None and max_value is not None and min_value > max_value:
-            raise ValueError("`min_value` cannot be greater than `max_value`")
+            error_message = "`min_value` cannot be greater than `max_value`"
+            raise ValueError(error_message)
 
         if min_length is not None and max_length is not None and min_length > max_length:
-            raise ValueError("`min_length` cannot be greater than `max_length`")
+            error_message = "`min_length` cannot be greater than `max_length`"
+            raise ValueError(error_message)
 
         _assert_in_range("min_length", min_length, 0, 6000)
         _assert_in_range("max_length", max_length, 1, 6000)
 
         key = key or names.default_value
         if self._arg_names is not None and key not in self._arg_names:
-            raise ValueError(f"{key!r} is not a valid keyword argument for {self._callback}")
+            error_message = f"{key!r} is not a valid keyword argument for {self._callback}"
+            raise ValueError(error_message)
 
         type_ = hikari.OptionType(type_)
         if isinstance(converters, collections.Sequence):
@@ -1793,8 +1813,9 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
                 else:
                     actual_choices.append(choice)
 
-        if actual_choices and len(actual_choices) > 25:
-            raise ValueError("Slash command options cannot have more than 25 choices")
+        if actual_choices and len(actual_choices) > _MAX_OPTIONS:
+            error_message = f"Slash command options cannot have more than {_MAX_OPTIONS} choices"
+            raise ValueError(error_message)
 
         required = default is tanjun.NO_DEFAULT
         self._builder.add_option(
@@ -1888,7 +1909,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501
+        """
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2052,7 +2073,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If `min_length` is greater than `max_length`.
             * If `min_length` is less than `0` or greater than `6000`.
             * If `max_length` is less than `1` or greater than `6000`.
-        """  # noqa: E501
+        """
         if choices is None or isinstance(choices, collections.Mapping):
             actual_choices: collections.Mapping[str, str] | list[hikari.CommandChoice] | None = choices
 
@@ -2231,7 +2252,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If `min_value` is greater than `max_value`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501
+        """
         names = localisation.MaybeLocalised("name", name)
         descriptions = localisation.MaybeLocalised("description", description)
         self._add_option(
@@ -2395,7 +2416,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If `min_value` is greater than `max_value`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501
+        """
         names = localisation.MaybeLocalised("name", name)
         descriptions = localisation.MaybeLocalised("description", description)
         self._add_option(
@@ -2476,7 +2497,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501
+        """
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2550,7 +2571,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501
+        """
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2620,7 +2641,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501
+        """
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2697,7 +2718,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If an invalid type is passed in `types`.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501
+        """
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2765,7 +2786,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501
+        """
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2836,7 +2857,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             * If the command already has 25 options.
             * If `name` isn't valid for this command's callback when
               `validate_arg_keys` is [True][].
-        """  # noqa: E501
+        """
         return self._add_option(
             localisation.MaybeLocalised("name", name),
             localisation.MaybeLocalised("description", description),
@@ -2881,10 +2902,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         option = self._builder.get_option(name)
 
         if not option:
-            raise KeyError("Option not found")
+            error_message = "Option not found"
+            raise KeyError(error_message)
 
         if option.type is not hikari.OptionType.FLOAT:
-            raise TypeError("Option is not a float option")
+            error_message = "Option is not a float option"
+            raise TypeError(error_message)
 
         if callback:
             option.autocomplete = True
@@ -2967,10 +2990,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         option = self._builder.get_option(name)
 
         if not option:
-            raise KeyError("Option not found")
+            error_message = "Option not found"
+            raise KeyError(error_message)
 
         if option.type is not hikari.OptionType.INTEGER:
-            raise TypeError("Option is not a int option")
+            error_message = "Option is not a int option"
+            raise TypeError(error_message)
 
         option.autocomplete = True
         self._int_autocompletes[name] = callback
@@ -3045,10 +3070,12 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         option = self._builder.get_option(name)
 
         if not option:
-            raise KeyError("Option not found")
+            error_message = "Option not found"
+            raise KeyError(error_message)
 
         if option.type is not hikari.OptionType.STRING:
-            raise TypeError("Option is not a str option")
+            error_message = "Option is not a str option"
+            raise TypeError(error_message)
 
         option.autocomplete = True
         self._str_autocompletes[name] = callback
@@ -3095,20 +3122,20 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         for tracked_option in self._tracked_options.values():
             if not (option := ctx.options.get(tracked_option.name)):
                 if tracked_option.default is tanjun.NO_DEFAULT:
-                    raise RuntimeError(  # TODO: ConversionError?
+                    error_message = (
                         f"Required option {tracked_option.name} is missing data, are you sure your commands"
                         " are up to date?"
                     )
+                    raise RuntimeError(error_message)  # TODO: ConversionError?
 
-                elif tracked_option.default is not tanjun.NO_PASS:
+                if tracked_option.default is not tanjun.NO_PASS:
                     keyword_args[tracked_option.key] = tracked_option.default
 
             elif option.type is hikari.OptionType.USER:
                 member: hikari.InteractionMember | None = None
                 if tracked_option.is_only_member and not (member := option.resolve_to_member(default=None)):
-                    raise errors.ConversionError(
-                        f"Couldn't find member for provided user: {option.value}", tracked_option.name
-                    )
+                    error_message = f"Couldn't find member for provided user: {option.value}"
+                    raise errors.ConversionError(error_message, tracked_option.name)
 
                 keyword_args[tracked_option.key] = member or option.resolve_to_user()
 
@@ -3143,7 +3170,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         ctx: tanjun.SlashContext,
         /,
         *,
-        option: hikari.CommandInteractionOption | None = None,
+        option: hikari.CommandInteractionOption | None = None,  # noqa: ARG002
         hooks: collections.MutableSet[tanjun.SlashHooks] | None = None,
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
@@ -3172,7 +3199,7 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             await ctx.mark_not_found()
 
         except Exception as exc:
-            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:  # noqa: ASYNC120
+            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
                 raise
 
         else:
@@ -3181,7 +3208,11 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
         await own_hooks.trigger_post_execution(ctx, hooks=hooks)
 
     async def execute_autocomplete(
-        self, ctx: tanjun.AutocompleteContext, /, *, option: hikari.AutocompleteInteractionOption | None = None
+        self,
+        ctx: tanjun.AutocompleteContext,
+        /,
+        *,
+        option: hikari.AutocompleteInteractionOption | None = None,  # noqa: ARG002
     ) -> None:
         # <<inherited docstring from tanjun.abc.BaseSlashCommand>>.
         if ctx.focused.type is hikari.OptionType.STRING:
@@ -3194,15 +3225,17 @@ class SlashCommand(BaseSlashCommand, tanjun.SlashCommand[_SlashCallbackSigT]):
             callback = self._int_autocompletes.get(ctx.focused.name)
 
         else:
-            raise NotImplementedError(f"Autocomplete isn't implemented for '{ctx.focused.type}' option yet.")
+            error_message = f"Autocomplete isn't implemented for '{ctx.focused.type}' option yet."
+            raise NotImplementedError(error_message)
 
         if not callback:
-            raise RuntimeError(f"No autocomplete callback found for '{ctx.focused.name}' option")
+            error_message = f"No autocomplete callback found for '{ctx.focused.name}' option"
+            raise RuntimeError(error_message)
 
         await ctx.call_with_async_di(callback, ctx, ctx.focused.value)
 
     def copy(self, *, parent: tanjun.SlashCommandGroup | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.ExecutableCommand>>.
         inst = super().copy(parent=parent)
-        inst._callback = copy.copy(self._callback)
+        inst._callback = copy.copy(self._callback)  # noqa: SLF001
         return inst

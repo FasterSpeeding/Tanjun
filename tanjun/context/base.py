@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -39,7 +38,7 @@ import alluka
 import hikari
 from hikari import snowflakes
 
-from .. import abc as tanjun
+from tanjun import abc as tanjun
 
 if typing.TYPE_CHECKING:
     from typing import Self
@@ -48,7 +47,7 @@ if typing.TYPE_CHECKING:
 class BaseContext(alluka.BasicContext, tanjun.Context):
     """Base class for the standard command context implementations."""
 
-    __slots__ = ("_tanjun_client", "_component", "_final")
+    __slots__ = ("_component", "_final", "_tanjun_client")
 
     def __init__(self, client: tanjun.Client, /) -> None:
         super().__init__(client.injector)
@@ -113,7 +112,8 @@ class BaseContext(alluka.BasicContext, tanjun.Context):
 
     def _assert_not_final(self) -> None:
         if self._final:
-            raise TypeError("Cannot modify a finalised context")
+            error_message = "Cannot modify a finalised context"
+            raise TypeError(error_message)
 
     def finalise(self) -> Self:
         """Finalise the context, dis-allowing any further modifications.

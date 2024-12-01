@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -60,6 +59,9 @@ if typing.TYPE_CHECKING:
     import pathlib
 
     from . import abc as tanjun
+
+
+_MAX_MENTIONS = 100
 
 
 class TanjunError(Exception):
@@ -198,19 +200,24 @@ class CommandError(TanjunError):
             * If more than 100 entries are passed for `user_mentions`.
         """
         if attachment and attachments:
-            raise ValueError("Cannot specify both attachment and attachments")
+            error_message = "Cannot specify both attachment and attachments"
+            raise ValueError(error_message)
 
         if component and components:
-            raise ValueError("Cannot specify both component and components")
+            error_message = "Cannot specify both component and components"
+            raise ValueError(error_message)
 
         if embed and embeds:
-            raise ValueError("Cannot specify both embed and embeds")
+            error_message = "Cannot specify both embed and embeds"
+            raise ValueError(error_message)
 
-        if isinstance(role_mentions, collections.Sequence) and len(role_mentions) > 100:
-            raise ValueError("Cannot specify more than 100 role mentions")
+        if isinstance(role_mentions, collections.Sequence) and len(role_mentions) > _MAX_MENTIONS:
+            error_message = f"Cannot specify more than {_MAX_MENTIONS} role mentions"
+            raise ValueError(error_message)
 
-        if isinstance(user_mentions, collections.Sequence) and len(user_mentions) > 100:
-            raise ValueError("Cannot specify more than 100 user mentions")
+        if isinstance(user_mentions, collections.Sequence) and len(user_mentions) > _MAX_MENTIONS:
+            error_message = f"Cannot specify more than {_MAX_MENTIONS} user mentions"
+            raise ValueError(error_message)
 
         self.attachments = [attachment] if attachment else attachments
         self.content = content

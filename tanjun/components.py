@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -66,7 +65,7 @@ if typing.TYPE_CHECKING:
 
     _CommandT = typing.TypeVar("_CommandT", bound="tanjun.ExecutableCommand[typing.Any]")
     # Pyright bug doesn't accept Var = Class | Class as a type
-    _WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]
+    _WithCommandReturnSig = typing.Union[_CommandT, "collections.Callable[[_CommandT], _CommandT]"]  # noqa: UP007
 
 _LOGGER = logging.getLogger("hikari.tanjun.components")
 
@@ -120,7 +119,7 @@ def _filter_scope(scope: collections.Mapping[str, typing.Any], /) -> collections
 class _ComponentManager(tanjun.ClientLoader):
     __slots__ = ("_component", "_copy")
 
-    def __init__(self, component: Component, copy: bool) -> None:
+    def __init__(self, component: Component, *, copy: bool) -> None:
         self._component = component
         self._copy = copy
 
@@ -207,7 +206,7 @@ class Component(tanjun.Component):
         self._loop: asyncio.AbstractEventLoop | None = None
         self._menu_commands: dict[tuple[hikari.CommandType, str], tanjun.MenuCommand[typing.Any, typing.Any]] = {}
         self._menu_hooks: tanjun.MenuHooks | None = None
-        self._message_commands = _internal.MessageCommandIndex(strict)
+        self._message_commands = _internal.MessageCommandIndex(strict=strict)
         self._message_hooks: tanjun.MessageHooks | None = None
         self._metadata: dict[typing.Any, typing.Any] = {}
         self._name = name or str(uuid.uuid4())
@@ -323,15 +322,15 @@ class Component(tanjun.Component):
     def copy(self) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
         inst = copy.copy(self)
-        inst._checks = [copy.copy(check) for check in self._checks]
-        inst._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}
-        inst._hooks = self._hooks.copy() if self._hooks else None
-        inst._listeners = {
+        inst._checks = [copy.copy(check) for check in self._checks]  # noqa: SLF001
+        inst._slash_commands = {name: command.copy() for name, command in self._slash_commands.items()}  # noqa: SLF001
+        inst._hooks = self._hooks.copy() if self._hooks else None  # noqa: SLF001
+        inst._listeners = {  # noqa: SLF001
             event: [copy.copy(listener) for listener in listeners] for event, listeners in self._listeners.items()
         }
-        inst._message_commands = self._message_commands.copy()
-        inst._metadata = self._metadata.copy()
-        inst._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []
+        inst._message_commands = self._message_commands.copy()  # noqa: SLF001
+        inst._metadata = self._metadata.copy()  # noqa: SLF001
+        inst._schedules = [schedule.copy() for schedule in self._schedules] if self._schedules else []  # noqa: SLF001
         return inst
 
     @typing.overload
@@ -388,16 +387,18 @@ class Component(tanjun.Component):
         """
         if scope is None:
             if not (stack := inspect.currentframe()) or not stack.f_back:
-                raise RuntimeError(
+                error_message = (
                     "Stackframe introspection is not supported in this runtime. Please explicitly pass `scope`."
                 )
+                raise RuntimeError(error_message)
 
             values_iter = _filter_scope(stack.f_back.f_locals)
             if include_globals:
                 values_iter = itertools.chain(values_iter, _filter_scope(stack.f_back.f_globals))
 
         elif include_globals:
-            raise ValueError("Cannot specify include_globals as True when scope is passed")
+            error_message = "Cannot specify include_globals as True when scope is passed"
+            raise ValueError(error_message)
 
         else:
             values_iter = _filter_scope(scope)
@@ -773,10 +774,11 @@ class Component(tanjun.Component):
             self.add_menu_command(command)
 
         else:
-            raise TypeError(
+            error_message = (
                 "Unexpected object passed, expected a MenuCommand, "
                 f"MessageCommand or BaseSlashCommand but got {type(command)}"
             )
+            raise TypeError(error_message)
 
         return self
 
@@ -803,9 +805,10 @@ class Component(tanjun.Component):
             self.remove_menu_command(command)
 
         else:
-            raise TypeError(
+            error_message = (
                 f"Unexpected object passed, expected a MessageCommand or BaseSlashCommand but got {type(command)}"
             )
+            raise TypeError(error_message)
 
         return self
 
@@ -879,7 +882,8 @@ class Component(tanjun.Component):
         try:
             del self._menu_commands[(command.type, command.name)]
         except KeyError:
-            raise ValueError(f"Command {command.name} not found") from None
+            error_message = f"Command {command.name} not found"
+            raise ValueError(error_message) from None
 
         return self
 
@@ -913,7 +917,8 @@ class Component(tanjun.Component):
         try:
             del self._slash_commands[command.name]
         except KeyError:
-            raise ValueError(f"Command {command.name} not found") from None
+            error_message = f"Command {command.name} not found"
+            raise ValueError(error_message) from None
 
         return self
 
@@ -1117,7 +1122,8 @@ class Component(tanjun.Component):
     def bind_client(self, client: tanjun.Client, /) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
         if self._client:
-            raise RuntimeError("Client already set")
+            error_message = "Client already set"
+            raise RuntimeError(error_message)
 
         self._client = client
         for message_command in self._message_commands.commands:
@@ -1139,7 +1145,8 @@ class Component(tanjun.Component):
     def unbind_client(self, client: tanjun.Client, /) -> Self:
         # <<inherited docstring from tanjun.abc.Component>>.
         if not self._client or self._client != client:
-            raise RuntimeError("Component isn't bound to this client")
+            error_message = "Component isn't bound to this client"
+            raise RuntimeError(error_message)
 
         for event, listeners in self._listeners.items():
             for listener in listeners:
@@ -1162,7 +1169,7 @@ class Component(tanjun.Component):
     async def _check_context(self, ctx: tanjun.Context, /) -> bool:
         return await _internal.gather_checks(ctx, self._checks)
 
-    async def _check_message_context(  # noqa: ASYNC900  # Async generator without `@asynccontextmanager` not allowed.
+    async def _check_message_context(
         self, ctx: tanjun.MessageContext, /
     ) -> collections.AsyncIterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         ctx.set_component(self)
@@ -1187,7 +1194,7 @@ class Component(tanjun.Component):
         self, content: str, /, *, case_sensitive: bool = True
     ) -> collections.Iterator[tuple[str, tanjun.MessageCommand[typing.Any]]]:
         # <<inherited docstring from tanjun.abc.Component>>.
-        return self._message_commands.find(content, case_sensitive)
+        return self._message_commands.find(content, case_sensitive=case_sensitive)
 
     def check_slash_name(self, name: str, /) -> collections.Iterator[tanjun.BaseSlashCommand]:
         # <<inherited docstring from tanjun.abc.Component>>.
@@ -1370,7 +1377,8 @@ class Component(tanjun.Component):
     async def close(self, *, unbind: bool = False) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.
         if not self._loop:
-            raise RuntimeError("Component isn't active")
+            error_message = "Component isn't active"
+            raise RuntimeError(error_message)
 
         assert self._client
 
@@ -1383,10 +1391,12 @@ class Component(tanjun.Component):
     async def open(self) -> None:
         # <<inherited docstring from tanjun.abc.Component>>.
         if self._loop:
-            raise RuntimeError("Component is already active")
+            error_message = "Component is already active"
+            raise RuntimeError(error_message)
 
         if not self._client:
-            raise RuntimeError("Client isn't bound yet")
+            error_message = "Client isn't bound yet"
+            raise RuntimeError(error_message)
 
         self._loop = asyncio.get_running_loop()
         await asyncio.gather(*(self._client.injector.call_with_async_di(callback) for callback in self._on_open))
@@ -1413,4 +1423,4 @@ class Component(tanjun.Component):
         tanjun.abc.ClientLoader
             The loader for this component.
         """
-        return _ComponentManager(self, copy)
+        return _ComponentManager(self, copy=copy)

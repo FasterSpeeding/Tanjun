@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Tanjun Examples - A collection of examples for Tanjun.
 # Written in 2021 by Faster Speeding Lucina@lmbyrne.dev
 #
@@ -24,7 +23,9 @@ class DatabaseImpl:
     def __init__(self) -> None:
         self._conn: typing.Any | None = None
 
-    async def connect(self, config: examples.config.ExampleConfig = tanjun.inject(type=examples.config.ExampleConfig)):
+    async def connect(
+        self, config: examples.config.ExampleConfig = tanjun.inject(type=examples.config.ExampleConfig)
+    ) -> None:
         self._conn = await connect_to_database(password=config.database_password, url=config.database_url)
 
     async def get_guild_info(self, guild_id: int) -> protos.GuildConfig | None:

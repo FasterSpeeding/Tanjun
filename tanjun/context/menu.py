@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -37,8 +36,9 @@ import typing
 
 import hikari
 
-from .. import _internal
-from .. import abc as tanjun
+from tanjun import _internal
+from tanjun import abc as tanjun
+
 from . import slash
 
 if typing.TYPE_CHECKING:
@@ -96,7 +96,7 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         self._command: tanjun.MenuCommand[typing.Any, typing.Any] | None = None
         self._marked_not_found = False
         self._on_not_found = on_not_found
-        self._set_type_special_case(tanjun.MenuContext, self)._set_type_special_case(MenuContext, self)
+        self._set_type_special_case(tanjun.MenuContext, self)._set_type_special_case(MenuContext, self)  # noqa: SLF001
 
     @property
     def command(self) -> tanjun.MenuCommand[typing.Any, typing.Any] | None:
@@ -110,7 +110,8 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         mapping = self._interaction.resolved.users or self._interaction.resolved.messages
 
         if not mapping:
-            raise RuntimeError("Unknown menu type")
+            error_message = "Unknown menu type"
+            raise RuntimeError(error_message)
 
         return next(iter(mapping.keys()))
 
@@ -125,7 +126,8 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         )
 
         if not mapping:
-            raise RuntimeError("Unknown menu type")
+            error_message = "Unknown menu type"
+            raise RuntimeError(error_message)
 
         return next(iter(mapping.values()))
 
@@ -177,9 +179,11 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
             if default is not _internal.DEFAULT:
                 return default
 
-            raise LookupError("User isn't in the current guild")
+            error_message = "User isn't in the current guild"
+            raise LookupError(error_message)
 
-        raise TypeError("Cannot resolve message menu context to a user")
+        error_message = "Cannot resolve message menu context to a user"
+        raise TypeError(error_message)
 
     def resolve_to_message(self) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.MenuContext>>.
@@ -187,7 +191,8 @@ class MenuContext(slash.AppCommandContext, tanjun.MenuContext):
         if self._interaction.resolved.messages:
             return next(iter(self._interaction.resolved.messages.values()))
 
-        raise TypeError("Cannot resolve user menu context to a message")
+        error_message = "Cannot resolve user menu context to a message"
+        raise TypeError(error_message)
 
     def resolve_to_user(self) -> hikari.User | hikari.Member:
         # <<inherited docstring from tanjun.abc.MenuContext>>.

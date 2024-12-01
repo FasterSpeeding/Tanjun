@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -39,13 +38,13 @@ import typing
 
 import hikari
 
-from .._internal import localisation
+from tanjun._internal import localisation
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
     from typing import Self
 
-    from .. import abc as tanjun
+    from tanjun import abc as tanjun
 
 
 _CHECK_NAME_PATTERN = re.compile(r"^(?P<command_type>[^:]+):(?P<command_name>[^:]+):check:(?P<check_name>.+)$")

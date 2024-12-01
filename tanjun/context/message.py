@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -40,7 +39,8 @@ import typing
 
 import hikari
 
-from .. import abc as tanjun
+from tanjun import abc as tanjun
+
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -63,9 +63,9 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         "_content",
         "_initial_response_id",
         "_last_response_id",
+        "_message",
         "_register_task",
         "_response_lock",
-        "_message",
         "_triggering_name",
         "_triggering_prefix",
     )
@@ -98,7 +98,8 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
             The prefix that triggered this context.
         """
         if message.content is None:
-            raise ValueError("Cannot spawn context with a content-less message.")
+            error_message = "Cannot spawn context with a content-less message."
+            raise ValueError(error_message)
 
         super().__init__(client)
         self._command: tanjun.MessageCommand[typing.Any] | None = None
@@ -110,7 +111,11 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self._message = message
         self._triggering_name = triggering_name
         self._triggering_prefix = triggering_prefix
-        self._set_type_special_case(tanjun.MessageContext, self)._set_type_special_case(MessageContext, self)
+        (
+            self._set_type_special_case(tanjun.MessageContext, self)._set_type_special_case(  # noqa: SLF001
+                MessageContext, self
+            )
+        )
 
     def __repr__(self) -> str:
         return f"MessageContext <{self._message!r}, {self._command!r}>"
@@ -180,12 +185,16 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self._assert_not_final()
         if command:
             # TODO: command group?
-            self._set_type_special_case(tanjun.ExecutableCommand, command)._set_type_special_case(
+            self._set_type_special_case(tanjun.ExecutableCommand, command)._set_type_special_case(  # noqa: SLF001
                 tanjun.MessageCommand, command
             )
 
         elif self._command:
-            self._remove_type_special_case(tanjun.ExecutableCommand)._remove_type_special_case(tanjun.MessageCommand)
+            (
+                self._remove_type_special_case(tanjun.ExecutableCommand)._remove_type_special_case(  # noqa: SLF001
+                    tanjun.MessageCommand
+                )
+            )
 
         self._command = command
         return self
@@ -222,14 +231,16 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
     async def delete_initial_response(self) -> None:
         # <<inherited docstring from tanjun.abc.Context>>.
         if self._initial_response_id is None:
-            raise LookupError("Context has no initial response")
+            error_message = "Context has no initial response"
+            raise LookupError(error_message)
 
         await self._tanjun_client.rest.delete_message(self._message.channel_id, self._initial_response_id)
 
     async def delete_last_response(self) -> None:
         # <<inherited docstring from tanjun.abc.Context>>.
         if self._last_response_id is None:
-            raise LookupError("Context has no previous responses")
+            error_message = "Context has no previous responses"
+            raise LookupError(error_message)
 
         await self._tanjun_client.rest.delete_message(self._message.channel_id, self._last_response_id)
 
@@ -251,7 +262,8 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         if self._initial_response_id is None:
-            raise LookupError("Context has no initial response")
+            error_message = "Context has no initial response"
+            raise LookupError(error_message)
 
         message = await self.rest.edit_message(
             self._message.channel_id,
@@ -290,7 +302,8 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         # <<inherited docstring from tanjun.abc.Context>>.
         delete_after = _delete_after_to_float(delete_after) if delete_after is not None else None
         if self._last_response_id is None:
-            raise LookupError("Context has no previous tracked response")
+            error_message = "Context has no previous tracked response"
+            raise LookupError(error_message)
 
         message = await self.rest.edit_message(
             self._message.channel_id,
@@ -317,14 +330,16 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         if self._initial_response_id is not None:
             return await self.client.rest.fetch_message(self._message.channel_id, self._initial_response_id)
 
-        raise LookupError("No initial response found for this context")
+        error_message = "No initial response found for this context"
+        raise LookupError(error_message)
 
     async def fetch_last_response(self) -> hikari.Message:
         # <<inherited docstring from tanjun.abc.Context>>.
         if self._last_response_id is not None:
             return await self.client.rest.fetch_message(self._message.channel_id, self._last_response_id)
 
-        raise LookupError("No responses found for this context")
+        error_message = "No responses found for this context"
+        raise LookupError(error_message)
 
     @staticmethod
     async def _delete_after(delete_after: float, message: hikari.Message, /) -> None:
@@ -338,7 +353,7 @@ class MessageContext(base.BaseContext, tanjun.MessageContext):
         self,
         content: hikari.UndefinedOr[typing.Any] = hikari.UNDEFINED,
         *,
-        ensure_result: bool = True,
+        ensure_result: bool = True,  # noqa: ARG002
         delete_after: datetime.timedelta | float | int | None = None,
         attachment: hikari.UndefinedOr[hikari.Resourceish] = hikari.UNDEFINED,
         attachments: hikari.UndefinedOr[collections.Sequence[hikari.Resourceish]] = hikari.UNDEFINED,

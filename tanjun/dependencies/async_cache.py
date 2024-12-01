@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -78,7 +77,7 @@ import typing
 
 import hikari
 
-from .. import errors
+from tanjun import errors
 
 if typing.TYPE_CHECKING:
     _DefaultT = typing.TypeVar("_DefaultT")

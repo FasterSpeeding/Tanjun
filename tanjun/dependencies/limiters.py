@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -60,16 +59,16 @@ import enum
 import logging
 import typing
 
-import alluka
 import hikari
 import typing_extensions
 
-from .. import _internal
-from .. import abc as tanjun
-from .. import conversion
-from .. import errors
-from .. import hooks
-from .._internal import localisation
+from tanjun import _internal
+from tanjun import abc as tanjun
+from tanjun import conversion
+from tanjun import errors
+from tanjun import hooks
+from tanjun._internal import localisation
+
 from . import async_cache
 from . import locales
 from . import owners
@@ -79,6 +78,8 @@ if typing.TYPE_CHECKING:
     import types
     from collections import abc as collections
     from typing import Self
+
+    import alluka
 
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _InnerResourceSig = collections.Callable[[], "_InnerResourceT"]
@@ -119,7 +120,7 @@ class AbstractCooldownManager(abc.ABC):
     async def check_cooldown(
         self, bucket_id: str, ctx: tanjun.Context, /, *, increment: bool = False
     ) -> datetime.datetime | None:
-        """Deprecated method."""
+        """Deprecated method."""  # noqa: D401
 
     @typing_extensions.deprecated("Use .acquire or .try_acquire and .release to manage cooldowns")
     async def increment_cooldown(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
@@ -128,7 +129,7 @@ class AbstractCooldownManager(abc.ABC):
         Use
         [AbstractCooldownManager.acquire][tanjun.dependencies.limiters.AbstractCooldownManager.acquire]
         and [AbstractCooldownManager.release][tanjun.dependencies.limiters.AbstractCooldownManager.release].
-        """
+        """  # noqa: D401
         try:
             await self.try_acquire(bucket_id, ctx)
 
@@ -231,7 +232,8 @@ class _CooldownAcquire:
 
     async def __aenter__(self) -> None:
         if self._acquired:
-            raise RuntimeError("Already acquired")
+            error_message = "Already acquired"
+            raise RuntimeError(error_message)
 
         self._acquired = True
         try:
@@ -245,7 +247,8 @@ class _CooldownAcquire:
         self, exc_type: type[BaseException] | None, exc: BaseException | None, exc_traceback: types.TracebackType | None
     ) -> None:
         if not self._acquired:
-            raise RuntimeError("Not acquired")
+            error_message = "Not acquired"
+            raise RuntimeError(error_message)
 
         try:
             await self._manager.release(self._bucket_id, self._ctx)
@@ -353,7 +356,8 @@ class _ConcurrencyAcquire:
 
     async def __aenter__(self) -> None:
         if self._acquired:
-            raise RuntimeError("Already acquired")
+            error_message = "Already acquired"
+            raise RuntimeError(error_message)
 
         self._acquired = True
         try:
@@ -361,13 +365,14 @@ class _ConcurrencyAcquire:
 
         except ResourceDepleted:
             self._acquired = False
-            raise self._error() from None  # noqa: R102
+            raise self._error() from None
 
     async def __aexit__(
         self, exc_type: type[BaseException] | None, exc: BaseException | None, exc_traceback: types.TracebackType | None
     ) -> None:
         if not self._acquired:
-            raise RuntimeError("Not acquired")
+            error_message = "Not acquired"
+            raise RuntimeError(error_message)
 
         self._acquired = False
         await asyncio.shield(self._limiter.release(self._bucket_id, self._ctx))
@@ -481,11 +486,12 @@ async def _get_ctx_target(ctx: tanjun.Context, type_: BucketResource, /) -> hika
     if type_ is BucketResource.GUILD:
         return ctx.guild_id or ctx.channel_id
 
-    raise ValueError(f"Unexpected type {type_!s}")
+    error_message = f"Unexpected type {type_!s}"
+    raise ValueError(error_message)
 
 
 def _now() -> datetime.datetime:
-    return datetime.datetime.now(tz=datetime.timezone.utc)
+    return datetime.datetime.now(tz=datetime.UTC)
 
 
 class _Cooldown:
@@ -801,11 +807,12 @@ class InMemoryCooldownManager(AbstractCooldownManager):
         # internally de-duplicate this.
         key = (bucket_id, ctx)
         if key in self._acquiring_ctxs:
-            return
+            return None
 
         resource = await bucket.into_inner(ctx)
         # increment will raise if it the bucket is exhausted
         self._acquiring_ctxs[key] = resource.check().increment(ctx)
+        return None
 
     @typing_extensions.deprecated("Use .acquire or .try_acquire and .release to manage cooldowns")
     async def check_cooldown(
@@ -822,10 +829,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
                 await self.release(bucket_id, ctx)
 
         else:
-            resource = (
-                self._acquiring_ctxs.get((bucket_id, ctx))
-                or (bucket := self._buckets.get(bucket_id))
-                and (resource := await bucket.into_inner(ctx))
+            resource = self._acquiring_ctxs.get((bucket_id, ctx)) or (
+                (bucket := self._buckets.get(bucket_id)) and (resource := await bucket.into_inner(ctx))
             )
             if not resource:
                 return None  # MyPy compat
@@ -844,7 +849,7 @@ class InMemoryCooldownManager(AbstractCooldownManager):
 
         if resource := self._acquiring_ctxs.pop((bucket_id, ctx), None):
             resource.unlock(ctx)
-            return
+            return None
 
         raise ResourceNotTracked
 
@@ -857,7 +862,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             If the cooldown manager is not running.
         """
         if not self._gc_task:
-            raise RuntimeError("Cooldown manager is not active")
+            error_message = "Cooldown manager is not active"
+            raise RuntimeError(error_message)
 
         self._gc_task.cancel()
         self._gc_task = None
@@ -872,7 +878,8 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             If called in a thread with no running event loop.
         """
         if self._gc_task:
-            raise RuntimeError("Cooldown manager is already running")
+            error_message = "Cooldown manager is already running"
+            raise RuntimeError(error_message)
 
         self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
@@ -942,10 +949,12 @@ class InMemoryCooldownManager(AbstractCooldownManager):
             reset_after = datetime.timedelta(seconds=reset_after)
 
         if reset_after <= datetime.timedelta():
-            raise ValueError("reset_after must be greater than 0 seconds")
+            error_message = "reset_after must be greater than 0 seconds"
+            raise ValueError(error_message)
 
         if limit <= 0:
-            raise ValueError("limit must be greater than 0")
+            error_message = "limit must be greater than 0"
+            raise ValueError(error_message)
 
         self._buckets[bucket_id] = _to_bucket(
             BucketResource(resource), _MakeCooldown(limit=limit, reset_after=reset_after)
@@ -1012,7 +1021,7 @@ class CooldownPreExecution:
     instead and incrementing the bucket's use counter.
     """
 
-    __slots__ = ("_bucket_id", "_error", "_error_message", "_owners_exempt", "_unknown_message", "__weakref__")
+    __slots__ = ("__weakref__", "_bucket_id", "_error", "_error_message", "_owners_exempt", "_unknown_message")
 
     def __init__(
         self,
@@ -1144,7 +1153,7 @@ class _LocaliseUnknown(localisation.MaybeLocalised):
 class CooldownPostExecution:
     """Post-execution hook used to manager a command's cooldown."""
 
-    __slots__ = ("_bucket_id", "__weakref__")
+    __slots__ = ("__weakref__", "_bucket_id")
 
     def __init__(self, bucket_id: str, /) -> None:
         self._bucket_id = bucket_id
@@ -1301,10 +1310,7 @@ class _ConcurrencyLimit:
             return True
 
         # A limit of -1 means unlimited so we don't need to keep count.
-        if self.limit == -1:
-            return True
-
-        return False
+        return self.limit == -1
 
     def release(self, _: str, __: tanjun.Context, /) -> None:
         if self.counter > 0:
@@ -1315,7 +1321,8 @@ class _ConcurrencyLimit:
         if self.limit == -1:
             return
 
-        raise RuntimeError("Cannot release a limit that has not been acquired, this should never happen")
+        error_message = "Cannot release a limit that has not been acquired, this should never happen"
+        raise RuntimeError(error_message)
 
     def has_expired(self) -> bool:
         # Expiration doesn't actually matter for cases where the limit is -1.
@@ -1433,7 +1440,8 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             If the concurrency manager is not running.
         """
         if not self._gc_task:
-            raise RuntimeError("Concurrency manager is not active")
+            error_message = "Concurrency manager is not active"
+            raise RuntimeError(error_message)
 
         self._gc_task.cancel()
         self._gc_task = None
@@ -1448,7 +1456,8 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             If called in a thread with no running event loop.
         """
         if self._gc_task:
-            raise RuntimeError("Concurrency manager is already running")
+            error_message = "Concurrency manager is already running"
+            raise RuntimeError(error_message)
 
         self._gc_task = (_loop or asyncio.get_running_loop()).create_task(self._gc())
 
@@ -1468,14 +1477,14 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
         # internally de-duplicate this.
         key = (bucket_id, ctx)
         if key in self._acquiring_ctxs:
-            return
+            return None
 
         limit = await bucket.into_inner(ctx)
         if limit.acquire():
             self._acquiring_ctxs[key] = limit
+            return None
 
-        else:
-            raise ResourceDepleted
+        raise ResourceDepleted
 
     async def release(self, bucket_id: str, ctx: tanjun.Context, /) -> None:
         # <<inherited docstring from AbstractConcurrencyLimiter>>.
@@ -1484,9 +1493,10 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 
         if limit := self._acquiring_ctxs.pop((bucket_id, ctx), None):
             limit.release(bucket_id, ctx)
+            return None
 
-        else:
-            raise ResourceNotTracked("Context is not acquired")
+        error_message = "Context is not acquired"
+        raise ResourceNotTracked(error_message)
 
     def disable_bucket(self, bucket_id: str, /) -> Self:
         """Disable a concurrency limit bucket.
@@ -1545,7 +1555,8 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
             * If limit is less 0 or negative.
         """
         if limit <= 0:
-            raise ValueError("limit must be greater than 0")
+            error_message = "limit must be greater than 0"
+            raise ValueError(error_message)
 
         self._buckets[bucket_id] = _to_bucket(BucketResource(resource), lambda: _ConcurrencyLimit(limit))
         self._custom_buckets.pop(bucket_id, None)
@@ -1606,7 +1617,7 @@ class InMemoryConcurrencyLimiter(AbstractConcurrencyLimiter):
 class ConcurrencyPreExecution:
     """Pre-execution hook used to acquire a bucket concurrency limiter."""
 
-    __slots__ = ("_bucket_id", "_error", "_error_message", "__weakref__")
+    __slots__ = ("__weakref__", "_bucket_id", "_error", "_error_message")
 
     def __init__(
         self,
@@ -1661,7 +1672,7 @@ class ConcurrencyPreExecution:
 class ConcurrencyPostExecution:
     """Post-execution hook used to release a bucket concurrency limiter."""
 
-    __slots__ = ("_bucket_id", "__weakref__")
+    __slots__ = ("__weakref__", "_bucket_id")
 
     def __init__(self, bucket_id: str, /) -> None:
         """Initialise a concurrency post-execution hook.

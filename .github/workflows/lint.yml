@@ -33,8 +33,8 @@ jobs:
       - name: Check spelling
         run: nox -s spell-check
 
-      - name: Lint with flake8
-        run: nox -s flake8
+      - name: Lint with Ruff
+        run: nox -s lint
 
       - name: Check slotting
         run: nox -s slot-check

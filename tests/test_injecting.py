@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -39,7 +38,7 @@ import pytest
 import tanjun
 
 
-def test_as_self_injecting():
+def test_as_self_injecting() -> None:
     mock_callback = mock.Mock()
     mock_client = mock.Mock()
 
@@ -50,7 +49,7 @@ def test_as_self_injecting():
     assert result._client is mock_client.injector
 
 
-def test_aliases():
+def test_aliases() -> None:
     assert set(tanjun.injecting.__all__) == {
         "AbstractInjectionContext",
         "BasicInjectionContext",

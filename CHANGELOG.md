@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Renamed the `case_sensntive` argument to `case_sensitive` in `MessageCommand.find_command`.
+
+### Deprecated
+- The old `case_sensntive` argument alias in `MessageCommand.find_command`.
+
 ## [2.17.7] - 2024-11-24
 ### Fixed
 - Moved away from using `typing.runtime_checkable` as this is unreliable in

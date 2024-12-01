@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -42,16 +41,17 @@ import logging
 import pathlib
 import typing
 
-import alluka
 import hikari
 
-from .. import _internal
-from .. import abc as tanjun
-from .. import errors
+from tanjun import _internal
+from tanjun import abc as tanjun
+from tanjun import errors
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
     from typing import Self
+
+    import alluka
 
     _BuilderDict = dict[tuple[hikari.CommandType, str], hikari.api.CommandBuilder]
     _DirectoryEntry = tuple[str, set[str]] | tuple[None, set[pathlib.Path]]
@@ -63,7 +63,7 @@ _LOGGER = logging.getLogger("hikari.tanjun.reloader")
 
 
 class _PyPathInfo:
-    __slots__ = ("sys_path", "last_modified_at")
+    __slots__ = ("last_modified_at", "sys_path")
 
     def __init__(self, sys_path: pathlib.Path, /, *, last_modified_at: int = -1) -> None:
         self.sys_path = sys_path
@@ -96,8 +96,8 @@ class HotReloader:
         "_declared_builders",
         "_directories",
         "_interval",
-        "_py_paths",
         "_py_path_to_sys_path",
+        "_py_paths",
         "_redeclare_cmds_after",
         "_scheduled_builders",
         "_sys_paths",
@@ -299,7 +299,7 @@ class HotReloader:
                 return False
 
             except errors.ModuleMissingLoaders:
-                _LOGGER.error("Cannot load module `%s` with no loaders", path)  # noqa: TC400
+                _LOGGER.exception("Cannot load module `%s` with no loaders", path)
                 return False
 
             except errors.FailedModuleUnload as exc:
@@ -423,7 +423,7 @@ class HotReloader:
         assert self._redeclare_cmds_after is not None
         await asyncio.sleep(self._redeclare_cmds_after)
 
-        while True:  # noqa: ASYNC913
+        while True:
             if not _internal.cmp_all_commands(builders.values(), self._scheduled_builders):
                 builders = self._scheduled_builders
                 try:
@@ -475,7 +475,8 @@ class HotReloader:
             If the hot reloader isn't running.
         """
         if not self._task:
-            raise RuntimeError("Hot reloader is not running")
+            error_message = "Hot reloader is not running"
+            raise RuntimeError(error_message)
 
         self._task.cancel()
         self._task = None
@@ -489,7 +490,8 @@ class HotReloader:
             If the hot reloader is already running.
         """
         if self._task:
-            raise RuntimeError("Hot reloader has already been started")
+            error_message = "Hot reloader has already been started"
+            raise RuntimeError(error_message)
 
         self._task = asyncio.create_task(self._loop(client))
 
@@ -501,7 +503,8 @@ def _to_namespace(namespace: str, path: pathlib.Path, /) -> str:
 def _add_directory(directory: str | pathlib.Path, namespace: str | None, /) -> tuple[pathlib.Path, _DirectoryEntry]:
     directory = pathlib.Path(directory)
     if not directory.exists():
-        raise FileNotFoundError(f"{directory} does not exist")
+        error_message = f"{directory} does not exist"
+        raise FileNotFoundError(error_message)
 
     return directory.resolve(), (namespace, set()) if namespace is None else (namespace, set())
 
@@ -520,11 +523,13 @@ def _add_modules(paths: tuple[str | pathlib.Path, ...], /) -> tuple[dict[str, _P
         else:
             module = importlib.import_module(raw_path)
             if not module.__file__:
-                raise RuntimeError(f"{raw_path} has no file")
+                error_message = f"{raw_path} has no file"
+                raise RuntimeError(error_message)
 
             path = pathlib.Path(module.__file__).resolve()
             if not path.exists():
-                raise FileNotFoundError(f"{path} not found for module {raw_path}")
+                error_message = f"{path} not found for module {raw_path}"
+                raise FileNotFoundError(error_message)
 
             py_paths[raw_path] = _PyPathInfo(path)
 

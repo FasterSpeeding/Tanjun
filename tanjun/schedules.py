@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -140,7 +139,7 @@ class _ComponentProto(typing.Protocol):
 
 def _is_component_proto(value: typing.Any, /) -> typing.TypeGuard[_ComponentProto]:
     try:
-        value.add_schedule
+        value.add_schedule  # noqa: B018
 
     except AttributeError:
         return False
@@ -156,11 +155,10 @@ def as_interval(
     ignored_exceptions: collections.Sequence[type[Exception]] = (),
     max_runs: int | None = None,
 ) -> collections.Callable[[_CallbackSigT], IntervalSchedule[_CallbackSigT]]:
-    """Decorator to create an schedule.
+    """Decorate a function to create an interval schedule.
 
     Examples
     --------
-
     ```py
     @component.with_schedule
     @tanjun.as_interval(datetime.timedelta(minutes=5))  # This will run every 5 minutes
@@ -217,8 +215,8 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         "_interval",
         "_iteration_count",
         "_max_runs",
-        "_stop_callback",
         "_start_callback",
+        "_stop_callback",
         "_task",
         "_tasks",
     )
@@ -300,10 +298,11 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
     def copy(self) -> Self:
         # <<inherited docstring from IntervalSchedule>>.
         if self._task:
-            raise RuntimeError("Cannot copy an active schedule")
+            error_message = "Cannot copy an active schedule"
+            raise RuntimeError(error_message)
 
         inst = copy.copy(self)
-        inst._tasks = []
+        inst._tasks = []  # noqa: SLF001
         return inst
 
     def load_into_component(self, component: tanjun.Component, /) -> None:
@@ -354,7 +353,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
         except self._ignored_exceptions:
             pass
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             traceback.print_exc()
 
     def _add_task(self, task: asyncio.Task[None], /) -> None:
@@ -376,7 +375,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
                 except self._ignored_exceptions:
                     pass
 
-                except Exception:
+                except Exception:  # noqa: BLE001
                     traceback.print_exc()
                     self._task = None
                     return
@@ -388,7 +387,7 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
 
             self._add_task(event_loop.create_task(self.stop()))
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             traceback.print_exc()
 
     async def _on_stop(self, client: alluka.Client, /) -> None:
@@ -399,18 +398,20 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
             except self._ignored_exceptions:
                 pass
 
-            except Exception:
+            except Exception:  # noqa: BLE001
                 traceback.print_exc()
 
     def start(self, client: alluka.Client, /, *, loop: asyncio.AbstractEventLoop | None = None) -> None:
         # <<inherited docstring from IntervalSchedule>>.
         if self._task:
-            raise RuntimeError("Cannot start an active schedule")
+            error_message = "Cannot start an active schedule"
+            raise RuntimeError(error_message)
 
         loop = loop or asyncio.get_running_loop()
 
         if not loop.is_running():
-            raise RuntimeError("Event loop is not running")
+            error_message = "Event loop is not running"
+            raise RuntimeError(error_message)
 
         self._client = client
         self._task = loop.create_task(self._loop(client))
@@ -418,7 +419,8 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
     def force_stop(self) -> None:
         # <<inherited docstring from IntervalSchedule>>.
         if not self._task:
-            raise RuntimeError("Schedule is not running")
+            error_message = "Schedule is not running"
+            raise RuntimeError(error_message)
 
         assert self._client
         client = self._client
@@ -434,7 +436,8 @@ class IntervalSchedule(typing.Generic[_CallbackSigT], components.AbstractCompone
     async def stop(self) -> None:
         # <<inherited docstring from IntervalSchedule>>.
         if not self._task:
-            raise RuntimeError("Schedule is not running")
+            error_message = "Schedule is not running"
+            raise RuntimeError(error_message)
 
         assert self._client
         client = self._client
@@ -573,12 +576,14 @@ def _to_sequence(
 
     if isinstance(values, int):
         if values >= max_ or values < min_:
-            raise ValueError(f"{name} value must be (inclusively) between {min_} and {max_ - 1}, not {values}")
+            error_message = f"{name} value must be (inclusively) between {min_} and {max_ - 1}, not {values}"
+            raise ValueError(error_message)
 
         return [values]
 
     if isinstance(values, float):
-        raise TypeError(f"{name} value must be an integer, not a float")
+        error_message = f"{name} value must be an integer, not a float"
+        raise TypeError(error_message)
 
     if isinstance(values, range):
         if values.step < 0:
@@ -592,14 +597,16 @@ def _to_sequence(
     else:
         values = sorted(values)
         if any(isinstance(value, float) for value in values):
-            raise TypeError(f"Cannot pass floats for {name}")
+            error_message = f"Cannot pass floats for {name}"
+            raise TypeError(error_message)
 
     first_entry = values[0]
     last_entry = values[-1]
     if last_entry >= max_ or first_entry < min_:
-        raise ValueError(
+        error_message = (
             f"{name} must be (inclusively) between {min_} and {max_ - 1}, not {first_entry} and {last_entry}"
         )
+        raise ValueError(error_message)
 
     return values
 
@@ -812,7 +819,6 @@ def as_time_schedule(
 
     Examples
     --------
-
     ```py
     @component.with_schedule
     @tanjun.as_time_schedule(  # This will run every week day at 8:00 and 16:00 UTC.
@@ -1047,12 +1053,13 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
     def copy(self) -> Self:
         # <<inherited docstring from IntervalSchedule>>.
         if self._task:
-            raise RuntimeError("Cannot copy an active schedule")
+            error_message = "Cannot copy an active schedule"
+            raise RuntimeError(error_message)
 
         inst = copy.copy(self)
-        self._config = copy.copy(self._config)
-        self._config.current_date = datetime.datetime.min.replace(tzinfo=self._config.timezone)
-        inst._tasks = []
+        inst._config = copy.copy(self._config)  # noqa: SLF001
+        inst._config.current_date = datetime.datetime.min.replace(tzinfo=self._config.timezone)  # noqa: SLF001
+        inst._tasks = []  # noqa: SLF001
         return inst
 
     async def _execute(self, client: alluka.Client, /) -> None:
@@ -1066,7 +1073,7 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
         except self._ignored_exceptions:
             pass
 
-        except Exception:
+        except Exception:  # noqa: BLE001
             traceback.print_exc()
 
     def _add_task(self, task: asyncio.Task[None], /) -> None:
@@ -1099,19 +1106,22 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
     def start(self, client: alluka.Client, /, *, loop: asyncio.AbstractEventLoop | None = None) -> None:
         # <<inherited docstring from IntervalSchedule>>.
         if self._task:
-            raise RuntimeError("Schedule is already running")
+            error_message = "Schedule is already running"
+            raise RuntimeError(error_message)
 
         loop = loop or asyncio.get_running_loop()
 
         if not loop.is_running():
-            raise RuntimeError("Event loop is not running")
+            error_message = "Event loop is not running"
+            raise RuntimeError(error_message)
 
         self._task = loop.create_task(self._loop(client))
 
     def force_stop(self) -> None:
         # <<inherited docstring from IntervalSchedule>>.
         if not self._task:
-            raise RuntimeError("Schedule is not running")
+            error_message = "Schedule is not running"
+            raise RuntimeError(error_message)
 
         self._task.cancel()
         self._task = None
@@ -1121,7 +1131,8 @@ class TimeSchedule(typing.Generic[_CallbackSigT], components.AbstractComponentLo
     async def stop(self) -> None:
         # <<inherited docstring from IntervalSchedule>>.
         if not self._task:
-            raise RuntimeError("Schedule is not running")
+            error_message = "Schedule is not running"
+            raise RuntimeError(error_message)
 
         self._task.cancel()
         self._task = None

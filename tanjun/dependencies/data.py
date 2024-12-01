@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -40,7 +39,7 @@ import typing
 
 import alluka
 
-from .. import abc as tanjun
+from tanjun import abc as tanjun
 
 if typing.TYPE_CHECKING:
     import contextlib
@@ -102,7 +101,8 @@ class LazyConstant(typing.Generic[_T]):
             If the constant has already been set.
         """
         if self._value is not None:
-            raise RuntimeError("Constant value already set.")
+            error_message = "Constant value already set."
+            raise RuntimeError(error_message)
 
         self._value = value
         self._lock = None
@@ -157,7 +157,7 @@ def make_lc_resolver(
         ctx: alluka.Injected[alluka.abc.Context],
         # LazyConstant gets type arguments at runtime and Injected can't be used here as that'd fail to
         # resolve.
-        constant: LazyConstant[_T] = alluka.inject(type=LazyConstant[type_]),
+        constant: LazyConstant[_T] = alluka.inject(type=LazyConstant[type_]),  # noqa: B008
     ) -> _T:
         """Resolve a lazy constant."""
         if (value := constant.get_value()) is not None:
@@ -167,7 +167,7 @@ def make_lc_resolver(
             if (value := constant.get_value()) is not None:
                 return value
 
-            result = await ctx.call_with_async_di(constant.callback)  # type: ignore
+            result = await ctx.call_with_async_di(constant.callback)  # type: ignore  # noqa: PGH003
             constant.set_value(result)
             return result
 
@@ -221,7 +221,7 @@ def inject_lc(type_: type[_T], /) -> _T:
 
 
 class _CacheCallback(typing.Generic[_T]):
-    __slots__ = ("_callback", "_expire_after", "_last_called", "_lock", "_result", "__weakref__")
+    __slots__ = ("__weakref__", "_callback", "_expire_after", "_last_called", "_lock", "_result")
 
     def __init__(
         self, callback: alluka.abc.CallbackSig[_T], /, *, expire_after: int | float | datetime.timedelta | None
@@ -238,7 +238,8 @@ class _CacheCallback(typing.Generic[_T]):
             expire_after = float(expire_after)
 
         if expire_after is not None and expire_after <= 0:
-            raise ValueError("expire_after must be more than 0 seconds")
+            error_message = "expire_after must be more than 0 seconds"
+            raise ValueError(error_message)
 
         self._expire_after = expire_after
 

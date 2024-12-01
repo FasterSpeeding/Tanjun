@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -35,12 +34,16 @@ __all__: list[str] = ["MessageCommand", "MessageCommandGroup", "as_message_comma
 
 import copy
 import typing
+import warnings
 
-from .. import _internal
-from .. import abc as tanjun
-from .. import components
-from .. import errors
-from .. import hooks as hooks_
+import typing_extensions
+
+from tanjun import _internal
+from tanjun import abc as tanjun
+from tanjun import components
+from tanjun import errors
+from tanjun import hooks as hooks_
+
 from . import base
 
 if typing.TYPE_CHECKING:
@@ -56,7 +59,7 @@ if typing.TYPE_CHECKING:
     )
 
     # Pyright bug doesn't accept Var = Class | Class as a type
-    _CallbackishT = typing.Union[_AnyCommandT["_MessageCallbackSigT"], "_MessageCallbackSigT"]
+    _CallbackishT = typing.Union[_AnyCommandT["_MessageCallbackSigT"], "_MessageCallbackSigT"]  # noqa: UP007
     _OtherCallbackSigT = typing.TypeVar("_OtherCallbackSigT", bound=tanjun.MessageCallbackSig)
 
 
@@ -100,7 +103,7 @@ def as_message_command(name: str, /, *names: str, validate_arg_keys: bool = True
     """
 
     def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommand[_MessageCallbackSigT]:
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             wrapped_command = callback
             # Cast needed cause of pyright bug.
             callback = typing.cast("_MessageCallbackSigT", callback.callback)
@@ -157,7 +160,7 @@ def as_message_command_group(
     """
 
     def decorator(callback: _CallbackishT[_MessageCallbackSigT], /) -> MessageCommandGroup[_MessageCallbackSigT]:
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             wrapped_command = callback
             # Cast needed cause of pyright bug
             callback = typing.cast("_MessageCallbackSigT", callback.callback)
@@ -228,7 +231,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             Whether to validate that option keys match the command callback's signature.
         """
         super().__init__()
-        if isinstance(callback, (tanjun.MenuCommand, tanjun.MessageCommand, tanjun.SlashCommand)):
+        if isinstance(callback, tanjun.MenuCommand | tanjun.MessageCommand | tanjun.SlashCommand):
             # Cast needed cause of pyright bug.
             callback = typing.cast("_MessageCallbackSigT", callback.callback)
 
@@ -247,7 +250,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
 
     else:
 
-        async def __call__(self, *args, **kwargs) -> None:
+        async def __call__(self, *args: typing.Any, **kwargs: typing.Any) -> None:
             await self._callback(*args, **kwargs)
 
     @property
@@ -294,10 +297,10 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
     def copy(self, *, parent: tanjun.MessageCommandGroup[typing.Any] | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         inst = super().copy()
-        inst._callback = copy.copy(self._callback)
-        inst._names = self._names.copy()
-        inst._parent = parent
-        inst._parser = self._parser.copy() if self._parser else None
+        inst._callback = copy.copy(self._callback)  # noqa: SLF001
+        inst._names = self._names.copy()  # noqa: SLF001
+        inst._parent = parent  # noqa: SLF001
+        inst._parser = self._parser.copy() if self._parser else None  # noqa: SLF001
         return inst
 
     def set_parent(self, parent: tanjun.MessageCommandGroup[typing.Any] | None, /) -> Self:
@@ -349,7 +352,7 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             raise
 
         except Exception as exc:
-            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:  # noqa: ASYNC120
+            if await own_hooks.trigger_error(ctx, exc, hooks=hooks) <= 0:
                 raise
 
         else:
@@ -431,7 +434,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
             Whether to validate that option keys match the command callback's signature.
         """
         super().__init__(callback, name, *names, validate_arg_keys=validate_arg_keys, _wrapped_command=_wrapped_command)
-        self._commands = _internal.MessageCommandIndex(strict)
+        self._commands = _internal.MessageCommandIndex(strict=strict)
 
     def __repr__(self) -> str:
         return f"CommandGroup <{len(self._commands.commands)}: {self._names}>"
@@ -448,7 +451,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
     def copy(self, *, parent: tanjun.MessageCommandGroup[typing.Any] | None = None) -> Self:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         inst = super().copy(parent=parent)
-        inst._commands = self._commands.copy(parent=self)
+        inst._commands = self._commands.copy(parent=self)  # noqa: SLF001
         return inst
 
     def add_command(self, command: tanjun.MessageCommand[typing.Any], /) -> Self:
@@ -570,17 +573,35 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
 
         return self
 
+    @typing.overload
+    def find_command(
+        self, content: str, /, *, case_sensitive: bool = True
+    ) -> collections.Iterable[tuple[str, tanjun.MessageCommand[typing.Any]]]: ...
+
+    @typing.overload
+    @typing_extensions.deprecated("case_sensntive has been renamed to case_sensitive")
     def find_command(
         self, content: str, /, *, case_sensntive: bool = True
+    ) -> collections.Iterable[tuple[str, tanjun.MessageCommand[typing.Any]]]: ...
+
+    def find_command(
+        self, content: str, /, *, case_sensntive: bool | None = None, case_sensitive: bool = True
     ) -> collections.Iterable[tuple[str, tanjun.MessageCommand[typing.Any]]]:
-        return self._commands.find(content, case_sensntive)
+        if case_sensntive is not None:
+            warnings.warn(
+                "case_sensntive has been renamed to case_sensitive", stacklevel=2, category=DeprecationWarning
+            )
+            case_sensitive = case_sensntive
+
+        return self._commands.find(content, case_sensitive=case_sensitive)
 
     async def execute(
         self, ctx: tanjun.MessageContext, /, *, hooks: collections.MutableSet[tanjun.MessageHooks] | None = None
     ) -> None:
         # <<inherited docstring from tanjun.abc.MessageCommand>>.
         if ctx.message.content is None:
-            raise ValueError("Cannot execute a command with a content-less message")
+            error_message = "Cannot execute a command with a content-less message"
+            raise ValueError(error_message)
 
         if self._hooks:
             if hooks is None:
@@ -592,7 +613,7 @@ class MessageCommandGroup(MessageCommand[_MessageCallbackSigT], tanjun.MessageCo
         if ctx.component and ctx.component.is_case_sensitive is not None:
             case_sensitive = ctx.component.is_case_sensitive
 
-        for name, command in self._commands.find(ctx.content, case_sensitive):
+        for name, command in self._commands.find(ctx.content, case_sensitive=case_sensitive):
             if await command.check_context(ctx):
                 content = ctx.content[len(name) :]
                 ctx.set_triggering_name(ctx.triggering_name + " " + name)
