@@ -72,14 +72,13 @@ from tanjun._internal import localisation
 from . import async_cache
 from . import locales
 from . import owners
+import alluka
 
 if typing.TYPE_CHECKING:
     import contextlib
     import types
     from collections import abc as collections
     from typing import Self
-
-    import alluka
 
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _InnerResourceSig = collections.Callable[[], "_InnerResourceT"]

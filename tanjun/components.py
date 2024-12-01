@@ -46,11 +46,11 @@ import hikari
 
 from . import _internal
 from . import abc as tanjun
+import alluka
 
 if typing.TYPE_CHECKING:
     from typing import Self
 
-    import alluka
 
     from . import schedules as schedules_
 

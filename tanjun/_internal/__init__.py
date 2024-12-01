@@ -99,8 +99,7 @@ async def gather_checks(
 
     Parameters
     ----------
-    alluka_ctx : alluka.abc.Context
-        The Alluka context to use for dependency injection.    ctx : tanjun.abc.Context
+    ctx : tanjun.abc.Context
         The context to check.
     checks : collections.abc.Iterable[tanjun.abc.CheckSig]
         An iterable of injectable checks.
