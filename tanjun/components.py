@@ -42,15 +42,14 @@ import typing
 import uuid
 from collections import abc as collections
 
+import alluka
 import hikari
 
 from . import _internal
 from . import abc as tanjun
-import alluka
 
 if typing.TYPE_CHECKING:
     from typing import Self
-
 
     from . import schedules as schedules_
 

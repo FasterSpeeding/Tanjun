@@ -59,6 +59,7 @@ import enum
 import logging
 import typing
 
+import alluka
 import hikari
 import typing_extensions
 
@@ -72,7 +73,6 @@ from tanjun._internal import localisation
 from . import async_cache
 from . import locales
 from . import owners
-import alluka
 
 if typing.TYPE_CHECKING:
     import contextlib

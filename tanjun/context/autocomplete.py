@@ -285,8 +285,11 @@ class AutocompleteContext(tanjun.AutocompleteContext):
 
     @typing_extensions.deprecated("Using a Tanjun context as an Alluka context is deprecated")
     def get_cached_result(
-        self, callback: alluka.CallbackSig[_T],  # noqa: ARG002
-        /, *, default: _DefaultT | tanjun.NoDefault = tanjun.NO_DEFAULT
+        self,
+        callback: alluka.CallbackSig[_T],  # noqa: ARG002
+        /,
+        *,
+        default: _DefaultT | tanjun.NoDefault = tanjun.NO_DEFAULT,
     ) -> _T | _DefaultT:
         if default is tanjun.NO_DEFAULT:
             raise KeyError
