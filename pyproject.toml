@@ -253,7 +253,6 @@ default_sessions = [
     "test",
     "verify-types",
 ]
-extra_test_installs = ["."]
 project_name = "tanjun"
 top_level_targets = ["./docs_src", "./examples", "./noxfile.py", "./tanjun", "./tests"]
 
