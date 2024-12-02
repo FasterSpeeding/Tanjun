@@ -24,7 +24,7 @@ jobs:
           echo "GIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_STATE
 
       - name: Push
-        uses: JamesIves/github-pages-deploy-action@62fec3add6773ec5dbbf18d2ee4260911aa35cf4
+        uses: JamesIves/github-pages-deploy-action@dc18a3c6b46d56484cb63f291becd7ed4f0269b9
         with:
           branch: docs
           commit-message: "${{ steps.doc_info.outputs.GIT_HASH }} docs (${{ github.event.release.tag_name || github.event.ref }})"
