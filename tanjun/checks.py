@@ -72,11 +72,19 @@ if typing.TYPE_CHECKING:
 
     _ContextT_contra = typing.TypeVar("_ContextT_contra", bound=tanjun.Context, contravariant=True)
 
-    class _AnyCallback(typing.Protocol[_ContextT_contra]):
+    class _AnyCallbackProto(typing.Protocol[_ContextT_contra]):
         async def __call__(
-            self, ctx: _ContextT_contra, /, *, localiser: dependencies.AbstractLocaliser | None = None
+            self,
+            ctx: _ContextT_contra,
+            /,
+            *,
+            alluka_ctx: alluka.abc.Context,
+            localiser: dependencies.AbstractLocaliser | None = None,
         ) -> bool:
             raise NotImplementedError
+
+    class _AllChecksProto(typing.Protocol[_ContextT_contra]):
+        async def __call__(self, ctx: _ContextT_contra, /, *, alluka_ctx: alluka.abc.Context) -> bool: ...
 
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
     _CallbackReturnT = _CommandT | collections.Callable[[_CommandT], _CommandT]
@@ -1020,17 +1028,15 @@ class _AllChecks(typing.Generic[_ContextT]):
     def __init__(self, checks: list[tanjun.CheckSig[_ContextT]]) -> None:
         self._checks = checks
 
-    async def __call__(self, ctx: _ContextT, /) -> bool:
+    async def __call__(self, ctx: _ContextT, /, *, alluka_ctx: alluka.Injected[alluka.abc.Context]) -> bool:
         for check in self._checks:
-            if not await ctx.call_with_async_di(check, ctx):
+            if not await alluka_ctx.call_with_async_di(check, ctx):
                 return False
 
         return True
 
 
-def all_checks(
-    check: tanjun.CheckSig[_ContextT], /, *checks: tanjun.CheckSig[_ContextT]
-) -> collections.Callable[[_ContextT], collections.Coroutine[typing.Any, typing.Any, bool]]:
+def all_checks(check: tanjun.CheckSig[_ContextT], /, *checks: tanjun.CheckSig[_ContextT]) -> _AllChecksProto[_ContextT]:
     """Combine multiple check callbacks into a check which will only pass if all the callbacks pass.
 
     This ensures that the callbacks are run in the order they were supplied in
@@ -1132,11 +1138,16 @@ class _AnyChecks(_Check, typing.Generic[_ContextT]):
         self._suppress = suppress
 
     async def __call__(
-        self, ctx: _ContextT, /, *, localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None
+        self,
+        ctx: _ContextT,
+        /,
+        *,
+        alluka_ctx: alluka.Injected[alluka.abc.Context],
+        localiser: alluka.Injected[dependencies.AbstractLocaliser | None] = None,
     ) -> bool:
         for check in self._checks:
             try:
-                if await ctx.call_with_async_di(check, ctx):
+                if await alluka_ctx.call_with_async_di(check, ctx):
                     return True
 
             except errors.FailedCheck:
@@ -1156,7 +1167,7 @@ def any_checks(
     error_message: str | collections.Mapping[str, str] | None,
     halt_execution: bool = False,
     suppress: tuple[type[Exception], ...] = (errors.CommandError, errors.HaltExecution),
-) -> _AnyCallback[_ContextT]:
+) -> _AnyCallbackProto[_ContextT]:
     """Combine multiple checks into a check which'll pass if any of the callbacks pass.
 
     This ensures that the callbacks are run in the order they were supplied in

@@ -34,6 +34,7 @@ __all__: list[str] = ["MenuCommand", "as_message_menu", "as_user_menu"]
 
 import typing
 
+import alluka
 import hikari
 
 from tanjun import _internal
@@ -686,7 +687,8 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
             else:
                 value = ctx.resolve_to_message()
 
-            await ctx.call_with_async_di(self._callback, ctx, value)
+            alluka_ctx = alluka.local.get_context(default=None) or ctx.injection_client.make_context()
+            await alluka_ctx.call_with_async_di(self._callback, ctx, value)
 
         except errors.CommandError as exc:
             await exc.send(ctx)

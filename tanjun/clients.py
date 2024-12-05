@@ -786,19 +786,19 @@ class Client(tanjun.Client):
         (
             self.set_type_dependency(tanjun.Client, self)  # noqa: SLF001
             .set_type_dependency(Client, self)
-            .set_type_dependency(type(self), self)
+            .set_type_dependency(type(self), self)  # Deprecated behaviour
             .set_type_dependency(hikari.api.RESTClient, rest)
-            .set_type_dependency(type(rest), rest)
+            .set_type_dependency(type(rest), rest)  # Deprecated behaviour
             ._maybe_set_type_dep(hikari.api.Cache, cache)
-            ._maybe_set_type_dep(type(cache), cache)
+            ._maybe_set_type_dep(type(cache), cache)  # Deprecated behaviour
             ._maybe_set_type_dep(hikari.api.EventManager, events)
-            ._maybe_set_type_dep(type(events), events)
+            ._maybe_set_type_dep(type(events), events)  # Deprecated behaviour
             ._maybe_set_type_dep(hikari.api.InteractionServer, server)
-            ._maybe_set_type_dep(type(server), server)
+            ._maybe_set_type_dep(type(server), server)  # Deprecated behaviour
             ._maybe_set_type_dep(hikari.ShardAware, shards)
-            ._maybe_set_type_dep(type(shards), shards)
+            ._maybe_set_type_dep(type(shards), shards)  # Deprecated behaviour
             ._maybe_set_type_dep(hikari.api.VoiceComponent, voice)
-            ._maybe_set_type_dep(type(voice), voice)
+            ._maybe_set_type_dep(type(voice), voice)  # Deprecated behaviour
         )
 
         dependencies.set_standard_dependencies(self)
@@ -2288,10 +2288,10 @@ class Client(tanjun.Client):
             component.check_slash_name(name) for component in self._components.values()
         )
 
-    async def _check_prefix(self, ctx: tanjun.MessageContext, /) -> str | None:
+    async def _check_prefix(self, alluka_ctx: alluka.abc.Context, ctx: tanjun.MessageContext, /) -> str | None:
         prefix: str  # MyPy fubs up its introspection here so we explicitly annotate.
         if self._prefix_getter:
-            for prefix in await ctx.call_with_async_di(self._prefix_getter, ctx):
+            for prefix in await alluka_ctx.call_with_async_di(self._prefix_getter, ctx):
                 if ctx.content.startswith(prefix):
                     return prefix
 
@@ -2819,34 +2819,43 @@ class Client(tanjun.Client):
         ctx = self._make_message_context(
             client=self, register_task=self._add_task, content=event.message.content, message=event.message
         )
-        if (prefix := await self._check_prefix(ctx)) is None:
-            return
+        alluka_ctx = (
+            alluka.OverridingContext.from_client(self._injector)
+            .set_type_dependency(tanjun.Context, ctx)
+            .set_type_dependency(tanjun.MessageContext, ctx)
+            .set_type_dependency(type(ctx), ctx)  # Deprecated behaviour
+        )
 
-        ctx.set_content(ctx.content.lstrip()[len(prefix) :].lstrip()).set_triggering_prefix(prefix)
-        hooks: set[tanjun.MessageHooks] | None = None
-        if self._hooks and self._message_hooks:
-            hooks = {self._hooks, self._message_hooks}
+        with alluka.local.scope_context(alluka_ctx):
+            if (prefix := await self._check_prefix(alluka_ctx, ctx)) is None:
+                return
 
-        elif self._hooks:
-            hooks = {self._hooks}
+            ctx.set_content(ctx.content.lstrip()[len(prefix) :].lstrip()).set_triggering_prefix(prefix)
+            hooks: set[tanjun.MessageHooks] | None = None
+            if self._hooks and self._message_hooks:
+                hooks = {self._hooks, self._message_hooks}
 
-        elif self._message_hooks:
-            hooks = {self._message_hooks}
+            elif self._hooks:
+                hooks = {self._hooks}
 
-        try:
-            if await self.check(ctx):
-                for component in self._components.values():
-                    if await component.execute_message(ctx, hooks=hooks):
-                        return
+            elif self._message_hooks:
+                hooks = {self._message_hooks}
 
-        except errors.HaltExecution:
-            pass
+            try:
+                if await self.check(ctx):
+                    for component in self._components.values():
+                        alluka_ctx.set_type_dependency(tanjun.Component, component)
+                        if await component.execute_message(ctx, hooks=hooks):
+                            return
 
-        except errors.CommandError as exc:
-            await exc.send(ctx)
-            return
+            except errors.HaltExecution:
+                pass
 
-        await self.dispatch_client_callback(ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
+            except errors.CommandError as exc:
+                await exc.send(ctx)
+                return
+
+            await self.dispatch_client_callback(ClientCallbackNames.MESSAGE_COMMAND_NOT_FOUND, ctx)
 
     def _get_slash_hooks(self) -> set[tanjun.SlashHooks] | None:
         hooks: set[tanjun.SlashHooks] | None = None
@@ -2893,10 +2902,17 @@ class Client(tanjun.Client):
             The interaction to execute a command based on.
         """
         ctx = self._make_autocomplete_context(self, interaction)
-        for component in self._components.values():
-            if coro := component.execute_autocomplete(ctx):
-                await coro
-                return
+        alluka_ctx = (
+            alluka.OverridingContext.from_client(self._injector)
+            .set_type_dependency(tanjun.AutocompleteContext, ctx)
+            .set_type_dependency(type(ctx), ctx)  # Deprecated behaviour
+        )
+        with alluka.local.scope_context(alluka_ctx):
+            for component in self._components.values():
+                alluka_ctx.set_type_dependency(tanjun.Component, component)
+                if coro := component.execute_autocomplete(ctx):
+                    await coro
+                    return
 
     async def on_gateway_command_create(self, interaction: hikari.CommandInteraction, /) -> None:
         """Execute an app command based on a received gateway interaction create.
@@ -2906,8 +2922,11 @@ class Client(tanjun.Client):
         interaction
             The interaction to execute a command based on.
         """
+        alluka_ctx = alluka.OverridingContext.from_client(self._injector)
+        ctx: context.MenuContext | context.SlashContext
+
         if interaction.command_type is hikari.CommandType.SLASH:
-            ctx: context.MenuContext | context.SlashContext = self._make_slash_context(
+            ctx = self._make_slash_context(
                 client=self,
                 interaction=interaction,
                 register_task=self._add_task,
@@ -2915,6 +2934,7 @@ class Client(tanjun.Client):
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
             hooks: set[tanjun.MenuHooks] | set[tanjun.SlashHooks] | None = self._get_slash_hooks()
+            alluka_ctx.set_type_dependency(tanjun.SlashContext, ctx)
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
@@ -2925,49 +2945,58 @@ class Client(tanjun.Client):
                 default_to_ephemeral=self._defaults_to_ephemeral,
             )
             hooks = self._get_menu_hooks()
+            alluka_ctx.set_type_dependency(tanjun.MenuContext, ctx)
 
         else:
             error_message = f"Unknown command type {interaction.command_type}"
             raise RuntimeError(error_message)
 
-        if self._auto_defer_after is not None:
-            ctx.start_defer_timer(self._auto_defer_after)
+        (
+            alluka_ctx.set_type_dependency(tanjun.Context, ctx)
+            .set_type_dependency(tanjun.AppCommandContext, ctx)
+            .set_type_dependency(type(ctx), ctx)  # Deprecated behaviour
+        )
 
-        try:
-            if not await self.check(ctx):
-                await _mark_not_found_event(ctx)
+        with alluka.local.scope_context(alluka_ctx):
+            if self._auto_defer_after is not None:
+                ctx.start_defer_timer(self._auto_defer_after)
+
+            try:
+                if not await self.check(ctx):
+                    await _mark_not_found_event(ctx)
+                    return None
+
+                for component in self._components.values():
+                    alluka_ctx.set_type_dependency(tanjun.Component, component)
+                    # This is set on each iteration to ensure that any component
+                    # state which was set to this isn't propagated to other components.
+                    ctx.set_ephemeral_default(self._defaults_to_ephemeral)
+                    if ctx.type is hikari.CommandType.SLASH:
+                        assert isinstance(ctx, tanjun.SlashContext)
+                        coro = await component.execute_slash(ctx, hooks=typing.cast("set[tanjun.SlashHooks]", hooks))
+
+                    else:
+                        assert isinstance(ctx, tanjun.MenuContext)
+                        coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
+
+                    if coro:
+                        try:
+                            return await coro
+                        finally:
+                            ctx.cancel_defer()
+
+            except errors.HaltExecution:
+                pass
+
+            except errors.CommandError as exc:
+                try:
+                    await exc.send(ctx)
+                finally:
+                    ctx.cancel_defer()
                 return None
 
-            for component in self._components.values():
-                # This is set on each iteration to ensure that any component
-                # state which was set to this isn't propagated to other components.
-                ctx.set_ephemeral_default(self._defaults_to_ephemeral)
-                if ctx.type is hikari.CommandType.SLASH:
-                    assert isinstance(ctx, tanjun.SlashContext)
-                    coro = await component.execute_slash(ctx, hooks=typing.cast("set[tanjun.SlashHooks]", hooks))
-
-                else:
-                    assert isinstance(ctx, tanjun.MenuContext)
-                    coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
-
-                if coro:
-                    try:
-                        return await coro
-                    finally:
-                        ctx.cancel_defer()
-
-        except errors.HaltExecution:
-            pass
-
-        except errors.CommandError as exc:
-            try:
-                await exc.send(ctx)
-            finally:
-                ctx.cancel_defer()
+            await _mark_not_found_event(ctx)
             return None
-
-        await _mark_not_found_event(ctx)
-        return None
 
     async def on_interaction_create_event(self, event: hikari.InteractionCreateEvent, /) -> None:
         """Handle a gateway interaction create event.
@@ -3012,12 +3041,21 @@ class Client(tanjun.Client):
         future: asyncio.Future[hikari.api.InteractionAutocompleteBuilder] = loop.create_future()
         ctx = self._make_autocomplete_context(self, interaction, future=future)
 
-        for component in self._components.values():
-            if coro := component.execute_autocomplete(ctx):
-                task = loop.create_task(coro)
-                task.add_done_callback(lambda _: future.cancel())
-                self._add_task(task)
-                return await future
+        alluka_ctx = (
+            alluka.OverridingContext.from_client(self._injector)
+            .set_type_dependency(tanjun.AutocompleteContext, ctx)
+            .set_type_dependency(type(ctx), ctx)  # Deprecated behaviour
+        )
+
+        with alluka.local.scope_context(alluka_ctx):
+            for component in self._components.values():
+                alluka_ctx.set_type_dependency(tanjun.Component, component)
+
+                if coro := component.execute_autocomplete(ctx):
+                    task = loop.create_task(coro)
+                    task.add_done_callback(lambda _: future.cancel())
+                    self._add_task(task)
+                    return await future
 
         error_message = f"Autocomplete not found for {interaction!r}"
         raise RuntimeError(error_message)
@@ -3043,9 +3081,11 @@ class Client(tanjun.Client):
         """  # noqa: E501
         loop = asyncio.get_running_loop()
         future: asyncio.Future[_AppCmdResponse] = loop.create_future()
+        alluka_ctx = alluka.OverridingContext.from_client(self._injector)
+        ctx: context.MenuContext | context.SlashContext
 
         if interaction.command_type is hikari.CommandType.SLASH:
-            ctx: context.MenuContext | context.SlashContext = self._make_slash_context(
+            ctx = self._make_slash_context(
                 client=self,
                 interaction=interaction,
                 register_task=self._add_task,
@@ -3054,6 +3094,7 @@ class Client(tanjun.Client):
                 future=future,
             )
             hooks: set[tanjun.MenuHooks] | set[tanjun.SlashHooks] | None = self._get_slash_hooks()
+            alluka_ctx.set_type_dependency(tanjun.SlashContext, ctx)
 
         elif interaction.command_type in _MENU_TYPES:
             ctx = self._make_menu_context(
@@ -3065,50 +3106,59 @@ class Client(tanjun.Client):
                 future=future,
             )
             hooks = self._get_menu_hooks()
+            alluka_ctx.set_type_dependency(tanjun.MenuContext, ctx)
 
         else:
             error_message = f"Unknown command type {interaction.command_type}"
             raise RuntimeError(error_message)
 
-        if self._auto_defer_after is not None:
-            ctx.start_defer_timer(self._auto_defer_after)
+        (
+            alluka_ctx.set_type_dependency(tanjun.Context, ctx)
+            .set_type_dependency(tanjun.AppCommandContext, ctx)
+            .set_type_dependency(type(ctx), ctx)  # Deprecated behaviour
+        )
 
-        task: asyncio.Task[typing.Any]  # MyPy compat
-        try:
-            if not await self.check(ctx):
-                return await self._mark_not_found_request(ctx, loop, future)
+        with alluka.local.scope_context(alluka_ctx):
+            if self._auto_defer_after is not None:
+                ctx.start_defer_timer(self._auto_defer_after)
 
-            for component in self._components.values():
-                # This is set on each iteration to ensure that any component
-                # state which was set to this isn't propagated to other components.
-                ctx.set_ephemeral_default(self._defaults_to_ephemeral)
-                if ctx.type is hikari.CommandType.SLASH:
-                    assert isinstance(ctx, tanjun.SlashContext)
-                    coro = await component.execute_slash(ctx, hooks=typing.cast("set[tanjun.SlashHooks]", hooks))
+            task: asyncio.Task[typing.Any]  # MyPy compat
+            try:
+                if not await self.check(ctx):
+                    return await self._mark_not_found_request(ctx, loop, future)
 
-                else:
-                    assert isinstance(ctx, tanjun.MenuContext)
-                    coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
+                for component in self._components.values():
+                    alluka_ctx.set_type_dependency(tanjun.Component, component)
+                    # This is set on each iteration to ensure that any component
+                    # state which was set to this isn't propagated to other components.
+                    ctx.set_ephemeral_default(self._defaults_to_ephemeral)
+                    if ctx.type is hikari.CommandType.SLASH:
+                        assert isinstance(ctx, tanjun.SlashContext)
+                        coro = await component.execute_slash(ctx, hooks=typing.cast("set[tanjun.SlashHooks]", hooks))
 
-                if coro:
-                    task = loop.create_task(coro)
-                    task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
-                    self._add_task(task)
-                    return await future
+                    else:
+                        assert isinstance(ctx, tanjun.MenuContext)
+                        coro = await component.execute_menu(ctx, hooks=typing.cast("set[tanjun.MenuHooks]", hooks))
 
-        except errors.HaltExecution:
-            pass
+                    if coro:
+                        task = loop.create_task(coro)
+                        task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
+                        self._add_task(task)
+                        return await future
 
-        except errors.CommandError as exc:
-            # Under very specific timing there may be another future which could set a result while we await
-            # ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create
-            # another response before it's returned the initial response.
-            task = loop.create_task(exc.send(ctx), name=f"{interaction.id} command error responder")
-            task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
-            self._add_task(task)
-            return await future
+            except errors.HaltExecution:
+                pass
 
-        return await self._mark_not_found_request(ctx, loop, future)
+            except errors.CommandError as exc:
+                # Under very specific timing there may be another future which could set a result while we await
+                # ctx.respond therefore we create a task to avoid any erroneous behaviour from this trying to create
+                # another response before it's returned the initial response.
+                task = loop.create_task(exc.send(ctx), name=f"{interaction.id} command error responder")
+                task.add_done_callback(lambda _: future.cancel() and ctx.cancel_defer())
+                self._add_task(task)
+                return await future
+
+            return await self._mark_not_found_request(ctx, loop, future)
 
     async def _mark_not_found_request(
         self,

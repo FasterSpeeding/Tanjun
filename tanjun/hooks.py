@@ -36,6 +36,8 @@ import asyncio
 import copy
 import typing
 
+import alluka
+
 from . import abc as tanjun
 from . import errors
 
@@ -380,13 +382,18 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     ) -> int:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         level = 0
+        alluka_ctx = alluka.local.get_context(default=None) or ctx.injection_client.make_context()
         if isinstance(exception, errors.ParserError):
             if self._parser_error_callbacks:
-                await asyncio.gather(*(ctx.call_with_async_di(c, ctx, exception) for c in self._parser_error_callbacks))
+                await asyncio.gather(
+                    *(alluka_ctx.call_with_async_di(c, ctx, exception) for c in self._parser_error_callbacks)
+                )
                 level = 100  # We don't want to re-raise a parser error if it was caught
 
         elif self._error_callbacks:
-            results = await asyncio.gather(*(ctx.call_with_async_di(c, ctx, exception) for c in self._error_callbacks))
+            results = await asyncio.gather(
+                *(alluka_ctx.call_with_async_di(c, ctx, exception) for c in self._error_callbacks)
+            )
             level = results.count(True) - results.count(False)
 
         if hooks:
@@ -399,7 +406,8 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._post_execution_callbacks:
-            await asyncio.gather(*(ctx.call_with_async_di(c, ctx) for c in self._post_execution_callbacks))
+            alluka_ctx = alluka.local.get_context(default=None) or ctx.injection_client.make_context()
+            await asyncio.gather(*(alluka_ctx.call_with_async_di(c, ctx) for c in self._post_execution_callbacks))
 
         if hooks:
             await asyncio.gather(*(hook.trigger_post_execution(ctx) for hook in hooks))
@@ -409,7 +417,8 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._pre_execution_callbacks:
-            await asyncio.gather(*(ctx.call_with_async_di(c, ctx) for c in self._pre_execution_callbacks))
+            alluka_ctx = alluka.local.get_context(default=None) or ctx.injection_client.make_context()
+            await asyncio.gather(*(alluka_ctx.call_with_async_di(c, ctx) for c in self._pre_execution_callbacks))
 
         if hooks:
             await asyncio.gather(*(hook.trigger_pre_execution(ctx) for hook in hooks))
@@ -419,7 +428,8 @@ class Hooks(tanjun.Hooks[_ContextT_contra]):
     ) -> None:
         # <<inherited docstring from tanjun.abc.Hooks>>.
         if self._success_callbacks:
-            await asyncio.gather(*(ctx.call_with_async_di(c, ctx) for c in self._success_callbacks))
+            alluka_ctx = alluka.local.get_context(default=None) or ctx.injection_client.make_context()
+            await asyncio.gather(*(alluka_ctx.call_with_async_di(c, ctx) for c in self._success_callbacks))
 
         if hooks:
             await asyncio.gather(*(hook.trigger_success(ctx) for hook in hooks))
