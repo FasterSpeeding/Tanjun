@@ -534,7 +534,7 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
         self._names = names
         self._parent: tanjun.SlashCommandGroup | None = None
         self._tracked_command: hikari.ContextMenuCommand | None = None
-        self._type: _MenuTypeT = type_
+        self._type: _MenuTypeT = type_  # type: ignore
         self._wrapped_command = _wrapped_command
 
     if typing.TYPE_CHECKING:
