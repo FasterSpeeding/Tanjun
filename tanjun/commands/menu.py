@@ -423,7 +423,8 @@ class MenuCommand(base.PartialCommand[tanjun.MenuContext], tanjun.MenuCommand[_A
             | _MessageCallbackSigT
             | _AnyCommandT[_MessageCallbackSigT]
         ),
-        type_: _MenuTypeT,
+        # TODO: should be _MenuTypeT but pyright broke
+        type_: typing.Any,
         name: str | collections.Mapping[str, str],
         /,
         *,
