@@ -11,8 +11,6 @@ on:
   pull_request:
     branches:
       - master
-  schedule:
-    - cron: "0 12 * * 6"
   workflow_dispatch:
 
 jobs:
@@ -63,7 +61,7 @@ jobs:
           coverageLocations: .coverage.xml:coverage.py
 
       - name: Archive coverage
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b
         with:
           name: coverage
           path: ./coverage_html
