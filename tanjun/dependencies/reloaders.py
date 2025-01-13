@@ -506,7 +506,7 @@ def _add_directory(directory: str | pathlib.Path, namespace: str | None, /) -> t
         error_message = f"{directory} does not exist"
         raise FileNotFoundError(error_message)
 
-    return directory.resolve(), (namespace, set()) if namespace is None else (namespace, set())
+    return directory.resolve(), (namespace, set())
 
 
 def _add_modules(paths: tuple[str | pathlib.Path, ...], /) -> tuple[dict[str, _PyPathInfo], list[pathlib.Path]]:
