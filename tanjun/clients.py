@@ -2088,6 +2088,14 @@ class Client(tanjun.Client):
 
         return decorator
 
+    @typing.overload
+    def add_listener(self, event_type: type[_EventT], /, *callbacks: tanjun.ListenerCallbackSig[_EventT]) -> Self:
+        ...
+
+    @typing.overload
+    def add_listener(self, *callbacks: tanjun.ListenerCallbackSig[_EventT]) -> Self:
+        ...
+
     def add_listener(self, event_type: type[_EventT], /, *callbacks: tanjun.ListenerCallbackSig[_EventT]) -> Self:
         # <<inherited docstring from tanjun.abc.Client>>.
         for callback in callbacks:
