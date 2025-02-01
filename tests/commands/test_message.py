@@ -88,7 +88,7 @@ def test_as_message_command() -> None:
 def test_as_message_command_when_wrapping_command(
     other_command: (
         tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
-    )
+    ),
 ) -> None:
     command = tanjun.as_message_command("a", "b")(other_command)
 
@@ -118,7 +118,7 @@ def test_as_message_command_group() -> None:
 def test_as_message_command_group_when_wrapping_command(
     other_command: (
         tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
-    )
+    ),
 ) -> None:
     command = tanjun.as_message_command_group("c", "b", strict=True)(other_command)
 
