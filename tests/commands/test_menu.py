@@ -99,7 +99,7 @@ def test_as_message_menu_with_defaults() -> None:
 def test_as_message_menu_when_wrapping_command(
     other_command: (
         tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
-    )
+    ),
 ) -> None:
     command = tanjun.as_message_menu(
         "c",
@@ -179,7 +179,7 @@ def test_as_user_menu_with_defaults() -> None:
 def test_as_user_menu_when_wrapping_command(
     other_command: (
         tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
-    )
+    ),
 ) -> None:
     command = tanjun.as_user_menu(
         "c",

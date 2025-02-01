@@ -142,7 +142,7 @@ def test_as_slash_command() -> None:
 def test_as_slash_command_when_wrapping_command(
     other_command: (
         tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any] | tanjun.MenuCommand[typing.Any, typing.Any]
-    )
+    ),
 ) -> None:
     command = tanjun.as_slash_command(
         "a_very",

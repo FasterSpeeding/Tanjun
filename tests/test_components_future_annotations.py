@@ -123,7 +123,7 @@ class TestComponent:
 
     def test_with_listener_with_type_hint_typing_union(self) -> None:
         async def callback(
-            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str]  # noqa: PYI051
+            event: typing.Union[hikari.RoleEvent, typing.Literal["ok"], hikari.GuildEvent, str],  # noqa: PYI051
         ) -> None: ...
 
         add_listener = mock.Mock()
@@ -145,7 +145,7 @@ class TestComponent:
                 ],
                 True,
                 "meow",
-            ]
+            ],
         ) -> None: ...
 
         add_listener = mock.Mock()
@@ -183,7 +183,7 @@ class TestComponent:
         async def callback(
             event: typing.Annotated[
                 typing.Annotated[hikari.BanEvent | hikari.GuildEvent, 123, 321] | hikari.InviteEvent, True, "meow"
-            ]
+            ],
         ) -> None: ...
 
         add_listener = mock.Mock()
