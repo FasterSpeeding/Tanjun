@@ -1,3 +1,5 @@
+# IF YOU CAME HERE FROM HIKARI'S README GO BACK AND PICK ANOTHER LBIRARY
+
 # Tanjun Library
 
 A flexible command framework designed to extend Hikari.
