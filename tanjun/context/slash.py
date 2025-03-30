@@ -299,7 +299,12 @@ class SlashOption(tanjun.SlashOption):
 
 
 class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
-    """Base class for interaction-based command contexts."""
+    """Base class for interaction-based command contexts.
+
+    !!! warning "deprecated"
+        Using Tanjun contexts as an Alluka context is
+        deprecated behaviour and may not behave as expected.
+    """
 
     __slots__ = (
         "_defaults_to_ephemeral",
@@ -332,7 +337,6 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
         self._register_task = register_task
         self._response_future = future
         self._response_lock = asyncio.Lock()
-        self._set_type_special_case(tanjun.AppCommandContext, self)
 
     @property
     def author(self) -> hikari.User:
@@ -347,7 +351,7 @@ class AppCommandContext(base.BaseContext, tanjun.AppCommandContext):
     @property
     def client(self) -> tanjun.Client:
         # <<inherited docstring from tanjun.abc.Context>>.
-        return self._tanjun_client
+        return self._client
 
     @property
     def created_at(self) -> datetime.datetime:
@@ -1025,11 +1029,6 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
         command_name, options = _internal.flatten_options(interaction.command_name, interaction.options)
         self._command_name = command_name
         self._options = {option.name: SlashOption(interaction.resolved, option) for option in options}
-        (
-            self._set_type_special_case(tanjun.SlashContext, self)._set_type_special_case(  # noqa: SLF001
-                SlashContext, self
-            )
-        )
 
     @property
     def command(self) -> tanjun.BaseSlashCommand | None:
@@ -1061,22 +1060,5 @@ class SlashContext(AppCommandContext, tanjun.SlashContext):
     def set_command(self, command: tanjun.BaseSlashCommand | None, /) -> Self:
         # <<inherited docstring from tanjun.abc.SlashContext>>.
         self._assert_not_final()
-        if command:
-            # TODO: command group?
-            (
-                self._set_type_special_case(tanjun.ExecutableCommand, command)  # noqa: SLF001
-                ._set_type_special_case(tanjun.AppCommand, command)
-                ._set_type_special_case(tanjun.BaseSlashCommand, command)
-                ._set_type_special_case(tanjun.SlashCommand, command)
-            )
-
-        elif self._command:
-            (
-                self._remove_type_special_case(tanjun.ExecutableCommand)  # noqa: SLF001
-                ._remove_type_special_case(tanjun.AppCommand)
-                ._remove_type_special_case(tanjun.BaseSlashCommand)
-                ._remove_type_special_case(tanjun.SlashCommand)
-            )
-
         self._command = command
         return self

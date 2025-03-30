@@ -5,11 +5,36 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for Alluka's local contexts feature in the command and autocomplete
+  flows.
+
 ### Changed
+- Bumped the minimum Alluka version to `v0.4.0`.
 - Renamed the `case_sensntive` argument to `case_sensitive` in `MessageCommand.find_command`.
 
 ### Deprecated
 - The old `case_sensntive` argument alias in `MessageCommand.find_command`.
+- Using Tanjun's command and autocomplete contexts as Alluka contexts.
+  This includes deprecating the relevant methods inherited from
+  [alluka.abc.Context][] and [alluka.BasicContext][].
+- Providing the following classes as global type-dependencies:
+  * [hikari.impl.RESTClientImpl][]
+  * [hikari.impl.CacheImpl][]
+  * [hikari.impl.EventManagerImpl][]
+  * [hikari.impl.InteractionServer][]
+  * [hikari.impl.GatewayShardImpl][]
+  * [hikari.impl.VoiceComponentImpl][]
+
+  The relevant ABCs should be used instead.
+- Setting subclasses of [tanjun.Client][] as global type-dependencies.
+- Providing the following classes as context-specific type-dependencies:
+  * [tanjun.AutocompleteContext][tanjun.context.AutocompleteContext]
+  * [tanjun.MessageContext][tanjun.context.MessageContext]
+  * [tanjun.MenuContext][tanjun.context.MenuContext]
+  * [tanjun.SlashContext][tanjun.context.SlashContext]
+
+  The relevant ABCs should be used instead.
 
 ## [2.17.7] - 2024-11-24
 ### Fixed

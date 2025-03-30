@@ -36,6 +36,7 @@ import copy
 import typing
 import warnings
 
+import alluka
 import typing_extensions
 
 from tanjun import _internal
@@ -343,7 +344,8 @@ class MessageCommand(base.PartialCommand[tanjun.MessageContext], tanjun.MessageC
             else:
                 kwargs = _EMPTY_DICT
 
-            await ctx.call_with_async_di(self._callback, ctx, **kwargs)
+            alluka_ctx = alluka.local.get_context(default=None) or ctx.injection_client.make_context()
+            await alluka_ctx.call_with_async_di(self._callback, ctx, **kwargs)
 
         except errors.CommandError as exc:
             await exc.send(ctx)
